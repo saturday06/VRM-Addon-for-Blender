@@ -1,2 +1,4 @@
 # VRM_IMPORTER_for_Blender2.8
-__ｉｎｃｏｍｐｌｅｔｅ__  VRM IMPORTER for Blender2.80
+# ＷＯＲＫ ＩＮ ＰＲＯＧＲＥＳ
+- mesh import is done 
+- material import is wip
