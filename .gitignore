@@ -3,3 +3,4 @@
 .vscode/.ropeproject/config.py
 .vscode/tasks.json
 *.pyc
+*.blend1

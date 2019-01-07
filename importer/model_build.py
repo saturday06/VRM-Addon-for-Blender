@@ -11,6 +11,7 @@ from mathutils import Vector,Matrix
 from .. import V_Types as VRM_Types
 from math import sqrt,pow,radians
 import numpy
+import os.path
 import json,copy
 
 class Blend_model():
@@ -244,29 +245,102 @@ class Blend_model():
             pymat.normal_texture_texcoord_index)
         return
 
+    MToon_loaded = False
     def build_material_from_MToon(self, b_mat, pymat):
+        shader_name = "MToon_unversioned"
+        if not self.MToon_loaded:
+            filedir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"resources","material_node_groups.blend","NodeTree")
+            filepath = os.path.join(filedir,shader_name)
+            bpy.ops.wm.append(filepath=filepath,filename=shader_name,directory=filedir)
+            self.MToon_loaded = True
+
+        b_mat.use_nodes = True
+        b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
+        sg = b_mat.node_tree.nodes.new("ShaderNodeGroup")
+        sg.node_tree = bpy.data.node_groups[shader_name]
+        b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["Emission"])
+
+        float_props_dic = {
+            "_Cutoff":"CutoffRate",
+            "_BumpScale":"BumpScale",
+            "_ReceiveShadowRate":"ReceiveShadowRate",
+            "_ShadeShift":"ShadeShift",
+            "_ShadeToony":"ShadeToony",
+            "_ShadingGradeRate":"ShadingGradeRate",
+            "_LightColorAttenuation":"LightColorAttenuation",
+            "_IndirectLightIntensity":"IndirectLightIntensity",
+            "_OutlineWidth":"OutlineWidth",
+            "_OutlineScaledMaxDistance":"OutlineScaleMaxDistance",
+            "_OutlineLightingMix":"OutlineLightingMix",
+            "_BlendMode":"BlendMode",
+            "_OutlineWidthMode":"OutlineWidthMode",
+            "_OutlineColorMode":"OutlineColorMode",
+            "_CullMode":"CullMode",
+            "_OutlineCullMode":"OutlineCullMode",
+        }
+        
         for k, v in pymat.float_props_dic.items():
-            b_mat[k] = v
-        """
-        for tex_name, tex_index in pymat.texture_index_dic.items():
-            if tex_name == "_MainTex":
-                self.color_texture_add(b_mat, tex_index, 0)
-            elif tex_name == "_BumpMap":
-                self.normal_texture_add(b_mat, tex_index, 0)
-            elif tex_name == "_SphereAdd":
-                self.texture_add_helper(b_mat, tex_index, "NORMAL", None, {}, {"blend_type": "ADD"})
-            else:
-                self.un_affect_texture_add(b_mat, tex_index, 0, tex_name)
-        for k, v in pymat.vector_props_dic.items():
-            if k == "_Color":
-                b_mat.diffuse_color = v[0:3]
+            if k in float_props_dic.keys():
+                fp = b_mat.node_tree.nodes.new("ShaderNodeValue")
+                fp.outputs["Value"].default_value = v
+                b_mat.node_tree.links.new(sg.inputs[float_props_dic[k]],fp.outputs[0])
             else:
                 b_mat[k] = v
-        """
         for k, v in pymat.keyword_dic.items():
             b_mat[k] = v
-        #transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
-        #self.set_material_transparent(b_mat,transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]])
+
+        vector_props_dic = {
+            "_Color":"DiffuseColor",
+            "_ShadeColor":"ShadeColor",
+            "_EmissionColor":"EmissionColor",
+            "_OutlineColor":"OutlineColor"
+        }
+        for k, v in pymat.vector_props_dic.items():
+            if k in vector_props_dic.keys():
+                rgb_node = b_mat.node_tree.nodes.new("ShaderNodeRGB")
+                rgb_node.outputs[0].default_value = v
+                b_mat.node_tree.links.new(sg.inputs[vector_props_dic[k]],rgb_node.outputs[0])
+            else:
+                b_mat[k] = v
+
+
+        tex_dic = {
+        "_MainTex":"MainTexture",
+        "_ShadeTexture":"ShadeTexture",
+        "_BumpMap":"NomalmapTexture",
+        "_ShadingGradeTexture":"ShadingGradeTexture",
+        "_EmissionMap":"Emission_Texture",
+        "_SphereAdd":"SphereAddTexture",
+        "_OutlineWidthTexture":"OutlineWidthTexture"
+        }
+        tex_alpha_dic = {
+            "_ReceiveShadowTexture":"ReceiveShadow_Texture_alpha"
+        }
+
+        
+        for tex_name, tex_index in pymat.texture_index_dic.items():
+            if tex_name == "_SphereAdd":
+                continue
+                #self.texture_link(b_mat, tex_index, "NORMAL", None, {}, {"blend_type": "ADD"})
+            else:
+                if not tex_index:
+                    continue
+                imgnode = b_mat.node_tree.nodes.new("ShaderNodeTexImage")
+                imgnode.name = tex_name
+                imgnode.image = self.textures[tex_index].image
+                if tex_name =="_ReceiveShadowTexture":
+                    b_mat.node_tree.links.new(sg.inputs[tex_alpha_dic[tex_name]],imgnode.outputs["Alpha"])
+                elif tex_name =="_MainTex":
+                    b_mat.node_tree.links.new(sg.inputs[tex_dic[tex_name]],imgnode.outputs["Color"])
+                    b_mat.node_tree.links.new(sg.inputs[tex_dic[tex_name]+"Alpha"],imgnode.outputs["Alpha"])
+                else:
+                    b_mat.node_tree.links.new(sg.inputs[tex_dic[tex_name]],imgnode.outputs["Color"])
+        
+
+        transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
+        if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":
+            b_mat.blend_method = "HASHED"
+        return
 
     def build_material_from_Transparent_Z_write(self, b_mat, pymat):
         for k, v in pymat.float_props_dic.items():
@@ -586,9 +660,9 @@ class Blend_model():
                 offset = [collider["offset"]["x"],collider["offset"]["y"],collider["offset"]["z"]] #values直接はindexｱｸｾｽ出来ないのでしゃあなし
                 offset = [offset[axis]*inv for axis,inv in zip([0,2,1],[-1,-1,1])] #TODO: Y軸反転はuniVRMのシリアライズに合わせてる
                 
-                obj.matrix_world = self.armature.matrix_world * Matrix.Translation(offset) * self.armature.data.bones[node_name].matrix_local
-                obj.empty_draw_size = collider["radius"]  
-                obj.empty_draw_type = "SPHERE"
-                bpy.context.scene.objects.link(obj)
+                obj.matrix_world = self.armature.matrix_world @ Matrix.Translation(offset) @ self.armature.data.bones[node_name].matrix_local
+                obj.empty_display_size = collider["radius"]  
+                obj.empty_display_type = "SPHERE"
+                bpy.context.scene.collection.objects.link(obj)
                 
         return 
