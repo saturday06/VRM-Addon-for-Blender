@@ -22,6 +22,9 @@ class Blend_model():
         self.material_dict = None
         self.primitive_obj_dict = None
         self.mesh_joined_objects = None
+        model_name = vrm_pydata.json["extensions"]["VRM"]["meta"]["title"]
+        self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
+        bpy.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build(vrm_pydata,is_put_spring_bone_info)
 
 
@@ -73,6 +76,8 @@ class Blend_model():
         #build bones as armature
         bpy.ops.object.add(type='ARMATURE', enter_editmode=True, location=(0,0,0))
         self.armature = bpy.context.object
+        self.model_collection.objects.link(self.armature)
+        bpy.context.scene.collection.objects.unlink(self.armature)
         self.armature.name = "skelton"
         self.armature.show_in_front = True
         self.armature.data.display_type = "STICK"
@@ -600,6 +605,8 @@ class Blend_model():
             for unused_mesh in [mesh for mesh in bpy.data.meshes if mesh.name in trash_mesh_names]:
                 bpy.data.meshes.remove(unused_mesh)
             self.mesh_joined_objects.append(bpy.context.active_object)
+            self.model_collection.objects.link(bpy.context.active_object)
+            bpy.context.scene.collection.objects.unlink(bpy.context.active_object)
             bpy.ops.object.select_all(action="DESELECT")
         return
 
@@ -647,7 +654,10 @@ class Blend_model():
                     if key == "bones":
                         continue
                     bone[key] = val
-                    
+
+        model_name = vrm_pydata.json["extensions"]["VRM"]["meta"]["title"]
+        coll = bpy.data.collections.new(f"{model_name}_colliders")
+        self.model_collection.children.link(coll)
         for collider_group in collider_groups_json:
             collider_base_node = nodes_json[collider_group["node"]]
             node_name = collider_base_node["name"]
@@ -663,6 +673,6 @@ class Blend_model():
                 obj.matrix_world = self.armature.matrix_world @ Matrix.Translation(offset) @ self.armature.data.bones[node_name].matrix_local
                 obj.empty_display_size = collider["radius"]  
                 obj.empty_display_type = "SPHERE"
-                bpy.context.scene.collection.objects.link(obj)
+                coll.objects.link(obj)
                 
         return 
