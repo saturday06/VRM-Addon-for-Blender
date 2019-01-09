@@ -112,48 +112,49 @@ class Material_Transparent_Z_write(Material):
 
 
 class Material_MToon(Material):
-    float_props = [
-        "_Cutoff",
-        "_BumpScale",
-        "_ReceiveShadowRate",
-        "_ShadeShift",
-        "_ShadeToony",
-        "_ShadingGradeRate",
-        "_LightColorAttenuation",
-        "_IndirectLightIntensity",
-        "_OutlineWidth",
-        "_OutlineScaledMaxDistance",
-        "_OutlineLightingMix",
-        "_DebugMode",
-        "_BlendMode",
-        "_OutlineWidthMode",
-        "_OutlineColorMode",
-        "_CullMode",
-        "_OutlineCullMode",
-        "_SrcBlend",
-        "_DstBlend",
-        "_ZWrite",
-        "_IsFirstSetup"
-        ]
+    #{key = MToonProp, val = ShaderNodeGroup_member_name}
+    float_props_exchange_dic = {
+        "_Cutoff":"CutoffRate",
+        "_BumpScale":"BumpScale",
+        "_ReceiveShadowRate":"ReceiveShadowRate",
+        "_ShadeShift":"ShadeShift",
+        "_ShadeToony":"ShadeToony",
+        "_ShadingGradeRate":"ShadingGradeRate",
+        "_LightColorAttenuation":"LightColorAttenuation",
+        "_IndirectLightIntensity":"IndirectLightIntensity",
+        "_OutlineWidth":"OutlineWidth",
+        "_OutlineScaledMaxDistance":"OutlineScaleMaxDistance",
+        "_OutlineLightingMix":"OutlineLightingMix",
+        "_DebugMode":None,
+        "_BlendMode":"BlendMode",
+        "_OutlineWidthMode":"OutlineWidthMode",
+        "_OutlineColorMode":"OutlineColorMode",
+        "_CullMode":"CullMode",
+        "_OutlineCullMode":"OutlineCullMode",
+        "_SrcBlend":None,
+        "_DstBlend":None,
+        "_ZWrite":None,
+        "_IsFirstSetup":None,
+    }
 
-    texture_index_list = [
-        "_MainTex",#use in BI
-        "_ShadeTexture",#ignore in BI
-        "_BumpMap",#use in BI
-        "_ReceiveShadowTexture",#ignore in BI
-        "_ShadingGradeTexture",#ignore in BI
-        "_EmissionMap",#ignore in BI
-        "_SphereAdd",#use in BI
-        "_OutlineWidthTexture"#ignore in BI
-        ]
-    vector_props = [
-        "_Color",
-        "_EmissionColor",
-        "_OutlineColor",
-        "_ShadeColor"
-        ]
+    texture_kind_exchange_dic = {
+        "_MainTex":"MainTexture",
+        "_ShadeTexture":"ShadeTexture",
+        "_BumpMap":"NomalmapTexture",
+        "_ReceiveShadowTexture":"ReceiveShadow_Texture",
+        "_ShadingGradeTexture":"ShadingGradeTexture",
+        "_EmissionMap":"Emission_Texture",
+        "_SphereAdd":"SphereAddTexture",
+        "_OutlineWidthTexture":"OutlineWidthTexture"
+        }
+    vector_props_exchange_dic = {
+            "_Color":"DiffuseColor",
+            "_ShadeColor":"ShadeColor",
+            "_EmissionColor":"EmissionColor",
+            "_OutlineColor":"OutlineColor"
+        }
     #texture offset and scaling props by texture
-    vector_props.extend(texture_index_list)
+    vector_props_exchange_dic.update(texture_kind_exchange_dic)
 
     keyword_list = [
         "_NORMALMAP",
@@ -173,9 +174,9 @@ class Material_MToon(Material):
 
     def __init__(self):
         super().__init__()
-        self.float_props_dic = {prop:None for prop in self.float_props}
-        self.vector_props_dic = {prop:None for prop in self.vector_props}
-        self.texture_index_dic = {prop: None for prop in self.texture_index_list}
+        self.float_props_dic = {prop:None for prop in self.float_props_exchange_dic.keys()}
+        self.vector_props_dic = {prop:None for prop in self.vector_props_exchange_dic.keys()}
+        self.texture_index_dic = {prop: None for prop in self.texture_kind_exchange_dic.keys()}
         self.keyword_dic = {kw:False for kw in self.keyword_list}
         self.tag_dic = {tag:None for tag in self.tagmap_list}
         

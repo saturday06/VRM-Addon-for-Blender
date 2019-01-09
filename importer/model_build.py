@@ -77,7 +77,6 @@ class Blend_model():
         bpy.ops.object.add(type='ARMATURE', enter_editmode=True, location=(0,0,0))
         self.armature = bpy.context.object
         self.model_collection.objects.link(self.armature)
-        bpy.context.scene.collection.objects.unlink(self.armature)
         self.armature.name = "skelton"
         self.armature.show_in_front = True
         self.armature.data.display_type = "STICK"
@@ -152,9 +151,10 @@ class Blend_model():
         bone_nodes = [(root_node,-1) for root_node in root_nodes]
         while len(bone_nodes):
             bone_chain(bone_nodes.pop())
-        #call when bone built    
+        #call when bone built
         bpy.context.scene.update()
         bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.context.scene.collection.objects.unlink(self.armature)
         return
     
     #region material
@@ -174,7 +174,7 @@ class Blend_model():
             
             self.material_dict[index] = b_mat
         return
-
+    #region material_util func
     def set_material_transparent(self,b_mat, transparent_mode):
         if transparent_mode == "OPAQUE":
             b_mat.use_transparency = False
@@ -206,7 +206,7 @@ class Blend_model():
         slot_param_dict = {} if slot_param_dict == None else slot_param_dict
         slot_param_dict.update({"texture_coords": mapping})
         if mapping == "UV":
-            slot_param_dict.update({"uv_layer": "TEXCOORD_{}".format(uv_layer_num)})
+            slot_param_dict.update({"uv_layer": f"TEXCOORD_{uv_layer_num}"})
         tex_slot = self.texture_add(b_mat, b_texture, texture_param_dict, slot_param_dict)
         return tex_slot
 
@@ -233,8 +233,29 @@ class Blend_model():
             {"use_map_color_diffuse": False})
         if ts is not None:
             if "role" in ts.texture:
-                print("{} texture's role :{}: is over written".format(ts.texture.name,role))             
+                print(f"{ts.texture.name} texture's role :{role}: is over written")             
             ts.texture["role"] = role
+
+    def connect_value_node(self,material, value ,socket_to_connect):
+        fp = material.node_tree.nodes.new("ShaderNodeValue")
+        fp.outputs[0].default_value = value
+        material.node_tree.links.new(socket_to_connect,fp.outputs[0])
+        return
+
+    def connect_rgb_node(self, material ,color, socket_to_connect):
+        rgb_node = material.node_tree.nodes.new("ShaderNodeRGB")
+        rgb_node.outputs[0].default_value = color
+        material.node_tree.links.new(socket_to_connect,rgb_node.outputs[0])
+        return
+    def connect_texture_node(self,material,tex_index,color_socket_to_connect = None,alpha_socket_to_connect = None):
+        imgnode = material.node_tree.nodes.new("ShaderNodeTexImage")
+        imgnode.image = self.textures[tex_index].image
+        if color_socket_to_connect:
+            material.node_tree.links.new(color_socket_to_connect,imgnode.outputs["Color"])
+        if alpha_socket_to_connect:
+            material.node_tree.links.new(alpha_socket_to_connect,imgnode.outputs["Alpha"])
+        return
+    #endregion material_util func
 
     def build_material_from_GLTF(self, b_mat, pymat):
         b_mat.use_shadeless = pymat.shadeless
@@ -250,97 +271,54 @@ class Blend_model():
             pymat.normal_texture_texcoord_index)
         return
 
-    MToon_loaded = False
     def build_material_from_MToon(self, b_mat, pymat):
-        shader_name = "MToon_unversioned"
-        if not self.MToon_loaded:
+        shader_node_group_name = "MToon_unversioned"
+        if shader_node_group_name not in bpy.data.node_groups:
             filedir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"resources","material_node_groups.blend","NodeTree")
-            filepath = os.path.join(filedir,shader_name)
-            bpy.ops.wm.append(filepath=filepath,filename=shader_name,directory=filedir)
-            self.MToon_loaded = True
+            filepath = os.path.join(filedir,shader_node_group_name)
+            bpy.ops.wm.append(filepath=filepath,filename=shader_node_group_name,directory=filedir)
 
         b_mat.use_nodes = True
         b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
         sg = b_mat.node_tree.nodes.new("ShaderNodeGroup")
-        sg.node_tree = bpy.data.node_groups[shader_name]
+        sg.node_tree = bpy.data.node_groups[shader_node_group_name]
         b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["Emission"])
-
-        float_props_dic = {
-            "_Cutoff":"CutoffRate",
-            "_BumpScale":"BumpScale",
-            "_ReceiveShadowRate":"ReceiveShadowRate",
-            "_ShadeShift":"ShadeShift",
-            "_ShadeToony":"ShadeToony",
-            "_ShadingGradeRate":"ShadingGradeRate",
-            "_LightColorAttenuation":"LightColorAttenuation",
-            "_IndirectLightIntensity":"IndirectLightIntensity",
-            "_OutlineWidth":"OutlineWidth",
-            "_OutlineScaledMaxDistance":"OutlineScaleMaxDistance",
-            "_OutlineLightingMix":"OutlineLightingMix",
-            "_BlendMode":"BlendMode",
-            "_OutlineWidthMode":"OutlineWidthMode",
-            "_OutlineColorMode":"OutlineColorMode",
-            "_CullMode":"CullMode",
-            "_OutlineCullMode":"OutlineCullMode",
-        }
         
+        float_prop_exchange_dic = VRM_Types.Material_MToon.float_props_exchange_dic
         for k, v in pymat.float_props_dic.items():
-            if k in float_props_dic.keys():
-                fp = b_mat.node_tree.nodes.new("ShaderNodeValue")
-                fp.outputs["Value"].default_value = v
-                b_mat.node_tree.links.new(sg.inputs[float_props_dic[k]],fp.outputs[0])
+            if k in [key for key,val in float_prop_exchange_dic.items() if val is not None]:
+                self.connect_value_node(b_mat, v ,sg.inputs[float_prop_exchange_dic[k]])
             else:
                 b_mat[k] = v
+
         for k, v in pymat.keyword_dic.items():
             b_mat[k] = v
 
-        vector_props_dic = {
-            "_Color":"DiffuseColor",
-            "_ShadeColor":"ShadeColor",
-            "_EmissionColor":"EmissionColor",
-            "_OutlineColor":"OutlineColor"
-        }
+        vector_props_dic = VRM_Types.Material_MToon.vector_props_exchange_dic
         for k, v in pymat.vector_props_dic.items():
-            if k in vector_props_dic.keys():
-                rgb_node = b_mat.node_tree.nodes.new("ShaderNodeRGB")
-                rgb_node.outputs[0].default_value = v
-                b_mat.node_tree.links.new(sg.inputs[vector_props_dic[k]],rgb_node.outputs[0])
+            if k in ["_Color","_ShadeColor","_EmissionColor","_OutlineColor"]:
+                self.connect_rgb_node(b_mat,v,sg.inputs[vector_props_dic[k]])
             else:
                 b_mat[k] = v
 
-
-        tex_dic = {
-        "_MainTex":"MainTexture",
-        "_ShadeTexture":"ShadeTexture",
-        "_BumpMap":"NomalmapTexture",
-        "_ShadingGradeTexture":"ShadingGradeTexture",
-        "_EmissionMap":"Emission_Texture",
-        "_SphereAdd":"SphereAddTexture",
-        "_OutlineWidthTexture":"OutlineWidthTexture"
-        }
-        tex_alpha_dic = {
-            "_ReceiveShadowTexture":"ReceiveShadow_Texture_alpha"
-        }
-
-        
+        tex_dic = VRM_Types.Material_MToon.texture_kind_exchange_dic
         for tex_name, tex_index in pymat.texture_index_dic.items():
-            if tex_name == "_SphereAdd":
+            if tex_index is None:
                 continue
+            if not tex_name in tex_dic.keys():
+                if "unknown_texture" in b_mat:
+                    b_mat["unknown_texture"] = {}
+                b_mat["unknown_texture"].update({tex_name:self.textures[tex_index].name})
+                print(f"unknown texture {tex_name}")
+            elif tex_name == "_MainTex":
+                self.connect_texture_node(b_mat,tex_index, sg.inputs[tex_dic[tex_name]], sg.inputs[tex_dic[tex_name]+"Alpha"])
+            elif tex_name == "_ReceiveShadowTexture":
+                self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
+            elif tex_name == "_SphereAdd":
+                continue 
                 #self.texture_link(b_mat, tex_index, "NORMAL", None, {}, {"blend_type": "ADD"})
             else:
-                if not tex_index:
-                    continue
-                imgnode = b_mat.node_tree.nodes.new("ShaderNodeTexImage")
-                imgnode.name = tex_name
-                imgnode.image = self.textures[tex_index].image
-                if tex_name =="_ReceiveShadowTexture":
-                    b_mat.node_tree.links.new(sg.inputs[tex_alpha_dic[tex_name]],imgnode.outputs["Alpha"])
-                elif tex_name =="_MainTex":
-                    b_mat.node_tree.links.new(sg.inputs[tex_dic[tex_name]],imgnode.outputs["Color"])
-                    b_mat.node_tree.links.new(sg.inputs[tex_dic[tex_name]+"Alpha"],imgnode.outputs["Alpha"])
-                else:
-                    b_mat.node_tree.links.new(sg.inputs[tex_dic[tex_name]],imgnode.outputs["Color"])
-        
+                self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
 
         transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
         if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":
@@ -459,7 +437,7 @@ class Blend_model():
             #TODO: テスト (懸案：cleaningで頂点結合でデータ物故割れる説)
             vcolor_count = 0
             while True:
-                vc_color_name = "COLOR_{}".format(vcolor_count)
+                vc_color_name = f"COLOR_{vcolor_count}"
                 if hasattr(pymesh,vc_color_name):
                     vc = b_mesh.vertex_colors.new(name = vc_color_name)
                     for v_index,col in enumerate(vc.data):
@@ -529,7 +507,7 @@ class Blend_model():
         def write_textblock_and_assgin_to_armature(block_name,value):
             text_block = bpy.data.texts.new(name=f"{model_name}_{block_name}.json")
             text_block.write(json.dumps(value,indent = 4))
-            self.armature["{}".format(block_name)] = text_block.name
+            self.armature[f"{block_name}"] = text_block.name
         
         #region humanoid_parameter
         humanoid_params = copy.deepcopy(vrm_ext_dic["humanoid"])
@@ -627,7 +605,7 @@ class Blend_model():
             obj.select_set(True)
             if obj.parent_type == 'BONE':#ボーンにくっ付いて動くのは無視:なんか吹っ飛ぶ髪の毛がいる?
                 bpy.ops.object.transform_apply(rotation=True)
-                print("bone parent object {}".format(obj.name))
+                print(f"bone parent object {obj.name}")
                 obj.select_set(False)
                 continue
             obj.rotation_mode = "XYZ"
@@ -662,7 +640,7 @@ class Blend_model():
             collider_base_node = nodes_json[collider_group["node"]]
             node_name = collider_base_node["name"]
             for i, collider in enumerate(collider_group["colliders"]):
-                collider_name = "{}_collider_{}".format(node_name,i)
+                collider_name = f"{node_name}_collider_{i}"
                 obj = bpy.data.objects.new(name = collider_name,object_data = None)
                 obj.parent = self.armature
                 obj.parent_type = "BONE"
