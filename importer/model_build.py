@@ -154,7 +154,11 @@ class Blend_model():
         #call when bone built
         bpy.context.scene.update()
         bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.context.scene.collection.objects.unlink(self.armature)
+        try:
+            bpy.context.scene.collection.objects.unlink(self.armature)
+        except:
+            print("Master collection doesn't have armature obj")
+            pass
         return
     
     #region material
@@ -254,7 +258,18 @@ class Blend_model():
             material.node_tree.links.new(color_socket_to_connect,imgnode.outputs["Color"])
         if alpha_socket_to_connect:
             material.node_tree.links.new(alpha_socket_to_connect,imgnode.outputs["Alpha"])
-        return
+        return imgnode
+
+    def node_group_import(self,shader_node_group_name):
+        if shader_node_group_name not in bpy.data.node_groups:
+            filedir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"resources","material_node_groups.blend","NodeTree")
+            filepath = os.path.join(filedir,shader_node_group_name)
+            bpy.ops.wm.append(filepath=filepath,filename=shader_node_group_name,directory=filedir)
+
+    def node_group_create(self,material,shader_node_group_name):
+        node_group = material.node_tree.nodes.new("ShaderNodeGroup")
+        node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
+        return node_group
     #endregion material_util func
 
     def build_material_from_GLTF(self, b_mat, pymat):
@@ -273,15 +288,13 @@ class Blend_model():
 
     def build_material_from_MToon(self, b_mat, pymat):
         shader_node_group_name = "MToon_unversioned"
-        if shader_node_group_name not in bpy.data.node_groups:
-            filedir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"resources","material_node_groups.blend","NodeTree")
-            filepath = os.path.join(filedir,shader_node_group_name)
-            bpy.ops.wm.append(filepath=filepath,filename=shader_node_group_name,directory=filedir)
+        sphire_add_vector_node_group_name = "matcap_vector"
+        self.node_group_import(shader_node_group_name)
+        self.node_group_import(sphire_add_vector_node_group_name)
 
         b_mat.use_nodes = True
         b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
-        sg = b_mat.node_tree.nodes.new("ShaderNodeGroup")
-        sg.node_tree = bpy.data.node_groups[shader_node_group_name]
+        sg = self.node_group_create(b_mat,shader_node_group_name)
         b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["Emission"])
         
         float_prop_exchange_dic = VRM_Types.Material_MToon.float_props_exchange_dic
@@ -315,7 +328,8 @@ class Blend_model():
             elif tex_name == "_ReceiveShadowTexture":
                 self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
             elif tex_name == "_SphereAdd":
-                continue 
+                tex_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect= sg.inputs[tex_dic[tex_name]])
+                b_mat.node_tree.links.new(tex_node.inputs["Vector"],self.node_group_create(b_mat,sphire_add_vector_node_group_name).outputs["Vector"])
                 #self.texture_link(b_mat, tex_index, "NORMAL", None, {}, {"blend_type": "ADD"})
             else:
                 self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
@@ -486,7 +500,7 @@ class Blend_model():
             print(e)
             pass
         try:   
-            for metatag,metainfo in vrm_pydata.json["extensions"]["VRM"]["meta"].items():
+            for metatag,metainfo in VRM_extensions["meta"].items():
                 if metatag == "texture":
                     self.armature[metatag] = self.textures[metainfo].image.name
                 else:
@@ -515,7 +529,6 @@ class Blend_model():
         write_textblock_and_assgin_to_armature("humanoid_params",humanoid_params)
         #endregion humanoid_parameter
         #region first_person
-        #TODO: mesh annotations
         firstperson_params = copy.deepcopy(vrm_ext_dic["firstPerson"])
         if firstperson_params["firstPersonBone"] != -1:
             firstperson_params["firstPersonBone"] = vrm_pydata.json["nodes"][firstperson_params["firstPersonBone"]]["name"]
@@ -523,8 +536,6 @@ class Blend_model():
             for meshAnotation in firstperson_params["meshAnnotations"]:
                 meshAnotation["mesh"] = vrm_pydata.json["meshes"][meshAnotation["mesh"]]["name"]
 
-        
-        
         write_textblock_and_assgin_to_armature("firstPerson_params",firstperson_params)
         #endregion first_person
 
