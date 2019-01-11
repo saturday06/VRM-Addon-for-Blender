@@ -240,25 +240,30 @@ class Blend_model():
                 print(f"{ts.texture.name} texture's role :{role}: is over written")             
             ts.texture["role"] = role
 
+
     def connect_value_node(self,material, value ,socket_to_connect):
-        fp = material.node_tree.nodes.new("ShaderNodeValue")
-        fp.outputs[0].default_value = value
-        material.node_tree.links.new(socket_to_connect,fp.outputs[0])
-        return
+        value_node = material.node_tree.nodes.new("ShaderNodeValue")
+        value_node.label = socket_to_connect.name
+        value_node.outputs[0].default_value = value
+        material.node_tree.links.new(socket_to_connect,value_node.outputs[0])
+        return value_node
 
     def connect_rgb_node(self, material ,color, socket_to_connect):
         rgb_node = material.node_tree.nodes.new("ShaderNodeRGB")
+        rgb_node.label = socket_to_connect.name
         rgb_node.outputs[0].default_value = color
         material.node_tree.links.new(socket_to_connect,rgb_node.outputs[0])
-        return
+        return rgb_node
+
     def connect_texture_node(self,material,tex_index,color_socket_to_connect = None,alpha_socket_to_connect = None):
-        imgnode = material.node_tree.nodes.new("ShaderNodeTexImage")
-        imgnode.image = self.textures[tex_index].image
+        image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
+        image_node.image = self.textures[tex_index].image
+        image_node.label = color_socket_to_connect.name
         if color_socket_to_connect:
-            material.node_tree.links.new(color_socket_to_connect,imgnode.outputs["Color"])
+            material.node_tree.links.new(color_socket_to_connect,image_node.outputs["Color"])
         if alpha_socket_to_connect:
-            material.node_tree.links.new(alpha_socket_to_connect,imgnode.outputs["Alpha"])
-        return imgnode
+            material.node_tree.links.new(alpha_socket_to_connect,image_node.outputs["Alpha"])
+        return image_node
 
     def node_group_import(self,shader_node_group_name):
         if shader_node_group_name not in bpy.data.node_groups:
@@ -270,6 +275,17 @@ class Blend_model():
         node_group = material.node_tree.nodes.new("ShaderNodeGroup")
         node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
         return node_group
+
+    def node_placer(self,parent_node):
+        bottom_pos = [parent_node.location[0]-200, parent_node.location[1]]
+        for child_node in [link.from_node for socket in parent_node.inputs for link in socket.links]:
+            if child_node.type != "GROUP":
+                child_node.hide = True
+            child_node.location = bottom_pos
+            bottom_pos[1] -= 40
+            for ch_node in [link.from_node for socket in child_node.inputs for link in socket.links]:
+                self.node_placer(child_node)
+        return
     #endregion material_util func
 
     def build_material_from_GLTF(self, b_mat, pymat):
@@ -330,9 +346,10 @@ class Blend_model():
             elif tex_name == "_SphereAdd":
                 tex_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect= sg.inputs[tex_dic[tex_name]])
                 b_mat.node_tree.links.new(tex_node.inputs["Vector"],self.node_group_create(b_mat,sphire_add_vector_node_group_name).outputs["Vector"])
-                #self.texture_link(b_mat, tex_index, "NORMAL", None, {}, {"blend_type": "ADD"})
             else:
                 self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
+
+        self.node_placer(b_mat.node_tree.nodes["Material Output"])
 
         transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
         if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":
