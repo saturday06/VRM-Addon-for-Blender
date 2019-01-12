@@ -155,7 +155,9 @@ class Blend_model():
         bpy.context.scene.update()
         bpy.ops.object.mode_set(mode='OBJECT')
         try:
-            bpy.context.scene.collection.objects.unlink(self.armature)
+            for coll in self.armature.users_collection:
+                if coll.name != self.model_collection.name:
+                    coll.objects.unlink(self.armature)
         except:
             print("Master collection doesn't have armature obj")
             pass
