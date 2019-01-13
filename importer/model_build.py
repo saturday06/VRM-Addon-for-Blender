@@ -15,7 +15,8 @@ import os.path
 import json,copy
 
 class Blend_model():
-    def __init__(self,vrm_pydata,is_put_spring_bone_info):
+    def __init__(self,context,vrm_pydata,is_put_spring_bone_info):
+        self.context = context
         self.textures = None
         self.armature = None
         self.bones = None
@@ -24,7 +25,7 @@ class Blend_model():
         self.mesh_joined_objects = None
         model_name = vrm_pydata.json["extensions"]["VRM"]["meta"]["title"]
         self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
-        bpy.context.scene.collection.children.link(self.model_collection)
+        self.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build(vrm_pydata,is_put_spring_bone_info)
 
 
@@ -47,11 +48,11 @@ class Blend_model():
     def scene_init(self):
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るのでその回避と、それを元に戻す
         affected_object = None
-        if bpy.context.active_object != None:
-            if hasattr(bpy.context.active_object, "hide"):
-                if bpy.context.active_object.hide:
-                    bpy.context.active_object.hide = False
-                    affected_object = bpy.context.active_object
+        if self.context.active_object != None:
+            if hasattr(self.context.active_object, "hide"):
+                if self.context.active_object.hide:
+                    self.context.active_object.hide = False
+                    affected_object = self.context.active_object
             bpy.ops.object.mode_set(mode='OBJECT')
             bpy.ops.object.select_all(action="DESELECT")
         return affected_object
@@ -75,7 +76,7 @@ class Blend_model():
     def make_armature(self, vrm_pydata):
         #build bones as armature
         bpy.ops.object.add(type='ARMATURE', enter_editmode=True, location=(0,0,0))
-        self.armature = bpy.context.object
+        self.armature = self.context.object
         self.model_collection.objects.link(self.armature)
         self.armature.name = "skelton"
         self.armature.show_in_front = True
@@ -152,7 +153,7 @@ class Blend_model():
         while len(bone_nodes):
             bone_chain(bone_nodes.pop())
         #call when bone built
-        bpy.context.scene.update()
+        self.context.scene.update()
         bpy.ops.object.mode_set(mode='OBJECT')
         try:
             for coll in self.armature.users_collection:
@@ -441,7 +442,7 @@ class Blend_model():
                 obj.modifiers.new("amt","ARMATURE").object = self.armature
 
             #end of kuso
-            scene = bpy.context.scene
+            scene = self.context.scene
             scene.collection.objects.link(obj)
             
             # uv
@@ -593,7 +594,7 @@ class Blend_model():
             for obj in objs:
                 obj.select_set(True)
                 bpy.ops.object.shade_smooth()
-                bpy.context.view_layer.objects.active = obj
+                self.context.view_layer.objects.active = obj
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.delete_loose()
                 bpy.ops.mesh.select_all()
@@ -605,23 +606,23 @@ class Blend_model():
         self.mesh_joined_objects = []
         bpy.ops.object.select_all(action="DESELECT")
         for objs in self.primitive_obj_dict.values():
-            bpy.context.view_layer.objects.active = objs[0]
+            self.context.view_layer.objects.active = objs[0]
             trash_mesh_names = [obj.data.name for obj in objs[1:]]
             for obj in objs:
                 obj.select_set(True)
             bpy.ops.object.join()
             for unused_mesh in [mesh for mesh in bpy.data.meshes if mesh.name in trash_mesh_names]:
                 bpy.data.meshes.remove(unused_mesh)
-            self.mesh_joined_objects.append(bpy.context.active_object)
-            self.model_collection.objects.link(bpy.context.active_object)
-            bpy.context.scene.collection.objects.unlink(bpy.context.active_object)
+            self.mesh_joined_objects.append(self.context.active_object)
+            self.model_collection.objects.link(self.context.active_object)
+            self.context.scene.collection.objects.unlink(self.context.active_object)
             bpy.ops.object.select_all(action="DESELECT")
         return
 
     def axis_transform(self):
         #axis armature->>objの順でやらないと不具合
         bpy.ops.object.select_all(action="DESELECT")
-        bpy.context.view_layer.objects.active = self.armature
+        self.context.view_layer.objects.active = self.armature
         self.armature.select_set(True)
         self.armature.rotation_mode = "XYZ"
         self.armature.rotation_euler[0] = numpy.deg2rad(90)
@@ -631,7 +632,7 @@ class Blend_model():
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action="DESELECT")
         for obj in self.mesh_joined_objects:
-            bpy.context.view_layer.objects.active = obj
+            self.context.view_layer.objects.active = obj
             obj.select_set(True)
             if obj.parent_type == 'BONE':#ボーンにくっ付いて動くのは無視:なんか吹っ飛ぶ髪の毛がいる?
                 bpy.ops.object.transform_apply(rotation=True)

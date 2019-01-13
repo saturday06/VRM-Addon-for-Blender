@@ -45,7 +45,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
 
     def execute(self,context):
         fdir = self.filepath
-        model_build.Blend_model(vrm_load.read_vrm(fdir),self.is_put_spring_bone_info)
+        model_build.Blend_model(context,vrm_load.read_vrm(fdir),self.is_put_spring_bone_info)
         return {'FINISHED'}
 
 
