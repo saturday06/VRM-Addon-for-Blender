@@ -91,7 +91,7 @@ class Blend_model():
             else:
                 py_bone = vrm_pydata.nodes_dict[id]
                 print("pybone name is "+py_bone.name+" .")
-                if py_bone.blend_bone:#すでにインスタンス化済みのボーンが出てきたとき。
+                if py_bone.blend_bone:#すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
                     li = [py_bone.blend_bone]
                     while li:
                         bo = li.pop()
@@ -243,7 +243,10 @@ class Blend_model():
                 print(f"{ts.texture.name} texture's role :{role}: is over written")             
             ts.texture["role"] = role
 
-
+    def material_init(b_mat):
+        b_mat.use_nodes = True
+        b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
+        return
     def connect_value_node(self,material, value ,socket_to_connect):
         value_node = material.node_tree.nodes.new("ShaderNodeValue")
         value_node.label = socket_to_connect.name
@@ -306,13 +309,14 @@ class Blend_model():
         return
 
     def build_material_from_MToon(self, b_mat, pymat):
+        self.material_init(b_mat)
+        
         shader_node_group_name = "MToon_unversioned"
         sphire_add_vector_node_group_name = "matcap_vector"
         self.node_group_import(shader_node_group_name)
         self.node_group_import(sphire_add_vector_node_group_name)
 
-        b_mat.use_nodes = True
-        b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
+
         sg = self.node_group_create(b_mat,shader_node_group_name)
         b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["Emission"])
         

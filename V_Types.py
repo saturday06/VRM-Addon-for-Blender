@@ -68,12 +68,14 @@ class Material(object):
 class Material_GLTF(Material):
     def __init__(self):
         super().__init__()
-        self.color_texture_index = None
-        self.color_texcood_index = None
+
         self.base_color = None
         self.metallic_factor = None
         self.roughnessFactor = None
         self.emissiveFactor = None
+
+        self.color_texture_index = None
+        self.color_texcood_index = None
         self.metallic_roughness_texture_index = None
         self.metallic_roughness_texture_texcood = None
         self.normal_texture_index = None
@@ -82,6 +84,7 @@ class Material_GLTF(Material):
         self.emissive_texture_texcoord_index = None
         self.occlusion_texture_index = None
         self.occlusion_texture_texcood_index = None
+        
         self.double_sided = None
         self.alphaMode = "OPAQUE"
         self.shadeless = False

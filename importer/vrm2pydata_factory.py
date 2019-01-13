@@ -52,6 +52,7 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
             if "metallicRoughnessTexture" in pbrmat:
                 v_mat.metallicRoughnessTexture_index = pbrmat["metallicRoughnessTexture"]
                 v_mat.metallicRoughnessTexture_texcoord = pbrmat["baseColorTexture"]["texCoord"]
+
         if "normalTexture" in mat:
             v_mat.normal_texture_index = mat["normalTexture"]["index"]
             v_mat.normal_texture_texcoord_index = mat["normalTexture"]["texCoord"]
@@ -75,7 +76,7 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
                 v_mat.alpha_mode = "OPAQUE"
         if "extensions" in mat:
             if "KHR_materials_unlit" in mat["extensions"]:
-                mat.shadeless = True
+                v_mat.shadeless = True
 
     else:#"MToon or Transparent_Zwrite"
         if ext_mat["shader"] == "VRM/MToon":
