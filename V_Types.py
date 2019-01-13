@@ -71,8 +71,8 @@ class Material_GLTF(Material):
 
         self.base_color = None
         self.metallic_factor = None
-        self.roughnessFactor = None
-        self.emissiveFactor = None
+        self.roughness_factor = None
+        self.emissive_factor = None
 
         self.color_texture_index = None
         self.color_texcood_index = None
@@ -87,7 +87,7 @@ class Material_GLTF(Material):
         
         self.double_sided = None
         self.alphaMode = "OPAQUE"
-        self.shadeless = False
+        self.shadeless = 0 #0 is shade ,1 is shadeless
 
 
 class Material_Transparent_Z_write(Material):

@@ -46,12 +46,12 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
             if "baseColorFactor" in pbrmat:
                 v_mat.base_color = pbrmat["baseColorFactor"]
             if "metallicFactor" in pbrmat:
-                v_mat.metallicFactor = pbrmat["metallicFactor"]
+                v_mat.metallic_factor = pbrmat["metallicFactor"]
             if "roughnessFactor" in pbrmat:
-                v_mat.roughnessFactor = pbrmat["roughnessFactor"]
+                v_mat.roughness_factor = pbrmat["roughnessFactor"]
             if "metallicRoughnessTexture" in pbrmat:
-                v_mat.metallicRoughnessTexture_index = pbrmat["metallicRoughnessTexture"]
-                v_mat.metallicRoughnessTexture_texcoord = pbrmat["baseColorTexture"]["texCoord"]
+                v_mat.metallic_roughness_texture_index = pbrmat["metallicRoughnessTexture"]
+                v_mat.metallic_roughness_texture_texcood = pbrmat["baseColorTexture"]["texCoord"]
 
         if "normalTexture" in mat:
             v_mat.normal_texture_index = mat["normalTexture"]["index"]
@@ -63,7 +63,7 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
             v_mat.occlusion_texture_index = mat["occlusionTexture"]["index"]
             v_mat.occlusion_texture_texcood_index = mat["occlusionTexture"]["texCoord"]
         if "emissiveFactor" in mat:
-            v_mat.emissive_color = mat["emissiveFactor"]
+            v_mat.emissive_factor = mat["emissiveFactor"]
 
         if "doubleSided" in mat:
             v_mat.doubleSided = mat["doubleSided"]
@@ -76,7 +76,7 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
                 v_mat.alpha_mode = "OPAQUE"
         if "extensions" in mat:
             if "KHR_materials_unlit" in mat["extensions"]:
-                v_mat.shadeless = True
+                v_mat.shadeless = 1 #0 is shade ,1 is shadeless
 
     else:#"MToon or Transparent_Zwrite"
         if ext_mat["shader"] == "VRM/MToon":

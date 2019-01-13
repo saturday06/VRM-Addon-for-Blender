@@ -178,7 +178,7 @@ class Blend_model():
                 self.build_material_from_MToon(b_mat, mat)
             if type(mat) == VRM_Types.Material_Transparent_Z_write:
                 self.build_material_from_Transparent_Z_write
-            
+            self.node_placer(b_mat.node_tree.nodes["Material Output"])
             self.material_dict[index] = b_mat
         return
     #region material_util func
@@ -243,21 +243,21 @@ class Blend_model():
                 print(f"{ts.texture.name} texture's role :{role}: is over written")             
             ts.texture["role"] = role
 
-    def material_init(b_mat):
+    def material_init(self,b_mat):
         b_mat.use_nodes = True
         b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
         return
     def connect_value_node(self,material, value ,socket_to_connect):
         value_node = material.node_tree.nodes.new("ShaderNodeValue")
         value_node.label = socket_to_connect.name
-        value_node.outputs[0].default_value = value
+        value_node.outputs[0].default_value = value if value else 1.0
         material.node_tree.links.new(socket_to_connect,value_node.outputs[0])
         return value_node
 
     def connect_rgb_node(self, material ,color, socket_to_connect):
         rgb_node = material.node_tree.nodes.new("ShaderNodeRGB")
         rgb_node.label = socket_to_connect.name
-        rgb_node.outputs[0].default_value = color
+        rgb_node.outputs[0].default_value = color if color else [1,1,1,1]
         material.node_tree.links.new(socket_to_connect,rgb_node.outputs[0])
         return rgb_node
 
@@ -265,9 +265,9 @@ class Blend_model():
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         image_node.image = self.textures[tex_index].image
         image_node.label = color_socket_to_connect.name
-        if color_socket_to_connect:
+        if color_socket_to_connect and tex_index:
             material.node_tree.links.new(color_socket_to_connect,image_node.outputs["Color"])
-        if alpha_socket_to_connect:
+        if alpha_socket_to_connect and tex_index:
             material.node_tree.links.new(alpha_socket_to_connect,image_node.outputs["Alpha"])
         return image_node
 
@@ -295,17 +295,23 @@ class Blend_model():
     #endregion material_util func
 
     def build_material_from_GLTF(self, b_mat, pymat):
-        b_mat.use_shadeless = pymat.shadeless
-        b_mat.diffuse_color = pymat.base_color[0:3]
-        self.set_material_transparent(b_mat, pymat.alphaMode)
+        gltf_node_name = "GLTF"
+        self.node_group_import(gltf_node_name)
+        sg = self.node_group_create(b_mat,gltf_node_name)
+        self.connect_rgb_node(b_mat,[*pymat.base_color,1],sg.inputs["base_Color"])
+        self.connect_texture_node(b_mat,pymat.color_texture_index,sg.inputs["color_texture"])
+        self.connect_value_node(b_mat,pymat.metallic_factor,sg.inputs["metallic"])
+        self.connect_value_node(b_mat,pymat.roughness_factor,sg.inputs["roughness"])
+        self.connect_texture_node(b_mat,pymat.metallic_roughness_texture_index,\
+            sg.inputs["metallic_roughness_texture"])
+        self.connect_value_node(b_mat,[*pymat.emissive_factor,1],sg.inputs["emissive_color"])
+        self.connect_texture_node(b_mat,pymat.emissive_texture_index,sg.inputs["emissive_texture"])
+        self.connect_texture_node(b_mat,pymat.normal_texture_index,sg.inputs["normal"])
+        self.connect_texture_node(b_mat,pymat.occlusion_texture_index,sg.inputs["occlusion_texture"])
+        self.connect_value_node(b_mat,pymat.shadeless,"unlit")
 
-        self.color_texture_add(
-            b_mat, pymat.color_texture_index,
-            pymat.color_texcoord_index)
-        
-        self.texture_add_helper(
-            b_mat, pymat.normal_texture_index,
-            pymat.normal_texture_texcoord_index)
+        if transparant_exchange_dic[pymat.alphaMode] != "OPAQUE":
+            b_mat.blend_method = "HASHED"
         return
 
     def build_material_from_MToon(self, b_mat, pymat):
@@ -355,8 +361,6 @@ class Blend_model():
                 b_mat.node_tree.links.new(tex_node.inputs["Vector"],self.node_group_create(b_mat,sphire_add_vector_node_group_name).outputs["Vector"])
             else:
                 self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
-
-        self.node_placer(b_mat.node_tree.nodes["Material Output"])
 
         transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
         if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":
