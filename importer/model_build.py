@@ -365,6 +365,8 @@ class Blend_model():
         transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
         if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":
             b_mat.blend_method = "HASHED"
+            b_mat.transparent_shadow_method = "HASHED"
+            
         return
 
     def build_material_from_Transparent_Z_write(self, b_mat, pymat):
