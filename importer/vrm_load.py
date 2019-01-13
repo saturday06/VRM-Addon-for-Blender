@@ -71,11 +71,11 @@ def read_vrm(model_path):
         if "KHR_DRACO_MESH_COMPRESSION" in vrm_pydata.json["extensionsRequired"]:
             raise Exception("This VRM has DRACO COMPRESSION. This importer can't read this VRM. Draco圧縮されたVRMは未対応です")
     #改変不可ﾗｲｾﾝｽを撥ねる
-    if "licenseName" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
-        if re.match("CC(.*)ND(.*)", vrm_pydata.json["extensions"]["VRM"]["meta"]["licenseName"]) is not None:
+    if "licenseName" in vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]:
+        if re.match("CC(.*)ND(.*)", vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"]) is not None:
             raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
     #オリジナルライセンスに対する注意
-        if vrm_pydata.json["extensions"]["VRM"]["meta"]["licenseName"] == "Other":
+        if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
             print("Is this VRM allowed to Edit? CHECK IT LICENSE")
 
     texture_rip(vrm_pydata,body_binary)
@@ -210,7 +210,7 @@ def material_read(vrm_pydata):
     VRM_EXTENSION_material_promaties = None
     textures = None
     try:
-        VRM_EXTENSION_material_promaties = vrm_pydata.json["extensions"]["VRM"]["materialProperties"]
+        VRM_EXTENSION_material_promaties = vrm_pydata.json["extensions"][VRM_Types.VRM]["materialProperties"]
     except Exception as e:
         print(e)
     if "textures" in vrm_pydata.json:

@@ -23,7 +23,7 @@ class Blend_model():
         self.material_dict = None
         self.primitive_obj_dict = None
         self.mesh_joined_objects = None
-        model_name = vrm_pydata.json["extensions"]["VRM"]["meta"]["title"]
+        model_name = vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
         self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
         self.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build(vrm_pydata,is_put_spring_bone_info)
@@ -511,7 +511,7 @@ class Blend_model():
                         keyblock.data[i].co = co
 
     def attach_vrm_attributes(self,vrm_pydata):
-        VRM_extensions = vrm_pydata.json["extensions"]["VRM"]
+        VRM_extensions = vrm_pydata.json["extensions"][VRM_Types.VRM]
         try:
             humanbones_relations = VRM_extensions["humanoid"]["humanBones"]
             for humanbone in humanbones_relations:
@@ -532,7 +532,7 @@ class Blend_model():
         return
 
     def json_dump(self, vrm_pydata):
-        vrm_ext_dic = vrm_pydata.json["extensions"]["VRM"]
+        vrm_ext_dic = vrm_pydata.json["extensions"][VRM_Types.VRM]
         model_name = vrm_ext_dic["meta"]["title"]
         textblock = bpy.data.texts.new(name = f"{model_name}_raw.json")
         textblock.write(json.dumps(vrm_pydata.json,indent = 4))
@@ -649,10 +649,10 @@ class Blend_model():
     
     def put_spring_bone_info(self,vrm_pydata):
 
-        if not "secondaryAnimation" in vrm_pydata.json["extensions"]["VRM"]:
+        if not "secondaryAnimation" in vrm_pydata.json["extensions"][VRM_Types.VRM]:
             print("no secondary animation object")
             return 
-        secondaryAnimation_json = vrm_pydata.json["extensions"]["VRM"]["secondaryAnimation"]
+        secondaryAnimation_json = vrm_pydata.json["extensions"][VRM_Types.VRM]["secondaryAnimation"]
         spring_rootbone_groups_json = secondaryAnimation_json["boneGroups"]
         collider_groups_json = secondaryAnimation_json["colliderGroups"]
         nodes_json = vrm_pydata.json["nodes"]
@@ -664,7 +664,7 @@ class Blend_model():
                         continue
                     bone[key] = val
 
-        model_name = vrm_pydata.json["extensions"]["VRM"]["meta"]["title"]
+        model_name = vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
         coll = bpy.data.collections.new(f"{model_name}_colliders")
         self.model_collection.children.link(coll)
         for collider_group in collider_groups_json:

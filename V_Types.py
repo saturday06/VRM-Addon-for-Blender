@@ -4,6 +4,8 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
+VRM="VRM"
+
 class VRM_pydata(object):
     def __init__(
             self,
