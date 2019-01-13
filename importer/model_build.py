@@ -49,9 +49,9 @@ class Blend_model():
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るのでその回避と、それを元に戻す
         affected_object = None
         if self.context.active_object != None:
-            if hasattr(self.context.active_object, "hide"):
-                if self.context.active_object.hide:
-                    self.context.active_object.hide = False
+            if hasattr(self.context.active_object, "hide_viewport"):
+                if self.context.active_object.hide_viewport:
+                    self.context.active_object.hide_viewport = False
                     affected_object = self.context.active_object
             bpy.ops.object.mode_set(mode='OBJECT')
             bpy.ops.object.select_all(action="DESELECT")
@@ -60,7 +60,7 @@ class Blend_model():
     def finishing(self,affected_object):
         #initで弄ったやつを戻す
         if affected_object is not None:
-            affected_object.hide = True
+            affected_object.hide_viewport = True
         return
 
         #image_path_to Texture
