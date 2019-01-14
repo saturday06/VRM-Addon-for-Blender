@@ -354,6 +354,9 @@ class Blend_model():
                 print(f"unknown texture {tex_name}")
             elif tex_name == "_MainTex":
                 self.connect_texture_node(b_mat,tex_index, sg.inputs[tex_dic[tex_name]], sg.inputs[tex_dic[tex_name]+"Alpha"])
+            elif tex_name == "_BumpMap":
+                normalmap_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
+                normalmap_node.color_space = "NONE"
             elif tex_name == "_ReceiveShadowTexture":
                 self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
             elif tex_name == "_SphereAdd":
