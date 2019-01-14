@@ -310,7 +310,7 @@ class Blend_model():
         self.connect_texture_node(b_mat,pymat.occlusion_texture_index,sg.inputs["occlusion_texture"])
         self.connect_value_node(b_mat,pymat.shadeless,"unlit")
 
-        if transparant_exchange_dic[pymat.alphaMode] != "OPAQUE":
+        if pymat.alphaMode != "OPAQUE":#TODO cutout
             b_mat.blend_method = "HASHED"
         return
 
@@ -363,7 +363,7 @@ class Blend_model():
                 self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
 
         transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
-        if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":
+        if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":#TODO cutout
             b_mat.blend_method = "HASHED"
             b_mat.transparent_shadow_method = "HASHED"
             
@@ -608,7 +608,7 @@ class Blend_model():
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.delete_loose()
                 bpy.ops.mesh.select_all()
-                bpy.ops.mesh.remove_doubles(use_unselected= True)
+                #bpy.ops.mesh.remove_doubles(use_unselected= True) #remove hard edge...
                 bpy.ops.object.mode_set(mode='OBJECT')
                 obj.select_set(False)
 
