@@ -71,6 +71,12 @@ class Blend_model():
             tex = bpy.data.textures.new(name = image_props.name,type="IMAGE")
             tex.image = img
             self.textures.append(tex)
+            
+        try:
+            if vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"] != -1:
+                self.textures[vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"]].image.use_fake_user = True
+        except Exception as e:
+            print(e)
         return
             
     def make_armature(self, vrm_pydata):
