@@ -270,7 +270,7 @@ class Blend_model():
 
     def connect_texture_node(self,material,tex_index,color_socket_to_connect = None,alpha_socket_to_connect = None):
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
-        image_node.image = self.textures[tex_index].image
+        image_node.image = self.textures[self.vrm_pydata.json["textures"][tex_index]["source"]].image
         image_node.label = color_socket_to_connect.name
         if color_socket_to_connect and tex_index != None :
             material.node_tree.links.new(color_socket_to_connect,image_node.outputs["Color"])
