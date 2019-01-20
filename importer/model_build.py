@@ -17,31 +17,32 @@ import json,copy
 class Blend_model():
     def __init__(self,context,vrm_pydata,is_put_spring_bone_info):
         self.context = context
+        self.vrm_pydata = vrm_pydata
         self.textures = None
         self.armature = None
         self.bones = None
         self.material_dict = None
         self.primitive_obj_dict = None
         self.mesh_joined_objects = None
-        model_name = vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
+        model_name = self.vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
         self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
         self.context.scene.collection.children.link(self.model_collection)
-        self.vrm_model_build(vrm_pydata,is_put_spring_bone_info)
+        self.vrm_model_build(is_put_spring_bone_info)
 
 
-    def vrm_model_build(self,vrm_pydata,is_put_spring_bone_info):
+    def vrm_model_build(self,is_put_spring_bone_info):
 
         affected_object = self.scene_init()
-        self.texture_load(vrm_pydata)
-        self.make_armature(vrm_pydata)
-        self.make_material(vrm_pydata)
-        self.make_primitive_mesh_objects(vrm_pydata)
-        self.json_dump(vrm_pydata)
-        self.attach_vrm_attributes(vrm_pydata)
+        self.texture_load()
+        self.make_armature()
+        self.make_material()
+        self.make_primitive_mesh_objects()
+        self.json_dump()
+        self.attach_vrm_attributes()
         self.cleaning_data()
         self.axis_transform()
         if is_put_spring_bone_info:
-            self.put_spring_bone_info(vrm_pydata)
+            self.put_spring_bone_info()
         self.finishing(affected_object)
         return 0
 
@@ -64,22 +65,22 @@ class Blend_model():
         return
 
         #image_path_to Texture
-    def texture_load(self, vrm_pydata):
+    def texture_load(self):
         self.textures = []
-        for image_props in vrm_pydata.image_propaties:
+        for image_props in self.vrm_pydata.image_propaties:
             img = bpy.data.images.load(image_props.filePath)
             tex = bpy.data.textures.new(name = image_props.name,type="IMAGE")
             tex.image = img
             self.textures.append(tex)
             
         try:
-            if vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"] != -1:
-                self.textures[vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"]].image.use_fake_user = True
+            if self.vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"] != -1:
+                self.textures[self.vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"]].image.use_fake_user = True
         except Exception as e:
             print(e)
         return
             
-    def make_armature(self, vrm_pydata):
+    def make_armature(self):
         #build bones as armature
         bpy.ops.object.add(type='ARMATURE', enter_editmode=True, location=(0,0,0))
         self.armature = self.context.object
@@ -95,7 +96,7 @@ class Blend_model():
             if id == -1:#自身がrootのrootの時
                 pass
             else:
-                py_bone = vrm_pydata.nodes_dict[id]
+                py_bone = self.vrm_pydata.nodes_dict[id]
                 print("pybone name is "+py_bone.name+" .")
                 if py_bone.blend_bone:#すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
                     li = [py_bone.blend_bone]
@@ -138,7 +139,7 @@ class Blend_model():
                     count=0
                     for childID in py_bone.children:
                         count +=1
-                        mean_relate_pos += vrm_pydata.nodes_dict[childID].position
+                        mean_relate_pos += self.vrm_pydata.nodes_dict[childID].position
                     mean_relate_pos = mean_relate_pos / count
                     if vector_length(mean_relate_pos) == 0:#子の位置の平均が根本と同じなら上向けとく
                         mean_relate_pos[1] +=0.1
@@ -153,8 +154,8 @@ class Blend_model():
                         for x in py_bone.children:
                             bone_nodes.append((x,id))
             return 0
-        root_node_set = list(set(vrm_pydata.skins_root_node_list))
-        root_nodes =  root_node_set if root_node_set else [node for scene in vrm_pydata.json["scenes"] for node in scene["nodes"]] 
+        root_node_set = list(set(self.vrm_pydata.skins_root_node_list))
+        root_nodes =  root_node_set if root_node_set else [node for scene in self.vrm_pydata.json["scenes"] for node in scene["nodes"]] 
         bone_nodes = [(root_node,-1) for root_node in root_nodes]
         while len(bone_nodes):
             bone_chain(bone_nodes.pop())
@@ -171,10 +172,10 @@ class Blend_model():
         return
     
     #region material
-    def make_material(self, vrm_pydata):
+    def make_material(self):
         #Material_datas　適当なので要調整
         self.material_dict = dict()
-        for index,mat in enumerate(vrm_pydata.materials):
+        for index,mat in enumerate(self.vrm_pydata.materials):
             b_mat = bpy.data.materials.new(mat.name)
             
             b_mat["shader_name"] = mat.shader_name
@@ -271,9 +272,9 @@ class Blend_model():
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         image_node.image = self.textures[tex_index].image
         image_node.label = color_socket_to_connect.name
-        if color_socket_to_connect and tex_index:
+        if color_socket_to_connect and tex_index != None :
             material.node_tree.links.new(color_socket_to_connect,image_node.outputs["Color"])
-        if alpha_socket_to_connect and tex_index:
+        if alpha_socket_to_connect and tex_index != None :
             material.node_tree.links.new(alpha_socket_to_connect,image_node.outputs["Alpha"])
         return image_node
 
@@ -395,11 +396,11 @@ class Blend_model():
     #endregion material
 
 
-    def make_primitive_mesh_objects(self, vrm_pydata):
-        self.primitive_obj_dict = {pymesh.object_id:[] for pymesh in vrm_pydata.meshes}
+    def make_primitive_mesh_objects(self):
+        self.primitive_obj_dict = {pymesh.object_id:[] for pymesh in self.vrm_pydata.meshes}
         morph_cache_dict = {} #key:tuple(POSITION,targets.POSITION),value:points_data
         #mesh_obj_build
-        for pymesh in vrm_pydata.meshes:
+        for pymesh in self.vrm_pydata.meshes:
             b_mesh = bpy.data.meshes.new(pymesh.name)
             b_mesh.from_pydata(pymesh.POSITION, [], pymesh.face_indices.tolist())
             b_mesh.update()
@@ -408,21 +409,21 @@ class Blend_model():
             #kuso of kuso kakugosiro
             #origin 0:Vtype_Node 1:mesh 2:skin
             origin = None
-            for key_is_node_id,node in vrm_pydata.origine_nodes_dict.items():
+            for key_is_node_id,node in self.vrm_pydata.origine_nodes_dict.items():
                 if node[1] == pymesh.object_id:
                     obj.location = node[0].position #origin boneの場所に移動
                     if len(node) == 3:
                         origin = node
                     else:  #len=2 ≒ skinがない場合
                         parent_id = None
-                        for id, py_node in vrm_pydata.nodes_dict.items():
+                        for id, py_node in self.vrm_pydata.nodes_dict.items():
                             if py_node.children is None:
                                 continue
                             if key_is_node_id in py_node.children:
                                 parent_id = id
                         obj.parent = self.armature
                         obj.parent_type = "BONE"
-                        obj.parent_bone = self.armature.data.bones[vrm_pydata.nodes_dict[parent_id].name].name
+                        obj.parent_bone = self.armature.data.bones[self.vrm_pydata.nodes_dict[parent_id].name].name
                         #boneのtail側にparentされるので、根元からmesh nodeのpositionに動かしなおす
                         #obj.location = node[0].position
                         obj.matrix_world =  Matrix.Translation([self.armature.matrix_world.to_translation()[i]  \
@@ -436,17 +437,17 @@ class Blend_model():
             
             # vertex groupの作成
             if origin != None:
-                nodes_index_list = vrm_pydata.skins_joints_list[origin[2]]
+                nodes_index_list = self.vrm_pydata.skins_joints_list[origin[2]]
                 # VertexGroupに頂点属性から一個ずつｳｪｲﾄを入れる用の辞書作り
                 if hasattr(pymesh,"JOINTS_0") and hasattr(pymesh,"WEIGHTS_0"):
                     vg_dict = { #使うkey(bone名)のvalueを空のリストで初期化（中身まで全部内包表記で？キモすぎるからしない。
-                        vrm_pydata.nodes_dict[nodes_index_list[joint_id]].name : list() 
+                        self.vrm_pydata.nodes_dict[nodes_index_list[joint_id]].name : list() 
                             for joint_id in [joint_id for joint_ids in pymesh.JOINTS_0 for joint_id in joint_ids]
                     }
                     for v_index,(joint_ids,weights) in enumerate(zip(pymesh.JOINTS_0,pymesh.WEIGHTS_0)):
                         for joint_id,weight in zip(joint_ids,weights):
                             node_id = nodes_index_list[joint_id]
-                            vg_dict[vrm_pydata.nodes_dict[node_id].name].append([v_index,weight])
+                            vg_dict[self.vrm_pydata.nodes_dict[node_id].name].append([v_index,weight])
                     vg_list = [] # VertexGroupのリスト
                     for vg_key in vg_dict.keys():
                         obj.vertex_groups.new(name=vg_key)
@@ -529,12 +530,12 @@ class Blend_model():
                     for i,co in enumerate(shape_data):
                         keyblock.data[i].co = co
 
-    def attach_vrm_attributes(self,vrm_pydata):
-        VRM_extensions = vrm_pydata.json["extensions"][VRM_Types.VRM]
+    def attach_vrm_attributes(self):
+        VRM_extensions = self.vrm_pydata.json["extensions"][VRM_Types.VRM]
         try:
             humanbones_relations = VRM_extensions["humanoid"]["humanBones"]
             for humanbone in humanbones_relations:
-                self.armature.data.bones[vrm_pydata.json["nodes"][humanbone["node"]]["name"]]["humanBone"] = humanbone["bone"]
+                self.armature.data.bones[self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]]["humanBone"] = humanbone["bone"]
         except Exception as e:
             print(e)
             pass
@@ -550,11 +551,11 @@ class Blend_model():
             
         return
 
-    def json_dump(self, vrm_pydata):
-        vrm_ext_dic = vrm_pydata.json["extensions"][VRM_Types.VRM]
+    def json_dump(self):
+        vrm_ext_dic = self.vrm_pydata.json["extensions"][VRM_Types.VRM]
         model_name = vrm_ext_dic["meta"]["title"]
         textblock = bpy.data.texts.new(name = f"{model_name}_raw.json")
-        textblock.write(json.dumps(vrm_pydata.json,indent = 4))
+        textblock.write(json.dumps(self.vrm_pydata.json,indent = 4))
 
 
         def write_textblock_and_assgin_to_armature(block_name,value):
@@ -570,10 +571,10 @@ class Blend_model():
         #region first_person
         firstperson_params = copy.deepcopy(vrm_ext_dic["firstPerson"])
         if firstperson_params["firstPersonBone"] != -1:
-            firstperson_params["firstPersonBone"] = vrm_pydata.json["nodes"][firstperson_params["firstPersonBone"]]["name"]
+            firstperson_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][firstperson_params["firstPersonBone"]]["name"]
         if "meshAnnotations" in firstperson_params.keys():
             for meshAnotation in firstperson_params["meshAnnotations"]:
-                meshAnotation["mesh"] = vrm_pydata.json["meshes"][meshAnotation["mesh"]]["name"]
+                meshAnotation["mesh"] = self.vrm_pydata.json["meshes"][meshAnotation["mesh"]]["name"]
 
         write_textblock_and_assgin_to_armature("firstPerson_params",firstperson_params)
         #endregion first_person
@@ -586,7 +587,7 @@ class Blend_model():
         #materialValuesはそのままで行けるハズ・・・
         for bsg in blendShapeGroups_list:
             for bind_dic in bsg["binds"]:
-                bind_dic["index"] = vrm_pydata.json["meshes"][bind_dic["mesh"]]["primitives"][0]["extras"]["targetNames"][bind_dic["index"]]
+                bind_dic["index"] = self.vrm_pydata.json["meshes"][bind_dic["mesh"]]["primitives"][0]["extras"]["targetNames"][bind_dic["index"]]
                 bind_dic["mesh"] = self.primitive_obj_dict[bind_dic["mesh"]][0].name
                 bind_dic["weight"] = bind_dic["weight"] / 100
         write_textblock_and_assgin_to_armature("blendshape_group",blendShapeGroups_list)
@@ -598,8 +599,8 @@ class Blend_model():
         #node_idを管理するのは面倒なので、名前に置き換える
         #collider_groupも同じく
         for bone_group in spring_bonegroup_list:
-            bone_group["bones"] = [ vrm_pydata.json["nodes"][node_id]["name"] for node_id in bone_group["bones"]]
-            bone_group["colliderGroups"] = [vrm_pydata.json["nodes"][colliderGroups_list[collider_gp_id]["node"]]["name"] for collider_gp_id in bone_group["colliderGroups"]]
+            bone_group["bones"] = [ self.vrm_pydata.json["nodes"][node_id]["name"] for node_id in bone_group["bones"]]
+            bone_group["colliderGroups"] = [self.vrm_pydata.json["nodes"][colliderGroups_list[collider_gp_id]["node"]]["name"] for collider_gp_id in bone_group["colliderGroups"]]
         write_textblock_and_assgin_to_armature("spring_bone",spring_bonegroup_list)
         #endregion springbone
 
@@ -666,15 +667,15 @@ class Blend_model():
             obj.select_set(False)
         return
     
-    def put_spring_bone_info(self,vrm_pydata):
+    def put_spring_bone_info(self):
 
-        if not "secondaryAnimation" in vrm_pydata.json["extensions"][VRM_Types.VRM]:
+        if not "secondaryAnimation" in self.vrm_pydata.json["extensions"][VRM_Types.VRM]:
             print("no secondary animation object")
             return 
-        secondaryAnimation_json = vrm_pydata.json["extensions"][VRM_Types.VRM]["secondaryAnimation"]
+        secondaryAnimation_json = self.vrm_pydata.json["extensions"][VRM_Types.VRM]["secondaryAnimation"]
         spring_rootbone_groups_json = secondaryAnimation_json["boneGroups"]
         collider_groups_json = secondaryAnimation_json["colliderGroups"]
-        nodes_json = vrm_pydata.json["nodes"]
+        nodes_json = self.vrm_pydata.json["nodes"]
         for bone_group in spring_rootbone_groups_json:
             for bone_id in bone_group["bones"]:
                 bone = self.armature.data.bones[nodes_json[bone_id]["name"]]
@@ -683,7 +684,7 @@ class Blend_model():
                         continue
                     bone[key] = val
 
-        model_name = vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
+        model_name = self.vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
         coll = bpy.data.collections.new(f"{model_name}_colliders")
         self.model_collection.children.link(coll)
         for collider_group in collider_groups_json:
