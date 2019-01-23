@@ -71,7 +71,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
         node_name_set = set()
         for obj in bpy.context.selected_objects:
             if obj.name in node_name_set:
-                print("VRM exporter need Nodes(mesh,bones) name is unique. {} is duplicated.".format(obj.name))
+                print("VRM exporter need Nodes(mesh,bones) name is unique. {} is doubled.".format(obj.name))
             node_name_set.add(obj.name)
             if obj.type != "EMPTY" and (obj.parent is not None and obj.parent.type != "ARMATURE" and obj.type == "MESH"):
                 if obj.location != Vector([0.0,0.0,0.0]):#mesh and armature origin is on [0,0,0]
@@ -80,15 +80,15 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 armature = obj
                 armature_count += 1
                 if armature_count > 2:#only one armature
-                    print("VRM expoter needs only one armature")
+                    print("VRM exporter needs only one armature not some armatures")
                 already_root_bone_exist = False
                 for bone in obj.data.bones:
                     if bone.name in node_name_set:#nodes name is unique
-                        print("VRM exporter need Nodes(mesh,bones) name is unique. {} is duplicated".format(bone.name))
+                        print("VRM exporter need Nodes(mesh,bones) name is unique. {} is doubled".format(bone.name))
                     node_name_set.add(bone.name)
                     if bone.parent == None: #root bone is only 1
                         if already_root_bone_exist:
-                            print("root bone is only one {},{}".format(bone.name,already_root_bone_exist))
+                            print("root bone is only one {},{} are root bone now".format(bone.name,already_root_bone_exist))
                         already_root_bone_exist = bone.name
                 #TODO: T_POSE,
                 require_human_bone_dic = {bone_tag : None for bone_tag in [
@@ -100,7 +100,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     if "humanBone" in bone.keys():
                         if bone["humanBone"] in require_human_bone_dic.keys():
                             if require_human_bone_dic[bone["humanBone"]]:
-                                print("humanBone is Dubled with {},{}".format(bone.name,require_human_bone_dic[bone["humanBone"]].name))
+                                print("humanBone is doubled with {},{}".format(bone.name,require_human_bone_dic[bone["humanBone"]].name))
                             else:
                                 require_human_bone_dic[bone["humanBone"]] = bone
                 for k,v in require_human_bone_dic.items():
@@ -140,8 +140,9 @@ class VRM_VALIDATOR(bpy.types.Operator):
         except:
             pass
         for img in used_image:
-            if img.is_dirty:
+            if img.is_dirty or img.filepath =="":
                 print("{} is not saved, please save.".format(img.name))
+
         #TODO textblock_validate
         print("validation finished")
         return {"FINISHED"}
