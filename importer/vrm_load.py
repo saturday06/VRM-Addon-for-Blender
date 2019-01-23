@@ -71,9 +71,16 @@ def read_vrm(model_path):
         if "KHR_DRACO_MESH_COMPRESSION" in vrm_pydata.json["extensionsRequired"]:
             raise Exception("This VRM has DRACO COMPRESSION. This importer can't read this VRM. Draco圧縮されたVRMは未対応です")
     #改変不可ﾗｲｾﾝｽを撥ねる
-    if "licenseName" in vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]:
-        if re.match("CC(.*)ND(.*)", vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"]) is not None:
+    #CC_ND
+    if "licenseName" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
+        if re.match("CC(.*)ND(.*)", vrm_pydata.json["extensions"]["VRM"]["meta"]["licenseName"]) is not None:
             raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
+    #Vroidbhub licence
+    if "otherPermissionUrl" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
+        from urllib.parse import parse_qsl,urlparse
+        if "vroid" in urlparse(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]).hostname:
+            if dict(parse_qsl(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"])).get("modification") == "disallow":
+                raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
     #オリジナルライセンスに対する注意
         if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
             print("Is this VRM allowed to Edit? CHECK IT LICENSE")
