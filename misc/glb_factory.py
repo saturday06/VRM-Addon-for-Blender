@@ -151,7 +151,7 @@ class Glb_obj():
 			
 			mat_dic["pbrMetallicRoughness"]= {
                 "baseColorFactor":[*b_mat.diffuse_color,1.0],
-                "metallicFactor": 0,
+				"metallicFactor": 0,
                 "roughnessFactor": 0.9
             }
 			if b_mat.texture_slots[0] is not None :
@@ -319,6 +319,19 @@ class Glb_obj():
 			unique_vertex_id_dic = {} #loop verts id : base vertex id (uv違いを同じ頂点番号で管理されているので)
 			unique_vertex_dic = {} # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
 			uvlayers_dic = {i:uvlayer.name for i,uvlayer in enumerate(mesh.data.uv_layers)}
+			def fetch_morph_vertex_normal_difference(): #TODO 実装
+				morph_normal_diff_dic = {}
+				vert_base_normal_dic = OrderedDict()
+				for kb in mesh.data.shape_keys.key_blocks:
+					vert_base_normal_dic.update( {kb.name:kb.normals_vertex_get()})
+				for k,v in vert_base_normal_dic.items():
+					if k == "Basis":
+						continue
+					values = []
+					for vert_morph_normal,vert_base_normal in zip(zip(*[iter(v)]*3),zip(*[iter(vert_base_normal_dic["Basis"])]*3)):
+						values.append([vert_morph_normal[i]- vert_base_normal[i] for i in range(3)])
+					morph_normal_diff_dic.update({k:values})
+				return morph_normal_diff_dic
 			#endregion  tempolary_used
 			primitive_index_bin_dic = OrderedDict({mat_id_dic[mat.name]:b"" for mat in mesh.material_slots})
 			primitive_index_vertex_count = OrderedDict({mat_id_dic[mat.name]:0 for mat in mesh.material_slots})
@@ -326,10 +339,12 @@ class Glb_obj():
 				shape_pos_bin_dic = {}
 				shape_normal_bin_dic = {}
 				shape_min_max_dic = {}
+				morph_normal_diff_dic = {}
 			else:
 				shape_pos_bin_dic = OrderedDict({shape.name:b"" for shape in mesh.data.shape_keys.key_blocks[1:]})#0番目Basisは省く
 				shape_normal_bin_dic = OrderedDict({shape.name:b"" for shape in mesh.data.shape_keys.key_blocks[1:]})
 				shape_min_max_dic = OrderedDict({shape.name:[[fmax,fmax,fmax],[fmin,fmin,fmin]] for shape in mesh.data.shape_keys.key_blocks[1:]})
+				morph_normal_diff_dic = fetch_morph_vertex_normal_difference() #{morphname:{vertexid:[diff_X,diff_y,diff_z]}}
 			position_bin =b""
 			position_min_max = [[fmax,fmax,fmax],[fmin,fmin,fmin]]
 			normal_bin = b""
@@ -369,7 +384,7 @@ class Glb_obj():
 						shape_layer = bm.verts.layers.shape[shape_name]
 						morph_pos = self.axis_blender_to_glb( [loop.vert[shape_layer][i] - loop.vert.co[i] for i in range(3)])
 						shape_pos_bin_dic[shape_name] += f_vec3_packer(*morph_pos)
-						shape_normal_bin_dic[shape_name] +=f_vec3_packer(*[0.0,0.0,0.0]) #FIXME: ちゃんとした値を入れる
+						shape_normal_bin_dic[shape_name] +=f_vec3_packer(*self.axis_blender_to_glb(morph_normal_diff_dic[shape_name][loop.vert.index]))
 						min_max(shape_min_max_dic[shape_name],morph_pos)
 					if is_skin_mesh:			
 						magic = 0
