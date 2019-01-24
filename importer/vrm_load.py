@@ -78,10 +78,13 @@ def read_vrm(model_path):
     #Vroidbhub licence
     if "otherPermissionUrl" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
         from urllib.parse import parse_qsl,urlparse
-        if "vroid" in urlparse(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]).hostname:
+        address = urlparse(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]).hostname
+        if address is None:
+            pass
+        elif "vroid" in address :
             if dict(parse_qsl(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"])).get("modification") == "disallow":
                 raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
-    #オリジナルライセンスに対する注意
+     #オリジナルライセンスに対する注意
         if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
             print("Is this VRM allowed to Edit? CHECK IT LICENSE")
 

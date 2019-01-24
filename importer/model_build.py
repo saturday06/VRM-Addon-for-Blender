@@ -181,10 +181,12 @@ class Blend_model():
             b_mat["shader_name"] = mat.shader_name
             if type(mat) == VRM_Types.Material_GLTF:
                 self.build_material_from_GLTF(b_mat, mat)
-            if type(mat) == VRM_Types.Material_MToon:
+            elif type(mat) == VRM_Types.Material_MToon:
                 self.build_material_from_MToon(b_mat, mat)
-            if type(mat) == VRM_Types.Material_Transparent_Z_write:
-                self.build_material_from_Transparent_Z_write
+            elif type(mat) == VRM_Types.Material_Transparent_Z_write:
+                self.build_material_from_Transparent_Z_write(b_mat, mat)
+            else :
+                print(f"unknown material {mat.name}")
             self.node_placer(b_mat.node_tree.nodes["Material Output"])
             self.material_dict[index] = b_mat
         return
