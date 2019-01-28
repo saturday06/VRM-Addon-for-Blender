@@ -142,6 +142,9 @@ class VRM_VALIDATOR(bpy.types.Operator):
         for img in used_image:
             if img.is_dirty or img.filepath =="":
                 print("{} is not saved, please save.".format(img.name))
+            if image.file_format.lower() not in ["png","jpeg"]:
+                print("GLTF texture format is PNG AND JPEG only")
+
 
         #TODO textblock_validate
         print("validation finished")

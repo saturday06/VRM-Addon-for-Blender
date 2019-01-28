@@ -55,6 +55,9 @@ class Glb_obj():
 			if image.is_dirty:
 				print("unsaved image name:{}, please save it".format(image.name))
 				raise Exception()
+			if image.file_format.lower() not in ["png","jpeg"]:
+				print("GLTF texture format is PNG AND JPEG only")
+				raise Exception()
 			with open(image.filepath_from_user(),"rb") as f:
 				image_bin = f.read()
 			name = image.name
