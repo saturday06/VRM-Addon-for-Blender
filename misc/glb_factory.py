@@ -483,7 +483,7 @@ class Glb_obj():
 		#materialProperties　は　material_to_dic()で処理する
 		#region vrm_extension
 		vrm_extension_dic = OrderedDict()
-
+		vrm_extension_dic["exporterVersion"] = "icyp_blender_vrm_exporter_experimental_0.0"
 		#region meta
 		vrm_extension_dic["meta"] = vrm_meta_dic = {}
 		vrm_metas = [
