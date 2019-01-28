@@ -70,6 +70,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
         armature_count = 0
         armature = None
         node_name_set = set()
+        #region selected object seeking
         for obj in bpy.context.selected_objects:
             if obj.name in node_name_set:
                 messages.add("VRM exporter need Nodes(mesh,bones) name is unique. {} is doubled.".format(obj.name))
@@ -127,6 +128,10 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     if poly.loop_total > 3:#polygons need all triangle
                         messages.add("There are not Triangle faces in {}".format(obj.name))
                 #TODO modifier applyed, vertex weight Bone exist, vertex weight numbers.
+        #endregion selected object seeking
+        if armature_count == 0:
+            messages.add("NO ARMATURE!")
+            
         used_image = []
         used_material_set = set()
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
