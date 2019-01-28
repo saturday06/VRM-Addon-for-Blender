@@ -14,6 +14,8 @@ from sys import float_info
 import bpy,bmesh
 class Glb_obj():
 	def __init__(self):
+		bpy.ops.vrm.model_validate()
+		
 		self.json_dic = OrderedDict()
 		self.bin = b""
 		self.glb_bin_collector = Glb_bin_collection()
