@@ -191,66 +191,17 @@ class Blend_model():
             self.material_dict[index] = b_mat
         return
     #region material_util func
-    def set_material_transparent(self,b_mat, transparent_mode):
+    def set_material_transparent(self,b_mat,pymat, transparent_mode):
         if transparent_mode == "OPAQUE":
-            b_mat.use_transparency = False
-        elif transparent_mode == "Z_TRANSPARENCY":
-            b_mat.use_transparency = True
-            b_mat.alpha = 1
-            b_mat.transparency_method = "Z_TRANSPARENCY"
-        elif transparent_mode == "MASK":
-            b_mat.use_transparency = True
-            b_mat.alpha = 1
-            b_mat.transparency_method = "MASK"
+            pass
+        elif transparent_mode == "CUTOUT":
+            b_mat.blend_method = "CLIP"
+            b_mat.alpha_threshold = pymat.float_props_dic.get("_Cutoff") if pymat.float_props_dic.get("_Cutoff") else 0.5
+            b_mat.transparent_shadow_method = "CLIP"
+        else: #Z_TRANSPARENCY or Z()_zwrite
+            b_mat.blend_method = "HASHED"
+            b_mat.transparent_shadow_method = "HASHED"
         return
-
-    def texture_add(self,b_mat,b_texture,texture_param_dict,slot_param_dict):
-        ts = b_mat.texture_slots.add()
-        ts.texture = b_texture
-        for attr,param in texture_param_dict.items():
-            setattr(ts.texture,attr,param)
-        for attr,param in slot_param_dict.items():
-            setattr(ts,attr,param)
-        return ts
-
-    def texture_add_helper(self, b_mat, texture_id, mapping, uv_layer_num=0,
-                            texture_param_dict = None, slot_param_dict=None):
-        if texture_id == None:
-            return
-        b_texture = self.textures[texture_id]
-        texture_param_dict = {} if texture_param_dict == None else texture_param_dict
-        slot_param_dict = {} if slot_param_dict == None else slot_param_dict
-        slot_param_dict.update({"texture_coords": mapping})
-        if mapping == "UV":
-            slot_param_dict.update({"uv_layer": f"TEXCOORD_{uv_layer_num}"})
-        tex_slot = self.texture_add(b_mat, b_texture, texture_param_dict, slot_param_dict)
-        return tex_slot
-
-    def color_texture_add(self, b_mat, texture_index, uv_layer_index):
-        self.texture_add_helper(
-            b_mat, texture_index,
-            "UV", uv_layer_index, None,
-            {"use_map_alpha": True, "blend_type": "MULTIPLY"}
-            )
-    def normal_texture_add(self, b_mat, texture_index, uv_layer_index):
-        self.texture_add_helper(
-            b_mat, texture_index,
-            "UV", uv_layer_index,
-            {"use_normal_map": True},
-            {"blend_type": "MIX",
-            "use_map_color_diffuse":False,
-            "use_map_normal": True})
-
-    def un_affect_texture_add(self, b_mat, texture_index, uv_layer_index, role):
-        ts = self.texture_add_helper(
-            b_mat,texture_index,
-            "UV", uv_layer_index,
-            None,
-            {"use_map_color_diffuse": False})
-        if ts is not None:
-            if "role" in ts.texture:
-                print(f"{ts.texture.name} texture's role :{role}: is over written")             
-            ts.texture["role"] = role
 
     def material_init(self,b_mat):
         b_mat.use_nodes = True
@@ -304,6 +255,7 @@ class Blend_model():
     #endregion material_util func
 
     def build_material_from_GLTF(self, b_mat, pymat):
+        self.material_init(b_mat)
         gltf_node_name = "GLTF"
         self.node_group_import(gltf_node_name)
         sg = self.node_group_create(b_mat,gltf_node_name)
@@ -319,8 +271,8 @@ class Blend_model():
         self.connect_texture_node(b_mat,pymat.occlusion_texture_index,sg.inputs["occlusion_texture"])
         self.connect_value_node(b_mat,pymat.shadeless,"unlit")
 
-        if pymat.alphaMode != "OPAQUE":#TODO cutout
-            b_mat.blend_method = "HASHED"
+        transparant_exchange_dic = {"OPAQUE":"OPAQUE","MASK":"CUTOUT","Z_TRANSPARENCY":"Z_TRANSPARENCY"}
+        self.set_material_transparent(b_mat,pymat, transparant_exchange_dic[pymat.alphaMode])
         return
 
     def build_material_from_MToon(self, b_mat, pymat):
@@ -330,7 +282,6 @@ class Blend_model():
         sphire_add_vector_node_group_name = "matcap_vector"
         self.node_group_import(shader_node_group_name)
         self.node_group_import(sphire_add_vector_node_group_name)
-
 
         sg = self.node_group_create(b_mat,shader_node_group_name)
         b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["Emission"])
@@ -372,27 +323,33 @@ class Blend_model():
                 tex_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect= sg.inputs[tex_dic[tex_name]])
                 b_mat.node_tree.links.new(tex_node.inputs["Vector"],self.node_group_create(b_mat,sphire_add_vector_node_group_name).outputs["Vector"])
             else:
-                self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
+                if tex_dic.get(tex_name) is not None:
+                    self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
+                else:
+                    print(f"{tex_name} is unknown texture")
+        
+        transparant_exchange_dic = {0:"OPAQUE",1:"CUTOUT",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
+        transparent_mode = transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]]
+        self.set_material_transparent(b_mat,pymat,transparent_mode)
 
-        transparant_exchange_dic = {0:"OPAQUE",1:"MASK",2:"Z_TRANSPARENCY",3:"Z_TRANSPARENCY"}#Trans_Zwrite(3)も2扱いで。
-        if transparant_exchange_dic[pymat.float_props_dic["_BlendMode"]] != "OPAQUE":#TODO cutout
-            b_mat.blend_method = "HASHED"
-            b_mat.transparent_shadow_method = "HASHED"
-            
         return
 
     def build_material_from_Transparent_Z_write(self, b_mat, pymat):
+        self.material_init(b_mat)
+
+        z_write_tranparent_sg = "TRANSPARENT_ZWRITE"
+        self.node_group_import(z_write_tranparent_sg)
+        sg = self.node_group_create(b_mat,z_write_tranparent_sg)
+        b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["Emission"])
+ 
         for k, v in pymat.float_props_dic.items():
+            b_mat[k] = v
+        for k, v in pymat.vector_props_dic.items():
             b_mat[k] = v
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_name == "_MainTex":
-                self.color_texture_add(b_mat, tex_index, 0)
-        for k, v in pymat.vector_props_dic.items():
-            if k == "_Color":
-                b_mat.diffuse_color = v[0:3]
-            else:
-                b_mat[k] = v
-        self.set_material_transparent(b_mat,"Z_TRANSPARENCY")          
+                self.connect_texture_node(b_mat,tex_index,sg.inputs["Main_Texture"],sg.inputs["Main_Alpha"])
+        self.set_material_transparent(b_mat,pymat,"Z_TRANSPARENCY")          
         return                
 
     #endregion material
@@ -427,13 +384,10 @@ class Blend_model():
                         obj.parent_type = "BONE"
                         obj.parent_bone = self.armature.data.bones[self.vrm_pydata.nodes_dict[parent_id].name].name
                         #boneのtail側にparentされるので、根元からmesh nodeのpositionに動かしなおす
-                        #obj.location = node[0].position
                         obj.matrix_world =  Matrix.Translation([self.armature.matrix_world.to_translation()[i]  \
                                             + self.armature.data.bones[obj.parent_bone].matrix_local.to_translation()[i] \
                                             + node[0].position[i] for i in range(3)] )
 
-                        #obj.rotation_euler[2] = numpy.deg2rad(90)
-                        #bpy.ops.object.transform_apply(rotation=True)
                         
 
             
@@ -515,9 +469,7 @@ class Blend_model():
                 for basePos,morphPos in zip(basePoints,morphTargetpos):
                     #numpy.array毎回作るのは見た目きれいだけど8倍くらい遅い
                     shape_key_Positions.append([
-                        basePos[0] + morphPos[0],
-                        basePos[1] + morphPos[1],
-                        basePos[2] + morphPos[2]
+                        basePos[i] + morphPos[i] for i in range(3)
                     ])
                 morph_cache_dict[(pymesh.POSITION_accessor,morphTargetindex)] = shape_key_Positions
                 return shape_key_Positions
@@ -572,7 +524,7 @@ class Blend_model():
         #endregion humanoid_parameter
         #region first_person
         firstperson_params = copy.deepcopy(vrm_ext_dic["firstPerson"])
-        if firstperson_params["firstPersonBone"] != -1:
+        if firstperson_params.get("firstPersonBone") != None and firstperson_params["firstPersonBone"] != -1:
             firstperson_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][firstperson_params["firstPersonBone"]]["name"]
         if "meshAnnotations" in firstperson_params.keys():
             for meshAnotation in firstperson_params["meshAnnotations"]:

@@ -32,8 +32,9 @@ def bone(node)->VRM_Types.Node:
 
 
 def material(mat,ext_mat,textures)->VRM_Types.Material:
-
-    if "VRM_USE_GLTFSHADER" in ext_mat["shader"]:  #standard, or VRM unsuported shader(no saved)
+    #standard, or VRM unsuported shader(no saved)
+    if ext_mat["shader"] == "VRM_USE_GLTFSHADER" \
+             or ext_mat["shader"] not in ["VRM/MToon","VRM/UnlitTransparentZWrite"]:
         v_mat = VRM_Types.Material_GLTF()
         v_mat.name = mat["name"]
         v_mat.shader_name = "gltf"
@@ -70,6 +71,10 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
         if "alphaMode" in mat:
             if mat["alphaMode"] == "MASK":
                 v_mat.alpha_mode = "MASK"
+                if v_mat.get("alphaCutoff"):
+                    v_mat.alphaCutoff = v_mat.get("alphaCutoff")
+                else:
+                    v_mat.alphaCutoff = 0.5
             if mat["alphaMode"] == "BLEND":
                 v_mat.alpha_mode = "Z_TRANSPARENCY"
             if mat["alphaMode"] == "OPAQUE":
@@ -101,13 +106,14 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
             v_mat.keyword_dic.update(ext_mat["keywordMap"])
             v_mat.tag_dic.update(ext_mat["tagMap"])
 
-        if ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
+        elif ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
             v_mat = VRM_Types.Material_Transparent_Z_write()
             v_mat.shader_name = ext_mat["shader"]
             v_mat.float_prop_dic.update(ext_mat["floatProperties"])
             v_mat.vector_props_dic.update(ext_mat["vectorProperties"])
             v_mat.texture_index_dic.update(ext_mat["textureProperties"])
-
+        else:
+            print(f"unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}")
     return v_mat
 
 
