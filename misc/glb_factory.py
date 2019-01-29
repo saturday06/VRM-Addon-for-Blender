@@ -160,7 +160,7 @@ class Glb_obj():
                 "roughnessFactor": 0.9
             }
 			if b_mat.texture_slots[0] is not None :
-				mat_dic.update({"baseColorTexture": {
+				mat_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
 						"index": image_id_dic[b_mat.texture_slots[0].texture.image.name],
 						"texCoord": 0 #TODO:
 					}})
