@@ -145,7 +145,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
         try:
             used_image.append(bpy.data.images[armature["texture"]])
         except:
-            pass
+            messages.add("thumbnail_image is missing. please load {}".format(armature["texture"]))
         for img in used_image:
             if img.is_dirty or img.filepath =="":
                 messages.add("{} is not saved, please save.".format(img.name))
@@ -163,6 +163,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
             raise Exception           
         return {"FINISHED"}
 
+    #region 3Dview drawer
     draw_func = None
     counter = 0
     @staticmethod
@@ -195,3 +196,4 @@ class VRM_VALIDATOR(bpy.types.Operator):
         VRM_VALIDATOR.counter -= 1
         if VRM_VALIDATOR.counter <= 0:
             VRM_VALIDATOR.draw_func_remove()
+    #endregion 3Dview drawer

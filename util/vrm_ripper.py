@@ -28,25 +28,5 @@ if messagebox.askyesno(message = "write VRM.json?"):
     writejsonpath = os.path.join(writedir,"vrm.json")
     with open(writejsonpath,"w")as f:
         json.dump(vrm_json,f,indent = 4)
-if messagebox.askyesno(message = "rip images?"):
-    writedir = exsitOrMakedir(model_path)
-    binaly = Binaly_Reader(bin)
-    bufferViews = vrm_json["bufferViews"]
-    accessors = vrm_json["accessors"]
-    for id,image_prop in enumerate(vrm_json["images"]):
-        if "extra" in image_prop:
-            image_name = image_prop["extra"]["name"]
-        else :
-            image_name = image_prop["name"]
-        if image_name == "":
-            image_name = "texture_" +str(id)
-        binaly.set_pos(bufferViews[image_prop["bufferView"]]["byteOffset"])
-        image_binary = binaly.read_binaly(bufferViews[image_prop["bufferView"]]["byteLength"])
-        image_type = image_prop["mimeType"].split("/")[-1]
-        image_path = os.path.join(writedir, image_name + "." + image_type)
-        if not os.path.exists(image_path):
-            with open(image_path, "wb") as imageWriter:
-                imageWriter.write(image_binary)
-        else:
-            print(image_name + " Image is already exists. NOT OVER WRITTEN")
+
 

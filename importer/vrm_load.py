@@ -118,10 +118,38 @@ def texture_rip(vrm_pydata,body_binary):
         if image_name == "":
             image_name = "texture_" + str(id)
             print("no name image is named {}".format(image_name))
+        elif len(image_name) >=50: 
+            print("too long name image: {} is named {}".format(image_name,"tex_2longname_"+str(id)))
+            image_name = "tex_2longname_"+str(id)
+
+        def invalid_chars_remover(filename):
+            unsafe_chars = {
+             0: '\x00', 1: '\x01', 2: '\x02', 3: '\x03', 4: '\x04', 5: '\x05', 6: '\x06', 7: '\x07', 8: '\x08', 9: '\t', 10: '\n',\
+             11: '\x0b', 12: '\x0c', 13: '\r', 14: '\x0e', 15: '\x0f', 16: '\x10', 17: '\x11', 18: '\x12', 19: '\x13', 20: '\x14',\
+             21: '\x15', 22: '\x16', 23: '\x17', 24: '\x18', 25: '\x19', 26: '\x1a', 27: '\x1b', 28: '\x1c', 29: '\x1d', 30: '\x1e',\
+             31: '\x1f', 34: '"', 42: '*', 47: '/', 58: ':', 60: '<', 62: '>', 63: '?', 92: '\\', 124: '|'
+             } #32:space #33:! 
+            remove_table = str.maketrans("","","".join([chr(charnum) for charnum in unsafe_chars.keys()]))
+            safe_filename = filename.translate(remove_table)
+            return safe_filename
+        image_name = invalid_chars_remover(image_name)
         image_path = os.path.join(vrm_dir_path, image_name + "." + image_type)
-        if not os.path.exists(image_path):#すでに同名の画像がある場合は上書きしない
+        if not os.path.exists(image_path):#すでに同名の画像がある場合は基本上書きしない
             with open(image_path, "wb") as imageWriter:
                 imageWriter.write(image_binary)
+        elif image_name in [img.name for img in vrm_pydata.image_propaties]:#ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
+            written_flag = False
+            for i in range(5):
+                second_image_name = image_name+"_"+str(i)
+                image_path = os.path.join(vrm_dir_path, second_image_name + "." + image_type)
+                if not os.path.exists(image_path):
+                    with open(image_path, "wb") as imageWriter:
+                        imageWriter.write(image_binary)
+                    image_name = second_image_name
+                    written_flag = True
+                    break
+            if not written_flag:
+                print("Thare are same name images more than 5 in folder. Failed to write file: {}".format(image_name))
         else:
             print(image_name + " Image is already exists. NOT OVER WRITTEN")
         image_propaty = VRM_Types.Image_props(image_name,image_path,image_type)
