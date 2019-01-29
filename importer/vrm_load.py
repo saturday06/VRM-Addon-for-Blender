@@ -205,15 +205,21 @@ def mesh_read(vrm_pydata):
             #頂点属性は実装によっては存在しない属性（例えばJOINTSやWEIGHTSがなかったりもする）もあるし、UVや頂点カラー0->Nで増やせる（ｽｷﾆﾝｸﾞは1要素(ﾎﾞｰﾝ4本)限定
             for attr in vertex_attributes.keys():
                 vrm_mesh.__setattr__(attr,vrm_pydata.decoded_binary[vertex_attributes[attr]])
+
             #region TEXCOORD_FIX [ 古いuniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
-            #uvは0-1にある前提で、マイナスであれば変換ミスとみなす
+            legacy_uv_flag = False #f***
+            if vrm_pydata.json.get("aseets"):
+                if vrm_pydata["assets"].get("generator"):
+                    if vrm_pydata["assets"]["generator"][0:7] == "UniGLTF":
+                        if float("".join(vrm_pydata["assets"]["generator"][-4:])) < 1.16:
+                            legacy_uv_flag = True
             uv_count = 0
             while True:
                 texcoordName = "TEXCOORD_{}".format(uv_count)
                 if hasattr(vrm_mesh, texcoordName): 
                     texcoord = getattr(vrm_mesh,texcoordName)
                     for uv in texcoord:
-                        if uv[1] < 0:
+                        if legacy_uv_flag:
                             uv[1] = 1 + uv[1]
                     uv_count +=1
                 else:

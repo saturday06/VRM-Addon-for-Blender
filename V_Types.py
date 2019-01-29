@@ -69,9 +69,9 @@ class Material_GLTF(Material):
     def __init__(self):
         super().__init__()
 
-        self.base_color = None
-        self.metallic_factor = None
-        self.roughness_factor = None
+        self.base_color = [1,1,1,1]
+        self.metallic_factor = 1
+        self.roughness_factor = 1
         self.emissive_factor = None
 
         self.color_texture_index = None

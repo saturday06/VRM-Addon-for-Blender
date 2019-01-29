@@ -161,16 +161,21 @@ class Glb_obj():
                 "metallicFactor": 0,
                 "roughnessFactor": 0.9
             }
-			if b_mat.texture_slots[0] is not None :
-				mat_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
-						"index": image_id_dic[b_mat.texture_slots[0].texture.image.name],
+			for slot_id,texslot in enumerate(b_mat.texture_slots):
+				if texslot == None:
+					continue
+				if texslot.use_map_color_diffuse:
+					if texslot.texture_coords == "UV":		
+						mat_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
+						"index": image_id_dic[texslot.texture.image.name],
 						"texCoord": 0 #TODO:
-					}})
+						}})
 
 			if not b_mat.use_transparency:
 				mat_dic["alphaMode"] = "OPAQUE"
 			elif b_mat.transparency_method == "MASK":
 				mat_dic["alphaMode"] = "MASK"
+				mat_dic["alphaCutoff"] = 0.5
 			else:# Z_TRANSPARENCY or RAYTRACE
 				mat_dic["alphaMode"] = "BLEND"
 			glb_material_list.append(mat_dic)
