@@ -72,7 +72,7 @@ class Material_GLTF(Material):
         self.base_color = [1,1,1,1]
         self.metallic_factor = 1
         self.roughness_factor = 1
-        self.emissive_factor = None
+        self.emissive_factor = [0,0,0]
 
         self.color_texture_index = None
         self.color_texcood_index = None

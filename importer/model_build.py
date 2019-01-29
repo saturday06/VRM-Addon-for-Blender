@@ -208,6 +208,8 @@ class Blend_model():
         b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
         return
     def connect_value_node(self,material, value ,socket_to_connect):
+        if value is None:
+            return None
         value_node = material.node_tree.nodes.new("ShaderNodeValue")
         value_node.label = socket_to_connect.name
         value_node.outputs[0].default_value = value if value else 1.0
@@ -222,6 +224,8 @@ class Blend_model():
         return rgb_node
 
     def connect_texture_node(self,material,tex_index,color_socket_to_connect = None,alpha_socket_to_connect = None):
+        if tex_index is None:
+            return None
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         image_node.image = self.textures[self.vrm_pydata.json["textures"][tex_index]["source"]].image
         image_node.label = color_socket_to_connect.name
@@ -259,17 +263,19 @@ class Blend_model():
         gltf_node_name = "GLTF"
         self.node_group_import(gltf_node_name)
         sg = self.node_group_create(b_mat,gltf_node_name)
-        self.connect_rgb_node(b_mat,[*pymat.base_color,1],sg.inputs["base_Color"])
+        b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["BSDF"])
+
+        self.connect_rgb_node(b_mat,pymat.base_color,sg.inputs["base_Color"])
         self.connect_texture_node(b_mat,pymat.color_texture_index,sg.inputs["color_texture"])
         self.connect_value_node(b_mat,pymat.metallic_factor,sg.inputs["metallic"])
         self.connect_value_node(b_mat,pymat.roughness_factor,sg.inputs["roughness"])
         self.connect_texture_node(b_mat,pymat.metallic_roughness_texture_index,\
             sg.inputs["metallic_roughness_texture"])
-        self.connect_value_node(b_mat,[*pymat.emissive_factor,1],sg.inputs["emissive_color"])
+        self.connect_rgb_node(b_mat,[*pymat.emissive_factor,1],sg.inputs["emissive_color"])
         self.connect_texture_node(b_mat,pymat.emissive_texture_index,sg.inputs["emissive_texture"])
         self.connect_texture_node(b_mat,pymat.normal_texture_index,sg.inputs["normal"])
         self.connect_texture_node(b_mat,pymat.occlusion_texture_index,sg.inputs["occlusion_texture"])
-        self.connect_value_node(b_mat,pymat.shadeless,"unlit")
+        self.connect_value_node(b_mat,pymat.shadeless,sg.inputs["unlit"])
 
         transparant_exchange_dic = {"OPAQUE":"OPAQUE","MASK":"CUTOUT","Z_TRANSPARENCY":"Z_TRANSPARENCY"}
         self.set_material_transparent(b_mat,pymat, transparant_exchange_dic[pymat.alphaMode])
