@@ -8,6 +8,7 @@ from .glb_bin_collector import Glb_bin_collection, Image_bin, Glb_bin
 from ..gl_const import GL_CONSTANS
 from .. import V_Types as VRM_types
 from collections import OrderedDict
+from math import pow
 import json
 import struct
 from sys import float_info
@@ -21,6 +22,7 @@ class Glb_obj():
 		self.glb_bin_collector = Glb_bin_collection()
 		self.armature = [obj for obj in bpy.context.selected_objects if obj.type == "ARMATURE"][0]
 		self.result = None
+
 	def convert_bpy2glb(self):
 		self.image_to_bin()
 		self.armature_to_node_and_scenes_dic() #親のないboneは1つだけ as root_bone
@@ -154,9 +156,9 @@ class Glb_obj():
 			#region pbr_mat
 			mat_dic = {"name":b_mat.name}
 			
-			mat_dic["pbrMetallicRoughness"]= {
+			mat_dic["pbrMetallicRoughness"] = {
                 "baseColorFactor":[*b_mat.diffuse_color,1.0],
-				"metallicFactor": 0,
+                "metallicFactor": 0,
                 "roughnessFactor": 0.9
             }
 			if b_mat.texture_slots[0] is not None :
@@ -182,6 +184,7 @@ class Glb_obj():
 			v_mat_dic["keywordMap"] = keyword_map = {}
 			v_mat_dic["tagMap"] = tag_map = {}
 			#TODO: vector props
+
 			def get_prop(material, prop_name, defo):
 				return [*material[prop_name]] if prop_name in material.keys() else defo
 			v_mat_dic["vectorProperties"] = vec_dic = OrderedDict()
@@ -613,7 +616,13 @@ class Glb_obj():
 		self.json_dic.update(bin_json)
 		magic = b'glTF' + struct.pack('<I', 2)
 		json_str = json.dumps(self.json_dic).encode("utf-8")
+		if len(json_str)%4 !=0:
+			for i in range(4 - len(json_str)%4):
+				json_str += b"\x20"
 		json_size = struct.pack("<I", len(json_str))
+		if len(self.bin)%4 !=0:
+			for i in range(4-len(self.bin)%4):
+				self.bin += b"\x00"
 		bin_size = struct.pack("<I",len(self.bin))
 		total_size = struct.pack("<I",len(json_str) + len(self.bin)+28) #include header size
 		self.result = magic + total_size + \

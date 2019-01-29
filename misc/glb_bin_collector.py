@@ -16,25 +16,12 @@ class Glb_bin_collection:
 		bin_dic = OrderedDict()
 		byteOffset = 0
 		bin_dic["bufferViews"] = []
-		bin_dic["images"] = []
-		for img in self.image_bins:
-			self.bin +=img.bin
-			bin_dic["images"].append(OrderedDict({
-				"name": img.name,
-				"bufferView": img.buffer_view_id,
-				"mimeType": img.image_type
-				}))
-			bin_dic["bufferViews"].append(OrderedDict({
-				"buffer": 0,
-				"byteOffset": byteOffset,
-				"byteLength": img.bin_length
-			}))
-			byteOffset += img.bin_length
 		bin_dic["accessors"] = []
+
 		for vab in self.vertex_attribute_bins:
 			self.bin += vab.bin
 			vab_dic = OrderedDict({
-			    "bufferView": vab.buffer_view_id,
+			    "bufferView": self.get_new_buffer_view_id(),
 				"byteOffset": 0,
 				"type": vab.array_type,
 				"componentType": vab.component_type,
@@ -51,13 +38,31 @@ class Glb_bin_collection:
 				"byteLength": vab.bin_length
 			}))
 			byteOffset += vab.bin_length
+
+		bin_dic["images"] = []
+		for img in self.image_bins:
+			self.bin +=img.bin
+			bin_dic["images"].append(OrderedDict({
+				"name": img.name,
+				"bufferView": self.get_new_buffer_view_id(),
+				"mimeType": img.image_type
+				}))
+			bin_dic["bufferViews"].append(OrderedDict({
+				"buffer": 0,
+				"byteOffset": byteOffset,
+				"byteLength": img.bin_length
+			}))
+			byteOffset += img.bin_length
+			
 		bin_dic["buffers"] = [{"byteLength":byteOffset}]
 
 		buffer_view_and_accessors_orderd_dic = bin_dic
 		return buffer_view_and_accessors_orderd_dic,self.bin
 
+	buffer_count = 0
 	def get_new_buffer_view_id(self):
-		return len(self.vertex_attribute_bins) + len(self.image_bins)
+		self.buffer_count += 1
+		return self.buffer_count - 1
 
 	def get_new_image_id(self):
 		return len(self.image_bins)
@@ -69,7 +74,6 @@ class Base_bin():
 	def __init__(self,bin,glb_bin_collection):
 		self.bin = bin
 		self.bin_length = len(bin)
-		self.buffer_view_id = glb_bin_collection.get_new_buffer_view_id()
 
 class Image_bin(Base_bin):
 	def __init__(self,
