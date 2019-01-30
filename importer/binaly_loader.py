@@ -52,6 +52,11 @@ class Binaly_Reader:
         result = struct.unpack('<f', self.data[self.pos:self.pos + 4])[0]
         self.pos += 4
         return result
+        
+    def read_ubyte(self):
+        result = struct.unpack('<B', self.data[self.pos:self.pos + 1])[0]
+        self.pos += 1
+        return result
 
     def read_as_dataType(self,dataType:GL_CONSTANS):
         if dataType == GL_CONSTANS.UNSIGNED_INT:
@@ -64,6 +69,8 @@ class Binaly_Reader:
             return self.read_short()
         elif dataType == GL_CONSTANS.FLOAT:
             return self.read_float()
+        elif dataType == GL_CONSTANS.UNSIGNED_BYTE:
+            return self.read_ubyte()
         else:
             print("unsuppoted type : {}".format(dataType))
             raise Exception
