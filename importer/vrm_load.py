@@ -10,6 +10,7 @@ https://opensource.org/licenses/mit-license.php
 from .binaly_loader import Binaly_Reader
 from ..gl_const import GL_CONSTANS as GLC
 from .. import V_Types as VRM_Types
+from ..V_Types import nested_json_value_getter as json_get
 from . import vrm2pydata_factory
 import os,re,copy
 from math import sqrt,pow
@@ -72,9 +73,8 @@ def read_vrm(model_path):
             raise Exception("This VRM has DRACO COMPRESSION. This importer can't read this VRM. Draco圧縮されたVRMは未対応です")
     #改変不可ﾗｲｾﾝｽを撥ねる
     #CC_ND
-    if "licenseName" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
-        if re.match("CC(.*)ND(.*)", vrm_pydata.json["extensions"]["VRM"]["meta"]["licenseName"]) is not None:
-            raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
+    if re.match("CC(.*)ND(.*)", json_get(vrm_pydata.json,["extensions","VRM","meta","licenseName"],"")):
+        raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
     #Vroidbhub licence
     if "otherPermissionUrl" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
         from urllib.parse import parse_qsl,urlparse
@@ -85,8 +85,8 @@ def read_vrm(model_path):
             if dict(parse_qsl(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"])).get("modification") == "disallow":
                 raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
      #オリジナルライセンスに対する注意
-        if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
-            print("Is this VRM allowed to Edit? CHECK IT LICENSE")
+    if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
+        print("Is this VRM allowed to Edit? CHECK IT LICENSE")
 
     texture_rip(vrm_pydata,body_binary)
 
@@ -208,11 +208,14 @@ def mesh_read(vrm_pydata):
 
             #region TEXCOORD_FIX [ 古いuniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
             legacy_uv_flag = False #f***
-            if vrm_pydata.json.get("aseets"):
-                if vrm_pydata["assets"].get("generator"):
-                    if vrm_pydata["assets"]["generator"][0:7] == "UniGLTF":
-                        if float("".join(vrm_pydata["assets"]["generator"][-4:])) < 1.16:
-                            legacy_uv_flag = True
+            gen = json_get(vrm_pydata.json,["assets","generator"],"")
+            if re.match("UniGLTF",gen):
+                try:
+                    if float("".join(gen[-4:])) < 1.16:
+                        legacy_uv_flag = True
+                except ValueError:
+                    pass
+
             uv_count = 0
             while True:
                 texcoordName = "TEXCOORD_{}".format(uv_count)
@@ -240,10 +243,12 @@ def mesh_read(vrm_pydata):
                     posArray = vrm_pydata.decoded_binary[morphTarget["POSITION"]]
                     if "extra" in morphTarget:#for old AliciaSolid
                         #accesserのindexを持つのは変換時のキャッシュ対応のため
-                        morphTarget_point_list_and_accessor_index_dict[primitive["targets"][i]["extra"]["name"]] = [posArray,primitive["targets"][i]["POSITION"]]
+                        morphName = primitive["targets"][i]["extra"]["name"]
                     else:
+                        morphName = primitive["extras"]["targetNames"][i]
                         #同上
-                        morphTarget_point_list_and_accessor_index_dict[primitive["extras"]["targetNames"][i]] = [posArray,primitive["targets"][i]["POSITION"]]
+                    morphTarget_point_list_and_accessor_index_dict[morphName] = [posArray,primitive["targets"][i]["POSITION"]]
+
                 vrm_mesh.__setattr__("morphTarget_point_list_and_accessor_index_dict",morphTarget_point_list_and_accessor_index_dict)
 
             vrm_pydata.meshes.append(vrm_mesh)
@@ -251,12 +256,8 @@ def mesh_read(vrm_pydata):
 
     #ここからマテリアル
 def material_read(vrm_pydata):
-    VRM_EXTENSION_material_promaties = None
-    textures = None
-    try:
-        VRM_EXTENSION_material_promaties = vrm_pydata.json["extensions"][VRM_Types.VRM]["materialProperties"]
-    except Exception as e:
-        print(e)
+    VRM_EXTENSION_material_promaties = json_get(vrm_pydata.json,["extensions",VRM_Types.VRM,"materialProperties"],\
+                                                default = [{"shader":"VRM_USE_GLTFSHADER"}]*len(vrm_pydata.json["materials"]))
     if "textures" in vrm_pydata.json:
         textures = vrm_pydata.json["textures"]
     for mat,ext_mat in zip(vrm_pydata.json["materials"],VRM_EXTENSION_material_promaties):
@@ -270,7 +271,7 @@ def material_read(vrm_pydata):
     #ついでに[i][3]ではなく、[3][i]にマイナスx,y,zが入っている。　ここで詰まった。(出力時に)
     #joints:JOINTS_0の指定node番号のindex
 def skin_read(vrm_pydata):
-    for skin in vrm_pydata.json["skins"]:
+    for skin in vrm_pydata.json.get("skins",[]):
         vrm_pydata.skins_joints_list.append(skin["joints"])
         if "skeleton" in skin.keys():
             vrm_pydata.skins_root_node_list.append(skin["skeleton"])

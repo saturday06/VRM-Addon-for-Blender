@@ -9,6 +9,7 @@ https://opensource.org/licenses/mit-license.php
 import bpy, bmesh
 from mathutils import Vector,Matrix
 from .. import V_Types as VRM_Types
+from ..V_Types import nested_json_value_getter as json_get
 from math import sqrt,pow,radians
 import numpy
 import os.path
@@ -24,7 +25,7 @@ class Blend_model():
         self.material_dict = None
         self.primitive_obj_dict = None
         self.mesh_joined_objects = None
-        model_name = self.vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
+        model_name = json_get(self.vrm_pydata.json,["extensions",VRM_Types.VRM,"meta","title"],"vrm_model")
         self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
         self.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build(is_put_spring_bone_info)
@@ -73,11 +74,10 @@ class Blend_model():
             tex.image = img
             self.textures.append(tex)
             
-        try:
-            if self.vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"] != -1:
-                self.textures[self.vrm_pydata.json["extensions"]["VRM"]["meta"]["texture"]].image.use_fake_user = True
-        except Exception as e:
-            print(e)
+        thumnail_id =  json_get(self.vrm_pydata.json,["extensions",VRM_Types.VRM,"meta","texture"])
+        if thumnail_id is not None and thumnail_id != -1:
+            self.textures[thumnail_id].image.use_fake_user = True
+
         return
             
     def make_armature(self):
@@ -491,29 +491,23 @@ class Blend_model():
                         keyblock.data[i].co = co
 
     def attach_vrm_attributes(self):
-        VRM_extensions = self.vrm_pydata.json["extensions"][VRM_Types.VRM]
-        try:
-            humanbones_relations = VRM_extensions["humanoid"]["humanBones"]
-            for humanbone in humanbones_relations:
-                self.armature.data.bones[self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]]["humanBone"] = humanbone["bone"]
-        except Exception as e:
-            print(e)
-            pass
-        try:   
-            for metatag,metainfo in VRM_extensions["meta"].items():
-                if metatag == "texture":
-                    self.armature[metatag] = self.textures[metainfo].image.name
-                else:
-                    self.armature[metatag] = metainfo
-        except Exception as e:
-            print(e)
-            pass
+        VRM_extensions = json_get(self.vrm_pydata.json,["extensions",VRM_Types.VRM],{})
+        humanbones_relations = json_get(VRM_extensions,["humanoid","humanBones"],[])
+
+        for humanbone in humanbones_relations:
+            self.armature.data.bones[self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]]["humanBone"] = humanbone["bone"]
+
+        for metatag,metainfo in json_get(VRM_extensions,["meta"],{}).items():
+            if metatag == "texture":
+                self.armature[metatag] = self.textures[metainfo].image.name
+            else:
+                self.armature[metatag] = metainfo
             
         return
 
     def json_dump(self):
-        vrm_ext_dic = self.vrm_pydata.json["extensions"][VRM_Types.VRM]
-        model_name = vrm_ext_dic["meta"]["title"]
+        vrm_ext_dic = json_get(self.vrm_pydata.json,["extensions",VRM_Types.VRM])
+        model_name = json_get(vrm_ext_dic,["meta","title"],"vrm_model")
         textblock = bpy.data.texts.new(name = f"{model_name}_raw.json")
         textblock.write(json.dumps(self.vrm_pydata.json,indent = 4))
 
@@ -530,7 +524,8 @@ class Blend_model():
         #endregion humanoid_parameter
         #region first_person
         firstperson_params = copy.deepcopy(vrm_ext_dic["firstPerson"])
-        if firstperson_params.get("firstPersonBone") != None and firstperson_params["firstPersonBone"] != -1:
+        fp_bone = json_get(firstperson_params,["firstPersonBone"],-1)
+        if fp_bone != -1:
             firstperson_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][firstperson_params["firstPersonBone"]]["name"]
         if "meshAnnotations" in firstperson_params.keys():
             for meshAnotation in firstperson_params["meshAnnotations"]:
@@ -561,6 +556,7 @@ class Blend_model():
         for bone_group in spring_bonegroup_list:
             bone_group["bones"] = [ self.vrm_pydata.json["nodes"][node_id]["name"] for node_id in bone_group["bones"]]
             bone_group["colliderGroups"] = [self.vrm_pydata.json["nodes"][colliderGroups_list[collider_gp_id]["node"]]["name"] for collider_gp_id in bone_group["colliderGroups"]]
+        
         write_textblock_and_assgin_to_armature("spring_bone",spring_bonegroup_list)
         #endregion springbone
 

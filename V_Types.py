@@ -186,5 +186,19 @@ class Material_MToon(Material):
         self.tag_dic = {tag:None for tag in self.tagmap_list}
         
 
+
+def nested_json_value_getter(target_dict,attr_list,default=None):
+    _result = default
+    if isinstance(target_dict,(dict,list)):
+        _attr = attr_list.pop(0)
+        if (isinstance(target_dict,list) and len(target_dict) > abs(_attr)) \
+            or (isinstance(target_dict,dict) and target_dict.get(_attr) is not None):
+                if attr_list:
+                    _result = nested_json_value_getter(target_dict[_attr],attr_list)
+                else:
+                    _result =  target_dict[_attr]  
+    return _result
+
+    
 if "__main__" == __name__:
     pass
