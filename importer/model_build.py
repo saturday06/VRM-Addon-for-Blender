@@ -75,7 +75,7 @@ class Blend_model():
             self.textures.append(tex)
             
         thumnail_id =  json_get(self.vrm_pydata.json,["extensions",VRM_Types.VRM,"meta","texture"])
-        if thumnail_id is not None and thumnail_id != -1:
+        if thumnail_id not in (-1,None):
             self.textures[thumnail_id].image.use_fake_user = True
 
         return
@@ -229,9 +229,9 @@ class Blend_model():
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         image_node.image = self.textures[self.vrm_pydata.json["textures"][tex_index]["source"]].image
         image_node.label = color_socket_to_connect.name
-        if color_socket_to_connect and tex_index != None :
+        if not None in (color_socket_to_connect, tex_index):
             material.node_tree.links.new(color_socket_to_connect,image_node.outputs["Color"])
-        if alpha_socket_to_connect and tex_index != None :
+        if not None in (alpha_socket_to_connect, tex_index) :
             material.node_tree.links.new(alpha_socket_to_connect,image_node.outputs["Alpha"])
         return image_node
 
@@ -399,7 +399,9 @@ class Blend_model():
             
             # vertex groupの作成
             if origin != None:
+                #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
                 nodes_index_list = self.vrm_pydata.skins_joints_list[origin[2]]
+                #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
                 # VertexGroupに頂点属性から一個ずつｳｪｲﾄを入れる用の辞書作り
                 if hasattr(pymesh,"JOINTS_0") and hasattr(pymesh,"WEIGHTS_0"):
                     vg_dict = { #使うkey(bone名)のvalueを空のリストで初期化（中身まで全部内包表記で？キモすぎるからしない。
@@ -409,6 +411,7 @@ class Blend_model():
                     for v_index,(joint_ids,weights) in enumerate(zip(pymesh.JOINTS_0,pymesh.WEIGHTS_0)):
                         for joint_id,weight in zip(joint_ids,weights):
                             node_id = nodes_index_list[joint_id]
+                            #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
                             vg_dict[self.vrm_pydata.nodes_dict[node_id].name].append([v_index,weight])
                     vg_list = [] # VertexGroupのリスト
                     for vg_key in vg_dict.keys():
