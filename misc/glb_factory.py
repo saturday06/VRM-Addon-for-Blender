@@ -66,10 +66,10 @@ class Glb_obj():
 						if shader_vals == "ReceiveShadow_Texture":
 							if node.inputs[shader_vals+"_alpha"].links:
 								n = node.inputs[shader_vals+"_alpha"].links[0].from_node
-								used_image.append(n.image)	                           
-						if node.inputs[shader_vals].links:
-							node = node.inputs[shader_vals].links[0].from_node
-							used_image.append(n.image)
+								used_image.add(n.image)	                           
+						elif node.inputs[shader_vals].links:
+							n = node.inputs[shader_vals].links[0].from_node
+							used_image.add(n.image)
 			#TODO 'GLTF' and 'TRANSPARENT_ZWRITE'
 			elif node.node_tree["SHADER"] == "GLTF":
 				#TODO 
@@ -126,7 +126,7 @@ class Glb_obj():
 				nodes = sorted(nodes,key=lambda node: bone_id_dic[node["name"]])
 		skins.append(skin)
 					
-		"""
+
 		skin_invert_matrix_bin = b""
 		f_4x4_packer = struct.Struct("<16f").pack
 		for node_id in skins[0]["joints"]:
@@ -142,7 +142,7 @@ class Glb_obj():
 
 		IM_bin = Glb_bin(skin_invert_matrix_bin,"MAT4",GL_CONSTANS.FLOAT,len(skins[0]["joints"]),None,self.glb_bin_collector)
 		skins[0]["inverseBindMatrices"] = IM_bin.accessor_id
-		"""
+
 		self.json_dic.update({"scenes":[{"nodes":scene}]})
 		self.json_dic.update({"nodes":nodes})
 		self.json_dic.update({"skins":skins})
@@ -180,21 +180,20 @@ class Glb_obj():
 		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
 				baseColor_texture_name=None,
 				transparent_method = "OPAQUE", transparency_cutoff = 0.5,):
-			fallback_dic = {}
-			mat_dic = {"name":b_mat.name}
-			mat_dic["pbrMetallicRoughness"] = {
-                "baseColorFactor":base_Color,
+			fallback_dic = {"name":b_mat.name}
+			fallback_dic["pbrMetallicRoughness"] = {
+                "baseColorFactor":baseColor,
                 "metallicFactor": metallness,
                 "roughnessFactor": roughness
 			}
 			if baseColor_texture_name:
-				mat_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
+				fallback_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
 						"index": image_id_dic[baseColor_texture_name],
 						"texCoord": 0 #TODO:
 						}})
-			mat_dic["alphaMode"] = transparent_method
+			fallback_dic["alphaMode"] = transparent_method
 			if transparent_method == "MASK":
-				mat_dic["alphaCutoff"] = transparency_cutoff
+				fallback_dic["alphaCutoff"] = transparency_cutoff
 			return fallback_dic
 
 		#region util func
@@ -216,9 +215,9 @@ class Glb_obj():
 			rgba_val = None
 			if shader_node.inputs.get(input_socket_name):
 				if shader_node.inputs.get(input_socket_name).links:
-					rgba_val = shader_node.inputs.get(input_socket_name).links[0].from_node.outputs[0].default_value
+					rgba_val = [shader_node.inputs.get(input_socket_name).links[0].from_node.outputs[0].default_value[i] for i in range(4)]
 				else:
-					rgba_val = shader_node.inputs.get(input_socket_name).default_value				
+					rgba_val = [shader_node.inputs.get(input_socket_name).default_value[4] for i in range(4)]		
 			return rgba_val
 		#endregion util func
 
@@ -231,12 +230,13 @@ class Glb_obj():
 			MToon_float_dic = MToon_dic["floatProperties"] = OrderedDict()
 			MToon_vector_dic = MToon_dic["vectorProperties"] = OrderedDict()
 			MToon_texture_dic = MToon_dic["textureProperties"] = OrderedDict()
-			for float_key,float_prop in [(k,val) for k,val in VRM_types.Material_MToon.float_prop_exchange_dic.items() if val ]:
+			for float_key,float_prop in [(k,val) for k,val in VRM_types.Material_MToon.float_props_exchange_dic.items() if val ]:
 				float_val = get_float_value(MToon_Shader_Node,float_prop)
 				if float_val :
 					MToon_float_dic[float_key] = float_val
 
-			vec_prop_set = set(VRM_types.vector_props_exchange_dic.values()) - set(VRM_types.texture_kind_exchange_dic.values())
+			vec_prop_set = set(VRM_types.Material_MToon.vector_props_exchange_dic.values()) \
+							 - set(VRM_types.Material_MToon.texture_kind_exchange_dic.values())
 			for vector_key,vector_props in [(k,v) for k,v in VRM_types.Material_MToon.vector_props_exchange_dic.items() if v in vec_prop_set ]:
 				vector_val = get_rgba_val(MToon_Shader_Node,vector_props)
 				if vector_val:
@@ -263,7 +263,7 @@ class Glb_obj():
 				MToon_float_dic["_DstBlend"] = dst_blend
 				MToon_float_dic["_ZWrite"] = z_write
 				keyword_map.update({"_ALPHATEST_ON": alphatest})
-				v_mat_dic["renderQueue"] = render_queue
+				MToon_dic["renderQueue"] = render_queue
 				tag_map["RenderType"] = render_type
 
 			if b_mat.blend_method== "OPAQUE":
@@ -304,15 +304,18 @@ class Glb_obj():
 		for b_mat in used_material_set:
 			
 			if b_mat["vrm_shader"] == "MToon_unversioned":
+				for node in b_mat.node_tree.nodes:
+					if node.type == "OUTPUT_MATERIAL":
+						MToon_shader_node = node.inputs["Surface"].links[0].from_node
 				materialPropaties_dic,pbr_dic = make_MToon_unversioned_extension_dic(b_mat,MToon_shader_node)
 			elif b_mat["vrm_shader"] == "GLTF":
 				#TODO
-				pass
+				raise Exception 
 			elif b_mat["vrm_shader"] == "TRANSPARENT_ZWRITE":
 				#TODO
-				pass
+				raise Exception 
 			else :
-				pass #?
+				raise Exception  #?
 			
 			glb_material_list.append(pbr_dic)
 			VRM_material_props_list.append(materialPropaties_dic)
@@ -356,9 +359,9 @@ class Glb_obj():
 
 			#region hell
 			bpy.ops.object.mode_set(mode='OBJECT')
-			mesh.hide = False
+			mesh.hide_viewport = False
 			mesh.hide_select = False
-			bpy.context.scene.objects.active = mesh
+			bpy.context.view_layer.objects.active = mesh
 			bpy.ops.object.mode_set(mode='EDIT')
 			bm = bmesh.from_edit_mesh(mesh.data)
 
@@ -626,7 +629,7 @@ class Glb_obj():
 			collider_group = {"node":node_id,"colliders":[]}
 			colliders = collider_group["colliders"]
 			for empty in empty_objs:
-				collider = {"radius":empty.empty_draw_size}
+				collider = {"radius":empty.empty_display_size}
 				empty_offset_pos = [empty.matrix_world.to_translation()[i] \
 									- self.armature.location[i] \
 									- self.armature.data.bones[empty.parent_bone].head_local[i] \
