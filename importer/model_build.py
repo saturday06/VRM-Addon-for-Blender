@@ -205,7 +205,9 @@ class Blend_model():
 
     def material_init(self,b_mat):
         b_mat.use_nodes = True
-        b_mat.node_tree.nodes.remove(b_mat.node_tree.nodes["Principled BSDF"])
+        for node in b_mat.node_tree.nodes:
+            if node.type != "OUTPUT_MATERIAL":
+                b_mat.node_tree.nodes.remove(node)
         return
     def connect_value_node(self,material, value ,socket_to_connect):
         if value is None:

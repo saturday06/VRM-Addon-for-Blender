@@ -49,19 +49,41 @@ class Glb_obj():
 		for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
 			for mat in mesh.data.materials:
 				used_material_set.add(mat)
-		for mat in used_material_set:
-			if mat.texture_slots is not None:
-				used_image = used_image.union(set([tex_slot.texture.image for tex_slot in mat.texture_slots if tex_slot is not None]))
+
+		shader_nodes = [(node.inputs["Surface"].links[0].from_node,mat) for mat in used_material_set \
+                        for node in mat.node_tree.nodes \
+                        if node.type =="OUTPUT_MATERIAL" \
+                            and node.inputs['Surface'].links[0].from_node.type == "GROUP" \
+                            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is not None
+                        ]
+		for node,mat in shader_nodes:
+			if node.node_tree["SHADER"] == "MToon_unversioned":
+				mat["vrm_shader"] = "MToon_unversioned"
+				for shader_vals in VRM_types.Material_MToon.texture_kind_exchange_dic.values():
+					if shader_vals is None:
+						continue
+					else:
+						if shader_vals == "ReceiveShadow_Texture":
+							if node.inputs[shader_vals+"_alpha"].links:
+								n = node.inputs[shader_vals+"_alpha"].links[0].from_node
+								used_image.append(n.image)	                           
+						if node.inputs[shader_vals].links:
+							node = node.inputs[shader_vals].links[0].from_node
+							used_image.append(n.image)
+			#TODO 'GLTF' and 'TRANSPARENT_ZWRITE'
+			elif node.node_tree["SHADER"] == "GLTF":
+				#TODO 
+				mat["vrm_shader"] = "GLTF"
+			elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
+				#TODO
+				mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
+			else:
+				#?
+				pass
 		#thumbnail
 		used_image.add(bpy.data.images[self.armature["texture"]])
 
 		for image in used_image:
-			if image.is_dirty:
-				print("unsaved image name:{}, please save it".format(image.name))
-				raise Exception()
-			if image.file_format.lower() not in ["png","jpeg"]:
-				print("GLTF texture format is PNG AND JPEG only")
-				raise Exception()
 			with open(image.filepath_from_user(),"rb") as f:
 				image_bin = f.read()
 			name = image.name
@@ -80,8 +102,8 @@ class Glb_obj():
 			node = OrderedDict({
 				"name":b_bone.name,
 				"translation":self.axis_blender_to_glb([b_bone.head_local[i] - parent_head_local[i] for i in range(3)]),
-				"rotation":[0,0,0,1],
-				"scale":[1,1,1],
+				#"rotation":[0,0,0,1],
+				#"scale":[1,1,1],
 				"children":[bone_id_dic[ch.name] for ch in b_bone.children]
 			})
 			if len(node["children"]) == 0:
@@ -104,7 +126,7 @@ class Glb_obj():
 				nodes = sorted(nodes,key=lambda node: bone_id_dic[node["name"]])
 		skins.append(skin)
 					
-
+		"""
 		skin_invert_matrix_bin = b""
 		f_4x4_packer = struct.Struct("<16f").pack
 		for node_id in skins[0]["joints"]:
@@ -120,6 +142,7 @@ class Glb_obj():
 
 		IM_bin = Glb_bin(skin_invert_matrix_bin,"MAT4",GL_CONSTANS.FLOAT,len(skins[0]["joints"]),None,self.glb_bin_collector)
 		skins[0]["inverseBindMatrices"] = IM_bin.accessor_id
+		"""
 		self.json_dic.update({"scenes":[{"nodes":scene}]})
 		self.json_dic.update({"nodes":nodes})
 		self.json_dic.update({"skins":skins})
@@ -127,10 +150,10 @@ class Glb_obj():
 
 	def texture_to_dic(self):
 		self.json_dic["samplers"] = [{
-            "magFilter": GL_CONSTANS.LINEAR, #TODO: 決め打ちすんな？
-            "minFilter": GL_CONSTANS.LINEAR,
-            "wrapS": GL_CONSTANS.REPEAT,
-            "wrapT": GL_CONSTANS.REPEAT
+            "magFilter": GL_CONSTANS.LINEAR,	#決め打ちなの？->gltf互換だとこれしかないからいいや
+            "minFilter": GL_CONSTANS.LINEAR,	#決め打ちなの？->gltf互換だとこれしかないからいいや
+            "wrapS": GL_CONSTANS.REPEAT ,		#決め打ちなの？->gltf互換だとこれしかないからいいや
+            "wrapT": GL_CONSTANS.REPEAT 		#決め打ちなの？->gltf互換だとこれしかないからいいや
         }]
 		textures = []
 		for id in range(len(self.glb_bin_collector.image_bins)):
@@ -152,123 +175,148 @@ class Glb_obj():
 			for mat in mesh.data.materials:
 				used_material_set.add(mat)
 
-		for b_mat in used_material_set:
-			#region pbr_mat
+		#region function separate by shader
+		#transparent_method = {"OPAQUE","MASK","BLEND"}
+		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
+				baseColor_texture_name=None,
+				transparent_method = "OPAQUE", transparency_cutoff = 0.5,):
+			fallback_dic = {}
 			mat_dic = {"name":b_mat.name}
-			
 			mat_dic["pbrMetallicRoughness"] = {
-                "baseColorFactor":[*b_mat.diffuse_color,1.0],
-                "metallicFactor": 0,
-                "roughnessFactor": 0.9
-            }
-			for slot_id,texslot in enumerate(b_mat.texture_slots):
-				if texslot == None:
-					continue
-				if texslot.use_map_color_diffuse:
-					if texslot.texture_coords == "UV":		
-						mat_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
-						"index": image_id_dic[texslot.texture.image.name],
+                "baseColorFactor":base_Color,
+                "metallicFactor": metallness,
+                "roughnessFactor": roughness
+			}
+			if baseColor_texture_name:
+				mat_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
+						"index": image_id_dic[baseColor_texture_name],
 						"texCoord": 0 #TODO:
 						}})
+			mat_dic["alphaMode"] = transparent_method
+			if transparent_method == "MASK":
+				mat_dic["alphaCutoff"] = transparency_cutoff
+			return fallback_dic
 
-			if not b_mat.use_transparency:
-				mat_dic["alphaMode"] = "OPAQUE"
-			elif b_mat.transparency_method == "MASK":
-				mat_dic["alphaMode"] = "MASK"
-				mat_dic["alphaCutoff"] = 0.5
-			else:# Z_TRANSPARENCY or RAYTRACE
-				mat_dic["alphaMode"] = "BLEND"
-			glb_material_list.append(mat_dic)
-			#endregion pbr mat
+		#region util func
+		def get_texture_value(shader_node,input_socket_name):
+			tex_name = None
+			if shader_node.inputs.get(input_socket_name):
+				if shader_node.inputs.get(input_socket_name).links:
+					tex_name = shader_node.inputs.get(input_socket_name).links[0].from_node.image.name
+			return tex_name
+		def get_float_value(shader_node,input_socket_name):
+			float_val = None
+			if shader_node.inputs.get(input_socket_name):
+				if shader_node.inputs.get(input_socket_name).links:
+					float_val = shader_node.inputs.get(input_socket_name).links[0].from_node.outputs[0].default_value
+				else:
+					float_val = shader_node.inputs.get(input_socket_name).default_value
+			return float_val
+		def get_rgba_val(shader_node,input_socket_name):
+			rgba_val = None
+			if shader_node.inputs.get(input_socket_name):
+				if shader_node.inputs.get(input_socket_name).links:
+					rgba_val = shader_node.inputs.get(input_socket_name).links[0].from_node.outputs[0].default_value
+				else:
+					rgba_val = shader_node.inputs.get(input_socket_name).default_value				
+			return rgba_val
+		#endregion util func
 
-			#region VRM_mat
-	
-			v_mat_dic = OrderedDict()
-			v_mat_dic["name"] = b_mat.name
-			v_mat_dic["shader"] = "VRM/MToon"
-			v_mat_dic["keywordMap"] = keyword_map = {}
-			v_mat_dic["tagMap"] = tag_map = {}
-			#TODO: vector props
+		def make_MToon_unversioned_extension_dic(b_mat,MToon_Shader_Node):
+			MToon_dic = OrderedDict()
+			MToon_dic["name"] = b_mat.name
+			MToon_dic["shader"] = "VRM/MToon"
+			MToon_dic["keywordMap"] = keyword_map = {}
+			MToon_dic["tagMap"] = tag_map = {}
+			MToon_float_dic = MToon_dic["floatProperties"] = OrderedDict()
+			MToon_vector_dic = MToon_dic["vectorProperties"] = OrderedDict()
+			MToon_texture_dic = MToon_dic["textureProperties"] = OrderedDict()
+			for float_key,float_prop in [(k,val) for k,val in VRM_types.Material_MToon.float_prop_exchange_dic.items() if val ]:
+				float_val = get_float_value(MToon_Shader_Node,float_prop)
+				if float_val :
+					MToon_float_dic[float_key] = float_val
 
-			def get_prop(material, prop_name, defo):
-				return [*material[prop_name]] if prop_name in material.keys() else defo
-			v_mat_dic["vectorProperties"] = vec_dic = OrderedDict()
-			vec_dic["_Color"] = [*b_mat.diffuse_color,1.0]
-			vec_dic["_ShadeColor"] = get_prop(b_mat, "_ShadeColor", [0.3, 0.3, 0.5, 1.0])
-			vec_dic["_EmissionColor"] = get_prop(b_mat, "_EmissionColor", [0.0, 0.0, 0.0, 1.0])
-			vec_dic["_OutlineColor"] = get_prop(b_mat, "_OutlineColor", [0.0, 0.0, 0.0, 1.0])
-			
-			
-			#TODO: float props
-			v_mat_dic["floatProperties"] = float_dic = OrderedDict()
-			for prop in b_mat.keys():
-				if prop in VRM_types.Material_MToon.float_props:
-					if b_mat[prop] == None:
-						continue
-					float_dic[prop] = b_mat[prop]
-			# _BlendMode : 0:Opacue 1:Cutout 2:Transparent 3:TransparentZwrite,
-			# _Src,_Dst(ry): CONST
-			# _ZWrite: 1: true 0:false
+			vec_prop_set = set(VRM_types.vector_props_exchange_dic.values()) - set(VRM_types.texture_kind_exchange_dic.values())
+			for vector_key,vector_props in [(k,v) for k,v in VRM_types.Material_MToon.vector_props_exchange_dic.items() if v in vec_prop_set ]:
+				vector_val = get_rgba_val(MToon_Shader_Node,vector_props)
+				if vector_val:
+					MToon_vector_dic[vector_key] = vector_val
+
+			use_nomalmap = False
+			maintex_name= None		
+			for texture_key, texture_prop in VRM_types.Material_MToon.texture_kind_exchange_dic.items():
+				tex_name = get_texture_value(MToon_Shader_Node,texture_prop)
+				if tex_name:
+					MToon_texture_dic[texture_key] = image_id_dic[tex_name]
+					MToon_vector_dic[texture_key] = [0,0,1,1]
+					if texture_prop == "MainTexture":
+						maintex_name = tex_name
+					elif texture_prop == "NomalmapTexture":
+						use_nomalmap = True
+
 			def material_prop_setter(blend_mode, \
 									 src_blend, dst_blend, \
 									 z_write, alphatest, \
 									 render_queue, render_type):
-				float_dic["_BlendMode"] = blend_mode
-				float_dic["_SrcBlend"] = src_blend
-				float_dic["_DstBlend"] = dst_blend
-				float_dic["_ZWrite"] = z_write
+				MToon_float_dic["_BlendMode"] = blend_mode
+				MToon_float_dic["_SrcBlend"] = src_blend
+				MToon_float_dic["_DstBlend"] = dst_blend
+				MToon_float_dic["_ZWrite"] = z_write
 				keyword_map.update({"_ALPHATEST_ON": alphatest})
 				v_mat_dic["renderQueue"] = render_queue
 				tag_map["RenderType"] = render_type
 
-			if not b_mat.use_transparency:
+			if b_mat.blend_method== "OPAQUE":
 				material_prop_setter(0,1,0,1,False,-1,"Opaque")
-			elif b_mat.transparency_method == "MASK":
+			elif b_mat.blend_method == "CLIP":
 				material_prop_setter(1,1,0,1,True,2450,"TransparentCutout")
+				MToon_float_dic["_Cutoff"] = b_mat.alpha_threshold
 			else:  #transparent and Z_TRANPARENCY or Raytrace
 				material_prop_setter(3,5,10,1,True,3000,"Transparent")
-			keyword_map.update({"_ALPHABLEND_ON": b_mat.use_transparency})
+			keyword_map.update({"_ALPHABLEND_ON": b_mat.blend_method not in ("OPAQUE","CLIP")})
 			keyword_map.update({"_ALPHAPREMULTIPLY_ON":False})
-			
-			float_dic["_CullMode"] = 0 #no cull
-			float_dic["_OutlineCullMode"] = 1 #front face cull (for invert normal outline)
-			float_dic["_DebugMode"] = 0
+
+			MToon_float_dic["_CullMode"] = 0 #no cull
+			MToon_float_dic["_OutlineCullMode"] = 1 #front face cull (for invert normal outline)
+			MToon_float_dic["_DebugMode"] = 0
 			keyword_map.update({"MTOON_DEBUG_NORMAL":False})
 			keyword_map.update({"MTOON_DEBUG_LITSHADERATE":False})
-			#region texture props
-			def texuture_prop_add(dic,tex_attr,tex_slot_id)->dict():
-				try:
-					tex_dic = {tex_attr:image_id_dic[b_mat.texture_slots[tex_slot_id].texture.image.name]}
-					dic.update(tex_dic)
-				except AttributeError:
-					print("{} is nothing".format(tex_attr))
-				return 
-			v_mat_dic["textureProperties"] = tex_dic = OrderedDict()
-			use_nomalmap = False
-			for slot_id,texslot in enumerate(b_mat.texture_slots):
-				if texslot == None:
-					continue
-				if texslot.use_map_color_diffuse:
-					if texslot.texture_coords == "UV":
-						texuture_prop_add(tex_dic, "_MainTex", slot_id)
-					elif texslot.texture_coords == "NORMAL":
-						texuture_prop_add(tex_dic,"_SphereAdd",slot_id)
-				elif texslot.use_map_normal:
-					texuture_prop_add(tex_dic,"_BumpMap",slot_id)
-					use_nomalmap = True
-				elif texslot.use_map_emit:
-					texuture_prop_add(tex_dic, "_EmissionMap", slot_id)
-				else:
-					if "role" in texslot.texture.keys():
-						texuture_prop_add(tex_dic, texslot.texture["role"], slot_id)
-			for tex_prop in tex_dic.keys():
-				if not tex_prop in vec_dic:
-					vec_dic[tex_prop] = [0,0,1,1]
-
 			keyword_map.update({"_NORMALMAP": use_nomalmap})
 
-			VRM_material_props_list.append(v_mat_dic)
-			#endregion VRM_mat
+			#for pbr_fallback
+			if b_mat.blend_method == "OPAQUE":
+				transparent_method = "OPAQUE"
+				transparency_cutoff = None
+			elif b_mat.blend_method =="CLIP":
+				transparent_method = "MASK"
+				transparency_cutoff = b_mat.alpha_threshold
+			else:
+				transparent_method ="BLEND"
+				transparency_cutoff = None
+			pbr_dic = pbr_fallback(baseColor = MToon_vector_dic["_Color"],
+									baseColor_texture_name = maintex_name,
+									transparent_method = transparent_method,
+									transparency_cutoff = transparency_cutoff)
+			return MToon_dic,pbr_dic
+		#endregion function separate by shader
+
+
+		for b_mat in used_material_set:
+			
+			if b_mat["vrm_shader"] == "MToon_unversioned":
+				materialPropaties_dic,pbr_dic = make_MToon_unversioned_extension_dic(b_mat,MToon_shader_node)
+			elif b_mat["vrm_shader"] == "GLTF":
+				#TODO
+				pass
+			elif b_mat["vrm_shader"] == "TRANSPARENT_ZWRITE":
+				#TODO
+				pass
+			else :
+				pass #?
+			
+			glb_material_list.append(pbr_dic)
+			VRM_material_props_list.append(materialPropaties_dic)
+			
 		self.json_dic.update({"materials" : glb_material_list})
 		self.json_dic.update({"extensions":{"VRM":{"materialProperties":VRM_material_props_list}}})
 		return
@@ -500,7 +548,7 @@ class Glb_obj():
 		#region meta
 		vrm_extension_dic["meta"] = vrm_meta_dic = {}
 		vrm_metas = [
-			"version",
+			"version",#model version (not VRMspec etc)
 			"author",
 			"contactInformation",
 			"reference",

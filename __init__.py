@@ -112,7 +112,7 @@ class VRM_IMPORTER_UI_controller(bpy.types.Panel):
 
 classes = (
     ImportVRM,
-    #ExportVRM,
+    ExportVRM,
     VRM_HELPER.Bones_rename,
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
@@ -125,14 +125,14 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
-    #bpy.types.TOPBAR_MT_file_export.append(menu_export)
+    bpy.types.TOPBAR_MT_file_export.append(menu_export)
     
  
 
 
 # アドオン無効化時の処理
 def unregister():
-    #bpy.types.TOPBAR_MT_file_import.remove(menu_export)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_export)
     bpy.types.TOPBAR_MT_file_export.remove(menu_import)
     for cls in classes:
         bpy.utils.unregister_class(cls)

@@ -124,10 +124,9 @@ class VRM_VALIDATOR(bpy.types.Operator):
 
             if obj.type == "MESH":
                 if len(obj.data.materials) == 0:
-                    messages.add("There is no material in mesh {}".format(obj.name))
-                for poly in obj.data.polygons:
+                    messages.add(f"There is no material in mesh {obj.name}")
                     if poly.loop_total > 3:#polygons need all triangle
-                        messages.add("There are not Triangle faces in {}".format(obj.name))
+                        messages.add(f"There are not Triangle faces in {obj.name}")
                 #TODO modifier applyed, vertex weight Bone exist, vertex weight numbers.
         #endregion selected object seeking
         if armature_count == 0:
@@ -142,7 +141,8 @@ class VRM_VALIDATOR(bpy.types.Operator):
         for mat in used_material_set:
             for node in mat.node_tree.nodes:
                 if node.type =="OUTPUT_MATERIAL" \
-                and (node.inputs['Surface'].links[0].from_node.type != "GROUP" \
+                and (
+                    node.inputs['Surface'].links[0].from_node.type != "GROUP" \
                     or node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is None 
                 ):
                      messages.add(f"{mat.name} doesn't connect VRM SHADER node group to Material output node in material node tree. Please use them and connect straight.")
@@ -182,13 +182,18 @@ class VRM_VALIDATOR(bpy.types.Operator):
 		#thumbnail
         try:
             if armature is not None:
-                used_image.append(bpy.data.images.get(armature["texture"]))
+                thumbnail_image = bpy.data.images.get(armature["texture"])
+                if thumbnail_image:
+                    used_image.append(thumbnail_image)
+                else:
+                    messages.add(f"thumbnail_image is missing. please load {armature['texture']}")
         except:
-            messages.add("thumbnail_image is missing. please load {}".format(armature["texture"]))
+            messages.add(f"thumbnail_image is missing. please load {armature['texture']}")
             pass
+            
         for img in used_image:
             if img.is_dirty or img.filepath =="":
-                messages.add("{} is not saved, please save.".format(img.name))
+                messages.add(f"{img.name} is not saved, please save.")
             if img.file_format.lower() not in ["png","jpeg"]:
                 messages.add("GLTF texture format is PNG AND JPEG only")
 
@@ -202,7 +207,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
             VRM_VALIDATOR.draw_func_add()
             raise Exception
         else:
-            messages.add("not found expected error")
+            messages.add("not found expected error for export")
             VRM_VALIDATOR.draw_func_add()           
         return {"FINISHED"}
 
@@ -227,7 +232,6 @@ class VRM_VALIDATOR(bpy.types.Operator):
     
     @staticmethod
     def texts_draw():
-        # 文字列「Suzanne on your View3D region」の描画
         text_size = 20
         dpi = 72
         blf.size(0, text_size, dpi)
