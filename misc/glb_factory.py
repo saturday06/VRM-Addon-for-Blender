@@ -152,8 +152,8 @@ class Glb_obj():
 		self.json_dic["samplers"] = [{
             "magFilter": GL_CONSTANS.LINEAR,	#決め打ちなの？->gltf互換だとこれしかないからいいや
             "minFilter": GL_CONSTANS.LINEAR,	#決め打ちなの？->gltf互換だとこれしかないからいいや
-            "wrapS": GL_CONSTANS.REPEAT ,		#決め打ちなの？->gltf互換だとこれしかないからいいや
-            "wrapT": GL_CONSTANS.REPEAT 		#決め打ちなの？->gltf互換だとこれしかないからいいや
+            "wrapS": GL_CONSTANS.REPEAT ,		#TODO 決め打ちなの？ 10497 REPEAT と
+            "wrapT": GL_CONSTANS.REPEAT 		#TODO 決め打ちなの？ 33071 CLAMP_TO_EDGE　があるから　そのうち・・・
         }]
 		textures = []
 		for id in range(len(self.glb_bin_collector.image_bins)):
