@@ -6,6 +6,7 @@ https://opensource.org/licenses/mit-license.php
 """
 import bpy,blf
 import bmesh
+from .. import V_Types as VRM_types
 import re
 from math import sqrt, pow
 from mathutils import Vector
@@ -137,15 +138,54 @@ class VRM_VALIDATOR(bpy.types.Operator):
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
             for mat in mesh.data.materials:
                 used_material_set.add(mat)
+
         for mat in used_material_set:
-            #TODO texture fetching
-            if mat.texture_slots is not None:
-	            used_image += [tex_slot.texture.image for tex_slot in mat.texture_slots if tex_slot is not None]
+            for node in mat.node_tree.nodes:
+                if node.type =="OUTPUT_MATERIAL" \
+                and (node.inputs['Surface'].links[0].from_node.type != "GROUP" \
+                    or node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is None 
+                ):
+                     messages.add(f"{mat.name} doesn't connect VRM SHADER node group to Material output node in material node tree. Please use them and connect straight.")
+
+        shader_nodes_and_material = [(node.inputs["Surface"].links[0].from_node,mat) for mat in used_material_set \
+                        for node in mat.node_tree.nodes \
+                        if node.type =="OUTPUT_MATERIAL" \
+                            and node.inputs['Surface'].links[0].from_node.type == "GROUP" \
+                            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is not None
+                        ]
+
+        for node,material in shader_nodes_and_material:
+            #TODO 'GLTF' and 'TRANSPARENT_ZWRITE'
+            if node.node_tree["SHADER"] == "MToon_unversioned":
+                for shader_vals in VRM_types.Material_MToon.texture_kind_exchange_dic.values():
+                    if shader_vals is None:
+                        continue
+                    else:
+                        if shader_vals == "ReceiveShadow_Texture":
+                            continue
+                        if node.inputs[shader_vals].links:
+                            n = node.inputs[shader_vals].links[0].from_node
+                            if n.type != 'TEX_IMAGE':
+                                messages.add(f"need image_texture input in {shader_vals} of {material.name}")
+                            else:
+                                used_image.append(n.image)
+                for shader_vals in [*list(VRM_types.Material_MToon.float_props_exchange_dic.values()),"ReceiveShadow_Texture_alpha"]:
+                    if shader_vals is None:
+                        continue
+                    else:
+                        if node.inputs[shader_vals].links:
+                            n = node.inputs[shader_vals].links[0].from_node
+                            if n.type != 'VALUE':
+                                messages.add(f"need from value node input in {shader_vals} of {material.name}")          
+            else:
+                messages.add(f"unsuppoted shader type {node.node_tree['SHADER']} in {material.name} yet sorry")
 		#thumbnail
         try:
-            used_image.append(bpy.data.images[armature["texture"]])
+            if armature is not None:
+                used_image.append(bpy.data.images.get(armature["texture"]))
         except:
             messages.add("thumbnail_image is missing. please load {}".format(armature["texture"]))
+            pass
         for img in used_image:
             if img.is_dirty or img.filepath =="":
                 messages.add("{} is not saved, please save.".format(img.name))
@@ -160,7 +200,10 @@ class VRM_VALIDATOR(bpy.types.Operator):
         
         if len(messages) > 0 :
             VRM_VALIDATOR.draw_func_add()
-            raise Exception           
+            raise Exception
+        else:
+            messages.add("not found expected error")
+            VRM_VALIDATOR.draw_func_add()           
         return {"FINISHED"}
 
     #region 3Dview drawer
