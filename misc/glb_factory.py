@@ -217,7 +217,7 @@ class Glb_obj():
 				if shader_node.inputs.get(input_socket_name).links:
 					rgba_val = [shader_node.inputs.get(input_socket_name).links[0].from_node.outputs[0].default_value[i] for i in range(4)]
 				else:
-					rgba_val = [shader_node.inputs.get(input_socket_name).default_value[4] for i in range(4)]		
+					rgba_val = [shader_node.inputs.get(input_socket_name).default_value[i] for i in range(4)]		
 			return rgba_val
 		#endregion util func
 
