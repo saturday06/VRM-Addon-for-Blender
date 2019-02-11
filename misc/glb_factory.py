@@ -176,10 +176,10 @@ class Glb_obj():
 				used_material_set.add(mat)
 
 		#region function separate by shader
-		#transparent_method = {"OPAQUE","MASK","BLEND"}
 		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
 				baseColor_texture_name=None,
 				transparent_method = "OPAQUE", transparency_cutoff = 0.5,):
+			"""transparent_method = {"OPAQUE","MASK","BLEND"}"""
 			fallback_dic = {"name":b_mat.name}
 			fallback_dic["pbrMetallicRoughness"] = {
                 "baseColorFactor":baseColor,
