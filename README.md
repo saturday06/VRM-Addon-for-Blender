@@ -1,5 +1,4 @@
 # VRM_IMPORTER_for_Blender2.8
-# ＷＯＲＫ ＩＮ ＰＲＯＧＲＥＳ
 - mesh import : done 
-- material import : wip（faced on eeVee alphablend bug)
-- export : not working
+- material import : wip forever
+- export : spec0.0 export may be able.
