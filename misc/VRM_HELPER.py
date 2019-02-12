@@ -125,8 +125,10 @@ class VRM_VALIDATOR(bpy.types.Operator):
             if obj.type == "MESH":
                 if len(obj.data.materials) == 0:
                     messages.add(f"There is no material in mesh {obj.name}")
-                    if poly.loop_total > 3:#polygons need all triangle
-                        messages.add(f"There are not Triangle faces in {obj.name}")
+                    for poly in obj.data.polygons:
+                        if poly.loop_total > 3:#polygons need all triangle
+                            messages.add(f"There are not Triangle faces in {obj.name}")
+                            break
                 #TODO modifier applyed, vertex weight Bone exist, vertex weight numbers.
         #endregion selected object seeking
         if armature_count == 0:
@@ -155,30 +157,58 @@ class VRM_VALIDATOR(bpy.types.Operator):
                         ]
 
         for node,material in shader_nodes_and_material:
-            #TODO 'GLTF' and 'TRANSPARENT_ZWRITE'
+            def input_check(expect_node_type,shader_val):
+                if node.inputs[shader_val].links:
+                    n = node.inputs[shader_val].links[0].from_node
+                    if n.type != expect_node_type:
+                        messages.add(f"need {expect_node_type} input in {shader_val} of {material.name}")
+                    else:
+                        if expect_node_type == "TEX_IMAGE":
+                            used_image.append(n.image)
+            #MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
-                for shader_vals in VRM_types.Material_MToon.texture_kind_exchange_dic.values():
-                    if shader_vals is None:
+                for shader_val in VRM_types.Material_MToon.texture_kind_exchange_dic.values():
+                    if shader_val is None:
                         continue
                     else:
-                        if shader_vals == "ReceiveShadow_Texture":
+                        if shader_val == "ReceiveShadow_Texture":
                             continue
-                        if node.inputs[shader_vals].links:
-                            n = node.inputs[shader_vals].links[0].from_node
-                            if n.type != 'TEX_IMAGE':
-                                messages.add(f"need image_texture input in {shader_vals} of {material.name}")
-                            else:
-                                used_image.append(n.image)
-                for shader_vals in [*list(VRM_types.Material_MToon.float_props_exchange_dic.values()),"ReceiveShadow_Texture_alpha"]:
-                    if shader_vals is None:
+                        input_check("TEX_IMAGE",shader_val)
+                for shader_val in [*list(VRM_types.Material_MToon.float_props_exchange_dic.values()),"ReceiveShadow_Texture_alpha"]:
+                    if shader_val is None:
                         continue
                     else:
-                        if node.inputs[shader_vals].links:
-                            n = node.inputs[shader_vals].links[0].from_node
-                            if n.type != 'VALUE':
-                                messages.add(f"need from value node input in {shader_vals} of {material.name}")          
+                        input_check("VALUE", shader_val)
+                for k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
+                    input_check("RGB", VRM_types.Material_MToon.vector_props_exchange_dic[k])
+            #GLTF    
+            elif node.node_tree["SHADER"] == "GLTF":
+                texture_input_name_list = [
+					"color_texture",
+					"normal",
+					"emissive_texture",
+					"occlusion_texture"
+				]
+                val_input_name_list = [
+                    "metallic",
+                    "roughness",
+                    "unlit"
+                ]
+                rgba_input_name_list = [
+                    "base_Color",
+                    "emissive_color"
+                ]
+                for k in texture_input_name_list:
+                    input_check("TEX_IMAGE",k)
+                for k in val_input_name_list:
+                    input_check("VALUE",k)
+                for k in rgba_input_name_list:
+                    input_check("RGB", k)
+            #Transparent_Zwrite
+            elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
+                input_check("TEX_IMAGE","Main_Texture")
             else:
-                messages.add(f"unsuppoted shader type {node.node_tree['SHADER']} in {material.name} yet sorry")
+                pass #?
 		#thumbnail
         try:
             if armature is not None:

@@ -56,6 +56,7 @@ class Glb_obj():
                             and node.inputs['Surface'].links[0].from_node.type == "GROUP" \
                             and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is not None
                         ]
+		#image fetching
 		for node,mat in shader_nodes:
 			if node.node_tree["SHADER"] == "MToon_unversioned":
 				mat["vrm_shader"] = "MToon_unversioned"
@@ -70,12 +71,22 @@ class Glb_obj():
 						elif node.inputs[shader_vals].links:
 							n = node.inputs[shader_vals].links[0].from_node
 							used_image.add(n.image)
-			#TODO 'GLTF' and 'TRANSPARENT_ZWRITE'
 			elif node.node_tree["SHADER"] == "GLTF":
-				#TODO 
+				texture_input_name_list = [
+					"color_texture",
+					"normal",
+					"emissive_texture",
+					"occlusion_texture"
+				]
+				for k in texture_input_name_list:
+					if node.inputs[k].links:
+						n = node.inputs[k].links[0].from_node
+						used_image.add(n.image)
 				mat["vrm_shader"] = "GLTF"
 			elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
-				#TODO
+				if node.inputs["Main_Texture"].links:
+					n = node.inputs["Main_Texture"].links[0].from_node
+					used_image.add(n.image)
 				mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
 			else:
 				#?
@@ -178,7 +189,8 @@ class Glb_obj():
 		#region function separate by shader
 		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
 				baseColor_texture_name=None,
-				transparent_method = "OPAQUE", transparency_cutoff = 0.5,):
+				transparent_method="OPAQUE", transparency_cutoff=0.5,
+				unlit = True):
 			"""transparent_method = {"OPAQUE","MASK","BLEND"}"""
 			fallback_dic = {"name":b_mat.name}
 			fallback_dic["pbrMetallicRoughness"] = {
@@ -186,6 +198,10 @@ class Glb_obj():
                 "metallicFactor": metallness,
                 "roughnessFactor": roughness
 			}
+			for k, v in fallback_dic["pbrMetallicRoughness"].items():
+				if v is None:
+					del fallback_dic["pbrMetallicRoughness"][k]
+
 			if baseColor_texture_name:
 				fallback_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
 						"index": image_id_dic[baseColor_texture_name],
@@ -194,10 +210,12 @@ class Glb_obj():
 			fallback_dic["alphaMode"] = transparent_method
 			if transparent_method == "MASK":
 				fallback_dic["alphaCutoff"] = transparency_cutoff
+			if unlit:
+				fallback_dic["extensions"] = {"KHR_materials_unlit":{}}
 			return fallback_dic
 
 		#region util func
-		def get_texture_value(shader_node,input_socket_name):
+		def get_texture_name(shader_node,input_socket_name):
 			tex_name = None
 			if shader_node.inputs.get(input_socket_name):
 				if shader_node.inputs.get(input_socket_name).links:
@@ -245,7 +263,7 @@ class Glb_obj():
 			use_nomalmap = False
 			maintex_name= None		
 			for texture_key, texture_prop in VRM_types.Material_MToon.texture_kind_exchange_dic.items():
-				tex_name = get_texture_value(MToon_Shader_Node,texture_prop)
+				tex_name = get_texture_name(MToon_Shader_Node,texture_prop)
 				if tex_name:
 					MToon_texture_dic[texture_key] = image_id_dic[tex_name]
 					MToon_vector_dic[texture_key] = [0,0,1,1]
@@ -298,6 +316,66 @@ class Glb_obj():
 									transparent_method = transparent_method,
 									transparency_cutoff = transparency_cutoff)
 			return MToon_dic,pbr_dic
+		
+		def make_GLTF_mat_dic(b_mat, GLTF_Shader_Node):		
+			GLTF_dic = OrderedDict()
+			GLTF_dic["name"] = b_mat.name
+			GLTF_dic["shader"] = "VRM_USE_GLTFSHADER"
+			GLTF_dic["keywordMap"] =  {}
+			GLTF_dic["tagMap"] = {}
+			GLTF_dic["floatProperties"] = {}
+			GLTF_dic["vectorProperties"] = {}
+			GLTF_dic["textureProperties"] = {}
+
+			if b_mat.blend_method == "OPAQUE":
+				transparent_method = "OPAQUE"
+				transparency_cutoff = None
+			elif b_mat.blend_method =="CLIP":
+				transparent_method = "MASK"
+				transparency_cutoff = b_mat.alpha_threshold
+			else:
+				transparent_method ="BLEND"
+				transparency_cutoff = None
+		
+			pbr_dic = pbr_fallback(
+				baseColor=get_rgba_val(GLTF_Shader_Node, "base_Color"),
+				metallness=get_float_value(GLTF_Shader_Node, "metallic"),
+				roughness=get_float_value(GLTF_Shader_Node, "roughness"),
+				baseColor_texture_name=get_texture_name(GLTF_Shader_Node,"color_texture"),
+				transparent_method=transparent_method,
+				transparency_cutoff=transparency_cutoff,
+				unlit=True if get_float_value(GLTF_Shader_Node,"unlit") >=0.5 else False
+			)
+			def pbr_tex_add(texture_type, socket_name):
+				image_name = get_texture_name(GLTF_Shader_Node,socket_name)
+				if image_name is not None:
+					image_id = image_id_dic.get(image_name)
+					if image_id is not None:
+						pbr_dic[texture_type] = image_id
+			pbr_tex_add("normalTexture", "normal")
+			pbr_tex_add("emissiveTexture","emissive_texture")
+			pbr_tex_add("occlusionTexture", "occlusion_texture")
+			pbr_dic["emissiveFactor"] = get_rgba_val(GLTF_Shader_Node,"emissive_color")
+					
+			return GLTF_dic, pbr_dic
+		
+		def make_TRNSZW_mat_dic(b_mat, TRANSZW_Shader_Node):
+			ZW_dic = OrderedDict()
+			ZW_dic["name"] = b_mat.name
+			ZW_dic["shader"] = "VRM/UnlitTransparentZWrite"
+			ZW_dic["renderQueue"] = 2600
+			ZW_dic["keywordMap"] =  {}
+			ZW_dic["tagMap"] = {"RenderType": "Transparent"}
+			ZW_dic["floatProperties"] = {}
+			ZW_dic["vectorProperties"] = {}
+			ZW_dic["textureProperties"] = {}			
+			color_tex = get_texture_name(TRANSZW_Shader_Node, "Main_Texture")
+			if color_tex is not None:
+				ZW_dic["textureProperties"] = {"_MainTex": image_id_dic[color_tex]}
+				ZW_dic["vectorProperties"] = {"_MainTex":[0,0,1,1]}
+			pbr_dic = pbr_fallback(baseColor_texture_name=color_tex,transparent_method="BLEND")
+
+			return ZW_dic,pbr_dic
 		#endregion function separate by shader
 
 
@@ -307,14 +385,22 @@ class Glb_obj():
 				for node in b_mat.node_tree.nodes:
 					if node.type == "OUTPUT_MATERIAL":
 						MToon_shader_node = node.inputs["Surface"].links[0].from_node
+						break
 				materialPropaties_dic,pbr_dic = make_MToon_unversioned_extension_dic(b_mat,MToon_shader_node)
 			elif b_mat["vrm_shader"] == "GLTF":
-				#TODO
-				raise Exception 
+				for node in b_mat.node_tree.nodes:
+					if node.type == "OUTPUT_MATERIAL":
+						GLTF_shader_node = node.inputs["Surface"].links[0].from_node
+						break
+				materialPropaties_dic,pbr_dic = make_GLTF_mat_dic(b_mat,GLTF_shader_node)				 
 			elif b_mat["vrm_shader"] == "TRANSPARENT_ZWRITE":
-				#TODO
-				raise Exception 
-			else :
+				for node in b_mat.node_tree.nodes:
+					if node.type == "OUTPUT_MATERIAL":
+						ZW_shader_node = node.inputs["Surface"].links[0].from_node
+						break
+				materialPropaties_dic,pbr_dic = make_TRNSZW_mat_dic(b_mat,ZW_shader_node)	 
+			else:
+				print("please use vrm_shader")
 				raise Exception  #?
 			
 			glb_material_list.append(pbr_dic)
@@ -531,12 +617,13 @@ class Glb_obj():
 			
 		return
 
+	exporter_name = "icyp_blender_vrm_exporter_experimental_0.0"
 	def glTF_meta_to_dic(self):
 		glTF_meta_dic = {
-			"extensionsUsed":["VRM"],
+			"extensionsUsed":["VRM","KHR_materials_unlit"],
 			"asset":{
-				"generator":"icyp_blender_vrm_exporter_experimental_0.0",
-				"version":"2.0"
+				"generator":self.exporter_name,
+				"version":"2.0" #GLTF version
 				}
 			}
 
@@ -547,25 +634,32 @@ class Glb_obj():
 		#materialProperties　は　material_to_dic()で処理する
 		#region vrm_extension
 		vrm_extension_dic = OrderedDict()
-		vrm_extension_dic["exporterVersion"] = "icyp_blender_vrm_exporter_experimental_0.0"
+		vrm_extension_dic["exporterVersion"] = self.exporter_name
+		vrm_extension_dic["specVersion"] = "0.0"
 		#region meta
 		vrm_extension_dic["meta"] = vrm_meta_dic = {}
+		#安全側に寄せておく
+		required_vrm_metas = {
+			"allowedUserName":"Disallow",
+			"violentUssageName":"Disallow",
+			"sexualUssageName":"Disallow",
+			"commercialUssageName":"Disallow",
+			"licenseName":"Redistribution_Prohibited",
+		}
 		vrm_metas = [
 			"version",#model version (not VRMspec etc)
 			"author",
 			"contactInformation",
 			"reference",
 			"title",
-			"allowedUserName",
-			"violentUssageName",
-			"sexualUssageName",
-			"commercialUssageName",
 			"otherPermissionUrl",
-			"licenseName",
 			"otherLicenseUrl"
 		]
+		for k, v in required_vrm_metas.items():
+			vrm_meta_dic[k] = self.armature[k] if k in self.armature.keys() else v
 		for key in vrm_metas:
 			vrm_meta_dic[key] = self.armature[key] if key in self.armature.keys() else ""
+
 		if "texture" in self.armature.keys():
 			thumbnail_index_list =[i for i,img in enumerate(self.glb_bin_collector.image_bins) if img.name == self.armature["texture"]]
 			if len(thumbnail_index_list) > 0 :

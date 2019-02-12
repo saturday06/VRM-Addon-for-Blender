@@ -109,10 +109,11 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
         elif ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
             v_mat = VRM_Types.Material_Transparent_Z_write()
             v_mat.shader_name = ext_mat["shader"]
-            v_mat.float_prop_dic.update(ext_mat["floatProperties"])
-            v_mat.vector_props_dic.update(ext_mat["vectorProperties"])
-            v_mat.texture_index_dic.update(ext_mat["textureProperties"])
+            v_mat.float_props_dic = ext_mat["floatProperties"]
+            v_mat.vector_props_dic = ext_mat["vectorProperties"]
+            v_mat.texture_index_dic = ext_mat["textureProperties"]
         else:
+            #ここには入らないはず
             print(f"unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}")
     return v_mat
 
