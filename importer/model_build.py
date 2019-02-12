@@ -97,7 +97,6 @@ class Blend_model():
                 pass
             else:
                 py_bone = self.vrm_pydata.nodes_dict[id]
-                print("pybone name is "+py_bone.name+" .")
                 if py_bone.blend_bone:#すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
                     li = [py_bone.blend_bone]
                     while li:
