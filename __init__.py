@@ -107,7 +107,14 @@ class VRM_IMPORTER_UI_controller(bpy.types.Panel):
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
 
-
+from bpy.app.handlers import persistent
+@persistent
+def add_shaders(self):
+    filedir = os.path.join(os.path.dirname(__file__),"resources","material_node_groups.blend")
+    with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
+        for nt in data_from.node_groups:
+            if nt not in bpy.data.node_groups:
+                data_to.node_groups.append(nt)
 
 
 classes = (
@@ -126,12 +133,11 @@ def register():
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
-    
- 
-
+    bpy.app.handlers.load_post.append(add_shaders)
 
 # アドオン無効化時の処理
 def unregister():
+    bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.TOPBAR_MT_file_import.remove(menu_export)
     bpy.types.TOPBAR_MT_file_export.remove(menu_import)
     for cls in classes:
@@ -139,3 +145,4 @@ def unregister():
 
 if "__main__" == __name__:
     register()
+
