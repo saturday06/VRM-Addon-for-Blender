@@ -351,11 +351,14 @@ class Glb_obj():
 				if image_name is not None:
 					image_id = image_id_dic.get(image_name)
 					if image_id is not None:
-						pbr_dic[texture_type] = image_id
+						pbr_dic[texture_type] = {
+							"index":image_id,
+							"texCoord":0
+						}
 			pbr_tex_add("normalTexture", "normal")
 			pbr_tex_add("emissiveTexture","emissive_texture")
 			pbr_tex_add("occlusionTexture", "occlusion_texture")
-			pbr_dic["emissiveFactor"] = get_rgba_val(GLTF_Shader_Node,"emissive_color")
+			pbr_dic["emissiveFactor"] = get_rgba_val(GLTF_Shader_Node,"emissive_color")[0:3]
 					
 			return GLTF_dic, pbr_dic
 		
