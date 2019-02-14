@@ -31,20 +31,8 @@ with open(read_path, "rb") as f:
 with open(read_path+".json","wt")as f:
    f.write(json.dumps(loaded_json,indent=4))
 #for scene in loaded_json["scenes"]:
-nodes = loaded_json["nodes"]
-for i,node in enumerate(nodes):
-    nodes[i]["name"] = "{},{}".format(i,node["name"])
-    if "children" in node.keys():
-        for ch in node["children"]:
-            nodes[i]["children"] = "{},{}".format(ch,loaded_json["nodes"][ch]["name"])
-    del nodes[i]["rotation"]
-    del nodes[i]["scale"]
-    
-skins = loaded_json["skins"]
-for skin in skins:
-    skin["skeleton"] = "{:>4}:{}".format(skin["skeleton"] , loaded_json["nodes"][skin["skeleton"]]["name"])
-    for i,joint_id in enumerate(skin["joints"]) :
-        skin["joints"][i] = "{:>4}:{}".format(joint_id , loaded_json["nodes"][joint_id]["name"])
+for i,m in enumerate(loaded_json["materials"]):
+    print(i,m["name"])
     
 #with open(read_path+"_skin"+".json","wt")as f:
 #   f.write(json.dumps({"skins":skins,"nodes":nodes},indent=4))
