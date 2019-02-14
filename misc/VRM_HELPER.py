@@ -13,8 +13,8 @@ from mathutils import Vector
 from collections import deque
 class Bones_rename(bpy.types.Operator):
     bl_idname = "vrm.bones_rename"
-    bl_label = "convert Vroid_bones"
-    bl_description = "convert Vroid_bones as blender type"
+    bl_label = "rename Vroid_bones"
+    bl_description = "rename Vroid_bones as blender type"
     bl_options = {'REGISTER', 'UNDO'}
     
     

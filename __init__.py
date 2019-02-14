@@ -10,6 +10,7 @@ from bpy_extras.io_utils import ImportHelper,ExportHelper
 from .importer import vrm_load,model_build
 from .misc import VRM_HELPER
 from .misc import glb_factory
+from .misc import armature_maker
 import os
 
 
@@ -76,6 +77,8 @@ class ExportVRM(bpy.types.Operator,ExportHelper):
 def menu_export(self, context):
     op = self.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
 
+def add_armature(self, context):
+    op = self.layout.operator(armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="(WIP) humanoid")
 
 class VRM_IMPORTER_UI_controller(bpy.types.Panel):
     bl_idname = "icyp_ui_controller"
@@ -102,8 +105,8 @@ class VRM_IMPORTER_UI_controller(bpy.types.Panel):
                     self.layout.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
                     self.layout.operator(VRM_HELPER.Bones_rename.bl_idname)
                 if context.active_object.type =="MESH":
-                        self.layout.label(icon="ERROR",text="EXPERIMENTAL！お試し版。あてにしない")
-                        self.layout.operator(VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe.bl_idname)
+                    self.layout.label(icon="ERROR",text="EXPERIMENTAL！！！")
+                    self.layout.operator(VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe.bl_idname)
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
 
@@ -116,7 +119,8 @@ classes = (
     VRM_HELPER.Bones_rename,
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
-    VRM_IMPORTER_UI_controller
+    VRM_IMPORTER_UI_controller,
+    armature_maker.ICYP_OT_MAKE_ARAMATURE
 )
 
 
@@ -126,12 +130,14 @@ def register():
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
+    bpy.types.VIEW3D_MT_armature_add.append(add_armature)
     
  
 
 
 # アドオン無効化時の処理
 def unregister():
+    bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
     bpy.types.TOPBAR_MT_file_import.remove(menu_export)
     bpy.types.TOPBAR_MT_file_export.remove(menu_import)
     for cls in classes:
