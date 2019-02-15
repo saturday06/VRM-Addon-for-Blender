@@ -1,5 +1,6 @@
 import bpy
-
+from mathutils import Matrix
+from math import radians,sqrt
 class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	bl_idname = "icyp.make_basic_armature"
 	bl_label = "(WIP)basic aramature"
@@ -34,7 +35,6 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		armature.name = "skelton"
 		armature.show_in_front = True
 		armature.data.display_type = "STICK"
-		armature.data.use_mirror_x = True
 		bone_dic = {}
 		def bone_add(name, head_pos, tail_pos, parent_bone=None):
 			added_bone = armature.data.edit_bones.new(name)
@@ -52,12 +52,16 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 									parent_bones[1]
 								)
 			return left_bone,right_bone
-		def z_add(posA, add_z):
-			pos = [pA+_add for pA,_add in zip(posA,[0,0,add_z])]
-			return pos
 		def x_add(posA, add_x):
 			pos = [pA + _add for pA, _add in zip(posA, [add_x, 0, 0])]
 			return pos
+		def y_add(posA, add_y):
+			pos = [pA + _add for pA, _add in zip(posA, [0, add_y, 0])]
+			return pos
+		def z_add(posA, add_z):
+			pos = [pA+_add for pA,_add in zip(posA,[0,0,add_z])]
+			return pos
+
 		root = bone_add("root", (0, 0, 0), (0, 0,0.3))
 		head_size = self.tall / self.head_ratio
 		#down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を線形補完)
@@ -115,7 +119,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			x_add(upperChest.tail, shoulder_in_pos + self.shoulder_width),
 			(upperChest,upperChest))
 
-		arm_lengh = head_size * (1.5*(1-(self.head_ratio-6)/2)+1*((self.head_ratio-6)/2))
+		arm_lengh = head_size * (1*(1-(self.head_ratio-6)/2)+1.5*((self.head_ratio-6)/2))
 		arms = x_mirror_bones_add("Arm",
 			shoulders[0].tail,
 			x_add(shoulders[0].tail,arm_lengh),
@@ -132,10 +136,54 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			forearms
 		)
 
-		def fingers(proximal_bones):
-			#intermediate_bones
-			#distal_bones
-			pass
+		def fingers(finger_name,proximal_pos,finger_len_sum):
+			# sum(1x:0.75x:0.75^2x)=1
+			# ->x = 1/2.3125
+			proximal_finger_len = finger_len_sum*(1/2.3125)
+			intermediate_finger_len = finger_len_sum*(1/2.3125)*0.75
+			distal_finger_len = finger_len_sum*(1/2.3125)*0.75*0.75
+			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands)
+			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones)
+			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones)
+			return proximal_bones,intermediate_bones,distal_bones
+
+		finger_y_offset = -hand_size/10
+		thumbs = fingers(
+			"finger_thumbs",
+			y_add(hands[0].head,finger_y_offset - hand_size/5),
+			hand_size/2
+		)
+
+		mats = [thumbs[0][i].matrix.translation for i in [0,1]]
+		mats = [Matrix.Translation(mat) for mat in mats]
+		for j in range(3):
+			for n,angle in enumerate([-45,45]):
+				thumbs[j][n].transform( mats[n].inverted() )
+				thumbs[j][n].transform( Matrix.Rotation(radians(angle),4,"Z") )
+				thumbs[j][n].transform( mats[n] )
+
+		index_fingers = fingers(
+			"finger_index",
+			y_add(hands[0].tail,-hand_size/5 +finger_y_offset),
+			(hand_size/2)-(1/2.3125)*(hand_size/2)/3
+		)
+		middle_fingers = fingers(
+			"finger_middle",
+			y_add(hands[0].tail,finger_y_offset),
+			hand_size/2
+		)
+		ring_fingers = fingers(
+			"finger_ring",
+			y_add(hands[0].tail,hand_size/5 +finger_y_offset),
+			(hand_size/2)-(1/2.3125)*(hand_size/2)/3
+		)
+		little_fingers = fingers(
+			"finger_little",
+			y_add(hands[0].tail,2*hand_size/5 +finger_y_offset),
+			((hand_size/2)-(1/2.3125)*(hand_size/2)/3) * ((1/2.3125)+(1/2.3125)*0.75)
+		)
+
+
 
 
 		bpy.ops.object.mode_set(mode='OBJECT')
