@@ -92,7 +92,8 @@ class Glb_obj():
 				#?
 				pass
 		#thumbnail
-		used_image.add(bpy.data.images[self.armature["texture"]])
+		if self.armature.get("texture") is not None:
+			used_image.add(bpy.data.images[self.armature["texture"]])
 
 		for image in used_image:
 			with open(image.filepath_from_user(),"rb") as f:
@@ -683,8 +684,9 @@ class Glb_obj():
 		#region firstPerson
 		vrm_extension_dic["firstPerson"] = vrm_FP_dic = {}
 		vrm_FP_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["firstPerson_params"]])))
-		if vrm_FP_dic["firstPersonBone"] != -1:
-			vrm_FP_dic["firstPersonBone"] = node_name_id_dic[vrm_FP_dic["firstPersonBone"]]
+		if "firstPersonBone" in vrm_FP_dic.keys():
+			if vrm_FP_dic["firstPersonBone"] != -1:
+				vrm_FP_dic["firstPersonBone"] = node_name_id_dic[vrm_FP_dic["firstPersonBone"]]
 		if "meshAnnotations" in vrm_FP_dic.keys():
 			for meshAnnotation in vrm_FP_dic["meshAnnotations"]:
 				meshAnnotation["mesh"] = [i for i,mesh in enumerate(self.json_dic["meshes"]) if mesh["name"]==meshAnnotation["mesh"]][0]

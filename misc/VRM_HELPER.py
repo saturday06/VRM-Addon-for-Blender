@@ -212,11 +212,12 @@ class VRM_VALIDATOR(bpy.types.Operator):
 		#thumbnail
         try:
             if armature is not None:
-                thumbnail_image = bpy.data.images.get(armature["texture"])
-                if thumbnail_image:
-                    used_image.append(thumbnail_image)
-                else:
-                    messages.add(f"thumbnail_image is missing. please load {armature['texture']}")
+                if armature.get("texture") != None:
+                    thumbnail_image = bpy.data.images.get(armature["texture"])
+                    if thumbnail_image:
+                        used_image.append(thumbnail_image)
+                    else:
+                        messages.add(f"thumbnail_image is missing. please load {armature['texture']}")
         except:
             messages.add(f"thumbnail_image is missing. please load {armature['texture']}")
             pass

@@ -1,6 +1,7 @@
 import bpy
 from mathutils import Matrix
 from math import radians,sqrt
+import json
 class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	bl_idname = "icyp.make_basic_armature"
 	bl_label = "(WIP)basic aramature"
@@ -25,8 +26,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	leg_size: bpy.props.FloatProperty(default=0.26, min=0.05, step=0.005)
 	
 	def execute(self, context):
-		armature = self.make_armature(context)
-		#self.setup_as_vrm(armature)
+		armature,compare_dict = self.make_armature(context)
+		self.setup_as_vrm(armature,compare_dict)
 		return {"FINISHED"}
 
 	def make_armature(self, context):
@@ -45,8 +46,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			bone_dic.update({name:added_bone})
 			return added_bone
 		def x_mirror_bones_add(base_name, right_head_pos, right_tail_pos, parent_bones):
-			left_bone = bone_add(base_name + "_l", right_head_pos, right_tail_pos, parent_bones[0])
-			right_bone = bone_add(base_name + "_r",
+			left_bone = bone_add(base_name + "_L", right_head_pos, right_tail_pos, parent_bones[0])
+			right_bone = bone_add(base_name + "_R",
 									[pos*axis for pos, axis in zip(right_head_pos, (-1, 1, 1))],
 									[pos*axis for pos, axis in zip(right_tail_pos, (-1, 1, 1))],
 									parent_bones[1]
@@ -83,12 +84,13 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		Head = bone_add("Head", (0,0, self.tall-head_size), (0,0, self.tall), Neck)
 		#目
 		eye_depth = self.eye_depth
-		x_mirror_bones_add("eye", (head_size / 5, 0, Head.head[2] + head_size / 2),
+		eyes = x_mirror_bones_add("eye", (head_size / 5, 0, Head.head[2] + head_size / 2),
 									(head_size / 5, eye_depth, Head.head[2] + head_size / 2),
 									(Head, Head))
 		#足
 		leg_width = self.leg_width
 		leg_size = self.leg_size
+		
 		leg_bone_lengh =( self.tall*(1-hip_up_down_ratio) - self.tall*0.05 )/2
 		upside_legs = x_mirror_bones_add("Upper_Leg",
 				x_add(Hips.head, leg_width),
@@ -183,8 +185,59 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			((hand_size/2)-(1/2.3125)*(hand_size/2)/3) * ((1/2.3125)+(1/2.3125)*0.75)
 		)
 
+		#'s is left,right tupple
+		body_dict = {
+			"hips":Hips.name,
+			"spine":Spine.name,
+			"chest":Chest.name,
+			"upperChest":upperChest.name,
+			"neck":Neck.name,
+			"head":Head.name
+		}
+		left_right_body_dict = {
+			f"{left_right}{bone_name}":bones[lr].name
+			for bone_name,bones in {
+				"Eye":eyes,
+				"UpperLeg":upside_legs,
+				"LowerLeg":lower_legs,
+				"Foot":Foots,
+				"Toes":Toes,
+				"Shoulder":shoulders,
+				"UpperArm":arms,
+				"LowerArm":forearms,
+				"Hand":hands
+			}.items()
+			for lr,left_right in enumerate(["left","right"])
+		}
 
+		#VRM finger like name key
+		fingers_dict={
+			f"{left_right}{finger_name}{position}":finger[i][lr].name
+			for finger_name,finger in zip(["Thumb","Index","Middle","Ring","Little"],[thumbs,index_fingers,middle_fingers,ring_fingers,little_fingers])
+			for i,position in enumerate(["Proximal","Intermediate","Distal"])
+			for lr,left_right in enumerate(["left","right"])
+		}
 
-
+		#VRM bone name : blender bone name
+		bone_name_all_dict = {}
+		bone_name_all_dict.update(body_dict)
+		bone_name_all_dict.update(left_right_body_dict)
+		bone_name_all_dict.update(fingers_dict)
+		
 		bpy.ops.object.mode_set(mode='OBJECT')
-		return armature
+		return armature,bone_name_all_dict
+
+	def setup_as_vrm(self,armature,compaire_dict):
+		for vrm_bone_name,blender_bone_name in compaire_dict.items():
+			armature.data.bones[blender_bone_name]["humanBone"] = vrm_bone_name
+
+		def write_textblock_and_assgin_to_armature(block_name,value):
+			text_block = bpy.data.texts.new(name=f"{armature.name}_{block_name}.json")
+			text_block.write(json.dumps(value,indent = 4))
+			armature[f"{block_name}"] = text_block.name
+		write_textblock_and_assgin_to_armature("humanoid_params",{})
+		write_textblock_and_assgin_to_armature("firstPerson_params",{})
+		write_textblock_and_assgin_to_armature("blendshape_group",[])
+		write_textblock_and_assgin_to_armature("spring_bone",[])
+
+		return 
