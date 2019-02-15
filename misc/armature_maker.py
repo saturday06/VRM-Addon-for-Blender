@@ -4,7 +4,7 @@ from math import radians,sqrt
 import json
 class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	bl_idname = "icyp.make_basic_armature"
-	bl_label = "(WIP)basic aramature"
+	bl_label = "(WIP)basic armature"
 	bl_description = "make armature and simple setup for VRM export"
 	bl_options = {'REGISTER', 'UNDO'}
 	
@@ -12,17 +12,20 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	tall: bpy.props.FloatProperty(default=1.70, min=0.3, step=0.001)
 	#頭身
 	head_ratio: bpy.props.FloatProperty(default=8.0, min=4, step=0.05)
-	#足-胴比率：０：子供、１：大人　に近くなる
-	age_ratio: bpy.props.FloatProperty(default=0.5, min=0, max=1, step=0.1)
+	#足-胴比率：０：子供、１：大人　に近くなる(低等身で有効)
+	aging_ratio: bpy.props.FloatProperty(default=0.5, min=0, max=1, step=0.1)
 	#目の奥み
 	eye_depth: bpy.props.FloatProperty(default=-0.03, min=-0.1, max=0, step=0.005)
 	#肩幅
 	shoulder_in_width: bpy.props.FloatProperty(default=0.2125, min=0.01, step=0.005)
 	shoulder_width: bpy.props.FloatProperty(default=0.08, min=0.01, step=0.005)
-	#手（パー
+	#腕長さ率
+	arm_length_ratio : bpy.props.FloatProperty(default=1, min=0.5, step=0.01)
+	#手
 	hand_size :bpy.props.FloatProperty(default=0.18, min=0.01, step=0.005)
 	finger_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
-	#足幅
+	#足
+	leg_length_ratio : bpy.props.FloatProperty(default=0.5, min=0.3, max=0.6,step=0.01)
 	leg_width: bpy.props.FloatProperty(default=0.1, min=0.01, step=0.005)
 	leg_size: bpy.props.FloatProperty(default=0.26, min=0.05, step=0.005)
 	
@@ -36,7 +39,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		armature = context.object
 		armature.name = "skelton"
 		armature.show_in_front = True
-		armature.data.display_type = "STICK"
+		
 		bone_dic = {}
 		def bone_add(name, head_pos, tail_pos, parent_bone=None):
 			added_bone = armature.data.edit_bones.new(name)
@@ -66,23 +69,25 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 
 		root = bone_add("root", (0, 0, 0), (0, 0,0.3))
 		head_size = self.tall / self.head_ratio
-		#down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を線形補完)
-		eight_upside_ratio, four_upside_ratio = 0.5, (2.5/4)*(1-self.age_ratio)+(0.5)*self.age_ratio
+		#down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を年齢具合で線形補完)(股上高めにすると破綻する)
+		eight_upside_ratio, four_upside_ratio = 1-self.leg_length_ratio, (2.5/4)*(1-self.aging_ratio)+(1-self.leg_length_ratio)*self.aging_ratio
 		hip_up_down_ratio = eight_upside_ratio * (1 - (8 - self.head_ratio) / 4) + four_upside_ratio * (8 - self.head_ratio) / 4
 		#チェスト下とチェスト～首の割合
 		upper_chest_neck_ratio = (1-(8-self.head_ratio)/4)*(1/3) + ((8-self.head_ratio)/4)*0.1
 
+		#体幹 
 		neck_len = (1-upper_chest_neck_ratio)*(self.tall*(1-hip_up_down_ratio)/2)/3
-		upper_chest_len = neck_len*2
-		chest_len = (self.tall*hip_up_down_ratio - head_size - neck_len - upper_chest_len)/2
+		upper_chest_len =  (self.tall*hip_up_down_ratio - head_size - neck_len)/3
+		chest_len = upper_chest_len
 		spine_len = chest_len
-		#体幹
+		
 		Hips = bone_add("Hips", (0,0, self.tall*(1-hip_up_down_ratio) ), (0,0.1,self.tall*(1-hip_up_down_ratio)),root)
 		Spine = bone_add("Spine",Hips.head,z_add(Hips.head,spine_len),Hips)
 		Chest = bone_add("Chest", Spine.tail, z_add(Spine.tail,chest_len), Spine)
 		upperChest = bone_add("upperChest", Chest.tail, z_add(Chest.tail,upper_chest_len), Chest)
 		Neck = bone_add("Neck", upperChest.tail, z_add(upperChest.tail,neck_len), upperChest)
 		Head = bone_add("Head", (0,0, self.tall-head_size), (0,0, self.tall), Neck)
+
 		#目
 		eye_depth = self.eye_depth
 		eyes = x_mirror_bones_add("eye", (head_size / 5, 0, Head.head[2] + head_size / 2),
@@ -122,7 +127,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			x_add(upperChest.tail, shoulder_in_pos + self.shoulder_width),
 			(upperChest,upperChest))
 
-		arm_lengh = head_size * (1*(1-(self.head_ratio-6)/2)+1.5*((self.head_ratio-6)/2))
+		arm_lengh = head_size * (1*(1-(self.head_ratio-6)/2)+1.5*((self.head_ratio-6)/2)) * self.arm_length_ratio
 		arms = x_mirror_bones_add("Arm",
 			shoulders[0].tail,
 			x_add(shoulders[0].tail,arm_lengh),
