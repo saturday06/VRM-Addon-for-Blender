@@ -249,6 +249,26 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		write_textblock_and_assgin_to_armature("blendshape_group",self.blendshape_group)
 		write_textblock_and_assgin_to_armature("spring_bone",[])
 
+		vrm_metas = [
+			"version",#model version (not VRMspec etc)
+			"author",
+			"contactInformation",
+			"reference",
+			"title",
+			"otherPermissionUrl",
+			"otherLicenseUrl"
+		]
+		for v in vrm_metas:
+			armature[v] = ""
+		required_vrm_metas = {
+			"allowedUserName":"Disallow",
+			"violentUssageName":"Disallow",
+			"sexualUssageName":"Disallow",
+			"commercialUssageName":"Disallow",
+			"licenseName":"Redistribution_Prohibited",
+		}
+		for k,v in required_vrm_metas.items():
+			armature[k] = v
 		return
 
 	humanoid_params = {
