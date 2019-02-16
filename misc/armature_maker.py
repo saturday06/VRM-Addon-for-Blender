@@ -243,9 +243,80 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			text_block = bpy.data.texts.new(name=f"{armature.name}_{block_name}.json")
 			text_block.write(json.dumps(value,indent = 4))
 			armature[f"{block_name}"] = text_block.name
-		write_textblock_and_assgin_to_armature("humanoid_params",{})
-		write_textblock_and_assgin_to_armature("firstPerson_params",{})
-		write_textblock_and_assgin_to_armature("blendshape_group",[])
+		#param_dicts are below of this method
+		write_textblock_and_assgin_to_armature("humanoid_params",self.humanoid_params)
+		write_textblock_and_assgin_to_armature("firstPerson_params",self.firstPerson_params)
+		write_textblock_and_assgin_to_armature("blendshape_group",self.blendshape_group)
 		write_textblock_and_assgin_to_armature("spring_bone",[])
 
-		return 
+		return
+
+	humanoid_params = {
+						"armStretch": 0.05,
+						"legStretch": 0.05,
+						"upperArmTwist": 0.5,
+						"lowerArmTwist": 0.5,
+						"upperLegTwist": 0.5,
+						"lowerLegTwist": 0.5,
+						"feetSpacing": 0,
+						"hasTranslationDoF": False
+					}
+	firstPerson_params = {
+		"firstPersonBone": "Head",
+		"firstPersonBoneOffset": {
+			"x": 0,
+			"y": 0,
+			"z": 0
+		},
+		"meshAnnotations": [],
+		"lookAtTypeName": "Bone",
+		"lookAtHorizontalInner": {
+			"curve": [
+				0,0,0,1,
+				1,1,1,0
+			],
+			"xRange": 90,
+			"yRange": 8
+		},
+		"lookAtHorizontalOuter": {
+			"curve": [
+				0,0,0,1,
+				1,1,1,0
+			],
+			"xRange": 90,
+			"yRange": 12
+		},
+		"lookAtVerticalDown": {
+			"curve": [
+				0,0,0,1,
+				1,1,1,0
+			],
+			"xRange": 90,
+			"yRange": 10
+		},
+		"lookAtVerticalUp": {
+			"curve": [
+				0,0,0,1,
+				1,1,1,0
+			],
+			"xRange": 90,
+			"yRange": 10
+		}
+	}
+
+	blendshape_group = [
+		{
+			"name": "Neutral",
+			"presetName": "neutral",
+			"binds": [],
+			"materialValues": []
+		},
+		{
+			"name": "A",
+			"presetName": "a",
+			"binds": [],
+			"materialValues": []
+		}
+	]
+
+	#TODO spring_bone sample
