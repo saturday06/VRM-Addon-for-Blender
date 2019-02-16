@@ -23,7 +23,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	arm_length_ratio : bpy.props.FloatProperty(default=1, min=0.5, step=0.01)
 	#手
 	hand_size :bpy.props.FloatProperty(default=0.18, min=0.01, step=0.005)
-	finger_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
+	finger_1_2_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
+	finger_2_3_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
 	#足
 	leg_length_ratio : bpy.props.FloatProperty(default=0.5, min=0.3, max=0.6,step=0.01)
 	leg_width: bpy.props.FloatProperty(default=0.1, min=0.01, step=0.005)
@@ -90,9 +91,9 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 
 		#目
 		eye_depth = self.eye_depth
-		eyes = x_mirror_bones_add("eye", (head_size / 5, 0, Head.head[2] + head_size / 2),
-									(head_size / 5, eye_depth, Head.head[2] + head_size / 2),
-									(Head, Head))
+		eyes = x_mirror_bones_add("eye", (head_size / 5, 0, 		Head.head[2] + head_size / 2),
+										 (head_size / 5, eye_depth, Head.head[2] + head_size / 2),
+										 (Head, Head))
 		#足
 		leg_width = self.leg_width
 		leg_size = self.leg_size
@@ -145,12 +146,11 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		)
 
 		def fingers(finger_name,proximal_pos,finger_len_sum):
-			# sum(1x:xy:y^2*x)=1
-			# ->x = 1/(y^2+y+1)
-			f_const = 1/(self.finger_ratio*self.finger_ratio+self.finger_ratio+1)
-			proximal_finger_len = finger_len_sum*f_const
-			intermediate_finger_len = finger_len_sum*f_const*self.finger_ratio
-			distal_finger_len = finger_len_sum*f_const*self.finger_ratio*self.finger_ratio
+
+			finger_normalize = 1/(self.finger_1_2_ratio*self.finger_2_3_ratio+self.finger_1_2_ratio+1)
+			proximal_finger_len = finger_len_sum*finger_normalize
+			intermediate_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio
+			distal_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio*self.finger_2_3_ratio
 			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands)
 			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones)
 			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones)
@@ -230,7 +230,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		bone_name_all_dict.update(body_dict)
 		bone_name_all_dict.update(left_right_body_dict)
 		bone_name_all_dict.update(fingers_dict)
-		
+
+		context.scene.update()
 		bpy.ops.object.mode_set(mode='OBJECT')
 		return armature,bone_name_all_dict
 
