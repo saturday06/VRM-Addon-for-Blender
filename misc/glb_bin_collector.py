@@ -38,21 +38,22 @@ class Glb_bin_collection:
 				"byteLength": vab.bin_length
 			}))
 			byteOffset += vab.bin_length
-
-		bin_dic["images"] = []
-		for img in self.image_bins:
-			self.bin +=img.bin
-			bin_dic["images"].append(OrderedDict({
-				"name": img.name,
-				"bufferView": self.get_new_buffer_view_id(),
-				"mimeType": img.image_type
+			
+		if len(self.image_bins) > 0:
+			bin_dic["images"] = []
+			for img in self.image_bins:
+				self.bin +=img.bin
+				bin_dic["images"].append(OrderedDict({
+					"name": img.name,
+					"bufferView": self.get_new_buffer_view_id(),
+					"mimeType": img.image_type
+					}))
+				bin_dic["bufferViews"].append(OrderedDict({
+					"buffer": 0,
+					"byteOffset": byteOffset,
+					"byteLength": img.bin_length
 				}))
-			bin_dic["bufferViews"].append(OrderedDict({
-				"buffer": 0,
-				"byteOffset": byteOffset,
-				"byteLength": img.bin_length
-			}))
-			byteOffset += img.bin_length
+				byteOffset += img.bin_length
 			
 		bin_dic["buffers"] = [{"byteLength":byteOffset}]
 

@@ -174,7 +174,8 @@ class Glb_obj():
 				"source": id
 			}
 			textures.append(texture)
-		self.json_dic.update({"textures":textures})
+		if len(textures) > 0:
+			self.json_dic.update({"textures":textures})
 		return
 
 	def material_to_dic(self):
