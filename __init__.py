@@ -31,8 +31,8 @@ bl_info = {
 
 class ImportVRM(bpy.types.Operator,ImportHelper):
     bl_idname = "import_scene.vrm"
-    bl_label = "import VRM"
-    bl_description = "import VRM"
+    bl_label = "Import VRM"
+    bl_description = "Import VRM"
     bl_options = {'REGISTER', 'UNDO'}
 
     filename_ext = '.vrm'
@@ -56,8 +56,8 @@ def menu_import(self, context):
 
 class ExportVRM(bpy.types.Operator,ExportHelper):
     bl_idname = "export_scene.vrm"
-    bl_label = "export VRM"
-    bl_description = "export VRM"
+    bl_label = "Export VRM"
+    bl_description = "Export VRM"
     bl_options = {'REGISTER', 'UNDO'}
 
     filename_ext = '.vrm'

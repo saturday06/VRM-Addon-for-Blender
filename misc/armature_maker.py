@@ -5,7 +5,7 @@ import json
 class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	bl_idname = "icyp.make_basic_armature"
 	bl_label = "(WIP)basic armature"
-	bl_description = "make armature and simple setup for VRM export"
+	bl_description = "Create armature along with a simple setup for VRM export"
 	bl_options = {'REGISTER', 'UNDO'}
 	
 	#身長 at meter
