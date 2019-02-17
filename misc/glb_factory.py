@@ -72,6 +72,7 @@ class Glb_obj():
 							n = node.inputs[shader_vals].links[0].from_node
 							used_image.add(n.image)
 			elif node.node_tree["SHADER"] == "GLTF":
+				mat["vrm_shader"] = "GLTF"
 				texture_input_name_list = [
 					"color_texture",
 					"normal",
@@ -82,12 +83,12 @@ class Glb_obj():
 					if node.inputs[k].links:
 						n = node.inputs[k].links[0].from_node
 						used_image.add(n.image)
-				mat["vrm_shader"] = "GLTF"
+				
 			elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
+				mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
 				if node.inputs["Main_Texture"].links:
 					n = node.inputs["Main_Texture"].links[0].from_node
 					used_image.add(n.image)
-				mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
 			else:
 				#?
 				pass
@@ -250,9 +251,9 @@ class Glb_obj():
 			MToon_float_dic = MToon_dic["floatProperties"] = OrderedDict()
 			MToon_vector_dic = MToon_dic["vectorProperties"] = OrderedDict()
 			MToon_texture_dic = MToon_dic["textureProperties"] = OrderedDict()
-			for float_key,float_prop in [(k,val) for k,val in VRM_types.Material_MToon.float_props_exchange_dic.items() if val ]:
+			for float_key,float_prop in [(k,val) for k,val in VRM_types.Material_MToon.float_props_exchange_dic.items() if val is not None ]:
 				float_val = get_float_value(MToon_Shader_Node,float_prop)
-				if float_val :
+				if float_val is not None:
 					MToon_float_dic[float_key] = float_val
 
 			vec_prop_set = set(VRM_types.Material_MToon.vector_props_exchange_dic.values()) \
@@ -678,6 +679,7 @@ class Glb_obj():
 				vrm_humanoid_dic["humanBones"].append({ 
 					"bone": bone["humanBone"],
 					"node":node_name_id_dic[bone.name],
+					#TODO min,max,center,axisLength : useDef(ry):Trueなら不要な気がするのでほっとく
 					"useDefaultValues": True
 				})
 		vrm_humanoid_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["humanoid_params"]])))
@@ -713,6 +715,7 @@ class Glb_obj():
 				bind["mesh"] = [i for i,mesh in enumerate(self.json_dic["meshes"]) if mesh["name"]==bind["mesh"]][0]
 				bind["index"] = self.json_dic["meshes"][bind["mesh"]]["primitives"][0]["extras"]["targetNames"].index(bind["index"])
 				bind["weight"] = clamp(0, bind["weight"]*100, 100)
+		#TODO isBinary handle : isBinaryって何？？？？
 		vrm_BSM_dic["blendShapeGroups"] = BSM_list
 		#endregion blendShapeMaster
 

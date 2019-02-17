@@ -75,7 +75,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		hip_up_down_ratio = eight_upside_ratio * (1 - (8 - self.head_ratio) / 4) + four_upside_ratio * (8 - self.head_ratio) / 4
 		#チェスト下とチェスト～首の割合
 		upper_chest_neck_ratio = (1-(8-self.head_ratio)/4)*(1/3) + ((8-self.head_ratio)/4)*0.1
-
+		#TODO 胸椎、脊椎で骨の割合を決める
 		#体幹 
 		neck_len = (1-upper_chest_neck_ratio)*(self.tall*(1-hip_up_down_ratio)/2)/3
 		upper_chest_len =  (self.tall*hip_up_down_ratio - head_size - neck_len)/3
@@ -247,7 +247,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		write_textblock_and_assgin_to_armature("humanoid_params",self.humanoid_params)
 		write_textblock_and_assgin_to_armature("firstPerson_params",self.firstPerson_params)
 		write_textblock_and_assgin_to_armature("blendshape_group",self.blendshape_group)
-		write_textblock_and_assgin_to_armature("spring_bone",[])
+		write_textblock_and_assgin_to_armature("spring_bone",self.spring_bone_prams)
 
 		vrm_metas = [
 			"version",#model version (not VRMspec etc)
@@ -325,18 +325,141 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	}
 
 	blendshape_group = [
-		{
-			"name": "Neutral",
-			"presetName": "neutral",
-			"binds": [],
-			"materialValues": []
-		},
-		{
-			"name": "A",
-			"presetName": "a",
-			"binds": [],
-			"materialValues": []
-		}
-	]
+                    {
+                        "name": "Neutral",
+                        "presetName": "neutral",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "A",
+                        "presetName": "a",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "I",
+                        "presetName": "i",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "U",
+                        "presetName": "u",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "E",
+                        "presetName": "e",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "O",
+                        "presetName": "o",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "Blink",
+                        "presetName": "blink",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "Joy",
+                        "presetName": "joy",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "Angry",
+                        "presetName": "angry",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "Sorrow",
+                        "presetName": "sorrow",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "Fun",
+                        "presetName": "fun",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "LookUp",
+                        "presetName": "lookup",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "LookDown",
+                        "presetName": "lookdown",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "LookLeft",
+                        "presetName": "lookleft",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "LookRight",
+                        "presetName": "lookright",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "Blink_L",
+                        "presetName": "blink_l",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    },
+                    {
+                        "name": "Blink_R",
+                        "presetName": "blink_r",
+                        "binds": [],
+                        "materialValues": [],
+                        "isBinary": False
+                    }
+                ]
 
-	#TODO spring_bone sample
+	spring_bone_prams = [
+                    {
+                        "comment": "",
+                        "stiffiness": 1,
+                        "gravityPower": 0,
+                        "gravityDir": {
+                            "x": 0,
+                            "y": -1,
+                            "z": 0
+                        },
+                        "dragForce": 0.4,
+                        "center": -1,
+                        "hitRadius": 0.02,
+                        "bones": [],
+                        "colliderGroups": []
+                    }
+	]
