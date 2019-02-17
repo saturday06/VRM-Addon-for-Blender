@@ -1,4 +1,15 @@
 
+# すべてをignore
+*
+# すべてのディレクトリをホワイトリストに追加する
+!*/
+# ホワイトリストに入れたいファイルを許可する
+!.gitignore
+!*.py
+!*.md
+!*.blend
+!LICENSE
+
 .vscode/.ropeproject/objectdb
 .vscode/.ropeproject/config.py
 .vscode/tasks.json
