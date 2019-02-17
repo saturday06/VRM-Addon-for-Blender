@@ -125,10 +125,10 @@ class VRM_VALIDATOR(bpy.types.Operator):
             if obj.type == "MESH":
                 if len(obj.data.materials) == 0:
                     messages.add(f"There is no material assigned to mesh {obj.name}")
-                    for poly in obj.data.polygons:
-                        if poly.loop_total > 3:#polygons need all triangle
-                            messages.add(f"There are not Triangle faces in {obj.name}")
-                            break
+                for poly in obj.data.polygons:
+                    if poly.loop_total > 3:#polygons need all triangle
+                        messages.add(f"There are not Triangle faces in {obj.name}")
+                        break
                 #TODO modifier applyed, vertex weight Bone exist, vertex weight numbers.
         #endregion selected object seeking
         if armature_count == 0:
