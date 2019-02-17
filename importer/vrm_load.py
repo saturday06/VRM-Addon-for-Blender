@@ -25,11 +25,11 @@ def parse_glb(data: bytes):
     reader = Binaly_Reader(data)
     magic = reader.read_str(4)
     if magic != 'glTF':
-        raise Exception('magic not found: #{}'.format(magic))
+        raise Exception('glTF header signature not found: #{}'.format(magic))
 
     version = reader.read_as_dataType(GLC.UNSIGNED_INT)
     if version != 2:
-        raise Exception('version:#{} is not 2'.format(version))
+        raise Exception('version #{} found. This plugin only supports version 2'.format(version))
 
     size = reader.read_as_dataType(GLC.UNSIGNED_INT)
     size -= 12
@@ -40,7 +40,7 @@ def parse_glb(data: bytes):
         # print(size)
 
         if json_str is not None and body is not None:
-            raise Exception('this vrm has chunks, this importer reads one chunk only.')
+            raise Exception('This VRM has multiple chunks, this plugin reads one chunk only.')
 
         chunk_size = reader.read_as_dataType(GLC.UNSIGNED_INT)
         size -= 4
@@ -70,11 +70,11 @@ def read_vrm(model_path):
     #KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
     if "extensionsRequired" in vrm_pydata.json:
         if "KHR_DRACO_MESH_COMPRESSION" in vrm_pydata.json["extensionsRequired"]:
-            raise Exception("This VRM has DRACO COMPRESSION. This importer can't read this VRM. Draco圧縮されたVRMは未対応です")
+            raise Exception("This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です")
     #改変不可ﾗｲｾﾝｽを撥ねる
     #CC_ND
     if re.match("CC(.*)ND(.*)", json_get(vrm_pydata.json,["extensions","VRM","meta","licenseName"],"")):
-        raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
+        raise Exception("This VRM can not be edited. No derivative works are allowed. Please check its copyright license.　改変不可Licenseです。")
     #Vroidbhub licence
     if "otherPermissionUrl" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
         from urllib.parse import parse_qsl,urlparse
@@ -83,10 +83,10 @@ def read_vrm(model_path):
             pass
         elif "vroid" in address :
             if dict(parse_qsl(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"])).get("modification") == "disallow":
-                raise Exception("This VRM is not allowed to Edit. CHECK ITS LICENSE　改変不可Licenseです。")
+                raise Exception("This VRM can not be edited. No modifications are allowed. Please check its copyright license.　改変不可Licenseです。")
      #オリジナルライセンスに対する注意
     if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
-        print("Is this VRM allowed to Edit? CHECK IT LICENSE")
+        print("Is this VRM allowed to edited? Please check its copyright license.")
 
     texture_rip(vrm_pydata,body_binary)
 
@@ -149,9 +149,9 @@ def texture_rip(vrm_pydata,body_binary):
                     written_flag = True
                     break
             if not written_flag:
-                print("Thare are same name images more than 5 in folder. Failed to write file: {}".format(image_name))
+                print("Thare are more than 5 images with the same name in the folder. Failed to write file: {}".format(image_name))
         else:
-            print(image_name + " Image is already exists. NOT OVER WRITTEN")
+            print(image_name + " Image already exists. Was not overwritten.")
         image_propaty = VRM_Types.Image_props(image_name,image_path,image_type)
         vrm_pydata.image_propaties.append(image_propaty)
 
@@ -193,7 +193,7 @@ def mesh_read(vrm_pydata):
             #region 頂点index
             if primitive["mode"] != GLC.TRIANGLES:
                 #TODO その他ﾒｯｼｭﾀｲﾌﾟ対応
-                raise Exception("unSupported polygon type(:{}) Exception".format(primitive["mode"]))
+                raise Exception("Unsupported polygon type(:{}) Exception".format(primitive["mode"]))
             vrm_mesh.face_indices = vrm_pydata.decoded_binary[primitive["indices"]]
             #3要素ずつに変換しておく(GCL.TRIANGLES前提なので)
             #ＡＴＴＥＮＴＩＯＮ　これだけndarray

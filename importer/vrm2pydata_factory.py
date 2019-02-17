@@ -114,7 +114,7 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
             v_mat.texture_index_dic = ext_mat["textureProperties"]
         else:
             #ここには入らないはず
-            print(f"unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}")
+            print(f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}")
     return v_mat
 
 

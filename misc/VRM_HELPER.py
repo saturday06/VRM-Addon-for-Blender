@@ -13,8 +13,8 @@ from mathutils import Vector
 from collections import deque
 class Bones_rename(bpy.types.Operator):
     bl_idname = "vrm.bones_rename"
-    bl_label = "rename Vroid_bones"
-    bl_description = "rename Vroid_bones as blender type"
+    bl_label = "Rename Vroid_bones"
+    bl_description = "Rename Vroid_bones as Blender type"
     bl_options = {'REGISTER', 'UNDO'}
     
     
@@ -37,8 +37,8 @@ import os
 
 class Vroid2VRC_ripsync_from_json_recipe(bpy.types.Operator):
     bl_idname = "vrm.ripsync_vrm"
-    bl_label = "make ripsync4VRC"
-    bl_description = "make ripsync from Vroid to VRC by json"
+    bl_label = "Make ripsync4VRC"
+    bl_description = "Make ripsync from Vroid to VRC by json"
     bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
@@ -60,7 +60,7 @@ class Vroid2VRC_ripsync_from_json_recipe(bpy.types.Operator):
 
 class VRM_VALIDATOR(bpy.types.Operator):
     bl_idname = "vrm.model_validate"
-    bl_label = "check as VRM model"
+    bl_label = "Validate VRM model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkind Mesh etc..."
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -74,24 +74,24 @@ class VRM_VALIDATOR(bpy.types.Operator):
         #region selected object seeking
         for obj in bpy.context.selected_objects:
             if obj.name in node_name_set:
-                messages.add("VRM exporter need Nodes(mesh,bones) name is unique. {} is doubled.".format(obj.name))
+                messages.add("Nodes(mesh,bones) require unique names for VRM export. {} is duplicated.".format(obj.name))
             node_name_set.add(obj.name)
             if obj.type != "EMPTY" and (obj.parent is not None and obj.parent.type != "ARMATURE" and obj.type == "MESH"):
                 if obj.location != Vector([0.0,0.0,0.0]):#mesh and armature origin is on [0,0,0]
-                    messages.add("There are not on origine location object {}".format(obj.name))
+                    messages.add("There are not an object on the origin {}".format(obj.name))
             if obj.type == "ARMATURE":
                 armature = obj
                 armature_count += 1
                 if armature_count >= 2:#only one armature
-                    messages.add("VRM exporter needs only one armature not some armatures")
+                    messages.add("Only one armature is required for VRM export. Multiple armatures found.")
                 already_root_bone_exist = False
                 for bone in obj.data.bones:
                     if bone.name in node_name_set:#nodes name is unique
-                        messages.add("VRM exporter need Nodes(mesh,bones) name is unique. {} is doubled".format(bone.name))
+                        messages.add("Nodes(mesh,bones) require unique names for VRM export. {} is duplicated.".format(bone.name))
                     node_name_set.add(bone.name)
                     if bone.parent == None: #root bone is only 1
                         if already_root_bone_exist:
-                            messages.add("root bone is only one {},{} are root bone now".format(bone.name,already_root_bone_exist))
+                            messages.add("There is only one root bone {},{} is root bone now".format(bone.name,already_root_bone_exist))
                         already_root_bone_exist = bone.name
                 #TODO: T_POSE,
                 require_human_bone_dic = {bone_tag : None for bone_tag in [
@@ -124,7 +124,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
 
             if obj.type == "MESH":
                 if len(obj.data.materials) == 0:
-                    messages.add(f"There is no material in mesh {obj.name}")
+                    messages.add(f"There is no material assigned to mesh {obj.name}")
                     for poly in obj.data.polygons:
                         if poly.loop_total > 3:#polygons need all triangle
                             messages.add(f"There are not Triangle faces in {obj.name}")
@@ -147,7 +147,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     node.inputs['Surface'].links[0].from_node.type != "GROUP" \
                     or node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is None 
                 ):
-                     messages.add(f"{mat.name} doesn't connect VRM SHADER node group to Material output node in material node tree. Please use them and connect straight.")
+                     messages.add(f"{mat.name} doesn't connect VRM SHADER node group to Material output node in material node tree. Please use them and connect properly.")
 
         shader_nodes_and_material = [(node.inputs["Surface"].links[0].from_node,mat) for mat in used_material_set \
                         for node in mat.node_tree.nodes \
@@ -217,16 +217,16 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     if thumbnail_image:
                         used_image.append(thumbnail_image)
                     else:
-                        messages.add(f"thumbnail_image is missing. please load {armature['texture']}")
+                        messages.add(f"thumbnail_image is missing. Please load {armature['texture']}")
         except:
-            messages.add(f"thumbnail_image is missing. please load {armature['texture']}")
+            messages.add(f"thumbnail_image is missing. Please load {armature['texture']}")
             pass
             
         for img in used_image:
             if img.is_dirty or img.filepath =="":
-                messages.add(f"{img.name} is not saved, please save.")
+                messages.add(f"{img.name} is not saved. Please save.")
             if img.file_format.lower() not in ["png","jpeg"]:
-                messages.add("GLTF texture format is PNG AND JPEG only")
+                messages.add("glTF only supports PNG and JPEG textures")
 
         #TODO textblock_validate
 
