@@ -140,8 +140,9 @@ class Blend_model():
                         count +=1
                         mean_relate_pos += self.vrm_pydata.nodes_dict[childID].position
                     mean_relate_pos = mean_relate_pos / count
-                    if vector_length(mean_relate_pos) == 0:#子の位置の平均が根本と同じなら上向けとく
+                    if vector_length(mean_relate_pos) <= 0.001:#ボーンの長さが1mm以下なら上に10cm延ばす
                         mean_relate_pos[1] +=0.1
+                    
                     b.tail =[b.head[i] + mean_relate_pos[i] for i in range(3)]
 
                 #endregion tail pos    
