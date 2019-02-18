@@ -19,6 +19,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	#肩幅
 	shoulder_in_width: bpy.props.FloatProperty(default=0.2125, min=0.01, step=0.005)
 	shoulder_width: bpy.props.FloatProperty(default=0.08, min=0.01, step=0.005)
+	#upper chest((option)
+	add_upper_chest:bpy.props.BoolProperty(default=False)
 	#腕長さ率
 	arm_length_ratio : bpy.props.FloatProperty(default=1, min=0.5, step=0.01)
 	#手
@@ -84,9 +86,14 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		
 		Hips = bone_add("Hips", (0,0, self.tall*(1-hip_up_down_ratio) ), (0,0.1,self.tall*(1-hip_up_down_ratio)),root)
 		Spine = bone_add("Spine",Hips.head,z_add(Hips.head,spine_len),Hips)
-		Chest = bone_add("Chest", Spine.tail, z_add(Spine.tail,chest_len), Spine)
-		upperChest = bone_add("upperChest", Chest.tail, z_add(Chest.tail,upper_chest_len), Chest)
-		Neck = bone_add("Neck", upperChest.tail, z_add(upperChest.tail,neck_len), upperChest)
+		if self.add_upper_chest:
+			Chest = bone_add("Chest", Spine.tail, z_add(Spine.tail,chest_len), Spine)
+			upperChest = bone_add("upperChest", Chest.tail, z_add(Chest.tail,upper_chest_len), Chest)
+			Neck = bone_add("Neck", upperChest.tail, z_add(upperChest.tail,neck_len), upperChest)
+		else:
+			Chest = bone_add("Chest",Spine.tail,z_add(Spine.tail,chest_len+upper_chest_len),Spine)
+			Neck = bone_add("Neck", Chest.tail, z_add(Chest.tail,neck_len), Chest)
+		
 		Head = bone_add("Head", (0,0, self.tall-head_size), (0,0, self.tall), Neck)
 
 		#目
@@ -123,10 +130,11 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		#肩～指
 		shoulder_in_pos = self.shoulder_in_width / 2
 		
+		shoulder_parent = upperChest if self.add_upper_chest else Chest
 		shoulders = x_mirror_bones_add("shoulder",
-			x_add(upperChest.tail, shoulder_in_pos),
-			x_add(upperChest.tail, shoulder_in_pos + self.shoulder_width),
-			(upperChest,upperChest))
+			x_add(shoulder_parent.tail, shoulder_in_pos),
+			x_add(shoulder_parent.tail, shoulder_in_pos + self.shoulder_width),
+			(shoulder_parent,shoulder_parent))
 
 		arm_lengh = head_size * (1*(1-(self.head_ratio-6)/2)+1.5*((self.head_ratio-6)/2)) * self.arm_length_ratio
 		arms = x_mirror_bones_add("Arm",
@@ -192,15 +200,16 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			((hand_size/2)-(1/2.3125)*(hand_size/2)/3) * ((1/2.3125)+(1/2.3125)*0.75)
 		)
 
-		#'s is left,right tupple
 		body_dict = {
 			"hips":Hips.name,
 			"spine":Spine.name,
 			"chest":Chest.name,
-			"upperChest":upperChest.name,
 			"neck":Neck.name,
 			"head":Head.name
 		}
+		if self.add_upper_chest:
+			body_dict.update({"upperChest":upperChest.name})
+
 		left_right_body_dict = {
 			f"{left_right}{bone_name}":bones[lr].name
 			for bone_name,bones in {
