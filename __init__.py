@@ -78,7 +78,7 @@ def menu_export(self, context):
     op = self.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
 
 def add_armature(self, context):
-    op = self.layout.operator(armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="(WIP) humanoid")
+    op = self.layout.operator(armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="VRM humanoid")
 
 class VRM_IMPORTER_UI_controller(bpy.types.Panel):
     bl_idname = "icyp_ui_controller"
@@ -93,11 +93,11 @@ class VRM_IMPORTER_UI_controller(bpy.types.Panel):
         return True
 
     def draw(self, context):
-        self.layout.label(text="if you select armature in object mode")
+        self.layout.label(text="If you select armature in object mode")
         self.layout.label(text="armature renamer is shown")
-        self.layout.label(text="if you in MESH EDIT")
+        self.layout.label(text="If you in MESH EDIT")
         self.layout.label(text="symmetry button is shown")
-        self.layout.label(text="*symmetry is in default blender")
+        self.layout.label(text="*Symmetry is in default blender function")
         if context.mode == "OBJECT":
             if context.active_object is not None:
                 self.layout.operator(VRM_HELPER.VRM_VALIDATOR.bl_idname)
