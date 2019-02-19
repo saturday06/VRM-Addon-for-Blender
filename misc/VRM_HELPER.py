@@ -150,11 +150,11 @@ class VRM_VALIDATOR(bpy.types.Operator):
                      messages.add(f"{mat.name} doesn't connect VRM SHADER node group to Material output node in material node tree. Please use them and connect properly.")
 
         shader_nodes_and_material = [(node.inputs["Surface"].links[0].from_node,mat) for mat in used_material_set \
-                        for node in mat.node_tree.nodes \
-                        if node.type =="OUTPUT_MATERIAL" \
-                            and node.inputs['Surface'].links[0].from_node.type == "GROUP" \
-                            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is not None
-                        ]
+                                        for node in mat.node_tree.nodes \
+                                        if node.type =="OUTPUT_MATERIAL" \
+                                            and node.inputs['Surface'].links[0].from_node.type == "GROUP" \
+                                            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER") is not None
+                                        ]
 
         for node,material in shader_nodes_and_material:
             def input_check(expect_node_type,shader_val):
@@ -231,7 +231,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
         #TODO textblock_validate
         #region vrm metas check 
         if armature is not None:
-            required_vrm_metas = {
+            required_vrm_metas = { #care about order 0 : that must be SAFE SELECTION (for auto set custom propaties )
                 "allowedUserName":["OnlyAuthor","ExplicitlyLicensedPerson","Everyone"],
                 "violentUssageName":["Disallow","Allow"],
                 "sexualUssageName":["Disallow","Allow"],
