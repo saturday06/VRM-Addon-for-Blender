@@ -646,7 +646,7 @@ class Glb_obj():
 		vrm_extension_dic["meta"] = vrm_meta_dic = {}
 		#安全側に寄せておく
 		required_vrm_metas = {
-			"allowedUserName":"Disallow",
+			"allowedUserName":"OnlyAuthor",
 			"violentUssageName":"Disallow",
 			"sexualUssageName":"Disallow",
 			"commercialUssageName":"Disallow",
