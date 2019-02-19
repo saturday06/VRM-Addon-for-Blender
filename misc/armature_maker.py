@@ -268,9 +268,9 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			"otherLicenseUrl"
 		]
 		for v in vrm_metas:
-			armature[v] = ""
+			armature[v] = "undefined"
 		required_vrm_metas = {
-			"allowedUserName":"Disallow",
+			"allowedUserName":"OnlyAuthor",
 			"violentUssageName":"Disallow",
 			"sexualUssageName":"Disallow",
 			"commercialUssageName":"Disallow",

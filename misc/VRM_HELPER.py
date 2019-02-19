@@ -103,7 +103,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     if "humanBone" in bone.keys():
                         if bone["humanBone"] in require_human_bone_dic.keys():
                             if require_human_bone_dic[bone["humanBone"]]:
-                                messages.add("humanBone is doubled with {},{}".format(bone.name,require_human_bone_dic[bone["humanBone"]].name))
+                                messages.add("humanBone is duplicated with {},{}".format(bone.name,require_human_bone_dic[bone["humanBone"]].name))
                             else:
                                 require_human_bone_dic[bone["humanBone"]] = bone
                 for k,v in require_human_bone_dic.items():
@@ -229,6 +229,35 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 messages.add("glTF only supports PNG and JPEG textures")
 
         #TODO textblock_validate
+        #region vrm metas check 
+        if armature is not None:
+            required_vrm_metas = {
+                "allowedUserName":["OnlyAuthor","ExplicitlyLicensedPerson","Everyone"],
+                "violentUssageName":["Disallow","Allow"],
+                "sexualUssageName":["Disallow","Allow"],
+                "commercialUssageName":["Disallow","Allow"],
+                "licenseName":["Redistribution_Prohibited","CC0","CC_BY","CC_BY_NC","CC_BY_SA","CC_BY_NC_SA","CC_BY_ND","CC_BY_NC_ND","Other"],
+            }
+            for k,v in required_vrm_metas.items():
+                if armature.get(k) is None:
+                    armature[k] = v[0]
+                    messages.add(f"{k} is not defined in armature as custom propaty. It set as {v}. Please check it.")
+                if armature.get(k) not in v :
+                    messages.add(f"{k} value must be in {v}. Value is {armature.get(k)}")
+            vrm_metas = [
+                "version",#model version (not VRMspec etc)
+                "author",
+                "contactInformation",
+                "reference",
+                "title",
+                "otherPermissionUrl",
+                "otherLicenseUrl"
+            ]
+            for k in vrm_metas:
+                if armature.get(k) is None:
+                    armature[k] = "undefined"
+                    messages.add(f"{k} is not defined in armature as custom propaty. It set as \"undefined\". Please check it.")
+        #endregion vrm metas check
 
         for mes in messages:
             print(mes)
