@@ -260,7 +260,7 @@ class Glb_obj():
 							 - set(VRM_types.Material_MToon.texture_kind_exchange_dic.values())
 			for vector_key,vector_props in [(k,v) for k,v in VRM_types.Material_MToon.vector_props_exchange_dic.items() if v in vec_prop_set ]:
 				vector_val = get_rgba_val(MToon_Shader_Node,vector_props)
-				if vector_val:
+				if vector_val is not None:
 					MToon_vector_dic[vector_key] = vector_val
 
 			use_nomalmap = False
