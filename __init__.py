@@ -80,8 +80,8 @@ def menu_export(self, context):
 def add_armature(self, context):
     op = self.layout.operator(armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="VRM humanoid")
 
-class VRM_IMPORTER_UI_controller(bpy.types.Panel):
-    bl_idname = "icyp_ui_controller"
+class VRM_IMPORTER_PT_controller(bpy.types.Panel):
+    bl_idname = "ICYP_PT_ui_controller"
     bl_label = "vrm import helper"
     #どこに置くかの定義
     bl_space_type = "VIEW_3D"
@@ -126,7 +126,7 @@ classes = (
     VRM_HELPER.Bones_rename,
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
-    VRM_IMPORTER_UI_controller,
+    VRM_IMPORTER_PT_controller,
     armature_maker.ICYP_OT_MAKE_ARAMATURE
 )
 
