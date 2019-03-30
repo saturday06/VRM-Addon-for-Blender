@@ -623,7 +623,7 @@ class Glb_obj():
 			
 		return
 
-	exporter_name = "icyp_blender_vrm_exporter_experimental_0.0"
+	exporter_name = "icyp_blender_vrm_exporter_experimental_0.1"
 	def glTF_meta_to_dic(self):
 		glTF_meta_dic = {
 			"extensionsUsed":["VRM","KHR_materials_unlit"],
