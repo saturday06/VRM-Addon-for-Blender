@@ -77,15 +77,15 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		hip_up_down_ratio = eight_upside_ratio * (1 - (8 - self.head_ratio) / 4) + four_upside_ratio * (8 - self.head_ratio) / 4
 		#チェスト下とチェスト～首の割合
 		upper_chest_neck_ratio = (1-(8-self.head_ratio)/4)*(1/3) + ((8-self.head_ratio)/4)*0.1
-		#TODO 胸椎、脊椎で骨の割合を決める
-		#体幹 
+		#体幹
+		#TODO 胸椎と脊椎の分け目でspineとChestを分ける
 		neck_len = (1-upper_chest_neck_ratio)*(self.tall*(1-hip_up_down_ratio)/2)/3
 		upper_chest_len =  (self.tall*hip_up_down_ratio - head_size - neck_len)/3
 		chest_len = upper_chest_len
 		spine_len = chest_len
 		
 		Hips = bone_add("Hips", (0,0, self.tall*(1-hip_up_down_ratio) ), (0,0.1,self.tall*(1-hip_up_down_ratio)),root)
-		Spine = bone_add("Spine",Hips.head,z_add(Hips.head,spine_len),Hips)
+		Spine = bone_add("Spine",z_add(Hips.head,spine_len*0.5),z_add(Hips.head,spine_len),Hips)
 		if self.add_upper_chest:
 			Chest = bone_add("Chest", Spine.tail, z_add(Spine.tail,chest_len), Spine)
 			upperChest = bone_add("upperChest", Chest.tail, z_add(Chest.tail,upper_chest_len), Chest)
