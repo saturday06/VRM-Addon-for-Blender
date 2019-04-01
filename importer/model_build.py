@@ -197,10 +197,17 @@ class Blend_model():
         elif transparent_mode == "CUTOUT":
             b_mat.blend_method = "CLIP"
             b_mat.alpha_threshold = pymat.float_props_dic.get("_Cutoff") if pymat.float_props_dic.get("_Cutoff") else 0.5
-            b_mat.transparent_shadow_method = "CLIP"
-        else: #Z_TRANSPARENCY or Z()_zwrite
-            b_mat.blend_method = "HASHED"
-            b_mat.transparent_shadow_method = "HASHED"
+            if "transparent_shadow_method" in dir(b_mat): #old blender280_beta
+                b_mat.transparent_shadow_method = "CLIP"
+            else:
+                b_mat.shadow_method = "CLIP"
+        else:  #Z_TRANSPARENCY or Z()_zwrite
+            if "transparent_shadow_method" in dir(b_mat):#old blender280_beta
+                b_mat.blend_method = "HASHED"
+                b_mat.transparent_shadow_method = "HASHED"
+            else:
+                b_mat.blend_method = "HASHED"
+                b_mat.shadow_method = "HASHED"
         return
 
     def material_init(self,b_mat):
