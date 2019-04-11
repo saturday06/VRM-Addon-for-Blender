@@ -560,8 +560,8 @@ class Glb_obj():
 						nomalize_fact = sum(weights)
 						try:
 							weights = [weights[i]/nomalize_fact for i in range(4)]
-						except ZeroDivisionError :
-							print(f"vertex has no weight on vertex id:{loop.vert.index} in: {mesh.name}") 
+						except ZeroDivisionError :#validationではじけてるはず…
+							print(f"No weight on vertex id:{loop.vert.index} in: {mesh.name}") 
 							raise ZeroDivisionError
 						if sum(weights) < 1:
 							weights[0] += 1 - sum(weights)

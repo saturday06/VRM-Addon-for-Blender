@@ -139,7 +139,11 @@ class VRM_VALIDATOR(bpy.types.Operator):
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
             for mat in mesh.data.materials:
                 used_material_set.add(mat)
-
+            for v in mesh.data.vertices:
+                if len(v.groups) == 0:
+                    messages.add(f"vertex id {v.index} is no weight in {mesh.name}")
+                elif len(v.groups) >= 5:
+                    messages.add(f"vertex id {v.index} has too many(over 4) weight in {mesh.name}")
         for mat in used_material_set:
             for node in mat.node_tree.nodes:
                 if node.type =="OUTPUT_MATERIAL" \
