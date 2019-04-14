@@ -313,7 +313,7 @@ class Blend_model():
 
         vector_props_dic = VRM_Types.Material_MToon.vector_props_exchange_dic
         for k, v in pymat.vector_props_dic.items():
-            if k in ["_Color","_ShadeColor","_EmissionColor","_OutlineColor"]:
+            if k in ["_Color","_ShadeColor","_EmissionColor","_RimColor","_OutlineColor"]:
                 self.connect_rgb_node(b_mat,v,sg.inputs[vector_props_dic[k]])
             else:
                 b_mat[k] = v
@@ -323,7 +323,7 @@ class Blend_model():
             if tex_index is None:
                 continue
             if not tex_name in tex_dic.keys():
-                if "unknown_texture" in b_mat:
+                if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
                 b_mat["unknown_texture"].update({tex_name:self.textures[tex_index].name})
                 print(f"unknown texture {tex_name}")
@@ -338,7 +338,7 @@ class Blend_model():
                 tex_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect= sg.inputs[tex_dic[tex_name]])
                 b_mat.node_tree.links.new(tex_node.inputs["Vector"],self.node_group_create(b_mat,sphire_add_vector_node_group_name).outputs["Vector"])
             else:
-                if tex_dic.get(tex_name) is not None:
+                if tex_dic.get(tex_name) is not None: #Shade,Emissive,Rim
                     self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
                 else:
                     print(f"{tex_name} is unknown texture")
