@@ -171,6 +171,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 				thumbs[j][n].transform( mats[n].inverted() )
 				thumbs[j][n].transform( Matrix.Rotation(radians(angle),4,"Z") )
 				thumbs[j][n].transform( mats[n] )
+				thumbs[j][n].roll =0
 
 		index_fingers = fingers(
 			"finger_index",
