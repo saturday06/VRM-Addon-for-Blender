@@ -50,6 +50,9 @@ class Vroid2VRC_ripsync_from_json_recipe(bpy.types.Operator):
             for k in bpy.context.active_object.data.shape_keys.key_blocks:
                 k.value = 0.0
             for based_shapekey_name,based_val in based_values.items():
+                #if M_F00_000+_00
+                if not based_shapekey_name in bpy.context.active_object.data.shape_keys.key_blocks:
+                    based_shapekey_name = based_shapekey_name.replace("M_F00_000","M_F00_000_00")
                 bpy.context.active_object.data.shape_keys.key_blocks[based_shapekey_name].value = based_val
             bpy.ops.object.shape_key_add(from_mix = True)
             bpy.context.active_object.data.shape_keys.key_blocks[-1].name = shapekey_name
