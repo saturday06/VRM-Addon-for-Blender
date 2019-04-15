@@ -71,8 +71,8 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
         if "alphaMode" in mat:
             if mat["alphaMode"] == "MASK":
                 v_mat.alpha_mode = "MASK"
-                if v_mat.get("alphaCutoff"):
-                    v_mat.alphaCutoff = v_mat.get("alphaCutoff")
+                if mat.get("alphaCutoff"):
+                    v_mat.alphaCutoff = mat.get("alphaCutoff")
                 else:
                     v_mat.alphaCutoff = 0.5
             if mat["alphaMode"] == "BLEND":
