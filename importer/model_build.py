@@ -10,6 +10,7 @@ import bpy, bmesh
 from mathutils import Vector,Matrix
 from .. import V_Types as VRM_Types
 from ..V_Types import nested_json_value_getter as json_get
+from ..gl_const import GL_CONSTANS
 from math import sqrt,pow,radians
 import numpy
 import os.path
@@ -235,9 +236,23 @@ class Blend_model():
     def connect_texture_node(self,material,tex_index,color_socket_to_connect = None,alpha_socket_to_connect = None):
         if tex_index is None:
             return None
+        tex = self.vrm_pydata.json["textures"][tex_index]
+        sampler = self.vrm_pydata.json["samplers"][tex["sampler"]] if "samplers" in self.vrm_pydata.json else [{"wrapS":GL_CONSTANS.REPEAT,"magFilter":GL_CONSTANS.LINEAR}]
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
-        image_node.image = self.textures[self.vrm_pydata.json["textures"][tex_index]["source"]].image
+        image_node.image = self.textures[tex["source"]].image
         image_node.label = color_socket_to_connect.name
+        #blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
+        filter_type = sampler["magFilter"] if "magFilter" in sampler else GL_CONSTANS.LINEAR
+        if filter_type == GL_CONSTANS.NEAREST:
+            image_node.interpolation = "Closest"
+        else:
+            image_node.interpolation = "Linear"
+        #blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
+        wrap_type = sampler["wrapS"] if "wrapS" in sampler else GL_CONSTANS.REPEAT
+        if wrap_type in (GL_CONSTANS.REPEAT,GL_CONSTANS.MIRRORED_REPEAT):
+            image_node.extension = "REPEAT"
+        else:
+            image_node.extension= "EXTEND"
         if not None in (color_socket_to_connect, tex_index):
             material.node_tree.links.new(color_socket_to_connect,image_node.outputs["Color"])
         if not None in (alpha_socket_to_connect, tex_index) :

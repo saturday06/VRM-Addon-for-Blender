@@ -26,7 +26,6 @@ class Glb_obj():
 	def convert_bpy2glb(self):
 		self.image_to_bin()
 		self.armature_to_node_and_scenes_dic() #親のないboneは1つだけ as root_bone
-		self.texture_to_dic() 
 		self.material_to_dic()
 		self.mesh_to_bin_and_dic() 
 		self.json_dic["scene"] = 0
@@ -161,37 +160,54 @@ class Glb_obj():
 		self.json_dic.update({"skins":skins})
 		return 
 
-	def texture_to_dic(self):
-		self.json_dic["samplers"] = [{
-            "magFilter": GL_CONSTANS.LINEAR,	#決め打ちなの？->gltf互換だとこれしかないからいいや
-            "minFilter": GL_CONSTANS.LINEAR,	#決め打ちなの？->gltf互換だとこれしかないからいいや
-            "wrapS": GL_CONSTANS.REPEAT ,		#TODO 決め打ちなの？ 10497 REPEAT と
-            "wrapT": GL_CONSTANS.REPEAT 		#TODO 決め打ちなの？ 33071 CLAMP_TO_EDGE　があるから　そのうち・・・
-        }]
-		textures = []
-		for id in range(len(self.glb_bin_collector.image_bins)):
-			texture = {
-				"sampler":0,
-				"source": id
-			}
-			textures.append(texture)
-		if len(textures) > 0:
-			self.json_dic.update({"textures":textures})
-		return
-
 	def material_to_dic(self):
 		glb_material_list = []
 		VRM_material_props_list = []
 
 		image_id_dic = {image.name:image.image_id for image in self.glb_bin_collector.image_bins}
+		sampler_dic = OrderedDict()
+		texture_dic = OrderedDict()
+		sampler_count = 0
+		texture_count = 0
+
 		used_material_set = set()
 		for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
 			for mat in mesh.data.materials:
 				used_material_set.add(mat)
+		#region texture func
 
+		def add_texture(image_name,wrap_type,filter_type):
+			nonlocal sampler_count
+			nonlocal texture_count
+			if (wrap_type,filter_type) not in sampler_dic.keys():
+				sampler_dic.update({(wrap_type,filter_type):sampler_count})
+				sampler_count +=1
+			if (image_id_dic[image_name],sampler_dic[(wrap_type,filter_type)]) not in texture_dic.keys():
+				texture_dic.update({(image_id_dic[image_name],sampler_dic[(wrap_type,filter_type)]):texture_count})
+				texture_count +=1
+			return texture_dic[(image_id_dic[image_name],sampler_dic[(wrap_type,filter_type)])]
+		def apply_texture_and_sampler_to_dic():
+			sampler_list = self.json_dic["samplers"] = []
+			for sampler in sampler_dic.keys():
+				sampler_list.append(
+					{
+					"magFilter": sampler[1],	
+					"minFilter": sampler[1],	
+					"wrapS": sampler[0] ,		
+					"wrapT": sampler[0] 		
+					})
+			textures = []
+			for tex in texture_dic:
+				texture = {
+					"sampler":tex[1],
+					"source": tex[0]
+				}
+				textures.append(texture)
+			if len(textures) > 0:
+				self.json_dic.update({"textures":textures})
 		#region function separate by shader
 		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
-				baseColor_texture_name=None,
+				baseColor_texture=(None,None,None),
 				transparent_method="OPAQUE", transparency_cutoff=0.5,
 				unlit = True):
 			"""transparent_method = {"OPAQUE","MASK","BLEND"}"""
@@ -205,9 +221,9 @@ class Glb_obj():
 				if v is None:
 					del fallback_dic["pbrMetallicRoughness"][k]
 
-			if baseColor_texture_name:
+			if baseColor_texture[0] is not None:
 				fallback_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
-						"index": image_id_dic[baseColor_texture_name],
+						"index": add_texture(*baseColor_texture),
 						"texCoord": 0 #TODO:
 						}})
 			fallback_dic["alphaMode"] = transparent_method
@@ -218,12 +234,24 @@ class Glb_obj():
 			return fallback_dic
 
 		#region util func
-		def get_texture_name(shader_node,input_socket_name):
+		def get_texture_name_and_sampler_type(shader_node,input_socket_name):
 			tex_name = None
+			wrap_type = None
+			filter_type = None
 			if shader_node.inputs.get(input_socket_name):
 				if shader_node.inputs.get(input_socket_name).links:
 					tex_name = shader_node.inputs.get(input_socket_name).links[0].from_node.image.name
-			return tex_name
+					#blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
+					if shader_node.inputs.get(input_socket_name).links[0].from_node.interpolation == "Closest":
+						filter_type = GL_CONSTANS.NEAREST
+					else:
+						filter_type = GL_CONSTANS.LINEAR
+					#blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
+					if shader_node.inputs.get(input_socket_name).links[0].from_node.extension == "REPEAT":
+						wrap_type = GL_CONSTANS.REPEAT
+					else:
+						wrap_type = GL_CONSTANS.CLAMP_TO_EDGE
+			return tex_name,wrap_type,filter_type
 		def get_float_value(shader_node,input_socket_name):
 			float_val = None
 			if shader_node.inputs.get(input_socket_name):
@@ -264,14 +292,14 @@ class Glb_obj():
 					MToon_vector_dic[vector_key] = vector_val
 
 			use_nomalmap = False
-			maintex_name= None		
+			maintex = (None,None,None)		
 			for texture_key, texture_prop in VRM_types.Material_MToon.texture_kind_exchange_dic.items():
-				tex_name = get_texture_name(MToon_Shader_Node,texture_prop)
-				if tex_name:
-					MToon_texture_dic[texture_key] = image_id_dic[tex_name]
+				tex = get_texture_name_and_sampler_type(MToon_Shader_Node,texture_prop)
+				if tex[0] is not None:
+					MToon_texture_dic[texture_key] = add_texture(*tex)
 					MToon_vector_dic[texture_key] = [0,0,1,1]
 					if texture_prop == "MainTexture":
-						maintex_name = tex_name
+						maintex = tex
 					elif texture_prop == "NomalmapTexture":
 						use_nomalmap = True
 
@@ -315,7 +343,7 @@ class Glb_obj():
 				transparent_method ="BLEND"
 				transparency_cutoff = None
 			pbr_dic = pbr_fallback(baseColor = MToon_vector_dic["_Color"],
-									baseColor_texture_name = maintex_name,
+									baseColor_texture = maintex,
 									transparent_method = transparent_method,
 									transparency_cutoff = transparency_cutoff)
 			return MToon_dic,pbr_dic
@@ -344,20 +372,18 @@ class Glb_obj():
 				baseColor=get_rgba_val(GLTF_Shader_Node, "base_Color"),
 				metallness=get_float_value(GLTF_Shader_Node, "metallic"),
 				roughness=get_float_value(GLTF_Shader_Node, "roughness"),
-				baseColor_texture_name=get_texture_name(GLTF_Shader_Node,"color_texture"),
+				baseColor_texture=get_texture_name_and_sampler_type(GLTF_Shader_Node,"color_texture"),
 				transparent_method=transparent_method,
 				transparency_cutoff=transparency_cutoff,
 				unlit=True if get_float_value(GLTF_Shader_Node,"unlit") >=0.5 else False
 			)
 			def pbr_tex_add(texture_type, socket_name):
-				image_name = get_texture_name(GLTF_Shader_Node,socket_name)
-				if image_name is not None:
-					image_id = image_id_dic.get(image_name)
-					if image_id is not None:
-						pbr_dic[texture_type] = {
-							"index":image_id,
-							"texCoord":0
-						}
+				img = get_texture_name_and_sampler_type(GLTF_Shader_Node,socket_name)
+				if img[0] is not None:
+					pbr_dic[texture_type] = {
+						"index":add_texture(img),
+						"texCoord":0
+					}
 			pbr_tex_add("normalTexture", "normal")
 			pbr_tex_add("emissiveTexture","emissive_texture")
 			pbr_tex_add("occlusionTexture", "occlusion_texture")
@@ -375,11 +401,11 @@ class Glb_obj():
 			ZW_dic["floatProperties"] = {}
 			ZW_dic["vectorProperties"] = {}
 			ZW_dic["textureProperties"] = {}			
-			color_tex = get_texture_name(TRANSZW_Shader_Node, "Main_Texture")
+			color_tex= get_texture_name_and_sampler_type(TRANSZW_Shader_Node, "Main_Texture")
 			if color_tex is not None:
-				ZW_dic["textureProperties"] = {"_MainTex": image_id_dic[color_tex]}
+				ZW_dic["textureProperties"] = {"_MainTex": add_texture(*color_tex)}
 				ZW_dic["vectorProperties"] = {"_MainTex":[0,0,1,1]}
-			pbr_dic = pbr_fallback(baseColor_texture_name=color_tex,transparent_method="BLEND")
+			pbr_dic = pbr_fallback(baseColor_texture=color_tex,transparent_method="BLEND")
 
 			return ZW_dic,pbr_dic
 		#endregion function separate by shader
@@ -412,6 +438,7 @@ class Glb_obj():
 			glb_material_list.append(pbr_dic)
 			VRM_material_props_list.append(materialPropaties_dic)
 			
+		apply_texture_and_sampler_to_dic()
 		self.json_dic.update({"materials" : glb_material_list})
 		self.json_dic.update({"extensions":{"VRM":{"materialProperties":VRM_material_props_list}}})
 		return
@@ -535,7 +562,7 @@ class Glb_obj():
 					for id,uvlayer_name in uvlayers_dic.items():
 						uv_layer = bm.loops.layers.uv[uvlayer_name]
 						uv = loop[uv_layer].uv
-						texcord_bins[id] += f_pair_packer(uv[0],-uv[1]) #blenderとglbのuvは上下逆
+						texcord_bins[id] += f_pair_packer(uv[0],1-uv[1]) #blenderとglbのuvは上下逆
 					for shape_name in shape_pos_bin_dic.keys(): 
 						shape_layer = bm.verts.layers.shape[shape_name]
 						morph_pos = self.axis_blender_to_glb( [loop.vert[shape_layer][i] - loop.vert.co[i] for i in range(3)])
@@ -624,6 +651,7 @@ class Glb_obj():
 		return
 
 	exporter_name = "icyp_blender_vrm_exporter_experimental_0.1"
+	
 	def glTF_meta_to_dic(self):
 		glTF_meta_dic = {
 			"extensionsUsed":["VRM","KHR_materials_unlit"],
