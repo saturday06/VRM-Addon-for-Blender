@@ -124,9 +124,9 @@ class Material_MToon(Material):
         "_ReceiveShadowRate":"ReceiveShadowRate",
         "_ShadeShift":"ShadeShift",
         "_ShadeToony":"ShadeToony",
-        "_RimLightingMix":"RimLightingMix",###########
-        "_RimFresnelPower":"RimFresnelPower",###########
-        "_RimLift":"RimLift",#################################
+        #"_RimLightingMix":"RimLightingMix",###########
+        #"_RimFresnelPower":"RimFresnelPower",###########
+        #"_RimLift":"RimLift",#################################
         "_ShadingGradeRate":"ShadingGradeRate",
         "_LightColorAttenuation":"LightColorAttenuation",
         "_IndirectLightIntensity":"IndirectLightIntensity",
@@ -153,14 +153,14 @@ class Material_MToon(Material):
         "_ShadingGradeTexture":"ShadingGradeTexture",
         "_EmissionMap":"Emission_Texture",
         "_SphereAdd":"SphereAddTexture",
-        "_RimTexture":"RimTexture",###########
+        #"_RimTexture":"RimTexture",###########
         "_OutlineWidthTexture":"OutlineWidthTexture"
         }
     vector_props_exchange_dic = {
             "_Color":"DiffuseColor",
             "_ShadeColor":"ShadeColor",
             "_EmissionColor":"EmissionColor",
-            "_RimColor":"RimColor",###########
+            #"_RimColor":"RimColor",###########
             "_OutlineColor":"OutlineColor"
             
         }
