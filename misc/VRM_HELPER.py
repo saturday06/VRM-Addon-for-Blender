@@ -272,7 +272,11 @@ class VRM_VALIDATOR(bpy.types.Operator):
 
             def text_block_name_to_json(textblock_name):
                 if textblock_name not in armature:
+                    messages.add(f"textblock name: {textblock_name} isn't putted on armature custom proparty.")
                     return None
+                if not armature[textblock_name] in bpy.data.texts:
+                    messages.add(f"textblock name: {textblock_name} doesn't exist.")
+                    return None                    
                 try:
                     json_as_dict = json.loads("".join([line.body for line in bpy.data.texts[armature[textblock_name]].lines]),object_pairs_hook=OrderedDict)
                 except json.JSONDecodeError as e:
@@ -304,44 +308,32 @@ class VRM_VALIDATOR(bpy.types.Operator):
             #region first_person
             firstPerson_params_name = "firstPerson_params"
             firstperson_params = text_block_name_to_json(firstPerson_params_name)
-            fp_bone = json_get(firstperson_params,["firstPersonBone"],-1)
-            if fp_bone != -1:
-                if not firstperson_params["firstPersonBone"] in armature.data.bones:
-                    messages.add(f"firstPersonBone :{firstperson_params['firstPersonBone']} is not found."+\
-                                 f"Please fix in textblock : {firstPerson_params_name} ")
-            if "meshAnnotations" in firstperson_params.keys():
-                if type(firstperson_params["meshAnnotations"]) is not list:
-                    messages.add(f"meshAnnotations in textblock:{firstPerson_params_name} must be list.")
-                else:
-                    for meshAnotation in firstperson_params["meshAnnotations"]:
-                        if not meshAnotation["mesh"] in mesh_obj_names:
-                            messages.add(f"mesh :{meshAnotation['mesh']} is not found."+\
-                                        f"Please fix setting in textblock : {firstPerson_params_name} ")
-            if "lookAtTypeName" in firstperson_params:
-                if not firstperson_params["lookAtTypeName"] in ["Bone","BlendShape"]:
-                    messages.add(f"lookAtTypeName is \"Bone\" or \"BlendShape\". Current :{firstperson_params['lookAtTypeName']}."+\
-                                 f"Please fix setting in textblock : {firstPerson_params_name} ")
+            if firstperson_params is not None:
+                fp_bone = json_get(firstperson_params,["firstPersonBone"],-1)
+                if fp_bone != -1:
+                    if not firstperson_params["firstPersonBone"] in armature.data.bones:
+                        messages.add(f"firstPersonBone :{firstperson_params['firstPersonBone']} is not found."+\
+                                    f"Please fix in textblock : {firstPerson_params_name} ")
+                if "meshAnnotations" in firstperson_params.keys():
+                    if type(firstperson_params["meshAnnotations"]) is not list:
+                        messages.add(f"meshAnnotations in textblock:{firstPerson_params_name} must be list.")
+                    else:
+                        for meshAnotation in firstperson_params["meshAnnotations"]:
+                            if not meshAnotation["mesh"] in mesh_obj_names:
+                                messages.add(f"mesh :{meshAnotation['mesh']} is not found."+\
+                                            f"Please fix setting in textblock : {firstPerson_params_name} ")
+                if "lookAtTypeName" in firstperson_params:
+                    if not firstperson_params["lookAtTypeName"] in ["Bone","BlendShape"]:
+                        messages.add(f"lookAtTypeName is \"Bone\" or \"BlendShape\". Current :{firstperson_params['lookAtTypeName']}."+\
+                                    f"Please fix setting in textblock : {firstPerson_params_name} ")
             #endregion first_person
-
-            #TODO ABOVE IS DONE
 
             #region blendshape_master
             blendshape_group_name = "blendshape_group"
             blendShapeGroups_list = text_block_name_to_json(blendshape_group_name)
-            #meshをidから名前に
-            #weightを0-100から0-1に
-            #shape_indexを名前に
-            #materialValuesはそのままで行けるハズ・・・
-            ex={\
-            "name": "A",
-            "presetName": "a",
-            "binds": [
-                {"mesh": "Face.baked",
-                 "index": "Face.M_F00_000_00_Fcl_MTH_A",
-                 "weight": 1.0}
-            ],
-            "materialValues": []
-            }
+            if blendShapeGroups_list is None:
+                blendShapeGroups_list = []
+            #TODO material value and marial existance
             for bsg in blendShapeGroups_list:
                 for bind_dic in bsg["binds"]:
                     if not bind_dic["mesh"] in mesh_obj_names:
@@ -363,9 +355,9 @@ class VRM_VALIDATOR(bpy.types.Operator):
 
             #region springbone
             spring_bonegroup_list = text_block_name_to_json("spring_bone") 
-            #node_idを管理するのは面倒なので、名前に置き換える
-            #collider_groupも同じく
             bone_names_list = [bone.name for bone in armature.data.bones]
+            if spring_bonegroup_list is None:
+                spring_bonegroup_list = []
             for bone_group in spring_bonegroup_list:
                 for bone_name in bone_group["bones"]:
                     if not bone_name in bone_names_list :
