@@ -370,7 +370,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
         #endregion vrm metas check
 
         for mes in messages:
-            print(mes)
+            self.report({'ERROR'}, mes)
         print("validation finished")
         
         if len(messages) > 0 :
