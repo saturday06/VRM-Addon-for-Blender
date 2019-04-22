@@ -710,11 +710,11 @@ class Glb_obj():
 					#TODO min,max,center,axisLength : useDef(ry):Trueなら不要な気がするのでほっとく
 					"useDefaultValues": True
 				})
-		vrm_humanoid_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["humanoid_params"]])))
+		vrm_humanoid_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["humanoid_params"]]),object_pairs_hook=OrderedDict))
 		#endregion humanoid
 		#region firstPerson
 		vrm_extension_dic["firstPerson"] = vrm_FP_dic = {}
-		vrm_FP_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["firstPerson_params"]])))
+		vrm_FP_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["firstPerson_params"]]),object_pairs_hook=OrderedDict))
 		if "firstPersonBone" in vrm_FP_dic.keys():
 			if vrm_FP_dic["firstPersonBone"] != -1:
 				vrm_FP_dic["firstPersonBone"] = node_name_id_dic[vrm_FP_dic["firstPersonBone"]]
@@ -725,7 +725,7 @@ class Glb_obj():
 		#endregion firstPerson
 		#region blendShapeMaster
 		vrm_extension_dic["blendShapeMaster"] = vrm_BSM_dic = {}
-		BSM_list = json.loads(self.textblock2str(bpy.data.texts[self.armature["blendshape_group"]]))
+		BSM_list = json.loads(self.textblock2str(bpy.data.texts[self.armature["blendshape_group"]]),object_pairs_hook=OrderedDict)
 		#meshを名前からid
         #weightを0-1から0-100に
         #shape_indexを名前からindexに
@@ -777,7 +777,7 @@ class Glb_obj():
 		#ﾎﾞｰﾝ名からnode_idに
         #collider_groupも名前からcolliderGroupのindexに直す
 		collider_node_id_list = [c_g["node"] for c_g in collider_group_list]
-		BG_list = json.loads(self.textblock2str(bpy.data.texts[self.armature["spring_bone"]]))
+		BG_list = json.loads(self.textblock2str(bpy.data.texts[self.armature["spring_bone"]]),object_pairs_hook=OrderedDict)
 		for bone_group in BG_list:
 			bone_group["bones"] = [node_name_id_dic[name] for name in bone_group["bones"] ]
 			bone_group["colliderGroups"] = [collider_node_id_list.index(node_name_id_dic[name]) for name in bone_group["colliderGroups"] ]
