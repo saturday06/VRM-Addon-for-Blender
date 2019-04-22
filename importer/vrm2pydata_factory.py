@@ -108,6 +108,7 @@ def material(mat,ext_mat,textures)->VRM_Types.Material:
 
         elif ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
             v_mat = VRM_Types.Material_Transparent_Z_write()
+            v_mat.name = ext_mat["name"]
             v_mat.shader_name = ext_mat["shader"]
             v_mat.float_props_dic = ext_mat["floatProperties"]
             v_mat.vector_props_dic = ext_mat["vectorProperties"]
