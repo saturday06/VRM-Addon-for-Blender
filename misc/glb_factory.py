@@ -9,6 +9,7 @@ from ..gl_const import GL_CONSTANS
 from .. import V_Types as VRM_types
 from collections import OrderedDict
 from math import pow
+from mathutils import Matrix as bMatrix
 import json
 import struct
 from sys import float_info
@@ -454,12 +455,14 @@ class Glb_obj():
 							is_skin_mesh = False
 			node_dic = OrderedDict({
 					"name":mesh.name,
-					"translation":self.axis_blender_to_glb(mesh.location), #原点にいてほしいけどね, vectorのままだとjsonに出来ないからこうする
+					"translation":self.axis_blender_to_glb(mesh.location), 
 					"rotation":[0,0,0,1],	#このへんは規約なので
 					"scale":[1,1,1],		#このへんは規約なので
 					"mesh":id,
 				})
 			if is_skin_mesh:
+				node_dic["translation"] = [0,0,0] #skinedmeshはtransformを無視される
+				mesh.data.transform(bMatrix.Translation(mesh.location),shape_keys=True) #前に続きmeshを動かす（後で戻す
 				node_dic["skin"] = 0 #TODO:　決め打ちってどうよ：一体のモデルなのだから２つもあっては困る(から決め打ち(やめろ(やだ))
 			self.json_dic["nodes"].append(node_dic)
 			
@@ -494,7 +497,7 @@ class Glb_obj():
 					joint_id = self.json_dic["skins"][0]["joints"].index(node_id)
 				except ValueError:
 					joint_id = -1 #存在しないボーンを指してる場合は-1を返す
-					print("{} bone may be not exist".format(node_name))
+					print(f"{node_name} bone may be not exist")
 				return joint_id
 			v_group_name_dic = {i:vg.name for i,vg in enumerate(mesh.vertex_groups)}
 			fmin,fmax = float_info.min,float_info.max
@@ -502,7 +505,7 @@ class Glb_obj():
 			unique_vertex_id_dic = {} #loop verts id : base vertex id (uv違いを同じ頂点番号で管理されているので)
 			unique_vertex_dic = {} # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
 			uvlayers_dic = {i:uvlayer.name for i,uvlayer in enumerate(mesh.data.uv_layers)}
-			def fetch_morph_vertex_normal_difference(): #TODO 実装
+			def fetch_morph_vertex_normal_difference(): 
 				morph_normal_diff_dic = {}
 				vert_base_normal_dic = OrderedDict()
 				for kb in mesh.data.shape_keys.key_blocks:
@@ -546,7 +549,6 @@ class Glb_obj():
 					minmax[1][i] = position[i] if position[i] > minmax[1][i] else minmax[1][i]
 				return
 			for face in bm.faces:
-				#このへん絶対超遅い
 				for loop in face.loops:
 					uv_list = []
 					for uvlayer_name in uvlayers_dic.values():
@@ -646,8 +648,11 @@ class Glb_obj():
 				primitive_list.append(primitive)
 			self.json_dic["meshes"].append(OrderedDict({"name":mesh.name,"primitives":primitive_list}))
 			#endregion hell
+			#skinedmeshなら最初にずらした位置を戻す
+			bpy.ops.object.mode_set(mode='OBJECT')
+			if is_skin_mesh:
+				mesh.data.transform(bMatrix.Translation([n*m for n,m in zip(mesh.location,[-1,-1,-1])]),shape_keys=True)
 		bpy.ops.object.mode_set(mode='OBJECT')
-			
 		return
 
 	exporter_name = "icyp_blender_vrm_exporter_experimental_0.1"
