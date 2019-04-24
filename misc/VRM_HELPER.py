@@ -264,7 +264,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 "otherLicenseUrl"
             ]
             for k in vrm_metas:
-                if armature.get(k) is None:
+                if armature.get(k) is None or armature.get(k) == "":
                     armature[k] = "undefined"
                     messages.add(f"{k} is not defined in armature as custom propaty. It set as \"undefined\". Please check it.")
 
