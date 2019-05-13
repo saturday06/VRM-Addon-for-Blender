@@ -44,9 +44,23 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
     is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
 
 
-    def execute(self,context):
+    def execute(self, context):
+        ui_localization = False
+        try:
+            ui_localization = bpy.context.preferences.view.use_international_fonts
+            bpy.context.preferences.view.use_international_fonts = False
+        except Exception:
+            pass
+
         fdir = self.filepath
-        model_build.Blend_model(context,vrm_load.read_vrm(fdir),self.is_put_spring_bone_info)
+        model_build.Blend_model(context, vrm_load.read_vrm(fdir), self.is_put_spring_bone_info)
+        
+        try:
+            if ui_localization is not None:
+                bpy.context.preferences.view.use_international_fonts = ui_localization
+        except Exception:
+            pass
+            
         return {'FINISHED'}
 
 
