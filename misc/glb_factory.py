@@ -500,7 +500,7 @@ class Glb_obj():
 					print(f"{node_name} bone may be not exist")
 				return joint_id
 			v_group_name_dic = {i:vg.name for i,vg in enumerate(mesh.vertex_groups)}
-			fmin,fmax = float_info.min,float_info.max
+			fmin,fmax = -float_info.max,float_info.max #.minはfloatで一番細かい正の数を示す。
 			unique_vertex_id = 0
 			unique_vertex_id_dic = {} #loop verts id : base vertex id (uv違いを同じ頂点番号で管理されているので)
 			unique_vertex_dic = {} # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
