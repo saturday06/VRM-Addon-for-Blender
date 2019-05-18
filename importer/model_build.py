@@ -161,7 +161,10 @@ class Blend_model():
         while len(bone_nodes):
             bone_chain(bone_nodes.pop())
         #call when bone built
-        self.context.scene.update()
+        if "update" in dir(self.context.scene):
+            self.context.scene.update()
+        else:
+            self.context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode='OBJECT')
         try:
             for coll in self.armature.users_collection:
@@ -346,7 +349,10 @@ class Blend_model():
                 self.connect_texture_node(b_mat,tex_index, sg.inputs[tex_dic[tex_name]], sg.inputs[tex_dic[tex_name]+"Alpha"])
             elif tex_name == "_BumpMap":
                 normalmap_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
-                normalmap_node.color_space = "NONE"
+                if "color_space" in dir(normalmap_node):
+                    normalmap_node.color_space = "NONE"
+                else:
+                    normalmap_node.image.colorspace_settings.name = "Non-Color"
             elif tex_name == "_ReceiveShadowTexture":
                 self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
             elif tex_name == "_SphereAdd":
