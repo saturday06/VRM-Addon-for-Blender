@@ -14,3 +14,12 @@
 - Add VRM like shader as Node Group (Please use these node group and direct link it to TEX_IMAGE,RGBA,VALUE and Material output Nodes for export)
 - Add humanoid armature for VRM(Tpose, reqwired bone, and append custom properties to need export VRM (reference to VRM extensions textblock ,and bone tagging))
 - VRM0.0 export (not complete function ,but easy to bridge uniVRM. )
+
+# GLTF extension implements
+ - KHR_materials_unlit : OK
+ - KHR_materials_pbrSpecularGlossiness: NO
+ - KHR_texture_transform : NO
+ - KHR_draco_mesh_compression: CAN'T
+ - KHR_techniques_webgl: IGNORE
+ - KHR_lights_punctual: IGNORE
+ - VRNDER'S extension : NO without VRM
