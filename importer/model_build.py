@@ -243,7 +243,12 @@ class Blend_model():
         sampler = self.vrm_pydata.json["samplers"][tex["sampler"]] if "samplers" in self.vrm_pydata.json else [{"wrapS":GL_CONSTANS.REPEAT,"magFilter":GL_CONSTANS.LINEAR}]
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         image_node.image = self.textures[tex["source"]].image
-        image_node.label = color_socket_to_connect.name
+        if color_socket_to_connect is not None:
+            image_node.label = color_socket_to_connect.name
+        elif alpha_socket_to_connect is not None:
+            image_node.label = alpha_socket_to_connect.name
+        else:
+            image_node.label = "what_is_this_node"
         #blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
         filter_type = sampler["magFilter"] if "magFilter" in sampler else GL_CONSTANS.LINEAR
         if filter_type == GL_CONSTANS.NEAREST:
