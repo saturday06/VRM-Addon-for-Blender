@@ -119,20 +119,24 @@ class Material_Transparent_Z_write(Material):
 class Material_MToon(Material):
     #{key = MToonProp, val = ShaderNodeGroup_member_name}
     float_props_exchange_dic = {
+        "_MToonVersion":None,
         "_Cutoff":"CutoffRate",
         "_BumpScale":"BumpScale",
         "_ReceiveShadowRate":"ReceiveShadowRate",
         "_ShadeShift":"ShadeShift",
         "_ShadeToony":"ShadeToony",
-        #"_RimLightingMix":"RimLightingMix",###########
-        #"_RimFresnelPower":"RimFresnelPower",###########
-        #"_RimLift":"RimLift",#################################
+        "_RimLightingMix":"RimLightingMix",
+        "_RimFresnelPower":"RimFresnelPower",
+        "_RimLift":"RimLift",
         "_ShadingGradeRate":"ShadingGradeRate",
         "_LightColorAttenuation":"LightColorAttenuation",
         "_IndirectLightIntensity":"IndirectLightIntensity",
         "_OutlineWidth":"OutlineWidth",
         "_OutlineScaledMaxDistance":"OutlineScaleMaxDistance",
         "_OutlineLightingMix":"OutlineLightingMix",
+        "_UvAnimScrollX":None, ######
+        "_UvAnimScrollY":None, ######
+        "_UvAnimRotation":None,######
         "_DebugMode":None,
         "_BlendMode":"BlendMode",
         "_OutlineWidthMode":"OutlineWidthMode",
@@ -153,14 +157,15 @@ class Material_MToon(Material):
         "_ShadingGradeTexture":"ShadingGradeTexture",
         "_EmissionMap":"Emission_Texture",
         "_SphereAdd":"SphereAddTexture",
-        #"_RimTexture":"RimTexture",###########
-        "_OutlineWidthTexture":"OutlineWidthTexture"
+        "_RimTexture":"RimTexture",
+        "_OutlineWidthTexture":"OutlineWidthTexture",
+        "_UvAnimMaskTexture":None #####
         }
     vector_props_exchange_dic = {
             "_Color":"DiffuseColor",
             "_ShadeColor":"ShadeColor",
             "_EmissionColor":"EmissionColor",
-            #"_RimColor":"RimColor",###########
+            "_RimColor":"RimColor",
             "_OutlineColor":"OutlineColor"
             
         }
