@@ -225,7 +225,7 @@ class Blend_model():
             return None
         value_node = material.node_tree.nodes.new("ShaderNodeValue")
         value_node.label = socket_to_connect.name
-        value_node.outputs[0].default_value = value if value else 1.0
+        value_node.outputs[0].default_value = value
         material.node_tree.links.new(socket_to_connect,value_node.outputs[0])
         return value_node
 
@@ -364,7 +364,7 @@ class Blend_model():
                 tex_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect= sg.inputs[tex_dic[tex_name]])
                 b_mat.node_tree.links.new(tex_node.inputs["Vector"],self.node_group_create(b_mat,sphire_add_vector_node_group_name).outputs["Vector"])
             else:
-                if tex_dic.get(tex_name) is not None: #Shade,Emissive,Rim
+                if tex_dic.get(tex_name) is not None: #Shade,Emissive,Rim,UVanimMask
                     self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
                 else:
                     print(f"{tex_name} is unknown texture")

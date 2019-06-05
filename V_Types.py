@@ -118,6 +118,7 @@ class Material_Transparent_Z_write(Material):
 
 class Material_MToon(Material):
     #{key = MToonProp, val = ShaderNodeGroup_member_name}
+    version = 32
     float_props_exchange_dic = {
         "_MToonVersion":None,
         "_Cutoff":"CutoffRate",
@@ -134,9 +135,9 @@ class Material_MToon(Material):
         "_OutlineWidth":"OutlineWidth",
         "_OutlineScaledMaxDistance":"OutlineScaleMaxDistance",
         "_OutlineLightingMix":"OutlineLightingMix",
-        "_UvAnimScrollX":None, ######
-        "_UvAnimScrollY":None, ######
-        "_UvAnimRotation":None,######
+        "_UvAnimScrollX":"UV_Scroll_X", ######
+        "_UvAnimScrollY":"UV_Scroll_Y", ######
+        "_UvAnimRotation":"UV_Scroll_Rotation",######
         "_DebugMode":None,
         "_BlendMode":"BlendMode",
         "_OutlineWidthMode":"OutlineWidthMode",
@@ -159,7 +160,7 @@ class Material_MToon(Material):
         "_SphereAdd":"SphereAddTexture",
         "_RimTexture":"RimTexture",
         "_OutlineWidthTexture":"OutlineWidthTexture",
-        "_UvAnimMaskTexture":None #####
+        "_UvAnimMaskTexture":"UV_Animation_Mask_Texture" #####
         }
     vector_props_exchange_dic = {
             "_Color":"DiffuseColor",

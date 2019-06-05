@@ -326,6 +326,7 @@ class Glb_obj():
 			keyword_map.update({"_ALPHABLEND_ON": b_mat.blend_method not in ("OPAQUE","CLIP")})
 			keyword_map.update({"_ALPHAPREMULTIPLY_ON":False})
 
+			MToon_float_dic["_MToonVersion"] = VRM_types.Material_MToon.version
 			MToon_float_dic["_CullMode"] = 0 #no cull
 			MToon_float_dic["_OutlineCullMode"] = 1 #front face cull (for invert normal outline)
 			MToon_float_dic["_DebugMode"] = 0
