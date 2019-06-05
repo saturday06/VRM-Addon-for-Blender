@@ -503,7 +503,6 @@ class Glb_obj():
 			v_group_name_dic = {i:vg.name for i,vg in enumerate(mesh.vertex_groups)}
 			fmin,fmax = -float_info.max,float_info.max #.minはfloatで一番細かい正の数を示す。
 			unique_vertex_id = 0
-			unique_vertex_id_dic = {} #loop verts id : base vertex id (uv違いを同じ頂点番号で管理されているので)
 			unique_vertex_dic = {} # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
 			uvlayers_dic = {i:uvlayer.name for i,uvlayer in enumerate(mesh.data.uv_layers)}
 			def fetch_morph_vertex_normal_difference(): 
@@ -549,19 +548,42 @@ class Glb_obj():
 					minmax[0][i] = position[i] if position[i] < minmax[0][i] else minmax[0][i]
 					minmax[1][i] = position[i] if position[i] > minmax[1][i] else minmax[1][i]
 				return
+
+			if mesh.data.has_custom_normals:
+				mesh.data.calc_loop_triangles()
+				mesh.data.calc_normals_split()
+
 			for face in bm.faces:
 				for loop in face.loops:
 					uv_list = []
 					for uvlayer_name in uvlayers_dic.values():
 						uv_layer = bm.loops.layers.uv[uvlayer_name]
 						uv_list += [loop[uv_layer].uv[0],loop[uv_layer].uv[1]]
-					cached_vert_id = unique_vertex_dic.get((*uv_list,loop.vert.index)) #keyがなければNoneを返す
+
+					vert_normal = [0,0,0]
+					if mesh.data.has_custom_normals:
+						tri = mesh.data.loop_triangles[face.index]
+						vid = -1
+						for i,_vid in enumerate(tri.vertices):
+							if _vid == loop.vert.index:
+								vid = i
+						if vid == -1:
+							print("something wrong in custom normal export")
+						vert_normal = tri.split_normals[vid]
+					else:
+						if face.smooth:
+							vert_normal = loop.vert.normal
+						else:
+							vert_normal = face.normal
+
+					vertex_key = (*uv_list,*vert_normal,loop.vert.index)
+					cached_vert_id = unique_vertex_dic.get(vertex_key) #keyがなければNoneを返す
 					if cached_vert_id is not None:
 						primitive_index_bin_dic[mat_id_dic[material_slot_dic[face.material_index]]] += I_scalar_packer(cached_vert_id)
 						primitive_index_vertex_count[mat_id_dic[material_slot_dic[face.material_index]]] += 1
 						continue
 					else: 
-						unique_vertex_dic[(*uv_list,loop.vert.index)] = unique_vertex_id
+						unique_vertex_dic[vertex_key] = unique_vertex_id
 					for id,uvlayer_name in uvlayers_dic.items():
 						uv_layer = bm.loops.layers.uv[uvlayer_name]
 						uv = loop[uv_layer].uv
@@ -601,8 +623,7 @@ class Glb_obj():
 					vert_location = self.axis_blender_to_glb(loop.vert.co)
 					position_bin += f_vec3_packer(*vert_location)
 					min_max(position_min_max,vert_location)
-					normal_bin += f_vec3_packer(*self.axis_blender_to_glb(loop.vert.normal))
-					unique_vertex_id_dic[unique_vertex_id]=loop.vert.index
+					normal_bin += f_vec3_packer(*self.axis_blender_to_glb(vert_normal))
 					primitive_index_bin_dic[mat_id_dic[material_slot_dic[face.material_index]]] += I_scalar_packer(unique_vertex_id)
 					primitive_index_vertex_count[mat_id_dic[material_slot_dic[face.material_index]]] += 1
 					unique_vertex_id += 1
