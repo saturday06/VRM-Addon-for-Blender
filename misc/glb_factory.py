@@ -301,8 +301,17 @@ class Glb_obj():
 					MToon_vector_dic[texture_key] = [0,0,1,1]
 					if texture_prop == "MainTexture":
 						maintex = tex
+						uv_offset_scaling_node = MToon_Shader_Node.inputs[texture_prop].links[0].from_node.inputs[0].links[0].from_node
+						if uv_offset_scaling_node is not None:
+							MToon_vector_dic[texture_key] = [ \
+								uv_offset_scaling_node.translation[0] ,
+								uv_offset_scaling_node.translation[1] ,
+								uv_offset_scaling_node.scale[0] ,
+								uv_offset_scaling_node.scale[1]
+								]
 					elif texture_prop == "NomalmapTexture":
 						use_nomalmap = True
+
 
 			def material_prop_setter(blend_mode, \
 									 src_blend, dst_blend, \

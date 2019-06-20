@@ -334,14 +334,28 @@ class Blend_model():
         for k, v in pymat.keyword_dic.items():
             b_mat[k] = v
 
+        uv_offset_tiling_value = [0,0,1,1]
         vector_props_dic = VRM_Types.Material_MToon.vector_props_exchange_dic
         for k, v in pymat.vector_props_dic.items():
             if k in ["_Color","_ShadeColor","_EmissionColor","_RimColor","_OutlineColor"]:
-                self.connect_rgb_node(b_mat,v,sg.inputs[vector_props_dic[k]])
+                self.connect_rgb_node(b_mat, v, sg.inputs[vector_props_dic[k]])
+            elif k == "_MainTex":
+                uv_offset_tiling_value = v
             else:
                 b_mat[k] = v
 
+        UV_map_node = b_mat.node_tree.nodes.new("ShaderNodeUVMap")
+        uv_offset_tiling_node = b_mat.node_tree.nodes.new("ShaderNodeMapping")
+        uv_offset_tiling_node.translation[0] = uv_offset_tiling_value[0]
+        uv_offset_tiling_node.translation[1] = uv_offset_tiling_value[1]
+        uv_offset_tiling_node.scale[0] = uv_offset_tiling_value[2]
+        uv_offset_tiling_node.scale[1] = uv_offset_tiling_value[3]
+        b_mat.node_tree.links.new(uv_offset_tiling_node.inputs[0],UV_map_node.outputs[0])
+        def connect_uv_map_to_texture(texture_node):
+            b_mat.node_tree.links.new(texture_node.inputs[0],uv_offset_tiling_node.outputs[0])
+
         tex_dic = VRM_Types.Material_MToon.texture_kind_exchange_dic
+
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_index is None:
                 continue
@@ -351,21 +365,25 @@ class Blend_model():
                 b_mat["unknown_texture"].update({tex_name:self.textures[tex_index].name})
                 print(f"unknown texture {tex_name}")
             elif tex_name == "_MainTex":
-                self.connect_texture_node(b_mat,tex_index, sg.inputs[tex_dic[tex_name]], sg.inputs[tex_dic[tex_name]+"Alpha"])
+                main_tex_node = self.connect_texture_node(b_mat,tex_index, sg.inputs[tex_dic[tex_name]], sg.inputs[tex_dic[tex_name]+"Alpha"])
+                connect_uv_map_to_texture(main_tex_node)
             elif tex_name == "_BumpMap":
                 normalmap_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
                 if "color_space" in dir(normalmap_node):
                     normalmap_node.color_space = "NONE"
                 else:
                     normalmap_node.image.colorspace_settings.name = "Non-Color"
+                connect_uv_map_to_texture(normalmap_node)
             elif tex_name == "_ReceiveShadowTexture":
-                self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
+                RS_tex_node = self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
+                connect_uv_map_to_texture(RS_tex_node)
             elif tex_name == "_SphereAdd":
                 tex_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect= sg.inputs[tex_dic[tex_name]])
                 b_mat.node_tree.links.new(tex_node.inputs["Vector"],self.node_group_create(b_mat,sphire_add_vector_node_group_name).outputs["Vector"])
             else:
                 if tex_dic.get(tex_name) is not None: #Shade,Emissive,Rim,UVanimMask
-                    self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
+                    other_tex_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
+                    connect_uv_map_to_texture(other_tex_node)
                 else:
                     print(f"{tex_name} is unknown texture")
         
