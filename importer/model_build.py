@@ -161,10 +161,7 @@ class Blend_model():
         while len(bone_nodes):
             bone_chain(bone_nodes.pop())
         #call when bone built
-        if "update" in dir(self.context.scene):
-            self.context.scene.update()
-        else:
-            self.context.scene.view_layers.update()
+        self.context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode='OBJECT')
         try:
             for coll in self.armature.users_collection:
@@ -201,10 +198,7 @@ class Blend_model():
         elif transparent_mode == "CUTOUT":
             b_mat.blend_method = "CLIP"
             b_mat.alpha_threshold = pymat.float_props_dic.get("_Cutoff") if pymat.float_props_dic.get("_Cutoff") else 0.5
-            if "transparent_shadow_method" in dir(b_mat): #old blender280_beta
-                b_mat.transparent_shadow_method = "CLIP"
-            else:
-                b_mat.shadow_method = "CLIP"
+            b_mat.shadow_method = "CLIP"
         else:  #Z_TRANSPARENCY or Z()_zwrite
             if "transparent_shadow_method" in dir(b_mat):#old blender280_beta
                 b_mat.blend_method = "HASHED"
@@ -369,10 +363,7 @@ class Blend_model():
                 connect_uv_map_to_texture(main_tex_node)
             elif tex_name == "_BumpMap":
                 normalmap_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
-                if "color_space" in dir(normalmap_node):
-                    normalmap_node.color_space = "NONE"
-                else:
-                    normalmap_node.image.colorspace_settings.name = "Non-Color"
+                normalmap_node.image.colorspace_settings.name = "Non-Color"
                 connect_uv_map_to_texture(normalmap_node)
             elif tex_name == "_ReceiveShadowTexture":
                 RS_tex_node = self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
