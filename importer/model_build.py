@@ -305,6 +305,8 @@ class Blend_model():
 
         transparant_exchange_dic = {"OPAQUE":"OPAQUE","MASK":"CUTOUT","Z_TRANSPARENCY":"Z_TRANSPARENCY"}
         self.set_material_transparent(b_mat,pymat, transparant_exchange_dic[pymat.alphaMode])
+        b_mat.use_backface_culling = pymat.double_sided
+
         return
 
     def build_material_from_MToon(self, b_mat, pymat):
@@ -322,6 +324,11 @@ class Blend_model():
         for k, v in pymat.float_props_dic.items():
             if k in [key for key,val in float_prop_exchange_dic.items() if val is not None]:
                 self.connect_value_node(b_mat, v ,sg.inputs[float_prop_exchange_dic[k]])
+                if k == "_CullMode":
+                    if v == 2: # 0: no cull 1:front cull 2:back cull
+                        b_mat.use_backface_culling = True
+                    elif v == 0:
+                        b_mat.use_backface_culling = False
             else:
                 b_mat[k] = v
 
@@ -394,6 +401,9 @@ class Blend_model():
  
         for k, v in pymat.float_props_dic.items():
             b_mat[k] = v
+            if k == "_CullMode":
+                if 2 == k:
+                    b_mat.use_backface_culling = True
         for k, v in pymat.vector_props_dic.items():
             b_mat[k] = v
         for tex_name, tex_index in pymat.texture_index_dic.items():

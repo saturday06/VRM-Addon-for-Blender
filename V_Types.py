@@ -85,7 +85,7 @@ class Material_GLTF(Material):
         self.occlusion_texture_index = None
         self.occlusion_texture_texcood_index = None
         
-        self.double_sided = None
+        self.double_sided = False
         self.alphaMode = "OPAQUE"
         self.shadeless = 0 #0 is shade ,1 is shadeless
 
