@@ -210,7 +210,7 @@ class Glb_obj():
 		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
 				baseColor_texture=(None,None,None),
 				transparent_method="OPAQUE", transparency_cutoff=0.5,
-				unlit = True):
+				unlit = True,doublesided = False):
 			"""transparent_method = {"OPAQUE","MASK","BLEND"}"""
 			fallback_dic = {"name":b_mat.name}
 			fallback_dic["pbrMetallicRoughness"] = {
@@ -232,6 +232,7 @@ class Glb_obj():
 				fallback_dic["alphaCutoff"] = transparency_cutoff
 			if unlit:
 				fallback_dic["extensions"] = {"KHR_materials_unlit":{}}
+			fallback_dic["doubleSided"] = doublesided
 			return fallback_dic
 
 		#region util func
@@ -356,7 +357,8 @@ class Glb_obj():
 			pbr_dic = pbr_fallback(baseColor = MToon_vector_dic["_Color"],
 									baseColor_texture = maintex,
 									transparent_method = transparent_method,
-									transparency_cutoff = transparency_cutoff)
+									transparency_cutoff = transparency_cutoff,
+									doublesided = b_mat.use_backface_culling)
 			return MToon_dic,pbr_dic
 		
 		def make_GLTF_mat_dic(b_mat, GLTF_Shader_Node):		
@@ -386,7 +388,8 @@ class Glb_obj():
 				baseColor_texture=get_texture_name_and_sampler_type(GLTF_Shader_Node,"color_texture"),
 				transparent_method=transparent_method,
 				transparency_cutoff=transparency_cutoff,
-				unlit=True if get_float_value(GLTF_Shader_Node,"unlit") >=0.5 else False
+				unlit=True if get_float_value(GLTF_Shader_Node,"unlit") >=0.5 else False,
+				doublesided = b_mat.use_backface_culling
 			)
 			def pbr_tex_add(texture_type, socket_name):
 				img = get_texture_name_and_sampler_type(GLTF_Shader_Node,socket_name)

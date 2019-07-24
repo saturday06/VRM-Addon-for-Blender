@@ -401,9 +401,6 @@ class Blend_model():
  
         for k, v in pymat.float_props_dic.items():
             b_mat[k] = v
-            if k == "_CullMode":
-                if 2 == k:
-                    b_mat.use_backface_culling = True
         for k, v in pymat.vector_props_dic.items():
             b_mat[k] = v
         for tex_name, tex_index in pymat.texture_index_dic.items():
