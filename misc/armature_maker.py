@@ -233,7 +233,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		bone_name_all_dict.update(left_right_body_dict)
 		bone_name_all_dict.update(fingers_dict)
 
-		context.scene.update()
+		context.scene.view_layers.update()
 		bpy.ops.object.mode_set(mode='OBJECT')
 		return armature,bone_name_all_dict
 
