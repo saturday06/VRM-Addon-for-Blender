@@ -188,23 +188,24 @@ class Glb_obj():
 				texture_count +=1
 			return texture_dic[(image_id_dic[image_name],sampler_dic[(wrap_type,filter_type)])]
 		def apply_texture_and_sampler_to_dic():
-			sampler_list = self.json_dic["samplers"] = []
-			for sampler in sampler_dic.keys():
-				sampler_list.append(
-					{
-					"magFilter": sampler[1],	
-					"minFilter": sampler[1],	
-					"wrapS": sampler[0] ,		
-					"wrapT": sampler[0] 		
-					})
-			textures = []
-			for tex in texture_dic:
-				texture = {
-					"sampler":tex[1],
-					"source": tex[0]
-				}
-				textures.append(texture)
-			if len(textures) > 0:
+			if sampler_count > 0:
+				sampler_list = self.json_dic["samplers"] = []
+				for sampler in sampler_dic.keys():
+					sampler_list.append(
+						{
+						"magFilter": sampler[1],	
+						"minFilter": sampler[1],	
+						"wrapS": sampler[0] ,		
+						"wrapT": sampler[0] 		
+						})
+			if texture_count > 0:
+				textures = []
+				for tex in texture_dic:
+					texture = {
+						"sampler":tex[1],
+						"source": tex[0]
+					}
+					textures.append(texture)
 				self.json_dic.update({"textures":textures})
 		#region function separate by shader
 		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
