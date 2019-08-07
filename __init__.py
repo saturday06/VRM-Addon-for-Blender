@@ -11,6 +11,7 @@ from .importer import vrm_load,model_build
 from .misc import VRM_HELPER
 from .misc import glb_factory
 from .misc import armature_maker
+from .misc import glsl_drawer
 import os
 
 
@@ -115,6 +116,8 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
         if context.mode == "OBJECT":
             if context.active_object is not None:
                 self.layout.operator(VRM_HELPER.VRM_VALIDATOR.bl_idname)
+                self.layout.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+                self.layout.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
                 if context.active_object.type == 'ARMATURE':
                     self.layout.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
                     self.layout.operator(VRM_HELPER.Bones_rename.bl_idname)
@@ -141,6 +144,8 @@ classes = (
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
+    glsl_drawer.ICYP_OT_Draw_Model,
+    glsl_drawer.ICYP_OT_Remove_Draw_Model,
     armature_maker.ICYP_OT_MAKE_ARAMATURE
 )
 
