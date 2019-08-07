@@ -153,10 +153,12 @@ class glsl_draw_obj():
         fragcode = depth_fragment_shader)
 
     obj = None
+    light = None
     images = []
     offscreen = None
     def __init__(self,context):
         obj = glsl_draw_obj.obj  = bpy.data.objects['Face.baked']
+        glsl_draw_obj.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT" ][0]
         for mat_slot in obj.material_slots:
             img = mat_slot.material.node_tree.nodes["Image Texture"].image
             glsl_draw_obj.images.append(img)
@@ -170,7 +172,7 @@ class glsl_draw_obj():
         normals = []
         uvs = []
         sub_index = {} #mat_index:verices index
-    ho = gl_mesh()
+    scene_mesh = gl_mesh()
 
     @staticmethod
     def build_sub_index(dum):
@@ -181,32 +183,32 @@ class glsl_draw_obj():
         vertex_count = 0
         for tri in mesh.loop_triangles:
             for l in tri.loops:
-                glsl_draw_obj.ho.uvs.append([st[l].uv[0],st[l].uv[1]])
+                glsl_draw_obj.scene_mesh.uvs.append([st[l].uv[0],st[l].uv[1]])
             for vid in tri.vertices:
                 co = list(mesh.vertices[vid].co)
-                glsl_draw_obj.ho.pos.append(co )
-                glsl_draw_obj.ho.normals.append(list(mesh.vertices[vid].normal))    
-            if tri.material_index in glsl_draw_obj.ho.sub_index.keys():
-                glsl_draw_obj.ho.sub_index[tri.material_index].append([vertex_count,vertex_count+1,vertex_count+2])
+                glsl_draw_obj.scene_mesh.pos.append(co )
+                glsl_draw_obj.scene_mesh.normals.append(list(mesh.vertices[vid].normal))    
+            if tri.material_index in glsl_draw_obj.scene_mesh.sub_index.keys():
+                glsl_draw_obj.scene_mesh.sub_index[tri.material_index].append([vertex_count,vertex_count+1,vertex_count+2])
             else:
-                glsl_draw_obj.ho.sub_index[tri.material_index] = [[vertex_count,vertex_count+1,vertex_count+2]]
+                glsl_draw_obj.scene_mesh.sub_index[tri.material_index] = [[vertex_count,vertex_count+1,vertex_count+2]]
             vertex_count +=3
         return
 
     batches = []
     def build_batches(self):
         batchs = glsl_draw_obj.batches
-        for mat_index,vert_indices in glsl_draw_obj.ho.sub_index.items():
+        for mat_index,vert_indices in glsl_draw_obj.scene_mesh.sub_index.items():
             maintex_id = glsl_draw_obj.images[mat_index].bindcode
             toon_batch = batch_for_shader(self.toon_shader, 'TRIS', {
-                "position": glsl_draw_obj.ho.pos,
-                "normal":glsl_draw_obj.ho.normals,
-                "rawuv":glsl_draw_obj.ho.uvs
+                "position": glsl_draw_obj.scene_mesh.pos,
+                "normal":glsl_draw_obj.scene_mesh.normals,
+                "rawuv":glsl_draw_obj.scene_mesh.uvs
                 },
                 indices = vert_indices
             )
             depth_batch = batch_for_shader(self.depth_shader, 'TRIS', {
-                "position": glsl_draw_obj.ho.pos
+                "position": glsl_draw_obj.scene_mesh.pos
                 },
                 indices = vert_indices
             )
@@ -244,7 +246,7 @@ class glsl_draw_obj():
                 bgl.glEnable(bgl.GL_CULL_FACE);
                 bgl.glCullFace(bgl.GL_BACK)        
 
-                light = bpy.data.objects["Light"]
+                light = glsl_draw_obj.light
                 light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
                 loc = [0,0,0]
                 tar = light_lookat.normalized()
@@ -260,7 +262,8 @@ class glsl_draw_obj():
                 depth_shader.uniform_float("obj_matrix",obj.matrix_world)
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
-                depth_bat.draw(depth_shader)  
+                depth_bat.draw(depth_shader)
+
             """buff = bgl.Buffer(bgl.GL_BYTE,2048*2048*4)
             bgl.glReadBuffer(bgl.GL_BACK)
             bgl.glReadPixels(0, 0, 2048, 2048, bgl.GL_RGBA, bgl.GL_UNSIGNED_BYTE, buff)
@@ -304,12 +307,10 @@ class glsl_draw_obj():
             toon_bat.draw(toon_shader)
 
         #bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
-    def draw_register():
-        bpy.types.SpaceView3D.draw_handler_add(draw, (), 'WINDOW', 'POST_VIEW')
-        bpy.app.handlers.depsgraph_update_post.append(build_sub_index)
-        #bpy.app.handlers.frame_change_post.append(build_sub_index)
+        
+        #
     draw_func = None
-
+    build_mesh_func = None
     @staticmethod
     def draw_func_add():
         if glsl_draw_obj.draw_func is not None:
@@ -318,12 +319,22 @@ class glsl_draw_obj():
             glsl_draw_obj.glsl_draw,
             (), 'WINDOW', 'POST_PIXEL')
 
+        if glsl_draw_obj.build_mesh_func is not None:
+            bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
+        bpy.app.handlers.depsgraph_update_post.append(glsl_draw_obj.build_sub_index)
+        glsl_draw_obj.build_mesh_func = bpy.app.handlers.depsgraph_update_post[-1]
+        #bpy.app.handlers.frame_change_post.append(build_sub_index)
+
     @staticmethod
     def draw_func_remove():
         if glsl_draw_obj.draw_func is not None:
             bpy.types.SpaceView3D.draw_handler_remove(
                 glsl_draw_obj.draw_func, 'WINDOW')
             glsl_draw_obj.draw_func = None
+
+        if glsl_draw_obj.build_mesh_func is not None:
+            bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
+            glsl_draw_obj.build_mesh_func = None
     
 
     #endregion 3Dview drawer
