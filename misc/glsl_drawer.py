@@ -26,7 +26,34 @@ class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
         glsl_draw_obj.draw_func_remove()
         return {"FINISHED"}
 
+class MToon_glsl():
+    name = None
+    maintex = None
+    alpha_method = None
+    shade_shift = 0
+    cull_mode = "BACK"
+    def __init__(self,material):
+        self.name = material.name
+        if material.blend_method in ("OPAQUE",'CLIP'):
+            self.alpha_method = material.blend_method
+        else:
+            self.alpha_method = "TRANSPARENT"
+        if material.use_backface_culling:
+            cull_mode = "BACK"
+        else:
+            cull_mode = "NO"
+            self.shade_shift = material.node_tree.nodes
+        main_node = None
+        for node in material.node_tree.nodes:
+            if node.type =="OUTPUT_MATERIAL":
+                main_node = node.inputs['Surface'].links[0].from_node
+        self.maintex = main_node.inputs["MainTexture"].links[0].from_node.image
+        self.shade_shift = main_node.inputs["ShadeShift"].links[0].from_node.outputs[0].default_value
+
+
+
 class glsl_draw_obj():
+
     toon_vertex_shader = '''
         in vec3 position;
         in vec3 normal;
@@ -90,7 +117,7 @@ class glsl_draw_obj():
 
     toon_fragment_shader = '''
         uniform vec3 lightpos;
-        uniform float lighting_shift;
+        uniform float ShadeShift;
         uniform mat4 viewProjectionMatrix;
 
         uniform sampler2D image;
@@ -114,7 +141,8 @@ class glsl_draw_obj():
                     
                 }
                 else {
-                    gl_FragColor = vec4(col.rgb*(dot(light_dir,n)+lighting_shift)*is_shine,col.a);
+                    float ss = (ShadeShift +1) /2 ;
+                    gl_FragColor = vec4(col.rgb*(dot(light_dir,n)+ss)*is_shine,col.a);
                 }
             }
             else{
@@ -152,17 +180,19 @@ class glsl_draw_obj():
         vertexcode = depth_vertex_shader,
         fragcode = depth_fragment_shader)
 
-    obj = None
+    objs = []
     light = None
     images = []
     offscreen = None
+    materials = {}
+
+
     def __init__(self,context):
-        obj = glsl_draw_obj.obj  = bpy.data.objects['Face.baked']
+        objs = glsl_draw_obj.objs = [obj for obj in context.selected_objects if obj.type == "MESH"]
         glsl_draw_obj.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT" ][0]
-        for mat_slot in obj.material_slots:
-            img = mat_slot.material.node_tree.nodes["Image Texture"].image
-            glsl_draw_obj.images.append(img)
-            img.gl_load() # if faliled return false
+        for ob in objs:
+            for mat_slot in ob.material_slots:
+                glsl_draw_obj.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
         self.build_sub_index(None)
         self.build_batches()
         glsl_draw_obj.offscreen = gpu.types.GPUOffScreen(2048,2048)
@@ -172,79 +202,90 @@ class glsl_draw_obj():
         normals = []
         uvs = []
         sub_index = {} #mat_index:verices index
-    scene_mesh = gl_mesh()
-
+        index_per_mat = {} #matrial : vert index
+    scene_meshes = None
     @staticmethod
     def build_sub_index(dum):
-        ob_eval = glsl_draw_obj.obj.evaluated_get(bpy.context.view_layer.depsgraph)
-        mesh = ob_eval.to_mesh()
-        mesh.calc_loop_triangles()
-        st = mesh.uv_layers["TEXCOORD_0"].data
-        vertex_count = 0
-        for tri in mesh.loop_triangles:
-            for l in tri.loops:
-                glsl_draw_obj.scene_mesh.uvs.append([st[l].uv[0],st[l].uv[1]])
-            for vid in tri.vertices:
-                co = list(mesh.vertices[vid].co)
-                glsl_draw_obj.scene_mesh.pos.append(co )
-                glsl_draw_obj.scene_mesh.normals.append(list(mesh.vertices[vid].normal))    
-            if tri.material_index in glsl_draw_obj.scene_mesh.sub_index.keys():
-                glsl_draw_obj.scene_mesh.sub_index[tri.material_index].append([vertex_count,vertex_count+1,vertex_count+2])
-            else:
-                glsl_draw_obj.scene_mesh.sub_index[tri.material_index] = [[vertex_count,vertex_count+1,vertex_count+2]]
-            vertex_count +=3
+        glsl_draw_obj.scene_meshes = []
+        for obj in glsl_draw_obj.objs:
+            scene_mesh = glsl_draw_obj.gl_mesh()
+            ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
+            tmp_mesh = ob_eval.to_mesh()
+            tmp_mesh.calc_loop_triangles()
+            st = tmp_mesh.uv_layers[0].data
+            vertex_count = 0
+            for tri in tmp_mesh.loop_triangles:
+                for l in tri.loops:
+                    scene_mesh.uvs.append([st[l].uv[0],st[l].uv[1]])
+                for vid in tri.vertices:
+                    co = list(tmp_mesh.vertices[vid].co)
+                    scene_mesh.pos.append(co)
+                    scene_mesh.normals.append(list(tmp_mesh.vertices[vid].normal))   
+                key_mat = glsl_draw_obj.materials[obj.material_slots[tri.material_index].material.name] 
+                if key_mat in scene_mesh.index_per_mat.keys():
+                    scene_mesh.index_per_mat[key_mat].append([vertex_count,vertex_count+1,vertex_count+2])
+                else:
+                    scene_mesh.index_per_mat[key_mat] = [[vertex_count,vertex_count+1,vertex_count+2]]
+                vertex_count +=3
+            glsl_draw_obj.scene_meshes.append(scene_mesh)
+
         return
 
-    batches = []
+    batchs = []
     def build_batches(self):
-        batchs = glsl_draw_obj.batches
-        for mat_index,vert_indices in glsl_draw_obj.scene_mesh.sub_index.items():
-            maintex_id = glsl_draw_obj.images[mat_index].bindcode
-            toon_batch = batch_for_shader(self.toon_shader, 'TRIS', {
-                "position": glsl_draw_obj.scene_mesh.pos,
-                "normal":glsl_draw_obj.scene_mesh.normals,
-                "rawuv":glsl_draw_obj.scene_mesh.uvs
-                },
-                indices = vert_indices
-            )
-            depth_batch = batch_for_shader(self.depth_shader, 'TRIS', {
-                "position": glsl_draw_obj.scene_mesh.pos
-                },
-                indices = vert_indices
-            )
-            if glsl_draw_obj.obj.material_slots[mat_index].material.blend_method in ("OPAQUE",'CLIP'):
-                batchs.append((maintex_id,toon_batch,"O",depth_batch))
-            else:
-                batchs.insert(0,(maintex_id,toon_batch,"T",depth_batch))
-            
-       
+        batchs = glsl_draw_obj.batchs
+        
+        for scene_mesh in glsl_draw_obj.scene_meshes:
+            for mat, vert_indices in scene_mesh.index_per_mat.items():
+                toon_batch = batch_for_shader(self.toon_shader, 'TRIS', {
+                    "position": scene_mesh.pos,
+                    "normal":scene_mesh.normals,
+                    "rawuv":scene_mesh.uvs
+                    },
+                    indices = vert_indices
+                )
+                depth_batch = batch_for_shader(self.depth_shader, 'TRIS', {
+                    "position": scene_mesh.pos
+                    },
+                    indices = vert_indices
+                )            
+                if mat.alpha_method in ("OPAQUE",'CLIP'):
+                    batchs.append((mat,toon_batch,depth_batch))
+                else:
+                    batchs.insert(0,(mat,toon_batch,depth_batch))         
+    
     @staticmethod
     def glsl_draw():
-        batchs = glsl_draw_obj.batches
+
+        model_offset = Matrix.Translation((2,0,0))
+
+        batchs = glsl_draw_obj.batchs
         depth_shader = glsl_draw_obj.depth_shader
         toon_shader = glsl_draw_obj.toon_shader
-        obj = glsl_draw_obj.obj
         offscreen = glsl_draw_obj.offscreen
         #need bone etc changed only update
         depth_matrix = None
         #-----------shade path -----------
         with offscreen.bind():
-        #if True:
             bgl.glClearColor(0,0,0,1)
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
-            for bat in batchs:        
-                depth_bat = bat[3]
+            for bat in batchs:
+                mat = bat[0]
+                depth_bat = bat[2]
                 depth_shader.bind()
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
                 bgl.glEnable(bgl.GL_BLEND)
-                if bat[2] == "T":
+                if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                     bgl.glDepthMask(bgl.GL_FALSE)
-                elif bat[2] == "O" :
+                elif mat.alpha_method in ("OPAQUE","CLIP") :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
-                bgl.glEnable(bgl.GL_CULL_FACE);
-                bgl.glCullFace(bgl.GL_BACK)        
+                if mat.cull_mode == "BACK":
+                    bgl.glEnable(bgl.GL_CULL_FACE)
+                    bgl.glCullFace(bgl.GL_BACK)
+                else :
+                    bgl.glDisable(bgl.GL_CULL_FACE)     
 
                 light = glsl_draw_obj.light
                 light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
@@ -259,56 +300,49 @@ class glsl_draw_obj():
                     -const_proj*10, const_proj*10)        
                 depth_matrix = v_matrix @ p_matrix #reuse in main shader
                 depth_matrix.transpose()
-                depth_shader.uniform_float("obj_matrix",obj.matrix_world)
+                depth_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
                 depth_bat.draw(depth_shader)
-
-            """buff = bgl.Buffer(bgl.GL_BYTE,2048*2048*4)
-            bgl.glReadBuffer(bgl.GL_BACK)
-            bgl.glReadPixels(0, 0, 2048, 2048, bgl.GL_RGBA, bgl.GL_UNSIGNED_BYTE, buff)
-            imgname = "x"
-            if not imgname in bpy.data.images:
-                bpy.data.images.new(imgname, 2048, 2048)
-            iop = bpy.data.images[imgname]
-            iop.scale(2048, 2048)
-            iop.pixels = [v for v in buff]"""
             
         #-------shader main------------------
         for bat in batchs:        
             
             toon_bat = bat[1]
             toon_shader.bind()
-            
+            mat = bat[0]
             bgl.glActiveTexture(bgl.GL_TEXTURE0)
             bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
             bgl.glActiveTexture(bgl.GL_TEXTURE1)
-            bgl.glBindTexture(bgl.GL_TEXTURE_2D, bat[0])
+            bgl.glBindTexture(bgl.GL_TEXTURE_2D, mat.maintex.bindcode)
+
             bgl.glEnable(bgl.GL_DEPTH_TEST)
             bgl.glEnable(bgl.GL_BLEND)
-            if bat[2] == "T":
+            if mat.alpha_method == "TRANSPARENT":
                 bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                 bgl.glDepthMask(bgl.GL_FALSE)
-            elif bat[2] == "O" :
+            elif mat.alpha_method in ("OPAQUE","CLIP") :
                 bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                 bgl.glDepthMask(bgl.GL_TRUE)
-            bgl.glEnable(bgl.GL_CULL_FACE);
-            bgl.glCullFace(bgl.GL_BACK)
+            if mat.cull_mode == "BACK":
+                bgl.glEnable(bgl.GL_CULL_FACE)
+                bgl.glCullFace(bgl.GL_BACK)
+            else :
+                bgl.glDisable(bgl.GL_CULL_FACE) 
+
             matrix = bpy.context.region_data.perspective_matrix
             
-            toon_shader.uniform_float("obj_matrix",obj.matrix_world)
+            toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
             toon_shader.uniform_float("viewProjectionMatrix", matrix)
             toon_shader.uniform_float("depthMVP", depth_matrix)
-            toon_shader.uniform_float("lightpos", bpy.data.objects["Light"].location)
-            toon_shader.uniform_float("lighting_shift",bpy.data.objects["Empty"].location[0])
+            toon_shader.uniform_float("lightpos", glsl_draw_obj.light.location)
+            toon_shader.uniform_float("ShadeShift",mat.shade_shift)
             toon_shader.uniform_int("depth_image",0)
             toon_shader.uniform_int("image",1)
 
             toon_bat.draw(toon_shader)
 
-        #bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
-        
-        #
+
     draw_func = None
     build_mesh_func = None
     @staticmethod
@@ -319,7 +353,8 @@ class glsl_draw_obj():
             glsl_draw_obj.glsl_draw,
             (), 'WINDOW', 'POST_PIXEL')
 
-        if glsl_draw_obj.build_mesh_func is not None:
+        if glsl_draw_obj.build_mesh_func is not None \
+                and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post:
             bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
         bpy.app.handlers.depsgraph_update_post.append(glsl_draw_obj.build_sub_index)
         glsl_draw_obj.build_mesh_func = bpy.app.handlers.depsgraph_update_post[-1]
