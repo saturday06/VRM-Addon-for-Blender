@@ -73,10 +73,11 @@ class glsl_draw_obj():
 
     toon_geometry_shader = '''
     layout(triangles) in;
-    layout(triangle_strip, max_vertices = 6) out;
+    layout(triangle_strip, max_vertices = 3) out;
     uniform mat4 depthMVP;
     uniform mat4 viewProjectionMatrix;
     uniform mat4 obj_matrix;
+    uniform float is_outline;
 
     in vec4 posa[3];
     in vec2 uva[3];
@@ -85,7 +86,6 @@ class glsl_draw_obj():
     out vec2 uv;
     out vec3 n;
     out vec4 shadowCoord;
-    flat out int is_outline;
     void main(){
 
         mat4 biasMat4 = mat4(0.5, 0.0, 0.0, 0.0,
@@ -94,25 +94,27 @@ class glsl_draw_obj():
                             0.5, 0.5, 0.5, 1.0);
         mat4 depthBiasMVP = biasMat4 * depthMVP;
         
-            
-        for (int i = 0 ; i<3 ; i++){
-                uv = uva[i];
-                n = na[i];
-                gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
-                is_outline = 0;
-                shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
-                EmitVertex();
+        if (is_outline == 0){
+            for (int i = 0 ; i<3 ; i++){
+                    uv = uva[i];
+                    n = na[i];
+                    gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
+                    shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
+                    EmitVertex();
             }
-        EndPrimitive();
-        for (int i = 2 ; i>=0 ; i--){
+             EndPrimitive();
+        }
+       
+        else {
+            for (int i = 2 ; i>=0 ; i--){
                 uv = uva[i];
                 n = na[i]*-1;
                 gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*0.01);
-                is_outline = 1;
                 shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                 EmitVertex();
             }
-        EndPrimitive();
+            EndPrimitive();
+        }
     }
     '''
 
@@ -120,13 +122,13 @@ class glsl_draw_obj():
         uniform vec3 lightpos;
         uniform float ShadeShift;
         uniform mat4 viewProjectionMatrix;
+        uniform float is_outline;
 
         uniform sampler2D image;
         uniform sampler2D depth_image;
         in vec2 uv;
         in vec3 n;
         in vec4 shadowCoord;
-        flat in int is_outline;
 
         void main()
         {
@@ -146,8 +148,6 @@ class glsl_draw_obj():
             else{
                 gl_FragColor = vec4(0,1,0,1);
             }
-            
-
         }
     '''
 
@@ -264,7 +264,7 @@ class glsl_draw_obj():
         offscreen = glsl_draw_obj.offscreen
         #need bone etc changed only update
         depth_matrix = None
-        #-----------depth path -----------
+        #region shader depth path
         with offscreen.bind():
             bgl.glClearColor(0,0,0,1)
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
@@ -305,44 +305,49 @@ class glsl_draw_obj():
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
                 depth_bat.draw(depth_shader)
-            
-        #-------shader main------------------
-        for bat in batchs:        
-            
-            toon_bat = bat[1]
-            toon_shader.bind()
-            mat = bat[0]
-            bgl.glActiveTexture(bgl.GL_TEXTURE0)
-            bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
-            bgl.glActiveTexture(bgl.GL_TEXTURE1)
-            bgl.glBindTexture(bgl.GL_TEXTURE_2D, mat.maintex.bindcode)
+        #endregion shader depth path
 
-            bgl.glEnable(bgl.GL_DEPTH_TEST)
-            bgl.glEnable(bgl.GL_BLEND)
-            if mat.alpha_method == "TRANSPARENT":
-                bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                bgl.glDepthMask(bgl.GL_FALSE)
-            elif mat.alpha_method in ("OPAQUE",'CLIP') :
-                bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
-                bgl.glDepthMask(bgl.GL_TRUE)
-            if mat.cull_mode == "BACK":
-                bgl.glEnable(bgl.GL_CULL_FACE)
-                bgl.glCullFace(bgl.GL_BACK)
-            else :
-                bgl.glDisable(bgl.GL_CULL_FACE) 
-            bgl.glEnable(bgl.GL_CULL_FACE)#輪郭線がcullされなくなるので、
-            bgl.glCullFace(bgl.GL_BACK)   #とりあえず。あとでパスを分ける2
-            matrix = bpy.context.region_data.perspective_matrix
-            
-            toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
-            toon_shader.uniform_float("viewProjectionMatrix", matrix)
-            toon_shader.uniform_float("depthMVP", depth_matrix)
-            toon_shader.uniform_float("lightpos", glsl_draw_obj.light.location)
-            toon_shader.uniform_float("ShadeShift",mat.shade_shift)
-            toon_shader.uniform_int("depth_image",0)
-            toon_shader.uniform_int("image",1)
-            toon_bat.draw(toon_shader)
+        #region shader main
+        for is_outline in [0,1]:
+            for bat in batchs:        
+                
+                toon_bat = bat[1]
+                toon_shader.bind()
+                mat = bat[0]
+                bgl.glActiveTexture(bgl.GL_TEXTURE0)
+                bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
+                bgl.glActiveTexture(bgl.GL_TEXTURE1)
+                bgl.glBindTexture(bgl.GL_TEXTURE_2D, mat.maintex.bindcode)
 
+                bgl.glEnable(bgl.GL_DEPTH_TEST)
+                bgl.glEnable(bgl.GL_BLEND)
+                if mat.alpha_method == "TRANSPARENT":
+                    bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
+                    bgl.glDepthMask(bgl.GL_FALSE)
+                elif mat.alpha_method in ("OPAQUE",'CLIP') :
+                    bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
+                    bgl.glDepthMask(bgl.GL_TRUE)
+                if is_outline == 0:
+                    if mat.cull_mode == "BACK":
+                        bgl.glEnable(bgl.GL_CULL_FACE)
+                        bgl.glCullFace(bgl.GL_BACK)
+                    else :
+                        bgl.glDisable(bgl.GL_CULL_FACE)
+                else:
+                    bgl.glEnable(bgl.GL_CULL_FACE)
+                    bgl.glCullFace(bgl.GL_BACK)
+                matrix = bpy.context.region_data.perspective_matrix
+                
+                toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
+                toon_shader.uniform_float("viewProjectionMatrix", matrix)
+                toon_shader.uniform_float("depthMVP", depth_matrix)
+                toon_shader.uniform_float("lightpos", glsl_draw_obj.light.location)
+                toon_shader.uniform_float("is_outline", is_outline)
+                toon_shader.uniform_float("ShadeShift",mat.shade_shift)
+                toon_shader.uniform_int("depth_image",0)
+                toon_shader.uniform_int("image",1)
+                toon_bat.draw(toon_shader)
+        #endregion shader main
 
     draw_func = None
     build_mesh_func = None
@@ -372,7 +377,7 @@ class glsl_draw_obj():
                 and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post:
             bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
             glsl_draw_obj.build_mesh_func = None
-    
+
 
     #endregion 3Dview drawer
 
