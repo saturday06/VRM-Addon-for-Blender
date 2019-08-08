@@ -28,28 +28,40 @@ class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
         return {"FINISHED"}
 
 class MToon_glsl():
+    material = None
+    main_node = None
     name = None
     maintex = None
     alpha_method = None
     shade_shift = 0
     cull_mode = "BACK"
     def __init__(self,material):
+        self.material = material
         self.name = material.name
-        if material.blend_method in ("OPAQUE",'CLIP'):
-            self.alpha_method = material.blend_method
+        self.update()
+    def get_texture(self,tex_name):
+        if self.main_node.inputs[tex_name].links:
+            self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
+            return self.main_node.inputs[tex_name].links[0].from_node.image
+        else:
+            return None
+    def get_value(self,val_name):
+        if self.main_node.inputs[val_name].links:
+            return self.main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
+    def update(self):
+        if self.material.blend_method in ("OPAQUE",'CLIP'):
+            self.alpha_method = self.material.blend_method
         else:
             self.alpha_method = "TRANSPARENT"
-        if material.use_backface_culling:
+        if self.material.use_backface_culling:
             self.cull_mode = "BACK"
         else:
             self.cull_mode = "NO"
-        main_node = None
-        for node in material.node_tree.nodes:
+        for node in self.material.node_tree.nodes:
             if node.type =="OUTPUT_MATERIAL":
-                main_node = node.inputs['Surface'].links[0].from_node
-        self.maintex = main_node.inputs["MainTexture"].links[0].from_node.image
-        self.maintex.gl_load()
-        self.shade_shift = main_node.inputs["ShadeShift"].links[0].from_node.outputs[0].default_value
+                self.main_node = node.inputs['Surface'].links[0].from_node
+        self.maintex = self.get_texture("MainTexture")
+        self.shade_shift = self.get_value("ShadeShift")
 
 
 
@@ -120,12 +132,12 @@ class glsl_draw_obj():
 
     toon_fragment_shader = '''
         uniform vec3 lightpos;
-        uniform float ShadeShift;
         uniform mat4 viewProjectionMatrix;
         uniform float is_outline;
 
-        uniform sampler2D image;
+        uniform float ShadeShift;
         uniform sampler2D depth_image;
+        uniform sampler2D MainTexture;
         in vec2 uv;
         in vec3 n;
         in vec4 shadowCoord;
@@ -133,7 +145,7 @@ class glsl_draw_obj():
         void main()
         {
             vec3 light_dir = normalize(lightpos);
-            vec4 col = texture(image, uv);
+            vec4 col = texture(MainTexture, uv);
             //if (col.a < 0.5) discard;
             
             float is_shine= 1;
@@ -270,6 +282,7 @@ class glsl_draw_obj():
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
             for bat in batchs:
                 mat = bat[0]
+                mat.update()
                 depth_bat = bat[2]
                 depth_shader.bind()
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
@@ -285,8 +298,8 @@ class glsl_draw_obj():
                     bgl.glCullFace(bgl.GL_BACK)
                 else :
                     bgl.glDisable(bgl.GL_CULL_FACE)  
-                bgl.glEnable(bgl.GL_CULL_FACE) #輪郭線がcullされなくなるので、
-                bgl.glCullFace(bgl.GL_BACK)    #とりあえず。あとでパスを分ける1
+                bgl.glEnable(bgl.GL_CULL_FACE) #そも輪郭線がの影は落ちる？
+                bgl.glCullFace(bgl.GL_BACK) 
 
                 light = glsl_draw_obj.light
                 light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
@@ -314,6 +327,7 @@ class glsl_draw_obj():
                 toon_bat = bat[1]
                 toon_shader.bind()
                 mat = bat[0]
+                mat.update()
                 bgl.glActiveTexture(bgl.GL_TEXTURE0)
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
                 bgl.glActiveTexture(bgl.GL_TEXTURE1)
@@ -345,7 +359,16 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("is_outline", is_outline)
                 toon_shader.uniform_float("ShadeShift",mat.shade_shift)
                 toon_shader.uniform_int("depth_image",0)
-                toon_shader.uniform_int("image",1)
+                toon_shader.uniform_int("MainTexture",1)
+                #toon_shader.uniform_int("ShadeTexture",2)
+                #toon_shader.uniform_int("NomalmapTexture",3)
+                #toon_shader.uniform_int("ReceiveShadow_Texture",4)
+                #toon_shader.uniform_int("ShadingGradeTexture",5)
+                #toon_shader.uniform_int("Emission_Texture",6)
+                #toon_shader.uniform_int("SphereAddTexture",7)
+                #toon_shader.uniform_int("RimTexture",8)
+                #toon_shader.uniform_int("OutlineWidthTexture",9)
+                #toon_shader.uniform_int("UV_Animation_Mask_Texture",10)
                 toon_bat.draw(toon_shader)
         #endregion shader main
 
