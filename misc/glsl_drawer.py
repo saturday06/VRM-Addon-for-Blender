@@ -1,6 +1,7 @@
 import bpy
 import gpu
 import bgl
+
 from mathutils import Matrix,Vector,Euler
 from math import sqrt,radians
 from gpu_extras.batch import batch_for_shader
@@ -39,15 +40,15 @@ class MToon_glsl():
         else:
             self.alpha_method = "TRANSPARENT"
         if material.use_backface_culling:
-            cull_mode = "BACK"
+            self.cull_mode = "BACK"
         else:
-            cull_mode = "NO"
-            self.shade_shift = material.node_tree.nodes
+            self.cull_mode = "NO"
         main_node = None
         for node in material.node_tree.nodes:
             if node.type =="OUTPUT_MATERIAL":
                 main_node = node.inputs['Surface'].links[0].from_node
         self.maintex = main_node.inputs["MainTexture"].links[0].from_node.image
+        self.maintex.gl_load()
         self.shade_shift = main_node.inputs["ShadeShift"].links[0].from_node.outputs[0].default_value
 
 
@@ -137,13 +138,10 @@ class glsl_draw_obj():
             if (is_outline == 0){
                 float bias = 0.2*tan(acos(dot(n,light_dir)));
                 if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - bias){
-                    gl_FragColor = vec4(1,0,0,1);
-                    
+                    is_shine = 0.5;
                 }
-                else {
-                    float ss = (ShadeShift +1) /2 ;
-                    gl_FragColor = vec4(col.rgb*(dot(light_dir,n)+ss)*is_shine,col.a);
-                }
+                float ss = (ShadeShift +1) /2 ;
+                gl_FragColor = vec4(col.rgb*(dot(light_dir,n)+ss)*is_shine,col.a);
             }
             else{
                 gl_FragColor = vec4(0,1,0,1);
@@ -192,7 +190,8 @@ class glsl_draw_obj():
         glsl_draw_obj.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT" ][0]
         for ob in objs:
             for mat_slot in ob.material_slots:
-                glsl_draw_obj.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
+                if mat_slot.material.name not in glsl_draw_obj.materials.keys():
+                    glsl_draw_obj.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
         self.build_sub_index(None)
         self.build_batches()
         glsl_draw_obj.offscreen = gpu.types.GPUOffScreen(2048,2048)
@@ -207,16 +206,16 @@ class glsl_draw_obj():
     @staticmethod
     def build_sub_index(dum):
         glsl_draw_obj.scene_meshes = []
+        vertex_count = 0
         for obj in glsl_draw_obj.objs:
             scene_mesh = glsl_draw_obj.gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
             tmp_mesh.calc_loop_triangles()
             st = tmp_mesh.uv_layers[0].data
-            vertex_count = 0
             for tri in tmp_mesh.loop_triangles:
-                for l in tri.loops:
-                    scene_mesh.uvs.append([st[l].uv[0],st[l].uv[1]])
+                for lo in tri.loops:
+                    scene_mesh.uvs.append([st[lo].uv[0],st[lo].uv[1]])
                 for vid in tri.vertices:
                     co = list(tmp_mesh.vertices[vid].co)
                     scene_mesh.pos.append(co)
@@ -265,7 +264,7 @@ class glsl_draw_obj():
         offscreen = glsl_draw_obj.offscreen
         #need bone etc changed only update
         depth_matrix = None
-        #-----------shade path -----------
+        #-----------depth path -----------
         with offscreen.bind():
             bgl.glClearColor(0,0,0,1)
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
@@ -278,14 +277,16 @@ class glsl_draw_obj():
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                     bgl.glDepthMask(bgl.GL_FALSE)
-                elif mat.alpha_method in ("OPAQUE","CLIP") :
+                elif mat.alpha_method in ("OPAQUE",'CLIP') :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
                 if mat.cull_mode == "BACK":
                     bgl.glEnable(bgl.GL_CULL_FACE)
                     bgl.glCullFace(bgl.GL_BACK)
                 else :
-                    bgl.glDisable(bgl.GL_CULL_FACE)     
+                    bgl.glDisable(bgl.GL_CULL_FACE)  
+                bgl.glEnable(bgl.GL_CULL_FACE) #輪郭線がcullされなくなるので、
+                bgl.glCullFace(bgl.GL_BACK)    #とりあえず。あとでパスを分ける1
 
                 light = glsl_draw_obj.light
                 light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
@@ -321,7 +322,7 @@ class glsl_draw_obj():
             if mat.alpha_method == "TRANSPARENT":
                 bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                 bgl.glDepthMask(bgl.GL_FALSE)
-            elif mat.alpha_method in ("OPAQUE","CLIP") :
+            elif mat.alpha_method in ("OPAQUE",'CLIP') :
                 bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                 bgl.glDepthMask(bgl.GL_TRUE)
             if mat.cull_mode == "BACK":
@@ -329,7 +330,8 @@ class glsl_draw_obj():
                 bgl.glCullFace(bgl.GL_BACK)
             else :
                 bgl.glDisable(bgl.GL_CULL_FACE) 
-
+            bgl.glEnable(bgl.GL_CULL_FACE)#輪郭線がcullされなくなるので、
+            bgl.glCullFace(bgl.GL_BACK)   #とりあえず。あとでパスを分ける2
             matrix = bpy.context.region_data.perspective_matrix
             
             toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
@@ -339,7 +341,6 @@ class glsl_draw_obj():
             toon_shader.uniform_float("ShadeShift",mat.shade_shift)
             toon_shader.uniform_int("depth_image",0)
             toon_shader.uniform_int("image",1)
-
             toon_bat.draw(toon_shader)
 
 
@@ -367,7 +368,8 @@ class glsl_draw_obj():
                 glsl_draw_obj.draw_func, 'WINDOW')
             glsl_draw_obj.draw_func = None
 
-        if glsl_draw_obj.build_mesh_func is not None:
+        if glsl_draw_obj.build_mesh_func is not None \
+                and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post:
             bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
             glsl_draw_obj.build_mesh_func = None
     
