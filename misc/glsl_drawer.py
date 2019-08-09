@@ -199,6 +199,7 @@ class glsl_draw_obj():
     toon_fragment_shader = '''
         uniform vec3 lightpos;
         uniform mat4 viewProjectionMatrix;
+        uniform mat4 normalWorldToViewMatrix;
         uniform float is_outline;
         uniform float is_cutout;
 
@@ -323,6 +324,7 @@ class glsl_draw_obj():
             
             float is_shine= 1;
             if (is_outline == 0){
+                vec3 output_color = vec3(0,0,0);
                 float shadow_bias = 0.2*tan(acos(dot(n,light_dir)));
                 if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
                     is_shine = 0.1;
@@ -342,9 +344,16 @@ class glsl_draw_obj():
                 vec4 lit = DiffuseColor * color_linearize(texture(MainTexture,mainUV));
                 vec4 shade = ShadeColor * color_linearize(texture(ShadeTexture,mainUV));
                 vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
+
+                output_color = albedo;
                 //未実装@ Directlightcolor
 
-                gl_FragColor = color_sRGBrize(vec4(albedo,lit.a));
+                //matcap
+                vec4 view_normal = normalWorldToViewMatrix * vec4(n,1);
+                vec4 matcap_color = color_linearize(texture(SphereAddTexture,view_normal.xy*0.5+0.5));
+                output_color += matcap_color.rgb;
+
+                gl_FragColor = color_sRGBrize(vec4(output_color,lit.a));
             } 
             else{ //is_outline
                 if (OutlineWidthMode == 0){
@@ -388,7 +397,7 @@ class glsl_draw_obj():
     materials = {}
     myinstance = None
     draw_objs = []
-
+    draw_x_offset = 0.3
     def __init__(self):
         glsl_draw_obj.myinstance = self
         self.offscreen = gpu.types.GPUOffScreen(2048,2048)
@@ -409,6 +418,8 @@ class glsl_draw_obj():
         self.scene_meshes = []
         
         for obj in self.objs:
+            if  self.draw_x_offset < obj.bound_box[4][0]*2:
+                self.draw_x_offset = obj.bound_box[4][0]*2
             vertex_count = 0
             scene_mesh = Gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
@@ -462,7 +473,7 @@ class glsl_draw_obj():
             self.build_scene()
         else:
             self = glsl_draw_obj.myinstance
-        model_offset = Matrix.Translation((2,0,0))
+        model_offset = Matrix.Translation((self.draw_x_offset,0,0))
 
         batchs = self.batchs
         depth_shader = self.depth_shader
@@ -470,6 +481,7 @@ class glsl_draw_obj():
         offscreen = self.offscreen
         #need bone etc changed only update
         depth_matrix = None
+
         #region shader depth path
         with offscreen.bind():
             bgl.glClearColor(0,0,0,1)
@@ -524,6 +536,7 @@ class glsl_draw_obj():
         #endregion shader depth path
 
         #region shader main
+        normalWorldToViewMatrix = bpy.context.region_data.view_matrix.inverted_safe().transposed()
         for is_outline in [0,1]:
             for bat in batchs:        
                 
@@ -560,6 +573,7 @@ class glsl_draw_obj():
                 
                 toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
                 toon_shader.uniform_float("viewProjectionMatrix", matrix)
+                toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", self.light.location)
                 toon_shader.uniform_float("is_outline", is_outline)
