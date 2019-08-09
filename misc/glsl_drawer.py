@@ -284,21 +284,40 @@ class glsl_draw_obj():
                                  + RimColor 
                                  + OutlineColor;
             debug_unused_vec4 = debug_unused_mat4 * debug_unused_vec4;
-
+    
 
             //start true main
+            float const_less_val = 0.00001;
             vec3 light_dir = normalize(lightpos);
-            vec4 col = texture(MainTexture, uv);
+            vec2 mainUV = uv;
+            vec4 col = texture(MainTexture, mainUV);
+            
             //if (col.a < 0.5) discard;
             
             float is_shine= 1;
             if (is_outline == 0){
-                float bias = 0.2*tan(acos(dot(n,light_dir)));
-                if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - bias){
-                    is_shine = 0.5;
+                float shadow_bias = 0.2*tan(acos(dot(n,light_dir)));
+                if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
+                    is_shine = 0.1;
                 }
-                float ss = (ShadeShift +1) /2 ;
-                gl_FragColor = vec4(col.rgb*(dot(light_dir,n)+ss)*is_shine,col.a);
+                // Decide albedo color rate from Direct Light
+                float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
+                float lightIntensity = dot(light_dir,n);
+                lightIntensity = lightIntensity * 0.5 + 0.5;
+                lightIntensity = lightIntensity * is_shine;
+                lightIntensity = lightIntensity * shadingGrade;
+                lightIntensity = lightIntensity * 2.0 - 1.0;
+                float maxIntensityThreshold = mix(1,ShadeShift,ShadeToony);
+                float minIntensityThreshold = ShadeShift;
+                float lerplightintensity = (lightIntensity - minIntensityThreshold) / max(const_less_val, (maxIntensityThreshold - minIntensityThreshold));
+                lightIntensity = clamp(lerplightintensity,0.0,1.0);
+
+                vec4 lit = DiffuseColor * texture(MainTexture,mainUV);
+                vec4 shade = ShadeColor * texture(ShadeTexture,mainUV);
+                vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
+                //未実装@ Directlightcolor
+
+                gl_FragColor = vec4(albedo,lit.a);
             } 
             else{ //is_outline
                 gl_FragColor = vec4(0,1,0,1) + debug_unused_vec4;
@@ -523,11 +542,8 @@ class glsl_draw_obj():
                 for k in float_keys:
                     toon_shader.uniform_float(k,mat.float_dic[k])
                 
-                toon_shader.uniform_float("DiffuseColor",(0,0,3,1))
-                toon_shader.uniform_float("ShadeColor",(0,0,0,0))
-                toon_shader.uniform_float("EmissionColor",(0,0,0,0))
-                toon_shader.uniform_float("RimColor",(0,0,0,0))
-                toon_shader.uniform_float("OutlineColor",(0,0,0,0))
+                for k,v in mat.vector_dic.items():
+                    toon_shader.uniform_float(k,v)
 
                 bgl.glActiveTexture(bgl.GL_TEXTURE0)
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
