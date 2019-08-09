@@ -28,6 +28,8 @@ class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
         return {"FINISHED"}
 
 class MToon_glsl():
+    white_texture = None
+    black_texture = None
     material = None
     main_node = None
     name = None
@@ -37,18 +39,52 @@ class MToon_glsl():
     vector_dic = {}
     texture_dic = {}
     cull_mode = "BACK"
+    def make_small_image(self,name,color = (1,1,1,1)):
+        image = bpy.data.images.new(name,1,1)
+        for i in range(4):
+            image.pixels[i] = color[i]
+        return image
     def __init__(self,material):
+        shader_black = "shader_black"
+        if shader_black not in bpy.data.images:
+            self.black_texture = self.make_small_image(shader_black,(0,0,0,1))
+        else :
+            self.black_texture = bpy.data.images[shader_black]
+        shader_white = "shader_white"
+        if shader_white not in bpy.data.images:
+            self.white_texture = self.make_small_image(shader_white,(1,1,1,1))
+        else :
+            self.white_texture = bpy.data.images[shader_white]
+
         self.material = material
         self.name = material.name
         self.update()
-    def get_texture(self,tex_name):
+
+
+        
+    def get_texture(self,tex_name,default_color = "white"):
         if tex_name == "ReceiveShadow_Texture":
             tex_name += "_alpha"
         if self.main_node.inputs[tex_name].links:
-            self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
-            return self.main_node.inputs[tex_name].links[0].from_node.image
+            if self.main_node.inputs[tex_name].links[0].from_node.image is not None:
+                self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
+                return self.main_node.inputs[tex_name].links[0].from_node.image
+            else:
+                if default_color == "white":
+                    self.white_texture.gl_load()
+                    return self.white_texture
+                elif default_color == "black":
+                    self.black_texture.gl_load()
+                    return self.black_texture
         else:
-            return None
+            if default_color == "white":
+                self.white_texture.gl_load()
+                return self.white_texture
+            elif default_color == "black":
+                self.black_texture.gl_load()
+                return self.black_texture
+            else:
+                raise Exception
     def get_value(self,val_name):
         if self.main_node.inputs[val_name].links:
             return self.main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
@@ -249,6 +285,8 @@ class glsl_draw_obj():
                                  + OutlineColor;
             debug_unused_vec4 = debug_unused_mat4 * debug_unused_vec4;
 
+
+            //start true main
             vec3 light_dir = normalize(lightpos);
             vec4 col = texture(MainTexture, uv);
             //if (col.a < 0.5) discard;
