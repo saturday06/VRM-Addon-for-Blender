@@ -60,7 +60,6 @@ class MToon_glsl():
         self.name = material.name
         self.update()
 
-
         
     def get_texture(self,tex_name,default_color = "white"):
         if tex_name == "ReceiveShadow_Texture":
@@ -121,11 +120,11 @@ class MToon_glsl():
                 self.vector_dic[k] = self.get_color(k)
         for k in V_Types.Material_MToon.texture_kind_exchange_dic.values():
             if k is not None:
-                self.texture_dic[k] = self.get_texture(k)
+                if k == "SphereAddTexture":
+                    self.texture_dic[k] = self.get_texture(k,"black")
+                else:
+                    self.texture_dic[k] = self.get_texture(k)
 
-        self.maintex = self.get_texture("MainTexture")
-
-        self.shade_shift = self.get_value("ShadeShift")
 
 
 
@@ -505,8 +504,6 @@ class glsl_draw_obj():
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                    #bgl.glDepthMask(bgl.GL_FALSE)
-                    #bgl.glDisable(bgl.GL_DEPTH_TEST)
                 elif mat.alpha_method =="OPAQUE" :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
@@ -557,8 +554,6 @@ class glsl_draw_obj():
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                    #bgl.glDepthMask(bgl.GL_FALSE)
-                    #bgl.glDisable(bgl.GL_DEPTH_TEST)
                 elif mat.alpha_method =="OPAQUE" :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
