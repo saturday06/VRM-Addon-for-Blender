@@ -30,6 +30,7 @@ class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
 class MToon_glsl():
     white_texture = None
     black_texture = None
+    normal_texture = None
     material = None
     main_node = None
     name = None
@@ -39,10 +40,10 @@ class MToon_glsl():
     vector_dic = {}
     texture_dic = {}
     cull_mode = "BACK"
-    def make_small_image(self,name,color = (1,1,1,1)):
+    def make_small_image(self,name,color = (1,1,1,1),color_space = "sRGB"):
         image = bpy.data.images.new(name,1,1)
-        for i in range(4):
-            image.pixels[i] = color[i]
+        image.colorspace_settings.name = color_space
+        image.generated_color = color
         return image
     def __init__(self,material):
         shader_black = "shader_black"
@@ -55,7 +56,11 @@ class MToon_glsl():
             self.white_texture = self.make_small_image(shader_white,(1,1,1,1))
         else :
             self.white_texture = bpy.data.images[shader_white]
-
+        shader_normal = "shader_normal"
+        if shader_normal not in bpy.data.images:
+            self.normal_texture = self.make_small_image(shader_normal,(0.5,0.5,1,1),"Linear")
+        else :
+            self.normal_texture = bpy.data.images[shader_normal]
         self.material = material
         self.name = material.name
         self.update()
@@ -75,6 +80,11 @@ class MToon_glsl():
                 elif default_color == "black":
                     self.black_texture.gl_load()
                     return self.black_texture
+                elif default_color == "normal":
+                    self.normal_texture.gl_load()
+                    return self.normal_texture
+                else:
+                    raise Exception
         else:
             if default_color == "white":
                 self.white_texture.gl_load()
@@ -82,8 +92,12 @@ class MToon_glsl():
             elif default_color == "black":
                 self.black_texture.gl_load()
                 return self.black_texture
+            elif default_color == "normal":
+                self.normal_texture.gl_load()
+                return self.normal_texture
             else:
                 raise Exception
+
     def get_value(self,val_name):
         if self.main_node.inputs[val_name].links:
             return self.main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
@@ -122,6 +136,8 @@ class MToon_glsl():
             if k is not None:
                 if k == "SphereAddTexture":
                     self.texture_dic[k] = self.get_texture(k,"black")
+                elif k == "NomalmapTexture":
+                    self.texture_dic[k] = self.get_texture(k,"normal")
                 else:
                     self.texture_dic[k] = self.get_texture(k)
 
@@ -134,15 +150,18 @@ class glsl_draw_obj():
         in vec3 position;
         in vec3 normal;
         in vec2 rawuv;
+        in vec3 rawtangent;
         out vec4 posa;
         out vec2 uva;
         out vec3 na;
+        out vec3 rtangent;
         void main()
         {
             na = normal;
             uva = rawuv;
             gl_Position = vec4(position,1);
             posa = gl_Position;
+            rtangent = rawtangent;
         }
     '''
 
@@ -159,9 +178,12 @@ class glsl_draw_obj():
     in vec4 posa[3];
     in vec2 uva[3];
     in vec3 na[3];
+    in vec3 rtangent[3];
 
     out vec2 uv;
     out vec3 n;
+    out vec3 tangent;
+    out vec3 bitangent;
     out vec4 shadowCoord;
     void main(){
 
@@ -175,6 +197,8 @@ class glsl_draw_obj():
             for (int i = 0 ; i<3 ; i++){
                     uv = uva[i];
                     n = na[i];
+                    tangent = rtangent[i];
+                    bitangent = normalize(cross(n,tangent));
                     gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
                     shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                     EmitVertex();
@@ -186,6 +210,7 @@ class glsl_draw_obj():
             for (int i = 2 ; i>=0 ; i--){
                 uv = uva[i];
                 n = na[i]*-1;
+                tangent = rtangent[i];
                 gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*OutlineWidth*0.01);
                 shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                 EmitVertex();
@@ -243,6 +268,8 @@ class glsl_draw_obj():
 
         in vec2 uv;
         in vec3 n;
+        in vec3 tangent;
+        in vec3 bitangent;
         in vec4 shadowCoord;
         vec4 color_linearlize(vec4 color){
             vec4 linear_color = color;
@@ -329,9 +356,16 @@ class glsl_draw_obj():
                 if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
                     is_shine = 0.1;
                 }
+
+                vec3 mod_n = n;
+                vec3 normalmap = texture(NomalmapTexture,mainUV).rgb *2 -1;
+                for (int i = 0;i<3;i++){
+                    mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
+                }
+
                 // Decide albedo color rate from Direct Light
                 float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
-                float lightIntensity = dot(light_dir,n);
+                float lightIntensity = dot(light_dir , mod_n);
                 lightIntensity = lightIntensity * 0.5 + 0.5;
                 lightIntensity = lightIntensity * is_shine;
                 lightIntensity = lightIntensity * shadingGrade;
@@ -349,10 +383,10 @@ class glsl_draw_obj():
                 //未実装@ Directlightcolor
 
                 //parametric rim
-                vec3 p_rim_color = pow(clamp(1.0-dot(n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * RimColor.rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
+                vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * RimColor.rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
                 output_color += p_rim_color;
                 //matcap
-                vec4 view_normal = normalWorldToViewMatrix * vec4(n,1);
+                vec4 view_normal = normalWorldToViewMatrix * vec4(mod_n,1);
                 vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
                 output_color += matcap_color.rgb;
 
@@ -431,11 +465,13 @@ class glsl_draw_obj():
             scene_mesh = Gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
+            tmp_mesh.calc_tangents()
             tmp_mesh.calc_loop_triangles()
             st = tmp_mesh.uv_layers[0].data
             for tri in tmp_mesh.loop_triangles:
                 for lo in tri.loops:
                     scene_mesh.uvs.append([st[lo].uv[0],st[lo].uv[1]])
+                    scene_mesh.tangents.append(tmp_mesh.loops[lo].tangent)
                 for vid in tri.vertices:
                     co = list(tmp_mesh.vertices[vid].co)
                     scene_mesh.pos.append(co)
@@ -458,6 +494,7 @@ class glsl_draw_obj():
                 toon_batch = batch_for_shader(self.toon_shader, 'TRIS', {
                     "position": scene_mesh.pos,
                     "normal":scene_mesh.normals,
+                    "rawtangent":scene_mesh.tangents,
                     "rawuv":scene_mesh.uvs
                     },
                     indices = vert_indices
@@ -701,4 +738,5 @@ class Gl_mesh():
         self.pos = []
         self.normals = []
         self.uvs = []
+        self.tangents = []
         self.index_per_mat = {}
