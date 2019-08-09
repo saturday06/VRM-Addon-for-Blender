@@ -14,7 +14,7 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self,context):
-        gdo = glsl_draw_obj(context)
+        gdo = glsl_draw_obj()
         glsl_draw_obj.draw_func_add()
         return {"FINISHED"}
 class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
@@ -47,7 +47,7 @@ class MToon_glsl():
     def __init__(self,material):
         shader_black = "shader_black"
         if shader_black not in bpy.data.images:
-            self.black_texture = self.make_small_image(shader_black,(0,0,0,1))
+            self.black_texture = self.make_small_image(shader_black,(0,0,0,0))
         else :
             self.black_texture = bpy.data.images[shader_black]
         shader_white = "shader_white"
@@ -335,35 +335,33 @@ class glsl_draw_obj():
 
     objs = []
     light = None
-    images = []
     offscreen = None
     materials = {}
+    myinstance = None
+    draw_objs = []
 
-
-    def __init__(self,context):
-        objs = glsl_draw_obj.objs = [obj for obj in context.selected_objects if obj.type == "MESH"]
-        glsl_draw_obj.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT" ][0]
-        for ob in objs:
-            for mat_slot in ob.material_slots:
-                if mat_slot.material.name not in glsl_draw_obj.materials.keys():
-                    glsl_draw_obj.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
-        self.build_sub_index(None)
-        self.build_batches()
-        glsl_draw_obj.offscreen = gpu.types.GPUOffScreen(2048,2048)
-
-    class gl_mesh():
-        pos = []
-        normals = []
-        uvs = []
-        sub_index = {} #mat_index:verices index
-        index_per_mat = {} #matrial : vert index
+    def __init__(self):
+        glsl_draw_obj.myinstance = self
+        self.offscreen = gpu.types.GPUOffScreen(2048,2048)
+       
     scene_meshes = None
-    @staticmethod
-    def build_sub_index(dum):
-        glsl_draw_obj.scene_meshes = []
-        vertex_count = 0
-        for obj in glsl_draw_obj.objs:
-            scene_mesh = glsl_draw_obj.gl_mesh()
+    def build_scene(scene=None,*args):
+        if glsl_draw_obj.myinstance is None:
+            self = glsl_draw_obj()
+        else:
+            self = glsl_draw_obj.myinstance
+        self.objs = [obj for obj in self.draw_objs if obj is not None]
+        self.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT" ][0]
+        for obj in self.objs:
+            for mat_slot in obj.material_slots:
+                if mat_slot.material.name not in self.materials.keys():
+                    self.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
+
+        self.scene_meshes = []
+        
+        for obj in self.objs:
+            vertex_count = 0
+            scene_mesh = Gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
             tmp_mesh.calc_loop_triangles()
@@ -375,21 +373,20 @@ class glsl_draw_obj():
                     co = list(tmp_mesh.vertices[vid].co)
                     scene_mesh.pos.append(co)
                     scene_mesh.normals.append(list(tmp_mesh.vertices[vid].normal))   
-                key_mat = glsl_draw_obj.materials[obj.material_slots[tri.material_index].material.name] 
+                key_mat = self.materials[obj.material_slots[tri.material_index].material.name] 
                 if key_mat in scene_mesh.index_per_mat.keys():
                     scene_mesh.index_per_mat[key_mat].append([vertex_count,vertex_count+1,vertex_count+2])
                 else:
                     scene_mesh.index_per_mat[key_mat] = [[vertex_count,vertex_count+1,vertex_count+2]]
                 vertex_count +=3
-            glsl_draw_obj.scene_meshes.append(scene_mesh)
-
+            self.scene_meshes.append(scene_mesh)
+        self.build_batches()
         return
 
-    batchs = []
+    batchs = None
     def build_batches(self):
-        batchs = glsl_draw_obj.batchs
-        
-        for scene_mesh in glsl_draw_obj.scene_meshes:
+        batchs = self.batchs = []
+        for scene_mesh in self.scene_meshes:
             for mat, vert_indices in scene_mesh.index_per_mat.items():
                 toon_batch = batch_for_shader(self.toon_shader, 'TRIS', {
                     "position": scene_mesh.pos,
@@ -406,17 +403,22 @@ class glsl_draw_obj():
                 if mat.alpha_method in ("OPAQUE",'CLIP'):
                     batchs.append((mat,toon_batch,depth_batch))
                 else:
-                    batchs.insert(0,(mat,toon_batch,depth_batch))         
+                    batchs.insert(0,(mat,toon_batch,depth_batch))      
+        return   
     
-    @staticmethod
-    def glsl_draw():
 
+    def glsl_draw(scene):
+        if glsl_draw_obj.myinstance is None:
+            self = glsl_draw_obj()
+            self.build_scene()
+        else:
+            self = glsl_draw_obj.myinstance
         model_offset = Matrix.Translation((2,0,0))
 
-        batchs = glsl_draw_obj.batchs
-        depth_shader = glsl_draw_obj.depth_shader
-        toon_shader = glsl_draw_obj.toon_shader
-        offscreen = glsl_draw_obj.offscreen
+        batchs = self.batchs
+        depth_shader = self.depth_shader
+        toon_shader = self.toon_shader
+        offscreen = self.offscreen
         #need bone etc changed only update
         depth_matrix = None
         #region shader depth path
@@ -444,7 +446,7 @@ class glsl_draw_obj():
                 bgl.glEnable(bgl.GL_CULL_FACE) #そも輪郭線がの影は落ちる？
                 bgl.glCullFace(bgl.GL_BACK) 
 
-                light = glsl_draw_obj.light
+                light = self.light
                 light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
                 loc = [0,0,0]
                 tar = light_lookat.normalized()
@@ -470,7 +472,7 @@ class glsl_draw_obj():
                 toon_bat = bat[1]
                 toon_shader.bind()
                 mat = bat[0]
-                mat.update()
+                #mat.update() #already in depth path
 
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
                 bgl.glEnable(bgl.GL_BLEND)
@@ -494,7 +496,7 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
                 toon_shader.uniform_float("viewProjectionMatrix", matrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
-                toon_shader.uniform_float("lightpos", glsl_draw_obj.light.location)
+                toon_shader.uniform_float("lightpos", self.light.location)
                 toon_shader.uniform_float("is_outline", is_outline)
                 
 
@@ -534,9 +536,8 @@ class glsl_draw_obj():
                 for i,k in enumerate(mat.texture_dic.keys()):
                     bgl.glActiveTexture(bgl.GL_TEXTURE1 + i)
                     texture = mat.texture_dic[k]
-                    if texture is not None:
-                        bgl.glBindTexture(bgl.GL_TEXTURE_2D,texture.bindcode)
-                    toon_shader.uniform_int(k,i+1)
+                    bgl.glBindTexture(bgl.GL_TEXTURE_2D,texture.bindcode)
+                    toon_shader.uniform_int(k , 1 + i)
 
                 toon_bat.draw(toon_shader)
         #endregion shader main
@@ -545,16 +546,19 @@ class glsl_draw_obj():
     build_mesh_func = None
     @staticmethod
     def draw_func_add():
+        glsl_draw_obj.draw_objs = [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]
+        glsl_draw_obj()
+        glsl_draw_obj.myinstance.build_scene()
         if glsl_draw_obj.draw_func is not None:
             glsl_draw_obj.draw_func_remove()
         glsl_draw_obj.draw_func = bpy.types.SpaceView3D.draw_handler_add(
-            glsl_draw_obj.glsl_draw,
+            glsl_draw_obj.myinstance.glsl_draw,
             (), 'WINDOW', 'POST_PIXEL')
 
         if glsl_draw_obj.build_mesh_func is not None \
                 and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post:
             bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
-        bpy.app.handlers.depsgraph_update_post.append(glsl_draw_obj.build_sub_index)
+        bpy.app.handlers.depsgraph_update_post.append(glsl_draw_obj.myinstance.build_scene)
         glsl_draw_obj.build_mesh_func = bpy.app.handlers.depsgraph_update_post[-1]
         #bpy.app.handlers.frame_change_post.append(build_sub_index)
 
@@ -569,7 +573,7 @@ class glsl_draw_obj():
                 and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post:
             bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
             glsl_draw_obj.build_mesh_func = None
-
+        glsl_draw_obj.draw_objs = []
 
     #endregion 3Dview drawer
 
@@ -605,3 +609,14 @@ def lookat_cross(loc,tar,up):
         mat4[i][2] = z[i]
         mat4[3][i] = n[i]
     return mat4
+
+class Gl_mesh():
+    pos = None
+    normals = None
+    uvs = None
+    index_per_mat = None #matrial : vert index
+    def __init__(self):
+        self.pos = []
+        self.normals = []
+        self.uvs = []
+        self.index_per_mat = {}
