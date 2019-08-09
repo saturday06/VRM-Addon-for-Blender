@@ -421,7 +421,7 @@ class glsl_draw_obj():
                     },
                     indices = vert_indices
                 )            
-                if mat.alpha_method in ("OPAQUE",'CLIP'):
+                if mat.alpha_method not in ("OPAQUE",'CLIP'):
                     batchs.append((mat,toon_batch,depth_batch))
                 else:
                     batchs.insert(0,(mat,toon_batch,depth_batch))      
@@ -451,14 +451,21 @@ class glsl_draw_obj():
                 mat.update()
                 depth_bat = bat[2]
                 depth_shader.bind()
-                bgl.glEnable(bgl.GL_DEPTH_TEST)
+                
                 bgl.glEnable(bgl.GL_BLEND)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                     bgl.glDepthMask(bgl.GL_FALSE)
-                elif mat.alpha_method in ("OPAQUE",'CLIP') :
+                    bgl.glDisable(bgl.GL_DEPTH_TEST)
+                elif mat.alpha_method =="OPAQUE" :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
+                    bgl.glEnable(bgl.GL_DEPTH_TEST)
+                elif mat.alpha_method =='CLIP' :
+                    bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
+                    bgl.glDepthMask(bgl.GL_TRUE)
+                    bgl.glEnable(bgl.GL_DEPTH_TEST)
+
                 if mat.cull_mode == "BACK":
                     bgl.glEnable(bgl.GL_CULL_FACE)
                     bgl.glCullFace(bgl.GL_BACK)
@@ -494,15 +501,22 @@ class glsl_draw_obj():
                 toon_shader.bind()
                 mat = bat[0]
                 #mat.update() #already in depth path
-
-                bgl.glEnable(bgl.GL_DEPTH_TEST)
                 bgl.glEnable(bgl.GL_BLEND)
+                bgl.glDepthMask(bgl.GL_TRUE)
+                bgl.glEnable(bgl.GL_DEPTH_TEST)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                    bgl.glDepthMask(bgl.GL_FALSE)
-                elif mat.alpha_method in ("OPAQUE",'CLIP') :
+                    #bgl.glDepthMask(bgl.GL_FALSE)
+                    #bgl.glDisable(bgl.GL_DEPTH_TEST)
+                elif mat.alpha_method =="OPAQUE" :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
+                    bgl.glEnable(bgl.GL_DEPTH_TEST)
+                elif mat.alpha_method =='CLIP' :
+                    bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
+                    bgl.glDepthMask(bgl.GL_TRUE)
+                    bgl.glEnable(bgl.GL_DEPTH_TEST)
+
                 if is_outline == 0:
                     if mat.cull_mode == "BACK":
                         bgl.glEnable(bgl.GL_CULL_FACE)
