@@ -162,7 +162,7 @@ class Material_MToon(Material):
         "_OutlineWidthTexture":"OutlineWidthTexture",
         "_UvAnimMaskTexture":"UV_Animation_Mask_Texture" #####
         }
-    vector_props_exchange_dic = {
+    vector_base_props_exchange_dic = {
             "_Color":"DiffuseColor",
             "_ShadeColor":"ShadeColor",
             "_EmissionColor":"EmissionColor",
@@ -171,8 +171,10 @@ class Material_MToon(Material):
             
         }
     #texture offset and scaling props by texture
+    vector_props_exchange_dic = {}
+    vector_props_exchange_dic.update(vector_base_props_exchange_dic)
     vector_props_exchange_dic.update(texture_kind_exchange_dic)
-
+    
     keyword_list = [
         "_NORMALMAP",
         "_ALPHATEST_ON",

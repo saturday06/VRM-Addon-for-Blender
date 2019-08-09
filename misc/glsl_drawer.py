@@ -5,7 +5,7 @@ import bgl
 from mathutils import Matrix,Vector,Euler
 from math import sqrt,radians
 from gpu_extras.batch import batch_for_shader
-
+from .. import V_Types
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):
     bl_idname = "vrm.model_draw"
@@ -31,15 +31,19 @@ class MToon_glsl():
     material = None
     main_node = None
     name = None
-    maintex = None
     alpha_method = None
-    shade_shift = 0
+
+    float_dic = {}
+    vector_dic = {}
+    texture_dic = {}
     cull_mode = "BACK"
     def __init__(self,material):
         self.material = material
         self.name = material.name
         self.update()
     def get_texture(self,tex_name):
+        if tex_name == "ReceiveShadow_Texture":
+            tex_name += "_alpha"
         if self.main_node.inputs[tex_name].links:
             self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
             return self.main_node.inputs[tex_name].links[0].from_node.image
@@ -48,6 +52,15 @@ class MToon_glsl():
     def get_value(self,val_name):
         if self.main_node.inputs[val_name].links:
             return self.main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
+        else:
+            return self.main_node.inputs[val_name].default_value
+
+    def get_color(self,vec_name):
+        if self.main_node.inputs[vec_name].links:
+            return self.main_node.inputs[vec_name].links[0].from_node.outputs[0].default_value
+        else:
+            return self.main_node.inputs[vec_name].default_value       
+    
     def update(self):
         if self.material.blend_method in ("OPAQUE",'CLIP'):
             self.alpha_method = self.material.blend_method
@@ -60,7 +73,22 @@ class MToon_glsl():
         for node in self.material.node_tree.nodes:
             if node.type =="OUTPUT_MATERIAL":
                 self.main_node = node.inputs['Surface'].links[0].from_node
+
+        self.float_dic = {}
+        self.vector_dic = {}
+        self.texture_dic = {}
+        for k in V_Types.Material_MToon.float_props_exchange_dic.values():
+            if k is not None:
+                self.float_dic[k] = self.get_value(k)
+        for k in V_Types.Material_MToon.vector_base_props_exchange_dic.values():
+            if k is not None:
+                self.vector_dic[k] = self.get_color(k)
+        for k in V_Types.Material_MToon.texture_kind_exchange_dic.values():
+            if k is not None:
+                self.texture_dic[k] = self.get_texture(k)
+
         self.maintex = self.get_texture("MainTexture")
+
         self.shade_shift = self.get_value("ShadeShift")
 
 
@@ -135,15 +163,92 @@ class glsl_draw_obj():
         uniform mat4 viewProjectionMatrix;
         uniform float is_outline;
 
-        uniform float ShadeShift;
+        uniform float CutoffRate ;
+        uniform float BumpScale ;
+        uniform float ReceiveShadowRate ;
+        uniform float ShadeShift ;
+        uniform float ShadeToony ;
+        uniform float RimLightingMix ;
+        uniform float RimFresnelPower ;
+        uniform float RimLift ;
+        uniform float ShadingGradeRate ;
+        uniform float LightColorAttenuation ;
+        uniform float IndirectLightIntensity ;
+        uniform float OutlineWidth ;
+        uniform float OutlineScaleMaxDistance ;
+        uniform float OutlineLightingMix ;
+        uniform float UV_Scroll_X ;
+        uniform float UV_Scroll_Y ;
+        uniform float UV_Scroll_Rotation ;
+        uniform float OutlineWidthMode ;
+        uniform float OutlineColorMode ;
+
+        uniform vec4 DiffuseColor;
+        uniform vec4 ShadeColor;
+        uniform vec4 EmissionColor;
+        uniform vec4 RimColor;
+        uniform vec4 OutlineColor;
+
         uniform sampler2D depth_image;
-        uniform sampler2D MainTexture;
+        uniform sampler2D MainTexture ;
+        uniform sampler2D ShadeTexture ;
+        uniform sampler2D NomalmapTexture ;
+        uniform sampler2D ReceiveShadow_Texture ;
+        uniform sampler2D ShadingGradeTexture ;
+        uniform sampler2D Emission_Texture ;
+        uniform sampler2D SphereAddTexture ;
+        uniform sampler2D RimTexture ;
+        uniform sampler2D OutlineWidthTexture ;
+        uniform sampler2D UV_Animation_Mask_Texture ;
+
         in vec2 uv;
         in vec3 n;
         in vec4 shadowCoord;
-
         void main()
         {
+            float debug_unused_float =
+                                    0.00001 *
+                                    (CutoffRate
+                                    +BumpScale
+                                    +ReceiveShadowRate
+                                    +ShadeShift
+                                    +ShadeToony
+                                    +RimLightingMix
+                                    +RimFresnelPower
+                                    +RimLift
+                                    +ShadingGradeRate
+                                    +LightColorAttenuation
+                                    +IndirectLightIntensity
+                                    +OutlineWidth
+                                    +OutlineScaleMaxDistance
+                                    +OutlineLightingMix
+                                    +UV_Scroll_X
+                                    +UV_Scroll_Y
+                                    +UV_Scroll_Rotation
+                                    +OutlineWidthMode
+                                    +OutlineColorMode
+                                    );
+            vec4 debug_unused_tex = 
+                            texture( MainTexture,uv) +
+                            texture( ShadeTexture,uv) +
+                            texture( NomalmapTexture,uv) +
+                            texture( ReceiveShadow_Texture,uv) +
+                            texture( ShadingGradeTexture,uv) +
+                            texture( Emission_Texture,uv) +
+                            texture( SphereAddTexture,uv) +
+                            texture( RimTexture,uv) +
+                            texture( OutlineWidthTexture,uv) +
+                            texture( UV_Animation_Mask_Texture,uv);
+
+            vec4 debug_unused_vec4 = vec4(0.00001)*debug_unused_tex*debug_unused_float;
+            mat4 debug_unused_mat4 = mat4(0.00001);
+            debug_unused_vec4 *= DiffuseColor 
+                                 + ShadeColor
+                                 + EmissionColor 
+                                 + RimColor 
+                                 + OutlineColor;
+            debug_unused_vec4 = debug_unused_mat4 * debug_unused_vec4;
+
             vec3 light_dir = normalize(lightpos);
             vec4 col = texture(MainTexture, uv);
             //if (col.a < 0.5) discard;
@@ -156,9 +261,9 @@ class glsl_draw_obj():
                 }
                 float ss = (ShadeShift +1) /2 ;
                 gl_FragColor = vec4(col.rgb*(dot(light_dir,n)+ss)*is_shine,col.a);
-            }
-            else{
-                gl_FragColor = vec4(0,1,0,1);
+            } 
+            else{ //is_outline
+                gl_FragColor = vec4(0,1,0,1) + debug_unused_vec4;
             }
         }
     '''
@@ -328,10 +433,6 @@ class glsl_draw_obj():
                 toon_shader.bind()
                 mat = bat[0]
                 mat.update()
-                bgl.glActiveTexture(bgl.GL_TEXTURE0)
-                bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
-                bgl.glActiveTexture(bgl.GL_TEXTURE1)
-                bgl.glBindTexture(bgl.GL_TEXTURE_2D, mat.maintex.bindcode)
 
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
                 bgl.glEnable(bgl.GL_BLEND)
@@ -357,18 +458,48 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", glsl_draw_obj.light.location)
                 toon_shader.uniform_float("is_outline", is_outline)
-                toon_shader.uniform_float("ShadeShift",mat.shade_shift)
+                
+
+                float_keys = [  "CutoffRate" ,
+                                "BumpScale" ,
+                                "ReceiveShadowRate" ,
+                                "ShadeShift",
+                                "ShadeToony" ,
+                                "RimLightingMix" ,
+                                "RimFresnelPower" ,
+                                "RimLift" ,
+                                "ShadingGradeRate" ,
+                                "LightColorAttenuation" ,
+                                "IndirectLightIntensity" ,
+                                "OutlineWidth" ,
+                                "OutlineScaleMaxDistance" ,
+                                "OutlineLightingMix" ,
+                                "UV_Scroll_X" ,
+                                "UV_Scroll_Y" ,
+                                "UV_Scroll_Rotation" ,
+                                "OutlineWidthMode" ,
+                                "OutlineColorMode" ]
+                
+                for k in float_keys:
+                    toon_shader.uniform_float(k,mat.float_dic[k])
+                
+                toon_shader.uniform_float("DiffuseColor",(0,0,3,1))
+                toon_shader.uniform_float("ShadeColor",(0,0,0,0))
+                toon_shader.uniform_float("EmissionColor",(0,0,0,0))
+                toon_shader.uniform_float("RimColor",(0,0,0,0))
+                toon_shader.uniform_float("OutlineColor",(0,0,0,0))
+
+                bgl.glActiveTexture(bgl.GL_TEXTURE0)
+                bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
                 toon_shader.uniform_int("depth_image",0)
-                toon_shader.uniform_int("MainTexture",1)
-                #toon_shader.uniform_int("ShadeTexture",2)
-                #toon_shader.uniform_int("NomalmapTexture",3)
-                #toon_shader.uniform_int("ReceiveShadow_Texture",4)
-                #toon_shader.uniform_int("ShadingGradeTexture",5)
-                #toon_shader.uniform_int("Emission_Texture",6)
-                #toon_shader.uniform_int("SphereAddTexture",7)
-                #toon_shader.uniform_int("RimTexture",8)
-                #toon_shader.uniform_int("OutlineWidthTexture",9)
-                #toon_shader.uniform_int("UV_Animation_Mask_Texture",10)
+
+                for i,k in enumerate(mat.texture_dic.keys()):
+                    bgl.glActiveTexture(bgl.GL_TEXTURE1 + i)
+                    texture = mat.texture_dic[k]
+                    if texture is not None:
+                        bgl.glBindTexture(bgl.GL_TEXTURE_2D,texture.bindcode)
+                    toon_shader.uniform_int(k,i+1)
+
                 toon_bat.draw(toon_shader)
         #endregion shader main
 
