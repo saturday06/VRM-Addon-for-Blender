@@ -453,10 +453,12 @@ class glsl_draw_obj():
                 depth_shader.bind()
                 
                 bgl.glEnable(bgl.GL_BLEND)
+                bgl.glDepthMask(bgl.GL_TRUE)
+                bgl.glEnable(bgl.GL_DEPTH_TEST)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                    bgl.glDepthMask(bgl.GL_FALSE)
-                    bgl.glDisable(bgl.GL_DEPTH_TEST)
+                    #bgl.glDepthMask(bgl.GL_FALSE)
+                    #bgl.glDisable(bgl.GL_DEPTH_TEST)
                 elif mat.alpha_method =="OPAQUE" :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
