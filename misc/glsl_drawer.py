@@ -242,6 +242,31 @@ class glsl_draw_obj():
         in vec2 uv;
         in vec3 n;
         in vec4 shadowCoord;
+        vec4 color_linearize(vec4 color){
+            vec4 linear_color = color;
+            for(int i = 0;i<3;i++){
+                if (linear_color[i] <= 0.04045){
+                    linear_color[i] = linear_color[i] / 12.92;
+                } 
+                else{
+                    linear_color[i] = pow((linear_color[i]+0.055)/1.055,2.4);
+                }
+            }
+            return linear_color;
+        }
+        vec4 color_sRGBrize(vec4 color){
+            vec4 sRGB_color = color;
+            for(int i = 0;i<3;i++){
+                if (sRGB_color[i] <= 0.0031308){
+                    sRGB_color[i] = sRGB_color[i] * 12.92;
+                } 
+                else{
+                    sRGB_color[i] = 1.055 * pow(sRGB_color[i],1.0/2.4) - 0.055;
+                }
+            }
+            return sRGB_color;
+
+        }
         void main()
         {
             float debug_unused_float =
@@ -293,7 +318,6 @@ class glsl_draw_obj():
             vec3 light_dir = normalize(lightpos);
             vec2 mainUV = uv;
             vec4 col = texture(MainTexture, mainUV);
-            
             //if (col.a < 0.5) discard;
             
             float is_shine= 1;
@@ -314,12 +338,12 @@ class glsl_draw_obj():
                 float lerplightintensity = (lightIntensity - minIntensityThreshold) / max(const_less_val, (maxIntensityThreshold - minIntensityThreshold));
                 lightIntensity = clamp(lerplightintensity,0.0,1.0);
 
-                vec4 lit = DiffuseColor * texture(MainTexture,mainUV);
-                vec4 shade = ShadeColor * texture(ShadeTexture,mainUV);
+                vec4 lit = DiffuseColor * color_linearize(texture(MainTexture,mainUV));
+                vec4 shade = ShadeColor * color_linearize(texture(ShadeTexture,mainUV));
                 vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
                 //未実装@ Directlightcolor
 
-                gl_FragColor = vec4(albedo,lit.a);
+                gl_FragColor = color_sRGBrize(vec4(albedo,lit.a));
             } 
             else{ //is_outline
                 gl_FragColor = OutlineColor + debug_unused_vec4;
