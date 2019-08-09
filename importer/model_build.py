@@ -223,10 +223,10 @@ class Blend_model():
         material.node_tree.links.new(socket_to_connect,value_node.outputs[0])
         return value_node
 
-    def connect_rgb_node(self, material ,color, socket_to_connect):
+    def connect_rgb_node(self, material ,color, socket_to_connect,defalut_color = [1,1,1,1]):
         rgb_node = material.node_tree.nodes.new("ShaderNodeRGB")
         rgb_node.label = socket_to_connect.name
-        rgb_node.outputs[0].default_value = color if color else [1,1,1,1]
+        rgb_node.outputs[0].default_value = color if color else defalut_color
         material.node_tree.links.new(socket_to_connect,rgb_node.outputs[0])
         return rgb_node
 
@@ -338,8 +338,10 @@ class Blend_model():
         uv_offset_tiling_value = [0,0,1,1]
         vector_props_dic = VRM_Types.Material_MToon.vector_props_exchange_dic
         for k, v in pymat.vector_props_dic.items():
-            if k in ["_Color","_ShadeColor","_EmissionColor","_RimColor","_OutlineColor"]:
+            if k in ["_Color","_ShadeColor","_EmissionColor","_OutlineColor"]:
                 self.connect_rgb_node(b_mat, v, sg.inputs[vector_props_dic[k]])
+            elif k == "_RimColor":
+                self.connect_rgb_node(b_mat, v, sg.inputs[vector_props_dic[k]],defalut_color=[0,0,0,1])
             elif k == "_MainTex":
                 uv_offset_tiling_value = v
             else:

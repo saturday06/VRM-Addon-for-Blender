@@ -198,6 +198,7 @@ class glsl_draw_obj():
 
     toon_fragment_shader = '''
         uniform vec3 lightpos;
+        uniform vec3 viewDirection;
         uniform mat4 viewProjectionMatrix;
         uniform mat4 normalWorldToViewMatrix;
         uniform float is_outline;
@@ -347,7 +348,9 @@ class glsl_draw_obj():
 
                 output_color = albedo;
                 //未実装@ Directlightcolor
-
+                //parametric rim
+                vec3 p_rim_color = pow(clamp(1.0-dot(n,viewDirection),0.0,1.0)+RimLift,RimFresnelPower) * RimColor.rgb * color_linearize(texture(RimTexture,mainUV)).rgb;
+                output_color += p_rim_color;
                 //matcap
                 vec4 view_normal = normalWorldToViewMatrix * vec4(n,1);
                 vec4 matcap_color = color_linearize(texture(SphereAddTexture,view_normal.xy*0.5+0.5));
@@ -573,6 +576,7 @@ class glsl_draw_obj():
                 
                 toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
                 toon_shader.uniform_float("viewProjectionMatrix", matrix)
+                toon_shader.uniform_float("viewDirection",bpy.context.region_data.view_location)
                 toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", self.light.location)
