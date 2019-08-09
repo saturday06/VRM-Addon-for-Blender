@@ -71,6 +71,9 @@ class MToon_glsl():
             tex_name += "_alpha"
         if self.main_node.inputs[tex_name].links:
             if self.main_node.inputs[tex_name].links[0].from_node.image is not None:
+                if default_color != "normal" and \
+                        self.main_node.inputs[tex_name].links[0].from_node.image.colorspace_settings.name != "Linear": ###############TODO bugyyyyyyyyyyyyyyyyy
+                    self.main_node.inputs[tex_name].links[0].from_node.image.colorspace_settings.name = "Linear"
                 self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
                 return self.main_node.inputs[tex_name].links[0].from_node.image
             else:
@@ -321,6 +324,7 @@ class glsl_draw_obj():
                                     +OutlineColorMode
                                     );
             vec4 debug_unused_tex = 
+                            texture( depth_image,uv) +
                             texture( MainTexture,uv) +
                             texture( ShadeTexture,uv) +
                             texture( NomalmapTexture,uv) +
@@ -332,13 +336,14 @@ class glsl_draw_obj():
                             texture( OutlineWidthTexture,uv) +
                             texture( UV_Animation_Mask_Texture,uv);
 
-            vec4 debug_unused_vec4 = vec4(0.00001)*debug_unused_tex*debug_unused_float;
-            mat4 debug_unused_mat4 = mat4(0.00001);
+            vec4 debug_unused_vec4 = vec4(0.00001)*debug_unused_tex*debug_unused_float*shadowCoord;
+            mat4 debug_unused_mat4 = mat4(0.00001)*normalWorldToViewMatrix;
             debug_unused_vec4 *= DiffuseColor 
                                  + ShadeColor
                                  + EmissionColor 
                                  + RimColor 
-                                 + OutlineColor;
+                                 + OutlineColor
+                                 + vec4(tangent+bitangent+viewDirection+lightpos,1);
             debug_unused_vec4 = debug_unused_mat4 * debug_unused_vec4;
     
 
@@ -362,7 +367,7 @@ class glsl_draw_obj():
                 for (int i = 0;i<3;i++){
                     mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
                 }
-
+                mod_n = normalize(mod_n);
                 // Decide albedo color rate from Direct Light
                 float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
                 float lightIntensity = dot(light_dir , mod_n);
@@ -395,6 +400,7 @@ class glsl_draw_obj():
                 output_color += emission;
 
                 gl_FragColor = color_sRGBlize(vec4(output_color,lit.a));
+
             } 
             else{ //is_outline
                 if (OutlineWidthMode == 0){
