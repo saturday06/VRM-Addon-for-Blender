@@ -412,7 +412,7 @@ class glsl_draw_obj():
        
     scene_meshes = None
     def build_scene(scene=None,*args):
-        if glsl_draw_obj.myinstance is None:
+        if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
             self = glsl_draw_obj()
         else:
             self = glsl_draw_obj.myinstance
@@ -476,7 +476,7 @@ class glsl_draw_obj():
     
 
     def glsl_draw(scene):
-        if glsl_draw_obj.myinstance is None:
+        if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
             self = glsl_draw_obj()
             self.build_scene()
         else:
@@ -633,6 +633,8 @@ class glsl_draw_obj():
     @staticmethod
     def draw_func_add():
         glsl_draw_obj.draw_objs = [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]
+        if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
+            glsl_draw_obj.myinstance = glsl_draw_obj()     
         glsl_draw_obj.myinstance.build_scene()
         if glsl_draw_obj.draw_func is not None:
             glsl_draw_obj.draw_func_remove()
