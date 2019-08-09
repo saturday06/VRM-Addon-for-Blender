@@ -200,6 +200,7 @@ class glsl_draw_obj():
         uniform vec3 lightpos;
         uniform mat4 viewProjectionMatrix;
         uniform float is_outline;
+        uniform float is_cutout;
 
         uniform float CutoffRate ;
         uniform float BumpScale ;
@@ -318,7 +319,7 @@ class glsl_draw_obj():
             vec3 light_dir = normalize(lightpos);
             vec2 mainUV = uv;
             vec4 col = texture(MainTexture, mainUV);
-            //if (col.a < 0.5) discard;
+            if (is_cutout == 1 && col.a < CutoffRate) discard;
             
             float is_shine= 1;
             if (is_outline == 0){
@@ -346,6 +347,9 @@ class glsl_draw_obj():
                 gl_FragColor = color_sRGBrize(vec4(albedo,lit.a));
             } 
             else{ //is_outline
+                if (OutlineWidthMode == 0){
+                    discard;
+                    }
                 gl_FragColor = OutlineColor + debug_unused_vec4;
             }
         }
@@ -560,6 +564,7 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("lightpos", self.light.location)
                 toon_shader.uniform_float("is_outline", is_outline)
                 
+                toon_shader.uniform_float("is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0)
 
                 float_keys = [  "CutoffRate" ,
                                 "BumpScale" ,
