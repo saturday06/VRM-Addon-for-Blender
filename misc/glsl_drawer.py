@@ -245,7 +245,7 @@ class glsl_draw_obj():
         in vec2 uv;
         in vec3 n;
         in vec4 shadowCoord;
-        vec4 color_linearize(vec4 color){
+        vec4 color_linearlize(vec4 color){
             vec4 linear_color = color;
             for(int i = 0;i<3;i++){
                 if (linear_color[i] <= 0.04045){
@@ -257,7 +257,7 @@ class glsl_draw_obj():
             }
             return linear_color;
         }
-        vec4 color_sRGBrize(vec4 color){
+        vec4 color_sRGBlize(vec4 color){
             vec4 sRGB_color = color;
             for(int i = 0;i<3;i++){
                 if (sRGB_color[i] <= 0.0031308){
@@ -342,21 +342,26 @@ class glsl_draw_obj():
                 float lerplightintensity = (lightIntensity - minIntensityThreshold) / max(const_less_val, (maxIntensityThreshold - minIntensityThreshold));
                 lightIntensity = clamp(lerplightintensity,0.0,1.0);
 
-                vec4 lit = DiffuseColor * color_linearize(texture(MainTexture,mainUV));
-                vec4 shade = ShadeColor * color_linearize(texture(ShadeTexture,mainUV));
+                vec4 lit = DiffuseColor * color_linearlize(texture(MainTexture,mainUV));
+                vec4 shade = ShadeColor * color_linearlize(texture(ShadeTexture,mainUV));
                 vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
 
                 output_color = albedo;
                 //未実装@ Directlightcolor
+
                 //parametric rim
-                vec3 p_rim_color = pow(clamp(1.0-dot(n,viewDirection),0.0,1.0)+RimLift,RimFresnelPower) * RimColor.rgb * color_linearize(texture(RimTexture,mainUV)).rgb;
+                vec3 p_rim_color = pow(clamp(1.0-dot(n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * RimColor.rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
                 output_color += p_rim_color;
                 //matcap
                 vec4 view_normal = normalWorldToViewMatrix * vec4(n,1);
-                vec4 matcap_color = color_linearize(texture(SphereAddTexture,view_normal.xy*0.5+0.5));
+                vec4 matcap_color = color_linearlize(texture(SphereAddTexture,view_normal.xy*0.5+0.5));
                 output_color += matcap_color.rgb;
 
-                gl_FragColor = color_sRGBrize(vec4(output_color,lit.a));
+                //emission
+                vec3 emission = color_linearlize(texture(Emission_Texture,mainUV)).rgb * EmissionColor.rgb;
+                output_color += emission;
+
+                gl_FragColor = color_sRGBlize(vec4(output_color,lit.a));
             } 
             else{ //is_outline
                 if (OutlineWidthMode == 0){
@@ -576,7 +581,7 @@ class glsl_draw_obj():
                 
                 toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
                 toon_shader.uniform_float("viewProjectionMatrix", matrix)
-                toon_shader.uniform_float("viewDirection",bpy.context.region_data.view_location)
+                toon_shader.uniform_float("viewDirection",bpy.context.region_data.view_matrix[2][:3])
                 toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", self.light.location)
