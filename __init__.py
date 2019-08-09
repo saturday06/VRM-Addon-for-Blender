@@ -18,7 +18,7 @@ import os
 bl_info = {
     "name":"VRM_IMPORTER",
     "author": "iCyP",
-    "version": (0, 71),
+    "version": (0, 72),
     "blender": (2, 80, 0),
     "location": "File->Import",
     "description": "VRM Importer",
