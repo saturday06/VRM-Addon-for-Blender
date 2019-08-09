@@ -547,7 +547,6 @@ class glsl_draw_obj():
     @staticmethod
     def draw_func_add():
         glsl_draw_obj.draw_objs = [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]
-        glsl_draw_obj()
         glsl_draw_obj.myinstance.build_scene()
         if glsl_draw_obj.draw_func is not None:
             glsl_draw_obj.draw_func_remove()
