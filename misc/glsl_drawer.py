@@ -154,6 +154,8 @@ class glsl_draw_obj():
     uniform mat4 viewProjectionMatrix;
     uniform mat4 obj_matrix;
     uniform float is_outline;
+    
+    uniform float OutlineWidth;
 
     in vec4 posa[3];
     in vec2 uva[3];
@@ -185,7 +187,7 @@ class glsl_draw_obj():
             for (int i = 2 ; i>=0 ; i--){
                 uv = uva[i];
                 n = na[i]*-1;
-                gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*0.01);
+                gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*OutlineWidth*0.01);
                 shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                 EmitVertex();
             }
@@ -320,7 +322,7 @@ class glsl_draw_obj():
                 gl_FragColor = vec4(albedo,lit.a);
             } 
             else{ //is_outline
-                gl_FragColor = vec4(0,1,0,1) + debug_unused_vec4;
+                gl_FragColor = OutlineColor + debug_unused_vec4;
             }
         }
     '''
