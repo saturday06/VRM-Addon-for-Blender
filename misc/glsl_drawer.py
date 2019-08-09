@@ -354,7 +354,7 @@ class glsl_draw_obj():
                 output_color += p_rim_color;
                 //matcap
                 vec4 view_normal = normalWorldToViewMatrix * vec4(n,1);
-                vec4 matcap_color = color_linearlize(texture(SphereAddTexture,view_normal.xy*0.5+0.5));
+                vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
                 output_color += matcap_color.rgb;
 
                 //emission
