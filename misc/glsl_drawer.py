@@ -11,7 +11,7 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):
     bl_idname = "vrm.model_draw"
     bl_label = "(InDev not working )Draw VRM model"
     bl_description = "Draw selected with GLSL"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {'REGISTER'}
 
     def execute(self,context):
         gdo = glsl_draw_obj()
@@ -21,7 +21,7 @@ class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
     bl_idname = "vrm.model_draw_remove"
     bl_label = "(InDev not working ) remove Draw VRM model"
     bl_description = "Draw selected with GLSL"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {'REGISTER'}
 
     def execute(self,context):
         glsl_draw_obj.draw_func_remove()
