@@ -11,7 +11,8 @@ from .importer import vrm_load,model_build
 from .misc import VRM_HELPER
 from .misc import glb_factory
 from .misc import armature_maker
-from .misc import glsl_drawer
+if bpy.app.build_platform != b'Darwin':
+    from .misc import glsl_drawer
 import os
 
 
@@ -137,18 +138,20 @@ def add_shaders(self):
                 data_to.node_groups.append(nt)
 
 
-classes = (
+classes = [
     ImportVRM,
     ExportVRM,
     VRM_HELPER.Bones_rename,
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
-    glsl_drawer.ICYP_OT_Draw_Model,
-    glsl_drawer.ICYP_OT_Remove_Draw_Model,
     armature_maker.ICYP_OT_MAKE_ARAMATURE
-)
-
+]
+if bpy.app.build_platform != b'Darwin':
+    classes.extend([
+        glsl_drawer.ICYP_OT_Draw_Model,
+        glsl_drawer.ICYP_OT_Remove_Draw_Model,
+        ])
 
 # アドオン有効化時の処理
 def register():
