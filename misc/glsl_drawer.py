@@ -232,8 +232,8 @@ class glsl_draw_obj():
                     n = na[i]*-1;
                     tangent = rtangent[i];
                     gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
-                    vec4 view_normal = normalWorldToViewMatrix * vec4(na[i],1);
-                    vec4 extend_dir = normalize(projectionMatrix * view_normal);
+                    vec3 view_normal = mat3(normalWorldToViewMatrix) * na[i];
+                    vec3 extend_dir = normalize(mat3(projectionMatrix) * view_normal);
                     extend_dir = extend_dir * min(gl_Position.w, OutlineScaleMaxDistance);
                     extend_dir.x = extend_dir.x * aspect; 
                     gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth * clamp(1-abs(view_normal.z),0.0,1.0);
