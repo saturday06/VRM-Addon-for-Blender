@@ -173,8 +173,11 @@ class glsl_draw_obj():
     layout(triangle_strip, max_vertices = 3) out;
     uniform mat4 depthMVP;
     uniform mat4 viewProjectionMatrix;
+    uniform mat4 normalWorldToViewMatrix;
+    uniform float aspect;
     uniform mat4 obj_matrix;
     uniform float is_outline;
+    uniform float OutlineWidthMode ;
     
     uniform float OutlineWidth;
 
@@ -210,15 +213,43 @@ class glsl_draw_obj():
         }
        
         else {
-            for (int i = 2 ; i>=0 ; i--){
-                uv = uva[i];
-                n = na[i]*-1;
-                tangent = rtangent[i];
-                gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*OutlineWidth*0.01);
-                shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
-                EmitVertex();
+            if (OutlineWidthMode == 1){// world space outline
+                for (int i = 2 ; i>=0 ; i--){
+                    uv = uva[i];
+                    n = na[i]*-1;
+                    tangent = rtangent[i];
+                    gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*OutlineWidth*0.01);
+                    shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
+                    EmitVertex();
+                }
+                EndPrimitive();
             }
-            EndPrimitive();
+            else if (OutlineWidthMode == 2){ //screen space outline
+                for (int i = 2 ; i>=0 ; i--){
+                    uv = uva[i];
+                    n = na[i]*-1;
+                    tangent = rtangent[i];
+                    vec4 extend_dir = normalize(normalWorldToViewMatrix * vec4(na[i],1));
+                    extend_dir.x *= aspect; 
+                    gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
+                    gl_Position.xy += 0.01 * OutlineWidth* extend_dir.xy ;
+                    shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
+                    EmitVertex();
+                }
+                EndPrimitive();
+            }
+            else{
+                for (int i = 0 ; i<3 ; i++){
+                            uv = uva[i];
+                            n = na[i];
+                            tangent = rtangent[i];
+                            bitangent = normalize(cross(n,tangent));
+                            gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
+                            shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
+                            EmitVertex();
+                    }
+                EndPrimitive();
+            }
         }
     }
     '''
@@ -402,7 +433,7 @@ class glsl_draw_obj():
                 gl_FragColor = color_sRGBlize(vec4(output_color,lit.a));
 
             } 
-            else{ //is_outline
+            else{ //is_outline in (1,2)//world or screen
                 if (OutlineWidthMode == 0){
                     discard;
                     }
@@ -623,6 +654,7 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", self.light.location)
+                toon_shader.uniform_float("aspect",bpy.context.area.width/bpy.context.area.height)
                 toon_shader.uniform_float("is_outline", is_outline)
                 
                 toon_shader.uniform_float("is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0)
