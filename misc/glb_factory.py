@@ -282,10 +282,35 @@ class Glb_obj():
 			MToon_float_dic = MToon_dic["floatProperties"] = OrderedDict()
 			MToon_vector_dic = MToon_dic["vectorProperties"] = OrderedDict()
 			MToon_texture_dic = MToon_dic["textureProperties"] = OrderedDict()
+
+			outline_width_mode = 0
+			outline_color_mode = 0
 			for float_key,float_prop in [(k,val) for k,val in VRM_types.Material_MToon.float_props_exchange_dic.items() if val is not None ]:
 				float_val = get_float_value(MToon_Shader_Node,float_prop)
 				if float_val is not None:
 					MToon_float_dic[float_key] = float_val
+					if float_key == "OutlineWidthMode":
+						outline_width_mode = float_prop
+					if float_key == "OutlineColorMode":
+						outline_color_mode = float_prop
+			def outline_keyword_set(WIDTH_WORLD,WIDTH_SCREEN,COLOR_FIXED,COLOR_MIXED):
+				keyword_map["MTOON_OUTLINE_WIDTH_WORLD"] = WIDTH_WORLD
+				keyword_map["MTOON_OUTLINE_WIDTH_SCREEN"] = WIDTH_SCREEN
+				keyword_map["MTOON_OUTLINE_COLOR_FIXED"] = COLOR_FIXED
+				keyword_map["MTOON_OUTLINE_COLOR_MIXED"] = COLOR_MIXED
+			if outline_width_mode == 0:
+				outline_keyword_set(False,False,False,False)
+			elif outline_width_mode == 1:
+				if outline_color_mode == 0:
+					outline_keyword_set(True,False,True,False)
+				else:
+					outline_keyword_set(True,False,False,True)
+
+			elif outline_width_mode == 2:
+				if outline_color_mode == 0:
+					outline_keyword_set(False,True,True,False)
+				else:
+					outline_keyword_set(False,True,False,True)
 
 			vec_prop_set = set(VRM_types.Material_MToon.vector_props_exchange_dic.values()) \
 							 - set(VRM_types.Material_MToon.texture_kind_exchange_dic.values())
