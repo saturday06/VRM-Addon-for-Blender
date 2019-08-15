@@ -475,15 +475,10 @@ class glsl_draw_obj():
 
     '''
 
-    toon_shader = gpu.types.GPUShader(
-        vertexcode = toon_vertex_shader,
-        fragcode = toon_fragment_shader,
-        geocode = toon_geometry_shader)
+    toon_shader = None 
         
         
-    depth_shader = gpu.types.GPUShader(
-        vertexcode = depth_vertex_shader,
-        fragcode = depth_fragment_shader)
+    depth_shader = None 
 
     objs = []
     light = None
@@ -541,6 +536,17 @@ class glsl_draw_obj():
 
     batchs = None
     def build_batches(self):
+        if self.toon_shader is None:
+            self.toon_shader = gpu.types.GPUShader(
+                                vertexcode = self.toon_vertex_shader,
+                                fragcode = self.toon_fragment_shader,
+                                geocode = self.toon_geometry_shader)
+                                
+        if self.depth_shader is None:
+            self.depth_shader = gpu.types.GPUShader(
+                                vertexcode = self.depth_vertex_shader,
+                                fragcode = self.depth_fragment_shader)
+
         batchs = self.batchs = []
         for scene_mesh in self.scene_meshes:
             for mat, vert_indices in scene_mesh.index_per_mat.items():
