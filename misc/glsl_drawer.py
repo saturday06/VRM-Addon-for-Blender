@@ -172,6 +172,7 @@ class glsl_draw_obj():
     layout(triangles) in;
     layout(triangle_strip, max_vertices = 3) out;
     uniform mat4 depthMVP;
+    uniform mat4 projectionMatrix;
     uniform mat4 viewProjectionMatrix;
     uniform mat4 normalWorldToViewMatrix;
     uniform float aspect;
@@ -180,6 +181,7 @@ class glsl_draw_obj():
     uniform float OutlineWidthMode ;
     
     uniform float OutlineWidth;
+    uniform float OutlineScaleMaxDistance;
 
     in vec4 posa[3];
     in vec2 uva[3];
@@ -229,16 +231,18 @@ class glsl_draw_obj():
                     uv = uva[i];
                     n = na[i]*-1;
                     tangent = rtangent[i];
-                    vec4 extend_dir = normalize(normalWorldToViewMatrix * vec4(na[i],1));
-                    extend_dir.x *= aspect; 
                     gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
-                    gl_Position.xy += 0.01 * OutlineWidth* extend_dir.xy ;
+                    vec4 view_normal = normalWorldToViewMatrix * vec4(na[i],1);
+                    vec4 extend_dir = normalize(projectionMatrix * view_normal);
+                    extend_dir = extend_dir * min(gl_Position.w, OutlineScaleMaxDistance);
+                    extend_dir.x = extend_dir.x * aspect; 
+                    gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth * clamp(1-abs(view_normal.z),0.0,1.0);
                     shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                     EmitVertex();
                 }
                 EndPrimitive();
             }
-            else{
+            else{// nothing come here ...maybe.
                 for (int i = 0 ; i<3 ; i++){
                             uv = uva[i];
                             n = na[i];
@@ -615,7 +619,12 @@ class glsl_draw_obj():
         #endregion shader depth path
 
         #region shader main
+        vp_mat = bpy.context.region_data.perspective_matrix
+        projection_mat = bpy.context.region_data.window_matrix
+        view_dir = bpy.context.region_data.view_matrix[2][:3]
         normalWorldToViewMatrix = bpy.context.region_data.view_matrix.inverted_safe().transposed()
+        aspect = bpy.context.area.width/bpy.context.area.height
+
         for is_outline in [0,1]:
             for bat in batchs:        
                 
@@ -646,15 +655,15 @@ class glsl_draw_obj():
                 else:
                     bgl.glEnable(bgl.GL_CULL_FACE)
                     bgl.glCullFace(bgl.GL_BACK)
-                matrix = bpy.context.region_data.perspective_matrix
-                
+                            
                 toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
-                toon_shader.uniform_float("viewProjectionMatrix", matrix)
-                toon_shader.uniform_float("viewDirection",bpy.context.region_data.view_matrix[2][:3])
+                toon_shader.uniform_float("projectionMatrix",projection_mat)
+                toon_shader.uniform_float("viewProjectionMatrix", vp_mat)
+                toon_shader.uniform_float("viewDirection", view_dir)
                 toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", self.light.location)
-                toon_shader.uniform_float("aspect",bpy.context.area.width/bpy.context.area.height)
+                toon_shader.uniform_float("aspect",aspect)
                 toon_shader.uniform_float("is_outline", is_outline)
                 
                 toon_shader.uniform_float("is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0)
