@@ -180,8 +180,9 @@ class glsl_draw_obj():
     uniform float is_outline;
     uniform float OutlineWidthMode ;
     
-    uniform float OutlineWidth;
-    uniform float OutlineScaleMaxDistance;
+    uniform float OutlineWidth ;
+    uniform float OutlineScaleMaxDistance ;
+    uniform sampler2D OutlineWidthTexture ;
 
     in vec4 posa[3];
     in vec2 uva[3];
@@ -220,7 +221,8 @@ class glsl_draw_obj():
                     uv = uva[i];
                     n = na[i]*-1;
                     tangent = rtangent[i];
-                    gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*OutlineWidth*0.01);
+                    float outlinewidth_tex = texture(OutlineWidthTexture,uv).r;
+                    gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*OutlineWidth*outlinewidth_tex*0.01);
                     shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                     EmitVertex();
                 }
@@ -236,7 +238,8 @@ class glsl_draw_obj():
                     vec3 extend_dir = normalize(mat3(projectionMatrix) * view_normal);
                     extend_dir = extend_dir * min(gl_Position.w, OutlineScaleMaxDistance);
                     extend_dir.y = extend_dir.y * aspect; 
-                    gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth * clamp(1-abs(view_normal.z),0.0,1.0);
+                    float outlinewidth_tex = texture(OutlineWidthTexture,uv).r;
+                    gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth * outlinewidth_tex * clamp(1-abs(view_normal.z),0.0,1.0);
                     shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                     EmitVertex();
                 }
@@ -387,61 +390,70 @@ class glsl_draw_obj():
             vec3 light_dir = normalize(lightpos);
             vec2 mainUV = uv;
             vec4 col = texture(MainTexture, mainUV);
-            if (is_cutout == 1 && col.a < CutoffRate) discard;
+            if (is_cutout == 1 && col.a * DiffuseColor.a < CutoffRate) discard;
             
+            vec3 outline_col = col.rgb;
+
             float is_shine= 1;
-            if (is_outline == 0){
-                vec3 output_color = vec3(0,0,0);
-                float shadow_bias = 0.2*tan(acos(dot(n,light_dir)));
-                if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
-                    is_shine = 0.1;
-                }
 
-                vec3 mod_n = n;
-                vec3 normalmap = texture(NomalmapTexture,mainUV).rgb *2 -1;
-                for (int i = 0;i<3;i++){
-                    mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
-                }
-                mod_n = normalize(mod_n);
-                // Decide albedo color rate from Direct Light
-                float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
-                float lightIntensity = dot(light_dir , mod_n);
-                lightIntensity = lightIntensity * 0.5 + 0.5;
-                lightIntensity = lightIntensity * is_shine;
-                lightIntensity = lightIntensity * shadingGrade;
-                lightIntensity = lightIntensity * 2.0 - 1.0;
-                float maxIntensityThreshold = mix(1,ShadeShift,ShadeToony);
-                float minIntensityThreshold = ShadeShift;
-                float lerplightintensity = (lightIntensity - minIntensityThreshold) / max(const_less_val, (maxIntensityThreshold - minIntensityThreshold));
-                lightIntensity = clamp(lerplightintensity,0.0,1.0);
+            vec3 output_color = vec3(0,0,0);
+            float shadow_bias = 0.2*tan(acos(dot(n,light_dir)));
+            if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
+                is_shine = 0.1;
+            }
 
-                vec4 lit = DiffuseColor * color_linearlize(texture(MainTexture,mainUV));
-                vec4 shade = ShadeColor * color_linearlize(texture(ShadeTexture,mainUV));
-                vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
+            vec3 mod_n = n;
+            vec3 normalmap = texture(NomalmapTexture,mainUV).rgb *2 -1;
+            for (int i = 0;i<3;i++){
+                mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
+            }
+            mod_n = normalize(mod_n);
+            // Decide albedo color rate from Direct Light
+            float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
+            float lightIntensity = dot(light_dir , mod_n);
+            lightIntensity = lightIntensity * 0.5 + 0.5;
+            lightIntensity = lightIntensity * is_shine;
+            lightIntensity = lightIntensity * shadingGrade;
+            lightIntensity = lightIntensity * 2.0 - 1.0;
+            float maxIntensityThreshold = mix(1,ShadeShift,ShadeToony);
+            float minIntensityThreshold = ShadeShift;
+            float lerplightintensity = (lightIntensity - minIntensityThreshold) / max(const_less_val, (maxIntensityThreshold - minIntensityThreshold));
+            lightIntensity = clamp(lerplightintensity,0.0,1.0);
 
-                output_color = albedo;
-                //未実装@ Directlightcolor
+            vec4 lit = DiffuseColor * color_linearlize(texture(MainTexture,mainUV));
+            vec4 shade = ShadeColor * color_linearlize(texture(ShadeTexture,mainUV));
+            vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
 
-                //parametric rim
-                vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * RimColor.rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
-                output_color += p_rim_color;
-                //matcap
-                vec4 view_normal = normalWorldToViewMatrix * vec4(mod_n,1);
-                vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
-                output_color += matcap_color.rgb;
+            output_color = albedo;
+            outline_col = albedo;
+            //未実装@ Directlightcolor
 
-                //emission
-                vec3 emission = color_linearlize(texture(Emission_Texture,mainUV)).rgb * EmissionColor.rgb;
-                output_color += emission;
+            //parametric rim
+            vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * RimColor.rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
+            output_color += p_rim_color;
+            //matcap
+            vec4 view_normal = normalWorldToViewMatrix * vec4(mod_n,1);
+            vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
+            output_color += matcap_color.rgb;
 
+            //emission
+            vec3 emission = color_linearlize(texture(Emission_Texture,mainUV)).rgb * EmissionColor.rgb;
+            output_color += emission;
+
+
+            if (is_outline ==0){
                 gl_FragColor = color_sRGBlize(vec4(output_color,lit.a));
-
-            } 
+            }
             else{ //is_outline in (1,2)//world or screen
                 if (OutlineWidthMode == 0){
                     discard;
                     }
-                gl_FragColor = OutlineColor + debug_unused_vec4;
+                if (OutlineColorMode==0){
+                    gl_FragColor = color_sRGBlize(OutlineColor + debug_unused_vec4);
+                }
+                else{
+                    gl_FragColor = color_sRGBlize( vec4(OutlineColor.rgb * mix(vec3(1.0),outline_col,OutlineLightingMix),1) );
+                }
             }
         }
     '''
