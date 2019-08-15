@@ -235,7 +235,7 @@ class glsl_draw_obj():
                     vec3 view_normal = mat3(normalWorldToViewMatrix) * na[i];
                     vec3 extend_dir = normalize(mat3(projectionMatrix) * view_normal);
                     extend_dir = extend_dir * min(gl_Position.w, OutlineScaleMaxDistance);
-                    extend_dir.x = extend_dir.x * aspect; 
+                    extend_dir.y = extend_dir.y * aspect; 
                     gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth * clamp(1-abs(view_normal.z),0.0,1.0);
                     shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                     EmitVertex();
