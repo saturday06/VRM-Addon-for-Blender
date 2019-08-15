@@ -483,14 +483,14 @@ class glsl_draw_obj():
     objs = []
     light = None
     offscreen = None
-    materials = {}
+    materials = None
     myinstance = None
     draw_objs = []
     draw_x_offset = 0.3
     def __init__(self):
         glsl_draw_obj.myinstance = self
         self.offscreen = gpu.types.GPUOffScreen(2048,2048)
-       
+        self.materials = {}
     scene_meshes = None
     def build_scene(scene=None,*args):
         if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
@@ -619,6 +619,7 @@ class glsl_draw_obj():
 
                 light = self.light
                 light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
+                #TODO このへん
                 loc = [0,0,0]
                 tar = light_lookat.normalized()
                 up = light.rotation_euler.to_quaternion() @ Vector((0,1,0))
@@ -729,8 +730,9 @@ class glsl_draw_obj():
     build_mesh_func = None
     @staticmethod
     def draw_func_add():
+        glsl_draw_obj.draw_func_remove()
         glsl_draw_obj.draw_objs = [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]
-        if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
+        if glsl_draw_obj.myinstance is None or glsl_draw_obj.draw_func is None:
             glsl_draw_obj.myinstance = glsl_draw_obj()     
         glsl_draw_obj.myinstance.build_scene()
         if glsl_draw_obj.draw_func is not None:
