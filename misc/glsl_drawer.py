@@ -420,8 +420,8 @@ class glsl_draw_obj():
             float lerplightintensity = (lightIntensity - minIntensityThreshold) / max(const_less_val, (maxIntensityThreshold - minIntensityThreshold));
             lightIntensity = clamp(lerplightintensity,0.0,1.0);
 
-            vec4 lit = DiffuseColor * color_linearlize(texture(MainTexture,mainUV));
-            vec4 shade = ShadeColor * color_linearlize(texture(ShadeTexture,mainUV));
+            vec4 lit = color_linearlize(DiffuseColor) * color_linearlize(texture(MainTexture,mainUV));
+            vec4 shade = color_linearlize(ShadeColor) * color_linearlize(texture(ShadeTexture,mainUV));
             vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
 
             output_color = albedo;
@@ -429,7 +429,7 @@ class glsl_draw_obj():
             //未実装@ Directlightcolor
 
             //parametric rim
-            vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * RimColor.rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
+            vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
             output_color += p_rim_color;
             //matcap
             vec4 view_normal = normalWorldToViewMatrix * vec4(mod_n,1);
@@ -437,7 +437,7 @@ class glsl_draw_obj():
             output_color += matcap_color.rgb;
 
             //emission
-            vec3 emission = color_linearlize(texture(Emission_Texture,mainUV)).rgb * EmissionColor.rgb;
+            vec3 emission = color_linearlize(texture(Emission_Texture,mainUV)).rgb * color_linearlize(EmissionColor).rgb;
             output_color += emission;
 
 
