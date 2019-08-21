@@ -298,16 +298,16 @@ class Glb_obj():
 				keyword_map["MTOON_OUTLINE_WIDTH_SCREEN"] = WIDTH_SCREEN
 				keyword_map["MTOON_OUTLINE_COLOR_FIXED"] = COLOR_FIXED
 				keyword_map["MTOON_OUTLINE_COLOR_MIXED"] = COLOR_MIXED
-			if outline_width_mode == 0:
+			if outline_width_mode < 1:
 				outline_keyword_set(False,False,False,False)
-			elif outline_width_mode == 1:
-				if outline_color_mode == 0:
+			elif outline_width_mode < 2:
+				if outline_color_mode < 1:
 					outline_keyword_set(True,False,True,False)
 				else:
 					outline_keyword_set(True,False,False,True)
 
-			elif outline_width_mode == 2:
-				if outline_color_mode == 0:
+			elif outline_width_mode >= 2:
+				if outline_color_mode < 1:
 					outline_keyword_set(False,True,True,False)
 				else:
 					outline_keyword_set(False,True,False,True)
