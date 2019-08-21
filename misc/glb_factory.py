@@ -534,7 +534,7 @@ class Glb_obj():
 				try:
 					node_id = node_id_dic[node_name]
 					joint_id = self.json_dic["skins"][0]["joints"].index(node_id)
-				except ValueError:
+				except (ValueError, KeyError):
 					joint_id = -1 #存在しないボーンを指してる場合は-1を返す
 					print(f"{node_name} bone may be not exist")
 				return joint_id
@@ -636,20 +636,23 @@ class Glb_obj():
 						magic = 0
 						joints = [magic,magic,magic,magic]
 						weights = [0.0, 0.0, 0.0, 0.0]
-						if len(mesh.data.vertices[loop.vert.index].groups) >= 5:
-							print("vertex weights are less than 4 in {}".format(mesh.name))
-							raise Exception
+						weight_count = 0
 						for v_group in mesh.data.vertices[loop.vert.index].groups:
 							joint_id = joint_id_from_node_name_solver(v_group_name_dic[v_group.group])
 							if joint_id == -1:#存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
 								continue			
+							weight_count += 1
 							weights.pop(3)
 							weights.insert(0,v_group.weight)
 							joints.pop(3)
 							joints.insert(0,joint_id)
+							if weight_count >= 4:
+								break
 						nomalize_fact = sum(weights)
+						if nomalize_fact != 0:
+							nomalize_fact = 1/nomalize_fact
 						try:
-							weights = [weights[i]/nomalize_fact for i in range(4)]
+							weights = [weights[i]*nomalize_fact for i in range(4)]
 						except ZeroDivisionError :#validationではじけてるはず…
 							print(f"No weight on vertex id:{loop.vert.index} in: {mesh.name}") 
 							raise ZeroDivisionError

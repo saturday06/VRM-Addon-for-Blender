@@ -191,7 +191,11 @@ class VRM_VALIDATOR(bpy.types.Operator):
             
         used_image = []
         used_material_set = set()
+        bones_name = []
+        if armature is not None:
+            bones_name = [b.name for b in armature.data.bones]
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
+            mesh_vetex_group_names = [g.name for g in mesh.vertex_groups]
             for mat in mesh.data.materials:
                 used_material_set.add(mat)
             for v in mesh.data.vertices:
@@ -201,10 +205,16 @@ class VRM_VALIDATOR(bpy.types.Operator):
                         f"{mesh.name}の頂点、id：{v.index} にウェイトが乗っていません。"
                         ))
                 elif len(v.groups) >= 5:
-                    messages.add(lang_support(
-                        f"vertex id {v.index} has too many(over 4) weight in {mesh.name}",
-                        f"{mesh.name} の頂点id {v.index} に影響を与えるボーンが5以上あります。4つ以下にしてください"
-                    ))
+                    if armature is not None:
+                        weight_count  = 0
+                        for g in v.groups:
+                            if mesh_vetex_group_names[g.group] in bones_name:
+                                weight_count += 1
+                        if weight_count > 4:
+                            messages.add(lang_support(
+                                f"vertex id {v.index} has too many(over 4) weight in {mesh.name}",
+                                f"{mesh.name} の頂点id {v.index} に影響を与えるボーンが5以上あります。4つ以下にしてください"
+                            ))
         for mat in used_material_set:
             for node in mat.node_tree.nodes:
                 if node.type =="OUTPUT_MATERIAL" \
