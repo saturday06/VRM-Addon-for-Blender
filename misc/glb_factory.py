@@ -8,7 +8,7 @@ from .glb_bin_collector import Glb_bin_collection, Image_bin, Glb_bin
 from ..gl_const import GL_CONSTANS
 from .. import V_Types as VRM_types
 from collections import OrderedDict
-from math import pow
+from math import pow,ceil
 from mathutils import Matrix as bMatrix
 import json
 import struct
@@ -291,8 +291,10 @@ class Glb_obj():
 					MToon_float_dic[float_key] = float_val
 					if float_key == "OutlineWidthMode":
 						outline_width_mode = float_prop
+						MToon_float_dic[float_key] = min(max(ceil(float_val),0),2)
 					if float_key == "OutlineColorMode":
 						outline_color_mode = float_prop
+						MToon_float_dic[float_key] = min(max(ceil(float_val),0),1)
 			def outline_keyword_set(WIDTH_WORLD,WIDTH_SCREEN,COLOR_FIXED,COLOR_MIXED):
 				keyword_map["MTOON_OUTLINE_WIDTH_WORLD"] = WIDTH_WORLD
 				keyword_map["MTOON_OUTLINE_WIDTH_SCREEN"] = WIDTH_SCREEN
