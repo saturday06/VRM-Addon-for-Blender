@@ -410,7 +410,7 @@ class glsl_draw_obj():
             mod_n = normalize(mod_n);
             // Decide albedo color rate from Direct Light
             float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
-            float lightIntensity = dot(light_dir , mod_n);
+            float lightIntensity = dot(light_dir , n);
             lightIntensity = lightIntensity * 0.5 + 0.5;
             lightIntensity = lightIntensity * is_shine;
             lightIntensity = lightIntensity * shadingGrade;
@@ -449,10 +449,18 @@ class glsl_draw_obj():
                     discard;
                     }
                 if (OutlineColorMode==0){
-                    gl_FragColor = color_sRGBlize(OutlineColor + debug_unused_vec4);
+                    gl_FragColor = color_sRGBlize(color_linearlize(OutlineColor) + debug_unused_vec4);
                 }
                 else{
-                    gl_FragColor = color_sRGBlize( vec4(OutlineColor.rgb * mix(vec3(1.0),outline_col,OutlineLightingMix),1) );
+                    gl_FragColor = color_sRGBlize(
+                        vec4(
+                            color_linearlize(OutlineColor).rgb * 
+                            color_linearlize(
+                                vec4(mix(vec3(1.0),outline_col,OutlineLightingMix),1)
+                            ).rgb
+                            ,1
+                        )
+                    );
                 }
             }
         }
