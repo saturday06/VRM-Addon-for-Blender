@@ -547,12 +547,11 @@ class glsl_draw_obj():
             st = tmp_mesh.uv_layers[0].data
             for tri in tmp_mesh.loop_triangles:
                 for lo in tri.loops:
-                    scene_mesh.uvs.append([st[lo].uv[0],st[lo].uv[1]])
+                    scene_mesh.uvs.append(st[lo].uv)
                     scene_mesh.tangents.append(tmp_mesh.loops[lo].tangent)
                 for vid in tri.vertices:
-                    co = list(tmp_mesh.vertices[vid].co)
-                    scene_mesh.pos.append(co)
-                    scene_mesh.normals.append(list(tmp_mesh.vertices[vid].normal))   
+                    scene_mesh.pos.append(tmp_mesh.vertices[vid].co)
+                    scene_mesh.normals.append(tmp_mesh.vertices[vid].normal)   
                 key_mat = self.materials[obj.material_slots[tri.material_index].material.name] 
                 if key_mat in scene_mesh.index_per_mat.keys():
                     scene_mesh.index_per_mat[key_mat].append([vertex_count,vertex_count+1,vertex_count+2])
