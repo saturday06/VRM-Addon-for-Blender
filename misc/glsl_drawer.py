@@ -539,7 +539,6 @@ class glsl_draw_obj():
         for obj in self.objs:
             if  self.draw_x_offset < obj.bound_box[4][0]*2:
                 self.draw_x_offset = obj.bound_box[4][0]*2
-            vertex_count = 0
             scene_mesh = Gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
