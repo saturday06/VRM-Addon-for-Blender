@@ -322,6 +322,9 @@ class glsl_draw_obj():
                     linear_color[i] = pow((linear_color[i]+0.055)/1.055,2.4);
                 }
             }
+            for(int i = 0;i<3;i++){
+                linear_color[i]=pow(color[i],2.2);
+            }
             return linear_color;
         }
         vec4 color_sRGBlize(vec4 color){
@@ -333,6 +336,9 @@ class glsl_draw_obj():
                 else{
                     sRGB_color[i] = 1.055 * pow(sRGB_color[i],1.0/2.4) - 0.055;
                 }
+            }
+            for(int i = 0;i<3;i++){
+                sRGB_color[i]=pow(color[i],1/2.2);
             }
             return sRGB_color;
 
@@ -397,9 +403,9 @@ class glsl_draw_obj():
             float is_shine= 1;
 
             vec3 output_color = vec3(0,0,0);
-            float shadow_bias = 0.2*tan(acos(dot(n,light_dir)));
+            float shadow_bias = 0.02*tan(acos(dot(n,light_dir)));
             if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
-                is_shine = 0.1;
+                is_shine = 0.5;
             }
 
             vec3 mod_n = n;
@@ -408,9 +414,11 @@ class glsl_draw_obj():
                 mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
             }
             mod_n = normalize(mod_n);
+            float dotNL = dot(light_dir , n);
+
             // Decide albedo color rate from Direct Light
             float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
-            float lightIntensity = dot(light_dir , n);
+            float lightIntensity = dotNL;
             lightIntensity = lightIntensity * 0.5 + 0.5;
             lightIntensity = lightIntensity * is_shine;
             lightIntensity = lightIntensity * shadingGrade;
@@ -426,7 +434,18 @@ class glsl_draw_obj():
 
             output_color = albedo;
             outline_col = albedo;
-            //未実装@ Directlightcolor
+            
+            //Direct light
+            vec3 lighting = vec3(1.0);//light color
+            lighting = mix( lighting,
+                            vec3(max(const_less_val,max(lighting.r,max(lighting.g,lighting.b)))),
+                            LightColorAttenuation);
+            //lighting *= min(0,dotNL) +1;
+            //lighting *= is_shine;
+            output_color *= lighting;
+            outline_col *= lighting;
+
+            //未実装＠Indirect Light
 
             //parametric rim
             vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
