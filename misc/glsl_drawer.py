@@ -545,17 +545,19 @@ class glsl_draw_obj():
             tmp_mesh.calc_tangents()
             tmp_mesh.calc_loop_triangles()
             st = tmp_mesh.uv_layers[0].data
-            for tri in tmp_mesh.loop_triangles:
-                scene_mesh.uvs.extend([st[lo].uv for lo in tri.loops])
-                scene_mesh.tangents.extend([tmp_mesh.loops[lo].tangent for lo in tri.loops])
-                scene_mesh.pos.extend([tmp_mesh.vertices[vid].co for vid in tri.vertices])
-                scene_mesh.normals.extend([tmp_mesh.vertices[vid].normal for vid in tri.vertices])   
-                key_mat = self.materials[obj.material_slots[tri.material_index].material.name] 
-                if key_mat in scene_mesh.index_per_mat.keys():
-                    scene_mesh.index_per_mat[key_mat].append([vertex_count,vertex_count+1,vertex_count+2])
-                else:
-                    scene_mesh.index_per_mat[key_mat] = [[vertex_count,vertex_count+1,vertex_count+2]]
-                vertex_count +=3
+            scene_mesh.uvs = [st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops]
+            scene_mesh.tangents = [tmp_mesh.loops[lo].tangent for tri in tmp_mesh.loop_triangles for lo in tri.loops]
+            scene_mesh.pos = [tmp_mesh.vertices[vid].co for tri in tmp_mesh.loop_triangles for vid in tri.vertices]
+            scene_mesh.normals =[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices]
+            scene_mesh.index_per_mat = {self.materials[ms.material.name]:[] for ms in obj.material_slots}
+            scene_mesh.index_per_mat = { k:[[n*3,n*3+1,n*3+2] for n,tri in enumerate(tmp_mesh.loop_triangles) if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys()) }
+
+            unneed_mat = []
+            for k in scene_mesh.index_per_mat.keys():
+                if len(scene_mesh.index_per_mat[k])==0:
+                    unneed_mat.append(k)
+            for k in unneed_mat:
+                del scene_mesh.index_per_mat[k]
             self.scene_meshes.append(scene_mesh)
         self.build_batches()
         return
