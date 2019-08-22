@@ -4,6 +4,7 @@ import bgl
 
 from mathutils import Matrix,Vector,Euler
 from math import sqrt,radians
+import collections 
 from gpu_extras.batch import batch_for_shader
 from .. import V_Types
 
@@ -545,12 +546,15 @@ class glsl_draw_obj():
             tmp_mesh.calc_tangents()
             tmp_mesh.calc_loop_triangles()
             st = tmp_mesh.uv_layers[0].data
-            scene_mesh.pos = [tmp_mesh.vertices[vid].co for tri in tmp_mesh.loop_triangles for vid in tri.vertices]
-            scene_mesh.normals =[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices]
-            scene_mesh.uvs = [st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops]
-            scene_mesh.tangents = [tmp_mesh.loops[lo].tangent for tri in tmp_mesh.loop_triangles for lo in tri.loops]
-            scene_mesh.index_per_mat = [self.materials[ms.material.name]for ms in obj.material_slots]
-            scene_mesh.index_per_mat = { k:[(n*3,n*3+1,n*3+2) for n,tri in enumerate(tmp_mesh.loop_triangles) if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat) }
+            
+            scene_mesh.index_per_mat = [self.materials[ms.material.name] for ms in obj.material_slots]
+            count_list = collections.Counter([tri.material_index for tri in tmp_mesh.loop_triangles])
+            scene_mesh.index_per_mat = { scene_mesh.index_per_mat[i]:[(n*3,n*3+1,n*3+2) for n in range(v)] for i,v in count_list.items() }
+            scene_mesh.pos = { k:[tmp_mesh.vertices[vid].co for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index==i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            scene_mesh.normals = {k:[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index == i]for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            scene_mesh.uvs = {k:[st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            scene_mesh.tangents = {k:[tmp_mesh.loops[lo].tangent for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+
 
             unneed_mat = []
             for k in scene_mesh.index_per_mat.keys():
@@ -580,15 +584,15 @@ class glsl_draw_obj():
         for scene_mesh in self.scene_meshes:
             for mat, vert_indices in scene_mesh.index_per_mat.items():
                 toon_batch = batch_for_shader(self.toon_shader, 'TRIS', {
-                    "position": scene_mesh.pos,
-                    "normal":scene_mesh.normals,
-                    "rawtangent":scene_mesh.tangents,
-                    "rawuv":scene_mesh.uvs
+                    "position": scene_mesh.pos[mat],
+                    "normal":scene_mesh.normals[mat],
+                    "rawtangent":scene_mesh.tangents[mat],
+                    "rawuv":scene_mesh.uvs[mat]
                     },
                     indices = vert_indices
                 )
                 depth_batch = batch_for_shader(self.depth_shader, 'TRIS', {
-                    "position": scene_mesh.pos
+                    "position": scene_mesh.pos[mat]
                     },
                     indices = vert_indices
                 )            
