@@ -9,8 +9,8 @@ from .. import V_Types
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):
     bl_idname = "vrm.model_draw"
-    bl_label = "(InDev not working )Draw VRM model"
-    bl_description = "Draw selected with GLSL"
+    bl_label = "Preview MToon"
+    bl_description = "Draw selected with MToon of GLSL"
     bl_options = {'REGISTER'}
 
     def execute(self,context):
@@ -19,8 +19,8 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):
         return {"FINISHED"}
 class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
     bl_idname = "vrm.model_draw_remove"
-    bl_label = "(InDev not working ) remove Draw VRM model"
-    bl_description = "Draw selected with GLSL"
+    bl_label = "remove MToon preview"
+    bl_description = "remove draw function"
     bl_options = {'REGISTER'}
 
     def execute(self,context):
@@ -398,15 +398,8 @@ class glsl_draw_obj():
             vec4 col = texture(MainTexture, mainUV);
             if (is_cutout == 1 && col.a * DiffuseColor.a < CutoffRate) discard;
             
-            vec3 outline_col = col.rgb;
-
-            float is_shine= 1;
-
             vec3 output_color = vec3(0,0,0);
-            float shadow_bias = 0.02*tan(acos(dot(n,light_dir)));
-            if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
-                is_shine = 0.5;
-            }
+            vec3 outline_col = col.rgb;
 
             vec3 mod_n = n;
             vec3 normalmap = texture(NomalmapTexture,mainUV).rgb *2 -1;
@@ -415,6 +408,15 @@ class glsl_draw_obj():
             }
             mod_n = normalize(mod_n);
             float dotNL = dot(light_dir , n);
+
+
+            float is_shine= dotNL;
+            float shadow_bias = 0.02*tan(acos(dot(n,light_dir)));
+            if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
+                is_shine = min(0.5,dotNL);
+            }
+
+
 
             // Decide albedo color rate from Direct Light
             float shadingGrade = 1 - ShadingGradeRate * (1.0 - texture(ShadingGradeTexture,mainUV).r);
@@ -604,7 +606,7 @@ class glsl_draw_obj():
         else:
             self = glsl_draw_obj.myinstance
         model_offset = Matrix.Translation((self.draw_x_offset,0,0))
-
+        light_pos = [i + n for i,n in zip(self.light.location , [-self.draw_x_offset,0,0])]
         batchs = self.batchs
         depth_shader = self.depth_shader
         toon_shader = self.toon_shader
@@ -708,7 +710,7 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("viewDirection", view_dir)
                 toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
-                toon_shader.uniform_float("lightpos", self.light.location)
+                toon_shader.uniform_float("lightpos", light_pos)
                 toon_shader.uniform_float("aspect",aspect)
                 toon_shader.uniform_float("is_outline", is_outline)
                 
