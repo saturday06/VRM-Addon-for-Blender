@@ -516,10 +516,13 @@ class glsl_draw_obj():
     materials = None
     myinstance = None
     draw_objs = []
+    shadowmap_res = 2048
     draw_x_offset = 0.3
+    bounding_center = [0,0,0]
+    bounding_size = [1,1,1]
     def __init__(self):
         glsl_draw_obj.myinstance = self
-        self.offscreen = gpu.types.GPUOffScreen(2048,2048)
+        self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res,self.shadowmap_res)
         self.materials = {}
     scene_meshes = None
     def build_scene(scene=None,*args):
@@ -539,6 +542,15 @@ class glsl_draw_obj():
         for obj in self.objs:
             if  self.draw_x_offset < obj.bound_box[4][0]*2:
                 self.draw_x_offset = obj.bound_box[4][0]*2
+            bounding_box_xyz = [[1,1,1],[-1,-1,-1]]
+            for point in obj.bound_box:
+                for i,xyz in enumerate(point):
+                    if bounding_box_xyz[0][i] < xyz:
+                         bounding_box_xyz[0][i] = xyz
+                    if bounding_box_xyz[1][i] > xyz:
+                         bounding_box_xyz[1][i] = xyz
+            self.bounding_center = [(i+n)/2 for i,n in zip(bounding_box_xyz[0],bounding_box_xyz[1])]
+            self.bounding_size = [i-n for i,n in zip(bounding_box_xyz[0],bounding_box_xyz[1])]
             scene_mesh = Gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
@@ -652,15 +664,15 @@ class glsl_draw_obj():
                 light = self.light
                 light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
                 #TODO このへん
-                loc = [0,0,0]
+                loc = model_offset @ Vector(self.bounding_center)
                 tar = light_lookat.normalized()
                 up = light.rotation_euler.to_quaternion() @ Vector((0,1,0))
                 v_matrix = lookat_cross(loc,tar,up)
-                const_proj = 0.3
+                const_proj = max(self.bounding_size)/2
                 p_matrix = ortho_proj_mat(
-                    -const_proj*10, 10*const_proj,
-                    -const_proj*10, 10*const_proj,
-                    -const_proj*10, const_proj*10)        
+                    -const_proj, const_proj,
+                    -const_proj, const_proj,
+                    -const_proj, const_proj)        
                 depth_matrix = v_matrix @ p_matrix #reuse in main shader
                 depth_matrix.transpose()
                 depth_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
@@ -813,7 +825,8 @@ def lookat_cross(loc,tar,up):
     l = Vector(loc)
     t = Vector(tar)
     u = Vector(up)
-    z = l-t
+    #z = l-t
+    z = -t # 注視点ではなく、注視方角だからこう
     z.normalize()
     x = u.cross(z)
     x.normalize()
