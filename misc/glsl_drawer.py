@@ -538,7 +538,7 @@ class glsl_draw_obj():
                     self.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
 
         self.scene_meshes = []
-        
+        self.draw_x_offset = 0
         for obj in self.objs:
             if  self.draw_x_offset < obj.bound_box[4][0]*2:
                 self.draw_x_offset = obj.bound_box[4][0]*2
