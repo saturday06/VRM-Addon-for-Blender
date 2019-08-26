@@ -414,7 +414,7 @@ class glsl_draw_obj():
             float is_shine= dotNL;
             float shadow_bias = 0.02*tan(acos(dot(n,light_dir)));
             if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
-                is_shine = min(0.5,dotNL);
+                is_shine = min(0,dotNL);
             }
 
 
@@ -451,10 +451,10 @@ class glsl_draw_obj():
             //未実装＠Indirect Light
 
             //parametric rim
-            vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
+            vec3 p_rim_color = pow(clamp(1.0-dot(n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
             output_color += p_rim_color;
             //matcap
-            vec4 view_normal = normalWorldToViewMatrix * vec4(mod_n,1);
+            vec4 view_normal = normalWorldToViewMatrix * vec4(n,1);
             vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
             output_color += matcap_color.rgb;
 
