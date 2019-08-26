@@ -631,7 +631,7 @@ class glsl_draw_obj():
 
         #region shader depth path
         with offscreen.bind():
-            bgl.glClearColor(0,0,0,1)
+            bgl.glClearColor(10,10,10,1)
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
             for bat in batchs:
                 mat = bat[0]
@@ -759,12 +759,16 @@ class glsl_draw_obj():
 
                 bgl.glActiveTexture(bgl.GL_TEXTURE0)
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
+                bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE) #TODO 
+                bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE)
                 toon_shader.uniform_int("depth_image",0)
 
                 for i,k in enumerate(mat.texture_dic.keys()):
                     bgl.glActiveTexture(bgl.GL_TEXTURE1 + i)
                     texture = mat.texture_dic[k]
                     bgl.glBindTexture(bgl.GL_TEXTURE_2D,texture.bindcode)
+                    bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE) #TODO 
+                    bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE)
                     toon_shader.uniform_int(k , 1 + i)
 
                 toon_bat.draw(toon_shader)
