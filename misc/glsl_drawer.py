@@ -642,8 +642,8 @@ class glsl_draw_obj():
                 bgl.glEnable(bgl.GL_BLEND)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                    bgl.glDepthMask(bgl.GL_FALSE)
-                    bgl.glDisable(bgl.GL_DEPTH_TEST)
+                    bgl.glDepthMask(bgl.GL_TRUE)
+                    bgl.glEnable(bgl.GL_DEPTH_TEST)
                 elif mat.alpha_method =="OPAQUE" :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
@@ -668,7 +668,7 @@ class glsl_draw_obj():
                 tar = light_lookat.normalized()
                 up = light.rotation_euler.to_quaternion() @ Vector((0,1,0))
                 v_matrix = lookat_cross(loc,tar,up)
-                const_proj = max(self.bounding_size)/2
+                const_proj = 2*max(self.bounding_size)/2
                 p_matrix = ortho_proj_mat(
                     -const_proj, const_proj,
                     -const_proj, const_proj,
