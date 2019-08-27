@@ -296,7 +296,7 @@ class glsl_draw_obj():
         uniform vec4 RimColor;
         uniform vec4 OutlineColor;
 
-        uniform sampler2D depth_image;
+        uniform sampler2DShadow depth_image;
         uniform sampler2D MainTexture ;
         uniform sampler2D ShadeTexture ;
         uniform sampler2D NomalmapTexture ;
@@ -369,7 +369,7 @@ class glsl_draw_obj():
                                     +OutlineColorMode
                                     );
             vec4 debug_unused_tex = 
-                            texture( depth_image,uv) +
+                            //texture( depth_image,uv) +
                             texture( MainTexture,uv) +
                             texture( ShadeTexture,uv) +
                             texture( NomalmapTexture,uv) +
@@ -413,8 +413,8 @@ class glsl_draw_obj():
 
             float is_shine= dotNL;
             float shadow_bias = 0.02*tan(acos(dot(n,light_dir)));
-            if (texture(depth_image,shadowCoord.xy).z < shadowCoord.z - shadow_bias){
-                is_shine = min(0,dotNL);
+            if (texture(depth_image,shadowCoord.xyz) < shadowCoord.z - shadow_bias){
+                is_shine = 0;
             }
 
 
