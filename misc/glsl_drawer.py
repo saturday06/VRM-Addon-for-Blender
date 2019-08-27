@@ -629,6 +629,25 @@ class glsl_draw_obj():
         #need bone etc changed only update
         depth_matrix = None
 
+        light = self.light
+        light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
+        #TODO このへん
+        tar = light_lookat.normalized()
+        up = light.rotation_euler.to_quaternion() @ Vector((0,1,0))
+        tmp_bound_len = Vector(self.bounding_center).length
+        camera_bias = 0.2
+        loc = Vector([self.bounding_center[i] + tar[i] * (tmp_bound_len + camera_bias) for i in range(3)])
+
+        loc = model_offset @ loc
+        v_matrix = lookat_cross(loc,tar,up)
+        const_proj = 2*max(self.bounding_size)/2
+        p_matrix = ortho_proj_mat(
+            -const_proj, const_proj,
+            -const_proj, const_proj,
+            -const_proj, const_proj)        
+        depth_matrix = v_matrix @ p_matrix #reuse in main shader
+        depth_matrix.transpose()
+
         #region shader depth path
         with offscreen.bind():
             bgl.glClearColor(10,10,10,1)
@@ -661,20 +680,7 @@ class glsl_draw_obj():
                 bgl.glEnable(bgl.GL_CULL_FACE) #そも輪郭線がの影は落ちる？
                 bgl.glCullFace(bgl.GL_BACK) 
 
-                light = self.light
-                light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
-                #TODO このへん
-                loc = model_offset @ Vector(self.bounding_center)
-                tar = light_lookat.normalized()
-                up = light.rotation_euler.to_quaternion() @ Vector((0,1,0))
-                v_matrix = lookat_cross(loc,tar,up)
-                const_proj = 2*max(self.bounding_size)/2
-                p_matrix = ortho_proj_mat(
-                    -const_proj, const_proj,
-                    -const_proj, const_proj,
-                    -const_proj, const_proj)        
-                depth_matrix = v_matrix @ p_matrix #reuse in main shader
-                depth_matrix.transpose()
+ 
                 depth_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
