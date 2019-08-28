@@ -501,7 +501,6 @@ class Blend_model():
                     break
 
             if hasattr(pymesh,"NORMAL"):
-                b_mesh.use_auto_smooth = True
                 b_mesh.normals_split_custom_set_from_vertices(pymesh.NORMAL)
             #material適用
             obj.data.materials.append(self.material_dict[pymesh.material_index])
