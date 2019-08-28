@@ -562,10 +562,12 @@ class glsl_draw_obj():
             count_list = collections.Counter([tri.material_index for tri in tmp_mesh.loop_triangles])
             scene_mesh.index_per_mat = { scene_mesh.index_per_mat[i]:[(n*3,n*3+1,n*3+2) for n in range(v)] for i,v in count_list.items() }
             scene_mesh.pos = { k:[tmp_mesh.vertices[vid].co for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index==i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
-            scene_mesh.normals = {k:[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index == i]for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            if tmp_mesh.has_custom_normals:
+                scene_mesh.normals = {k:[tri.split_normals[x] for tri in tmp_mesh.loop_triangles if tri.material_index == i for x in range(3)] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            else:
+                scene_mesh.normals = {k:[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index == i]for i,k in enumerate(scene_mesh.index_per_mat.keys())}
             scene_mesh.uvs = {k:[st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
             scene_mesh.tangents = {k:[tmp_mesh.loops[lo].tangent for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
-
 
             unneed_mat = []
             for k in scene_mesh.index_per_mat.keys():
