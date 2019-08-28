@@ -199,7 +199,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
             for mat in mesh.data.materials:
                 used_material_set.add(mat)
             for v in mesh.data.vertices:
-                if len(v.groups) == 0:
+                if len(v.groups) == 0 and mesh.parent_bone == "":
                     messages.add(lang_support(
                         f"vertex id {v.index} is no weight in {mesh.name}",
                         f"{mesh.name}の頂点、id：{v.index} にウェイトが乗っていません。"

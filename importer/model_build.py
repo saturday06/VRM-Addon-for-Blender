@@ -500,6 +500,9 @@ class Blend_model():
                 else:
                     break
 
+            if hasattr(pymesh,"NORMAL"):
+                b_mesh.use_auto_smooth = True
+                b_mesh.normals_split_custom_set_from_vertices(pymesh.NORMAL)
             #material適用
             obj.data.materials.append(self.material_dict[pymesh.material_index])
             
@@ -668,9 +671,6 @@ class Blend_model():
             obj.select_set(True)
             if obj.parent_type == 'BONE':#ボーンにくっ付いて動くのは無視:なんか吹っ飛ぶ髪の毛がいる?
                 bpy.ops.object.transform_apply(rotation=True)
-                print(f"bone parent object {obj.name}")
-                obj.select_set(False)
-                continue
             obj.rotation_mode = "XYZ"
             obj.rotation_euler[0] = numpy.deg2rad(90)
             obj.rotation_euler[2] = numpy.deg2rad(-180)
