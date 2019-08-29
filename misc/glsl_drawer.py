@@ -220,7 +220,7 @@ class glsl_draw_obj():
             if (OutlineWidthMode == 1){// world space outline
                 for (int i = 2 ; i>=0 ; i--){
                     uv = uva[i];
-                    n = na[i]*-1;
+                    n = na[i];
                     tangent = rtangent[i];
                     float outlinewidth_tex = texture(OutlineWidthTexture,uv).r;
                     gl_Position = viewProjectionMatrix * obj_matrix * (posa[i] + vec4(na[i],0)*OutlineWidth*outlinewidth_tex*0.01);
@@ -232,7 +232,7 @@ class glsl_draw_obj():
             else if (OutlineWidthMode == 2){ //screen space outline
                 for (int i = 2 ; i>=0 ; i--){
                     uv = uva[i];
-                    n = na[i]*-1;
+                    n = na[i];
                     tangent = rtangent[i];
                     gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
                     vec3 view_normal = normalize(mat3(normalWorldToViewMatrix) * na[i]);
