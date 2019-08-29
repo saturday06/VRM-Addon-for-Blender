@@ -710,12 +710,8 @@ class glsl_draw_obj():
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                 elif mat.alpha_method =="OPAQUE" :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
-                    bgl.glDepthMask(bgl.GL_TRUE)
-                    bgl.glEnable(bgl.GL_DEPTH_TEST)
                 elif mat.alpha_method =='CLIP' :
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
-                    bgl.glDepthMask(bgl.GL_TRUE)
-                    bgl.glEnable(bgl.GL_DEPTH_TEST)
 
                 if is_outline == 0:
                     if mat.cull_mode == "BACK":
