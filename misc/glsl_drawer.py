@@ -408,7 +408,7 @@ class glsl_draw_obj():
                 mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
             }
             mod_n = normalize(mod_n);
-            float dotNL = dot(light_dir , n);
+            float dotNL = dot(light_dir , mod_n);
 
 
             float is_shine= dotNL;
@@ -451,10 +451,10 @@ class glsl_draw_obj():
             //未実装＠Indirect Light
 
             //parametric rim
-            vec3 p_rim_color = pow(clamp(1.0-dot(n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
+            vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
             output_color += p_rim_color;
             //matcap
-            vec3 view_normal = mat3(normalWorldToViewMatrix) * n;
+            vec3 view_normal = mat3(normalWorldToViewMatrix) * mod_n;
             vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
             output_color += matcap_color.rgb;
 
