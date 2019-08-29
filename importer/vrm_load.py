@@ -182,6 +182,7 @@ def decode_bin(json_data,binary):
 def mesh_read(vrm_pydata):
     #メッシュをパースする
     for n,mesh in enumerate(vrm_pydata.json["meshes"]):
+        primitives = []
         for j,primitive in enumerate(mesh["primitives"]):  
             vrm_mesh = VRM_Types.Mesh()
             vrm_mesh.object_id = n
@@ -250,8 +251,8 @@ def mesh_read(vrm_pydata):
                     morphTarget_point_list_and_accessor_index_dict[morphName] = [posArray,primitive["targets"][i]["POSITION"]]
 
                 vrm_mesh.__setattr__("morphTarget_point_list_and_accessor_index_dict",morphTarget_point_list_and_accessor_index_dict)
-
-            vrm_pydata.meshes.append(vrm_mesh)
+            primitives.append(vrm_mesh)
+        vrm_pydata.meshes.append(primitives)
 
 
     #ここからマテリアル

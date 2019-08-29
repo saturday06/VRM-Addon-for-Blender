@@ -415,20 +415,23 @@ class Blend_model():
 
 
     def make_primitive_mesh_objects(self):
-        self.primitive_obj_dict = {pymesh.object_id:[] for pymesh in self.vrm_pydata.meshes}
+        self.meshes = {}
+        self.primitive_obj_dict = {pymesh[0].object_id:[] for pymesh in self.vrm_pydata.meshes}
         morph_cache_dict = {} #key:tuple(POSITION,targets.POSITION),value:points_data
         #mesh_obj_build
         for pymesh in self.vrm_pydata.meshes:
-            b_mesh = bpy.data.meshes.new(pymesh.name)
-            b_mesh.from_pydata(pymesh.POSITION, [], pymesh.face_indices.tolist())
+            b_mesh = bpy.data.meshes.new(pymesh[0].name)
+            face_index = [tri for prim in pymesh for tri in prim.face_indices]
+            pos = pymesh[0].POSITION
+            b_mesh.from_pydata(pos,[],face_index)
             b_mesh.update()
-            obj = bpy.data.objects.new(pymesh.name, b_mesh)
-            self.primitive_obj_dict[pymesh.object_id].append(obj)
-            #kuso of kuso kakugosiro
+            obj = bpy.data.objects.new(pymesh[0].name, b_mesh)
+            self.meshes[pymesh[0].object_id] = obj
+            #region obj setting
             #origin 0:Vtype_Node 1:mesh 2:skin
             origin = None
             for key_is_node_id,node in self.vrm_pydata.origine_nodes_dict.items():
-                if node[1] == pymesh.object_id:
+                if node[1] == pymesh[0].object_id:
                     obj.location = node[0].position #origin boneの場所に移動
                     if len(node) == 3:
                         origin = node
@@ -446,107 +449,147 @@ class Blend_model():
                         obj.matrix_world =  Matrix.Translation([self.armature.matrix_world.to_translation()[i]  \
                                             + self.armature.data.bones[obj.parent_bone].matrix_local.to_translation()[i] \
                                             + node[0].position[i] for i in range(3)] )
+            scene = self.context.scene
+            scene.collection.objects.link(obj)
+            #endregion obj setting
 
-                        
-
-            
-            # vertex groupの作成
+            #region  vertex groupの作成
             if origin != None:
                 #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
                 nodes_index_list = self.vrm_pydata.skins_joints_list[origin[2]]
                 #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
                 # VertexGroupに頂点属性から一個ずつｳｪｲﾄを入れる用の辞書作り
-                if hasattr(pymesh,"JOINTS_0") and hasattr(pymesh,"WEIGHTS_0"):
-                    vg_dict = { #使うkey(bone名)のvalueを空のリストで初期化（中身まで全部内包表記で？キモすぎるからしない。
-                        self.vrm_pydata.nodes_dict[nodes_index_list[joint_id]].name : list() 
-                            for joint_id in [joint_id for joint_ids in pymesh.JOINTS_0 for joint_id in joint_ids]
-                    }
-                    for v_index,(joint_ids,weights) in enumerate(zip(pymesh.JOINTS_0,pymesh.WEIGHTS_0)):
-                        for joint_id,weight in zip(joint_ids,weights):
-                            node_id = nodes_index_list[joint_id]
-                            #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
-                            vg_dict[self.vrm_pydata.nodes_dict[node_id].name].append([v_index,weight])
-                    vg_list = [] # VertexGroupのリスト
-                    for vg_key in vg_dict.keys():
-                        obj.vertex_groups.new(name=vg_key)
-                        vg_list.append(obj.vertex_groups[-1])
-                    #頂点ﾘｽﾄに辞書から書き込む
-                    for vg in vg_list:
-                        weights = vg_dict[vg.name]
-                        for w in weights:
-                            if w[1] != 0.0:
-                                #頂点はまとめてﾘｽﾄで追加できるようにしかなってない
-                                vg.add([w[0]], w[1], 'REPLACE')
+                for prim in pymesh:
+                    if hasattr(prim,"JOINTS_0") and hasattr(prim,"WEIGHTS_0"):
+                        vg_dict = { #使うkey(bone名)のvalueを空のリストで初期化（中身まで全部内包表記で？キモすぎるからしない。
+                            self.vrm_pydata.nodes_dict[nodes_index_list[joint_id]].name : list() 
+                                for joint_id in [joint_id for joint_ids in prim.JOINTS_0 for joint_id in joint_ids]
+                        }
+                        for v_index,(joint_ids,weights) in enumerate(zip(prim.JOINTS_0,prim.WEIGHTS_0)):
+                            for joint_id,weight in zip(joint_ids,weights):
+                                node_id = nodes_index_list[joint_id]
+                                #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
+                                vg_dict[self.vrm_pydata.nodes_dict[node_id].name].append([v_index,weight])
+                        vg_list = [] # VertexGroupのリスト
+                        for vg_key in vg_dict.keys():
+                            if vg_key not in obj.vertex_groups:                                
+                                obj.vertex_groups.new(name=vg_key)
+                                vg_list.append(obj.vertex_groups[-1])
+                        #頂点ﾘｽﾄに辞書から書き込む
+                        for vg in vg_list:
+                            weights = vg_dict[vg.name]
+                            for w in weights:
+                                if w[1] != 0.0:
+                                    #頂点はまとめてﾘｽﾄで追加できるようにしかなってない
+                                    vg.add([w[0]], w[1], 'REPLACE')    
                 obj.modifiers.new("amt","ARMATURE").object = self.armature
+            #endregion  vertex groupの作成
 
-            #end of kuso
-            scene = self.context.scene
-            scene.collection.objects.link(obj)
+            #region uv
+            flatten_vrm_mesh_vert_index = [ind for prim in pymesh for ind in prim.face_indices.flatten()]
             
-            # uv
-            flatten_vrm_mesh_vert_index = pymesh.face_indices.flatten()
-            texcoord_num = 0
-            while True:
-                channnel_name = "TEXCOORD_" + str(texcoord_num)
-                if hasattr(pymesh,channnel_name):
-                    b_mesh.uv_layers.new(name=channnel_name)
-                    blen_uv_data = b_mesh.uv_layers[channnel_name].data
-                    vrm_texcoord  = getattr(pymesh,channnel_name)
-                    for id,v_index in enumerate(flatten_vrm_mesh_vert_index):
-                        blen_uv_data[id].uv = vrm_texcoord[v_index]
-                        #blender axisnaize(上下反転)
-                        blen_uv_data[id].uv[1] = blen_uv_data[id].uv[1] * -1 + 1
-                    texcoord_num += 1
-                else:
-                    break
+            for prim in pymesh:
+                texcoord_num = 0
+                uv_flag = True
+                while uv_flag:
+                    channnel_name = "TEXCOORD_" + str(texcoord_num)
+                    if hasattr(prim,channnel_name):
+                        if channnel_name not in b_mesh.uv_layers:
+                            b_mesh.uv_layers.new(name=channnel_name)
+                        blen_uv_data = b_mesh.uv_layers[channnel_name].data
+                        vrm_texcoord  = getattr(prim,channnel_name)
+                        for id,v_index in enumerate(flatten_vrm_mesh_vert_index):
+                            blen_uv_data[id].uv = vrm_texcoord[v_index]
+                            #blender axisnaize(上下反転)
+                            blen_uv_data[id].uv[1] = blen_uv_data[id].uv[1] * -1 + 1
+                        texcoord_num += 1
+                    else:
+                        uv_flag = False
+                        break
+            #endregion uv
 
-            if hasattr(pymesh,"NORMAL"):
-                b_mesh.normals_split_custom_set_from_vertices(pymesh.NORMAL)
-            #material適用
-            obj.data.materials.append(self.material_dict[pymesh.material_index])
-            
-            #vertex_color　なぜかこれだけ面基準で、loose verts and edgesに色は塗れない
+            #region Normal
+            for prim in pymesh:
+                if hasattr(prim,"NORMAL"):
+                    b_mesh.normals_split_custom_set_from_vertices(prim.NORMAL)
+            #endregion Normal
+
+
+            #region material適用 #TODO
+            face_lengh = 0
+            for prim in pymesh:
+                if self.material_dict[prim.material_index].name not in obj.data.materials:
+                    obj.data.materials.append(self.material_dict[prim.material_index])
+                mat_index = 0
+                for i,mat in enumerate(obj.material_slots):
+                    if mat.material.name == self.material_dict[prim.material_index].name:
+                        mat_index = i
+                tris = len(prim.face_indices)
+                for n in range(tris):
+                    b_mesh.polygons[face_lengh + n].material_index = mat_index
+                face_lengh = face_lengh + tris
+
+            #endregion material適用
+
+            #region vertex_color　
+            #なぜかこれだけ面基準で、loose verts and edgesに色は塗れない
             #また、2.79では頂点カラーにalpha（４要素目）がないから完全対応は無理だったが
             #2.80では4要素になった模様
             #TODO: テスト (懸案：cleaningで頂点結合でデータ物故割れる説)
-            vcolor_count = 0
-            while True:
-                vc_color_name = f"COLOR_{vcolor_count}"
-                if hasattr(pymesh,vc_color_name):
-                    vc = b_mesh.vertex_colors.new(name = vc_color_name)
-                    for v_index,col in enumerate(vc.data):
-                        vc.data[v_index].color = getattr(pymesh,vc_color_name)[flatten_vrm_mesh_vert_index[v_index]]
-                    vcolor_count += 1
-                else:
-                    break
 
+            for prim in pymesh:
+                vcolor_count = 0
+                vc_flag = True
+                while vc_flag:
+                    vc_color_name = f"COLOR_{vcolor_count}"
+                    if hasattr(prim,vc_color_name):
+                        vc = None
+                        if vc_color_name in b_mesh.vertex_colors:
+                            vc = b_mesh.vertex_colors[vc_color_name]
+                        else:
+                            vc = b_mesh.vertex_colors.new(name = vc_color_name)
+                        for v_index,col in enumerate(vc.data):
+                            vc.data[v_index].color = getattr(pymesh,vc_color_name)[flatten_vrm_mesh_vert_index[v_index]]
+                        vcolor_count += 1
+                    else:
+                        vc_flag = False
+                        break
+            #endregion vertex_color　
+
+            #region shape_key
             #shapekey_data_factory with cache
-            def absolutaize_morph_Positions(basePoints,morphTargetpos_and_index):
+            def absolutaize_morph_Positions(basePoints,morphTargetpos_and_index,prim):
                 shape_key_Positions = []
                 morphTargetpos = morphTargetpos_and_index[0]
                 morphTargetindex = morphTargetpos_and_index[1]
 
                 #すでに変換したことがあるならそれを使う
-                if (pymesh.POSITION_accessor,morphTargetindex) in morph_cache_dict.keys():
-                    return morph_cache_dict[(pymesh.POSITION_accessor,morphTargetindex)]
+                if (prim.POSITION_accessor,morphTargetindex) in morph_cache_dict.keys():
+                    return morph_cache_dict[(prim.POSITION_accessor,morphTargetindex)]
 
                 for basePos,morphPos in zip(basePoints,morphTargetpos):
                     #numpy.array毎回作るのは見た目きれいだけど8倍くらい遅い
                     shape_key_Positions.append([
                         basePos[i] + morphPos[i] for i in range(3)
                     ])
-                morph_cache_dict[(pymesh.POSITION_accessor,morphTargetindex)] = shape_key_Positions
+                morph_cache_dict[(prim.POSITION_accessor,morphTargetindex)] = shape_key_Positions
                 return shape_key_Positions
                 
             #shapeKeys
-            if hasattr(pymesh,"morphTarget_point_list_and_accessor_index_dict"):
-                obj.shape_key_add(name = "Basis")
-                for morphName,morphPos_and_index in pymesh.morphTarget_point_list_and_accessor_index_dict.items():
-                    obj.shape_key_add(name = morphName)
-                    keyblock = b_mesh.shape_keys.key_blocks[morphName]
-                    shape_data = absolutaize_morph_Positions(pymesh.POSITION,morphPos_and_index)
-                    for i,co in enumerate(shape_data):
-                        keyblock.data[i].co = co
+            for prim in pymesh:
+                if hasattr(prim,"morphTarget_point_list_and_accessor_index_dict"):
+                    if b_mesh.shape_keys is None:
+                        obj.shape_key_add(name = "Basis")
+                    for morphName,morphPos_and_index in prim.morphTarget_point_list_and_accessor_index_dict.items():
+                        if morphName not in b_mesh.shape_keys.key_blocks:
+                            obj.shape_key_add(name = morphName)
+                        keyblock = b_mesh.shape_keys.key_blocks[morphName]
+                        shape_data = absolutaize_morph_Positions(prim.POSITION,morphPos_and_index,prim)
+                        for i,co in enumerate(shape_data):
+                            keyblock.data[i].co = co
+            #endregion shape_key
+
+        return
 
     def attach_vrm_attributes(self):
         VRM_extensions = json_get(self.vrm_pydata.json,["extensions",VRM_Types.VRM],{})
@@ -601,7 +644,7 @@ class Blend_model():
         for bsg in blendShapeGroups_list:
             for bind_dic in bsg["binds"]:
                 bind_dic["index"] = self.vrm_pydata.json["meshes"][bind_dic["mesh"]]["primitives"][0]["extras"]["targetNames"][bind_dic["index"]]
-                bind_dic["mesh"] = self.primitive_obj_dict[bind_dic["mesh"]][0].name
+                bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].name
                 bind_dic["weight"] = bind_dic["weight"] / 100
         write_textblock_and_assgin_to_armature("blendshape_group",blendShapeGroups_list)
         #endregion blendshape_master
@@ -621,33 +664,12 @@ class Blend_model():
         return
 
     def cleaning_data(self):
-        #cleaning
-        bpy.ops.object.mode_set(mode='OBJECT')
+        #collection setting
         bpy.ops.object.select_all(action="DESELECT")
-        for objs in self.primitive_obj_dict.values():
-            for obj in objs:
-                obj.select_set(True)
-                bpy.ops.object.shade_smooth()
-                self.context.view_layer.objects.active = obj
-                bpy.ops.object.mode_set(mode='EDIT')
-                bpy.ops.mesh.delete_loose()
-                bpy.ops.mesh.select_all()
-                #bpy.ops.mesh.remove_doubles(use_unselected= True) #remove hard edge...
-                bpy.ops.object.mode_set(mode='OBJECT')
-                obj.select_set(False)
-
-        #join primitives
-        self.mesh_joined_objects = []
-        bpy.ops.object.select_all(action="DESELECT")
-        for objs in self.primitive_obj_dict.values():
-            self.context.view_layer.objects.active = objs[0]
-            trash_mesh_names = [obj.data.name for obj in objs[1:]]
-            for obj in objs:
-                obj.select_set(True)
-            bpy.ops.object.join()
-            for unused_mesh in [mesh for mesh in bpy.data.meshes if mesh.name in trash_mesh_names]:
-                bpy.data.meshes.remove(unused_mesh)
-            self.mesh_joined_objects.append(self.context.active_object)
+        for obj in self.meshes.values():
+            self.context.view_layer.objects.active = obj
+            obj.select_set(True)
+            bpy.ops.object.shade_smooth()
             self.model_collection.objects.link(self.context.active_object)
             self.context.scene.collection.objects.unlink(self.context.active_object)
             bpy.ops.object.select_all(action="DESELECT")
@@ -665,7 +687,7 @@ class Blend_model():
         bpy.ops.object.transform_apply(location = True,rotation=True)
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action="DESELECT")
-        for obj in self.mesh_joined_objects:
+        for obj in self.meshes.values():
             self.context.view_layer.objects.active = obj
             obj.select_set(True)
             if obj.parent_type == 'BONE':#ボーンにくっ付いて動くのは無視:なんか吹っ飛ぶ髪の毛がいる?
