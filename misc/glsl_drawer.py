@@ -467,9 +467,6 @@ class glsl_draw_obj():
                 gl_FragColor = color_sRGBlize(vec4(output_color,lit.a));
             }
             else{ //is_outline in (1,2)//world or screen
-                if (OutlineWidthMode == 0){
-                    discard;
-                    }
                 if (OutlineColorMode==0){
                     gl_FragColor = color_sRGBlize(color_linearlize(OutlineColor) + debug_unused_vec4);
                 }
@@ -702,6 +699,9 @@ class glsl_draw_obj():
                 toon_bat = bat[1]
                 toon_shader.bind()
                 mat = bat[0]
+
+                if is_outline == 1 and mat.float_dic["OutlineWidthMode"] == 0:
+                    continue
                 #mat.update() #already in depth path
                 bgl.glEnable(bgl.GL_BLEND)
                 bgl.glDepthMask(bgl.GL_TRUE)
