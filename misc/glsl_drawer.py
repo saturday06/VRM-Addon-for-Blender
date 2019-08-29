@@ -235,7 +235,7 @@ class glsl_draw_obj():
                     n = na[i]*-1;
                     tangent = rtangent[i];
                     gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
-                    vec3 view_normal = mat3(normalWorldToViewMatrix) * na[i];
+                    vec3 view_normal = normalize(mat3(normalWorldToViewMatrix) * na[i]);
                     vec3 extend_dir = normalize(mat3(projectionMatrix) * view_normal);
                     extend_dir = extend_dir * min(gl_Position.w, OutlineScaleMaxDistance);
                     extend_dir.y = extend_dir.y * aspect; 
@@ -454,7 +454,7 @@ class glsl_draw_obj():
             vec3 p_rim_color = pow(clamp(1.0-dot(n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
             output_color += p_rim_color;
             //matcap
-            vec4 view_normal = normalWorldToViewMatrix * vec4(n,1);
+            vec3 view_normal = mat3(normalWorldToViewMatrix) * n;
             vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
             output_color += matcap_color.rgb;
 
