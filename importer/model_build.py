@@ -15,9 +15,14 @@ from math import sqrt,pow,radians
 import numpy
 import os.path
 import json,copy
+from collections import defaultdict
 
 class Blend_model():
-    def __init__(self,context,vrm_pydata,is_put_spring_bone_info):
+    def __init__(self,context,vrm_pydata,is_put_spring_bone_info,import_normal,remove_doubles):
+        self.is_put_spring_bone_info = is_put_spring_bone_info
+        self.import_normal = import_normal
+        self.remove_doubles = remove_doubles
+
         self.context = context
         self.vrm_pydata = vrm_pydata
         self.textures = None
@@ -29,10 +34,10 @@ class Blend_model():
         model_name = json_get(self.vrm_pydata.json,["extensions",VRM_Types.VRM,"meta","title"],"vrm_model")
         self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
         self.context.scene.collection.children.link(self.model_collection)
-        self.vrm_model_build(is_put_spring_bone_info)
+        self.vrm_model_build()
 
 
-    def vrm_model_build(self,is_put_spring_bone_info):
+    def vrm_model_build(self):
 
         affected_object = self.scene_init()
         self.texture_load()
@@ -43,7 +48,7 @@ class Blend_model():
         self.attach_vrm_attributes()
         self.cleaning_data()
         self.axis_transform()
-        if is_put_spring_bone_info:
+        if self.is_put_spring_bone_info:
             self.put_spring_bone_info()
         self.finishing(affected_object)
         return 0
@@ -508,14 +513,16 @@ class Blend_model():
                         break
             #endregion uv
 
-            #region Normal
-            for prim in pymesh:
-                if hasattr(prim,"NORMAL"):
-                    b_mesh.normals_split_custom_set_from_vertices(prim.NORMAL)
+            #region Normal #TODO
+            if self.import_normal:
+                for prim in pymesh:
+                    if hasattr(prim,"NORMAL"):
+                        b_mesh.normals_split_custom_set_from_vertices(prim.NORMAL)
+                        b_mesh.use_auto_smooth = True
             #endregion Normal
 
 
-            #region material適用 #TODO
+            #region material適用
             face_lengh = 0
             for prim in pymesh:
                 if self.material_dict[prim.material_index].name not in obj.data.materials:
@@ -589,6 +596,46 @@ class Blend_model():
                             keyblock.data[i].co = co
             #endregion shape_key
 
+            #region vertices_merging
+            if self.remove_doubles:
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.object.select_all(action="DESELECT")
+                self.context.view_layer.objects.active = obj
+                obj.select_set(True)
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.remove_doubles(use_unselected = True)            
+            """
+            bpy.ops.object.mode_set(mode='OBJECT')
+            bpy.ops.object.select_all(action="DESELECT")
+            self.context.view_layer.objects.active = obj
+            obj.select_set(True)
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_mode(type="VERT")
+            pos_ind_dict = defaultdict(list)
+            for vert in b_mesh.vertices:
+                key = tuple([l for l in vert.co])
+                pos_ind_dict[key].append(vert.index)
+            bpy.ops.mesh.select_all(action='DESELECT')
+            same_verts = defaultdict(list)
+            if b_mesh.shape_keys is not None:
+                for pos,vids in pos_ind_dict.items():
+                    for vid in vids:
+                        key = tuple([pos,tuple([tuple([l for l in kb.data[vid].co]) for kb in b_mesh.shape_keys.key_blocks])])
+                        same_verts[key].append(vid)
+            else:
+                same_verts = pos_ind_dict
+
+            for vids in same_verts.values():
+                bpy.ops.object.mode_set(mode = 'OBJECT')
+                if len(vids)>=2:
+                    bpy.types.Scene.icyp_select_helper_select_list = vids
+                    bpy.ops.mesh.icyp_select_helper()
+                    bpy.ops.object.mode_set(mode = 'EDIT')
+            bpy.ops.object.mode_set(mode = 'EDIT') 
+            bpy.ops.mesh.merge(type="COLLAPSE")
+            bpy.ops.mesh.select_all(action='DESELECT')    
+            """
+            #endregion vertices_merging
         return
 
     def attach_vrm_attributes(self):
@@ -665,6 +712,7 @@ class Blend_model():
 
     def cleaning_data(self):
         #collection setting
+        bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action="DESELECT")
         for obj in self.meshes.values():
             self.context.view_layer.objects.active = obj
@@ -738,3 +786,19 @@ class Blend_model():
                 coll.objects.link(obj)
                 
         return 
+
+#DeprecationWarning
+class ICYP_OT_select_helper(bpy.types.Operator):
+    bl_idname = "mesh.icyp_select_helper"
+    bl_label = "VRM importer internal only func"
+    bl_description = "VRM importer internal only"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    bpy.types.Scene.icyp_select_helper_select_list = list()
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode='OBJECT')
+        for vid in bpy.types.Scene.icyp_select_helper_select_list:
+            bpy.context.active_object.data.vertices[vid].select = True
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.types.Scene.icyp_select_helper_select_list = list()    
+        return {'FINISHED'}

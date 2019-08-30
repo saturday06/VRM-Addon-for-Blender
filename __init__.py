@@ -44,7 +44,8 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
     )
 
     is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
-
+    import_normal : bpy.props.BoolProperty(name = "Import Normal(has bug)")
+    remove_doubles : bpy.props.BoolProperty(name = "Remove doubles")
 
     def execute(self, context):
         ui_localization = False
@@ -55,7 +56,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
             pass
 
         fdir = self.filepath
-        model_build.Blend_model(context, vrm_load.read_vrm(fdir), self.is_put_spring_bone_info)
+        model_build.Blend_model(context, vrm_load.read_vrm(fdir), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles)
         
         try:
             if ui_localization is not None:
@@ -69,6 +70,8 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
 def menu_import(self, context):
     op = self.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
     op.is_put_spring_bone_info = True
+    op.import_normal = False
+    op.remove_doubles = True
 
 class ExportVRM(bpy.types.Operator,ExportHelper):
     bl_idname = "export_scene.vrm"
@@ -146,7 +149,8 @@ classes = [
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
-    armature_maker.ICYP_OT_MAKE_ARAMATURE
+    armature_maker.ICYP_OT_MAKE_ARAMATURE,
+    model_build.ICYP_OT_select_helper
 ]
 if bpy.app.build_platform != b'Darwin':
     classes.extend([
