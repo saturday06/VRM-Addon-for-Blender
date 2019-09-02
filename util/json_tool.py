@@ -35,6 +35,6 @@ with open(read_path, "rb") as f:
 for i,m in enumerate(loaded_json["materials"]):
     print(i,m["name"])
     
-#with open(read_path+"_skin"+".json","wt")as f:
-#   f.write(json.dumps({"skins":skins,"nodes":nodes},indent=4))
+with open(read_path+"_skin"+".json","wt")as f:
+   f.write(json.dumps(loaded_json,indent=4))
 
