@@ -347,7 +347,7 @@ class Blend_model():
                 self.connect_rgb_node(b_mat, v, sg.inputs[vector_props_dic[k]])
             elif k == "_RimColor":
                 self.connect_rgb_node(b_mat, v, sg.inputs[vector_props_dic[k]],defalut_color=[0,0,0,1])
-            elif k == "_MainTex":
+            elif k == "_MainTex" and v is not None:
                 uv_offset_tiling_value = v
             else:
                 b_mat[k] = v
