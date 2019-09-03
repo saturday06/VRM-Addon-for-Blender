@@ -31,7 +31,7 @@ def bone(node)->VRM_Types.Node:
 
 
 
-def material(mat,ext_mat,textures)->VRM_Types.Material:
+def material(mat,ext_mat)->VRM_Types.Material:
     #standard, or VRM unsuported shader(no saved)
     if ext_mat["shader"] == "VRM_USE_GLTFSHADER" \
              or ext_mat["shader"] not in ["VRM/MToon","VRM/UnlitTransparentZWrite"]:

@@ -262,7 +262,7 @@ def material_read(vrm_pydata):
     if "textures" in vrm_pydata.json:
         textures = vrm_pydata.json["textures"]
     for mat,ext_mat in zip(vrm_pydata.json["materials"],VRM_EXTENSION_material_promaties):
-        vrm_pydata.materials.append(vrm2pydata_factory.material(mat,ext_mat,textures))
+        vrm_pydata.materials.append(vrm2pydata_factory.material(mat,ext_mat))
 
 
 
