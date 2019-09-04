@@ -454,8 +454,12 @@ class glsl_draw_obj():
             vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
             output_color += p_rim_color;
             //matcap
-            vec3 view_normal = mat3(normalWorldToViewMatrix) * mod_n;
-            vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
+            vec3 world_cam_up = viewProjectionMatrix[1].xyz;
+            vec3 world_view_up = normalize(world_cam_up - viewDirection * dot(viewDirection,world_cam_up));
+            vec3 world_view_right = normalize(cross(viewDirection,world_view_up));
+            vec2 matcap_uv = vec2(dot(world_view_right,mod_n),dot(world_view_up,mod_n))*0.5+0.5;
+
+            vec4 matcap_color = color_linearlize( texture( SphereAddTexture , matcap_uv));
             output_color += matcap_color.rgb;
 
             //emission
