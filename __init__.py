@@ -70,8 +70,8 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
 def menu_import(self, context):
     op = self.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
     op.is_put_spring_bone_info = True
-    op.import_normal = False
-    op.remove_doubles = True
+    op.import_normal = True
+    op.remove_doubles = False
 
 class ExportVRM(bpy.types.Operator,ExportHelper):
     bl_idname = "export_scene.vrm"

@@ -515,10 +515,15 @@ class Blend_model():
 
             #region Normal #TODO
             if self.import_normal:
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.object.select_all(action="DESELECT")
+                self.context.view_layer.objects.active = obj
+                obj.select_set(True)                
+                bpy.ops.mesh.customdata_custom_splitnormals_add()
                 for prim in pymesh:
                     if hasattr(prim,"NORMAL"):
                         b_mesh.normals_split_custom_set_from_vertices(prim.NORMAL)
-                        b_mesh.use_auto_smooth = True
+                b_mesh.use_auto_smooth = True
             #endregion Normal
 
 
