@@ -95,6 +95,7 @@ class Blend_model():
         self.armature.show_in_front = True
         self.armature.data.display_type = "STICK"
         self.bones = dict()
+        #region bone recrusive func
         def bone_chain(self_and_parent_id_tuple):
             id = self_and_parent_id_tuple[0]
             parent_id = self_and_parent_id_tuple[1]
@@ -160,6 +161,7 @@ class Blend_model():
                         for x in py_bone.children:
                             bone_nodes.append((x,id))
             return 0
+        #endregion bone recrusive func
         root_node_set = list(set(self.vrm_pydata.skins_root_node_list))
         root_nodes =  root_node_set if root_node_set else [node for scene in self.vrm_pydata.json["scenes"] for node in scene["nodes"]] 
         bone_nodes = [(root_node,-1) for root_node in root_nodes]
@@ -609,37 +611,6 @@ class Blend_model():
                 obj.select_set(True)
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.remove_doubles(use_unselected = True)            
-            """
-            bpy.ops.object.mode_set(mode='OBJECT')
-            bpy.ops.object.select_all(action="DESELECT")
-            self.context.view_layer.objects.active = obj
-            obj.select_set(True)
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.select_mode(type="VERT")
-            pos_ind_dict = defaultdict(list)
-            for vert in b_mesh.vertices:
-                key = tuple([l for l in vert.co])
-                pos_ind_dict[key].append(vert.index)
-            bpy.ops.mesh.select_all(action='DESELECT')
-            same_verts = defaultdict(list)
-            if b_mesh.shape_keys is not None:
-                for pos,vids in pos_ind_dict.items():
-                    for vid in vids:
-                        key = tuple([pos,tuple([tuple([l for l in kb.data[vid].co]) for kb in b_mesh.shape_keys.key_blocks])])
-                        same_verts[key].append(vid)
-            else:
-                same_verts = pos_ind_dict
-
-            for vids in same_verts.values():
-                bpy.ops.object.mode_set(mode = 'OBJECT')
-                if len(vids)>=2:
-                    bpy.types.Scene.icyp_select_helper_select_list = vids
-                    bpy.ops.mesh.icyp_select_helper()
-                    bpy.ops.object.mode_set(mode = 'EDIT')
-            bpy.ops.object.mode_set(mode = 'EDIT') 
-            bpy.ops.mesh.merge(type="COLLAPSE")
-            bpy.ops.mesh.select_all(action='DESELECT')    
-            """
             #endregion vertices_merging
         return
 
