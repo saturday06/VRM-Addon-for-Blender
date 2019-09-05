@@ -51,7 +51,8 @@ def material(mat,ext_mat)->VRM_Types.Material:
             if "roughnessFactor" in pbrmat:
                 v_mat.roughness_factor = pbrmat["roughnessFactor"]
             if "metallicRoughnessTexture" in pbrmat:
-                v_mat.metallic_roughness_texture_index = pbrmat["metallicRoughnessTexture"]
+                texture_index = pbrmat["metallicRoughnessTexture"]["index"]
+                v_mat.metallic_roughness_texture_index = texture_index
                 v_mat.metallic_roughness_texture_texcood = pbrmat["baseColorTexture"]["texCoord"]
 
         if "normalTexture" in mat:

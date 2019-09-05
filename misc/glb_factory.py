@@ -210,6 +210,7 @@ class Glb_obj():
 		#region function separate by shader
 		def pbr_fallback(baseColor=(1,1,1,1),metallness=0,roughness=0.9,
 				baseColor_texture=(None,None,None),
+				metallic_roughness_texture = (None,None,None),
 				transparent_method="OPAQUE", transparency_cutoff=0.5,
 				unlit = True,doublesided = False):
 			"""transparent_method = {"OPAQUE","MASK","BLEND"}"""
@@ -226,6 +227,11 @@ class Glb_obj():
 			if baseColor_texture[0] is not None:
 				fallback_dic["pbrMetallicRoughness"].update({"baseColorTexture": {
 						"index": add_texture(*baseColor_texture),
+						"texCoord": 0 #TODO:
+						}})
+			if metallic_roughness_texture[0] is not None:
+				fallback_dic["pbrMetallicRoughness"].update({"metallicRoughnessTexture": {
+						"index": add_texture(*metallic_roughness_texture),
 						"texCoord": 0 #TODO:
 						}})
 			fallback_dic["alphaMode"] = transparent_method
@@ -414,6 +420,7 @@ class Glb_obj():
 				metallness=get_float_value(GLTF_Shader_Node, "metallic"),
 				roughness=get_float_value(GLTF_Shader_Node, "roughness"),
 				baseColor_texture=get_texture_name_and_sampler_type(GLTF_Shader_Node,"color_texture"),
+				metallic_roughness_texture = get_texture_name_and_sampler_type(GLTF_Shader_Node,"metallic_roughness_texture"),
 				transparent_method=transparent_method,
 				transparency_cutoff=transparency_cutoff,
 				unlit=True if get_float_value(GLTF_Shader_Node,"unlit") >=0.5 else False,
@@ -423,9 +430,11 @@ class Glb_obj():
 				img = get_texture_name_and_sampler_type(GLTF_Shader_Node,socket_name)
 				if img[0] is not None:
 					pbr_dic[texture_type] = {
-						"index":add_texture(img),
+						"index":add_texture(*img),
 						"texCoord":0
 					}
+				else:
+					print(socket_name)
 			pbr_tex_add("normalTexture", "normal")
 			pbr_tex_add("emissiveTexture","emissive_texture")
 			pbr_tex_add("occlusionTexture", "occlusion_texture")

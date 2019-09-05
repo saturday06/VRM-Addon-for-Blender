@@ -298,11 +298,11 @@ class Blend_model():
         sg = self.node_group_create(b_mat,gltf_node_name)
         b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], sg.outputs["BSDF"])
 
-        self.connect_rgb_node(b_mat,pymat.base_color,sg.inputs["base_Color"])
-        self.connect_texture_node(b_mat,pymat.color_texture_index,sg.inputs["color_texture"])
-        self.connect_value_node(b_mat,pymat.metallic_factor,sg.inputs["metallic"])
-        self.connect_value_node(b_mat,pymat.roughness_factor,sg.inputs["roughness"])
-        self.connect_texture_node(b_mat,pymat.metallic_roughness_texture_index,\
+        self.connect_rgb_node(b_mat, pymat.base_color,sg.inputs["base_Color"])
+        self.connect_texture_node(b_mat, pymat.color_texture_index,sg.inputs["color_texture"])
+        self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
+        self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
+        self.connect_texture_node(b_mat, pymat.metallic_roughness_texture_index,\
             sg.inputs["metallic_roughness_texture"])
         self.connect_rgb_node(b_mat,[*pymat.emissive_factor,1],sg.inputs["emissive_color"])
         self.connect_texture_node(b_mat,pymat.emissive_texture_index,sg.inputs["emissive_texture"])
