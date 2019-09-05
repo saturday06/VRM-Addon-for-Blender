@@ -1,11 +1,12 @@
 import bpy
 import gpu
+from gpu_extras.batch import batch_for_shader
 import bgl
-
 from mathutils import Matrix,Vector,Euler
+
 from math import sqrt,radians
 import collections 
-from gpu_extras.batch import batch_for_shader
+
 from .. import V_Types
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):
