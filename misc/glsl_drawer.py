@@ -6,7 +6,7 @@ from mathutils import Matrix,Vector,Euler
 
 from math import sqrt,radians
 import collections 
-
+from concurrent.futures import ThreadPoolExecutor
 from .. import V_Types
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):
@@ -507,6 +507,8 @@ class glsl_draw_obj():
 
     '''
 
+    execulutor = None
+
     toon_shader = None 
         
         
@@ -526,6 +528,8 @@ class glsl_draw_obj():
         glsl_draw_obj.myinstance = self
         self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res,self.shadowmap_res)
         self.materials = {}
+        self.main_execulutor = ThreadPoolExecutor()
+        self.sub_execulutor = ThreadPoolExecutor()
     scene_meshes = None
     def build_scene(scene=None,*args):
         if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
@@ -553,31 +557,50 @@ class glsl_draw_obj():
                          bounding_box_xyz[1][i] = xyz
             self.bounding_center = [(i+n)/2 for i,n in zip(bounding_box_xyz[0],bounding_box_xyz[1])]
             self.bounding_size = [i-n for i,n in zip(bounding_box_xyz[0],bounding_box_xyz[1])]
+            
+        def build_mesh(obj):
             scene_mesh = Gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
             tmp_mesh.calc_tangents()
             tmp_mesh.calc_loop_triangles()
             st = tmp_mesh.uv_layers[0].data
-            
-            scene_mesh.index_per_mat = [self.materials[ms.material.name] for ms in obj.material_slots]
-            count_list = collections.Counter([tri.material_index for tri in tmp_mesh.loop_triangles])
-            scene_mesh.index_per_mat = { scene_mesh.index_per_mat[i]:[(n*3,n*3+1,n*3+2) for n in range(v)] for i,v in count_list.items() }
-            scene_mesh.pos = { k:[tmp_mesh.vertices[vid].co for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index==i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
-            if tmp_mesh.has_custom_normals:
-                scene_mesh.normals = {k:[tri.split_normals[x] for tri in tmp_mesh.loop_triangles if tri.material_index == i for x in range(3)] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
-            else:
-                scene_mesh.normals = {k:[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index == i]for i,k in enumerate(scene_mesh.index_per_mat.keys())}
-            scene_mesh.uvs = {k:[st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
-            scene_mesh.tangents = {k:[tmp_mesh.loops[lo].tangent for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
 
+            scene_mesh.mat_list = [self.materials[ms.material.name] for ms in obj.material_slots]
+            count_list = collections.Counter([tri.material_index for tri in tmp_mesh.loop_triangles])
+            scene_mesh.index_per_mat = { scene_mesh.mat_list[i]:[(n*3,n*3+1,n*3+2) for n in range(v)] for i,v in count_list.items() }
+            def job_pos():
+                return { k:[tmp_mesh.vertices[vid].co for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index==i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            def job_normal():
+                if tmp_mesh.has_custom_normals:
+                    return  {k:[tri.split_normals[x] for tri in tmp_mesh.loop_triangles if tri.material_index == i for x in range(3)] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+                else:
+                    return  {k:[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index == i]for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            def job_uv():
+                return {k:[st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}           
+            def job_tangent():
+                return {k:[tmp_mesh.loops[lo].tangent for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+            
+            scene_mesh.pos = self.sub_execulutor.submit(job_pos)
+            scene_mesh.normals =self.sub_execulutor.submit(job_normal)
+            scene_mesh.uvs = self.sub_execulutor.submit(job_uv)
+            scene_mesh.tangents = self.sub_execulutor.submit(job_tangent)
+
+            scene_mesh.pos = scene_mesh.pos.result()
+            scene_mesh.normals = scene_mesh.normals.result()
+            scene_mesh.uvs = scene_mesh.uvs.result()
+            scene_mesh.tangents = scene_mesh.tangents.result()
+            return scene_mesh
+
+        meshes = self.main_execulutor.map(build_mesh,self.objs)
+        for mesh in meshes:
             unneed_mat = []
-            for k in scene_mesh.index_per_mat.keys():
-                if len(scene_mesh.index_per_mat[k])==0:
+            for k in mesh.index_per_mat.keys():
+                if len(mesh.index_per_mat[k])==0:
                     unneed_mat.append(k)
             for k in unneed_mat:
-                del scene_mesh.index_per_mat[k]
-            self.scene_meshes.append(scene_mesh)
+                del mesh.index_per_mat[k]
+            self.scene_meshes.append(mesh)
 
         self.build_batches()
         return
