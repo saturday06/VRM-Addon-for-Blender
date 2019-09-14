@@ -11,6 +11,7 @@ from .importer import vrm_load,model_build
 from .misc import VRM_HELPER
 from .misc import glb_factory
 from .misc import armature_maker
+from .misc import mesh_from_bone_envelopes
 if bpy.app.build_platform != b'Darwin':
     from .misc import glsl_drawer
 import os
@@ -99,6 +100,9 @@ def menu_export(self, context):
 def add_armature(self, context):
     op = self.layout.operator(armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="VRM humanoid")
 
+def make_mesh(self, context):
+    op = self.layout.operator(mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname, text="Mesh from selected armature",icon='PLUGIN')
+
 class VRM_IMPORTER_PT_controller(bpy.types.Panel):
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "vrm import helper"
@@ -150,7 +154,8 @@ classes = [
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
     armature_maker.ICYP_OT_MAKE_ARAMATURE,
-    model_build.ICYP_OT_select_helper
+    model_build.ICYP_OT_select_helper,
+    mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
 ]
 if bpy.app.build_platform != b'Darwin':
     classes.extend([
@@ -165,6 +170,7 @@ def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
+    bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
     bpy.app.handlers.load_post.append(add_shaders) 
     
 
@@ -172,6 +178,7 @@ def register():
 def unregister():
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
+    bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
     bpy.types.TOPBAR_MT_file_import.remove(menu_export)
     bpy.types.TOPBAR_MT_file_export.remove(menu_import)
     for cls in classes:
