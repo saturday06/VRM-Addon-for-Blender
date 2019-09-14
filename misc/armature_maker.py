@@ -42,20 +42,24 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		armature.show_in_front = True
 		
 		bone_dic = {}
-		def bone_add(name, head_pos, tail_pos, parent_bone=None):
+		def bone_add(name, head_pos, tail_pos, parent_bone=None,radius = 0.1):
 			added_bone = armature.data.edit_bones.new(name)
 			added_bone.head = head_pos
 			added_bone.tail = tail_pos
+			added_bone.head_radius = radius
+			added_bone.tail_radius = radius
+			added_bone.envelope_distance = 0.01
 			if parent_bone is not None:
 				added_bone.parent = parent_bone
 			bone_dic.update({name:added_bone})
 			return added_bone
-		def x_mirror_bones_add(base_name, right_head_pos, right_tail_pos, parent_bones):
-			left_bone = bone_add(base_name + "_L", right_head_pos, right_tail_pos, parent_bones[0])
+		def x_mirror_bones_add(base_name, right_head_pos, right_tail_pos, parent_bones, radius = 0.1):
+			left_bone = bone_add(base_name + "_L", right_head_pos, right_tail_pos, parent_bones[0],radius=radius)
 			right_bone = bone_add(base_name + "_R",
 									[pos*axis for pos, axis in zip(right_head_pos, (-1, 1, 1))],
 									[pos*axis for pos, axis in zip(right_tail_pos, (-1, 1, 1))],
-									parent_bones[1]
+									parent_bones[1],
+									radius=radius
 								)
 			return left_bone,right_bone
 		def x_add(posA, add_x):
@@ -102,22 +106,26 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		upside_legs = x_mirror_bones_add("Upper_Leg",
 				x_add(Hips.head, leg_width),
 				z_add(x_add(Hips.head, leg_width), -leg_bone_lengh),
-				 (Hips, Hips)
+				 (Hips, Hips),
+				radius = self.leg_width*0.9
 				)
 		lower_legs = x_mirror_bones_add("Lower_Leg",
 				upside_legs[0].tail,
 				(leg_width,0,self.tall*0.05),
-				upside_legs
+				upside_legs,
+				radius = self.leg_width*0.9
 				)
 		Foots = x_mirror_bones_add("Foot",
 				lower_legs[0].tail,
 				(leg_width,-leg_size*(2/3),0),
-				lower_legs
+				lower_legs,
+				radius = self.leg_width*0.9
 				)
 		Toes = x_mirror_bones_add("Toes",
 				Foots[0].tail,
 				(leg_width,-leg_size,0),
-				Foots
+				Foots,
+				radius = self.leg_width*0.5
 				)						
 		
 		#肩～指
@@ -127,23 +135,29 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		shoulders = x_mirror_bones_add("shoulder",
 			x_add(shoulder_parent.tail, shoulder_in_pos),
 			x_add(shoulder_parent.tail, shoulder_in_pos + self.shoulder_width),
-			(shoulder_parent,shoulder_parent))
+			(shoulder_parent,shoulder_parent),
+			radius = self.hand_size*0.4
+			)
 
 		arm_lengh = head_size * (1*(1-(self.head_ratio-6)/2)+1.5*((self.head_ratio-6)/2)) * self.arm_length_ratio
 		arms = x_mirror_bones_add("Arm",
 			shoulders[0].tail,
 			x_add(shoulders[0].tail,arm_lengh),
-			shoulders)
+			shoulders,
+			radius = self.hand_size*0.4)
 		hand_size = self.hand_size
 		forearms = x_mirror_bones_add("forearm",
 			arms[0].tail,
 			#グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが概ね一緒
 			x_add(arms[0].tail,arm_lengh - hand_size/2),
-			arms)
+			arms,
+			radius = self.hand_size*0.4
+			)
 		hands = x_mirror_bones_add("hand",
 			forearms[0].tail,
 			x_add(forearms[0].tail,hand_size/2),
-			forearms
+			forearms,
+			radius = self.hand_size/4
 		)
 
 		def fingers(finger_name,proximal_pos,finger_len_sum):
@@ -152,16 +166,16 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			proximal_finger_len = finger_len_sum*finger_normalize
 			intermediate_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio
 			distal_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio*self.finger_2_3_ratio
-			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands)
-			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones)
-			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones)
+			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands,hand_size/12)
+			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones,hand_size/12)
+			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones,hand_size/12)
 			return proximal_bones,intermediate_bones,distal_bones
 
 		finger_y_offset = -hand_size/10
 		thumbs = fingers(
 			"finger_thumbs",
 			y_add(hands[0].head,finger_y_offset - hand_size/5),
-			hand_size/2
+			hand_size/2,
 		)
 
 		mats = [thumbs[0][i].matrix.translation for i in [0,1]]
