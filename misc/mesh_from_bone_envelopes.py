@@ -17,6 +17,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 	use_selected_bones: bpy.props.BoolProperty(default=False)
 	may_vrm_humanoid : bpy.props.BoolProperty(default=True)
 	with_auto_weight : bpy.props.BoolProperty(default=True)
+	not_to_mesh : bpy.props.BoolProperty(default=False)
 
 	def build_mesh(self,context):
 		if bpy.context.active_object.type !='ARMATURE':
@@ -61,6 +62,10 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 		bpy.ops.object.mode_set(mode='OBJECT')
 		context.scene.collection.objects.link(mobj)
 		context.view_layer.objects.active = mobj
+
+		if self.not_to_mesh:
+			return 
+			
 		mobj.select_set(True)
 		bpy.ops.object.convert(target='MESH')
 
