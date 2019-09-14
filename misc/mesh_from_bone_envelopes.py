@@ -1,4 +1,5 @@
 import bpy
+from mathutils import Vector 
 class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 	bl_idname = "icyp.make_mesh_from_envelopes"
 	bl_label = "(WIP)basic mesh for vrm"
@@ -24,10 +25,12 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 		armature = bpy.context.active_object
 		mball = bpy.data.metaballs.new(f"{armature.name}_mball")
 		mball.threshold = 0.001
+		is_VRM_humanoid = False
 		for bone in armature.data.bones:
 			if self.use_selected_bones and bone.select == False:
 				continue
 			if "title" in armature and self.may_vrm_humanoid: # = is VRM humanoid
+				is_VRM_humanoid = True
 				if bone.get("humanBone") in ("leftEye","rightEye","Hips"): 
 					continue
 				if bone.name == "root":
@@ -36,6 +39,11 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 			hrad = bone.head_radius
 			tpos = bone.tail_local
 			trad = bone.tail_radius
+			if is_VRM_humanoid and bone.get("humanBone") == "head":
+				elem = mball.elements.new()
+				elem.co = (Vector(hpos)+Vector(tpos))/2
+				elem.radius = Vector(Vector(tpos)-Vector(hpos)).length/2
+				continue				
 			for i in range(self.resolution):
 				loc = hpos + ((tpos - hpos) / (self.resolution-1)) * i
 				rad = hrad + ((trad - hrad) / (self.resolution-1)) * i
@@ -55,6 +63,8 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 		context.view_layer.objects.active = mobj
 		mobj.select_set(True)
 		bpy.ops.object.convert(target='MESH')
+
+		bpy.data.metaballs.remove(mball)
 
 		obj = context.view_layer.objects.active
 		context.view_layer.objects.active = armature
