@@ -166,9 +166,9 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			proximal_finger_len = finger_len_sum*finger_normalize
 			intermediate_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio
 			distal_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio*self.finger_2_3_ratio
-			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands,hand_size/12)
-			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones,hand_size/12)
-			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones,hand_size/12)
+			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands,hand_size/15)
+			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones,hand_size/15)
+			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones,hand_size/15)
 			return proximal_bones,intermediate_bones,distal_bones
 
 		finger_y_offset = -hand_size/10
