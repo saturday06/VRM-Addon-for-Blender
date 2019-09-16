@@ -804,6 +804,7 @@ class glsl_draw_obj():
                     toon_shader.uniform_int(k , 1 + i)
 
                 toon_bat.draw(toon_shader)
+        return
         #endregion shader main
 
     draw_func = None
