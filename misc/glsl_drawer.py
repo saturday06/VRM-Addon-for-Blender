@@ -291,6 +291,8 @@ class glsl_draw_obj():
         uniform float OutlineWidthMode ;
         uniform float OutlineColorMode ;
 
+        uniform float isDebug;
+
         uniform vec4 DiffuseColor;
         uniform vec4 ShadeColor;
         uniform vec4 EmissionColor;
@@ -486,6 +488,10 @@ class glsl_draw_obj():
                         )
                     );
                 }
+            }
+            if (isDebug == 1.0){
+                gl_FragColor = vec4(mod_n*0.5+0.5,lit.a);
+                //gl_FragColor = vec4(n*0.5+0.5,lit.a);
             }
         }
     '''
@@ -760,6 +766,7 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("lightpos", light_pos)
                 toon_shader.uniform_float("aspect",aspect)
                 toon_shader.uniform_float("is_outline", is_outline)
+                toon_shader.uniform_float("isDebug", 0.0)
                 
                 toon_shader.uniform_float("is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0)
 
