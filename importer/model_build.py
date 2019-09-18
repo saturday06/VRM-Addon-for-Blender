@@ -137,8 +137,8 @@ class Blend_model():
                         if lengh <= 0.01:#0除算除けと気分
                             lengh =0.01
                         posDiff = [py_bone.position[i]/lengh for i in range(3)]
-                        if posDiff == [0.0,0.0,0.0]:
-                            posDiff[1] += 0.01 #ボーンの長さが0だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
+                        if vector_length(posDiff) <= 0.001:
+                            posDiff[1] += 0.01 #ボーンの長さが1mm以下なら上に10cm延ばす 長さが０だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
                         b.tail = [b.head[i]+posDiff[i] for i in range(3)]
                 else:#子供たちの方向の中間を見る
                     mean_relate_pos = numpy.array([0.0,0.0,0.0],dtype=numpy.float)
