@@ -520,8 +520,10 @@ class Blend_model():
                 bpy.ops.object.mode_set(mode='OBJECT')
                 bpy.ops.object.select_all(action="DESELECT")
                 self.context.view_layer.objects.active = obj
-                obj.select_set(True)                
-                bpy.ops.mesh.customdata_custom_splitnormals_add()
+                obj.select_set(True)
+                bpy.ops.object.shade_smooth() # this is need
+                b_mesh.create_normals_split()
+                #bpy.ops.mesh.customdata_custom_splitnormals_add()
                 for prim in pymesh:
                     if hasattr(prim, "NORMAL"):
                         b_mesh.normals_split_custom_set_from_vertices(prim.NORMAL)
@@ -568,15 +570,6 @@ class Blend_model():
                     else:
                         vc_flag = False
                         break
-                """Debug_func
-                vc_name = "NORMAL"
-                if vc_name in b_mesh.vertex_colors:
-                    vc = b_mesh.vertex_colors[vc_name]
-                else:
-                    vc = b_mesh.vertex_colors.new(name = vc_name)
-                for v_index,col in enumerate(vc.data):
-                    vc.data[v_index].color = [*[ i*0.5+0.5 for i in getattr(pymesh[0],vc_name)[flatten_vrm_mesh_vert_index[v_index]]],1]
-                """
             #endregion vertex_color　
 
             #region shape_key

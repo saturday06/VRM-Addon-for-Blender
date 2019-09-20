@@ -45,7 +45,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
     )
 
     is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
-    import_normal : bpy.props.BoolProperty(name = "Import Normal(has bug)")
+    import_normal : bpy.props.BoolProperty(name = "Import Normal")
     remove_doubles : bpy.props.BoolProperty(name = "Remove doubles")
 
     def execute(self, context):
