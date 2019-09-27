@@ -139,11 +139,11 @@ class Material_MToon(Material):
         "_UvAnimScrollY":"UV_Scroll_Y", ######
         "_UvAnimRotation":"UV_Scroll_Rotation",######
         "_DebugMode":None,
-        "_BlendMode":"BlendMode",
+        "_BlendMode":None,
         "_OutlineWidthMode":"OutlineWidthMode",
         "_OutlineColorMode":"OutlineColorMode",
-        "_CullMode":"CullMode",
-        "_OutlineCullMode":"OutlineCullMode",
+        "_CullMode":None,
+        "_OutlineCullMode":None,
         "_SrcBlend":None,
         "_DstBlend":None,
         "_ZWrite":None,

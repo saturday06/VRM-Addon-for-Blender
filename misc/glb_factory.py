@@ -351,7 +351,9 @@ class Glb_obj():
 										uv_offset_scaling_node.inputs["Location"].default_value[1],
 										uv_offset_scaling_node.inputs["Scale"].default_value[0],
 										uv_offset_scaling_node.inputs["Scale"].default_value[1]    
-										]								
+										]
+						else:
+							MToon_vector_dic[texture_key] = [0,0,1,1]	
 					elif texture_prop == "NomalmapTexture":
 						use_nomalmap = True
 
