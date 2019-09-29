@@ -8,6 +8,7 @@ import bpy,blf
 import bmesh
 from .. import V_Types as VRM_types
 from ..V_Types import nested_json_value_getter as json_get
+from .armature_maker import ICYP_OT_MAKE_ARAMATURE
 import re
 from math import sqrt, pow
 from mathutils import Vector
@@ -29,6 +30,17 @@ class Bones_rename(bpy.types.Operator):
                         tmp += y + "_"
                     tmp += RL
                     x.name = tmp
+        return {"FINISHED"}
+
+class Add_VRM_extensions_to_armature(bpy.types.Operator):
+    bl_idname = "vrm.add_vrm_extensions"
+    bl_label = "Add vrm attributes"
+    bl_description = "Add vrm extensions & metas to armature"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    
+    def execute(self, context):
+        ICYP_OT_MAKE_ARAMATURE.make_extention_setting_and_metas(context.active_object)
         return {"FINISHED"}
 
 

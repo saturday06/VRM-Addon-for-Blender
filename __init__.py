@@ -128,6 +128,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
                     self.layout.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
                     self.layout.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
                 if context.active_object.type == 'ARMATURE':
+                    self.layout.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
                     self.layout.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
                     self.layout.operator(VRM_HELPER.Bones_rename.bl_idname)
                 if context.active_object.type =="MESH":
@@ -150,6 +151,7 @@ classes = [
     ImportVRM,
     ExportVRM,
     VRM_HELPER.Bones_rename,
+    VRM_HELPER.Add_VRM_extensions_to_armature,
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,

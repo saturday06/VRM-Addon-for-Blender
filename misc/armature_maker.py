@@ -254,16 +254,20 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	def setup_as_vrm(self,armature,compaire_dict):
 		for vrm_bone_name,blender_bone_name in compaire_dict.items():
 			armature.data.bones[blender_bone_name]["humanBone"] = vrm_bone_name
+		ICYP_OT_MAKE_ARAMATURE.make_extention_setting_and_metas(armature)
 
+	@classmethod
+	def make_extention_setting_and_metas(dum,armature):
 		def write_textblock_and_assgin_to_armature(block_name,value):
 			text_block = bpy.data.texts.new(name=f"{armature.name}_{block_name}.json")
 			text_block.write(json.dumps(value,indent = 4))
-			armature[f"{block_name}"] = text_block.name
+			if block_name not in armature:
+				armature[f"{block_name}"] = text_block.name
 		#param_dicts are below of this method
-		write_textblock_and_assgin_to_armature("humanoid_params",self.humanoid_params)
-		write_textblock_and_assgin_to_armature("firstPerson_params",self.firstPerson_params)
-		write_textblock_and_assgin_to_armature("blendshape_group",self.blendshape_group)
-		write_textblock_and_assgin_to_armature("spring_bone",self.spring_bone_prams)
+		write_textblock_and_assgin_to_armature("humanoid_params",ICYP_OT_MAKE_ARAMATURE.humanoid_params)
+		write_textblock_and_assgin_to_armature("firstPerson_params",ICYP_OT_MAKE_ARAMATURE.firstPerson_params)
+		write_textblock_and_assgin_to_armature("blendshape_group",ICYP_OT_MAKE_ARAMATURE.blendshape_group)
+		write_textblock_and_assgin_to_armature("spring_bone",ICYP_OT_MAKE_ARAMATURE.spring_bone_prams)
 
 		vrm_metas = [
 			"version",#model version (not VRMspec etc)
@@ -275,7 +279,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			"otherLicenseUrl"
 		]
 		for v in vrm_metas:
-			armature[v] = "undefined"
+			if v not in armature:
+				armature[v] = "undefined"
 		required_vrm_metas = {
 			"allowedUserName":"OnlyAuthor",
 			"violentUssageName":"Disallow",
@@ -284,7 +289,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			"licenseName":"Redistribution_Prohibited",
 		}
 		for k,v in required_vrm_metas.items():
-			armature[k] = v
+			if k not in armature:
+				armature[k] = v
 		return
 
 	humanoid_params = {
@@ -463,19 +469,19 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
                 ]
 
 	spring_bone_prams = [
-                    {
-                        "comment": "",
-                        "stiffiness": 1,
-                        "gravityPower": 0,
-                        "gravityDir": {
-                            "x": 0,
-                            "y": -1,
-                            "z": 0
-                        },
-                        "dragForce": 0.4,
-                        "center": -1,
-                        "hitRadius": 0.02,
-                        "bones": [],
-                        "colliderGroups": []
-                    }
-	]
+							{
+								"comment": "",
+								"stiffiness": 1,
+								"gravityPower": 0,
+								"gravityDir": {
+									"x": 0,
+									"y": -1,
+									"z": 0
+								},
+								"dragForce": 0.4,
+								"center": -1,
+								"hitRadius": 0.02,
+								"bones": [],
+								"colliderGroups": []
+							}
+					]
