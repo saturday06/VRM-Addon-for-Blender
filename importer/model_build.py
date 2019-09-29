@@ -38,19 +38,36 @@ class Blend_model():
 
 
     def vrm_model_build(self):
-
+        wm = bpy.context.window_manager
+        wm.progress_begin(0, 11)
+        i = 1
+        def prog(z):
+            z=z+1
+            wm.progress_update(i)
+            return z
         affected_object = self.scene_init()
+        i = prog(i)
         self.texture_load()
+        i=prog(i)
         self.make_armature()
+        i=prog(i)
         self.make_material()
+        i=prog(i)
         self.make_primitive_mesh_objects()
+        i=prog(i)
         self.json_dump()
+        i=prog(i)
         self.attach_vrm_attributes()
+        i=prog(i)
         self.cleaning_data()
+        i=prog(i)
         self.axis_transform()
+        i=prog(i)
         if self.is_put_spring_bone_info:
             self.put_spring_bone_info()
+        i=prog(i)
         self.finishing(affected_object)
+        wm.progress_end()
         return 0
 
     def scene_init(self):
