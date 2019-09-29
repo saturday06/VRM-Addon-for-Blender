@@ -43,6 +43,33 @@ class Add_VRM_extensions_to_armature(bpy.types.Operator):
         ICYP_OT_MAKE_ARAMATURE.make_extention_setting_and_metas(context.active_object)
         return {"FINISHED"}
 
+class Add_VRM_reqwire_humanbone_custom_propaty(bpy.types.Operator):
+    bl_idname = "vrm.add_vrm_req_humanbone_prop"
+    bl_label = "Add vrm humanbone_prop"
+    bl_description = ""
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    
+    def execute(self, context):
+        arm = bpy.data.armatures[bpy.context.active_object.data.name]
+        for req in VRM_types.HumanBones.requires:
+            if req not in arm:
+                arm[req] = ""
+        return {"FINISHED"}
+
+class Add_VRM_defined_humanbone_custom_propaty(bpy.types.Operator):
+    bl_idname = "vrm.add_vrm_def_humanbone_prop"
+    bl_label = "Add vrm humanbone_prop"
+    bl_description = ""
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    
+    def execute(self, context):
+        arm = bpy.data.armatures[bpy.context.active_object.data.name]
+        for d in VRM_types.HumanBones.defines:
+            if d not in arm:
+                arm[d] = ""
+        return {"FINISHED"}
 
 import json
 from collections import OrderedDict

@@ -125,7 +125,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
             if context.active_object is not None:
                 self.layout.operator(VRM_HELPER.VRM_VALIDATOR.bl_idname)
                 if bpy.app.build_platform != b'Darwin':
-                    mbox = self.layout.row(align=False).box()
+                    mbox = self.layout.box()
                     mbox.label(text="MToon preview")
                     mbox.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
                     mbox.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
@@ -134,13 +134,24 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
                     abox = self.layout.row(align=False).box()
                     abox.label(text="Armature Help")
                     abox.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
-                    """
+                    self.layout.separator()
+
+                    reqbox = abox.box()
+                    reqrow = reqbox.row()
+                    reqrow.label(text = "VRM Requwire Bones")
                     for req in V_Types.HumanBones.requires:
                         if req in context.active_object.data:
-                            self.layout.prop_search(context.active_object.data, req, context.active_object.data, "bones", text="Bone")
+                            reqbox.prop_search(context.active_object.data, f'[\"{req}\"]', context.active_object.data, "bones", text=req)
                         else:
-                            context.active_object.data[req] = ""
-                    """
+                            reqbox.operator(VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty.bl_idname,text = f"Add {req} propaty")
+                    defbox = abox.box()
+                    defbox.label(text="VRM option Bones")
+                    for defs in V_Types.HumanBones.defines:
+                        if defs in context.active_object.data:
+                            defbox.prop_search(context.active_object.data, f'[\"{defs}\"]', context.active_object.data, "bones", text=defs)
+                        else:
+                            defbox.operator(VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty.bl_idname,text = f"Add {defs} propaty")     
+
                     abox.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
                     abox.operator(VRM_HELPER.Bones_rename.bl_idname)
                 if context.active_object.type =="MESH":
@@ -165,6 +176,8 @@ classes = [
     ExportVRM,
     VRM_HELPER.Bones_rename,
     VRM_HELPER.Add_VRM_extensions_to_armature,
+    VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty,
+    VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty,
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
