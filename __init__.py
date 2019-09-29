@@ -125,9 +125,12 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
             if context.active_object is not None:
                 self.layout.operator(VRM_HELPER.VRM_VALIDATOR.bl_idname)
                 if bpy.app.build_platform != b'Darwin':
-                    self.layout.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
-                    self.layout.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
+                    box = self.layout.row(align=False).box()
+                    box.label(text="MToon preview")
+                    box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+                    box.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
                 if context.active_object.type == 'ARMATURE':
+                    self.layout.separator()
                     self.layout.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
                     self.layout.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
                     self.layout.operator(VRM_HELPER.Bones_rename.bl_idname)
