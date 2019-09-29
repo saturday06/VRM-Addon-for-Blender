@@ -48,6 +48,26 @@ class Node(object):
         self.skin_id = None
 
 
+class HumanBones(object):
+    requires= [
+        "hips","leftUpperLeg","rightUpperLeg","leftLowerLeg","rightLowerLeg","leftFoot","rightFoot",
+        "spine","chest","neck","head","leftUpperArm","rightUpperArm",
+        "leftLowerArm","rightLowerArm","leftHand","rightHand"
+    ]
+    defines =  [
+        "jaw","leftShoulder","rightShoulder",
+        "leftEye","rightEye","upperChest","leftToes","rightToes",
+        "leftThumbProximal","leftThumbIntermediate","leftThumbDistal","leftIndexProximal",
+        "leftIndexIntermediate","leftIndexDistal","leftMiddleProximal","leftMiddleIntermediate",
+        "leftMiddleDistal","leftRingProximal","leftRingIntermediate","leftRingDistal",
+        "leftLittleProximal","leftLittleIntermediate","leftLittleDistal",
+        "rightThumbProximal","rightThumbIntermediate","rightThumbDistal",
+        "rightIndexProximal","rightIndexIntermediate","rightIndexDistal",
+        "rightMiddleProximal","rightMiddleIntermediate","rightMiddleDistal",
+        "rightRingProximal","rightRingIntermediate","rightRingDistal",
+        "rightLittleProximal","rightLittleIntermediate","rightLittleDistal"
+                ]
+
 
 class Image_props(object):
     def __init__(self,name,filepath,fileType):

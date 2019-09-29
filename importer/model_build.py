@@ -629,6 +629,7 @@ class Blend_model():
 
         for humanbone in humanbones_relations:
             self.armature.data.bones[self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]]["humanBone"] = humanbone["bone"]
+            self.armature.data[humanbone["bone"]] = self.armature.data.bones[self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]].name
 
         for metatag,metainfo in json_get(VRM_extensions,["meta"],{}).items():
             if metatag == "texture":

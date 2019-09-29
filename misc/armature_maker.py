@@ -254,6 +254,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	def setup_as_vrm(self,armature,compaire_dict):
 		for vrm_bone_name,blender_bone_name in compaire_dict.items():
 			armature.data.bones[blender_bone_name]["humanBone"] = vrm_bone_name
+			armature.data[vrm_bone_name] = blender_bone_name
 		ICYP_OT_MAKE_ARAMATURE.make_extention_setting_and_metas(armature)
 
 	@classmethod

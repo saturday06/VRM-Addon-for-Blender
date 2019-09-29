@@ -20,7 +20,7 @@ import os
 bl_info = {
     "name":"VRM_IMPORTER",
     "author": "iCyP",
-    "version": (0, 75),
+    "version": (0, 76),
     "blender": (2, 80, 0),
     "location": "File->Import",
     "description": "VRM Importer",
@@ -125,18 +125,28 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
             if context.active_object is not None:
                 self.layout.operator(VRM_HELPER.VRM_VALIDATOR.bl_idname)
                 if bpy.app.build_platform != b'Darwin':
-                    box = self.layout.row(align=False).box()
-                    box.label(text="MToon preview")
-                    box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
-                    box.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
+                    mbox = self.layout.row(align=False).box()
+                    mbox.label(text="MToon preview")
+                    mbox.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+                    mbox.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
                 if context.active_object.type == 'ARMATURE':
                     self.layout.separator()
-                    self.layout.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
-                    self.layout.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
-                    self.layout.operator(VRM_HELPER.Bones_rename.bl_idname)
+                    abox = self.layout.row(align=False).box()
+                    abox.label(text="Armature Help")
+                    abox.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
+                    """
+                    for req in V_Types.HumanBones.requires:
+                        if req in context.active_object.data:
+                            self.layout.prop_search(context.active_object.data, req, context.active_object.data, "bones", text="Bone")
+                        else:
+                            context.active_object.data[req] = ""
+                    """
+                    abox.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
+                    abox.operator(VRM_HELPER.Bones_rename.bl_idname)
                 if context.active_object.type =="MESH":
                     self.layout.label(icon="ERROR",text="EXPERIMENTAL！！！")
                     self.layout.operator(VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe.bl_idname)
+        
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
 

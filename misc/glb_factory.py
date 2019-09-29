@@ -791,14 +791,15 @@ class Glb_obj():
 		#region humanoid
 		vrm_extension_dic["humanoid"] = vrm_humanoid_dic = {"humanBones":[]}
 		node_name_id_dic = {node["name"]:i for i, node in enumerate(self.json_dic["nodes"])}
-		for bone in self.armature.data.bones:
-			if "humanBone" in bone.keys():
+		for humanbone in VRM_types.HumanBones.requires +  VRM_types.HumanBones.defines:
+			if humanbone in self.armature.data.keys() and self.armature.data[humanbone] != "":
 				vrm_humanoid_dic["humanBones"].append({ 
-					"bone": bone["humanBone"],
-					"node":node_name_id_dic[bone.name],
+					"bone": humanbone,
+					"node":node_name_id_dic[self.armature.data[humanbone]],
 					#TODO min,max,center,axisLength : useDef(ry):Trueなら不要な気がするのでほっとく
 					"useDefaultValues": True
-				})
+				})			
+
 		vrm_humanoid_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["humanoid_params"]]),object_pairs_hook=OrderedDict))
 		#endregion humanoid
 		#region firstPerson

@@ -140,44 +140,23 @@ class VRM_VALIDATOR(bpy.types.Operator):
                             )
                         already_root_bone_exist = bone.name
                 #TODO: T_POSE,
-                require_human_bone_dic = {bone_tag : None for bone_tag in [
-                "hips","leftUpperLeg","rightUpperLeg","leftLowerLeg","rightLowerLeg","leftFoot","rightFoot",
-                "spine","chest","neck","head","leftUpperArm","rightUpperArm",
-                "leftLowerArm","rightLowerArm","leftHand","rightHand"
-                ]}
-                humanbone_attr = "humanBone"
-                for bone in armature.data.bones:
-                    if humanbone_attr in bone.keys():
-                        if bone[humanbone_attr] in require_human_bone_dic.keys():
-                            if require_human_bone_dic[bone[humanbone_attr]]:
-                                messages.add(
-                                    lang_support(
-                                        f"humanBone is duplicated with {bone.name},{require_human_bone_dic[bone[humanbone_attr]].name}",
-                                        f"VRMボーン属性が重複しています。： {bone.name},{require_human_bone_dic[bone[humanbone_attr]].name}"
-                                        )
-                                )
-                            else:
-                                require_human_bone_dic[bone["humanBone"]] = bone
-                for k,v in require_human_bone_dic.items():
-                    if v is None:
+                for humanbone in VRM_types.HumanBones.requires:
+                    if humanbone not in armature.data or armature.data[humanbone] not in ["", *[b.name for b in armature.data.bones]]:
                         messages.add(
                             lang_support(
-                                    f"humanBone: {k} is not defined.",
-                                    f"必須ボーン {k} の属性を持つボーンがありません。"
+                                    f"humanBone: {humanbone} is not defined or bone is not found. fix armature \"object\" custom propaty.",
+                                    f"必須ボーン: {humanbone} の属性を持つボーンがありません。アーマチュア \"オブジェクト\"のカスタムプロパティを修正してください。"
                                     )
                                 )
-                defined_human_bone = ["jaw","leftShoulder","rightShoulder",
-                "leftEye","rightEye","upperChest","leftToes","rightToes",
-                "leftThumbProximal","leftThumbIntermediate","leftThumbDistal","leftIndexProximal",
-                "leftIndexIntermediate","leftIndexDistal","leftMiddleProximal","leftMiddleIntermediate",
-                "leftMiddleDistal","leftRingProximal","leftRingIntermediate","leftRingDistal",
-                "leftLittleProximal","leftLittleIntermediate","leftLittleDistal",
-                "rightThumbProximal","rightThumbIntermediate","rightThumbDistal",
-                "rightIndexProximal","rightIndexIntermediate","rightIndexDistal",
-                "rightMiddleProximal","rightMiddleIntermediate","rightMiddleDistal",
-                "rightRingProximal","rightRingIntermediate","rightRingDistal",
-                "rightLittleProximal","rightLittleIntermediate","rightLittleDistal"
-                ]
+                for v in VRM_types.HumanBones.defines:
+                    if v in armature.data:
+                        if armature.data[v] not in ["",*[b.name for b in armature.data.bones]]:
+                            messages.add(
+                                lang_support(
+                                        f"bone name: {armature.data[v]} as humanBone:{v} is not found. fix armature \"object\" custom propaty.",
+                                        f"ボーン名：{armature.data[v]} （属性：{v}） がありません。アーマチュア\"オブジェクト\"のカスタムプロパティを修正してください。"
+                                        )
+                                    )                            
 
             if obj.type == "MESH":
                 if len(obj.data.materials) == 0:
