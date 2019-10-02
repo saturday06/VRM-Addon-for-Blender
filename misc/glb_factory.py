@@ -336,7 +336,11 @@ class Glb_obj():
 					MToon_vector_dic[texture_key] = [0,0,1,1]
 					if texture_prop == "MainTexture":
 						maintex = tex
-						uv_offset_scaling_node = MToon_Shader_Node.inputs[texture_prop].links[0].from_node.inputs[0].links[0].from_node
+						uv_offset_scaling_node = None
+						try:
+							uv_offset_scaling_node = MToon_Shader_Node.inputs[texture_prop].links[0].from_node.inputs[0].links[0].from_node
+						except IndexError:
+							uv_offset_scaling_node = None
 						if uv_offset_scaling_node is not None:
 							if bpy.app.version[1] == 80:
 								MToon_vector_dic[texture_key] = [ \
