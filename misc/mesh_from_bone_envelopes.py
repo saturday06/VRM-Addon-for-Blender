@@ -1,5 +1,6 @@
 import bpy
-from mathutils import Vector 
+from mathutils import Vector
+from math import ceil
 class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 	bl_idname = "icyp.make_mesh_from_envelopes"
 	bl_label = "(WIP)basic mesh for vrm"
@@ -14,6 +15,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 		return {"FINISHED"}
 
 	resolution: bpy.props.IntProperty(default=5, min=2)
+	max_distance_between_mataballs:bpy.props.FloatProperty(default=0.1, min=0.001)
 	use_selected_bones: bpy.props.BoolProperty(default=False)
 	may_vrm_humanoid : bpy.props.BoolProperty(default=True)
 	with_auto_weight : bpy.props.BoolProperty(default=True)
@@ -45,6 +47,9 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 				elem.co = (Vector(hpos)+Vector(tpos))/2
 				elem.radius = Vector(Vector(tpos)-Vector(hpos)).length/2
 				continue				
+			if Vector(Vector(tpos)-Vector(hpos)).length/self.resolution > self.max_distance_between_mataballs:
+				self.resolution = ceil(Vector(Vector(tpos)-Vector(hpos)).length / self.max_distance_between_mataballs)
+				self.resolution = max(2,self.resolution)
 			for i in range(self.resolution):
 				loc = hpos + ((tpos - hpos) / (self.resolution-1)) * i
 				rad = hrad + ((trad - hrad) / (self.resolution-1)) * i
