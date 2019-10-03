@@ -18,8 +18,8 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 	max_distance_between_mataballs:bpy.props.FloatProperty(default=0.1, min=0.001)
 	use_selected_bones: bpy.props.BoolProperty(default=False)
 	may_vrm_humanoid : bpy.props.BoolProperty(default=True)
-	with_auto_weight : bpy.props.BoolProperty(default=True)
-	not_to_mesh : bpy.props.BoolProperty(default=False)
+	with_auto_weight : bpy.props.BoolProperty(default=False)
+	not_to_mesh : bpy.props.BoolProperty(default=True)
 
 	def build_mesh(self,context):
 		if bpy.context.active_object.type !='ARMATURE':
