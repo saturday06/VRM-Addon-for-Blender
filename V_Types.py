@@ -50,23 +50,93 @@ class Node(object):
 
 class HumanBones(object):
     requires= [
-        "hips","leftUpperLeg","rightUpperLeg","leftLowerLeg","rightLowerLeg","leftFoot","rightFoot",
-        "spine","chest","neck","head","leftUpperArm","rightUpperArm",
-        "leftLowerArm","rightLowerArm","leftHand","rightHand"
+        "hips","spine","chest","neck","head",
+        "leftUpperLeg","leftLowerLeg","leftFoot",
+        "rightUpperLeg","rightLowerLeg","rightFoot",
+        "leftUpperArm","leftLowerArm","leftHand",
+        "rightUpperArm","rightLowerArm","rightHand"
     ]
     defines =  [
-        "jaw","leftShoulder","rightShoulder",
-        "leftEye","rightEye","upperChest","leftToes","rightToes",
+        "jaw",
+        "leftEye","rightEye",
+        "leftShoulder","rightShoulder",
+        "upperChest",
+        "leftToes","rightToes",
+
         "leftThumbProximal","leftThumbIntermediate","leftThumbDistal","leftIndexProximal",
         "leftIndexIntermediate","leftIndexDistal","leftMiddleProximal","leftMiddleIntermediate",
         "leftMiddleDistal","leftRingProximal","leftRingIntermediate","leftRingDistal",
         "leftLittleProximal","leftLittleIntermediate","leftLittleDistal",
+        
         "rightThumbProximal","rightThumbIntermediate","rightThumbDistal",
         "rightIndexProximal","rightIndexIntermediate","rightIndexDistal",
         "rightMiddleProximal","rightMiddleIntermediate","rightMiddleDistal",
         "rightRingProximal","rightRingIntermediate","rightRingDistal",
         "rightLittleProximal","rightLittleIntermediate","rightLittleDistal"
                 ]
+    #child:parent
+    hierarchy = {
+        #体幹
+        "leftEye":"head",
+        "rightEye":"head",
+        "jaw":"head",
+        "head":"neck",
+        "neck":"upperChest",
+        "upperChest":"chest",
+        "chest":"spine",
+        "spine":"hips", #root
+        #右上
+        "rightShoulder":"chest",
+        "rightUpperArm":"rightShoulder",
+        "rightLowerArm":"rightUpperArm",
+        "rightHand":"rightLowerArm",
+        "rightThumbProximal":"rightHand",
+        "rightThumbIntermediate":"rightThumbProximal",
+        "rightThumbDistal":"rightThumbIntermediate",
+        "rightIndexProximal":"rightHand",
+        "rightIndexIntermediate":"rightIndexProximal",
+        "rightIndexDistal":"rightIndexIntermediate",
+        "rightMiddleProximal":"rightHand",
+        "rightMiddleIntermediate":"rightMiddleProximal",
+        "rightMiddleDistal":"rightMiddleIntermediate",
+        "rightRingProximal":"rightHand",
+        "rightRingIntermediate":"rightRingProximal",
+        "rightRingDistal":"rightRingIntermediate",
+        "rightLittleProximal":"rightHand",
+        "rightLittleIntermediate":"rightLittleProximal",
+        "rightLittleDistal":"rightLittleIntermediate",
+        #左上
+        "leftShoulder":"chest",
+        "leftUpperArm":"leftShoulder",
+        "leftLowerArm":"leftUpperArm",
+        "leftHand":"leftLowerArm",
+        "leftThumbProximal":"leftHand",
+        "leftThumbIntermediate":"leftThumbProximal",
+        "leftThumbDistal":"leftThumbIntermediate",
+        "leftIndexProximal":"leftHand",
+        "leftIndexIntermediate":"leftIndexProximal",
+        "leftIndexDistal":"leftIndexIntermediate",
+        "leftMiddleProximal":"leftHand",
+        "leftMiddleIntermediate":"leftMiddleProximal",
+        "leftMiddleDistal":"leftMiddleIntermediate",
+        "leftRingProximal":"leftHand",
+        "leftRingIntermediate":"leftRingProximal",
+        "leftRingDistal":"leftRingIntermediate",
+        "leftLittleProximal":"leftHand",
+        "leftLittleIntermediate":"leftLittleProximal",
+        "leftLittleDistal":"leftLittleIntermediate",
+
+        #左足
+        "leftUpperLeg":"hips",
+        "leftLowerLeg":"leftUpperLeg",
+        "leftFoot":"leftLowerLeg",
+        "leftToes":"leftFoot",
+        #右足
+        "rightUpperLeg":"hips",
+        "rightLowerLeg":"rightUpperLeg",
+        "rightFoot":"rightLowerLeg",
+        "rightToes":"rightFoot"
+    }
 
 
 class Image_props(object):

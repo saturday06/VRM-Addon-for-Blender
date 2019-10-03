@@ -116,6 +116,36 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
         return True
 
     def draw(self, context):
+        #region helper
+        def armature_UI():
+            self.layout.separator()
+            abox = self.layout.row(align=False).box()
+            abox.label(text="Armature Help")
+            abox.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
+            self.layout.separator()
+
+            reqbox = abox.box()
+            reqrow = reqbox.row()
+            reqrow.label(text = "VRM Requwire Bones")
+            for req in V_Types.HumanBones.requires:
+                if req in context.active_object.data:
+                    reqbox.prop_search(context.active_object.data, f'[\"{req}\"]', context.active_object.data, "bones", text=req)
+                else:
+                    reqbox.operator(VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty.bl_idname,text = f"Add {req} propaty")
+            defbox = abox.box()
+            defbox.label(text="VRM option Bones")
+            for defs in V_Types.HumanBones.defines:
+                if defs in context.active_object.data:
+                    defbox.prop_search(context.active_object.data, f'[\"{defs}\"]', context.active_object.data, "bones", text=defs)
+                else:
+                    defbox.operator(VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty.bl_idname,text = f"Add {defs} propaty")     
+
+            abox.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
+            abox.operator(VRM_HELPER.Bones_rename.bl_idname)
+            return
+        #endregion helper
+
+        #region draw_main
         self.layout.label(text="If you select armature in object mode")
         self.layout.label(text="armature renamer is shown")
         self.layout.label(text="If you in MESH EDIT")
@@ -130,30 +160,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
                     mbox.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
                     mbox.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
                 if context.active_object.type == 'ARMATURE':
-                    self.layout.separator()
-                    abox = self.layout.row(align=False).box()
-                    abox.label(text="Armature Help")
-                    abox.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
-                    self.layout.separator()
-
-                    reqbox = abox.box()
-                    reqrow = reqbox.row()
-                    reqrow.label(text = "VRM Requwire Bones")
-                    for req in V_Types.HumanBones.requires:
-                        if req in context.active_object.data:
-                            reqbox.prop_search(context.active_object.data, f'[\"{req}\"]', context.active_object.data, "bones", text=req)
-                        else:
-                            reqbox.operator(VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty.bl_idname,text = f"Add {req} propaty")
-                    defbox = abox.box()
-                    defbox.label(text="VRM option Bones")
-                    for defs in V_Types.HumanBones.defines:
-                        if defs in context.active_object.data:
-                            defbox.prop_search(context.active_object.data, f'[\"{defs}\"]', context.active_object.data, "bones", text=defs)
-                        else:
-                            defbox.operator(VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty.bl_idname,text = f"Add {defs} propaty")     
-
-                    abox.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
-                    abox.operator(VRM_HELPER.Bones_rename.bl_idname)
+                    armature_UI()
                 if context.active_object.type =="MESH":
                     self.layout.label(icon="ERROR",text="EXPERIMENTAL！！！")
                     self.layout.operator(VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe.bl_idname)
@@ -163,27 +170,9 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
             
         if context.mode == "POSE":
             if context.active_object.type == 'ARMATURE':
-                self.layout.separator()
-                abox = self.layout.row(align=False).box()
-                abox.label(text="Armature Help")
-                abox.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
-                self.layout.separator()
-
-                reqbox = abox.box()
-                reqrow = reqbox.row()
-                reqrow.label(text = "VRM Requwire Bones")
-                for req in V_Types.HumanBones.requires:
-                    if req in context.active_object.data:
-                        reqbox.prop_search(context.active_object.data, f'[\"{req}\"]', context.active_object.data, "bones", text=req)
-                    else:
-                        reqbox.operator(VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty.bl_idname,text = f"Add {req} propaty")
-                defbox = abox.box()
-                defbox.label(text="VRM option Bones")
-                for defs in V_Types.HumanBones.defines:
-                    if defs in context.active_object.data:
-                        defbox.prop_search(context.active_object.data, f'[\"{defs}\"]', context.active_object.data, "bones", text=defs)
-                    else:
-                        defbox.operator(VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty.bl_idname,text = f"Add {defs} propaty")                
+                armature_UI()          
+        return
+        #endregion draw_main
 
 from bpy.app.handlers import persistent
 @persistent
