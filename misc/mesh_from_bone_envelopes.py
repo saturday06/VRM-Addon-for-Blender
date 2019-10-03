@@ -32,7 +32,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 				continue
 			if "title" in armature and self.may_vrm_humanoid: # = is VRM humanoid
 				is_VRM_humanoid = True
-				if bone.get("humanBone") in ("leftEye","rightEye","Hips"): 
+				if bone.name in [armature.data.get(s) for s in ("leftEye","rightEye","hips") ]: 
 					continue
 				if bone.name == "root":
 					continue
@@ -40,7 +40,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
 			hrad = bone.head_radius
 			tpos = bone.tail_local
 			trad = bone.tail_radius
-			if is_VRM_humanoid and bone.get("humanBone") == "head":
+			if is_VRM_humanoid and armature.data.get("head") == bone.name:
 				elem = mball.elements.new()
 				elem.co = (Vector(hpos)+Vector(tpos))/2
 				elem.radius = Vector(Vector(tpos)-Vector(hpos)).length/2
