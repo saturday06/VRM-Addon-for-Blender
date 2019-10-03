@@ -160,6 +160,30 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
         
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
+            
+        if context.mode == "POSE":
+            if context.active_object.type == 'ARMATURE':
+                self.layout.separator()
+                abox = self.layout.row(align=False).box()
+                abox.label(text="Armature Help")
+                abox.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
+                self.layout.separator()
+
+                reqbox = abox.box()
+                reqrow = reqbox.row()
+                reqrow.label(text = "VRM Requwire Bones")
+                for req in V_Types.HumanBones.requires:
+                    if req in context.active_object.data:
+                        reqbox.prop_search(context.active_object.data, f'[\"{req}\"]', context.active_object.data, "bones", text=req)
+                    else:
+                        reqbox.operator(VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty.bl_idname,text = f"Add {req} propaty")
+                defbox = abox.box()
+                defbox.label(text="VRM option Bones")
+                for defs in V_Types.HumanBones.defines:
+                    if defs in context.active_object.data:
+                        defbox.prop_search(context.active_object.data, f'[\"{defs}\"]', context.active_object.data, "bones", text=defs)
+                    else:
+                        defbox.operator(VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty.bl_idname,text = f"Add {defs} propaty")                
 
 from bpy.app.handlers import persistent
 @persistent

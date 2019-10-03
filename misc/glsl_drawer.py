@@ -536,6 +536,7 @@ class glsl_draw_obj():
         self.materials = {}
         self.main_execulutor = ThreadPoolExecutor()
         self.sub_execulutor = ThreadPoolExecutor()
+
     scene_meshes = None
     def build_scene(scene=None,*args):
         if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
@@ -548,7 +549,7 @@ class glsl_draw_obj():
             for mat_slot in obj.material_slots:
                 if mat_slot.material.name not in self.materials.keys():
                     self.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
-
+        #if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier impliment
         self.scene_meshes = []
         self.draw_x_offset = 0
         for obj in self.objs:
