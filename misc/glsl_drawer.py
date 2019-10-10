@@ -385,7 +385,7 @@ class glsl_draw_obj():
                             texture( OutlineWidthTexture,uv) +
                             texture( UV_Animation_Mask_Texture,uv);
 
-            vec4 debug_unused_vec4 = vec4(0.00001)*debug_unused_tex*debug_unused_float*shadowCoord;
+            vec4 debug_unused_vec4 = vec4(0.00001)*debug_unused_tex*debug_unused_float*shadowCoord*vec4(viewUpDirection,1);
             mat4 debug_unused_mat4 = mat4(0.00001)*normalWorldToViewMatrix;
             debug_unused_vec4 *= DiffuseColor 
                                  + ShadeColor
@@ -459,14 +459,10 @@ class glsl_draw_obj():
             output_color += p_rim_color;
             
             //matcap
-            //vec3 view_normal = mat3(normalWorldToViewMatrix) * mod_n;
-            //vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
-
             vec3 world_cam_up = viewUpDirection;
             vec3 world_view_up = normalize(world_cam_up - viewDirection * dot(viewDirection,world_cam_up));
-            vec3 world_view_right = normalize(cross(viewDirection,world_view_up));
-            vec2 matcap_uv = vec2(dot(world_view_right,mod_n),dot(world_view_up,mod_n))*0.5+0.5;
-            matcap_uv.x = 1-matcap_uv.x;
+            vec3 world_view_left = normalize(cross(world_view_up,viewDirection));
+            vec2 matcap_uv = vec2(dot(world_view_left,mod_n),dot(world_view_up,mod_n))*0.5+0.5;
             vec4 matcap_color = color_linearlize( texture( SphereAddTexture , matcap_uv));
 
            
