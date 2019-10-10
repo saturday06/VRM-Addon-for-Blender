@@ -266,6 +266,7 @@ class glsl_draw_obj():
     toon_fragment_shader = '''
         uniform vec3 lightpos;
         uniform vec3 viewDirection;
+        uniform vec3 viewUpDirection;
         uniform mat4 viewProjectionMatrix;
         uniform mat4 normalWorldToViewMatrix;
         uniform float is_outline;
@@ -456,13 +457,19 @@ class glsl_draw_obj():
             //parametric rim
             vec3 p_rim_color = pow(clamp(1.0-dot(mod_n,viewDirection)+RimLift,0.0,1.0),RimFresnelPower) * color_linearlize(RimColor).rgb * color_linearlize(texture(RimTexture,mainUV)).rgb;
             output_color += p_rim_color;
+            
             //matcap
-            vec3 world_cam_up = viewProjectionMatrix[1].xyz;
+            //vec3 view_normal = mat3(normalWorldToViewMatrix) * mod_n;
+            //vec4 matcap_color = color_linearlize( texture( SphereAddTexture , view_normal.xy * 0.5 + 0.5 ));
+
+            vec3 world_cam_up = viewUpDirection;
             vec3 world_view_up = normalize(world_cam_up - viewDirection * dot(viewDirection,world_cam_up));
             vec3 world_view_right = normalize(cross(viewDirection,world_view_up));
             vec2 matcap_uv = vec2(dot(world_view_right,mod_n),dot(world_view_up,mod_n))*0.5+0.5;
-
+            matcap_uv.x = 1-matcap_uv.x;
             vec4 matcap_color = color_linearlize( texture( SphereAddTexture , matcap_uv));
+
+           
             output_color += matcap_color.rgb;
 
             //emission
@@ -725,6 +732,7 @@ class glsl_draw_obj():
         vp_mat = bpy.context.region_data.perspective_matrix
         projection_mat = bpy.context.region_data.window_matrix
         view_dir = bpy.context.region_data.view_matrix[2][:3]
+        view_up = bpy.context.region_data.view_matrix[1][:3]
         normalWorldToViewMatrix = bpy.context.region_data.view_matrix.inverted_safe().transposed()
         aspect = bpy.context.area.width/bpy.context.area.height
 
@@ -762,6 +770,7 @@ class glsl_draw_obj():
                 toon_shader.uniform_float("projectionMatrix",projection_mat)
                 toon_shader.uniform_float("viewProjectionMatrix", vp_mat)
                 toon_shader.uniform_float("viewDirection", view_dir)
+                toon_shader.uniform_float("viewUpDirection",view_up)
                 toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", light_pos)
