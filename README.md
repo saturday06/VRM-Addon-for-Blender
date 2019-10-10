@@ -1,4 +1,5 @@
 # VRM_IMPORTER_for_Blender2.8
+- current :for blender 2.80
 - mesh import : done 
 - material import : wip forever
 - export : spec0.0 export may be possible.
@@ -22,4 +23,4 @@
  - KHR_draco_mesh_compression: CAN'T
  - KHR_techniques_webgl: IGNORE
  - KHR_lights_punctual: IGNORE
- - VRNDER'S extension : NO without VRM
+ - VENDER'S extension : NO without VRM
