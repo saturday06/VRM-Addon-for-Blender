@@ -205,23 +205,27 @@ if bpy.app.build_platform != b'Darwin':
         ])
 
 # アドオン有効化時の処理
+import_func = None
+export_func = None
+add_arm_func = None
+add_mesh_func = None
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.TOPBAR_MT_file_import.append(menu_import)
-    bpy.types.TOPBAR_MT_file_export.append(menu_export)
-    bpy.types.VIEW3D_MT_armature_add.append(add_armature)
-    bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
+    import_func = bpy.types.TOPBAR_MT_file_import.append(menu_import)
+    export_func = bpy.types.TOPBAR_MT_file_export.append(menu_export)
+    add_arm_func = bpy.types.VIEW3D_MT_armature_add.append(add_armature)
+    add_mesh_func = bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
     bpy.app.handlers.load_post.append(add_shaders) 
     
 
 # アドオン無効化時の処理
 def unregister():
     bpy.app.handlers.load_post.remove(add_shaders)
-    bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
-    bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
-    bpy.types.TOPBAR_MT_file_import.remove(menu_export)
-    bpy.types.TOPBAR_MT_file_export.remove(menu_import)
+    bpy.types.VIEW3D_MT_armature_add.remove(add_arm_func)
+    bpy.types.VIEW3D_MT_mesh_add.remove(add_mesh_func)
+    bpy.types.TOPBAR_MT_file_import.remove(import_func)
+    bpy.types.TOPBAR_MT_file_export.remove(export_func)
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
