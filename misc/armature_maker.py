@@ -22,7 +22,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	#腕長さ率
 	arm_length_ratio : bpy.props.FloatProperty(default=1, min=0.5, step=0.01)
 	#手
-	hand_size :bpy.props.FloatProperty(default=0.18, min=0.01, step=0.005)
+	hand_ratio :bpy.props.FloatProperty(default=1, min=0.5, max = 2.0 ,step=0.05)
 	finger_1_2_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
 	finger_2_3_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
 	#足
@@ -129,6 +129,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 				)						
 		
 		#肩～指
+		hand_size = head_size*0.75*self.hand_ratio
 		shoulder_in_pos = self.shoulder_in_width / 2
 		
 		shoulder_parent = Chest
@@ -136,28 +137,29 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			x_add(shoulder_parent.tail, shoulder_in_pos),
 			x_add(shoulder_parent.tail, shoulder_in_pos + self.shoulder_width),
 			(shoulder_parent,shoulder_parent),
-			radius = self.hand_size*0.4
+			radius = hand_size*0.4
 			)
 
+		
 		arm_lengh = head_size * (1*(1-(self.head_ratio-6)/2)+1.5*((self.head_ratio-6)/2)) * self.arm_length_ratio
 		arms = x_mirror_bones_add("Arm",
 			shoulders[0].tail,
 			x_add(shoulders[0].tail,arm_lengh),
 			shoulders,
-			radius = self.hand_size*0.4)
-		hand_size = self.hand_size
+			radius = hand_size*0.4)
+		
 		forearms = x_mirror_bones_add("forearm",
 			arms[0].tail,
 			#グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが概ね一緒
 			x_add(arms[0].tail,arm_lengh - hand_size/2),
 			arms,
-			radius = self.hand_size*0.4
+			radius = hand_size*0.4
 			)
 		hands = x_mirror_bones_add("hand",
 			forearms[0].tail,
 			x_add(forearms[0].tail,hand_size/2),
 			forearms,
-			radius = self.hand_size/4
+			radius = hand_size/4
 		)
 
 		def fingers(finger_name,proximal_pos,finger_len_sum):
