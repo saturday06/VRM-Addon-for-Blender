@@ -17,7 +17,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	#目の奥み
 	eye_depth: bpy.props.FloatProperty(default=-0.03, min=-0.1, max=0, step=0.005)
 	#肩幅
-	shoulder_in_width: bpy.props.FloatProperty(default=0.2125, min=0.01, step=0.005)
+	shoulder_in_width: bpy.props.FloatProperty(default=0.05, min=0.01, step=0.005)
 	shoulder_width: bpy.props.FloatProperty(default=0.08, min=0.01, step=0.005)
 	#腕長さ率
 	arm_length_ratio : bpy.props.FloatProperty(default=1, min=0.5, step=0.01)
@@ -28,7 +28,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	finger_leaf: bpy.props.BoolProperty(default=False) #指先の当たり判定として必要
 	#足
 	leg_length_ratio : bpy.props.FloatProperty(default=0.5, min=0.3, max=0.6,step=0.01)
-	leg_width: bpy.props.FloatProperty(default=0.1, min=0.01, step=0.005)
+	leg_width_ratio: bpy.props.FloatProperty(default=1, min=0.01, step=0.005)
 	leg_size: bpy.props.FloatProperty(default=0.26, min=0.05, step=0.005)
 	
 	def execute(self, context):
@@ -73,60 +73,67 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			pos = [pA+_add for pA,_add in zip(posA,[0,0,add_z])]
 			return pos
 
-		root = bone_add("root", (0, 0, 0), (0, 0,0.3))
+		root = bone_add("root", (0, 0, 0), (0, 0, 0.3))
 		head_size = self.tall / self.head_ratio
 		#down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を年齢具合で線形補完)(股上高めにすると破綻する)
 		eight_upside_ratio, four_upside_ratio = 1-self.leg_length_ratio, (2.5/4)*(1-self.aging_ratio)+(1-self.leg_length_ratio)*self.aging_ratio
 		hip_up_down_ratio = eight_upside_ratio * (1 - (8 - self.head_ratio) / 4) + four_upside_ratio * (8 - self.head_ratio) / 4
-		#チェスト下とチェスト～首の割合
-		upper_chest_neck_ratio = (1-(8-self.head_ratio)/4)*(1/3) + ((8-self.head_ratio)/4)*0.1
 		#体幹
-		neck_len = (1-upper_chest_neck_ratio)*(self.tall*(1-hip_up_down_ratio)/2)/3
+		#股間
+		body_separate = self.tall*(1-hip_up_down_ratio)
+		#首の長さ　
+		neck_len = head_size*2/3
+		#仙骨(骨盤脊柱基部)
+		hips_tall = body_separate + head_size*3/4
+		#胸椎・spineの全長 #首の1/3は顎の後ろに隠れてる
+		backbone_len =  self.tall - hips_tall - head_size - neck_len/3 
 		#FIXME 胸椎と脊椎の割合の確認 //脊椎の基部に位置する主となる屈曲点と、胸郭基部に位置するもうひとつの屈曲点byHumanoid Doc
-		backbone_len =  self.tall*hip_up_down_ratio - head_size - neck_len
-		chest_len = backbone_len*3/6
-		spine_len = backbone_len*1/6
+		chest_len = backbone_len*12/17
+		spine_len = backbone_len*5/17
 		
-		Hips = bone_add("Hips", (0,0, self.tall*(1-hip_up_down_ratio) ), (0,0.1,self.tall*(1-hip_up_down_ratio)),root)
-		Spine = bone_add("Spine",z_add(Hips.head,spine_len),z_add(Hips.head,chest_len),Hips) #骨盤基部->胸郭基部
-		Chest = bone_add("Chest",Spine.tail,z_add(Hips.head,backbone_len),Spine) #胸郭基部->首元
+		#仙骨基部
+		Hips = bone_add("Hips", (0,0, hips_tall), (0,0.1,hips_tall), root)
+		#骨盤基部->胸郭基部
+		Spine = bone_add("Spine",Hips.head,z_add(Hips.head,spine_len),Hips)
+		#胸郭基部->首元
+		Chest = bone_add("Chest",Spine.tail,z_add(Hips.head,backbone_len),Spine) 
 		Neck = bone_add("Neck", Chest.tail, z_add(Chest.tail,neck_len), Chest)
-		
-		Head = bone_add("Head", (0,0, self.tall-head_size), (0,0, self.tall), Neck)
+		#首の1/3は顎の後ろに隠れてる
+		Head = bone_add("Head", (0,0, self.tall-head_size+neck_len*2/3), (0,0, self.tall), Neck)
 
 		#目
 		eye_depth = self.eye_depth
-		eyes = x_mirror_bones_add("eye", (head_size / 5, 0, 		Head.head[2] + head_size / 2),
-										 (head_size / 5, eye_depth, Head.head[2] + head_size / 2),
+		eyes = x_mirror_bones_add("eye", (head_size / 5, 0, 		self.tall - head_size/2),
+										 (head_size / 5, eye_depth, self.tall - head_size/2),
 										 (Head, Head))
 		#足
-		leg_width = self.leg_width
+		leg_width = head_size/4 * self.leg_width_ratio
 		leg_size = self.leg_size
 		
-		leg_bone_lengh =( self.tall*(1-hip_up_down_ratio) - self.tall*0.05 )/2
+		leg_bone_lengh =( body_separate + head_size *3/8 - self.tall*0.05 )/2
 		upside_legs = x_mirror_bones_add("Upper_Leg",
-				x_add(Hips.head, leg_width),
-				z_add(x_add(Hips.head, leg_width), -leg_bone_lengh),
+				x_add((0, 0, body_separate + head_size*3/8), leg_width),
+				x_add(z_add((0, 0, body_separate + head_size*3/8), -leg_bone_lengh), leg_width),
 				 (Hips, Hips),
-				radius = self.leg_width*0.9
+				radius = leg_width*0.9
 				)
 		lower_legs = x_mirror_bones_add("Lower_Leg",
 				upside_legs[0].tail,
 				(leg_width,0,self.tall*0.05),
 				upside_legs,
-				radius = self.leg_width*0.9
+				radius = leg_width*0.9
 				)
 		Foots = x_mirror_bones_add("Foot",
 				lower_legs[0].tail,
 				(leg_width,-leg_size*(2/3),0),
 				lower_legs,
-				radius = self.leg_width*0.9
+				radius = leg_width*0.9
 				)
 		Toes = x_mirror_bones_add("Toes",
 				Foots[0].tail,
 				(leg_width,-leg_size,0),
 				Foots,
-				radius = self.leg_width*0.5
+				radius = leg_width*0.5
 				)						
 		
 		#肩～指
