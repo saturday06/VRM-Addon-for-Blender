@@ -146,12 +146,14 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			shoulders[0].tail,
 			x_add(shoulders[0].tail,arm_lengh),
 			shoulders,
-			radius = hand_size*0.4)
+			radius = hand_size*0.4
+			)
 		
+		#グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが概ね一緒、けど手がでかすぎると破綻する
+		forearm_length = max(arm_lengh - hand_size/2, arm_lengh*0.8)
 		forearms = x_mirror_bones_add("forearm",
 			arms[0].tail,
-			#グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが概ね一緒
-			x_add(arms[0].tail,arm_lengh - hand_size/2),
+			x_add(arms[0].tail, forearm_length),
 			arms,
 			radius = hand_size*0.4
 			)
@@ -160,7 +162,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			x_add(forearms[0].tail,hand_size/2),
 			forearms,
 			radius = hand_size/4
-		)
+			)
 
 		def fingers(finger_name,proximal_pos,finger_len_sum):
 
