@@ -53,8 +53,8 @@ class Blend_model():
         i=prog(i)
         self.make_material()
         i=prog(i)
-        self.make_primitive_mesh_objects()
-        i=prog(i)
+        self.make_primitive_mesh_objects(wm,i)
+        #i=prog(i) ↑関数内でやる
         self.json_dump()
         i=prog(i)
         self.attach_vrm_attributes()
@@ -149,11 +149,8 @@ class Blend_model():
                     if parent_id == -1:#唯我独尊：上向けとけ
                         b.tail = [b.head[0],b.head[1]+0.05,b.head[2]]
                     else:#normalize length to 0.03　末代：親から距離をちょっととる感じ
-                        lengh = vector_length(py_bone.position)
-                        lengh *= 30
-                        if lengh <= 0.01:#0除算除けと気分
-                            lengh =0.01
-                        posDiff = [py_bone.position[i]/lengh for i in range(3)]
+                        length = max(0.01 , vector_length(py_bone.position) * 30) #0除算除けと気分
+                        posDiff = [py_bone.position[i]/length for i in range(3)]
                         if vector_length(posDiff) <= 0.001:
                             posDiff[1] += 0.01 #ボーンの長さが1mm以下なら上に10cm延ばす 長さが０だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
                         b.tail = [b.head[i]+posDiff[i] for i in range(3)]
@@ -445,11 +442,13 @@ class Blend_model():
     #endregion material
 
 
-    def make_primitive_mesh_objects(self):
+    def make_primitive_mesh_objects(self,wm,progress):
         self.meshes = {}
         self.primitive_obj_dict = {pymesh[0].object_id:[] for pymesh in self.vrm_pydata.meshes}
         morph_cache_dict = {} #key:tuple(POSITION,targets.POSITION),value:points_data
         #mesh_obj_build
+        mesh_progress = 0
+        mesh_progress_unit = 1/max(1,len(self.vrm_pydata.meshes))
         for pymesh in self.vrm_pydata.meshes:
             b_mesh = bpy.data.meshes.new(pymesh[0].name)
             face_index = [tri for prim in pymesh for tri in prim.face_indices]
@@ -504,8 +503,7 @@ class Blend_model():
                         vg_list = [] # VertexGroupのリスト
                         for vg_key in vg_dict.keys():
                             if vg_key not in obj.vertex_groups:                                
-                                obj.vertex_groups.new(name=vg_key)
-                                vg_list.append(obj.vertex_groups[-1])
+                                vg_list.append(obj.vertex_groups.new(name=vg_key))
                         #頂点ﾘｽﾄに辞書から書き込む
                         for vg in vg_list:
                             weights = vg_dict[vg.name]
@@ -638,6 +636,11 @@ class Blend_model():
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.mesh.remove_doubles(use_unselected = True)            
             #endregion vertices_merging
+            
+            #progress update
+            mesh_progress += mesh_progress_unit
+            wm.progress_update(progress + mesh_progress)
+        wm.progress_update(progress+1)
         return
 
     def attach_vrm_attributes(self):
