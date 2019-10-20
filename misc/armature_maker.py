@@ -25,6 +25,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	hand_ratio :bpy.props.FloatProperty(default=1, min=0.5, max = 2.0 ,step=0.05)
 	finger_1_2_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
 	finger_2_3_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
+	finger_leaf: bpy.props.BoolProperty(default=False) #指先の当たり判定として必要
 	#足
 	leg_length_ratio : bpy.props.FloatProperty(default=0.5, min=0.3, max=0.6,step=0.01)
 	leg_width: bpy.props.FloatProperty(default=0.1, min=0.01, step=0.005)
@@ -173,6 +174,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands,hand_size/15)
 			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones,hand_size/15)
 			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones,hand_size/15)
+			if self.finger_leaf:
+				x_mirror_bones_add(f"{finger_name}_leaf",distal_bones[0].tail,x_add(distal_bones[0].tail,distal_finger_len),distal_bones,hand_size/20)
 			return proximal_bones,intermediate_bones,distal_bones
 
 		finger_y_offset = -hand_size/10
@@ -257,7 +260,6 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 
 	def setup_as_vrm(self,armature,compaire_dict):
 		for vrm_bone_name,blender_bone_name in compaire_dict.items():
-			armature.data.bones[blender_bone_name]["humanBone"] = vrm_bone_name
 			armature.data[vrm_bone_name] = blender_bone_name
 		ICYP_OT_MAKE_ARAMATURE.make_extention_setting_and_metas(armature)
 
