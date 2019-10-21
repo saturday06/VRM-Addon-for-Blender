@@ -496,7 +496,12 @@ class Blend_model():
                                 for joint_id in [joint_id for joint_ids in prim.JOINTS_0 for joint_id in joint_ids]
                         }
                         for v_index,(joint_ids,weights) in enumerate(zip(prim.JOINTS_0,prim.WEIGHTS_0)):
-                            for joint_id,weight in zip(joint_ids,weights):
+                            #region VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
+                            normalized_joint_dic = {jid:0 for jid in set(joint_ids)}
+                            for i,k in enumerate(joint_ids):
+                                normalized_joint_dic[k] += weights[i]
+                            #endregion VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
+                            for joint_id,weight in normalized_joint_dic.items():
                                 node_id = nodes_index_list[joint_id]
                                 #TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
                                 vg_dict[self.vrm_pydata.nodes_dict[node_id].name].append([v_index,weight])
