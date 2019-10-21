@@ -553,7 +553,11 @@ class Blend_model():
                 #bpy.ops.mesh.customdata_custom_splitnormals_add()
                 for prim in pymesh:
                     if hasattr(prim, "NORMAL"):
-                        normalized_normal = [Vector(n).normalized() for n in prim.NORMAL]
+                        normalized_normal = prim.NORMAL
+                        if not hasattr(prim,"vert_normal_normalized"):
+                            normalized_normal = [Vector(n).normalized() for n in prim.NORMAL]
+                            setattr(prim,"vert_normal_normalized",True)
+                            prim.NORMAL = normalized_normal
                         b_mesh.normals_split_custom_set_from_vertices(normalized_normal)
                 b_mesh.use_auto_smooth = True
             #endregion Normal
