@@ -86,7 +86,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		#仙骨(骨盤脊柱基部)
 		hips_tall = body_separate + head_size*3/4
 		#胸椎・spineの全長 #首の1/3は顎の後ろに隠れてる
-		backbone_len =  self.tall - hips_tall - head_size - neck_len/3 
+		backbone_len =  self.tall - hips_tall - head_size - neck_len/2
 		#FIXME 胸椎と脊椎の割合の確認 //脊椎の基部に位置する主となる屈曲点と、胸郭基部に位置するもうひとつの屈曲点byHumanoid Doc
 		chest_len = backbone_len*12/17
 		spine_len = backbone_len*5/17
@@ -97,9 +97,9 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		Spine = bone_add("Spine",Hips.head,z_add(Hips.head,spine_len),Hips)
 		#胸郭基部->首元
 		Chest = bone_add("Chest",Spine.tail,z_add(Hips.head,backbone_len),Spine) 
-		Neck = bone_add("Neck", Chest.tail, z_add(Chest.tail,neck_len), Chest)
-		#首の1/3は顎の後ろに隠れてる
-		Head = bone_add("Head", (0,0, self.tall-head_size+neck_len*2/3), (0,0, self.tall), Neck)
+		Neck = bone_add("Neck",  (0,0,self.tall - head_size - neck_len/2), (0,0, self.tall - head_size + neck_len/2), Chest)
+		#首の1/2は顎の後ろに隠れてる
+		Head = bone_add("Head", (0,0, self.tall - head_size + neck_len/2), (0,0, self.tall), Neck)
 
 		#目
 		eye_depth = self.eye_depth
@@ -178,17 +178,17 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 			proximal_finger_len = finger_len_sum*finger_normalize
 			intermediate_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio
 			distal_finger_len = finger_len_sum*finger_normalize*self.finger_1_2_ratio*self.finger_2_3_ratio
-			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands,hand_size/15)
-			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones,hand_size/15)
-			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones,hand_size/15)
+			proximal_bones = x_mirror_bones_add(f"{finger_name}_proximal",proximal_pos,x_add(proximal_pos,proximal_finger_len),hands,hand_size/18)
+			intermediate_bones = x_mirror_bones_add(f"{finger_name}_intermidiate",proximal_bones[0].tail,x_add(proximal_bones[0].tail,intermediate_finger_len),proximal_bones,hand_size/18)
+			distal_bones = x_mirror_bones_add(f"{finger_name}_distal",intermediate_bones[0].tail,x_add(intermediate_bones[0].tail,distal_finger_len),intermediate_bones,hand_size/18)
 			if self.nail_bone:
 				x_mirror_bones_add(f"{finger_name}_nail",distal_bones[0].tail,x_add(distal_bones[0].tail,distal_finger_len),distal_bones,hand_size/20)
 			return proximal_bones,intermediate_bones,distal_bones
 
-		finger_y_offset = -hand_size/10
+		finger_y_offset = -hand_size/16
 		thumbs = fingers(
 			"finger_thumbs",
-			y_add(hands[0].head,finger_y_offset - hand_size/5),
+			y_add(hands[0].head,finger_y_offset*3),
 			hand_size/2,
 		)
 
@@ -203,7 +203,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 
 		index_fingers = fingers(
 			"finger_index",
-			y_add(hands[0].tail,-hand_size/5 +finger_y_offset),
+			y_add(hands[0].tail,finger_y_offset*3),
 			(hand_size/2)-(1/2.3125)*(hand_size/2)/3
 		)
 		middle_fingers = fingers(
@@ -213,12 +213,12 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		)
 		ring_fingers = fingers(
 			"finger_ring",
-			y_add(hands[0].tail,hand_size/5 +finger_y_offset),
+			y_add(hands[0].tail,-finger_y_offset),
 			(hand_size/2)-(1/2.3125)*(hand_size/2)/3
 		)
 		little_fingers = fingers(
 			"finger_little",
-			y_add(hands[0].tail,2*hand_size/5 +finger_y_offset),
+			y_add(hands[0].tail,-finger_y_offset*3),
 			((hand_size/2)-(1/2.3125)*(hand_size/2)/3) * ((1/2.3125)+(1/2.3125)*0.75)
 		)
 
