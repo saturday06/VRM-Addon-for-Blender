@@ -239,7 +239,7 @@ def mesh_read(vrm_pydata):
             
             #ここからモーフターゲット vrmのtargetは相対位置 normalは無視する
             if "targets" in primitive:
-                morphTarget_point_list_and_accessor_index_dict = dict()
+                morphTarget_point_list_and_accessor_index_dict = OrderedDict()
                 for i,morphTarget in enumerate(primitive["targets"]):
                     posArray = vrm_pydata.decoded_binary[morphTarget["POSITION"]]
                     if "extra" in morphTarget:#for old AliciaSolid
