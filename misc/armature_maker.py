@@ -1,6 +1,7 @@
 import bpy
 from mathutils import Matrix
-from math import radians,sqrt
+from math import radians, sqrt
+from .template_mesh_maker import ICYP_MESH_Maker
 import json
 class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	bl_idname = "icyp.make_basic_armature"
@@ -8,32 +9,37 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	bl_description = "Create armature along with a simple setup for VRM export"
 	bl_options = {'REGISTER', 'UNDO'}
 	
+	#
+	WIP_with_template_mesh : bpy.props.BoolProperty(default = False)
 	#身長 at meter
-	tall: bpy.props.FloatProperty(default=1.70, min=0.3, step=0.001)
+	tall: bpy.props.FloatProperty(default=1.70, min=0.3, step=0.001,name = "Bone tall")
 	#頭身
-	head_ratio: bpy.props.FloatProperty(default=8.0, min=4, step=0.05)
+	head_ratio: bpy.props.FloatProperty(default=8.0, min=4, step=0.05,description = "height per heads")
 	#足-胴比率：０：子供、１：大人　に近くなる(低等身で有効)
 	aging_ratio: bpy.props.FloatProperty(default=0.5, min=0, max=1, step=0.1)
 	#目の奥み
 	eye_depth: bpy.props.FloatProperty(default=-0.03, min=-0.1, max=0, step=0.005)
 	#肩幅
-	shoulder_in_width: bpy.props.FloatProperty(default=0.05, min=0.01, step=0.005)
-	shoulder_width: bpy.props.FloatProperty(default=0.08, min=0.01, step=0.005)
+	shoulder_in_width: bpy.props.FloatProperty(default=0.05, min=0.01, step=0.005,description  ="Innner shoulder position")
+	shoulder_width: bpy.props.FloatProperty(default=0.08, min=0.01, step=0.005,description = "shoulder roll position")
 	#腕長さ率
 	arm_length_ratio : bpy.props.FloatProperty(default=1, min=0.5, step=0.01)
 	#手
 	hand_ratio :bpy.props.FloatProperty(default=1, min=0.5, max = 2.0 ,step=0.05)
-	finger_1_2_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
-	finger_2_3_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005)
-	nail_bone: bpy.props.BoolProperty(default=False) #指先の当たり判定として必要
+	finger_1_2_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005,description = "proximal / intermidiate")
+	finger_2_3_ratio :bpy.props.FloatProperty(default=0.75, min=0.5,max=1, step=0.005,description = "intermidiate / distal")
+	nail_bone: bpy.props.BoolProperty(default=False, description = "may need for finger collider") #指先の当たり判定として必要
 	#足
-	leg_length_ratio : bpy.props.FloatProperty(default=0.5, min=0.3, max=0.6,step=0.01)
+	leg_length_ratio : bpy.props.FloatProperty(default=0.5, min=0.3, max=0.6,step=0.01, description = "upper body/lower body")
 	leg_width_ratio: bpy.props.FloatProperty(default=1, min=0.01, step=0.005)
 	leg_size: bpy.props.FloatProperty(default=0.26, min=0.05, step=0.005)
 	
+	armature_obj = None
 	def execute(self, context):
-		armature,compare_dict = self.make_armature(context)
-		self.setup_as_vrm(armature,compare_dict)
+		self.armature_obj, compare_dict = self.make_armature(context)
+		self.setup_as_vrm(self.armature_obj, compare_dict)
+		if self.with_template_mesh:
+			ICYP_MESH_Maker(self)
 		return {"FINISHED"}
 
 	def make_armature(self, context):
