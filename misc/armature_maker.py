@@ -38,7 +38,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	def execute(self, context):
 		self.armature_obj, compare_dict = self.make_armature(context)
 		self.setup_as_vrm(self.armature_obj, compare_dict)
-		if self.with_template_mesh:
+		if self.WIP_with_template_mesh:
 			ICYP_MESH_Maker(self)
 		return {"FINISHED"}
 
