@@ -6,6 +6,10 @@
 
 # 機能
  - VRM import
+    - vrmの物理拡張などの設定はblender内蔵テキストエディタに出力、アーマチュアのオブジェクトカスタムプロパティにそのパスが書かれます
+    - モデルライセンスはアーマチュアのオブジェクトカスタムプロパティに出力されます
+    - humanoidボーン属性はVRM　HELPERタブからアクセス可能です
+    - これらはVRMエクスポート時に利用されます（詳しくは下部の図を参照
  - VRM 向けシェーダーノードグループ追加(※モックアップ程度の出来)(GLTF,MToon_unversioned,TransparentZwrite)
  - VRM 向けhumanoid Armature 追加(これを使わないとexport出来ません)（絶対に出来ないとは言ってないけど圧倒的に楽）
  - VRM0.0(のような何かの) export 完全ではないので、出力後にuniVRMを通してください。（他形式でuniVRMに渡すより物理やマテリアル、blendshape_groupの情報が多く残るのでマシ程度にお考え下さい
