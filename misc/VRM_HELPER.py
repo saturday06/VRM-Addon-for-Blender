@@ -13,6 +13,7 @@ import re
 from math import sqrt, pow
 from mathutils import Vector
 from collections import deque
+import json 
 class Bones_rename(bpy.types.Operator):
     bl_idname = "vrm.bones_rename"
     bl_label = "Rename Vroid_bones"
@@ -30,6 +31,29 @@ class Bones_rename(bpy.types.Operator):
                         tmp += y + "_"
                     tmp += RL
                     x.name = tmp
+        if "spring_bone" in bpy.context.active_object:
+            textblock = bpy.data.texts[bpy.context.active_object["spring_bone"]]
+            j = json.loads("".join([line.body for line in textblock.lines]))
+            for jdic in j:
+                for i,bones in enumerate(jdic["bones"]):
+                    for RL in ["L","R"]:
+                        ma = re.match("(.*)_"+RL+"_(.*)",bones)
+                        if ma:
+                            tmp = ""
+                            for y in ma.groups():
+                                tmp += y + "_"
+                            tmp += RL
+                            jdic["bones"][i] = tmp
+                for i,collider in enumerate(jdic["colliderGroups"]):
+                    for RL in ["L","R"]:
+                        ma = re.match("(.*)_"+RL+"_(.*)",collider)
+                        if ma:
+                            tmp = ""
+                            for y in ma.groups():
+                                tmp += y + "_"
+                            tmp += RL
+                            jdic["colliderGroups"][i] = tmp
+            textblock.from_string(json.dumps(j,indent = 4))
         return {"FINISHED"}
 
 class Add_VRM_extensions_to_armature(bpy.types.Operator):
