@@ -26,4 +26,4 @@
  - VENDER'S extension : NO without VRM
 
  # Spec
- [web/spec.jpg]
+<img src="../web/spec.jpg" />
