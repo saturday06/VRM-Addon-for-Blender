@@ -187,6 +187,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 #TODO: T_POSE,
                 for humanbone in VRM_types.HumanBones.requires:
                     if humanbone not in armature.data or armature.data[humanbone] not in ["", *[b.name for b in armature.data.bones]]:
+                        armature.data[humanbone] = ""
                         messages.add(
                             lang_support(
                                     f"humanBone: {humanbone} is not defined or bone is not found. fix armature \"object\" custom propaty.",
@@ -195,7 +196,9 @@ class VRM_VALIDATOR(bpy.types.Operator):
                                 )
                 for v in VRM_types.HumanBones.defines:
                     if v in armature.data:
-                        if armature.data[v] not in ["",*[b.name for b in armature.data.bones]]:
+                        if armature.data[v] not in ["", *[b.name for b in armature.data.bones]]:
+                            if v in armature.data:
+                                armature.data[v] = ""
                             messages.add(
                                 lang_support(
                                         f"bone name: {armature.data[v]} as humanBone:{v} is not found. fix armature \"object\" custom propaty.",
