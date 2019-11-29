@@ -414,7 +414,7 @@ class Glb_obj():
 				MT_Prop =  {
 					"version" :"3.2"
 				}
-				blendmode = MToon_dic["_BlendMode"]
+				blendmode = MToon_float_dic["_BlendMode"]
 				if blendmode == 0:
 					blendemode = "opacue"
 				elif blendemode == 1:
