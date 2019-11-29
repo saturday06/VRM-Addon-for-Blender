@@ -85,10 +85,12 @@ class ExportVRM(bpy.types.Operator,ExportHelper):
         default='*.vrm',
         options={'HIDDEN'}
     )
+    
+    VRM_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
 
     def execute(self,context):
         fdir = self.filepath
-        bin =  glb_factory.Glb_obj().convert_bpy2glb()
+        bin =  glb_factory.Glb_obj().convert_bpy2glb(self.VRM_version)
         with open(fdir,"wb") as f:
             f.write(bin)
         return {'FINISHED'}

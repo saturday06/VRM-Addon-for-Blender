@@ -24,7 +24,8 @@ class Glb_obj():
 		self.armature = [obj for obj in bpy.context.selected_objects if obj.type == "ARMATURE"][0]
 		self.result = None
 
-	def convert_bpy2glb(self):
+	def convert_bpy2glb(self,VRM_version):
+		self.VRM_version = VRM_version
 		self.image_to_bin()
 		self.armature_to_node_and_scenes_dic() #親のないboneは1つだけ as root_bone
 		self.material_to_dic()
@@ -406,7 +407,68 @@ class Glb_obj():
 									baseColor_texture = maintex,
 									transparent_method = transparent_method,
 									transparency_cutoff = transparency_cutoff,
-									doublesided = b_mat.use_backface_culling)
+									doublesided=b_mat.use_backface_culling)
+			if self.VRM_version == "1.0":
+				MToon_ext_dic = {}
+				MToon_ext_dic["propaties"] = MT_Prop = {} 
+				MT_Prop =  {
+					"version" :"3.2"
+				}
+				blendmode = MToon_dic["_BlendMode"]
+				if blendmode == 0:
+					blendemode = "opacue"
+				elif blendemode == 1:
+					blendemode = "cutout"
+				else:
+					blendmode = "transparent"
+				#TODO transparentWithZWrite
+				MT_Prop["renderMode"] = blendmode
+
+				MT_Prop["cullMode"] = MToon_float_dic["_CullMode"] = "back" if b_mat.use_backface_culling else "off" #no cull or bf cull
+				#TODO unknown number
+				MT_Prop["renderQueueOffsetNumber"] = 0
+				
+				MT_Prop["litFactor"] = MToon_vector_dic["_Color"]
+				MT_Prop["litMultiplyTexture"] = MToon_texture_dic["_MainTex"]
+				MT_Prop["shadeFactor"] = MToon_vector_dic["_ShadeColor"]
+				MT_Prop["shadeMultiplyTexture"] = MToon_texture_dic["_ShadeTexture"]
+				MT_Prop["cutoutThresholdFactor"] = MToon_float_dic["_Cutoff"]
+				MT_Prop["shadingShiftFactor"] = MToon_float_dic["_ShadeShift"]
+				MT_Prop["shadingToonyFactor"] = MToon_float_dic["_ShadeToony"]
+				MT_Prop["shadowReceiveMultiplierFactor"] = MToon_float_dic["_ReceiveShadowRate"]
+				MT_Prop["shadowReceiveMultiplierMultiplyTexture"] = MToon_texture_dic["_ReceiveShadowTexture"]
+				MT_Prop["litAndShadeMixingMultiplierFactor"] = MToon_float_dic["_ShadingGradeRate"]
+				MT_Prop["litAndShadeMixingMultiplierMultiplyTexture"] = MToon_texture_dic["_ShadingGradeTexture"]
+				MT_Prop["lightColorAttenuationFactor"] = MToon_float_dic["_LightColorAttenuation"]
+				MT_Prop["giIntensityFactor"] = MToon_float_dic["_IndirectLightIntensity"]
+				MT_Prop["normalTexture"] = MToon_texture_dic["_BumpMap"]
+				MT_Prop["normalScaleFactor"] = MToon_float_dic["_BumpScale"]
+				MT_Prop["emissionFactor"] = MToon_vector_dic["_EmissionColor"]
+				MT_Prop["emissionMultiplyTexture"] = MToon_texture_dic["_EmissionMap"]
+				MT_Prop["additiveTexture"] = MToon_texture_dic["_SphereAdd"]
+				MT_Prop["rimFactor"] = MToon_vector_dic["_RimColor"]
+				MT_Prop["rimMultiplyTexture"] = MToon_texture_dic["_RimTexture"]
+				MT_Prop["rimLightingMixFactor"] = MToon_float_dic["_RimLightingMix"]
+				MT_Prop["rimFresnelPowerFactor"] = MToon_float_dic["_RimFresnelPower"]
+				MT_Prop["rimLiftFactor"] = MToon_float_dic["_RimLift"]
+				MT_Prop["outlineWidthMode"] = ["none","worldCoordinates","screenCoordinates"][MToon_float_dic["_OutlineWidthMode"]]
+				MT_Prop["outlineWidthFactor"] = MToon_vector_dic["_OutlineColor"]
+				MT_Prop["outlineWidthMultiplyTexture"] = MToon_texture_dic["_OutlineWidthTexture"]
+				MT_Prop["outlineScaledMaxDistanceFactor"] = MToon_float_dic["_OutlineScaledMaxDistance"]
+				MT_Prop["outlineColorMode"] = ["fixedColor", "mixedLighting"][MToon_float_dic["_OutlineLightingMix"]]
+				MT_Prop["outlineFactor"] = MToon_float_dic["_OutlineWidth"]
+				MT_Prop["outlineLightingMixFactor"] = MToon_float_dic["OutlineLightingMix"]
+
+				MT_Prop["mainTextureLeftBottomOriginOffset"] = MToon_vector_dic["_MainTex"][0:2]
+				MT_Prop["mainTextureLeftBottomOriginScale"] = MToon_vector_dic["_MainTex"][2:4]
+				MT_Prop["uvAnimationMaskTexture"] = MToon_texture_dic["_UvAnimMaskTexture"]
+				MT_Prop["uvAnimationScrollXSpeedFactor"] = MToon_float_dic["_UvAnimScrollX"]
+				MT_Prop["uvAnimationScrollYSpeedFactor"] = MToon_float_dic["_UvAnimScrollY"]
+				MT_Prop["uvAnimationRotationSpeedFactor"] = MToon_float_dic["_UvAnimRotation"]
+
+
+
+				pbr_dic["extensions"].update({"VRMC_materials_mtoon":MToon_ext_dic})
 			return MToon_dic,pbr_dic
 		
 		def make_GLTF_mat_dic(b_mat, GLTF_Shader_Node):		
@@ -504,8 +566,9 @@ class Glb_obj():
 			VRM_material_props_list.append(materialPropaties_dic)
 			
 		apply_texture_and_sampler_to_dic()
-		self.json_dic.update({"materials" : glb_material_list})
-		self.json_dic.update({"extensions":{"VRM":{"materialProperties":VRM_material_props_list}}})
+		self.json_dic.update({"materials": glb_material_list})
+		if self.VRM_version == "0.0":
+			self.json_dic.update({"extensions":{"VRM":{"materialProperties":VRM_material_props_list}}})
 		return
 
 	def mesh_to_bin_and_dic(self):
@@ -747,7 +810,7 @@ class Glb_obj():
 	
 	def glTF_meta_to_dic(self):
 		glTF_meta_dic = {
-			"extensionsUsed":["VRM","KHR_materials_unlit"],
+			"extensionsUsed":["VRM","KHR_materials_unlit","VRMC_materials_mtoon"],
 			"asset":{
 				"generator":self.exporter_name,
 				"version":"2.0" #GLTF version
@@ -762,26 +825,44 @@ class Glb_obj():
 		#region vrm_extension
 		vrm_extension_dic = OrderedDict()
 		vrm_extension_dic["exporterVersion"] = self.exporter_name
-		vrm_extension_dic["specVersion"] = "0.0"
+		vrm_extension_dic["specVersion"] = self.VRM_version
 		#region meta
 		vrm_extension_dic["meta"] = vrm_meta_dic = {}
 		#安全側に寄せておく
-		required_vrm_metas = {
-			"allowedUserName":"OnlyAuthor",
-			"violentUssageName":"Disallow",
-			"sexualUssageName":"Disallow",
-			"commercialUssageName":"Disallow",
-			"licenseName":"Redistribution_Prohibited",
-		}
-		vrm_metas = [
-			"version",#model version (not VRMspec etc)
-			"author",
-			"contactInformation",
-			"reference",
-			"title",
-			"otherPermissionUrl",
-			"otherLicenseUrl"
-		]
+		if self.VRM_version == "0.0":
+			required_vrm_metas = {
+				"allowedUserName":"OnlyAuthor",
+				"violentUssageName":"Disallow",
+				"sexualUssageName":"Disallow",
+				"commercialUssageName":"Disallow",
+				"licenseName":"Redistribution_Prohibited",
+			}
+			vrm_metas = [
+				"version",#model version (not VRMspec etc)
+				"author",
+				"contactInformation",
+				"reference",
+				"title",
+				"otherPermissionUrl",
+				"otherLicenseUrl"
+			]
+		else:
+			required_vrm_metas = {
+				"allowedUser":"OnlyAuthor",
+				"violentUsage":"Disallow",
+				"sexualUsage":"Disallow",
+				"commercialUsage":"Disallow",
+				"license":"Redistribution_Prohibited",
+			}
+			vrm_metas = [
+				"version",#model version (not VRMspec etc)
+				"author",
+				"contactInformation",
+				"reference",
+				"title",
+				"otherPermissionUrl",
+				"otherLicenseUrl"
+			]
 		for k, v in required_vrm_metas.items():
 			vrm_meta_dic[k] = self.armature[k] if k in self.armature.keys() else v
 		for key in vrm_metas:
@@ -793,18 +874,28 @@ class Glb_obj():
 				vrm_meta_dic["texture"] = thumbnail_index_list[0]
 		#endregion meta
 		#region humanoid
-		vrm_extension_dic["humanoid"] = vrm_humanoid_dic = {"humanBones":[]}
-		node_name_id_dic = {node["name"]:i for i, node in enumerate(self.json_dic["nodes"])}
-		for humanbone in VRM_types.HumanBones.requires +  VRM_types.HumanBones.defines:
-			if humanbone in self.armature.data.keys() and self.armature.data[humanbone] != "":
-				vrm_humanoid_dic["humanBones"].append({ 
-					"bone": humanbone,
-					"node":node_name_id_dic[self.armature.data[humanbone]],
-					#TODO min,max,center,axisLength : useDef(ry):Trueなら不要な気がするのでほっとく
-					"useDefaultValues": True
-				})			
+		if self.VRM_version == "0.0":
+			vrm_extension_dic["humanoid"] = vrm_humanoid_dic = {"humanBones": []}
+			node_name_id_dic = {node["name"]:i for i, node in enumerate(self.json_dic["nodes"])}
+			for humanbone in VRM_types.HumanBones.requires +  VRM_types.HumanBones.defines:
+				if humanbone in self.armature.data.keys() and self.armature.data[humanbone] != "":
+					vrm_humanoid_dic["humanBones"].append({ 
+						"bone": humanbone,
+						"node":node_name_id_dic[self.armature.data[humanbone]],
+						#TODO min,max,center,axisLength : useDef(ry):Trueなら不要な気がするのでほっとく
+						"useDefaultValues": True
+					})
+			vrm_humanoid_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["humanoid_params"]]),object_pairs_hook=OrderedDict))	
+		else:
+			vrm_extension_dic["humanoid"] = vrm_humanoid_dic = {"humanBones":{}}
+			node_name_id_dic = {node["name"]:i for i, node in enumerate(self.json_dic["nodes"])}
+			for humanbone in VRM_types.HumanBones.requires +  VRM_types.HumanBones.defines:
+				if humanbone in self.armature.data.keys() and self.armature.data[humanbone] != "":
+					vrm_humanoid_dic["humanBones"].update({ 
+						humanbone:{"node":node_name_id_dic[self.armature.data[humanbone]]}
+					})					
 
-		vrm_humanoid_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["humanoid_params"]]),object_pairs_hook=OrderedDict))
+			
 		#endregion humanoid
 		#region firstPerson
 		vrm_extension_dic["firstPerson"] = vrm_FP_dic = {}
@@ -814,11 +905,15 @@ class Glb_obj():
 				vrm_FP_dic["firstPersonBone"] = node_name_id_dic[vrm_FP_dic["firstPersonBone"]]
 		if "meshAnnotations" in vrm_FP_dic.keys():
 			for meshAnnotation in vrm_FP_dic["meshAnnotations"]:
-				meshAnnotation["mesh"] = [i for i,mesh in enumerate(self.json_dic["meshes"]) if mesh["name"]==meshAnnotation["mesh"]][0]
+				meshAnnotation["mesh"] = [i for i, mesh in enumerate(self.json_dic["meshes"]) if mesh["name"] == meshAnnotation["mesh"]][0]
+		#TODO
+		vrm_extension_dic["lookAt"] = vrm_la_dic = {}
+		vrm_la_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["lookat_params"]]),object_pairs_hook=OrderedDict))
 
 		#endregion firstPerson
 		#region blendShapeMaster
-		vrm_extension_dic["blendShapeMaster"] = vrm_BSM_dic = {}
+		blendshapeGroup_name = "blendShapeMaster" if self.VRM_version == "0.0" else "blendShape"
+		vrm_extension_dic[blendshapeGroup_name] = vrm_BSM_dic = {}
 		BSM_list = json.loads(self.textblock2str(bpy.data.texts[self.armature["blendshape_group"]]),object_pairs_hook=OrderedDict)
 		#meshを名前からid
         #weightを0-1から0-100に
@@ -836,13 +931,16 @@ class Glb_obj():
 			for bind in bsm["binds"]:
 				bind["mesh"] = [i for i,mesh in enumerate(self.json_dic["meshes"]) if mesh["name"]==bind["mesh"]][0]
 				bind["index"] = self.json_dic["meshes"][bind["mesh"]]["primitives"][0]["extras"]["targetNames"].index(bind["index"])
-				bind["weight"] = clamp(0, bind["weight"]*100, 100)
+				bind["weight"] = clamp(0, bind["weight"] * 100, 100) if self.VRM_version == "0.0" else clamp(0, bind["weight"], 1)
+			for matval in bsm["materialValues"]:
+				matval["material"] = [i for i,mat in enumerate(self.json_dic["materials"]) if mat["name"]==matval["material"]][0]
 		#TODO isBinary handle : isBinaryって何？？？？
 		vrm_BSM_dic["blendShapeGroups"] = BSM_list
 		#endregion blendShapeMaster
 
 		#region secondaryAnimation
-		vrm_extension_dic["secondaryAnimation"] = {"boneGroups":[],"colliderGroups":[]}
+		springbone_name = "springBone" if self.VRM_version == "1.0" else "secondaryAnimation"
+		vrm_extension_dic[springbone_name] = {"boneGroups":[],"colliderGroups":[]}
 
 		#region colliderGroups
 		#armatureの子emptyを変換する
@@ -854,17 +952,23 @@ class Glb_obj():
 			collider_group = {"node":node_id,"colliders":[]}
 			colliders = collider_group["colliders"]
 			for empty in empty_objs:
-				collider = {"radius":empty.empty_display_size}
+				collider = {}
 				empty_offset_pos = [empty.matrix_world.to_translation()[i] \
 									- self.armature.location[i] \
 									- self.armature.data.bones[empty.parent_bone].head_local[i] \
 									for i in range(3)]
-				collider["offset"] = OrderedDict({axis: o_s for axis, o_s in zip(("x", "y", "z"), self.axis_blender_to_glb(empty_offset_pos))})
-				collider["offset"]["z"] = collider["offset"]["z"]*-1 #TODO: たぶんuniVRMのシリアライズがｺﾗｲﾀﾞｰだけunity系になってる
+				if self.VRM_version == "0.0":
+					collider["radius"]= empty.empty_display_size
+					collider["offset"] = OrderedDict({axis: o_s for axis, o_s in zip(("x", "y", "z"), self.axis_blender_to_glb(empty_offset_pos))})
+					collider["offset"]["z"] = collider["offset"]["z"]*-1
+				else:
+					collider["size"] = [empty.empty_display_size]
+					collider["offset"] = self.axis_blender_to_glb(empty_offset_pos)
+					collider["shapeType"] = "sphere"				
 				colliders.append(collider)
 			collider_group_list.append(collider_group)
 
-		vrm_extension_dic["secondaryAnimation"]["colliderGroups"] = collider_group_list
+		vrm_extension_dic[springbone_name]["colliderGroups"] = collider_group_list
 		#endrigon colliderGroups
 
 		#region boneGroup
@@ -875,7 +979,7 @@ class Glb_obj():
 		for bone_group in BG_list:
 			bone_group["bones"] = [node_name_id_dic[name] for name in bone_group["bones"] ]
 			bone_group["colliderGroups"] = [collider_node_id_list.index(node_name_id_dic[name]) for name in bone_group["colliderGroups"] ]
-		vrm_extension_dic["secondaryAnimation"]["boneGroups"]= BG_list
+		vrm_extension_dic[springbone_name]["boneGroups"]= BG_list
 		#endregion boneGroup
 		#endregion secondaryAnimation
 		self.json_dic["extensions"]["VRM"].update(vrm_extension_dic)
