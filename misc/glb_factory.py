@@ -414,7 +414,7 @@ class Glb_obj():
 				MT_Prop =  {
 					"version" :"3.2"
 				}
-				blendmode = MToon_float_dic["_BlendMode"]
+				blendmode = MToon_float_dic.get("_BlendMode")
 				if blendmode == 0:
 					blendemode = "opacue"
 				elif blendemode == 1:
@@ -424,49 +424,56 @@ class Glb_obj():
 				#TODO transparentWithZWrite
 				MT_Prop["renderMode"] = blendmode
 
-				MT_Prop["cullMode"] = MToon_float_dic["_CullMode"] = "back" if b_mat.use_backface_culling else "off" #no cull or bf cull
+				MT_Prop["cullMode"] = MToon_float_dic.get("_CullMode") == "back" if b_mat.use_backface_culling else "off" #no cull or bf cull
 				#TODO unknown number
 				MT_Prop["renderQueueOffsetNumber"] = 0
 				
-				MT_Prop["litFactor"] = MToon_vector_dic["_Color"]
-				MT_Prop["litMultiplyTexture"] = MToon_texture_dic["_MainTex"]
-				MT_Prop["shadeFactor"] = MToon_vector_dic["_ShadeColor"]
-				MT_Prop["shadeMultiplyTexture"] = MToon_texture_dic["_ShadeTexture"]
-				MT_Prop["cutoutThresholdFactor"] = MToon_float_dic["_Cutoff"]
-				MT_Prop["shadingShiftFactor"] = MToon_float_dic["_ShadeShift"]
-				MT_Prop["shadingToonyFactor"] = MToon_float_dic["_ShadeToony"]
-				MT_Prop["shadowReceiveMultiplierFactor"] = MToon_float_dic["_ReceiveShadowRate"]
-				MT_Prop["shadowReceiveMultiplierMultiplyTexture"] = MToon_texture_dic["_ReceiveShadowTexture"]
-				MT_Prop["litAndShadeMixingMultiplierFactor"] = MToon_float_dic["_ShadingGradeRate"]
-				MT_Prop["litAndShadeMixingMultiplierMultiplyTexture"] = MToon_texture_dic["_ShadingGradeTexture"]
-				MT_Prop["lightColorAttenuationFactor"] = MToon_float_dic["_LightColorAttenuation"]
-				MT_Prop["giIntensityFactor"] = MToon_float_dic["_IndirectLightIntensity"]
-				MT_Prop["normalTexture"] = MToon_texture_dic["_BumpMap"]
-				MT_Prop["normalScaleFactor"] = MToon_float_dic["_BumpScale"]
-				MT_Prop["emissionFactor"] = MToon_vector_dic["_EmissionColor"]
-				MT_Prop["emissionMultiplyTexture"] = MToon_texture_dic["_EmissionMap"]
-				MT_Prop["additiveTexture"] = MToon_texture_dic["_SphereAdd"]
-				MT_Prop["rimFactor"] = MToon_vector_dic["_RimColor"]
-				MT_Prop["rimMultiplyTexture"] = MToon_texture_dic["_RimTexture"]
-				MT_Prop["rimLightingMixFactor"] = MToon_float_dic["_RimLightingMix"]
-				MT_Prop["rimFresnelPowerFactor"] = MToon_float_dic["_RimFresnelPower"]
-				MT_Prop["rimLiftFactor"] = MToon_float_dic["_RimLift"]
-				MT_Prop["outlineWidthMode"] = ["none","worldCoordinates","screenCoordinates"][MToon_float_dic["_OutlineWidthMode"]]
-				MT_Prop["outlineWidthFactor"] = MToon_vector_dic["_OutlineColor"]
-				MT_Prop["outlineWidthMultiplyTexture"] = MToon_texture_dic["_OutlineWidthTexture"]
-				MT_Prop["outlineScaledMaxDistanceFactor"] = MToon_float_dic["_OutlineScaledMaxDistance"]
-				MT_Prop["outlineColorMode"] = ["fixedColor", "mixedLighting"][MToon_float_dic["_OutlineLightingMix"]]
-				MT_Prop["outlineFactor"] = MToon_float_dic["_OutlineWidth"]
-				MT_Prop["outlineLightingMixFactor"] = MToon_float_dic["OutlineLightingMix"]
+				MT_Prop["litFactor"] = MToon_vector_dic.get("_Color")
+				MT_Prop["litMultiplyTexture"] = MToon_texture_dic.get("_MainTex")
+				MT_Prop["shadeFactor"] = MToon_vector_dic.get("_ShadeColor")
+				MT_Prop["shadeMultiplyTexture"] = MToon_texture_dic.get("_ShadeTexture")
+				MT_Prop["cutoutThresholdFactor"] = MToon_float_dic.get("_Cutoff")
+				MT_Prop["shadingShiftFactor"] = MToon_float_dic.get("_ShadeShift")
+				MT_Prop["shadingToonyFactor"] = MToon_float_dic.get("_ShadeToony")
+				MT_Prop["shadowReceiveMultiplierFactor"] = MToon_float_dic.get("_ReceiveShadowRate")
+				MT_Prop["shadowReceiveMultiplierMultiplyTexture"] = MToon_texture_dic.get("_ReceiveShadowTexture")
+				MT_Prop["litAndShadeMixingMultiplierFactor"] = MToon_float_dic.get("_ShadingGradeRate")
+				MT_Prop["litAndShadeMixingMultiplierMultiplyTexture"] = MToon_texture_dic.get("_ShadingGradeTexture")
+				MT_Prop["lightColorAttenuationFactor"] = MToon_float_dic.get("_LightColorAttenuation")
+				MT_Prop["giIntensityFactor"] = MToon_float_dic.get("_IndirectLightIntensity")
+				MT_Prop["normalTexture"] = MToon_texture_dic.get("_BumpMap")
+				MT_Prop["normalScaleFactor"] = MToon_float_dic.get("_BumpScale")
+				MT_Prop["emissionFactor"] = MToon_vector_dic.get("_EmissionColor")
+				MT_Prop["emissionMultiplyTexture"] = MToon_texture_dic.get("_EmissionMap")
+				MT_Prop["additiveTexture"] = MToon_texture_dic.get("_SphereAdd")
+				MT_Prop["rimFactor"] = MToon_vector_dic.get("_RimColor")
+				MT_Prop["rimMultiplyTexture"] = MToon_texture_dic.get("_RimTexture")
+				MT_Prop["rimLightingMixFactor"] = MToon_float_dic.get("_RimLightingMix")
+				MT_Prop["rimFresnelPowerFactor"] = MToon_float_dic.get("_RimFresnelPower")
+				MT_Prop["rimLiftFactor"] = MToon_float_dic.get("_RimLift")
+				MT_Prop["outlineWidthMode"] = ["none","worldCoordinates","screenCoordinates"][MToon_float_dic.get("_OutlineWidthMode") if MToon_float_dic.get("_OutlineWidthMode") is not None else 0]
+				MT_Prop["outlineWidthFactor"] = MToon_vector_dic.get("_OutlineColor")
+				MT_Prop["outlineWidthMultiplyTexture"] = MToon_texture_dic.get("_OutlineWidthTexture")
+				MT_Prop["outlineScaledMaxDistanceFactor"] = MToon_float_dic.get("_OutlineScaledMaxDistance")
+				MT_Prop["outlineColorMode"] = ["fixedColor", "mixedLighting"][MToon_float_dic.get("_OutlineLightingMix") if MToon_float_dic.get("_OutlineLightingMix") is not None else 0]
+				MT_Prop["outlineFactor"] = MToon_float_dic.get("_OutlineWidth")
+				MT_Prop["outlineLightingMixFactor"] = MToon_float_dic.get("OutlineLightingMix")
 
-				MT_Prop["mainTextureLeftBottomOriginOffset"] = MToon_vector_dic["_MainTex"][0:2]
-				MT_Prop["mainTextureLeftBottomOriginScale"] = MToon_vector_dic["_MainTex"][2:4]
-				MT_Prop["uvAnimationMaskTexture"] = MToon_texture_dic["_UvAnimMaskTexture"]
-				MT_Prop["uvAnimationScrollXSpeedFactor"] = MToon_float_dic["_UvAnimScrollX"]
-				MT_Prop["uvAnimationScrollYSpeedFactor"] = MToon_float_dic["_UvAnimScrollY"]
-				MT_Prop["uvAnimationRotationSpeedFactor"] = MToon_float_dic["_UvAnimRotation"]
-
-
+				uv_transforms = MToon_vector_dic.get("_MainTex")
+				if uv_transforms is None:
+					uv_transforms = [0,0,1,1]
+				MT_Prop["mainTextureLeftBottomOriginOffset"] = uv_transforms[0:2]
+				MT_Prop["mainTextureLeftBottomOriginScale"] = uv_transforms[2:4]
+				MT_Prop["uvAnimationMaskTexture"] = MToon_texture_dic.get("_UvAnimMaskTexture")
+				MT_Prop["uvAnimationScrollXSpeedFactor"] = MToon_float_dic.get("_UvAnimScrollX")
+				MT_Prop["uvAnimationScrollYSpeedFactor"] = MToon_float_dic.get("_UvAnimScrollY")
+				MT_Prop["uvAnimationRotationSpeedFactor"] = MToon_float_dic.get("_UvAnimRotation")
+				gc_list = []
+				for k,v in MT_Prop.items():
+					if v == None:
+						gc_list.append(k)
+				for garvage in gc_list:
+					MT_Prop.pop(garvage)
 
 				pbr_dic["extensions"].update({"VRMC_materials_mtoon":MToon_ext_dic})
 			return MToon_dic,pbr_dic
