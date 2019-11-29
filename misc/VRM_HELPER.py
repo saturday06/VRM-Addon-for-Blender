@@ -216,7 +216,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 for poly in obj.data.polygons:
                     if poly.loop_total > 3:#polygons need all triangle
                         messages.add(lang_support(
-                            f"There are not Triangle faces in {obj.name}",
+                            f"Faces must be Triangle, but not face in {obj.name}",
                             f"ポリゴンはすべて3角形である必要があります。：{obj.name}"
                             )
                         )
