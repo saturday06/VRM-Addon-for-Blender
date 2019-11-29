@@ -9,7 +9,9 @@
 !*.md
 !*.blend
 !LICENSE
-
+!*.jpeg
+!web/*.jpg
+!web/*.pptx
 .vscode/.ropeproject/objectdb
 .vscode/.ropeproject/config.py
 .vscode/tasks.json
