@@ -24,3 +24,6 @@
  - KHR_techniques_webgl: IGNORE
  - KHR_lights_punctual: IGNORE
  - VENDER'S extension : NO without VRM
+
+ # Spec
+ [web/spec.jpg]
