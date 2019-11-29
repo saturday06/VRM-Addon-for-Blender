@@ -22,38 +22,32 @@ class Bones_rename(bpy.types.Operator):
     
     
     def execute(self, context):
+        def reprstr(bone_name):
+            ml = re.match("(.*)_" + "L" + "_(.*)", bone_name)
+            mr = re.match("(.*)_"+"R"+"_(.*)",bone_name)
+            if ml or mr:
+                tmp = ""
+                ma = ml if ml else mr
+                for y in ma.groups():
+                    tmp += y + "_"
+                tmp += "R" if mr else "L"
+                return tmp
+            return bone_name
+
         for x in bpy.context.active_object.data.bones:
-            for RL in ["L","R"]:
-                ma = re.match("(.*)_"+RL+"_(.*)",x.name)
-                if ma:
-                    tmp = ""
-                    for y in ma.groups():
-                        tmp += y + "_"
-                    tmp += RL
-                    x.name = tmp
+            x.name = reprstr(x.name)
         if "spring_bone" in bpy.context.active_object:
             textblock = bpy.data.texts[bpy.context.active_object["spring_bone"]]
             j = json.loads("".join([line.body for line in textblock.lines]))
             for jdic in j:
                 for i,bones in enumerate(jdic["bones"]):
-                    for RL in ["L","R"]:
-                        ma = re.match("(.*)_"+RL+"_(.*)",bones)
-                        if ma:
-                            tmp = ""
-                            for y in ma.groups():
-                                tmp += y + "_"
-                            tmp += RL
-                            jdic["bones"][i] = tmp
+                    jdic["bones"][i] = reprstr(bones)
                 for i,collider in enumerate(jdic["colliderGroups"]):
-                    for RL in ["L","R"]:
-                        ma = re.match("(.*)_"+RL+"_(.*)",collider)
-                        if ma:
-                            tmp = ""
-                            for y in ma.groups():
-                                tmp += y + "_"
-                            tmp += RL
-                            jdic["colliderGroups"][i] = tmp
-            textblock.from_string(json.dumps(j,indent = 4))
+                    jdic["colliderGroups"][i] = reprstr(collider)
+            textblock.from_string(json.dumps(j, indent=4))
+        for bonename in VRM_types.HumanBones.requires + VRM_types.HumanBones.defines:
+            if bonename in bpy.context.active_object.data:
+                bpy.context.active_object.data[bonename] = reprstr(bpy.context.active_object.data[bonename])
         return {"FINISHED"}
 
 class Add_VRM_extensions_to_armature(bpy.types.Operator):
