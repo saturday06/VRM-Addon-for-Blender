@@ -222,7 +222,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 #TODO modifier applyed, vertex weight Bone exist, vertex weight numbers.
         #endregion selected object seeking
         if armature_count == 0:
-            messages.add(lang_support("NO ARMATURE!","アーマチュアが選択されていません"))
+            messages.add(lang_support("PLS SELECT with ARMATURE!","アーマチュアが選択されていません"))
 
             
         used_image = []
