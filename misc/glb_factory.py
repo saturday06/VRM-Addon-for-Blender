@@ -831,7 +831,8 @@ class Glb_obj():
 		#materialProperties　は　material_to_dic()で処理する
 		#region vrm_extension
 		vrm_extension_dic = OrderedDict()
-		vrm_extension_dic["exporterVersion"] = self.exporter_name
+		if self.VRM_version == "0.0":
+			vrm_extension_dic["exporterVersion"] = self.exporter_name
 		vrm_extension_dic["specVersion"] = self.VRM_version
 		#region meta
 		vrm_extension_dic["meta"] = vrm_meta_dic = {}
@@ -989,7 +990,8 @@ class Glb_obj():
 		vrm_extension_dic[springbone_name]["boneGroups"]= BG_list
 		#endregion boneGroup
 		#endregion secondaryAnimation
-		self.json_dic["extensions"]["VRM"].update(vrm_extension_dic)
+		extension_name = "VRM" if self.VRM_version == "0.0" else "VRMC_vrm"
+		self.json_dic["extensions"][extension_name].update(vrm_extension_dic)
 		#endregion vrm_extension
 		
 		#region secondary 
