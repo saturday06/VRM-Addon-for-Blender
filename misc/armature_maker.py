@@ -98,11 +98,11 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 		spine_len = backbone_len*5/17
 		
 		#仙骨基部
-		Hips = bone_add("Hips", (0,0, hips_tall), (0,0.1,hips_tall), root)
+		Hips = bone_add("Hips", (0,0, body_separate), (0,0,hips_tall), root)
 		#骨盤基部->胸郭基部
-		Spine = bone_add("Spine",Hips.head,z_add(Hips.head,spine_len),Hips)
+		Spine = bone_add("Spine",Hips.tail,z_add(Hips.tail,spine_len),Hips)
 		#胸郭基部->首元
-		Chest = bone_add("Chest",Spine.tail,z_add(Hips.head,backbone_len),Spine) 
+		Chest = bone_add("Chest",Spine.tail,z_add(Hips.tail,backbone_len),Spine) 
 		Neck = bone_add("Neck",  (0,0,self.tall - head_size - neck_len/2), (0,0, self.tall - head_size + neck_len/2), Chest)
 		#首の1/2は顎の後ろに隠れてる
 		Head = bone_add("Head", (0,0, self.tall - head_size + neck_len/2), (0,0, self.tall), Neck)
