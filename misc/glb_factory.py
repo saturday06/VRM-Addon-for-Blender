@@ -915,8 +915,9 @@ class Glb_obj():
 			for meshAnnotation in vrm_FP_dic["meshAnnotations"]:
 				meshAnnotation["mesh"] = [i for i, mesh in enumerate(self.json_dic["meshes"]) if mesh["name"] == meshAnnotation["mesh"]][0]
 		#TODO
-		vrm_extension_dic["lookAt"] = vrm_la_dic = {}
-		vrm_la_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["lookat_params"]]),object_pairs_hook=OrderedDict))
+		if self.VRM_version == "1.0":
+			vrm_extension_dic["lookAt"] = vrm_la_dic = {}
+			vrm_la_dic.update(json.loads(self.textblock2str(bpy.data.texts[self.armature["lookat_params"]]),object_pairs_hook=OrderedDict))
 
 		#endregion firstPerson
 		#region blendShapeMaster
