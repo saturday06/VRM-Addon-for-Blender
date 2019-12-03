@@ -8,7 +8,7 @@ from .glb_bin_collector import Glb_bin_collection, Image_bin, Glb_bin
 from ..gl_const import GL_CONSTANS
 from .. import V_Types as VRM_types
 from collections import OrderedDict
-from math import pow,ceil
+from math import pow,ceil,floor
 from mathutils import Matrix as bMatrix
 import json
 import struct
@@ -417,7 +417,7 @@ class Glb_obj():
 				blendmode = MToon_float_dic.get("_BlendMode")
 				if blendmode == 0:
 					blendemode = "opacue"
-				elif blendemode == 1:
+				elif blendmode == 1:
 					blendemode = "cutout"
 				else:
 					blendmode = "transparent"
@@ -451,11 +451,11 @@ class Glb_obj():
 				MT_Prop["rimLightingMixFactor"] = MToon_float_dic.get("_RimLightingMix")
 				MT_Prop["rimFresnelPowerFactor"] = MToon_float_dic.get("_RimFresnelPower")
 				MT_Prop["rimLiftFactor"] = MToon_float_dic.get("_RimLift")
-				MT_Prop["outlineWidthMode"] = ["none","worldCoordinates","screenCoordinates"][MToon_float_dic.get("_OutlineWidthMode") if MToon_float_dic.get("_OutlineWidthMode") is not None else 0]
+				MT_Prop["outlineWidthMode"] = ["none","worldCoordinates","screenCoordinates"][floor(MToon_float_dic.get("_OutlineWidthMode")) if MToon_float_dic.get("_OutlineWidthMode") is not None else 0]
 				MT_Prop["outlineWidthFactor"] = MToon_vector_dic.get("_OutlineColor")
 				MT_Prop["outlineWidthMultiplyTexture"] = MToon_texture_dic.get("_OutlineWidthTexture")
 				MT_Prop["outlineScaledMaxDistanceFactor"] = MToon_float_dic.get("_OutlineScaledMaxDistance")
-				MT_Prop["outlineColorMode"] = ["fixedColor", "mixedLighting"][MToon_float_dic.get("_OutlineLightingMix") if MToon_float_dic.get("_OutlineLightingMix") is not None else 0]
+				MT_Prop["outlineColorMode"] = ["fixedColor", "mixedLighting"][floor(MToon_float_dic.get("_OutlineLightingMix")) if MToon_float_dic.get("_OutlineLightingMix") is not None else 0]
 				MT_Prop["outlineFactor"] = MToon_float_dic.get("_OutlineWidth")
 				MT_Prop["outlineLightingMixFactor"] = MToon_float_dic.get("OutlineLightingMix")
 
@@ -663,7 +663,7 @@ class Glb_obj():
 				shape_pos_bin_dic = OrderedDict({shape.name:b"" for shape in mesh.data.shape_keys.key_blocks[1:]})#0番目Basisは省く
 				shape_normal_bin_dic = OrderedDict({shape.name:b"" for shape in mesh.data.shape_keys.key_blocks[1:]})
 				shape_min_max_dic = OrderedDict({shape.name:[[fmax,fmax,fmax],[fmin,fmin,fmin]] for shape in mesh.data.shape_keys.key_blocks[1:]})
-				morph_normal_diff_dic = fetch_morph_vertex_normal_difference() #{morphname:{vertexid:[diff_X,diff_y,diff_z]}}
+				morph_normal_diff_dic = fetch_morph_vertex_normal_difference() if self.VRM_version == "0.0" else {} #{morphname:{vertexid:[diff_X,diff_y,diff_z]}}
 			position_bin =b""
 			position_min_max = [[fmax,fmax,fmax],[fmin,fmin,fmin]]
 			normal_bin = b""
@@ -725,7 +725,8 @@ class Glb_obj():
 						shape_layer = bm.verts.layers.shape[shape_name]
 						morph_pos = self.axis_blender_to_glb( [loop.vert[shape_layer][i] - loop.vert.co[i] for i in range(3)])
 						shape_pos_bin_dic[shape_name] += f_vec3_packer(*morph_pos)
-						shape_normal_bin_dic[shape_name] +=f_vec3_packer(*self.axis_blender_to_glb(morph_normal_diff_dic[shape_name][loop.vert.index]))
+						if self.VRM_version == "0.0":
+						    shape_normal_bin_dic[shape_name] +=f_vec3_packer(*self.axis_blender_to_glb(morph_normal_diff_dic[shape_name][loop.vert.index]))
 						min_max(shape_min_max_dic[shape_name],morph_pos)
 					if is_skin_mesh:			
 						magic = 0
@@ -782,7 +783,8 @@ class Glb_obj():
 				morph_pos_glbs = [Glb_bin(morph_pos_bin,"VEC3",GL_CONSTANS.FLOAT,unique_vertex_id,morph_minmax,self.glb_bin_collector) 
 						for morph_pos_bin,morph_minmax in zip(shape_pos_bin_dic.values(),shape_min_max_dic.values())
 						]
-				morph_normal_glbs = [Glb_bin(morph_normal_bin,"VEC3",GL_CONSTANS.FLOAT,unique_vertex_id,None,self.glb_bin_collector) 
+				if self.VRM_version == "0.0":
+				    morph_normal_glbs = [Glb_bin(morph_normal_bin,"VEC3",GL_CONSTANS.FLOAT,unique_vertex_id,None,self.glb_bin_collector) 
 						for morph_normal_bin in shape_normal_bin_dic.values()
 						] 
 			primitive_list = []
@@ -801,7 +803,10 @@ class Glb_obj():
 					})
 				primitive["attributes"].update({"TEXCOORD_{}".format(i):uv_glb.accessor_id for i,uv_glb in enumerate(uv_glbs)})
 				if len(shape_pos_bin_dic.keys()) != 0:
-					primitive["targets"]=[{"POSITION":morph_pos_glb.accessor_id,"NORMAL":morph_normal_glb.accessor_id} for morph_pos_glb,morph_normal_glb in zip(morph_pos_glbs,morph_normal_glbs)]
+					if self.VRM_version == "0.0":
+					    primitive["targets"]=[{"POSITION":morph_pos_glb.accessor_id,"NORMAL":morph_normal_glb.accessor_id} for morph_pos_glb,morph_normal_glb in zip(morph_pos_glbs,morph_normal_glbs)]
+					else:
+						primitive["targets"]=[{"POSITION":morph_pos_glb.accessor_id} for morph_pos_glb in morph_pos_glbs]
 					primitive["extras"] = {"targetNames":[shape_name for shape_name in shape_pos_bin_dic.keys()]} 
 				primitive_list.append(primitive)
 			self.json_dic["meshes"].append(OrderedDict({"name":mesh.name,"primitives":primitive_list}))
@@ -943,7 +948,7 @@ class Glb_obj():
 				bind["weight"] = clamp(0, bind["weight"] * 100, 100) if self.VRM_version == "0.0" else clamp(0, bind["weight"], 1)
 			for matval in bsm["materialValues"]:
 				matval["material"] = [i for i,mat in enumerate(self.json_dic["materials"]) if mat["name"]==matval["material"]][0]
-		#TODO isBinary handle : isBinaryって何？？？？
+		#TODO isBinary handle : 0 or 1 にするフラグ 
 		vrm_BSM_dic["blendShapeGroups"] = BSM_list
 		#endregion blendShapeMaster
 
