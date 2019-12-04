@@ -47,6 +47,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
     is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
     import_normal : bpy.props.BoolProperty(name = "Import Normal")
     remove_doubles : bpy.props.BoolProperty(name = "Remove doubles")
+    use_in_blender: bpy.props.BoolProperty(name = "NOTHING TO DO in CURRENT use in blender")
 
     def execute(self, context):
         ui_localization = False
@@ -57,7 +58,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
             pass
 
         fdir = self.filepath
-        model_build.Blend_model(context, vrm_load.read_vrm(fdir), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles)
+        model_build.Blend_model(context, vrm_load.read_vrm(fdir), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles,self.use_in_blender)
         
         try:
             if ui_localization is not None:
