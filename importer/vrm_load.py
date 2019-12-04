@@ -61,7 +61,7 @@ def parse_glb(data: bytes):
     return json.loads(json_str,object_pairs_hook=OrderedDict), body
 
 #あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
-def read_vrm(model_path):
+def read_vrm(model_path,make_new_texture_folder):
     vrm_pydata = VRM_Types.VRM_pydata(filepath=model_path)
     #datachunkは普通一つしかない
     with open(model_path, 'rb') as f:
@@ -88,7 +88,7 @@ def read_vrm(model_path):
     if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
         print("Is this VRM allowed to edited? Please check its copyright license.")
 
-    texture_rip(vrm_pydata,body_binary)
+    texture_rip(vrm_pydata,body_binary,make_new_texture_folder)
 
     vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json,body_binary)
 
@@ -100,7 +100,7 @@ def read_vrm(model_path):
 
     return vrm_pydata
 
-def texture_rip(vrm_pydata,body_binary):
+def texture_rip(vrm_pydata,body_binary,make_new_texture_folder):
     bufferViews = vrm_pydata.json["bufferViews"]
     binary_reader = Binaly_Reader(body_binary)
     #ここ画像切り出し #blenderはバイト列から画像を読み込む術がないので、画像ファイルを書き出して、それを読み込むしかない。
@@ -142,7 +142,13 @@ def texture_rip(vrm_pydata,body_binary):
                 break
     elif not os.path.exists(os.path.join(vrm_dir_path,dir_name)):
         os.mkdir(dir_path)
-        
+    elif make_new_texture_folder:
+        for i in range(11):
+            dn = f"{dir_name}_{i}" if i != 0 else dir_name
+            if not os.path.exists(os.path.join(vrm_dir_path,dn)):
+                os.mkdir(os.path.join(vrm_dir_path,dn))
+                dir_path = os.path.join(vrm_dir_path,dn)
+                break
     for id,image_prop in enumerate(vrm_pydata.json["images"]):
         if "extra" in image_prop:
             image_name = image_prop["extra"]["name"]

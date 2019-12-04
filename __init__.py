@@ -44,6 +44,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
         options={'HIDDEN'}
     )
 
+    make_new_texture_folder : bpy.props.BoolProperty(name = "make new texture folder (limit:10)")
     is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
     import_normal : bpy.props.BoolProperty(name = "Import Normal")
     remove_doubles : bpy.props.BoolProperty(name = "Remove doubles")
@@ -58,7 +59,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
             pass
 
         fdir = self.filepath
-        model_build.Blend_model(context, vrm_load.read_vrm(fdir), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles,self.use_in_blender)
+        model_build.Blend_model(context, vrm_load.read_vrm(fdir,self.make_new_texture_folder), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles,self.use_in_blender)
         
         try:
             if ui_localization is not None:
@@ -71,6 +72,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
 
 def menu_import(self, context):
     op = self.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
+    op.make_new_texture_folder = True
     op.is_put_spring_bone_info = True
     op.import_normal = True
     op.remove_doubles = False
