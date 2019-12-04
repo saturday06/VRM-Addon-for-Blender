@@ -4,12 +4,18 @@
 - material import : wip forever
 - export : spec0.0 export may be possible.
 
+# <Font color="red">ATTENSION 注意</font>
+ If you using minisize cloud storage, texture foloder explanation must read and care about storage remaining capacity.
+
+小さいクラウドストレージに保存しているVRMをインポートしている場合下記の中のテクスチャフォルダの扱いをよく読み、残容量に気を付けてご利用ください。
+
 # 機能
  - VRM import
     - vrmの物理拡張などの設定はblender内蔵テキストエディタに出力、アーマチュアのオブジェクトカスタムプロパティにそのパスが書かれます
     - モデルライセンスはアーマチュアのオブジェクトカスタムプロパティに出力されます
     - humanoidボーン属性はVRM　HELPERタブからアクセス可能です
     - これらはVRMエクスポート時に利用されます（詳しくは下部の図を参照
+    - １０フォルダを上限にインポートごとに新たなテクスチャフォルダを作成する。(デフォルト動作)　インポートウィンドウのオプションで->単一のテクスチャフォルダに存在しないテクスチャだけ書き込む仕様になりました。title,author,versionが設定していないと適当なフォルダ名で生成します。
  - VRM 向けシェーダーノードグループ追加(※モックアップ程度の出来)(GLTF,MToon_unversioned,TransparentZwrite)
  - VRM 向けhumanoid Armature 追加(これを使わないとexport出来ません)（絶対に出来ないとは言ってないけど圧倒的に楽）
  - VRM0.0(のような何かの) export 完全ではないので、出力後にuniVRMを通してください。（他形式でuniVRMに渡すより物理やマテリアル、blendshape_groupの情報が多く残るのでマシ程度にお考え下さい
@@ -17,6 +23,7 @@
    https://www.nicovideo.jp/watch/sm36033523
 # function
 - VRM import
+ - This addon makes texture folder for import each times (max:10) name based on VRM title,author,model version.
 - Add VRM like shader as Node Group (Please use these node group and direct link it to TEX_IMAGE,RGBA,VALUE and Material output Nodes for export)
 - Add humanoid armature for VRM(Tpose, reqwired bone, and append custom properties to need export VRM (reference to VRM extensions textblock ,and bone tagging))
 - VRM0.0 export (not complete function ,but easy to bridge uniVRM. )
