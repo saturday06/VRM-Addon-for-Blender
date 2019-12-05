@@ -9,6 +9,7 @@ https://opensource.org/licenses/mit-license.php
 import bpy, bmesh
 from mathutils import Vector,Matrix
 from .. import V_Types as VRM_Types
+from ..misc import VRM_HELPER
 from ..V_Types import nested_json_value_getter as json_get
 from ..gl_const import GL_CONSTANS
 from math import sqrt,pow,radians
@@ -16,12 +17,14 @@ import numpy
 import os.path
 import json,copy
 from collections import defaultdict
+import copy
 
 class Blend_model():
-    def __init__(self,context,vrm_pydata,is_put_spring_bone_info,import_normal,remove_doubles):
+    def __init__(self,context,vrm_pydata,is_put_spring_bone_info,import_normal,remove_doubles,use_in_blender):
         self.is_put_spring_bone_info = is_put_spring_bone_info
         self.import_normal = import_normal
         self.remove_doubles = remove_doubles
+        self.use_in_blender = use_in_blender
 
         self.context = context
         self.vrm_pydata = vrm_pydata
@@ -65,6 +68,9 @@ class Blend_model():
         i=prog(i)
         if self.is_put_spring_bone_info:
             self.put_spring_bone_info()
+        if self.use_in_blender:
+            pass
+            #self.blendfy()
         i=prog(i)
         self.finishing(affected_object)
         wm.progress_end()
@@ -802,6 +808,68 @@ class Blend_model():
                 coll.objects.link(obj)
                 
         return 
+
+    def blendfy(self):
+        bpy.context.view_layer.objects.active = self.armature
+
+        def make_pole_target(RL,upper_leg_name ,lower_leg_name ,foot_name ):
+            bpy.ops.object.mode_set(mode="EDIT")
+            ebd = self.armature.data.edit_bones
+
+            IK_Foot = self.armature.data.edit_bones.new(f"IK_LEG_TARGET_{RL}")
+            IK_Foot.head = [f+o for f,o in zip(ebd[foot_name].head[:],[0,0,0])]
+            IK_Foot.tail = [f+o for f,o in zip(ebd[foot_name].head[:],[0,-0.2,0])]
+
+            pole = self.armature.data.edit_bones.new(f"leg_pole_{RL}")
+            pole.parent = IK_Foot
+            pole.head = [f+o for f,o in zip(ebd[lower_leg_name].head[:],[0,-0.1,0])]
+            pole.tail = [f+o for f,o in zip(ebd[lower_leg_name].head[:],[0,-0.2,0])]
+
+
+
+            pole_name = copy.copy(pole.name)
+            IK_Foot_name = copy.copy(IK_Foot.name)
+            bpy.context.view_layer.depsgraph.update()
+            bpy.context.scene.view_layers.update()
+            bpy.ops.object.mode_set(mode='POSE')
+            IKC = self.armature.pose.bones[lower_leg_name].constraints.new("IK")
+            IKC.target = self.armature
+            IKC.subtarget = self.armature.pose.bones[IK_Foot_name].name
+            def chain_solver(child,parent):
+                current_bone = self.armature.pose.bones[child]
+                for i in range(10):
+                    if current_bone.name == parent:
+                        return i+1
+                    current_bone = current_bone.parent
+                return 11
+            IKC.chain_count = chain_solver(lower_leg_name,upper_leg_name)
+            
+            IKC.pole_target = self.armature
+            IKC.pole_subtarget = pole_name
+            bpy.context.view_layer.depsgraph.update()
+            bpy.context.scene.view_layers.update()
+            return
+        bpy.ops.object.mode_set(mode="EDIT")
+        edit_bones = self.armature.data.edit_bones
+        
+        right_upper_leg_name = self.armature.data["rightUpperLeg"]
+        right_lower_leg_name = self.armature.data["rightLowerLeg"]
+        right_foot_name = self.armature.data["rightFoot"]
+
+        left_uppper_leg_name = self.armature.data["leftUpperLeg"]
+        left_lower_leg_name  = self.armature.data["leftLowerLeg"]
+        left_foot_name  = self.armature.data["leftFoot"]
+
+
+
+        make_pole_target("R",right_upper_leg_name,right_lower_leg_name,right_foot_name)
+        make_pole_target("L",left_uppper_leg_name,left_lower_leg_name,left_foot_name)
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.context.view_layer.depsgraph.update()
+        bpy.context.scene.view_layers.update()
+        VRM_HELPER.Bones_rename(bpy.context)
+        return
 
 #DeprecationWarning
 class ICYP_OT_select_helper(bpy.types.Operator):

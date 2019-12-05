@@ -12,7 +12,7 @@ from ..gl_const import GL_CONSTANS as GLC
 from .. import V_Types as VRM_Types
 from ..V_Types import nested_json_value_getter as json_get
 from . import vrm2pydata_factory
-import os,re,copy
+import os,re,copy,datetime
 from math import sqrt,pow
 import json
 import numpy
@@ -61,7 +61,7 @@ def parse_glb(data: bytes):
     return json.loads(json_str,object_pairs_hook=OrderedDict), body
 
 #あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
-def read_vrm(model_path):
+def read_vrm(model_path,make_new_texture_folder):
     vrm_pydata = VRM_Types.VRM_pydata(filepath=model_path)
     #datachunkは普通一つしかない
     with open(model_path, 'rb') as f:
@@ -88,7 +88,7 @@ def read_vrm(model_path):
     if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
         print("Is this VRM allowed to edited? Please check its copyright license.")
 
-    texture_rip(vrm_pydata,body_binary)
+    texture_rip(vrm_pydata,body_binary,make_new_texture_folder)
 
     vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json,body_binary)
 
@@ -100,13 +100,55 @@ def read_vrm(model_path):
 
     return vrm_pydata
 
-def texture_rip(vrm_pydata,body_binary):
+def texture_rip(vrm_pydata,body_binary,make_new_texture_folder):
     bufferViews = vrm_pydata.json["bufferViews"]
     binary_reader = Binaly_Reader(body_binary)
     #ここ画像切り出し #blenderはバイト列から画像を読み込む術がないので、画像ファイルを書き出して、それを読み込むしかない。
     vrm_dir_path = os.path.dirname(os.path.abspath(vrm_pydata.filepath))
     if not "images" in vrm_pydata.json:
         return 
+
+
+    def invalid_chars_remover(filename):
+        unsafe_chars = {
+            0: '\x00', 1: '\x01', 2: '\x02', 3: '\x03', 4: '\x04', 5: '\x05', 6: '\x06', 7: '\x07', 8: '\x08', 9: '\t', 10: '\n',\
+            11: '\x0b', 12: '\x0c', 13: '\r', 14: '\x0e', 15: '\x0f', 16: '\x10', 17: '\x11', 18: '\x12', 19: '\x13', 20: '\x14',\
+            21: '\x15', 22: '\x16', 23: '\x17', 24: '\x18', 25: '\x19', 26: '\x1a', 27: '\x1b', 28: '\x1c', 29: '\x1d', 30: '\x1e',\
+            31: '\x1f', 34: '"', 42: '*', 47: '/', 58: ':', 60: '<', 62: '>', 63: '?', 92: '\\', 124: '|'
+            } #32:space #33:! 
+        remove_table = str.maketrans("","","".join([chr(charnum) for charnum in unsafe_chars.keys()]))
+        safe_filename = filename.translate(remove_table)
+        return safe_filename
+    def get_meta(param,defa,cla):
+        return vrm_pydata.json["extensions"]["VRM"]["meta"].get(param)[:cla] if vrm_pydata.json["extensions"]["VRM"]["meta"].get(param) is not None else defa
+    
+    model_title = get_meta("title","no_title",12)
+    model_author = get_meta("author","ano",8)
+    model_version = get_meta("version","nv",3)
+    dir_name = invalid_chars_remover(f"tex_{model_title}_by_{model_author}_of_{model_version}")
+    dir_path = os.path.join(vrm_dir_path,dir_name)
+    if dir_name == "tex_no_title_by_ano_nv" or dir_name == "tex__by__of_":
+        dir_name =invalid_chars_remover( datetime.datetime.today().strftime("%M%D%H%I%M%S"))
+        for i in range(10):
+            dn = f"tex_{dir_name}_{i}"
+            if os.path.exists(os.path.join(vrm_dir_path,dn)):
+                continue
+            elif os.path.exists(os.path.join(vrm_dir_path,dn)) and i == 9:
+                dir_path = os.path.join(vrm_dir_path,dn)
+                break
+            else:
+                os.mkdir(os.path.join(vrm_dir_path,dn))
+                dir_path = os.path.join(vrm_dir_path,dn)
+                break
+    elif not os.path.exists(os.path.join(vrm_dir_path,dir_name)):
+        os.mkdir(dir_path)
+    elif make_new_texture_folder:
+        for i in range(11):
+            dn = f"{dir_name}_{i}" if i != 0 else dir_name
+            if not os.path.exists(os.path.join(vrm_dir_path,dn)):
+                os.mkdir(os.path.join(vrm_dir_path,dn))
+                dir_path = os.path.join(vrm_dir_path,dn)
+                break
     for id,image_prop in enumerate(vrm_pydata.json["images"]):
         if "extra" in image_prop:
             image_name = image_prop["extra"]["name"]
@@ -122,18 +164,9 @@ def texture_rip(vrm_pydata,body_binary):
             print("too long name image: {} is named {}".format(image_name,"tex_2longname_"+str(id)))
             image_name = "tex_2longname_"+str(id)
 
-        def invalid_chars_remover(filename):
-            unsafe_chars = {
-             0: '\x00', 1: '\x01', 2: '\x02', 3: '\x03', 4: '\x04', 5: '\x05', 6: '\x06', 7: '\x07', 8: '\x08', 9: '\t', 10: '\n',\
-             11: '\x0b', 12: '\x0c', 13: '\r', 14: '\x0e', 15: '\x0f', 16: '\x10', 17: '\x11', 18: '\x12', 19: '\x13', 20: '\x14',\
-             21: '\x15', 22: '\x16', 23: '\x17', 24: '\x18', 25: '\x19', 26: '\x1a', 27: '\x1b', 28: '\x1c', 29: '\x1d', 30: '\x1e',\
-             31: '\x1f', 34: '"', 42: '*', 47: '/', 58: ':', 60: '<', 62: '>', 63: '?', 92: '\\', 124: '|'
-             } #32:space #33:! 
-            remove_table = str.maketrans("","","".join([chr(charnum) for charnum in unsafe_chars.keys()]))
-            safe_filename = filename.translate(remove_table)
-            return safe_filename
+
         image_name = invalid_chars_remover(image_name)
-        image_path = os.path.join(vrm_dir_path, image_name + "." + image_type)
+        image_path = os.path.join(dir_path, image_name + "." + image_type)
         if not os.path.exists(image_path):#すでに同名の画像がある場合は基本上書きしない
             with open(image_path, "wb") as imageWriter:
                 imageWriter.write(image_binary)
