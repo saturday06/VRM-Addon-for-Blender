@@ -141,7 +141,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
 
         #region selected object seeking
         for obj in bpy.context.selected_objects:
-            if obj.name in node_name_set:
+            if obj.name in node_name_set and obj.type != "EMPTY":
                 messages.add(
                     lang_support(
                         f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
