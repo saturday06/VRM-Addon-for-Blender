@@ -946,8 +946,9 @@ class Glb_obj():
 				bind["mesh"] = [i for i,mesh in enumerate(self.json_dic["meshes"]) if mesh["name"]==bind["mesh"]][0]
 				bind["index"] = self.json_dic["meshes"][bind["mesh"]]["primitives"][0]["extras"]["targetNames"].index(bind["index"])
 				bind["weight"] = clamp(0, bind["weight"] * 100, 100) if self.VRM_version == "0.0" else clamp(0, bind["weight"], 1)
-			for matval in bsm["materialValues"]:
-				matval["material"] = [i for i,mat in enumerate(self.json_dic["materials"]) if mat["name"]==matval["material"]][0]
+			if self.VRM_version != "0.0":
+				for matval in bsm["materialValues"]:
+					matval["material"] = [i for i,mat in enumerate(self.json_dic["materials"]) if mat["name"]==matval["material"]][0]
 		#TODO isBinary handle : 0 or 1 にするフラグ 
 		vrm_BSM_dic["blendShapeGroups"] = BSM_list
 		#endregion blendShapeMaster
