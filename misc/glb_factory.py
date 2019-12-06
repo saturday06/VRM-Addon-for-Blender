@@ -416,9 +416,9 @@ class Glb_obj():
 				}
 				blendmode = MToon_float_dic.get("_BlendMode")
 				if blendmode == 0:
-					blendemode = "opacue"
+					blendmode = "opacue"
 				elif blendmode == 1:
-					blendemode = "cutout"
+					blendmode = "cutout"
 				else:
 					blendmode = "transparent"
 				#TODO transparentWithZWrite
