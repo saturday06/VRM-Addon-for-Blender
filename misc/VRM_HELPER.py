@@ -233,27 +233,32 @@ class VRM_VALIDATOR(bpy.types.Operator):
         bones_name = []
         if armature is not None:
             bones_name = [b.name for b in armature.data.bones]
+        vertex_error_count = 0
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
             mesh_vetex_group_names = [g.name for g in mesh.vertex_groups]
             for mat in mesh.data.materials:
                 used_material_set.add(mat)
+
             for v in mesh.data.vertices:
                 if len(v.groups) == 0 and mesh.parent_bone == "":
-                    messages.add(lang_support(
-                        f"vertex id {v.index} is no weight in {mesh.name}",
-                        f"{mesh.name}の頂点、id：{v.index} にウェイトが乗っていません。"
-                        ))
+                    if vertex_error_count < 5 :
+                        messages.add(lang_support(
+                            f"vertex id {v.index} is no weight in {mesh.name}",
+                            f"{mesh.name}の頂点、id：{v.index} にウェイトが乗っていません。"
+                            ))
+                        vertex_error_count = vertex_error_count +1
                 elif len(v.groups) >= 5:
                     if armature is not None:
                         weight_count  = 0
                         for g in v.groups:
                             if mesh_vetex_group_names[g.group] in bones_name:
                                 weight_count += 1
-                        if weight_count > 4:
+                        if weight_count > 4 and vertex_error_count < 5:
                             messages.add(lang_support(
                                 f"vertex id {v.index} has too many(over 4) weight in {mesh.name}",
                                 f"{mesh.name} の頂点id {v.index} に影響を与えるボーンが5以上あります。4つ以下にしてください"
                             ))
+                            vertex_error_count = vertex_error_count +1
         for mat in used_material_set:
             for node in mat.node_tree.nodes:
                 if node.type =="OUTPUT_MATERIAL" \
