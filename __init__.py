@@ -57,15 +57,15 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
             bpy.context.preferences.view.use_international_fonts = False
         except Exception:
             pass
-
-        fdir = self.filepath
-        model_build.Blend_model(context, vrm_load.read_vrm(fdir,self.make_new_texture_folder), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles,self.use_in_blender)
-        
         try:
+            fdir = self.filepath
+            model_build.Blend_model(context, vrm_load.read_vrm(fdir,self.make_new_texture_folder), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles,self.use_in_blender)
+
             if ui_localization is not None:
                 bpy.context.preferences.view.use_international_fonts = ui_localization
-        except Exception:
-            pass
+
+        except Exception as e:
+            raise e
             
         return {'FINISHED'}
 

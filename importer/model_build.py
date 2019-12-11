@@ -406,7 +406,10 @@ class Blend_model():
                 connect_uv_map_to_texture(main_tex_node)
             elif tex_name == "_BumpMap":
                 normalmap_node = self.connect_texture_node(b_mat,tex_index,color_socket_to_connect = sg.inputs[tex_dic[tex_name]])
-                normalmap_node.image.colorspace_settings.name = "Non-Color"
+                try:
+                    normalmap_node.image.colorspace_settings.name = "Non-Color"
+                except TypeError: #non-colorが無いとき
+                    normalmap_node.image.colorspace_settings.name = "Linear" #2.80 beta互換性コード
                 connect_uv_map_to_texture(normalmap_node)
             elif tex_name == "_ReceiveShadowTexture":
                 RS_tex_node = self.connect_texture_node(b_mat,tex_index,alpha_socket_to_connect = sg.inputs[tex_dic[tex_name]+"_alpha"])
