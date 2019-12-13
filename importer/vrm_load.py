@@ -255,8 +255,8 @@ def mesh_read(vrm_pydata):
                 texcoordName = "TEXCOORD_{}".format(uv_count)
                 if hasattr(vrm_mesh, texcoordName): 
                     texcoord = getattr(vrm_mesh,texcoordName)
-                    for uv in texcoord:
-                        if legacy_uv_flag:
+                    if legacy_uv_flag:
+                        for uv in texcoord:
                             uv[1] = 1 + uv[1]
                     uv_count +=1
                 else:
