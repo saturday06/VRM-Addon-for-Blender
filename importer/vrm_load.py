@@ -174,7 +174,7 @@ def texture_rip(vrm_pydata,body_binary,make_new_texture_folder):
             written_flag = False
             for i in range(5):
                 second_image_name = image_name+"_"+str(i)
-                image_path = os.path.join(vrm_dir_path, second_image_name + "." + image_type)
+                image_path = os.path.join(dir_path, second_image_name + "." + image_type)
                 if not os.path.exists(image_path):
                     with open(image_path, "wb") as imageWriter:
                         imageWriter.write(image_binary)
