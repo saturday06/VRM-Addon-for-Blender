@@ -48,6 +48,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
     is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
     import_normal : bpy.props.BoolProperty(name = "Import Normal")
     remove_doubles : bpy.props.BoolProperty(name = "Remove doubles")
+    use_simple_principled_material: bpy.props.BoolProperty(name = "use simple principled material")
     use_in_blender: bpy.props.BoolProperty(name = "NOTHING TO DO in CURRENT use in blender")
 
     def execute(self, context):
@@ -59,7 +60,7 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
             pass
         try:
             fdir = self.filepath
-            model_build.Blend_model(context, vrm_load.read_vrm(fdir,self.make_new_texture_folder), self.is_put_spring_bone_info,self.import_normal,self.remove_doubles,self.use_in_blender)
+            model_build.Blend_model(context, vrm_load.read_vrm(fdir,self), self)
 
             if ui_localization is not None:
                 bpy.context.preferences.view.use_international_fonts = ui_localization

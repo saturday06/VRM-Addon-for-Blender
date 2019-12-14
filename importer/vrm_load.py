@@ -61,7 +61,7 @@ def parse_glb(data: bytes):
     return json.loads(json_str,object_pairs_hook=OrderedDict), body
 
 #あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
-def read_vrm(model_path,make_new_texture_folder):
+def read_vrm(model_path,addon_context):
     vrm_pydata = VRM_Types.VRM_pydata(filepath=model_path)
     #datachunkは普通一つしかない
     with open(model_path, 'rb') as f:
@@ -88,12 +88,12 @@ def read_vrm(model_path,make_new_texture_folder):
     if vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["licenseName"] == "Other":
         print("Is this VRM allowed to edited? Please check its copyright license.")
 
-    texture_rip(vrm_pydata,body_binary,make_new_texture_folder)
+    texture_rip(vrm_pydata,body_binary,addon_context.make_new_texture_folder)
 
     vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json,body_binary)
 
     mesh_read(vrm_pydata)
-    material_read(vrm_pydata)
+    material_read(vrm_pydata,addon_context.use_simple_principled_material)
     skin_read(vrm_pydata)
     node_read(vrm_pydata)
 
@@ -289,13 +289,13 @@ def mesh_read(vrm_pydata):
 
 
     #ここからマテリアル
-def material_read(vrm_pydata):
+def material_read(vrm_pydata,use_simple_principled_material):
     VRM_EXTENSION_material_promaties = json_get(vrm_pydata.json,["extensions",VRM_Types.VRM,"materialProperties"],\
                                                 default = [{"shader":"VRM_USE_GLTFSHADER"}]*len(vrm_pydata.json["materials"]))
     if "textures" in vrm_pydata.json:
         textures = vrm_pydata.json["textures"]
     for mat,ext_mat in zip(vrm_pydata.json["materials"],VRM_EXTENSION_material_promaties):
-        vrm_pydata.materials.append(vrm2pydata_factory.material(mat,ext_mat))
+        vrm_pydata.materials.append(vrm2pydata_factory.material(mat,ext_mat,use_simple_principled_material))
 
 
 

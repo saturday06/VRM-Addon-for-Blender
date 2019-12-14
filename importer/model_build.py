@@ -20,11 +20,12 @@ from collections import defaultdict
 import copy
 
 class Blend_model():
-    def __init__(self,context,vrm_pydata,is_put_spring_bone_info,import_normal,remove_doubles,use_in_blender):
-        self.is_put_spring_bone_info = is_put_spring_bone_info
-        self.import_normal = import_normal
-        self.remove_doubles = remove_doubles
-        self.use_in_blender = use_in_blender
+    def __init__(self,context,vrm_pydata,addon_context):
+        self.is_put_spring_bone_info = addon_context.is_put_spring_bone_info
+        self.import_normal = addon_context.import_normal
+        self.remove_doubles = addon_context.remove_doubles
+        self.use_simple_principled_material = addon_context.use_simple_principled_material
+        self.use_in_blender = addon_context.use_in_blender
 
         self.context = context
         self.vrm_pydata = vrm_pydata
@@ -205,26 +206,32 @@ class Blend_model():
         self.material_dict = dict()
         for index,mat in enumerate(self.vrm_pydata.materials):
             b_mat = bpy.data.materials.new(mat.name)
-            
-            b_mat["shader_name"] = mat.shader_name
-            if type(mat) == VRM_Types.Material_GLTF:
-                self.build_material_from_GLTF(b_mat, mat)
-            elif type(mat) == VRM_Types.Material_MToon:
-                self.build_material_from_MToon(b_mat, mat)
-            elif type(mat) == VRM_Types.Material_Transparent_Z_write:
-                self.build_material_from_Transparent_Z_write(b_mat, mat)
-            else :
-                print(f"unknown material {mat.name}")
+            if self.use_simple_principled_material:
+                self.build_principle_from_gltf_mat(b_mat,mat)
+            else:
+                b_mat["shader_name"] = mat.shader_name
+                if type(mat) == VRM_Types.Material_GLTF:
+                    self.build_material_from_GLTF(b_mat, mat)
+                elif type(mat) == VRM_Types.Material_MToon:
+                    self.build_material_from_MToon(b_mat, mat)
+                elif type(mat) == VRM_Types.Material_Transparent_Z_write:
+                    self.build_material_from_Transparent_Z_write(b_mat, mat)
+                else :
+                    print(f"unknown material {mat.name}")
             self.node_placer(b_mat.node_tree.nodes["Material Output"])
             self.material_dict[index] = b_mat
         return
     #region material_util func
     def set_material_transparent(self,b_mat,pymat, transparent_mode):
+        print(transparent_mode)
         if transparent_mode == "OPAQUE":
             pass
         elif transparent_mode == "CUTOUT":
             b_mat.blend_method = "CLIP"
-            b_mat.alpha_threshold = pymat.float_props_dic.get("_Cutoff") if pymat.float_props_dic.get("_Cutoff") else 0.5
+            if pymat.shader_name == "VRM/MToon":
+                b_mat.alpha_threshold = pymat.float_props_dic.get("_Cutoff") if pymat.float_props_dic.get("_Cutoff") else 0.5
+            else:
+                b_mat.alpha_threshold = pymat.alphaCutoff if "alphaCutoff" in dir(pymat) else 0.5
             b_mat.shadow_method = "CLIP"
         else:  #Z_TRANSPARENCY or Z()_zwrite
             if "transparent_shadow_method" in dir(b_mat):#old blender280_beta
@@ -288,6 +295,14 @@ class Blend_model():
             material.node_tree.links.new(alpha_socket_to_connect,image_node.outputs["Alpha"])
         return image_node
 
+    def connect_with_color_multiply_node(self,material,color,tex_index,socket_to_connect):
+        multiply_node = material.node_tree.nodes.new("ShaderNodeMixRGB")
+        multiply_node.blend_type = "MULTIPLY"
+        self.connect_rgb_node(material,color,multiply_node.inputs[1])
+        self.connect_texture_node(material,tex_index,multiply_node.inputs[2])
+        material.node_tree.links.new(socket_to_connect,multiply_node.outputs[0])
+        return multiply_node
+
     def node_group_import(self,shader_node_group_name):
         if shader_node_group_name not in bpy.data.node_groups:
             filedir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"resources","material_node_groups.blend","NodeTree")
@@ -311,6 +326,24 @@ class Blend_model():
         return
     #endregion material_util func
 
+    def build_principle_from_gltf_mat(self,b_mat,pymat):
+        self.material_init(b_mat)
+        principled_node = b_mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+
+        b_mat.node_tree.links.new(b_mat.node_tree.nodes["Material Output"].inputs['Surface'], principled_node.outputs["BSDF"])
+        #self.connect_with_color_multiply_node(b_mat,pymat.base_color,pymat.color_texture_index,principled_node.inputs["Base Color"])
+        self.connect_texture_node(b_mat,pymat.color_texture_index,principled_node.inputs["Base Color"],principled_node.inputs["Alpha"])
+        """
+        self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
+        self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
+        self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
+        self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
+        """
+        self.connect_texture_node(b_mat,pymat.normal_texture_index,principled_node.inputs["Normal"])    
+        transparant_exchange_dic = {"OPAQUE":"OPAQUE","MASK":"CUTOUT","Z_TRANSPARENCY":"Z_TRANSPARENCY"}
+        self.set_material_transparent(b_mat,pymat, transparant_exchange_dic[pymat.alpha_mode])
+        b_mat.use_backface_culling = pymat.double_sided       
+
     def build_material_from_GLTF(self, b_mat, pymat):
         self.material_init(b_mat)
         gltf_node_name = "GLTF"
@@ -331,7 +364,7 @@ class Blend_model():
         self.connect_value_node(b_mat,pymat.shadeless,sg.inputs["unlit"])
 
         transparant_exchange_dic = {"OPAQUE":"OPAQUE","MASK":"CUTOUT","Z_TRANSPARENCY":"Z_TRANSPARENCY"}
-        self.set_material_transparent(b_mat,pymat, transparant_exchange_dic[pymat.alphaMode])
+        self.set_material_transparent(b_mat,pymat, transparant_exchange_dic[pymat.alpha_mode])
         b_mat.use_backface_culling = pymat.double_sided
 
         return

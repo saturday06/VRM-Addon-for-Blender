@@ -31,10 +31,11 @@ def bone(node)->VRM_Types.Node:
 
 
 
-def material(mat,ext_mat)->VRM_Types.Material:
+def material(mat,ext_mat,use_simple_principled_material)->VRM_Types.Material:
     #standard, or VRM unsuported shader(no saved)
     if ext_mat["shader"] == "VRM_USE_GLTFSHADER" \
-             or ext_mat["shader"] not in ["VRM/MToon","VRM/UnlitTransparentZWrite"]:
+             or ext_mat["shader"] not in ["VRM/MToon","VRM/UnlitTransparentZWrite"]\
+                 or use_simple_principled_material:
         v_mat = VRM_Types.Material_GLTF()
         v_mat.name = mat["name"]
         v_mat.shader_name = "gltf"
@@ -76,9 +77,9 @@ def material(mat,ext_mat)->VRM_Types.Material:
                     v_mat.alphaCutoff = mat.get("alphaCutoff")
                 else:
                     v_mat.alphaCutoff = 0.5
-            if mat["alphaMode"] == "BLEND":
+            elif mat["alphaMode"] == "BLEND":
                 v_mat.alpha_mode = "Z_TRANSPARENCY"
-            if mat["alphaMode"] == "OPAQUE":
+            elif mat["alphaMode"] == "OPAQUE":
                 v_mat.alpha_mode = "OPAQUE"
         if "extensions" in mat:
             if "KHR_materials_unlit" in mat["extensions"]:
