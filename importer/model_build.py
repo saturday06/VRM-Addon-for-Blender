@@ -67,6 +67,7 @@ class Blend_model():
         i=prog(i)
         self.axis_transform()
         i=prog(i)
+        self.set_bone_roll()
         if self.is_put_spring_bone_info:
             self.put_spring_bone_info()
         if self.use_in_blender:
@@ -223,7 +224,6 @@ class Blend_model():
         return
     #region material_util func
     def set_material_transparent(self,b_mat,pymat, transparent_mode):
-        print(transparent_mode)
         if transparent_mode == "OPAQUE":
             pass
         elif transparent_mode == "CUTOUT":
@@ -805,7 +805,38 @@ class Blend_model():
             bpy.ops.object.transform_apply(location= True,rotation=True)
             obj.select_set(False)
         return
-    
+    def set_bone_roll(self):
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action="DESELECT")
+        self.armature.select_set(True)
+        self.context.view_layer.objects.active = self.armature
+        bpy.ops.object.mode_set(mode='EDIT')
+        HB = VRM_Types.HumanBones
+        stop_bone_names = {*self.armature.data.values()[:]}
+        def set_children_roll(bone_name,roll):
+            if bone_name in self.armature.data and self.armature.data[bone_name] != "" :
+                bone = self.armature.data.edit_bones[self.armature.data[bone_name]]
+                bone.roll = radians(roll)
+                roll_list = [*bone.children]
+                while roll_list:
+                    bone = roll_list.pop()
+                    if bone.name in stop_bone_names:
+                        continue
+                    bone.roll = radians(roll)
+                    roll_list.extend(bone.children)
+                return
+        for b in HB.center_req + HB.center_def:
+            if b == "hips":
+                set_children_roll(b,90)
+            else:
+                set_children_roll(b,-90)
+        for deg,bs in zip([0,180],[HB.left_arm_req + HB.left_arm_def,HB.right_arm_req + HB.right_arm_def]):
+            for b in bs:
+                set_children_roll(b,deg)
+        for b in HB.left_leg_req + HB.right_leg_req + HB.left_leg_def + HB.right_leg_def:
+            set_children_roll(b,90)
+        return
+
     def put_spring_bone_info(self):
 
         if not "secondaryAnimation" in self.vrm_pydata.json["extensions"][VRM_Types.VRM]:
