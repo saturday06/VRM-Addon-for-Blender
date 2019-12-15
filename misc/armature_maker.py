@@ -288,6 +288,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 
 		context.scene.view_layers.update()
 		bpy.ops.object.mode_set(mode='OBJECT')
+		context.scene.view_layers.update()
 		return armature,bone_name_all_dict
 
 	def setup_as_vrm(self,armature,compaire_dict):

@@ -1,5 +1,5 @@
 import bpy,bmesh
-
+from ..V_Types import HumanBones
 class ICYP_MESH_Maker():
 	def __init__(self,args):
 		mesh = bpy.data.meshes.new("template_humanoid")
@@ -26,11 +26,37 @@ class ICYP_MESH_Maker():
 		#endregion body
 
 		#region arm
-		#TODO
+		left_arm_bones = [args.armature_obj.data.bones[args.armature_obj.data[v]] for v in HumanBones.left_arm_req+HumanBones.left_arm_def \
+								if v in args.armature_obj.data \
+									and args.armature_obj.data[v] != "" \
+									and args.armature_obj.data[v] in args.armature_obj.data.bones]
+		for b in left_arm_bones:
+			xyz = [0,0,0]
+			trans = list(b.head_local)
+			xyz[0] = b.length
+			xyz[1] = b.head_radius
+			xyz[2] = b.head_radius
+			trans[0] += b.length/2
+			trans[2] -= b.head_radius/2
+			self.make_cube(xyz,trans)
+		#TODO Thumb rotation
 		#endregion arm
 
 		#region leg
 		#TODO
+		left_leg_bones = [args.armature_obj.data.bones[args.armature_obj.data[v]] \
+							for v in HumanBones.left_leg_req+HumanBones.left_leg_def \
+								if v in args.armature_obj.data \
+									and args.armature_obj.data[v] != "" \
+									and args.armature_obj.data[v] in args.armature_obj.data.bones]		
+		for b in left_leg_bones:
+			xyz = [0,0,0]
+			trans = list(b.head_local)
+			xyz[0] = b.head_radius*2
+			xyz[1] = b.head_radius*2
+			xyz[2] = b.length
+			trans[2] -= b.length
+			self.make_cube(xyz,trans)
 		#endregion leg
 		
 		self.bm.to_mesh(mesh)
@@ -52,7 +78,7 @@ class ICYP_MESH_Maker():
 			verts.append(self.bm.verts.new(p))
 		for poly in self.cube_loop_half:
 			self.bm.faces.new([verts[i] for i in poly])
-	
+
 	def cubic_points(self, xyz, translation=None):
 		if translation is None:
 			translation = [0,0,0]
