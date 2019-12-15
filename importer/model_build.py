@@ -835,6 +835,7 @@ class Blend_model():
                 set_children_roll(b,deg)
         for b in HB.left_leg_req + HB.right_leg_req + HB.left_leg_def + HB.right_leg_def:
             set_children_roll(b,90)
+        bpy.ops.object.mode_set(mode='OBJECT')
         return
 
     def put_spring_bone_info(self):
