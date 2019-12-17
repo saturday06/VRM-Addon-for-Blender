@@ -1,5 +1,6 @@
 import bpy,bmesh
 from ..V_Types import HumanBones
+from  mathutils import Matrix,Vector
 class ICYP_MESH_Maker():
 	def __init__(self,args):
 		mesh = bpy.data.meshes.new("template_humanoid")
@@ -21,8 +22,14 @@ class ICYP_MESH_Maker():
 		#make neck
 		neck_bone = args.armature_obj.data.bones[args.armature_obj.data["neck"]]
 		self.make_half_cube([head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local)
-		#TODO under neck
-
+		#make chest
+		chest_bone = args.armature_obj.data.bones[args.armature_obj.data["chest"]]
+		leftUpperArm_bone = args.armature_obj.data.bones[args.armature_obj.data["leftUpperArm"]]
+		self.make_half_cube([leftUpperArm_bone.head_local[0]*2, head_size*3/4,chest_bone.length],chest_bone.head_local)
+		#make spine
+		#make hips
+		hips_bone = args.armature_obj.data.bones[args.armature_obj.data["hips"]]
+		self.make_half_cube([leftUpperArm_bone.head_local[0]*2*1.2, head_size*3/4,hips_bone.length],hips_bone.head_local)
 		#endregion body
 
 		#region arm
@@ -32,13 +39,13 @@ class ICYP_MESH_Maker():
 									and args.armature_obj.data[v] in args.armature_obj.data.bones]
 		for b in left_arm_bones:
 			xyz = [0,0,0]
-			trans = list(b.head_local)
-			xyz[0] = b.length
-			xyz[1] = b.head_radius
+			trans = [0,0,0]
+			xyz[0] = b.head_radius
+			xyz[1] = b.length
 			xyz[2] = b.head_radius
-			trans[0] += b.length/2
+			trans[1] += b.length/2
 			trans[2] -= b.head_radius/2
-			self.make_cube(xyz,trans)
+			self.make_cube(xyz,trans,b.matrix_local)
 		#TODO Thumb rotation
 		#endregion arm
 
@@ -51,20 +58,21 @@ class ICYP_MESH_Maker():
 									and args.armature_obj.data[v] in args.armature_obj.data.bones]		
 		for b in left_leg_bones:
 			xyz = [0,0,0]
-			trans = list(b.head_local)
+			trans = [0,0,0]
 			xyz[0] = b.head_radius*2
-			xyz[1] = b.head_radius*2
-			xyz[2] = b.length
-			trans[2] -= b.length
-			self.make_cube(xyz,trans)
+			xyz[1] = b.length
+			xyz[2] = b.head_radius*2
+			trans[1] +=b.length/2
+			trans[2] -= b.head_radius
+			self.make_cube(xyz,trans,b.matrix_local)
 		#endregion leg
 		
 		self.bm.to_mesh(mesh)
 		self.bm.free()
 		return
 
-	def make_cube(self, xyz, translation=None):
-		points = self.cubic_points(xyz, translation)
+	def make_cube(self, xyz, translation=None,rot_matrix = None):
+		points = self.cubic_points(xyz, translation,rot_matrix)
 		verts = []
 		for p in points:
 			verts.append(self.bm.verts.new(p))
@@ -79,16 +87,18 @@ class ICYP_MESH_Maker():
 		for poly in self.cube_loop_half:
 			self.bm.faces.new([verts[i] for i in poly])
 
-	def cubic_points(self, xyz, translation=None):
+	def cubic_points(self, xyz, translation=None,rot_matrix=None):
 		if translation is None:
 			translation = [0,0,0]
+		if rot_matrix is None:
+			rot_matrix = Matrix.Identity(4)
 		x = xyz[0]
 		y = xyz[1]
 		z = xyz[2]
 		tx = translation[0]
 		ty = translation[1]
 		tz = translation[2]
-		return (
+		points = (
 			(-x/2+tx,-y/2+ty,0+tz),
 			(-x/2+tx,y/2+ty,0+tz),
 			(x/2+tx,y/2+ty,0+tz),
@@ -99,6 +109,8 @@ class ICYP_MESH_Maker():
 			(x/2+tx,y/2+ty,z+tz),
 			(x/2+tx,-y/2+ty,z+tz),
 		)
+
+		return [rot_matrix @ Vector(p) for p in points]
 
 	cube_loop = [
 		[0,1,2,3],
