@@ -23,7 +23,8 @@ class ICYP_MESH_Maker():
 		head_bone = self.get_humanoid_bone("head")
 		head_matrix = head_bone.matrix_local
 		#ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ（上底が身長の高さ）にする変換(matrixはYupだけど、bone座標系はZup)
-		head_matrix = head_matrix@Matrix([[1,0,0,0],[0,1,0,-head_bone.head_local[2]],[0,0,1,0],[0,0,0,1]])@Matrix.Translation(Vector([head_size/16,args.tall - head_size,0]))
+		head_matrix = head_matrix @ Matrix([[1,0,0,0],[0,1,0,-head_bone.head_local[2]],[0,0,1,0],[0,0,0,1]]) \
+								  @ Matrix.Translation(Vector([head_size/16,args.tall - head_size,0]))
 		self.make_half_trapezoid([head_size*7/8,head_size],[head_size*7/8,head_size],head_size,head_matrix)
 		#make neckneck
 		neck_bone = self.get_humanoid_bone("neck")
