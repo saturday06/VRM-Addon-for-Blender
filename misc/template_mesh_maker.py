@@ -12,32 +12,35 @@ class ICYP_MESH_Maker():
 		bpy.ops.object.modifier_add(type='MIRROR')
 		return
 
-
+	def get_humanoid_bone(self,bone):
+		return self.args.armature_obj.data.bones[self.args.armature_obj.data[bone]]
 	def make_humanoid(self, mesh, args):
+		self.args = args
 		self.bm = bmesh.new()
 		#region body
 		#make head
 		head_size = args.tall / args.head_ratio
 		self.make_half_cube([head_size,head_size,head_size],[0,0,args.tall - head_size])
-		#make neck
-		neck_bone = args.armature_obj.data.bones[args.armature_obj.data["neck"]]
+		#make neckneck
+		neck_bone = self.get_humanoid_bone("neck")
 		self.make_half_cube([head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local)
 		#make chest
-		chest_bone = args.armature_obj.data.bones[args.armature_obj.data["chest"]]
-		leftUpperArm_bone = args.armature_obj.data.bones[args.armature_obj.data["leftUpperArm"]]
+		chest_bone = self.get_humanoid_bone("chest")
+		leftUpperArm_bone = self.get_humanoid_bone("leftUpperArm")
 		self.make_half_cube([leftUpperArm_bone.head_local[0]*2, head_size*3/4,chest_bone.length],chest_bone.head_local)
 		#make spine
 		#make hips
-		hips_bone = args.armature_obj.data.bones[args.armature_obj.data["hips"]]
-		self.make_half_cube([leftUpperArm_bone.head_local[0]*2*1.2, head_size*3/4,hips_bone.length],hips_bone.head_local)
+		hips_bone = self.get_humanoid_bone("hips")
+		hips_size = leftUpperArm_bone.head_local[0]*2*1.2
+		self.make_half_cube([hips_size, head_size*3/4,hips_bone.length],hips_bone.head_local)
 		#endregion body
 
 		#region arm
-		left_arm_bones = [args.armature_obj.data.bones[args.armature_obj.data[v]] for v in HumanBones.left_arm_req+HumanBones.left_arm_def \
+		left_arm_bones = [self.get_humanoid_bone(v) for v in HumanBones.left_arm_req+HumanBones.left_arm_def \
 								if v in args.armature_obj.data \
 									and args.armature_obj.data[v] != "" \
 									and args.armature_obj.data[v] in args.armature_obj.data.bones]
-		left_hand_bone = args.armature_obj.data.bones[args.armature_obj.data["leftHand"]]
+		left_hand_bone = self.get_humanoid_bone("leftHand")
 		for b in left_arm_bones:
 			xyz = [0,0,0]
 			trans = [0,0,0]
@@ -46,13 +49,20 @@ class ICYP_MESH_Maker():
 			xyz[2] = b.head_radius 
 			trans[1] += b.length/2
 			trans[2] -= b.head_radius/2
-			self.make_cube(xyz,trans,b.matrix_local)
+			#self.make_cube(xyz,trans,b.matrix_local)
+			base_xz = [	b.head_radius if b != left_hand_bone else args.hand_size/2,
+						b.head_radius 
+			]
+			top_xz = [	b.tail_radius if b != left_hand_bone else args.hand_size/2,
+						b.tail_radius 
+			]
+			self.make_trapezoid(base_xz,top_xz,b.length,[0,0,0],b.matrix_local)
 		#TODO Thumb rotation
 		#endregion arm
 
 		#region leg
 		#TODO
-		left_leg_bones = [args.armature_obj.data.bones[args.armature_obj.data[v]] \
+		left_leg_bones = [self.get_humanoid_bone(v) \
 							for v in HumanBones.left_leg_req+HumanBones.left_leg_def \
 								if v in args.armature_obj.data \
 									and args.armature_obj.data[v] != "" \
@@ -65,7 +75,39 @@ class ICYP_MESH_Maker():
 			xyz[2] = b.head_radius*2
 			trans[1] +=b.length/2
 			trans[2] -= b.head_radius
-			self.make_cube(xyz,trans,b.matrix_local)
+			#self.make_cube(xyz,trans,b.matrix_local)
+
+			bone_name = ""
+			for k,v in self.args.armature_obj.data.items():
+				if v == b.name:
+					bone_name = k
+					break
+			if bone_name == "":
+				head_x = b.head_radius
+				head_z = b.head_radius
+				tail_x = b.head_radius
+				tail_z = b.head_radius
+			elif "UpperLeg" in bone_name:
+				head_x = hips_size/2
+				head_z = hips_size/2
+				tail_x = 0.71*hips_size/2
+				tail_z = 0.71*hips_size/2
+			elif "LowerLeg" in bone_name:
+				head_x = 0.71*hips_size/2
+				head_z = 0.71*hips_size/2
+				tail_x = 0.54*hips_size/2
+				tail_z = 0.6*hips_size/2
+			elif "Foot" in bone_name:
+				head_x = 0.54*hips_size/2
+				head_z = 0.6*hips_size/2
+				tail_x = 0.81*hips_size/2
+				tail_z = 0.81*hips_size/2	
+			elif "Toes" in bone_name:
+				head_x = 0.81*hips_size/2
+				head_z = 0.81*hips_size/2
+				tail_x = 0.81*hips_size/2
+				tail_z = 0.81*hips_size/2	
+			self.make_trapezoid([head_x,head_z],[tail_x,tail_z],b.length,[0,0,0],b.matrix_local)
 		#endregion leg
 		
 		self.bm.to_mesh(mesh)
@@ -149,4 +191,49 @@ class ICYP_MESH_Maker():
 		[5,6,2,1],
 		[6,7,3,2],
 		[7,4,0,3]
+	]
+
+	def make_trapezoid(self, head_xz,tail_xz,height, translation=None,rot_matrix = None):
+		points = self.trapezoid_points(head_xz,tail_xz,height, translation,rot_matrix)
+		verts = []
+		for p in points:
+			verts.append(self.bm.verts.new(p))
+		for poly in self.tpzoid_points:
+			self.bm.faces.new([verts[i] for i in poly])
+
+	#台形 軸方向高さ
+	def trapezoid_points(self, head_xz,tail_xz,height, translation=None,rot_matrix=None):
+		if translation is None:
+			translation = [0,0,0]
+		if rot_matrix is None:
+			rot_matrix = Matrix.Identity(4)
+		hx = head_xz[0]
+		hz = head_xz[1]
+		tx = tail_xz[0]
+		tz = tail_xz[1]
+
+		tlx = translation[0]
+		tly = translation[1]
+		tlz = translation[2]
+		points = (
+			(-hx/2+tlx,tly,-hz/2+tlz),
+			(hx/2+tlx,tly,-hz/2+tlz),
+			(hx/2+tlx,tly,hz/2+tlz),
+			(-hx/2+tlx,tly,hz/2+tlz),
+
+			(-tx/2+tlx,height+tly,-tz/2+tlz),
+			(tx/2+tlx,height+tly,-tz/2+tlz),
+			(tx/2+tlx,height+tly,tz/2+tlz),
+			(-tx/2+tlx,height+tly,tz/2+tlz),
+		)
+
+		return [rot_matrix @ Vector(p) for p in points]
+
+	tpzoid_points = [
+		[0,1,2,3],
+		[7,4,5,6],
+		[4,0,1,5],
+		[5,1,2,6],
+		[6,2,3,7],
+		[7,3,0,4],
 	]
