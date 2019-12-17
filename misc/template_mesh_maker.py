@@ -20,16 +20,23 @@ class ICYP_MESH_Maker():
 		#region body
 		#make head
 		head_size = args.tall / args.head_ratio
-		#self.make_half_cube([head_size,head_size,head_size],[0,0,args.tall - head_size])
 		head_bone = self.get_humanoid_bone("head")
-		self.make_half_trapezoid([head_size,head_size],[head_size,head_size],head_size,head_bone.matrix_local)
+		head_matrix = head_bone.matrix_local
+		#ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ（上底が身長の高さ）にする変換(matrixはYupだけど、bone座標系はZup)
+		head_matrix = head_matrix@Matrix([[1,0,0,0],[0,1,0,-head_bone.head_local[2]],[0,0,1,0],[0,0,0,1]])@Matrix.Translation(Vector([0,args.tall - head_size,0]))
+		self.make_half_trapezoid([head_size,head_size],[head_size,head_size],head_size,head_matrix)
 		#make neckneck
 		neck_bone = self.get_humanoid_bone("neck")
 		self.make_half_cube([head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local)
-		#make chest
+		#make chest - upper and lower (肋骨の幅の最大値で分割)
 		chest_bone = self.get_humanoid_bone("chest")
+		shoulder_in = args.shoulder_in_width
 		leftUpperArm_bone = self.get_humanoid_bone("leftUpperArm")
-		self.make_half_cube([leftUpperArm_bone.head_local[0]*2, head_size*3/4,chest_bone.length],chest_bone.head_local)
+		#upper chest shell
+		self.make_half_trapezoid([head_size*3/4,leftUpperArm_bone.head_local[0]*2],[head_size*3/4,shoulder_in],chest_bone.length,chest_bone.matrix_local)
+		#lower chest shell
+		spine_bone = self.get_humanoid_bone("spine")
+		self.make_half_trapezoid([head_size*3/4,(leftUpperArm_bone.head_local[0] - shoulder_in )*2] ,[head_size*3/4,leftUpperArm_bone.head_local[0]*2], spine_bone.length*3/5,spine_bone.matrix_local @ Matrix.Translation(Vector([0,spine_bone.length*2/5,0])))
 		#make spine
 		#make hips
 		hips_bone = self.get_humanoid_bone("hips")
