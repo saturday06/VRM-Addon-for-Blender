@@ -37,12 +37,13 @@ class ICYP_MESH_Maker():
 								if v in args.armature_obj.data \
 									and args.armature_obj.data[v] != "" \
 									and args.armature_obj.data[v] in args.armature_obj.data.bones]
+		left_hand_bone = args.armature_obj.data.bones[args.armature_obj.data["leftHand"]]
 		for b in left_arm_bones:
 			xyz = [0,0,0]
 			trans = [0,0,0]
-			xyz[0] = b.head_radius
+			xyz[0] = b.head_radius if b != left_hand_bone else args.hand_size/2
 			xyz[1] = b.length
-			xyz[2] = b.head_radius
+			xyz[2] = b.head_radius 
 			trans[1] += b.length/2
 			trans[2] -= b.head_radius/2
 			self.make_cube(xyz,trans,b.matrix_local)
