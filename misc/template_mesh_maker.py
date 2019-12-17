@@ -20,7 +20,9 @@ class ICYP_MESH_Maker():
 		#region body
 		#make head
 		head_size = args.tall / args.head_ratio
-		self.make_half_cube([head_size,head_size,head_size],[0,0,args.tall - head_size])
+		#self.make_half_cube([head_size,head_size,head_size],[0,0,args.tall - head_size])
+		head_bone = self.get_humanoid_bone("head")
+		self.make_half_trapezoid([head_size,head_size],[head_size,head_size],head_size,head_bone.matrix_local)
 		#make neckneck
 		neck_bone = self.get_humanoid_bone("neck")
 		self.make_half_cube([head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local)
@@ -42,14 +44,6 @@ class ICYP_MESH_Maker():
 									and args.armature_obj.data[v] in args.armature_obj.data.bones]
 		left_hand_bone = self.get_humanoid_bone("leftHand")
 		for b in left_arm_bones:
-			xyz = [0,0,0]
-			trans = [0,0,0]
-			xyz[0] = b.head_radius if b != left_hand_bone else args.hand_size/2
-			xyz[1] = b.length
-			xyz[2] = b.head_radius 
-			trans[1] += b.length/2
-			trans[2] -= b.head_radius/2
-			#self.make_cube(xyz,trans,b.matrix_local)
 			base_xz = [	b.head_radius if b != left_hand_bone else args.hand_size/2,
 						b.head_radius 
 			]
@@ -68,15 +62,6 @@ class ICYP_MESH_Maker():
 									and args.armature_obj.data[v] != "" \
 									and args.armature_obj.data[v] in args.armature_obj.data.bones]		
 		for b in left_leg_bones:
-			xyz = [0,0,0]
-			trans = [0,0,0]
-			xyz[0] = b.head_radius*2
-			xyz[1] = b.length
-			xyz[2] = b.head_radius*2
-			trans[1] +=b.length/2
-			trans[2] -= b.head_radius
-			#self.make_cube(xyz,trans,b.matrix_local)
-
 			bone_name = ""
 			for k,v in self.args.armature_obj.data.items():
 				if v == b.name:
@@ -193,6 +178,46 @@ class ICYP_MESH_Maker():
 		[7,4,0,3]
 	]
 
+	def make_half_trapezoid(self,head_xz,tail_xz,height,matrix = None):
+		points = self.half_trapezoid_points(head_xz,tail_xz,height,matrix)
+		verts = []
+		for p in points:
+			verts.append(self.bm.verts.new(p))
+		for poly in self.half_trapezoid_loop:
+			self.bm.faces.new([verts[i] for i in poly])	
+
+	def half_trapezoid_points(self, head_xz,tail_xz,height, matrix = None):
+		if matrix is None:
+			matrix = Matrix.Identity(4)
+		hx = head_xz[0]
+		hz = head_xz[1]
+		tx = tail_xz[0]
+		tz = tail_xz[1]
+
+		points = (
+			(-hx/2,0,0),#0
+			(-hx/2,0,-hz/2),#1
+			(-tx/2,height,-tz/2),#2
+			(-tx/2,height,0),#3
+
+			(hx/2,0,-hz/2),#4
+			(hx/2,0,0),#5
+			(tx/2,height,0),#6
+			(tx/2,height,-tz/2),#7
+		)
+		return [matrix @ Vector(p) for p in points]
+
+	half_trapezoid_loop =[
+		[3,2,1,0],
+		[7,2,3,6],
+		[6,5,4,7],
+		[7,4,1,2],
+		[5,4,1,0]
+		]
+
+
+
+
 	def make_trapezoid(self, head_xz,tail_xz,height, translation=None,rot_matrix = None):
 		points = self.trapezoid_points(head_xz,tail_xz,height, translation,rot_matrix)
 		verts = []
@@ -230,10 +255,11 @@ class ICYP_MESH_Maker():
 		return [rot_matrix @ Vector(p) for p in points]
 
 	tpzoid_points = [
-		[0,1,2,3],
-		[7,4,5,6],
-		[4,0,1,5],
-		[5,1,2,6],
-		[6,2,3,7],
-		[7,3,0,4],
+		[3,2,1,0],
+		[6,5,4,7],
+		[5,1,0,4],
+		[6,2,1,5],
+		[7,3,2,6],
+		[4,0,3,7],
+
 	]
