@@ -110,7 +110,7 @@ def add_armature(self, context):
 def make_mesh(self, context):
     self.layout.separator()
     op = self.layout.operator(mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname, text="Mesh from selected armature",icon='PLUGIN')
-    op = self.layout.operator(detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,text = "Face mesh from selected armature and bound mesh")
+    op = self.layout.operator(detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,text = "(WIP)Face mesh from selected armature and bound mesh",icon='PLUGIN')
 class VRM_IMPORTER_PT_controller(bpy.types.Panel):
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "vrm import helper"
