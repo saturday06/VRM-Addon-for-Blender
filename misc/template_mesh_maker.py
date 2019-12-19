@@ -2,30 +2,49 @@ import bpy,bmesh
 from ..V_Types import HumanBones
 from  mathutils import Matrix,Vector
 class ICYP_MESH_Maker():
-	def __init__(self,args):
-		mesh = bpy.data.meshes.new("template_humanoid")
-		self.make_humanoid(mesh,args)
-		obj = bpy.data.objects.new("a", mesh)
+
+	def make_mesh_obj(self,name,method):
+		mesh = bpy.data.meshes.new(name)
+		method(mesh)
+		obj = bpy.data.objects.new(name, mesh)
 		scene = bpy.context.scene
 		scene.collection.objects.link(obj)
 		bpy.context.view_layer.objects.active = obj
 		bpy.ops.object.modifier_add(type='MIRROR')
+		return obj
+
+	def __init__(self,args):
+		self.args = args
+		self.head_size = args.tall / args.head_ratio
+		self.make_mesh_obj("head",self.make_head)
+		self.make_mesh_obj("body",self.make_humanoid)
 		return
 
 	def get_humanoid_bone(self,bone):
 		return self.args.armature_obj.data.bones[self.args.armature_obj.data[bone]]
-	def make_humanoid(self, mesh, args):
-		self.args = args
+
+	def make_head(self,mesh):
+		args = self.args
 		self.bm = bmesh.new()
-		#region body
-		#make head
-		head_size = args.tall / args.head_ratio
+		head_size = self.head_size
+		
 		head_bone = self.get_humanoid_bone("head")
 		head_matrix = head_bone.matrix_local
 		#ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ（上底が身長の高さ）にする変換(matrixはYupだけど、bone座標系はZup)
 		head_matrix = head_matrix @ Matrix([[1,0,0,0],[0,1,0,-head_bone.head_local[2]],[0,0,1,0],[0,0,0,1]]) \
 								  @ Matrix.Translation(Vector([head_size/16,args.tall - head_size,0]))
-		self.make_half_trapezoid([head_size*7/8,head_size],[head_size*7/8,head_size],head_size,head_matrix)
+		self.make_half_trapezoid( [head_size*7/8,head_size*args.head_width_ratio],\
+								  [head_size*7/8,head_size*args.head_width_ratio],\
+								   head_size,head_matrix)
+		self.bm.to_mesh(mesh)
+		self.bm.free()
+
+	def make_humanoid(self, mesh):
+		args = self.args
+		self.bm = bmesh.new()
+		head_size = self.head_size
+		#region body
+
 		#make neckneck
 		neck_bone = self.get_humanoid_bone("neck")
 		self.make_half_cube([head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local)

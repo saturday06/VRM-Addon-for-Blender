@@ -15,6 +15,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 	tall: bpy.props.FloatProperty(default=1.70, min=0.3, step=0.001,name = "Bone tall")
 	#頭身
 	head_ratio: bpy.props.FloatProperty(default=8.0, min=4, step=0.05,description = "height per heads")
+	head_width_ratio: bpy.props.FloatProperty(default=2/3, min=0.3, max = 1.2,step=0.05,description = "height per heads")
 	#足-胴比率：０：子供、１：大人　に近くなる(低等身で有効)
 	aging_ratio: bpy.props.FloatProperty(default=0.5, min=0, max=1, step=0.1)
 	#目の奥み

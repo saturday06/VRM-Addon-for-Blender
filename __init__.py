@@ -11,6 +11,7 @@ from .importer import vrm_load,model_build
 from .misc import VRM_HELPER
 from .misc import glb_factory
 from .misc import armature_maker
+from .misc import detail_mesh_maker
 from .misc import mesh_from_bone_envelopes
 if bpy.app.build_platform != b'Darwin':
     from .misc import glsl_drawer
@@ -107,8 +108,9 @@ def add_armature(self, context):
     op = self.layout.operator(armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="VRM humanoid")
 
 def make_mesh(self, context):
+    self.layout.separator()
     op = self.layout.operator(mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname, text="Mesh from selected armature",icon='PLUGIN')
-
+    op = self.layout.operator(detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,text = "Face mesh from selected armature and bound mesh")
 class VRM_IMPORTER_PT_controller(bpy.types.Panel):
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "vrm import helper"
@@ -201,6 +203,7 @@ classes = [
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
     armature_maker.ICYP_OT_MAKE_ARAMATURE,
+    detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     model_build.ICYP_OT_select_helper,
     mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
 ]
