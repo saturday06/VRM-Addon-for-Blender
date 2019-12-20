@@ -121,8 +121,8 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
 
 		#目
 		eye_depth = self.eye_depth
-		eyes = x_mirror_bones_add("eye", (head_size / 5, 0, 		self.tall - head_size/2),
-										 (head_size / 5, eye_depth, self.tall - head_size/2),
+		eyes = x_mirror_bones_add("eye", (head_size*self.head_width_ratio / 5, 0, 		self.tall - head_size/2),
+										 (head_size*self.head_width_ratio / 5, eye_depth, self.tall - head_size/2),
 										 (Head, Head))
 		#足
 		leg_width = head_size/4 * self.leg_width_ratio
