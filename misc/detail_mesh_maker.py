@@ -8,7 +8,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 	l_description = "Create mesh awith a simple setup for VRM export"
 	bl_options = {'REGISTER', 'UNDO'}
 
-	eye_width_ratio: bpy.props.FloatProperty(default=1, min=0.5, step=2,name = "Eye width ratio")
+	
 	#init before execute 
 	def invoke(self, context, event):
 		self.base_armature_name = [o for o in bpy.context.selected_objects if o.type=="ARMATURE"][0].name
@@ -58,6 +58,12 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		return self.base_armature.data.bones[self.base_armature.data[bone]]
 
 
+	eye_width_ratio: bpy.props.FloatProperty(default=2, min=0.5, max = 4,name = "Eye width ratio")
+	nose_height : bpy.props.FloatProperty(default=0.03, min=0.01, max = 0.1,step=0.001,name = "nose height")
+	eye_depth :bpy.props.FloatProperty(default=0.01, min=0.01, max = 0.1,name = "Eye depth")
+
+
+
 
 	def make_face(self,context,mesh):
 		def add_point(point):
@@ -69,7 +75,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 				axis_n = (1,2)
 			else:
 				axis_n = (2,0)
-			if divide <3:
+			if divide < 3:
 				print("wrong divide set")
 				divide = 3
 			if angle == 0:
@@ -90,6 +96,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 			return [p+a for p,a in zip(point,[0,0,add_loc])]
 		def up_add(point,add_loc):
 			return [p+a for p,a in zip(point,[0,add_loc,0])]
+		def depth_add(point,add_loc):
+			return [p+a for p,a in zip(point,[add_loc,0,0])]
         # X depth Y up Z width
 		bm = bmesh.new()
 
@@ -97,28 +105,37 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		bm.verts.new([0,0,self.head_width_size/2])
 		head_top_point_vert = add_point([0,self.head_tall_size,0])
 		add_point([-self.head_depth_size/2,0,0])
-		nose_end_point = add_point([0,self.head_tall_size/3,0])
+
 		neck_point_vert = add_point([-self.head_tall_size/16,self.neck_tail_y,0])
-		eye_point = [0,self.head_tall_size/2,self.head_width_size/5]
+		eye_point = [-self.eye_depth-self.head_depth_size/2,self.head_tall_size/2,self.head_width_size/5]
 		eye_width = eye_point[2]*self.eye_width_ratio*0.25
 		eye_iris_size = eye_point[2] * self.eye_width_ratio*0.25/2
 		make_circle(eye_point,eye_iris_size,"Y",12,360,1,1)
-		eye_height = 0.005
+		eye_height = eye_iris_size*0.9
 		eye_center_up_vert = add_point(up_add(eye_point,eye_height))
 		eye_center_down_vert = add_point(up_add(eye_point,-eye_height))
-		eye_innner_point_vert = add_point([p+i for p,i in zip(eye_point,[0,-eye_height, - eye_width])])
-		eye_outer_point_vert = add_point([p+i for p,i in zip(eye_point,[0,eye_height, eye_width])])
+		eye_innner_point = [p+i for p,i in zip(eye_point,[0,-eye_height, - eye_width])]
+		eye_outer_point = [p+i for p,i in zip(eye_point,[0,eye_height, eye_width])]
+		eye_innner_point_vert = add_point(eye_innner_point)
+		eye_outer_point_vert = add_point(eye_outer_point)
 		bm.faces.new([eye_center_up_vert,eye_center_down_vert,eye_outer_point_vert])
 		bm.faces.new([eye_center_up_vert,eye_center_down_vert,eye_innner_point_vert])
 		
-		eye_brow_point = [0,self.head_tall_size*5/8,0]
+		eye_brow_point = [-self.head_depth_size/2 ,self.head_tall_size*5/8,0]
 		eye_brow_innner_point = width_add(eye_brow_point,eye_point[2] - eye_width*1.1)
 		eye_brow_outer_point = width_add(eye_brow_point,eye_point[2] + eye_width*1.1)
 		eye_brow_innner_vert = add_point(eye_brow_innner_point)
 		eye_brow_outer_vert = add_point(eye_brow_outer_point)
 		bm.edges.new([eye_brow_innner_vert,eye_brow_outer_vert])
 
-		mouth_point = [0,self.head_tall_size*2/9,0]
+		nose_start_vert = add_point([-self.eye_depth/2-self.head_depth_size/2,eye_point[1],0])
+		nose_end_point = [self.nose_height-self.head_depth_size/2,self.head_tall_size/3,0]
+		nose_end_vert = add_point(nose_end_point)
+		nose_end_side_vert = add_point(depth_add(width_add(nose_end_point,eye_innner_point[2]),-self.nose_height))
+		bm.faces.new([nose_start_vert,nose_end_vert,nose_end_side_vert])
+
+
+		mouth_point = [-self.head_depth_size/2+self.nose_height*2/3,self.head_tall_size*2/9,0]
 		mouth_point_up_vert = add_point(up_add(mouth_point,0.01))
 		mouth_point_down_vert = add_point(up_add(mouth_point,-0.01))
 		mouth_outer_point_vert = add_point(width_add(mouth_point,self.head_width_size/5))
