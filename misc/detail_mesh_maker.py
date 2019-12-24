@@ -216,7 +216,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		komekami_vert = add_point(komekami_point)
 
 
-
+		bm.faces.new([cheek_top_outer_vert,ear_hole_vert,jaw_vert])
 
 
 
