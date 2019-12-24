@@ -212,7 +212,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		cheek_top_innner_vert = add_point(cheek_point)
 		bm.edges.new([cheek_top_innner_vert,cheek_top_outer_vert])
 
-		komekami_point = [-self.head_depth_size*0.7/2 ,eye_point[1] , self.head_width_size*5/14]
+		komekami_point = [-self.head_depth_size*0.7/2 ,eye_point[1] , max([self.head_width_size*5/14,eye_outer_point[2]])]
 		komekami_vert = add_point(komekami_point)
 
 
