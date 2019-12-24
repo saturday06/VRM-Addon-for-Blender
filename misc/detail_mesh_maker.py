@@ -61,13 +61,14 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 	eye_width_ratio: bpy.props.FloatProperty(default=2, min=0.5, max = 4,name = "Eye width ratio")
 	nose_head_height :bpy.props.FloatProperty(default=1, min=0, max = 1,name = "nose head")
 	nose_height : bpy.props.FloatProperty(default=0.015, min=0.01, max = 0.1,step=0.001,name = "nose height")
-	nose_width : bpy.props.FloatProperty(default=1, min=0.01, max = 1,name = "nose width")
+	nose_width : bpy.props.FloatProperty(default=0.5, min=0.01, max = 1,name = "nose width")
 	eye_depth :bpy.props.FloatProperty(default=0.01, min=0.01, max = 0.1,name = "Eye depth")
 	eye_angle : bpy.props.FloatProperty(default = radians(15),min=0,max=0.55,name="Eye angle")
 	eye_rotate: bpy.props.FloatProperty(default = 0.43,min=0,max=0.86,name="Eye rotation")
 	cheek_ratio :bpy.props.FloatProperty(default = 0,min=0,max=1,name="cheek position")
-	mouth_width_ratio:bpy.props.FloatProperty(default = 1, min = 0.3,max = 1,name = "Mouth width")
-	mouth_flatten:bpy.props.FloatProperty(default = 0, min = 0.0,max = 1,name = "Mouth flat")
+	cheek_width :bpy.props.FloatProperty(default = 0.65,min =0.5,max=1,name="cheek width ratio")
+	mouth_width_ratio:bpy.props.FloatProperty(default = 0.5, min = 0.3,max = 1,name = "Mouth width")
+	mouth_flatten:bpy.props.FloatProperty(default = 0.1, min = 0.0,max = 1,name = "Mouth flat")
 
 
 	def make_face(self,context,mesh):
@@ -207,7 +208,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		cheek_point = [-self.head_depth_size/2,0,node_end_side_point[2]]
 		cheek_point[1] = min([eye_quad_ld_point[1],(nose_end_point[1]+nose_start_point[1])/2])
 		cheek_point[1] = cheek_point[1] - (cheek_point[1]-mouth_point[1])*self.cheek_ratio
-		tmp_cheek = Matrix.Rotation(eye_axis,4,"Y") @ Vector( [0,0,(max_width_point[2])*cos(eye_axis)])
+		tmp_cheek = Matrix.Rotation(eye_axis,4,"Y") @ Vector( [0,0,(max_width_point[2])*cos(eye_axis)*self.cheek_width])
 		cheek_top_outer_vert = add_point(tmp_cheek + Vector([i*n for i,n in zip(cheek_point,[1,1,0])]))
 		cheek_top_innner_vert = add_point(cheek_point)
 		bm.edges.new([cheek_top_innner_vert,cheek_top_outer_vert])
@@ -215,7 +216,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		komekami_point = [-self.head_depth_size*0.7/2 ,eye_point[1] , max([self.head_width_size*5/14,eye_outer_point[2]])]
 		komekami_vert = add_point(komekami_point)
 
-
+		bm.edges.new([komekami_vert,eye_outer_vert])
 		bm.faces.new([cheek_top_outer_vert,ear_hole_vert,jaw_vert])
 
 
