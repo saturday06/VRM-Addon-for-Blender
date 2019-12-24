@@ -127,7 +127,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		eye_quad_ru_point	= eye_point + Matrix.Rotation(eye_axis,4,"Y") @ Vector([0,eye_height,eye_iris_size])
 		eye_innner_point 	= eye_point + Matrix.Rotation(-eye_axis,4,"Y") @ Matrix.Rotation(self.eye_rotate,4,"X") @ Vector([0,-eye_height, - eye_width])
 		eye_outer_point 	= eye_point + Matrix.Rotation(eye_axis,4,"Y") @ Matrix.Rotation(self.eye_rotate,4,"X") @ Vector([0,eye_height, eye_width])
-
+		if eye_innner_point[2] < 0:
+			eye_innner_point[2] = 0
 		eye_quad_lu_vert =	add_point(eye_quad_lu_point)
 		eye_quad_ld_vert =	add_point(eye_quad_ld_point)
 		eye_quad_rd_vert =	add_point(eye_quad_rd_point)
@@ -167,6 +168,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 			0
 			]
 		nose_top_vert = add_point(nose_top_point)
+
 		node_end_side_point = depth_add( \
 										width_add(
 											nose_end_point,\
@@ -186,8 +188,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		ear_hole_vert = add_point(ear_hole_point)
 
 
-		mouth_point = Vector([-self.head_depth_size/2+self.nose_height*2/3,self.head_tall_size*2/9,0])
-		
+		#mouth_point = Vector([-self.head_depth_size/2+self.nose_height*2/3,self.head_tall_size*2/9,0])
+		mouth_point = Vector([-self.head_depth_size/2+self.nose_height*2/3,nose_top_point[1]*2/3,0])
 		mouth_rotate_radian = atan2(self.nose_height,nose_top_point[1])
 		rotated_height_up = Vector((Matrix.Rotation(-mouth_rotate_radian,4,"Z") @ Vector([self.mouth_width_ratio*-0.01*self.mouth_flatten,self.mouth_width_ratio*0.01,0])))
 		rotated_height_down = Vector((Matrix.Rotation(-mouth_rotate_radian,4,"Z") @ Vector([self.mouth_width_ratio*0.01*self.mouth_flatten,self.mouth_width_ratio*0.01*1.3,0])))
