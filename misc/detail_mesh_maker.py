@@ -173,7 +173,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 											max([eye_innner_point[2],self.head_width_size/6])*self.nose_width),\
 									 	-self.nose_height)
 		nose_end_side_vert = add_point(node_end_side_point)
-		nose_end_under_vert = add_point(depth_add(nose_top_point,-self.nose_height))
+		nose_end_under_vert = add_point(depth_add(nose_end_point,-self.nose_height))
 		bm.faces.new([nose_start_vert,nose_top_vert,nose_end_side_vert])
 		bm.faces.new([nose_end_under_vert,nose_top_vert,nose_end_side_vert])
 
