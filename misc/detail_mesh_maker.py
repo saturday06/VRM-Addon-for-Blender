@@ -118,9 +118,9 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 
 		neck_point_vert = add_point([-self.head_tall_size/16,self.neck_tail_y,0])
 		eye_point = Vector([-self.eye_depth-self.head_depth_size/2,face_tall/2,self.head_width_size/5])
-		eye_width = eye_point[2]*self.eye_width_ratio*0.25
-		eye_iris_size = eye_point[2] * self.eye_width_ratio*0.25/2
 		
+		eye_iris_size = eye_point[2] * self.eye_width_ratio*0.25/2
+		eye_width = eye_iris_size*5/3
 		
 		eye_height = eye_iris_size*0.9
 		eye_axis = -self.eye_angle
@@ -154,7 +154,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		
 		arcus_superciliaris_under_vert = add_point(arcus_superciliaris_under_point)
 		arcus_superciliaris_outer_under_vert = add_point(arcus_superciliaris_outer_under_point)
-		bm.edges.new([arcus_superciliaris_under_vert,arcus_superciliaris_outer_under_vert])
+
 		
 		#eye_brow_innner_point = width_add(eye_brow_point,eye_point[2] - eye_width*1.1)
 		#eye_brow_outer_point = width_add(eye_brow_point,eye_point[2] + eye_width*1.1)
@@ -180,11 +180,6 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 									 	-self.nose_height)
 		nose_end_side_vert = add_point(nose_end_side_point)
 		nose_end_under_vert = add_point(depth_add(nose_end_point,-self.nose_height))
-		bm.faces.new([nose_start_vert,nose_top_vert,nose_end_side_vert])
-		bm.faces.new([nose_end_under_vert,nose_top_vert,nose_end_side_vert])
-
-		forehead_under_vert = add_point(arcus_superciliaris_under_point)
-		bm.edges.new([forehead_under_vert,nose_start_vert])
 
 		otogai_point = [-self.head_depth_size/2,0,0]
 		otogai_vert = add_point(otogai_point)
@@ -208,44 +203,71 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		mouth_outer_point_vert = add_point(mouth_outer_point)
 		mouth_center_point = depth_add(mouth_point,rotated_height_up[0]/2)
 		mouth_center_vert = add_point(mouth_center_point)
-		bm.faces.new([mouth_point_up_vert,mouth_point_mid_up_vert,mouth_outer_point_vert])
-		bm.faces.new([mouth_point_mid_up_vert,mouth_center_vert,mouth_outer_point_vert])
-		bm.faces.new([mouth_center_vert,mouth_point_mid_down_vert,mouth_outer_point_vert])
-		bm.faces.new([mouth_point_mid_down_vert,mouth_point_down_vert,mouth_outer_point_vert])
+
 
 		mouth_corner_nodule_point = mouth_outer_point + (mouth_outer_point - mouth_point).normalized()*0.2*self.mouth_corner_nodule
 		mouth_corner_nodule_vert = add_point(mouth_corner_nodule_point)
-		bm.edges.new([mouth_corner_nodule_vert,mouth_outer_point_vert])
 		
-
 		jaw_point = [0,mouth_point[1],self.head_width_size*3/8]
 		jaw_vert = add_point(jaw_point)
 
-		bm.edges.new([otogai_vert,jaw_vert])
-		bm.edges.new([jaw_vert,ear_hole_vert])
 
 		max_width_point = [0,arcus_superciliaris_under_point[1],self.head_width_size/2]
 		max_width_vert = add_point(max_width_point)
 		bm.edges.new([ear_hole_vert,max_width_vert])
 		make_circle([0,max_width_point[1],0],max_width_point[2],"Y",12,90,1,(self.head_tall_size-max_width_point[1])/max_width_point[2])
 
-		cheek_point = [-self.head_depth_size/2,0,eye_innner_point[2]+(eye_quad_lu_point[2]-eye_innner_point[2])/2]
-		cheek_point[1] = min([eye_quad_ld_point[1],(nose_end_point[1]+nose_start_point[1])/2])
-		cheek_point[1] = cheek_point[1] - (cheek_point[1]-nose_end_point[1])*self.cheek_ratio
+		cheek_point = Vector([-self.head_depth_size/2,0,eye_innner_point[2]+(eye_quad_lu_point[2]-eye_innner_point[2])/2])
+		cheek_point[1] = min([eye_quad_ld_point[1],(nose_top_point[1]+nose_start_point[1])/2])
+		cheek_point[1] = cheek_point[1] - (cheek_point[1]-nose_top_point[1])*self.cheek_ratio
 		tmp_cheek = Matrix.Rotation(eye_axis,4,"Y") @ Vector( [0,0,(eye_outer_point[2]-eye_innner_point[2]*2/3)*cos(eye_axis)*self.cheek_width])
-		cheek_top_outer_vert = add_point(tmp_cheek + Vector([i*n for i,n in zip(cheek_point,[1,1,1])]))
+		cheek_top_outer_vert = add_point(tmp_cheek + cheek_point)
 		cheek_top_innner_vert = add_point(cheek_point	)
-		bm.faces.new([eye_quad_ld_vert,cheek_top_innner_vert,cheek_top_outer_vert,eye_quad_rd_vert])
+		cheek_under_inner_point = Vector([-self.head_depth_size/2,nose_top_point[1],eye_innner_point[2]+(eye_quad_lu_point[2]-eye_innner_point[2])/2])
+		cheek_under_outer_point = cheek_under_inner_point + tmp_cheek
+		cheek_under_innner_vert = add_point(cheek_under_inner_point)
+		cheek_under_outer_vert = add_point(cheek_under_outer_point)
+
 		#目尻の端っこからちょっといったとこ
-		orbit_end = eye_outer_point + Matrix.Rotation(eye_axis,4,"Y") @ Vector([0,0,self.head_width_size/10])*cos(eye_axis)
+		orbit_end = eye_outer_point + Matrix.Rotation(eye_axis,4,"Y") @ Vector([0,0,eye_iris_size])*cos(eye_axis)
 		orbit_vert = add_point(orbit_end)
 
-		bm.faces.new([eye_outer_vert,orbit_vert,arcus_superciliaris_outer_under_vert,eye_quad_ru_vert])
-		bm.faces.new([cheek_top_outer_vert,mouth_corner_nodule_vert,jaw_vert,ear_hole_vert])
-		bm.faces.new([otogai_vert,jaw_vert,mouth_corner_nodule_vert])
-		bm.faces.new([otogai_vert,mouth_corner_nodule_vert,mouth_outer_point_vert,mouth_point_down_vert])
+		bm.edges.new([otogai_vert,jaw_vert])
+		bm.edges.new([jaw_vert,ear_hole_vert])
 
+		def add_mesh(points):
+			bm.faces.new(points)
 
+		add_mesh([eye_quad_ld_vert,cheek_top_innner_vert,cheek_top_outer_vert,eye_quad_rd_vert])
+		add_mesh([cheek_under_innner_vert,cheek_top_innner_vert,cheek_top_outer_vert,cheek_under_outer_vert])
+		#eye ring
+		add_mesh([arcus_superciliaris_under_vert,arcus_superciliaris_outer_under_vert,eye_quad_ru_vert,eye_quad_lu_vert])
+		add_mesh([arcus_superciliaris_under_vert,eye_quad_lu_vert,eye_innner_vert,nose_start_vert])
+		add_mesh([nose_start_vert,eye_innner_vert,cheek_top_innner_vert])
+		add_mesh([eye_innner_vert,eye_quad_ld_vert,cheek_top_innner_vert])
+		add_mesh([eye_outer_vert,orbit_vert,cheek_top_outer_vert,eye_quad_rd_vert])
+
+		add_mesh([nose_start_vert,cheek_top_innner_vert,cheek_under_innner_vert,nose_end_side_vert])
+		add_mesh([nose_end_side_vert,cheek_under_innner_vert,mouth_corner_nodule_vert,mouth_outer_point_vert])
+		add_mesh([cheek_under_innner_vert,cheek_under_outer_vert,mouth_corner_nodule_vert])
+		
+		add_mesh([cheek_under_outer_vert,jaw_vert,mouth_corner_nodule_vert])
+
+		add_mesh([nose_start_vert,nose_top_vert,nose_end_side_vert])
+		#add_mesh([nose_end_under_vert,nose_top_vert,nose_end_side_vert])
+		add_mesh([nose_top_vert,nose_end_side_vert,mouth_outer_point_vert,mouth_point_up_vert])
+
+		add_mesh([mouth_point_up_vert,mouth_point_mid_up_vert,mouth_outer_point_vert])
+		add_mesh([mouth_point_mid_up_vert,mouth_center_vert,mouth_outer_point_vert])
+		add_mesh([mouth_center_vert,mouth_point_mid_down_vert,mouth_outer_point_vert])
+		add_mesh([mouth_point_mid_down_vert,mouth_point_down_vert,mouth_outer_point_vert])
+
+		add_mesh([eye_outer_vert,orbit_vert,arcus_superciliaris_outer_under_vert,eye_quad_ru_vert])
+		add_mesh([cheek_top_outer_vert,cheek_under_outer_vert,jaw_vert,ear_hole_vert])
+		add_mesh([otogai_vert,jaw_vert,mouth_corner_nodule_vert])
+		add_mesh([otogai_vert,mouth_corner_nodule_vert,mouth_outer_point_vert,mouth_point_down_vert])
+		add_mesh([orbit_vert,ear_hole_vert,cheek_top_outer_vert])
+		add_mesh([arcus_superciliaris_outer_under_vert,max_width_vert,ear_hole_vert,orbit_vert])
 
 
 
