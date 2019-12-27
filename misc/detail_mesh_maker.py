@@ -269,8 +269,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		add_mesh([orbit_vert,ear_hole_vert,cheek_top_outer_vert])
 		add_mesh([arcus_superciliaris_outer_under_vert,max_width_vert,ear_hole_vert,orbit_vert])
 
-
-
+		
+		bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
 		bm.to_mesh(mesh)
 		bm.free()
 		return 
