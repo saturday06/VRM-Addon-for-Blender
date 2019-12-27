@@ -92,7 +92,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 				print("wrong angle set")
 				angle =180
 			verts = []
-			for i in range(divide):
+			for i in range(divide+1):
 				pi2 = 3.14*2*radians(angle)/radians(360)
 				vert = add_point(center)
 				xy = (sin(pi2*i/divide)*y_ratio,cos(pi2*i/divide)*x_ratio)
@@ -214,8 +214,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 
 		max_width_point = [0,arcus_superciliaris_under_point[1],self.head_width_size/2]
 		max_width_vert = add_point(max_width_point)
-		bm.edges.new([ear_hole_vert,max_width_vert])
-		make_circle([0,max_width_point[1],0],max_width_point[2],"Y",12,90,1,(self.head_tall_size-max_width_point[1])/max_width_point[2])
+		
 
 		cheek_point = Vector([-self.head_depth_size/2,0,eye_innner_point[2]+(eye_quad_lu_point[2]-eye_innner_point[2])/2])
 		cheek_point[1] = min([eye_quad_ld_point[1],(nose_top_point[1]+nose_start_point[1])/2])
@@ -268,6 +267,14 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
 		add_mesh([otogai_vert,mouth_corner_nodule_vert,mouth_outer_point_vert,mouth_point_down_vert])
 		add_mesh([orbit_vert,ear_hole_vert,cheek_top_outer_vert])
 		add_mesh([arcus_superciliaris_outer_under_vert,max_width_vert,ear_hole_vert,orbit_vert])
+
+		#head
+		make_circle([0,max_width_point[1],0],max_width_point[2],"Y",13,90,1,(self.head_tall_size-max_width_point[1])/max_width_point[2])
+		make_circle([0,arcus_superciliaris_under_point[1],0],self.head_tall_size-arcus_superciliaris_outer_under_point[1],"X",13,90,\
+			1,
+			arcus_superciliaris_under_point[0]/(self.head_tall_size-arcus_superciliaris_outer_under_point[1])
+			)
+
 
 		
 		bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
