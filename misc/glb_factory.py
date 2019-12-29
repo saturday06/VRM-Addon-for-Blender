@@ -297,16 +297,21 @@ class Glb_obj():
 				if float_val is not None:
 					MToon_float_dic[float_key] = float_val
 					if float_key == "OutlineWidthMode":
-						outline_width_mode = float_prop
-						MToon_float_dic[float_key] = min(max(ceil(float_val),0),2)
+						outline_width_mode = min(max(round(float_val),0.0),2.0)
+						MToon_float_dic[float_key] = int(outline_width_mode)
 					if float_key == "OutlineColorMode":
-						outline_color_mode = float_prop
-						MToon_float_dic[float_key] = min(max(ceil(float_val),0),1)
+						outline_color_mode = min(max(round(float_val),0.0),1.0)
+						MToon_float_dic[float_key] = int(outline_color_mode)
 			def outline_keyword_set(WIDTH_WORLD,WIDTH_SCREEN,COLOR_FIXED,COLOR_MIXED):
-				keyword_map["MTOON_OUTLINE_WIDTH_WORLD"] = WIDTH_WORLD
-				keyword_map["MTOON_OUTLINE_WIDTH_SCREEN"] = WIDTH_SCREEN
-				keyword_map["MTOON_OUTLINE_COLOR_FIXED"] = COLOR_FIXED
-				keyword_map["MTOON_OUTLINE_COLOR_MIXED"] = COLOR_MIXED
+				if WIDTH_WORLD:
+					keyword_map["MTOON_OUTLINE_WIDTH_WORLD"] = WIDTH_WORLD
+				elif WIDTH_SCREEN:
+					keyword_map["MTOON_OUTLINE_WIDTH_SCREEN"] = WIDTH_SCREEN
+				if COLOR_FIXED:
+					keyword_map["MTOON_OUTLINE_COLOR_FIXED"] = COLOR_FIXED
+				elif COLOR_MIXED:	
+					keyword_map["MTOON_OUTLINE_COLOR_MIXED"] = COLOR_MIXED
+					
 			if outline_width_mode < 1:
 				outline_keyword_set(False,False,False,False)
 			elif outline_width_mode < 2:
