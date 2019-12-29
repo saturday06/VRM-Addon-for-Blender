@@ -884,7 +884,9 @@ class Glb_obj():
 		if "texture" in self.armature.keys():
 			thumbnail_index_list =[i for i,img in enumerate(self.glb_bin_collector.image_bins) if img.name == self.armature["texture"]]
 			if len(thumbnail_index_list) > 0 :
-				vrm_meta_dic["texture"] = thumbnail_index_list[0]
+				self.json_dic["samplers"].append({"magFilter": 9729, "minFilter": 9729, "wrapS": 10497, "wrapT": 10497})
+				self.json_dic["textures"].append( {"sampler": len(self.json_dic["samplers"])-1, "source": thumbnail_index_list[0]  },)
+				vrm_meta_dic["texture"] = len(self.json_dic["textures"])-1
 		#endregion meta
 		#region humanoid
 		if self.VRM_version == "0.0":
