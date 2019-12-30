@@ -387,7 +387,7 @@ class Glb_obj():
 				material_prop_setter(1,1,0,1,True,2450,"TransparentCutout")
 				MToon_float_dic["_Cutoff"] = b_mat.alpha_threshold
 			else:  #transparent and Z_TRANPARENCY or Raytrace
-				material_prop_setter(3,5,10,0,False,3000,"Transparent")
+				material_prop_setter(2,5,10,0,False,3000,"Transparent")
 			keyword_map.update({"_ALPHABLEND_ON": b_mat.blend_method not in ("OPAQUE","CLIP")})
 			keyword_map.update({"_ALPHAPREMULTIPLY_ON":False})
 
