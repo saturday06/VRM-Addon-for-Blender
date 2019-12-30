@@ -376,7 +376,8 @@ class Glb_obj():
 				MToon_float_dic["_SrcBlend"] = src_blend
 				MToon_float_dic["_DstBlend"] = dst_blend
 				MToon_float_dic["_ZWrite"] = z_write
-				keyword_map.update({"_ALPHATEST_ON": alphatest})
+				if alphatest:
+					keyword_map.update({"_ALPHATEST_ON": alphatest})
 				MToon_dic["renderQueue"] = render_queue
 				tag_map["RenderType"] = render_type
 
@@ -396,7 +397,8 @@ class Glb_obj():
 			MToon_float_dic["_DebugMode"] = 0
 			keyword_map.update({"MTOON_DEBUG_NORMAL":False})
 			keyword_map.update({"MTOON_DEBUG_LITSHADERATE":False})
-			keyword_map.update({"_NORMALMAP": use_nomalmap})
+			if use_nomalmap:
+				keyword_map.update({"_NORMALMAP": use_nomalmap})
 
 			#for pbr_fallback
 			if b_mat.blend_method == "OPAQUE":
