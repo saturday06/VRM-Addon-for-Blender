@@ -13,6 +13,7 @@ from .misc import glb_factory
 from .misc import armature_maker
 from .misc import detail_mesh_maker
 from .misc import mesh_from_bone_envelopes
+from . import V_Types
 if bpy.app.build_platform != b'Darwin':
     from .misc import glsl_drawer
 import os
@@ -120,7 +121,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
     bl_category = "VRM HELPER"
 
     @classmethod
-    def poll(self, context):
+    def poll(cls, context):
         return True
 
     def draw(self, context):
@@ -183,6 +184,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
         #endregion draw_main
 
 from bpy.app.handlers import persistent
+
 @persistent
 def add_shaders(self):
     filedir = os.path.join(os.path.dirname(__file__),"resources","material_node_groups.blend")
