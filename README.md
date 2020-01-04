@@ -28,6 +28,11 @@
 - Add humanoid armature for VRM(Tpose, reqwired bone, and append custom properties to need export VRM (reference to VRM extensions textblock ,and bone tagging))
 - VRM0.0 export (not complete function ,but easy to bridge uniVRM. )
 
+# VRM編集チュートリアル　(VRM-in-out modify video tutorial(Japanese))
+https://www.nicovideo.jp/watch/sm36033523
+## more detail for VRM export
+https://qiita.com/iCyP/items/61af0ea93c604e37bed6
+
 # GLTF extension implements
  - KHR_materials_unlit : OK
  - KHR_materials_pbrSpecularGlossiness: NO
