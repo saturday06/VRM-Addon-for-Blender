@@ -347,7 +347,7 @@ class Glb_obj():
 							uv_offset_scaling_node = MToon_Shader_Node.inputs[texture_prop].links[0].from_node.inputs[0].links[0].from_node
 						except IndexError:
 							uv_offset_scaling_node = None
-						if uv_offset_scaling_node is not None:
+						if uv_offset_scaling_node is not None and uv_offset_scaling_node.type == "MAPPING'":
 							if bpy.app.version[1] == 80:
 								MToon_vector_dic[texture_key] = [ \
 										uv_offset_scaling_node.translation[0] ,
