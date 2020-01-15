@@ -928,6 +928,7 @@ class Glb_obj():
 		if "meshAnnotations" in vrm_FP_dic.keys():
 			for meshAnnotation in vrm_FP_dic["meshAnnotations"]:
 				meshAnnotation["mesh"] = [i for i, mesh in enumerate(self.json_dic["meshes"]) if mesh["name"] == meshAnnotation["mesh"]][0]
+				#TODO VRM1.0 is using node index that has mesh
 		#TODO
 		if self.VRM_version == "1.0":
 			vrm_extension_dic["lookAt"] = vrm_la_dic = {}
@@ -952,6 +953,7 @@ class Glb_obj():
 				return max
 		for bsm in BSM_list:
 			for bind in bsm["binds"]:
+				#TODO VRM1.0 is using node index that has mesh
 				bind["mesh"] = [i for i,mesh in enumerate(self.json_dic["meshes"]) if mesh["name"]==bind["mesh"]][0]
 				bind["index"] = self.json_dic["meshes"][bind["mesh"]]["primitives"][0]["extras"]["targetNames"].index(bind["index"])
 				bind["weight"] = clamp(0, bind["weight"] * 100, 100) if self.VRM_version == "0.0" else clamp(0, bind["weight"], 1)

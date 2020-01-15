@@ -734,6 +734,7 @@ class Blend_model():
         if fp_bone != -1:
             firstperson_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][firstperson_params["firstPersonBone"]]["name"]
         if "meshAnnotations" in firstperson_params.keys():
+            #TODO VRM1.0 is using node index that has mesh
             for meshAnotation in firstperson_params["meshAnnotations"]:
                 meshAnotation["mesh"] = self.vrm_pydata.json["meshes"][meshAnotation["mesh"]]["name"]
 
@@ -745,6 +746,7 @@ class Blend_model():
         #meshをidから名前に
         #weightを0-100から0-1に
         #shape_indexを名前に
+        #TODO VRM1.0 is using node index that has mesh
         #materialValuesはそのままで行けるハズ・・・
         for bsg in blendShapeGroups_list:
             for bind_dic in bsg["binds"]:
