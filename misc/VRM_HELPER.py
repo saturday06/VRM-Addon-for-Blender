@@ -346,7 +346,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
             if armature is not None:
                 if armature.get("texture") != None:
                     thumbnail_image = bpy.data.images.get(armature["texture"])
-                    if thumbnail_image:
+                    if thumbnail_image is not None:
                         used_image.append(thumbnail_image)
                     else:
                         messages.add(
