@@ -292,7 +292,11 @@ class VRM_VALIDATOR(bpy.types.Operator):
                         )
                     else:
                         if expect_node_type == "TEX_IMAGE":
-                            used_image.append(n.image)
+                            if n.image is not None:
+                                used_image.append(n.image)
+                            else:
+                                messages.add(lang_support(f"image in material:{material.name} is not putted . Please set image.",\
+                                                          f"マテリアル:{material.name} にテクスチャが設定されていない　imageノードがあります。削除か画像を設定してください"))
             #MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 for shader_val in VRM_types.Material_MToon.texture_kind_exchange_dic.values():
