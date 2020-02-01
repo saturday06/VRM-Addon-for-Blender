@@ -69,7 +69,7 @@ def material(mat,ext_mat,use_simple_principled_material)->VRM_Types.Material:
             v_mat.emissive_factor = mat["emissiveFactor"]
 
         if "doubleSided" in mat:
-            v_mat.doubleSided = mat["doubleSided"]
+            v_mat.double_sided = mat["doubleSided"]
         if "alphaMode" in mat:
             if mat["alphaMode"] == "MASK":
                 v_mat.alpha_mode = "MASK"
