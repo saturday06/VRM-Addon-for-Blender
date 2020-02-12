@@ -49,7 +49,8 @@ class ImportVRM(bpy.types.Operator,ImportHelper):
     make_new_texture_folder : bpy.props.BoolProperty(name = "make new texture folder (limit:10)")
     is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
     import_normal : bpy.props.BoolProperty(name = "Import Normal")
-    remove_doubles : bpy.props.BoolProperty(name = "Remove doubles")
+    remove_doubles: bpy.props.BoolProperty(name="Remove doubles")
+    set_bone_roll : bpy.props.BoolProperty(name="Set bone roll")
     use_simple_principled_material: bpy.props.BoolProperty(name = "use simple principled material")
     use_in_blender: bpy.props.BoolProperty(name = "NOTHING TO DO in CURRENT use in blender")
 
@@ -79,6 +80,7 @@ def menu_import(self, context):
     op.is_put_spring_bone_info = True
     op.import_normal = True
     op.remove_doubles = False
+    op.set_bone_roll = True
 
 class ExportVRM(bpy.types.Operator,ExportHelper):
     bl_idname = "export_scene.vrm"

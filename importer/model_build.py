@@ -25,6 +25,7 @@ class Blend_model():
         self.import_normal = addon_context.import_normal
         self.remove_doubles = addon_context.remove_doubles
         self.use_simple_principled_material = addon_context.use_simple_principled_material
+        self.is_set_bone_roll = addon_context.set_bone_roll
         self.use_in_blender = addon_context.use_in_blender
 
         self.context = context
@@ -67,7 +68,8 @@ class Blend_model():
         i=prog(i)
         self.axis_transform()
         i=prog(i)
-        self.set_bone_roll()
+        if self.is_set_bone_roll:
+            self.set_bone_roll()
         if self.is_put_spring_bone_info:
             self.put_spring_bone_info()
         if self.use_in_blender:
