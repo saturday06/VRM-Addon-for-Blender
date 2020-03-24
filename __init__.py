@@ -197,20 +197,20 @@ def add_shaders(self):
 
 
 classes = [
-    ImportVRM,
-    ExportVRM,
-    VRM_HELPER.Bones_rename,
-    VRM_HELPER.Add_VRM_extensions_to_armature,
-    VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty,
-    VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty,
-    VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
-    VRM_HELPER.VRM_VALIDATOR,
-    VRM_IMPORTER_PT_controller,
-    armature_maker.ICYP_OT_MAKE_ARAMATURE,
-    detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
-    model_build.ICYP_OT_select_helper,
-    mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
-]
+        ImportVRM,
+        ExportVRM,
+        VRM_HELPER.Bones_rename,
+        VRM_HELPER.Add_VRM_extensions_to_armature,
+        VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty,
+        VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty,
+        VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
+        VRM_HELPER.VRM_VALIDATOR,
+        VRM_IMPORTER_PT_controller,
+        armature_maker.ICYP_OT_MAKE_ARAMATURE,
+        #detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
+        #model_build.ICYP_OT_select_helper,
+        #mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
+    ]
 if bpy.app.build_platform != b'Darwin':
     classes.extend([
         glsl_drawer.ICYP_OT_Draw_Model,
@@ -224,7 +224,7 @@ def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
-    bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
+    #bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
     bpy.app.handlers.load_post.append(add_shaders) 
     
 
@@ -232,7 +232,7 @@ def register():
 def unregister():
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
-    bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
+    #bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
     bpy.types.TOPBAR_MT_file_import.remove(menu_export)
     bpy.types.TOPBAR_MT_file_export.remove(menu_import)
     for cls in classes:
