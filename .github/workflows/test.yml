@@ -9,17 +9,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: 'ubuntu:20.04'
     strategy:
       matrix:
         blender-version: [2.82]
-
     steps:
     - uses: actions/checkout@v2
     - name: Install blender
       run: |
         # TODO: Freeze version
-        sudo apt-get update -qq
-        sudo apt-get install blender python3-numpy python3-pip
+        apt-get update -qq
+        apt-get install -y blender python3-numpy python3-pip
     - name: Install dependencies
       run: |
         pip3 install --upgrade pip
