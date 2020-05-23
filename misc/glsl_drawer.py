@@ -2,34 +2,38 @@ import bpy
 import gpu
 from gpu_extras.batch import batch_for_shader
 import bgl
-from mathutils import Matrix,Vector,Euler
+from mathutils import Matrix, Vector, Euler
 
-from math import sqrt,radians
-import collections 
+from math import sqrt, radians
+import collections
 from concurrent.futures import ThreadPoolExecutor
 from .. import V_Types
+
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):
     bl_idname = "vrm.model_draw"
     bl_label = "Preview MToon"
     bl_description = "Draw selected with MToon of GLSL"
-    bl_options = {'REGISTER'}
+    bl_options = {"REGISTER"}
 
-    def execute(self,context):
+    def execute(self, context):
         gdo = glsl_draw_obj()
         glsl_draw_obj.draw_func_add()
         return {"FINISHED"}
+
+
 class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):
     bl_idname = "vrm.model_draw_remove"
     bl_label = "remove MToon preview"
     bl_description = "remove draw function"
-    bl_options = {'REGISTER'}
+    bl_options = {"REGISTER"}
 
-    def execute(self,context):
+    def execute(self, context):
         glsl_draw_obj.draw_func_remove()
         return {"FINISHED"}
 
-class MToon_glsl():
+
+class MToon_glsl:
     white_texture = None
     black_texture = None
     normal_texture = None
@@ -42,40 +46,50 @@ class MToon_glsl():
     vector_dic = {}
     texture_dic = {}
     cull_mode = "BACK"
-    def make_small_image(self,name,color = (1,1,1,1),color_space = "sRGB"):
-        image = bpy.data.images.new(name,1,1)
+
+    def make_small_image(self, name, color=(1, 1, 1, 1), color_space="sRGB"):
+        image = bpy.data.images.new(name, 1, 1)
         image.colorspace_settings.name = color_space
         image.generated_color = color
         return image
-    def __init__(self,material):
+
+    def __init__(self, material):
         shader_black = "shader_black"
         if shader_black not in bpy.data.images:
-            self.black_texture = self.make_small_image(shader_black,(0,0,0,0))
-        else :
+            self.black_texture = self.make_small_image(shader_black, (0, 0, 0, 0))
+        else:
             self.black_texture = bpy.data.images[shader_black]
         shader_white = "shader_white"
         if shader_white not in bpy.data.images:
-            self.white_texture = self.make_small_image(shader_white,(1,1,1,1))
-        else :
+            self.white_texture = self.make_small_image(shader_white, (1, 1, 1, 1))
+        else:
             self.white_texture = bpy.data.images[shader_white]
         shader_normal = "shader_normal"
         if shader_normal not in bpy.data.images:
-            self.normal_texture = self.make_small_image(shader_normal,(0.5,0.5,1,1),"Linear")
-        else :
+            self.normal_texture = self.make_small_image(
+                shader_normal, (0.5, 0.5, 1, 1), "Linear"
+            )
+        else:
             self.normal_texture = bpy.data.images[shader_normal]
         self.material = material
         self.name = material.name
         self.update()
 
-        
-    def get_texture(self,tex_name,default_color = "white"):
+    def get_texture(self, tex_name, default_color="white"):
         if tex_name == "ReceiveShadow_Texture":
             tex_name += "_alpha"
         if self.main_node.inputs[tex_name].links:
             if self.main_node.inputs[tex_name].links[0].from_node.image is not None:
-                if default_color != "normal" and \
-                        self.main_node.inputs[tex_name].links[0].from_node.image.colorspace_settings.name != "Linear": ###############TODO bugyyyyyyyyyyyyyyyyy
-                    self.main_node.inputs[tex_name].links[0].from_node.image.colorspace_settings.name = "Linear"
+                if (
+                    default_color != "normal"
+                    and self.main_node.inputs[tex_name]
+                    .links[0]
+                    .from_node.image.colorspace_settings.name
+                    != "Linear"
+                ):  ###############TODO bugyyyyyyyyyyyyyyyyy
+                    self.main_node.inputs[tex_name].links[
+                        0
+                    ].from_node.image.colorspace_settings.name = "Linear"
                 self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
                 return self.main_node.inputs[tex_name].links[0].from_node.image
             else:
@@ -103,20 +117,30 @@ class MToon_glsl():
             else:
                 raise Exception
 
-    def get_value(self,val_name):
+    def get_value(self, val_name):
         if self.main_node.inputs[val_name].links:
-            return self.main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
+            return (
+                self.main_node.inputs[val_name]
+                .links[0]
+                .from_node.outputs[0]
+                .default_value
+            )
         else:
             return self.main_node.inputs[val_name].default_value
 
-    def get_color(self,vec_name):
+    def get_color(self, vec_name):
         if self.main_node.inputs[vec_name].links:
-            return self.main_node.inputs[vec_name].links[0].from_node.outputs[0].default_value
+            return (
+                self.main_node.inputs[vec_name]
+                .links[0]
+                .from_node.outputs[0]
+                .default_value
+            )
         else:
-            return self.main_node.inputs[vec_name].default_value       
-    
+            return self.main_node.inputs[vec_name].default_value
+
     def update(self):
-        if self.material.blend_method in ("OPAQUE",'CLIP'):
+        if self.material.blend_method in ("OPAQUE", "CLIP"):
             self.alpha_method = self.material.blend_method
         else:
             self.alpha_method = "TRANSPARENT"
@@ -125,8 +149,8 @@ class MToon_glsl():
         else:
             self.cull_mode = "NO"
         for node in self.material.node_tree.nodes:
-            if node.type =="OUTPUT_MATERIAL":
-                self.main_node = node.inputs['Surface'].links[0].from_node
+            if node.type == "OUTPUT_MATERIAL":
+                self.main_node = node.inputs["Surface"].links[0].from_node
 
         self.float_dic = {}
         self.vector_dic = {}
@@ -140,18 +164,16 @@ class MToon_glsl():
         for k in V_Types.Material_MToon.texture_kind_exchange_dic.values():
             if k is not None:
                 if k == "SphereAddTexture":
-                    self.texture_dic[k] = self.get_texture(k,"black")
+                    self.texture_dic[k] = self.get_texture(k, "black")
                 elif k == "NomalmapTexture":
-                    self.texture_dic[k] = self.get_texture(k,"normal")
+                    self.texture_dic[k] = self.get_texture(k, "normal")
                 else:
                     self.texture_dic[k] = self.get_texture(k)
 
 
+class glsl_draw_obj:
 
-
-class glsl_draw_obj():
-
-    toon_vertex_shader = '''
+    toon_vertex_shader = """
         in vec3 position;
         in vec3 normal;
         in vec2 rawuv;
@@ -168,9 +190,9 @@ class glsl_draw_obj():
             posa = gl_Position;
             rtangent = rawtangent;
         }
-    '''
+    """
 
-    toon_geometry_shader = '''
+    toon_geometry_shader = """
     layout(triangles) in;
     layout(triangle_strip, max_vertices = 3) out;
     uniform mat4 depthMVP;
@@ -261,9 +283,9 @@ class glsl_draw_obj():
             }
         }
     }
-    '''
+    """
 
-    toon_fragment_shader = '''
+    toon_fragment_shader = """
         uniform vec3 lightpos;
         uniform vec3 viewDirection;
         uniform vec3 viewUpDirection;
@@ -497,9 +519,9 @@ class glsl_draw_obj():
                 //gl_FragColor = vec4(n*0.5+0.5,lit.a);
             }
         }
-    '''
+    """
 
-    depth_vertex_shader = '''
+    depth_vertex_shader = """
         in vec3 position;
         uniform mat4 depthMVP;
         uniform mat4 obj_matrix;
@@ -507,21 +529,20 @@ class glsl_draw_obj():
         {
             gl_Position = depthMVP * obj_matrix * vec4(position,1);
         }
-    '''
+    """
 
-    depth_fragment_shader = '''
+    depth_fragment_shader = """
         void main(){
             gl_FragColor = vec4(vec3(gl_FragCoord.z),1);
         }
 
-    '''
+    """
 
     execulutor = None
 
-    toon_shader = None 
-        
-        
-    depth_shader = None 
+    toon_shader = None
+
+    depth_shader = None
 
     objs = []
     light = None
@@ -531,43 +552,51 @@ class glsl_draw_obj():
     draw_objs = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
-    bounding_center = [0,0,0]
-    bounding_size = [1,1,1]
+    bounding_center = [0, 0, 0]
+    bounding_size = [1, 1, 1]
+
     def __init__(self):
         glsl_draw_obj.myinstance = self
-        self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res,self.shadowmap_res)
+        self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
         self.materials = {}
         self.main_execulutor = ThreadPoolExecutor()
         self.sub_execulutor = ThreadPoolExecutor()
 
     scene_meshes = None
-    def build_scene(scene=None,*args):
+
+    def build_scene(scene=None, *args):
         if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
             self = glsl_draw_obj()
         else:
             self = glsl_draw_obj.myinstance
         self.objs = [obj for obj in self.draw_objs if obj is not None]
-        self.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT" ][0]
+        self.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT"][0]
         for obj in self.objs:
             for mat_slot in obj.material_slots:
                 if mat_slot.material.name not in self.materials.keys():
-                    self.materials[mat_slot.material.name] = MToon_glsl(mat_slot.material)
-        #if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier impliment
+                    self.materials[mat_slot.material.name] = MToon_glsl(
+                        mat_slot.material
+                    )
+        # if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier impliment
         self.scene_meshes = []
         self.draw_x_offset = 0
         for obj in self.objs:
-            if  self.draw_x_offset < obj.bound_box[4][0]*2:
-                self.draw_x_offset = obj.bound_box[4][0]*2
-            bounding_box_xyz = [[1,1,1],[-1,-1,-1]]
+            if self.draw_x_offset < obj.bound_box[4][0] * 2:
+                self.draw_x_offset = obj.bound_box[4][0] * 2
+            bounding_box_xyz = [[1, 1, 1], [-1, -1, -1]]
             for point in obj.bound_box:
-                for i,xyz in enumerate(point):
+                for i, xyz in enumerate(point):
                     if bounding_box_xyz[0][i] < xyz:
-                         bounding_box_xyz[0][i] = xyz
+                        bounding_box_xyz[0][i] = xyz
                     if bounding_box_xyz[1][i] > xyz:
-                         bounding_box_xyz[1][i] = xyz
-            self.bounding_center = [(i+n)/2 for i,n in zip(bounding_box_xyz[0],bounding_box_xyz[1])]
-            self.bounding_size = [i-n for i,n in zip(bounding_box_xyz[0],bounding_box_xyz[1])]
-            
+                        bounding_box_xyz[1][i] = xyz
+            self.bounding_center = [
+                (i + n) / 2 for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
+            ]
+            self.bounding_size = [
+                i - n for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
+            ]
+
         def build_mesh(obj):
             scene_mesh = Gl_mesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
@@ -576,23 +605,76 @@ class glsl_draw_obj():
             tmp_mesh.calc_loop_triangles()
             st = tmp_mesh.uv_layers[0].data
 
-            scene_mesh.mat_list = [self.materials[ms.material.name] for ms in obj.material_slots]
-            count_list = collections.Counter([tri.material_index for tri in tmp_mesh.loop_triangles])
-            scene_mesh.index_per_mat = { scene_mesh.mat_list[i]:[(n*3,n*3+1,n*3+2) for n in range(v)] for i,v in count_list.items() }
+            scene_mesh.mat_list = [
+                self.materials[ms.material.name] for ms in obj.material_slots
+            ]
+            count_list = collections.Counter(
+                [tri.material_index for tri in tmp_mesh.loop_triangles]
+            )
+            scene_mesh.index_per_mat = {
+                scene_mesh.mat_list[i]: [
+                    (n * 3, n * 3 + 1, n * 3 + 2) for n in range(v)
+                ]
+                for i, v in count_list.items()
+            }
+
             def job_pos():
-                return { k:[tmp_mesh.vertices[vid].co for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index==i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+                return {
+                    k: [
+                        tmp_mesh.vertices[vid].co
+                        for tri in tmp_mesh.loop_triangles
+                        for vid in tri.vertices
+                        if tri.material_index == i
+                    ]
+                    for i, k in enumerate(scene_mesh.index_per_mat.keys())
+                }
+
             def job_normal():
                 if tmp_mesh.has_custom_normals:
-                    return  {k:[tri.split_normals[x] for tri in tmp_mesh.loop_triangles if tri.material_index == i for x in range(3)] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+                    return {
+                        k: [
+                            tri.split_normals[x]
+                            for tri in tmp_mesh.loop_triangles
+                            if tri.material_index == i
+                            for x in range(3)
+                        ]
+                        for i, k in enumerate(scene_mesh.index_per_mat.keys())
+                    }
                 else:
-                    return  {k:[tmp_mesh.vertices[vid].normal for tri in tmp_mesh.loop_triangles for vid in tri.vertices if tri.material_index == i]for i,k in enumerate(scene_mesh.index_per_mat.keys())}
+                    return {
+                        k: [
+                            tmp_mesh.vertices[vid].normal
+                            for tri in tmp_mesh.loop_triangles
+                            for vid in tri.vertices
+                            if tri.material_index == i
+                        ]
+                        for i, k in enumerate(scene_mesh.index_per_mat.keys())
+                    }
+
             def job_uv():
-                return {k:[st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}           
+                return {
+                    k: [
+                        st[lo].uv
+                        for tri in tmp_mesh.loop_triangles
+                        for lo in tri.loops
+                        if tri.material_index == i
+                    ]
+                    for i, k in enumerate(scene_mesh.index_per_mat.keys())
+                }
+
             def job_tangent():
-                return {k:[tmp_mesh.loops[lo].tangent for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i] for i,k in enumerate(scene_mesh.index_per_mat.keys())}
-            
+                return {
+                    k: [
+                        tmp_mesh.loops[lo].tangent
+                        for tri in tmp_mesh.loop_triangles
+                        for lo in tri.loops
+                        if tri.material_index == i
+                    ]
+                    for i, k in enumerate(scene_mesh.index_per_mat.keys())
+                }
+
             scene_mesh.pos = self.sub_execulutor.submit(job_pos)
-            scene_mesh.normals =self.sub_execulutor.submit(job_normal)
+            scene_mesh.normals = self.sub_execulutor.submit(job_normal)
             scene_mesh.uvs = self.sub_execulutor.submit(job_uv)
             scene_mesh.tangents = self.sub_execulutor.submit(job_tangent)
 
@@ -602,11 +684,11 @@ class glsl_draw_obj():
             scene_mesh.tangents = scene_mesh.tangents.result()
             return scene_mesh
 
-        meshes = self.main_execulutor.map(build_mesh,self.objs)
+        meshes = self.main_execulutor.map(build_mesh, self.objs)
         for mesh in meshes:
             unneed_mat = []
             for k in mesh.index_per_mat.keys():
-                if len(mesh.index_per_mat[k])==0:
+                if len(mesh.index_per_mat[k]) == 0:
                     unneed_mat.append(k)
             for k in unneed_mat:
                 del mesh.index_per_mat[k]
@@ -616,40 +698,45 @@ class glsl_draw_obj():
         return
 
     batchs = None
+
     def build_batches(self):
         if self.toon_shader is None:
             self.toon_shader = gpu.types.GPUShader(
-                                vertexcode = self.toon_vertex_shader,
-                                fragcode = self.toon_fragment_shader,
-                                geocode = self.toon_geometry_shader)
-                                
+                vertexcode=self.toon_vertex_shader,
+                fragcode=self.toon_fragment_shader,
+                geocode=self.toon_geometry_shader,
+            )
+
         if self.depth_shader is None:
             self.depth_shader = gpu.types.GPUShader(
-                                vertexcode = self.depth_vertex_shader,
-                                fragcode = self.depth_fragment_shader)
+                vertexcode=self.depth_vertex_shader, fragcode=self.depth_fragment_shader
+            )
 
         batchs = self.batchs = []
         for scene_mesh in self.scene_meshes:
             for mat, vert_indices in scene_mesh.index_per_mat.items():
-                toon_batch = batch_for_shader(self.toon_shader, 'TRIS', {
-                    "position": scene_mesh.pos[mat],
-                    "normal":scene_mesh.normals[mat],
-                    "rawtangent":scene_mesh.tangents[mat],
-                    "rawuv":scene_mesh.uvs[mat]
+                toon_batch = batch_for_shader(
+                    self.toon_shader,
+                    "TRIS",
+                    {
+                        "position": scene_mesh.pos[mat],
+                        "normal": scene_mesh.normals[mat],
+                        "rawtangent": scene_mesh.tangents[mat],
+                        "rawuv": scene_mesh.uvs[mat],
                     },
-                    indices = vert_indices
+                    indices=vert_indices,
                 )
-                depth_batch = batch_for_shader(self.depth_shader, 'TRIS', {
-                    "position": scene_mesh.pos[mat]
-                    },
-                    indices = vert_indices
-                )            
-                if mat.alpha_method not in ("OPAQUE",'CLIP'):
-                    batchs.append((mat,toon_batch,depth_batch))
+                depth_batch = batch_for_shader(
+                    self.depth_shader,
+                    "TRIS",
+                    {"position": scene_mesh.pos[mat]},
+                    indices=vert_indices,
+                )
+                if mat.alpha_method not in ("OPAQUE", "CLIP"):
+                    batchs.append((mat, toon_batch, depth_batch))
                 else:
-                    batchs.insert(0,(mat,toon_batch,depth_batch))      
-        return   
-    
+                    batchs.insert(0, (mat, toon_batch, depth_batch))
+        return
 
     def glsl_draw(scene):
         if glsl_draw_obj.myinstance is None and glsl_draw_obj.draw_func is None:
@@ -657,54 +744,60 @@ class glsl_draw_obj():
             self.build_scene()
         else:
             self = glsl_draw_obj.myinstance
-        model_offset = Matrix.Translation((self.draw_x_offset,0,0))
-        light_pos = [i + n for i,n in zip(self.light.location , [-self.draw_x_offset,0,0])]
+        model_offset = Matrix.Translation((self.draw_x_offset, 0, 0))
+        light_pos = [
+            i + n for i, n in zip(self.light.location, [-self.draw_x_offset, 0, 0])
+        ]
         batchs = self.batchs
         depth_shader = self.depth_shader
         toon_shader = self.toon_shader
         offscreen = self.offscreen
-        #need bone etc changed only update
+        # need bone etc changed only update
         depth_matrix = None
 
         light = self.light
-        light_lookat = light.rotation_euler.to_quaternion() @ Vector((0,0,-1))
-        #TODO このへん
+        light_lookat = light.rotation_euler.to_quaternion() @ Vector((0, 0, -1))
+        # TODO このへん
         tar = light_lookat.normalized()
-        up = light.rotation_euler.to_quaternion() @ Vector((0,1,0))
+        up = light.rotation_euler.to_quaternion() @ Vector((0, 1, 0))
         tmp_bound_len = Vector(self.bounding_center).length
         camera_bias = 0.2
-        loc = Vector([self.bounding_center[i] + tar[i] * (tmp_bound_len + camera_bias) for i in range(3)])
+        loc = Vector(
+            [
+                self.bounding_center[i] + tar[i] * (tmp_bound_len + camera_bias)
+                for i in range(3)
+            ]
+        )
 
         loc = model_offset @ loc
-        v_matrix = lookat_cross(loc,tar,up)
-        const_proj = 2*max(self.bounding_size)/2
+        v_matrix = lookat_cross(loc, tar, up)
+        const_proj = 2 * max(self.bounding_size) / 2
         p_matrix = ortho_proj_mat(
-            -const_proj, const_proj,
-            -const_proj, const_proj,
-            -const_proj, const_proj)        
-        depth_matrix = v_matrix @ p_matrix #reuse in main shader
+            -const_proj, const_proj, -const_proj, const_proj, -const_proj, const_proj
+        )
+        depth_matrix = v_matrix @ p_matrix  # reuse in main shader
         depth_matrix.transpose()
 
-        #region shader depth path
+        # region shader depth path
         with offscreen.bind():
-            bgl.glClearColor(10,10,10,1)
+            bgl.glClearColor(10, 10, 10, 1)
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
             for bat in batchs:
                 mat = bat[0]
                 mat.update()
                 depth_bat = bat[2]
                 depth_shader.bind()
-                
+
                 bgl.glEnable(bgl.GL_BLEND)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                     bgl.glDepthMask(bgl.GL_TRUE)
                     bgl.glEnable(bgl.GL_DEPTH_TEST)
-                elif mat.alpha_method =="OPAQUE" :
+                elif mat.alpha_method == "OPAQUE":
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
                     bgl.glEnable(bgl.GL_DEPTH_TEST)
-                elif mat.alpha_method =='CLIP' :
+                elif mat.alpha_method == "CLIP":
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
                     bgl.glEnable(bgl.GL_DEPTH_TEST)
@@ -712,177 +805,208 @@ class glsl_draw_obj():
                 if mat.cull_mode == "BACK":
                     bgl.glEnable(bgl.GL_CULL_FACE)
                     bgl.glCullFace(bgl.GL_BACK)
-                else :
-                    bgl.glDisable(bgl.GL_CULL_FACE)  
-                bgl.glEnable(bgl.GL_CULL_FACE) #そも輪郭線がの影は落ちる？
-                bgl.glCullFace(bgl.GL_BACK) 
+                else:
+                    bgl.glDisable(bgl.GL_CULL_FACE)
+                bgl.glEnable(bgl.GL_CULL_FACE)  # そも輪郭線がの影は落ちる？
+                bgl.glCullFace(bgl.GL_BACK)
 
- 
-                depth_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
+                depth_shader.uniform_float(
+                    "obj_matrix", model_offset
+                )  # obj.matrix_world)
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
                 depth_bat.draw(depth_shader)
-        #endregion shader depth path
+        # endregion shader depth path
 
-        #region shader main
+        # region shader main
         vp_mat = bpy.context.region_data.perspective_matrix
         projection_mat = bpy.context.region_data.window_matrix
         view_dir = bpy.context.region_data.view_matrix[2][:3]
         view_up = bpy.context.region_data.view_matrix[1][:3]
-        normalWorldToViewMatrix = bpy.context.region_data.view_matrix.inverted_safe().transposed()
-        aspect = bpy.context.area.width/bpy.context.area.height
+        normalWorldToViewMatrix = (
+            bpy.context.region_data.view_matrix.inverted_safe().transposed()
+        )
+        aspect = bpy.context.area.width / bpy.context.area.height
 
-        for is_outline in [0,1]:
-            for bat in batchs:        
-                
+        for is_outline in [0, 1]:
+            for bat in batchs:
+
                 toon_bat = bat[1]
                 toon_shader.bind()
                 mat = bat[0]
 
                 if is_outline == 1 and mat.float_dic["OutlineWidthMode"] == 0:
                     continue
-                #mat.update() #already in depth path
+                # mat.update() #already in depth path
                 bgl.glEnable(bgl.GL_BLEND)
                 bgl.glDepthMask(bgl.GL_TRUE)
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                elif mat.alpha_method =="OPAQUE" :
+                elif mat.alpha_method == "OPAQUE":
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
-                elif mat.alpha_method =='CLIP' :
+                elif mat.alpha_method == "CLIP":
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
 
                 if is_outline == 0:
                     if mat.cull_mode == "BACK":
                         bgl.glEnable(bgl.GL_CULL_FACE)
                         bgl.glCullFace(bgl.GL_BACK)
-                    else :
+                    else:
                         bgl.glDisable(bgl.GL_CULL_FACE)
                 else:
                     bgl.glEnable(bgl.GL_CULL_FACE)
                     bgl.glCullFace(bgl.GL_BACK)
-                            
-                toon_shader.uniform_float("obj_matrix",model_offset)#obj.matrix_world)
-                toon_shader.uniform_float("projectionMatrix",projection_mat)
+
+                toon_shader.uniform_float(
+                    "obj_matrix", model_offset
+                )  # obj.matrix_world)
+                toon_shader.uniform_float("projectionMatrix", projection_mat)
                 toon_shader.uniform_float("viewProjectionMatrix", vp_mat)
                 toon_shader.uniform_float("viewDirection", view_dir)
-                toon_shader.uniform_float("viewUpDirection",view_up)
-                toon_shader.uniform_float("normalWorldToViewMatrix",normalWorldToViewMatrix)
+                toon_shader.uniform_float("viewUpDirection", view_up)
+                toon_shader.uniform_float(
+                    "normalWorldToViewMatrix", normalWorldToViewMatrix
+                )
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", light_pos)
-                toon_shader.uniform_float("aspect",aspect)
+                toon_shader.uniform_float("aspect", aspect)
                 toon_shader.uniform_float("is_outline", is_outline)
                 toon_shader.uniform_float("isDebug", 0.0)
-                
-                toon_shader.uniform_float("is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0)
 
-                float_keys = [  "CutoffRate" ,
-                                "BumpScale" ,
-                                "ReceiveShadowRate" ,
-                                "ShadeShift",
-                                "ShadeToony" ,
-                                "RimLightingMix" ,
-                                "RimFresnelPower" ,
-                                "RimLift" ,
-                                "ShadingGradeRate" ,
-                                "LightColorAttenuation" ,
-                                "IndirectLightIntensity" ,
-                                "OutlineWidth" ,
-                                "OutlineScaleMaxDistance" ,
-                                "OutlineLightingMix" ,
-                                "UV_Scroll_X" ,
-                                "UV_Scroll_Y" ,
-                                "UV_Scroll_Rotation" ,
-                                "OutlineWidthMode" ,
-                                "OutlineColorMode" ]
-                
+                toon_shader.uniform_float(
+                    "is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0
+                )
+
+                float_keys = [
+                    "CutoffRate",
+                    "BumpScale",
+                    "ReceiveShadowRate",
+                    "ShadeShift",
+                    "ShadeToony",
+                    "RimLightingMix",
+                    "RimFresnelPower",
+                    "RimLift",
+                    "ShadingGradeRate",
+                    "LightColorAttenuation",
+                    "IndirectLightIntensity",
+                    "OutlineWidth",
+                    "OutlineScaleMaxDistance",
+                    "OutlineLightingMix",
+                    "UV_Scroll_X",
+                    "UV_Scroll_Y",
+                    "UV_Scroll_Rotation",
+                    "OutlineWidthMode",
+                    "OutlineColorMode",
+                ]
+
                 for k in float_keys:
-                    toon_shader.uniform_float(k,mat.float_dic[k])
-                
-                for k,v in mat.vector_dic.items():
-                    toon_shader.uniform_float(k,v)
+                    toon_shader.uniform_float(k, mat.float_dic[k])
+
+                for k, v in mat.vector_dic.items():
+                    toon_shader.uniform_float(k, v)
 
                 bgl.glActiveTexture(bgl.GL_TEXTURE0)
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
-                bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE) #TODO 
-                bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE)
-                toon_shader.uniform_int("depth_image",0)
+                bgl.glTexParameteri(
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
+                )  # TODO
+                bgl.glTexParameteri(
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
+                )
+                toon_shader.uniform_int("depth_image", 0)
 
-                for i,k in enumerate(mat.texture_dic.keys()):
+                for i, k in enumerate(mat.texture_dic.keys()):
                     bgl.glActiveTexture(bgl.GL_TEXTURE1 + i)
                     texture = mat.texture_dic[k]
-                    bgl.glBindTexture(bgl.GL_TEXTURE_2D,texture.bindcode)
-                    bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE) #TODO 
-                    bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE)
-                    toon_shader.uniform_int(k , 1 + i)
+                    bgl.glBindTexture(bgl.GL_TEXTURE_2D, texture.bindcode)
+                    bgl.glTexParameteri(
+                        bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
+                    )  # TODO
+                    bgl.glTexParameteri(
+                        bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
+                    )
+                    toon_shader.uniform_int(k, 1 + i)
 
                 toon_bat.draw(toon_shader)
         return
-        #endregion shader main
+        # endregion shader main
 
     draw_func = None
     build_mesh_func = None
+
     @staticmethod
     def draw_func_add():
         glsl_draw_obj.draw_func_remove()
-        glsl_draw_obj.draw_objs = [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]
+        glsl_draw_obj.draw_objs = [
+            obj for obj in bpy.context.selected_objects if obj.type == "MESH"
+        ]
         if glsl_draw_obj.myinstance is None or glsl_draw_obj.draw_func is None:
-            glsl_draw_obj.myinstance = glsl_draw_obj()     
+            glsl_draw_obj.myinstance = glsl_draw_obj()
         glsl_draw_obj.myinstance.build_scene()
         if glsl_draw_obj.draw_func is not None:
             glsl_draw_obj.draw_func_remove()
         glsl_draw_obj.draw_func = bpy.types.SpaceView3D.draw_handler_add(
-            glsl_draw_obj.myinstance.glsl_draw,
-            (), 'WINDOW', 'POST_PIXEL')
+            glsl_draw_obj.myinstance.glsl_draw, (), "WINDOW", "POST_PIXEL"
+        )
 
-        if glsl_draw_obj.build_mesh_func is not None \
-                and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post:
+        if (
+            glsl_draw_obj.build_mesh_func is not None
+            and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post
+        ):
             bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
-        bpy.app.handlers.depsgraph_update_post.append(glsl_draw_obj.myinstance.build_scene)
+        bpy.app.handlers.depsgraph_update_post.append(
+            glsl_draw_obj.myinstance.build_scene
+        )
         glsl_draw_obj.build_mesh_func = bpy.app.handlers.depsgraph_update_post[-1]
-        #bpy.app.handlers.frame_change_post.append(build_sub_index)
+        # bpy.app.handlers.frame_change_post.append(build_sub_index)
 
     @staticmethod
     def draw_func_remove():
         if glsl_draw_obj.draw_func is not None:
-            bpy.types.SpaceView3D.draw_handler_remove(
-                glsl_draw_obj.draw_func, 'WINDOW')
+            bpy.types.SpaceView3D.draw_handler_remove(glsl_draw_obj.draw_func, "WINDOW")
             glsl_draw_obj.draw_func = None
 
-        if glsl_draw_obj.build_mesh_func is not None \
-                and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post:
+        if (
+            glsl_draw_obj.build_mesh_func is not None
+            and glsl_draw_obj.build_mesh_func in bpy.app.handlers.depsgraph_update_post
+        ):
             bpy.app.handlers.depsgraph_update_post.remove(glsl_draw_obj.build_mesh_func)
             glsl_draw_obj.build_mesh_func = None
         glsl_draw_obj.draw_objs = []
 
-    #endregion 3Dview drawer
+    # endregion 3Dview drawer
 
-#region util func
-def ortho_proj_mat(left,right,bottom,top,near,far):
+
+# region util func
+def ortho_proj_mat(left, right, bottom, top, near, far):
     mat4 = Matrix.Identity(4)
-    mat4[0][0] = 2 / (right-left)
-    mat4[1][1] = 2 / (top-bottom)
-    mat4[2][2] = -2 / (far-near)
-    def tmpfunc(a,b):
-        return - (a+b)/(a-b)
-    mat4[3][0] = tmpfunc(right,left)
-    mat4[3][1] = tmpfunc(top,bottom)
-    mat4[3][2] = tmpfunc(far,near)
+    mat4[0][0] = 2 / (right - left)
+    mat4[1][1] = 2 / (top - bottom)
+    mat4[2][2] = -2 / (far - near)
+
+    def tmpfunc(a, b):
+        return -(a + b) / (a - b)
+
+    mat4[3][0] = tmpfunc(right, left)
+    mat4[3][1] = tmpfunc(top, bottom)
+    mat4[3][2] = tmpfunc(far, near)
     mat4[3][3] = 1
     return mat4
 
-def lookat_cross(loc,tar,up):
+
+def lookat_cross(loc, tar, up):
     l = Vector(loc)
     t = Vector(tar)
     u = Vector(up)
-    #z = l-t
-    z = -t # 注視点ではなく、注視方角だからこう
+    # z = l-t
+    z = -t  # 注視点ではなく、注視方角だからこう
     z.normalize()
     x = u.cross(z)
     x.normalize()
     y = z.cross(x)
     y.normalize()
-    n = [-(x.dot(l)),-(y.dot(l)),-(z.dot(l)) ]
+    n = [-(x.dot(l)), -(y.dot(l)), -(z.dot(l))]
     mat4 = Matrix.Identity(4)
     for i in range(3):
         mat4[i][0] = x[i]
@@ -891,11 +1015,13 @@ def lookat_cross(loc,tar,up):
         mat4[3][i] = n[i]
     return mat4
 
-class Gl_mesh():
+
+class Gl_mesh:
     pos = None
     normals = None
     uvs = None
-    index_per_mat = None #matrial : vert index
+    index_per_mat = None  # matrial : vert index
+
     def __init__(self):
         self.pos = []
         self.normals = []
