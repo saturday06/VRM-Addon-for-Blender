@@ -5,6 +5,7 @@
 !*/
 # ホワイトリストに入れたいファイルを許可する
 !.gitignore
+!.git-blame-ignore-revs
 !*.py
 !*.md
 !*.blend
