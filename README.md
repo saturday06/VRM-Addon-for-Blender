@@ -1,4 +1,4 @@
-# VRM_IMPORTER_for_Blender2.8 ![Build status](https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/workflows/Lint/badge.svg)
+# VRM_IMPORTER_for_Blender2.8 <a href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/workflows/Lint/badge.svg"></a>
 
 Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 の更新が終了してしまったため、勉強ついでにメンテナンスしてみようという試みです。
 
