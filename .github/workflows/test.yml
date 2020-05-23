@@ -21,6 +21,8 @@ jobs:
         # TODO: Freeze version
         apt-get update -qq
         apt-get install -y blender python3-numpy python3-pip
+      env:
+        DEBIAN_FRONTEND: noninteractive
     - name: Install dependencies
       run: |
         pip3 install --upgrade pip
