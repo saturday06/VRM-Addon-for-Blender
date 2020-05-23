@@ -1,6 +1,6 @@
 # VRM_IMPORTER_for_Blender2.8
 
-<a href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/master.zip"><img src="./web/download_button.png"></a>
+<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/master.zip"><img src="./web/download_button.png"></a>
 
 - current :for blender 2.81
 - mesh import : done 
