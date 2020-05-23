@@ -1,4 +1,4 @@
-# VRM_IMPORTER_for_Blender2.8
+# VRM_IMPORTER_for_Blender2.8 ![Build status](https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/workflows/Lint/badge.svg)
 
 <a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/master.zip"><img src="./web/download_button.png"></a>
 
