@@ -11,6 +11,7 @@
 !LICENSE
 !*.jpeg
 !web/*.jpg
+!web/*.png
 !web/*.pptx
 .vscode/.ropeproject/objectdb
 .vscode/.ropeproject/config.py
