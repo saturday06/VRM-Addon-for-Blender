@@ -1,11 +1,13 @@
 # VRM_IMPORTER_for_Blender2.8 ![Build status](https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/workflows/Lint/badge.svg)
 
-<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/master.zip"><img src="./web/download_button.png"></a>
+Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 の更新が終了してしまったため、勉強ついでにメンテナンスしてみようという試みです。
 
 - current :for blender 2.82
 - mesh import : done 
 - material import : wip forever
 - export : spec0.0 export may be possible.
+
+<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/master.zip"><img src="./web/download_button.png"></a>
 
 # <Font color="red">ATTENSION 注意</font>
  If you using minisize cloud storage, texture foloder explanation must read and care about storage remaining capacity.
