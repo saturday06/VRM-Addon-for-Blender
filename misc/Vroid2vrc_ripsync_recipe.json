@@ -19,6 +19,6 @@
         "vrc.v_rr": {"Face.M_F00_000_Fcl_MTH_A": 0.2},
         "vrc.v_sil": {},
         "vrc.v_ss": {"Face.M_F00_000_Fcl_MTH_I": 0.8},
-        "vrc.v_th": {"Face.M_F00_000_Fcl_MTH_A": 1.0},
-    },
+        "vrc.v_th": {"Face.M_F00_000_Fcl_MTH_A": 1.0}
+    }
 }
