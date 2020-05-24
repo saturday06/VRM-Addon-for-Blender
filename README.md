@@ -1,6 +1,6 @@
 # VRM_IMPORTER_for_Blender2.8 <a href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/workflows/Test/badge.svg"></a>
 
-Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 の更新が終了してしまったため、勉強ついでにメンテナンスしてみようという試みです。
+Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 の更新が終了してしまったため、勉強ついでにメンテナンスしてみようという試みです。バグ報告、機能要望、Pull request歓迎します。
 
 - current : for blender 2.82
 - mesh import : done 
