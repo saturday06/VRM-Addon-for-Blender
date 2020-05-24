@@ -36,7 +36,9 @@ bl_info = {
 }
 
 if bl_info["version"] != version.addon_version:
-    raise Exception("Version mismatch")
+    raise Exception(
+        f'Version mismatch: {bl_info["version"]} != {version.addon_version}'
+    )
 
 
 class ImportVRM(bpy.types.Operator, ImportHelper):
