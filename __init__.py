@@ -23,7 +23,7 @@ import os
 bl_info = {
     "name": "VRM_IMPORTER",
     "author": "saturday06, iCyP",
-    "version": (0, 79),
+    "version": (0, 80),
     "blender": (2, 82, 0),
     "location": "File->Import",
     "description": "VRM Importer",
