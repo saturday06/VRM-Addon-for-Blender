@@ -13,6 +13,7 @@ from .misc import glb_factory
 from .misc import armature_maker
 from .misc import detail_mesh_maker
 from .misc import mesh_from_bone_envelopes
+from .misc import version
 from . import V_Types
 
 if bpy.app.build_platform != b"Darwin":
@@ -33,6 +34,9 @@ bl_info = {
     "tracker_url": "",
     "category": "Import-Export",
 }
+
+if bl_info["version"] != version.addon_version:
+    raise Exception("Version mismatch")
 
 
 class ImportVRM(bpy.types.Operator, ImportHelper):

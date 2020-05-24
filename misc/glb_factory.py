@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from .glb_bin_collector import Glb_bin_collection, Image_bin, Glb_bin
+from .version import addon_version
 from ..gl_const import GL_CONSTANTS
 from .. import V_Types as VRM_types
 from collections import OrderedDict
@@ -1214,7 +1215,9 @@ class Glb_obj:
         bpy.ops.object.mode_set(mode="OBJECT")
         return
 
-    exporter_name = "icyp_blender_vrm_exporter_experimental_0.1"
+    exporter_name = "saturday06_blender_vrm_exporter_experimental_" + ".".join(
+        map(str, addon_version)
+    )
 
     def glTF_meta_to_dic(self):
         glTF_meta_dic = {
