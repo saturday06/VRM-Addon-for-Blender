@@ -7,36 +7,39 @@ on:
     branches: [master]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: 'ubuntu:20.04'
-    strategy:
-      matrix:
-        blender-version: [2.82]
+  test:
+    runs-on: windows-2019
     steps:
-    - uses: actions/checkout@v2
-    - name: Install blender
-      run: |
-        # TODO: Freeze version
-        apt-get update -qq
-        apt-get install -y blender python3-numpy python3-pip
-      env:
-        DEBIAN_FRONTEND: noninteractive
-    - name: Install dependencies
-      run: |
-        pip3 install --upgrade pip
-        pip3 install black flake8
-        echo "::add-path::$HOME/.local/bin"
-    - name: Lint with black
-      run: |
-        black --check $(find . -type d)
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        #flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        #flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test
-      run: |
-        ./test/run.py
+      - uses: actions/checkout@v2
+      - name: Install Blender
+        run: choco install blender --yes --no-progress --version 2.82.1
+      - name: Test
+        run: |
+          &"C:\Program Files\Blender Foundation\Blender 2.82\2.82\python\bin\python.exe" `
+            test\run.py `
+            "C:\Program Files\Blender Foundation\Blender 2.82\blender.exe"
+
+  lint:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deb packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-pip
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - name: Install pip packages
+        run: |
+          pip3 install --upgrade pip
+          pip3 install black flake8
+          echo "::add-path::$HOME/.local/bin"
+      - name: Lint with black
+        run: |
+          black --check $(find . -type d)
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          #flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          #flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
