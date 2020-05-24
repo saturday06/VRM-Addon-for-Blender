@@ -6,14 +6,11 @@ https://opensource.org/licenses/mit-license.php
 """
 import bpy
 import blf
-import bmesh
 from .. import V_Types as VRM_types
 from ..V_Types import nested_json_value_getter as json_get
 from .armature_maker import ICYP_OT_MAKE_ARMATURE
 import re
-from math import sqrt, pow
 from mathutils import Vector
-from collections import deque
 import json
 from collections import OrderedDict
 import os

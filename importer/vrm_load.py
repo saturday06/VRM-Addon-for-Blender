@@ -14,9 +14,7 @@ from ..V_Types import nested_json_value_getter as json_get
 from . import vrm2pydata_factory
 import os
 import re
-import copy
 import datetime
-from math import sqrt, pow
 import json
 import numpy
 from collections import OrderedDict

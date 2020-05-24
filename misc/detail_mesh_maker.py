@@ -1,7 +1,7 @@
 import bpy
 import bmesh
 from mathutils import Matrix, Vector
-from math import sin, cos, radians, degrees, atan2
+from math import sin, cos, radians, atan2
 
 
 class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):

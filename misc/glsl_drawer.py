@@ -4,7 +4,6 @@ from gpu_extras.batch import batch_for_shader
 import bgl
 from mathutils import Matrix, Vector, Euler
 
-from math import sqrt, radians
 import collections
 from concurrent.futures import ThreadPoolExecutor
 from .. import V_Types

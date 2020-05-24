@@ -5,7 +5,6 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from ..gl_const import GL_CONSTANTS
-import json
 from collections import OrderedDict
 
 

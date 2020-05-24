@@ -7,7 +7,6 @@ https://opensource.org/licenses/mit-license.php
 
 
 import bpy
-import bmesh
 from mathutils import Vector, Matrix
 from .. import V_Types as VRM_Types
 from ..misc import VRM_HELPER
@@ -17,8 +16,6 @@ from math import sqrt, pow, radians
 import numpy
 import os.path
 import json
-import copy
-from collections import defaultdict
 import copy
 
 

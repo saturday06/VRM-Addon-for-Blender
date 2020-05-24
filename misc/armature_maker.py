@@ -1,6 +1,6 @@
 import bpy
 from mathutils import Matrix
-from math import radians, sqrt
+from math import radians
 from .template_mesh_maker import ICYP_MESH_Maker
 import json
 
