@@ -7,6 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
+from bpy.app.handlers import persistent
 from .importer import vrm_load, model_build
 from .misc import VRM_HELPER
 from .misc import glb_factory
@@ -230,9 +231,6 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
         # endregion draw_main
 
 
-from bpy.app.handlers import persistent
-
-
 @persistent
 def add_shaders(self):
     filedir = os.path.join(
@@ -263,6 +261,7 @@ if bpy.app.build_platform != b"Darwin":
     classes.extend(
         [glsl_drawer.ICYP_OT_Draw_Model, glsl_drawer.ICYP_OT_Remove_Draw_Model,]
     )
+
 
 # アドオン有効化時の処理
 def register():

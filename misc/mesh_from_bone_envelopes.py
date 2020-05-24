@@ -33,7 +33,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
         mball.threshold = 0.001
         is_VRM_humanoid = False
         for bone in armature.data.bones:
-            if self.use_selected_bones and bone.select == False:
+            if self.use_selected_bones and bone.select is False:
                 continue
             if "title" in armature and self.may_vrm_humanoid:  # = is VRM humanoid
                 is_VRM_humanoid = True

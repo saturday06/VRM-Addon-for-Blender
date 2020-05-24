@@ -4,7 +4,8 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
-import bpy, blf
+import bpy
+import blf
 import bmesh
 from .. import V_Types as VRM_types
 from ..V_Types import nested_json_value_getter as json_get
@@ -14,6 +15,8 @@ from math import sqrt, pow
 from mathutils import Vector
 from collections import deque
 import json
+from collections import OrderedDict
+import os
 
 
 class Bones_rename(bpy.types.Operator):
@@ -91,11 +94,6 @@ class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):
             if d not in arm:
                 arm[d] = ""
         return {"FINISHED"}
-
-
-import json
-from collections import OrderedDict
-import os
 
 
 class Vroid2VRC_ripsync_from_json_recipe(bpy.types.Operator):
@@ -201,7 +199,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                             )
                         )
                     node_name_set.add(bone.name)
-                    if bone.parent == None:  # root bone is only 1
+                    if bone.parent is None:  # root bone is only 1
                         if already_root_bone_exist:
                             messages.add(
                                 lang_support(
@@ -389,7 +387,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
         # thumbnail
         try:
             if armature is not None:
-                if armature.get("texture") != None:
+                if armature.get("texture") is not None:
                     thumbnail_image = bpy.data.images.get(armature["texture"])
                     if thumbnail_image is not None:
                         used_image.append(thumbnail_image)
@@ -661,7 +659,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 spring_bonegroup_list = []
             for bone_group in spring_bonegroup_list:
                 for bone_name in bone_group["bones"]:
-                    if not bone_name in bone_names_list:
+                    if bone_name not in bone_names_list:
                         messages.add(
                             lang_support(
                                 f"Bone name : {bone_name} is not found in spring_bone setting.",
@@ -670,7 +668,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                             )
                         )
                 for bone_name in bone_group["colliderGroups"]:
-                    if not bone_name in bone_names_list:
+                    if bone_name not in bone_names_list:
                         messages.add(
                             lang_support(
                                 f"Bone name : {bone_name} is not found in spring_bone setting.",

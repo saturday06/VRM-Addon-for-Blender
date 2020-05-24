@@ -1,4 +1,5 @@
-import bpy, bmesh
+import bpy
+import bmesh
 from ..V_Types import HumanBones
 from mathutils import Matrix, Vector
 

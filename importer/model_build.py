@@ -6,7 +6,8 @@ https://opensource.org/licenses/mit-license.php
 """
 
 
-import bpy, bmesh
+import bpy
+import bmesh
 from mathutils import Vector, Matrix
 from .. import V_Types as VRM_Types
 from ..misc import VRM_HELPER
@@ -15,7 +16,8 @@ from ..gl_const import GL_CONSTANTS
 from math import sqrt, pow, radians
 import numpy
 import os.path
-import json, copy
+import json
+import copy
 from collections import defaultdict
 import copy
 
@@ -91,7 +93,7 @@ class Blend_model:
     def scene_init(self):
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るのでその回避と、それを元に戻す
         affected_object = None
-        if self.context.active_object != None:
+        if self.context.active_object is not None:
             if hasattr(self.context.active_object, "hide_viewport"):
                 if self.context.active_object.hide_viewport:
                     self.context.active_object.hide_viewport = False
@@ -133,6 +135,7 @@ class Blend_model:
         self.armature.show_in_front = True
         self.armature.data.display_type = "STICK"
         self.bones = dict()
+
         # region bone recursive func
         def bone_chain(self_and_parent_id_tuple):
             id = self_and_parent_id_tuple[0]
@@ -162,6 +165,7 @@ class Blend_model:
                 else:
                     parent_pos = self.bones[parent_id].head
                 b.head = numpy.array(parent_pos) + numpy.array(py_bone.position)
+
                 # region temporary tail pos(gltf doesn't have bone. there defines as joints )
                 def vector_length(bone_vector):
                     return sqrt(
@@ -171,7 +175,7 @@ class Blend_model:
                     )
 
                 # gltfは関節で定義されていて骨の長さとか向きとかないからまあなんかそれっぽい方向にボーンを向けて伸ばしたり縮めたり
-                if py_bone.children == None:
+                if py_bone.children is None:
                     if parent_id == -1:  # 唯我独尊：上向けとけ
                         b.tail = [b.head[0], b.head[1] + 0.05, b.head[2]]
                     else:  # normalize length to 0.03　末代：親から距離をちょっととる感じ
@@ -203,7 +207,7 @@ class Blend_model:
 
                 if parent_id != -1:
                     b.parent = self.bones[parent_id]
-                if py_bone.children != None:
+                if py_bone.children is not None:
                     for x in py_bone.children:
                         bone_nodes.append((x, id))
             return 0
@@ -344,11 +348,11 @@ class Blend_model:
             image_node.extension = "REPEAT"
         else:
             image_node.extension = "EXTEND"
-        if not None in (color_socket_to_connect, tex_index):
+        if None not in (color_socket_to_connect, tex_index):
             material.node_tree.links.new(
                 color_socket_to_connect, image_node.outputs["Color"]
             )
-        if not None in (alpha_socket_to_connect, tex_index):
+        if None not in (alpha_socket_to_connect, tex_index):
             material.node_tree.links.new(
                 alpha_socket_to_connect, image_node.outputs["Alpha"]
             )
@@ -560,7 +564,7 @@ class Blend_model:
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_index is None:
                 continue
-            if not tex_name in tex_dic.keys():
+            if tex_name not in tex_dic.keys():
                 if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
                 b_mat["unknown_texture"].update(
@@ -707,7 +711,7 @@ class Blend_model:
             # endregion obj setting
 
             # region  vertex groupの作成
-            if origin != None:
+            if origin is not None:
                 # TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
                 nodes_index_list = self.vrm_pydata.skins_joints_list[origin[2]]
                 # TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない

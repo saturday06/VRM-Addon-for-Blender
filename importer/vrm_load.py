@@ -12,7 +12,10 @@ from ..gl_const import GL_CONSTANTS as GLC
 from .. import V_Types as VRM_Types
 from ..V_Types import nested_json_value_getter as json_get
 from . import vrm2pydata_factory
-import os, re, copy, datetime
+import os
+import re
+import copy
+import datetime
 from math import sqrt, pow
 import json
 import numpy
@@ -129,7 +132,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
     binary_reader = Binary_Reader(body_binary)
     # ここ画像切り出し #blenderはバイト列から画像を読み込む術がないので、画像ファイルを書き出して、それを読み込むしかない。
     vrm_dir_path = os.path.dirname(os.path.abspath(vrm_pydata.filepath))
-    if not "images" in vrm_pydata.json:
+    if "images" not in vrm_pydata.json:
         return
 
     def invalid_chars_remover(filename):

@@ -14,7 +14,8 @@ from mathutils import Matrix as bMatrix
 import json
 import struct
 from sys import float_info
-import bpy, bmesh
+import bpy
+import bmesh
 
 
 class Glb_obj:
@@ -669,7 +670,7 @@ class Glb_obj:
                 )
                 gc_list = []
                 for k, v in MT_Prop.items():
-                    if v == None:
+                    if v is None:
                         gc_list.append(k)
                 for garbage in gc_list:
                     MT_Prop.pop(garbage)
@@ -805,7 +806,7 @@ class Glb_obj:
             if len([m for m in mesh.modifiers if m.type == "ARMATURE"]) == 0:
                 if mesh.parent is not None:
                     if mesh.parent.type == "ARMATURE":
-                        if mesh.parent_bone != None:
+                        if mesh.parent_bone is not None:
                             is_skin_mesh = False
             node_dic = OrderedDict(
                 {
@@ -1396,6 +1397,7 @@ class Glb_obj:
             self.textblock2str(bpy.data.texts[self.armature["blendshape_group"]]),
             object_pairs_hook=OrderedDict,
         )
+
         # meshを名前からid
         # weightを0-1から0-100に
         # shape_indexを名前からindexに
