@@ -4,7 +4,7 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
-from ..gl_const import GL_CONSTANS
+from ..gl_const import GL_CONSTANTS
 import json
 from collections import OrderedDict
 
@@ -74,8 +74,8 @@ class Glb_bin_collection:
 
         bin_dic["buffers"] = [{"byteLength": byteOffset}]
 
-        buffer_view_and_accessors_orderd_dic = bin_dic
-        return buffer_view_and_accessors_orderd_dic, self.bin
+        buffer_view_and_accessors_ordered_dic = bin_dic
+        return buffer_view_and_accessors_ordered_dic, self.bin
 
     buffer_count = 0
 
@@ -112,14 +112,14 @@ class Glb_bin(Base_bin):
         self,
         bin="",
         array_type="SCALAR",
-        component_type=GL_CONSTANS.FLOAT,
+        component_type=GL_CONSTANTS.FLOAT,
         array_count=0,
         min_max_tuple=None,
         glb_bin_collection=None,
     ):
         super().__init__(bin, glb_bin_collection)
         self.array_type = array_type  # String:scalar,VEC3 etc...
-        self.component_type = component_type  # GL_CONSTANS:FLOAT, uint etc...
+        self.component_type = component_type  # GL_CONSTANTS:FLOAT, uint etc...
         self.array_count = array_count  # array num
         self.min_max = min_max_tuple  # position attribute must need min_max
         self.accessor_id = glb_bin_collection.get_new_glb_bin_id()

@@ -13,11 +13,11 @@ class VRM_pydata(object):
         filepath=None,
         json=None,
         decoded_binary=None,
-        image_propaties=None,
+        image_properties=None,
         meshes=None,
         materials=None,
         nodes_dict=None,
-        origine_nodes_dict=None,
+        origin_nodes_dict=None,
         skins_joints_list=None,
         skins_root_node_list=None,
     ):
@@ -25,12 +25,12 @@ class VRM_pydata(object):
         self.json = json
         self.decoded_binary = decoded_binary
 
-        self.image_propaties = image_propaties if image_propaties is not None else []
+        self.image_properties = image_properties if image_properties is not None else []
         self.meshes = meshes if meshes is not None else []
         self.materials = materials if materials is not None else []
         self.nodes_dict = nodes_dict if nodes_dict is not None else {}
-        self.origine_nodes_dict = (
-            origine_nodes_dict if origine_nodes_dict is not None else {}
+        self.origin_nodes_dict = (
+            origin_nodes_dict if origin_nodes_dict is not None else {}
         )
         self.skins_joints_list = (
             skins_joints_list if skins_joints_list is not None else []
@@ -211,15 +211,15 @@ class Material_GLTF(Material):
         self.emissive_factor = [0, 0, 0]
 
         self.color_texture_index = None
-        self.color_texcood_index = None
+        self.color_texcoord_index = None
         self.metallic_roughness_texture_index = None
-        self.metallic_roughness_texture_texcood = None
+        self.metallic_roughness_texture_texcoord = None
         self.normal_texture_index = None
         self.normal_texture_texcoord_index = None
         self.emissive_texture_index = None
         self.emissive_texture_texcoord_index = None
         self.occlusion_texture_index = None
-        self.occlusion_texture_texcood_index = None
+        self.occlusion_texture_texcoord_index = None
 
         self.double_sided = False
         self.alpha_mode = "OPAQUE"
@@ -284,7 +284,7 @@ class Material_MToon(Material):
     texture_kind_exchange_dic = {
         "_MainTex": "MainTexture",
         "_ShadeTexture": "ShadeTexture",
-        "_BumpMap": "NomalmapTexture",
+        "_BumpMap": "NormalmapTexture",
         "_ReceiveShadowTexture": "ReceiveShadow_Texture",
         "_ShadingGradeTexture": "ShadingGradeTexture",
         "_EmissionMap": "Emission_Texture",

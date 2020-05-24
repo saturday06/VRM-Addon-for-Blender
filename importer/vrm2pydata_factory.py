@@ -32,7 +32,7 @@ def bone(node) -> VRM_Types.Node:
 
 
 def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material:
-    # standard, or VRM unsuported shader(no saved)
+    # standard, or VRM unsupported shader(no saved)
     if (
         ext_mat["shader"] == "VRM_USE_GLTFSHADER"
         or ext_mat["shader"] not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]
@@ -56,7 +56,7 @@ def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material
             if "metallicRoughnessTexture" in pbrmat:
                 texture_index = pbrmat["metallicRoughnessTexture"]["index"]
                 v_mat.metallic_roughness_texture_index = texture_index
-                v_mat.metallic_roughness_texture_texcood = pbrmat["baseColorTexture"][
+                v_mat.metallic_roughness_texture_texcoord = pbrmat["baseColorTexture"][
                     "texCoord"
                 ]
 
@@ -68,7 +68,7 @@ def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material
             v_mat.emissive_texture_texcoord_index = mat["emissiveTexture"]["texCoord"]
         if "occlusionTexture" in mat:
             v_mat.occlusion_texture_index = mat["occlusionTexture"]["index"]
-            v_mat.occlusion_texture_texcood_index = mat["occlusionTexture"]["texCoord"]
+            v_mat.occlusion_texture_texcoord_index = mat["occlusionTexture"]["texCoord"]
         if "emissiveFactor" in mat:
             v_mat.emissive_factor = mat["emissiveFactor"]
 
@@ -107,7 +107,7 @@ def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material
             for k, _subset in subset.items():
                 if _subset:
                     print(
-                        "unknown {} propaties {} in {}".format(
+                        "unknown {} properties {} in {}".format(
                             k, _subset, ext_mat["name"]
                         )
                     )

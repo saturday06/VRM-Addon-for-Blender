@@ -5,7 +5,7 @@ from .template_mesh_maker import ICYP_MESH_Maker
 import json
 
 
-class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
+class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):
     bl_idname = "icyp.make_basic_armature"
     bl_label = "(WIP)basic armature"
     bl_description = "Create armature along with a simple setup for VRM export"
@@ -28,7 +28,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
     eye_depth: bpy.props.FloatProperty(default=-0.03, min=-0.1, max=0, step=0.005)
     # 肩幅
     shoulder_in_width: bpy.props.FloatProperty(
-        default=0.05, min=0.01, step=0.005, description="Innner shoulder position"
+        default=0.05, min=0.01, step=0.005, description="Inner shoulder position"
     )
     shoulder_width: bpy.props.FloatProperty(
         default=0.08, min=0.01, step=0.005, description="shoulder roll position"
@@ -38,10 +38,10 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
     # 手
     hand_ratio: bpy.props.FloatProperty(default=1, min=0.5, max=2.0, step=0.05)
     finger_1_2_ratio: bpy.props.FloatProperty(
-        default=0.75, min=0.5, max=1, step=0.005, description="proximal / intermidiate"
+        default=0.75, min=0.5, max=1, step=0.005, description="proximal / intermediate"
     )
     finger_2_3_ratio: bpy.props.FloatProperty(
-        default=0.75, min=0.5, max=1, step=0.005, description="intermidiate / distal"
+        default=0.75, min=0.5, max=1, step=0.005, description="intermediate / distal"
     )
     nail_bone: bpy.props.BoolProperty(
         default=False, description="may need for finger collider"
@@ -65,7 +65,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
     def make_armature(self, context):
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
-        armature.name = "skelton"
+        armature.name = "skeleton"
         armature.show_in_front = True
 
         bone_dic = {}
@@ -197,12 +197,12 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
         leg_width = head_size / 4 * self.leg_width_ratio
         leg_size = self.leg_size
 
-        leg_bone_lengh = (body_separate + head_size * 3 / 8 - self.tall * 0.05) / 2
+        leg_bone_length = (body_separate + head_size * 3 / 8 - self.tall * 0.05) / 2
         upside_legs = x_mirror_bones_add(
             "Upper_Leg",
             x_add((0, 0, body_separate + head_size * 3 / 8), leg_width),
             x_add(
-                z_add((0, 0, body_separate + head_size * 3 / 8), -leg_bone_lengh),
+                z_add((0, 0, body_separate + head_size * 3 / 8), -leg_bone_length),
                 leg_width,
             ),
             (Hips, Hips),
@@ -248,7 +248,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
             bone_type="arm",
         )
 
-        arm_lengh = (
+        arm_length = (
             head_size
             * (1 * (1 - (self.head_ratio - 6) / 2) + 1.5 * ((self.head_ratio - 6) / 2))
             * self.arm_length_ratio
@@ -256,14 +256,14 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
         arms = x_mirror_bones_add(
             "Arm",
             shoulders[0].tail,
-            x_add(shoulders[0].tail, arm_lengh),
+            x_add(shoulders[0].tail, arm_length),
             shoulders,
             radius=self.hand_size * 0.4,
             bone_type="arm",
         )
 
         # グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが概ね一緒、けど手がでかすぎると破綻する
-        forearm_length = max(arm_lengh - self.hand_size / 2, arm_lengh * 0.8)
+        forearm_length = max(arm_length - self.hand_size / 2, arm_length * 0.8)
         forearms = x_mirror_bones_add(
             "forearm",
             arms[0].tail,
@@ -307,7 +307,7 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
                 bone_type="arm",
             )
             intermediate_bones = x_mirror_bones_add(
-                f"{finger_name}_intermidiate",
+                f"{finger_name}_intermediate",
                 proximal_bones[0].tail,
                 x_add(proximal_bones[0].tail, intermediate_finger_len),
                 proximal_bones,
@@ -415,31 +415,31 @@ class ICYP_OT_MAKE_ARAMATURE(bpy.types.Operator):
         context.scene.view_layers.update()
         return armature, bone_name_all_dict
 
-    def setup_as_vrm(self, armature, compaire_dict):
-        for vrm_bone_name, blender_bone_name in compaire_dict.items():
+    def setup_as_vrm(self, armature, compare_dict):
+        for vrm_bone_name, blender_bone_name in compare_dict.items():
             armature.data[vrm_bone_name] = blender_bone_name
-        ICYP_OT_MAKE_ARAMATURE.make_extention_setting_and_metas(armature)
+        ICYP_OT_MAKE_ARMATURE.make_extension_setting_and_metas(armature)
 
     @classmethod
-    def make_extention_setting_and_metas(dum, armature):
-        def write_textblock_and_assgin_to_armature(block_name, value):
+    def make_extension_setting_and_metas(dum, armature):
+        def write_textblock_and_assign_to_armature(block_name, value):
             text_block = bpy.data.texts.new(name=f"{armature.name}_{block_name}.json")
             text_block.write(json.dumps(value, indent=4))
             if block_name not in armature:
                 armature[f"{block_name}"] = text_block.name
 
         # param_dicts are below of this method
-        write_textblock_and_assgin_to_armature(
-            "humanoid_params", ICYP_OT_MAKE_ARAMATURE.humanoid_params
+        write_textblock_and_assign_to_armature(
+            "humanoid_params", ICYP_OT_MAKE_ARMATURE.humanoid_params
         )
-        write_textblock_and_assgin_to_armature(
-            "firstPerson_params", ICYP_OT_MAKE_ARAMATURE.firstPerson_params
+        write_textblock_and_assign_to_armature(
+            "firstPerson_params", ICYP_OT_MAKE_ARMATURE.firstPerson_params
         )
-        write_textblock_and_assgin_to_armature(
-            "blendshape_group", ICYP_OT_MAKE_ARAMATURE.blendshape_group
+        write_textblock_and_assign_to_armature(
+            "blendshape_group", ICYP_OT_MAKE_ARMATURE.blendshape_group
         )
-        write_textblock_and_assgin_to_armature(
-            "spring_bone", ICYP_OT_MAKE_ARAMATURE.spring_bone_prams
+        write_textblock_and_assign_to_armature(
+            "spring_bone", ICYP_OT_MAKE_ARMATURE.spring_bone_prams
         )
 
         vrm_metas = [

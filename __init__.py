@@ -113,7 +113,7 @@ def menu_export(self, context):
 
 def add_armature(self, context):
     op = self.layout.operator(
-        armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="VRM humanoid"
+        armature_maker.ICYP_OT_MAKE_ARMATURE.bl_idname, text="VRM humanoid"
     )
 
 
@@ -154,7 +154,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
 
             reqbox = abox.box()
             reqrow = reqbox.row()
-            reqrow.label(text="VRM Requwire Bones")
+            reqrow.label(text="VRM Required Bones")
             for req in V_Types.HumanBones.requires:
                 if req in context.active_object.data:
                     reqbox.prop_search(
@@ -166,11 +166,11 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
                     )
                 else:
                     reqbox.operator(
-                        VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty.bl_idname,
-                        text=f"Add {req} propaty",
+                        VRM_HELPER.Add_VRM_require_humanbone_custom_property.bl_idname,
+                        text=f"Add {req} property",
                     )
             defbox = abox.box()
-            defbox.label(text="VRM option Bones")
+            defbox.label(text="VRM Optional Bones")
             for defs in V_Types.HumanBones.defines:
                 if defs in context.active_object.data:
                     defbox.prop_search(
@@ -182,8 +182,8 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
                     )
                 else:
                     defbox.operator(
-                        VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty.bl_idname,
-                        text=f"Add {defs} propaty",
+                        VRM_HELPER.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
                     )
 
             abox.label(icon="ERROR", text="EXPERIMENTAL!!!")
@@ -243,12 +243,12 @@ classes = [
     ExportVRM,
     VRM_HELPER.Bones_rename,
     VRM_HELPER.Add_VRM_extensions_to_armature,
-    VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty,
-    VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty,
+    VRM_HELPER.Add_VRM_require_humanbone_custom_property,
+    VRM_HELPER.Add_VRM_defined_humanbone_custom_property,
     VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
     VRM_HELPER.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
-    armature_maker.ICYP_OT_MAKE_ARAMATURE,
+    armature_maker.ICYP_OT_MAKE_ARMATURE,
     # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     # model_build.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES

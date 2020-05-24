@@ -5,7 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from .glb_bin_collector import Glb_bin_collection, Image_bin, Glb_bin
-from ..gl_const import GL_CONSTANS
+from ..gl_const import GL_CONSTANTS
 from .. import V_Types as VRM_types
 from collections import OrderedDict
 from math import pow, ceil, floor
@@ -194,7 +194,7 @@ class Glb_obj:
         IM_bin = Glb_bin(
             skin_invert_matrix_bin,
             "MAT4",
-            GL_CONSTANS.FLOAT,
+            GL_CONSTANTS.FLOAT,
             len(skins[0]["joints"]),
             None,
             self.glb_bin_collector,
@@ -269,7 +269,7 @@ class Glb_obj:
         # region function separate by shader
         def pbr_fallback(
             baseColor=(1, 1, 1, 1),
-            metallness=0,
+            metalness=0,
             roughness=0.9,
             baseColor_texture=(None, None, None),
             metallic_roughness_texture=(None, None, None),
@@ -282,7 +282,7 @@ class Glb_obj:
             fallback_dic = {"name": b_mat.name}
             fallback_dic["pbrMetallicRoughness"] = {
                 "baseColorFactor": baseColor,
-                "metallicFactor": metallness,
+                "metallicFactor": metalness,
                 "roughnessFactor": roughness,
             }
             for k, v in fallback_dic["pbrMetallicRoughness"].items():
@@ -334,9 +334,9 @@ class Glb_obj:
                         .from_node.interpolation
                         == "Closest"
                     ):
-                        filter_type = GL_CONSTANS.NEAREST
+                        filter_type = GL_CONSTANTS.NEAREST
                     else:
-                        filter_type = GL_CONSTANS.LINEAR
+                        filter_type = GL_CONSTANTS.LINEAR
                     # blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
                     if (
                         shader_node.inputs.get(input_socket_name)
@@ -344,9 +344,9 @@ class Glb_obj:
                         .from_node.extension
                         == "REPEAT"
                     ):
-                        wrap_type = GL_CONSTANS.REPEAT
+                        wrap_type = GL_CONSTANTS.REPEAT
                     else:
-                        wrap_type = GL_CONSTANS.CLAMP_TO_EDGE
+                        wrap_type = GL_CONSTANTS.CLAMP_TO_EDGE
             return tex_name, wrap_type, filter_type
 
         def get_float_value(shader_node, input_socket_name):
@@ -448,7 +448,7 @@ class Glb_obj:
                 if vector_val is not None:
                     MToon_vector_dic[vector_key] = vector_val
 
-            use_nomalmap = False
+            use_normalmap = False
             maintex = (None, None, None)
             for (
                 texture_key,
@@ -499,8 +499,8 @@ class Glb_obj:
                                 ]
                         else:
                             MToon_vector_dic[texture_key] = [0, 0, 1, 1]
-                    elif texture_prop == "NomalmapTexture":
-                        use_nomalmap = True
+                    elif texture_prop == "NormalmapTexture":
+                        use_normalmap = True
 
             def material_prop_setter(
                 blend_mode,
@@ -525,7 +525,7 @@ class Glb_obj:
             elif b_mat.blend_method == "CLIP":
                 material_prop_setter(1, 1, 0, 1, True, 2450, "TransparentCutout")
                 MToon_float_dic["_Cutoff"] = b_mat.alpha_threshold
-            else:  # transparent and Z_TRANPARENCY or Raytrace
+            else:  # transparent and Z_TRANSPARENCY or Raytrace
                 material_prop_setter(2, 5, 10, 0, False, 3000, "Transparent")
             keyword_map.update(
                 {"_ALPHABLEND_ON": b_mat.blend_method not in ("OPAQUE", "CLIP")}
@@ -542,8 +542,8 @@ class Glb_obj:
             MToon_float_dic["_DebugMode"] = 0
             keyword_map.update({"MTOON_DEBUG_NORMAL": False})
             keyword_map.update({"MTOON_DEBUG_LITSHADERATE": False})
-            if use_nomalmap:
-                keyword_map.update({"_NORMALMAP": use_nomalmap})
+            if use_normalmap:
+                keyword_map.update({"_NORMALMAP": use_normalmap})
 
             # for pbr_fallback
             if b_mat.blend_method == "OPAQUE":
@@ -564,11 +564,11 @@ class Glb_obj:
             )
             if self.VRM_version == "1.0":
                 MToon_ext_dic = {}
-                MToon_ext_dic["propaties"] = MT_Prop = {}
+                MToon_ext_dic["properties"] = MT_Prop = {}
                 MT_Prop = {"version": "3.2"}
                 blendmode = MToon_float_dic.get("_BlendMode")
                 if blendmode == 0:
-                    blendmode = "opacue"
+                    blendmode = "opaque"
                 elif blendmode == 1:
                     blendmode = "cutout"
                 else:
@@ -670,8 +670,8 @@ class Glb_obj:
                 for k, v in MT_Prop.items():
                     if v == None:
                         gc_list.append(k)
-                for garvage in gc_list:
-                    MT_Prop.pop(garvage)
+                for garbage in gc_list:
+                    MT_Prop.pop(garbage)
 
                 pbr_dic["extensions"].update({"VRMC_materials_mtoon": MToon_ext_dic})
             return MToon_dic, pbr_dic
@@ -698,7 +698,7 @@ class Glb_obj:
 
             pbr_dic = pbr_fallback(
                 baseColor=get_rgba_val(GLTF_Shader_Node, "base_Color"),
-                metallness=get_float_value(GLTF_Shader_Node, "metallic"),
+                metalness=get_float_value(GLTF_Shader_Node, "metallic"),
                 roughness=get_float_value(GLTF_Shader_Node, "roughness"),
                 baseColor_texture=get_texture_name_and_sampler_type(
                     GLTF_Shader_Node, "color_texture"
@@ -761,7 +761,7 @@ class Glb_obj:
                     if node.type == "OUTPUT_MATERIAL":
                         MToon_shader_node = node.inputs["Surface"].links[0].from_node
                         break
-                materialPropaties_dic, pbr_dic = make_MToon_unversioned_extension_dic(
+                materialProperties_dic, pbr_dic = make_MToon_unversioned_extension_dic(
                     b_mat, MToon_shader_node
                 )
             elif b_mat["vrm_shader"] == "GLTF":
@@ -769,7 +769,7 @@ class Glb_obj:
                     if node.type == "OUTPUT_MATERIAL":
                         GLTF_shader_node = node.inputs["Surface"].links[0].from_node
                         break
-                materialPropaties_dic, pbr_dic = make_GLTF_mat_dic(
+                materialProperties_dic, pbr_dic = make_GLTF_mat_dic(
                     b_mat, GLTF_shader_node
                 )
             elif b_mat["vrm_shader"] == "TRANSPARENT_ZWRITE":
@@ -777,7 +777,7 @@ class Glb_obj:
                     if node.type == "OUTPUT_MATERIAL":
                         ZW_shader_node = node.inputs["Surface"].links[0].from_node
                         break
-                materialPropaties_dic, pbr_dic = make_TRNSZW_mat_dic(
+                materialProperties_dic, pbr_dic = make_TRNSZW_mat_dic(
                     b_mat, ZW_shader_node
                 )
             else:
@@ -785,7 +785,7 @@ class Glb_obj:
                 raise Exception  # ?
 
             glb_material_list.append(pbr_dic)
-            VRM_material_props_list.append(materialPropaties_dic)
+            VRM_material_props_list.append(materialProperties_dic)
 
         apply_texture_and_sampler_to_dic()
         self.json_dic.update({"materials": glb_material_list})
@@ -816,7 +816,7 @@ class Glb_obj:
                 }
             )
             if is_skin_mesh:
-                node_dic["translation"] = [0, 0, 0]  # skinedmeshはtransformを無視される
+                node_dic["translation"] = [0, 0, 0]  # skinnedmeshはtransformを無視される
                 mesh.data.transform(
                     bMatrix.Translation(mesh.location), shape_keys=True
                 )  # 前に続きmeshを動かす（後で戻す
@@ -856,7 +856,7 @@ class Glb_obj:
             bpy.ops.object.mode_set(mode="EDIT")
             bm = bmesh.from_edit_mesh(mesh.data)
 
-            # region tempolary_used
+            # region temporary used
             mat_id_dic = {
                 mat["name"]: i for i, mat in enumerate(self.json_dic["materials"])
             }
@@ -908,7 +908,7 @@ class Glb_obj:
                     morph_normal_diff_dic.update({k: values})
                 return morph_normal_diff_dic
 
-            # endregion  tempolary_used
+            # endregion  temporary_used
             primitive_index_bin_dic = OrderedDict(
                 {mat_id_dic[mat.name]: b"" for mat in mesh.material_slots}
             )
@@ -943,7 +943,7 @@ class Glb_obj:
             normal_bin = b""
             joints_bin = b""
             weights_bin = b""
-            texcord_bins = {id: b"" for id in uvlayers_dic.keys()}
+            texcoord_bins = {id: b"" for id in uvlayers_dic.keys()}
             f_vec4_packer = struct.Struct("<ffff").pack
             f_vec3_packer = struct.Struct("<fff").pack
             f_pair_packer = struct.Struct("<ff").pack
@@ -1004,7 +1004,7 @@ class Glb_obj:
                     for id, uvlayer_name in uvlayers_dic.items():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
                         uv = loop[uv_layer].uv
-                        texcord_bins[id] += f_pair_packer(
+                        texcoord_bins[id] += f_pair_packer(
                             uv[0], 1 - uv[1]
                         )  # blenderとglbのuvは上下逆
                     for shape_name in shape_pos_bin_dic.keys():
@@ -1041,11 +1041,11 @@ class Glb_obj:
                             joints.insert(0, joint_id)
                             if weight_count >= 4:
                                 break
-                        nomalize_fact = sum(weights)
-                        if nomalize_fact != 0:
-                            nomalize_fact = 1 / nomalize_fact
+                        normalize_fact = sum(weights)
+                        if normalize_fact != 0:
+                            normalize_fact = 1 / normalize_fact
                         try:
-                            weights = [weights[i] * nomalize_fact for i in range(4)]
+                            weights = [weights[i] * normalize_fact for i in range(4)]
                         except ZeroDivisionError:  # validationではじけてるはず…
                             print(
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
@@ -1075,7 +1075,7 @@ class Glb_obj:
                     mat_id: Glb_bin(
                         index_bin,
                         "SCALAR",
-                        GL_CONSTANS.UNSIGNED_INT,
+                        GL_CONSTANTS.UNSIGNED_INT,
                         primitive_index_vertex_count[mat_id],
                         None,
                         self.glb_bin_collector,
@@ -1087,7 +1087,7 @@ class Glb_obj:
             pos_glb = Glb_bin(
                 position_bin,
                 "VEC3",
-                GL_CONSTANS.FLOAT,
+                GL_CONSTANTS.FLOAT,
                 unique_vertex_id,
                 position_min_max,
                 self.glb_bin_collector,
@@ -1095,27 +1095,27 @@ class Glb_obj:
             nor_glb = Glb_bin(
                 normal_bin,
                 "VEC3",
-                GL_CONSTANS.FLOAT,
+                GL_CONSTANTS.FLOAT,
                 unique_vertex_id,
                 None,
                 self.glb_bin_collector,
             )
             uv_glbs = [
                 Glb_bin(
-                    texcood_bin,
+                    texcoord_bin,
                     "VEC2",
-                    GL_CONSTANS.FLOAT,
+                    GL_CONSTANTS.FLOAT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
                 )
-                for texcood_bin in texcord_bins.values()
+                for texcoord_bin in texcoord_bins.values()
             ]
             if is_skin_mesh:
                 joints_glb = Glb_bin(
                     joints_bin,
                     "VEC4",
-                    GL_CONSTANS.UNSIGNED_SHORT,
+                    GL_CONSTANTS.UNSIGNED_SHORT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -1123,7 +1123,7 @@ class Glb_obj:
                 weights_glb = Glb_bin(
                     weights_bin,
                     "VEC4",
-                    GL_CONSTANS.FLOAT,
+                    GL_CONSTANTS.FLOAT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -1133,7 +1133,7 @@ class Glb_obj:
                     Glb_bin(
                         morph_pos_bin,
                         "VEC3",
-                        GL_CONSTANS.FLOAT,
+                        GL_CONSTANTS.FLOAT,
                         unique_vertex_id,
                         morph_minmax,
                         self.glb_bin_collector,
@@ -1147,7 +1147,7 @@ class Glb_obj:
                         Glb_bin(
                             morph_normal_bin,
                             "VEC3",
-                            GL_CONSTANS.FLOAT,
+                            GL_CONSTANTS.FLOAT,
                             unique_vertex_id,
                             None,
                             self.glb_bin_collector,
@@ -1202,7 +1202,7 @@ class Glb_obj:
                 OrderedDict({"name": mesh.name, "primitives": primitive_list})
             )
             # endregion hell
-            # skinedmeshなら最初にずらした位置を戻す
+            # skinnedmeshなら最初にずらした位置を戻す
             bpy.ops.object.mode_set(mode="OBJECT")
             if is_skin_mesh:
                 mesh.data.transform(
@@ -1487,7 +1487,7 @@ class Glb_obj:
             collider_group_list.append(collider_group)
 
         vrm_extension_dic[springbone_name]["colliderGroups"] = collider_group_list
-        # endrigon colliderGroups
+        # endregion colliderGroups
 
         # region boneGroup
         # ﾎﾞｰﾝ名からnode_idに

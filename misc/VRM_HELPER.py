@@ -8,7 +8,7 @@ import bpy, blf
 import bmesh
 from .. import V_Types as VRM_types
 from ..V_Types import nested_json_value_getter as json_get
-from .armature_maker import ICYP_OT_MAKE_ARAMATURE
+from .armature_maker import ICYP_OT_MAKE_ARMATURE
 import re
 from math import sqrt, pow
 from mathutils import Vector
@@ -61,11 +61,11 @@ class Add_VRM_extensions_to_armature(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
-        ICYP_OT_MAKE_ARAMATURE.make_extention_setting_and_metas(context.active_object)
+        ICYP_OT_MAKE_ARMATURE.make_extension_setting_and_metas(context.active_object)
         return {"FINISHED"}
 
 
-class Add_VRM_reqwire_humanbone_custom_propaty(bpy.types.Operator):
+class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_req_humanbone_prop"
     bl_label = "Add vrm humanbone_prop"
     bl_description = ""
@@ -79,7 +79,7 @@ class Add_VRM_reqwire_humanbone_custom_propaty(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class Add_VRM_defined_humanbone_custom_propaty(bpy.types.Operator):
+class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_def_humanbone_prop"
     bl_label = "Add vrm humanbone_prop"
     bl_description = ""
@@ -218,7 +218,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                         armature.data[humanbone] = ""
                         messages.add(
                             lang_support(
-                                f'humanBone: {humanbone} is not defined or bone is not found. fix armature "object" custom propaty.',
+                                f'humanBone: {humanbone} is not defined or bone is not found. fix armature "object" custom property.',
                                 f'必須ボーン: {humanbone} の属性を持つボーンがありません。アーマチュア "オブジェクト"のカスタムプロパティを修正してください。',
                             )
                         )
@@ -232,7 +232,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                                 armature.data[v] = ""
                             messages.add(
                                 lang_support(
-                                    f'bone name: {armature.data[v]} as humanBone:{v} is not found. fix armature "object" custom propaty.',
+                                    f'bone name: {armature.data[v]} as humanBone:{v} is not found. fix armature "object" custom property.',
                                     f'ボーン名：{armature.data[v]} （属性：{v}） がありません。アーマチュア"オブジェクト"のカスタムプロパティを修正してください。',
                                 )
                             )
@@ -255,7 +255,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                         )
                         break
 
-                # TODO modifier applyed, vertex weight Bone exist, vertex weight numbers.
+                # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
         # endregion selected object seeking
         if armature_count == 0:
             messages.add(lang_support("PLS SELECT with ARMATURE!", "アーマチュアが選択されていません"))
@@ -267,7 +267,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
             bones_name = [b.name for b in armature.data.bones]
         vertex_error_count = 0
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
-            mesh_vetex_group_names = [g.name for g in mesh.vertex_groups]
+            mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
             for mat in mesh.data.materials:
                 used_material_set.add(mat)
 
@@ -285,7 +285,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     if armature is not None:
                         weight_count = 0
                         for g in v.groups:
-                            if mesh_vetex_group_names[g.group] in bones_name:
+                            if mesh_vertex_group_names[g.group] in bones_name:
                                 weight_count += 1
                         if weight_count > 4 and vertex_error_count < 5:
                             messages.add(
@@ -428,7 +428,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
 
         if armature is not None:
             # region vrm metas check
-            required_vrm_metas = {  # care about order 0 : that must be SAFE SELECTION (for auto set custom propaties )
+            required_vrm_metas = {  # care about order 0 : that must be SAFE SELECTION (for auto set custom properties )
                 "allowedUserName": [
                     "OnlyAuthor",
                     "ExplicitlyLicensedPerson",
@@ -454,7 +454,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     armature[k] = v[0]
                     messages.add(
                         lang_support(
-                            f"{k} is not defined in armature as custom propaty. It set as {v}. Please check it.",
+                            f"{k} is not defined in armature as custom property. It set as {v}. Please check it.",
                             f"VRM権利情報の {k} がアーマチュアのカスタムプロパティにセットされていなかったので、{v} をセットしました. 確認してください。",
                         )
                     )
@@ -479,7 +479,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                     armature[k] = "undefined"
                     messages.add(
                         lang_support(
-                            f'{k} is not defined in armature as custom propaty. It set as "undefined". Please check it.',
+                            f'{k} is not defined in armature as custom property. It set as "undefined". Please check it.',
                             f"VRM(権利)情報 {k} がアーマチュアのカスタムプロパティにセットされていなかったので、undefined をセットしました. 確認してください。",
                         )
                     )
@@ -490,7 +490,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
                 if textblock_name not in armature:
                     messages.add(
                         lang_support(
-                            f"textblock name: {textblock_name} isn't putted on armature custom proparty.",
+                            f"textblock name: {textblock_name} isn't putted on armature custom property.",
                             f"{textblock_name}　のテキストブロックの指定がアーマチュアのカスタムプロパティにありません",
                         )
                     )
@@ -575,13 +575,13 @@ class VRM_VALIDATOR(bpy.types.Operator):
                             )
                         )
                     else:
-                        for meshAnotation in firstperson_params["meshAnnotations"]:
-                            if not meshAnotation["mesh"] in mesh_obj_names:
+                        for meshAnnotation in firstperson_params["meshAnnotations"]:
+                            if not meshAnnotation["mesh"] in mesh_obj_names:
                                 messages.add(
                                     lang_support(
-                                        f"mesh :{meshAnotation['mesh']} is not found."
+                                        f"mesh :{meshAnnotation['mesh']} is not found."
                                         + f"Please fix setting in textblock : {firstPerson_params_name} ",
-                                        f"{meshAnotation['mesh']} というメッシュオブジェクトが見つかりません。"
+                                        f"{meshAnnotation['mesh']} というメッシュオブジェクトが見つかりません。"
                                         + f"テキストエディタの {firstPerson_params_name}　を修正してください。",
                                     )
                                 )
@@ -605,7 +605,7 @@ class VRM_VALIDATOR(bpy.types.Operator):
             blendShapeGroups_list = text_block_name_to_json(blendshape_group_name)
             if blendShapeGroups_list is None:
                 blendShapeGroups_list = []
-            # TODO material value and marial existance
+            # TODO material value and material existance
             for bsg in blendShapeGroups_list:
                 for bind_dic in bsg["binds"]:
                     if not bind_dic["mesh"] in mesh_obj_names:

@@ -5,10 +5,10 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-# codig :utf-8
+# coding :utf-8
 # for python3.5 - for blender2.79
-from .binaly_loader import Binaly_Reader
-from ..gl_const import GL_CONSTANS as GLC
+from .binary_loader import Binary_Reader
+from ..gl_const import GL_CONSTANTS as GLC
 from .. import V_Types as VRM_Types
 from ..V_Types import nested_json_value_getter as json_get
 from . import vrm2pydata_factory
@@ -20,7 +20,7 @@ from collections import OrderedDict
 
 
 def parse_glb(data: bytes):
-    reader = Binaly_Reader(data)
+    reader = Binary_Reader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
         raise Exception("glTF header signature not found: #{}".format(magic))
@@ -50,7 +50,7 @@ def parse_glb(data: bytes):
         chunk_type = reader.read_str(4)
         size -= 4
 
-        chunk_data = reader.read_binaly(chunk_size)
+        chunk_data = reader.read_binary(chunk_size)
         size -= chunk_size
 
         if chunk_type == "BIN\x00":
@@ -85,7 +85,7 @@ def read_vrm(model_path, addon_context):
         raise Exception(
             "This VRM can not be edited. No derivative works are allowed. Please check its copyright license.　改変不可Licenseです。"
         )
-    # Vroidbhub licence
+    # Vroidhub licence
     if "otherPermissionUrl" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
         from urllib.parse import parse_qsl, urlparse
 
@@ -126,7 +126,7 @@ def read_vrm(model_path, addon_context):
 
 def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
     bufferViews = vrm_pydata.json["bufferViews"]
-    binary_reader = Binaly_Reader(body_binary)
+    binary_reader = Binary_Reader(body_binary)
     # ここ画像切り出し #blenderはバイト列から画像を読み込む術がないので、画像ファイルを書き出して、それを読み込むしかない。
     vrm_dir_path = os.path.dirname(os.path.abspath(vrm_pydata.filepath))
     if not "images" in vrm_pydata.json:
@@ -226,7 +226,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         else:
             image_name = image_prop["name"]
         binary_reader.set_pos(bufferViews[image_prop["bufferView"]]["byteOffset"])
-        image_binary = binary_reader.read_binaly(
+        image_binary = binary_reader.read_binary(
             bufferViews[image_prop["bufferView"]]["byteLength"]
         )
         image_type = image_prop["mimeType"].split("/")[-1]
@@ -247,7 +247,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
             with open(image_path, "wb") as imageWriter:
                 imageWriter.write(image_binary)
         elif image_name in [
-            img.name for img in vrm_pydata.image_propaties
+            img.name for img in vrm_pydata.image_properties
         ]:  # ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
             written_flag = False
             for i in range(5):
@@ -263,20 +263,20 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
                     break
             if not written_flag:
                 print(
-                    "Thare are more than 5 images with the same name in the folder. Failed to write file: {}".format(
+                    "There are more than 5 images with the same name in the folder. Failed to write file: {}".format(
                         image_name
                     )
                 )
         else:
             print(image_name + " Image already exists. Was not overwritten.")
-        image_propaty = VRM_Types.Image_props(image_name, image_path, image_type)
-        vrm_pydata.image_propaties.append(image_propaty)
+        image_property = VRM_Types.Image_props(image_name, image_path, image_type)
+        vrm_pydata.image_properties.append(image_property)
 
 
 # 　”accessorの順に”　データを読み込んでリストにしたものを返す
 def decode_bin(json_data, binary):
-    br = Binaly_Reader(binary)
-    # This list indexed by accesser index
+    br = Binary_Reader(binary)
+    # This list indexed by accessor index
     decoded_binary = []
     bufferViews = json_data["bufferViews"]
     accessors = json_data["accessors"]
@@ -366,7 +366,7 @@ def mesh_read(vrm_pydata):
                 for i, morphTarget in enumerate(primitive["targets"]):
                     posArray = vrm_pydata.decoded_binary[morphTarget["POSITION"]]
                     if "extra" in morphTarget:  # for old AliciaSolid
-                        # accesserのindexを持つのは変換時のキャッシュ対応のため
+                        # accessorのindexを持つのは変換時のキャッシュ対応のため
                         morphName = primitive["targets"][i]["extra"]["name"]
                     else:
                         morphName = primitive["extras"]["targetNames"][i]
@@ -387,7 +387,7 @@ def mesh_read(vrm_pydata):
 
 
 def material_read(vrm_pydata, use_simple_principled_material):
-    VRM_EXTENSION_material_promaties = json_get(
+    VRM_EXTENSION_material_properties = json_get(
         vrm_pydata.json,
         ["extensions", VRM_Types.VRM, "materialProperties"],
         default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(vrm_pydata.json["materials"]),
@@ -395,13 +395,13 @@ def material_read(vrm_pydata, use_simple_principled_material):
     if "textures" in vrm_pydata.json:
         textures = vrm_pydata.json["textures"]
     for mat, ext_mat in zip(
-        vrm_pydata.json["materials"], VRM_EXTENSION_material_promaties
+        vrm_pydata.json["materials"], VRM_EXTENSION_material_properties
     ):
         vrm_pydata.materials.append(
             vrm2pydata_factory.material(mat, ext_mat, use_simple_principled_material)
         )
 
-    # skinをパース　->バイナリの中身はskining実装の横着用
+    # skinをパース　->バイナリの中身はskinning実装の横着用
     # skinのjointsの(nodesの)indexをvertsのjoints_0は指定してる
     # inverseBindMatrices: 単にｽｷﾆﾝｸﾞするときの逆行列。読み込み不要なのでしない(自前計算もできる、めんどいけど)
     # ついでに[i][3]ではなく、[3][i]にマイナスx,y,zが入っている。　ここで詰まった。(出力時に)
@@ -420,11 +420,11 @@ def skin_read(vrm_pydata):
 def node_read(vrm_pydata):
     for i, node in enumerate(vrm_pydata.json["nodes"]):
         vrm_pydata.nodes_dict[i] = vrm2pydata_factory.bone(node)
-        # TODO こっからorigine_bone
+        # TODO こっからorigin_bone
         if "mesh" in node.keys():
-            vrm_pydata.origine_nodes_dict[i] = [vrm_pydata.nodes_dict[i], node["mesh"]]
+            vrm_pydata.origin_nodes_dict[i] = [vrm_pydata.nodes_dict[i], node["mesh"]]
             if "skin" in node.keys():
-                vrm_pydata.origine_nodes_dict[i].append(node["skin"])
+                vrm_pydata.origin_nodes_dict[i].append(node["skin"])
             else:
                 print(node["name"] + "is not have skin")
 

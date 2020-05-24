@@ -165,7 +165,7 @@ class MToon_glsl:
             if k is not None:
                 if k == "SphereAddTexture":
                     self.texture_dic[k] = self.get_texture(k, "black")
-                elif k == "NomalmapTexture":
+                elif k == "NormalmapTexture":
                     self.texture_dic[k] = self.get_texture(k, "normal")
                 else:
                     self.texture_dic[k] = self.get_texture(k)
@@ -325,7 +325,7 @@ class glsl_draw_obj:
         uniform sampler2D depth_image;
         uniform sampler2D MainTexture ;
         uniform sampler2D ShadeTexture ;
-        uniform sampler2D NomalmapTexture ;
+        uniform sampler2D NormalmapTexture ;
         uniform sampler2D ReceiveShadow_Texture ;
         uniform sampler2D ShadingGradeTexture ;
         uniform sampler2D Emission_Texture ;
@@ -398,7 +398,7 @@ class glsl_draw_obj:
                             //texture( depth_image,uv) +
                             texture( MainTexture,uv) +
                             texture( ShadeTexture,uv) +
-                            texture( NomalmapTexture,uv) +
+                            texture( NormalmapTexture,uv) +
                             texture( ReceiveShadow_Texture,uv) +
                             texture( ShadingGradeTexture,uv) +
                             texture( Emission_Texture,uv) +
@@ -429,7 +429,7 @@ class glsl_draw_obj:
             vec3 outline_col = col.rgb;
 
             vec3 mod_n = n;
-            vec3 normalmap = texture(NomalmapTexture,mainUV).rgb *2 -1;
+            vec3 normalmap = texture(NormalmapTexture,mainUV).rgb *2 -1;
             for (int i = 0;i<3;i++){
                 mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
             }
@@ -577,7 +577,7 @@ class glsl_draw_obj:
                     self.materials[mat_slot.material.name] = MToon_glsl(
                         mat_slot.material
                     )
-        # if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier impliment
+        # if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier implementation
         self.scene_meshes = []
         self.draw_x_offset = 0
         for obj in self.objs:
@@ -686,18 +686,18 @@ class glsl_draw_obj:
 
         meshes = self.main_execulutor.map(build_mesh, self.objs)
         for mesh in meshes:
-            unneed_mat = []
+            unneeded_mat = []
             for k in mesh.index_per_mat.keys():
                 if len(mesh.index_per_mat[k]) == 0:
-                    unneed_mat.append(k)
-            for k in unneed_mat:
+                    unneeded_mat.append(k)
+            for k in unneeded_mat:
                 del mesh.index_per_mat[k]
             self.scene_meshes.append(mesh)
 
         self.build_batches()
         return
 
-    batchs = None
+    batches = None
 
     def build_batches(self):
         if self.toon_shader is None:
@@ -712,7 +712,7 @@ class glsl_draw_obj:
                 vertexcode=self.depth_vertex_shader, fragcode=self.depth_fragment_shader
             )
 
-        batchs = self.batchs = []
+        batches = self.batches = []
         for scene_mesh in self.scene_meshes:
             for mat, vert_indices in scene_mesh.index_per_mat.items():
                 toon_batch = batch_for_shader(
@@ -733,9 +733,9 @@ class glsl_draw_obj:
                     indices=vert_indices,
                 )
                 if mat.alpha_method not in ("OPAQUE", "CLIP"):
-                    batchs.append((mat, toon_batch, depth_batch))
+                    batches.append((mat, toon_batch, depth_batch))
                 else:
-                    batchs.insert(0, (mat, toon_batch, depth_batch))
+                    batches.insert(0, (mat, toon_batch, depth_batch))
         return
 
     def glsl_draw(scene):
@@ -748,7 +748,7 @@ class glsl_draw_obj:
         light_pos = [
             i + n for i, n in zip(self.light.location, [-self.draw_x_offset, 0, 0])
         ]
-        batchs = self.batchs
+        batches = self.batches
         depth_shader = self.depth_shader
         toon_shader = self.toon_shader
         offscreen = self.offscreen
@@ -782,7 +782,7 @@ class glsl_draw_obj:
         with offscreen.bind():
             bgl.glClearColor(10, 10, 10, 1)
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
-            for bat in batchs:
+            for bat in batches:
                 mat = bat[0]
                 mat.update()
                 depth_bat = bat[2]
@@ -829,7 +829,7 @@ class glsl_draw_obj:
         aspect = bpy.context.area.width / bpy.context.area.height
 
         for is_outline in [0, 1]:
-            for bat in batchs:
+            for bat in batches:
 
                 toon_bat = bat[1]
                 toon_shader.bind()
@@ -1020,7 +1020,7 @@ class Gl_mesh:
     pos = None
     normals = None
     uvs = None
-    index_per_mat = None  # matrial : vert index
+    index_per_mat = None  # material : vert index
 
     def __init__(self):
         self.pos = []

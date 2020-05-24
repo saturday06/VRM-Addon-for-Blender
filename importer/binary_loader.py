@@ -6,10 +6,10 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import struct
-from ..gl_const import GL_CONSTANS
+from ..gl_const import GL_CONSTANTS
 
 
-class Binaly_Reader:
+class Binary_Reader:
     def __init__(self, data: bytes) -> None:
         self.data = data
         self.pos = 0
@@ -22,7 +22,7 @@ class Binaly_Reader:
         self.pos += size
         return result.decode("utf-8")
 
-    def read_binaly(self, size):
+    def read_binary(self, size):
         result = self.data[self.pos : self.pos + size]
         self.pos += size
         return result
@@ -58,23 +58,23 @@ class Binaly_Reader:
         self.pos += 1
         return result
 
-    def read_as_dataType(self, dataType: GL_CONSTANS):
-        if dataType == GL_CONSTANS.UNSIGNED_INT:
+    def read_as_dataType(self, dataType: GL_CONSTANTS):
+        if dataType == GL_CONSTANTS.UNSIGNED_INT:
             return self.read_uint()
-        elif dataType == GL_CONSTANS.INT:
+        elif dataType == GL_CONSTANTS.INT:
             return self.read_int()
-        elif dataType == GL_CONSTANS.UNSIGNED_SHORT:
+        elif dataType == GL_CONSTANTS.UNSIGNED_SHORT:
             return self.read_ushort()
-        elif dataType == GL_CONSTANS.SHORT:
+        elif dataType == GL_CONSTANTS.SHORT:
             return self.read_short()
-        elif dataType == GL_CONSTANS.FLOAT:
+        elif dataType == GL_CONSTANTS.FLOAT:
             return self.read_float()
-        elif dataType == GL_CONSTANS.UNSIGNED_BYTE:
+        elif dataType == GL_CONSTANTS.UNSIGNED_BYTE:
             return self.read_ubyte()
         else:
-            print("unsuppoted type : {}".format(dataType))
+            print("unsupported type : {}".format(dataType))
             raise Exception
 
 
 if "__main__" == __name__:
-    Binaly_Reader(None)
+    Binary_Reader(None)

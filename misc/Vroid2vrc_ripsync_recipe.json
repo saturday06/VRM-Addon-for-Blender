@@ -1,5 +1,5 @@
 {
-    "licence": "auther:  https://creativecommons.org/licenses/by/4.0/",
+    "licence": "author:  https://creativecommons.org/licenses/by/4.0/",
     "shapekeys": {
         "vrc.blink_left": {"Face.M_F00_000_Fcl_EYE_Close_L": 1.0},
         "vrc.blink_right": {"Face.M_F00_000_Fcl_EYE_Close_R": 1.0},
