@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  test:
+  test-windows:
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
@@ -18,6 +18,15 @@ jobs:
           &"C:\Program Files\Blender Foundation\Blender 2.82\2.82\python\bin\python.exe" `
             test\run.py `
             "C:\Program Files\Blender Foundation\Blender 2.82\blender.exe"
+
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Blender
+        run: brew cask install blender
+      - name: Test
+        run: ./test/run.py
 
   lint:
     runs-on: ubuntu-18.04
