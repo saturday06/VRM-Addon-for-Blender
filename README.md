@@ -9,7 +9,7 @@ Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 �
 
 <a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/0_80_0.zip"><img src="./web/download_button.png"></a>
 
-# <Font color="red">ATTENSION 注意</font>
+# <Font color="red">ATTENTION 注意</font>
  If you using minisize cloud storage, texture foloder explanation must read and care about storage remaining capacity.
 
 小さいクラウドストレージに保存しているVRMをインポートしている場合下記の中のテクスチャフォルダの扱いをよく読み、残容量に気を付けてご利用ください。
