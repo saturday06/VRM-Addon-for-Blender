@@ -35,9 +35,14 @@ jobs:
       - name: Install deb packages
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y python3-pip
+          sudo apt-get install -y nkf python3-pip
         env:
           DEBIAN_FRONTEND: noninteractive
+      - name: Check character encoding
+        run: |
+          find . -name '*.py' -exec nkf -w -Lu -Z1 --in-place {} +
+          find . -name '*.md' -exec nkf -w -Lu -Z1 --in-place {} +
+          git diff --exit-code
       - name: Install pip packages
         run: |
           pip3 install --upgrade pip
