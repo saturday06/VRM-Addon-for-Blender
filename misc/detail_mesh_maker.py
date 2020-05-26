@@ -424,8 +424,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
         )
         add_mesh(
             [
-                cheek_under_innner_vert,
-                cheek_top_innner_vert,
+                cheek_under_inner_vert,
+                cheek_top_inner_vert,
                 cheek_top_outer_vert,
                 cheek_under_outer_vert,
             ]
@@ -447,28 +447,28 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):
                 nose_start_vert,
             ]
         )
-        add_mesh([nose_start_vert, eye_inner_vert, cheek_top_innner_vert])
-        add_mesh([eye_inner_vert, eye_quad_ld_vert, cheek_top_innner_vert])
+        add_mesh([nose_start_vert, eye_inner_vert, cheek_top_inner_vert])
+        add_mesh([eye_inner_vert, eye_quad_ld_vert, cheek_top_inner_vert])
         add_mesh([eye_outer_vert, orbit_vert, cheek_top_outer_vert, eye_quad_rd_vert])
 
         add_mesh(
             [
                 nose_start_vert,
-                cheek_top_innner_vert,
-                cheek_under_innner_vert,
+                cheek_top_inner_vert,
+                cheek_under_inner_vert,
                 nose_end_side_vert,
             ]
         )
         add_mesh(
             [
                 nose_end_side_vert,
-                cheek_under_innner_vert,
+                cheek_under_inner_vert,
                 mouth_corner_nodule_vert,
                 mouth_outer_point_vert,
             ]
         )
         add_mesh(
-            [cheek_under_innner_vert, cheek_under_outer_vert, mouth_corner_nodule_vert]
+            [cheek_under_inner_vert, cheek_under_outer_vert, mouth_corner_nodule_vert]
         )
 
         add_mesh([cheek_under_outer_vert, jaw_vert, mouth_corner_nodule_vert])
