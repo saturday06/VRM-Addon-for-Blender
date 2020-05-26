@@ -75,12 +75,9 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
         try:
             fdir = self.filepath
             model_build.Blend_model(context, vrm_load.read_vrm(fdir, self), self)
-
-            if ui_localization is not None:
+        finally:
+            if ui_localization:
                 bpy.context.preferences.view.use_international_fonts = ui_localization
-
-        except Exception as e:
-            raise e
 
         return {"FINISHED"}
 
