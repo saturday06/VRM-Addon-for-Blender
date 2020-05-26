@@ -1,1 +1,1 @@
-addon_version = (0, 80, 0)
+addon_version = (0, 80, 1)
