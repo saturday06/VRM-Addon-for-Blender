@@ -8,10 +8,10 @@ https://opensource.org/licenses/mit-license.php
 
 import bpy
 from mathutils import Vector, Matrix
-from .. import V_Types as VRM_Types
-from ..misc import VRM_HELPER
-from ..V_Types import nested_json_value_getter as json_get
-from ..gl_const import GL_CONSTANTS
+from .. import vrm_types
+from ..misc import vrm_helper
+from ..vrm_types import nested_json_value_getter as json_get
+from ..gl_constants import GlConstants
 from math import sqrt, pow, radians
 import numpy
 import os.path
@@ -19,14 +19,12 @@ import json
 import copy
 
 
-class Blend_model:
+class BlendModel:
     def __init__(self, context, vrm_pydata, addon_context):
         self.is_put_spring_bone_info = addon_context.is_put_spring_bone_info
         self.import_normal = addon_context.import_normal
         self.remove_doubles = addon_context.remove_doubles
-        self.use_simple_principled_material = (
-            addon_context.use_simple_principled_material
-        )
+        self.use_simple_principled_material = addon_context.use_simple_principled_material
         self.is_set_bone_roll = addon_context.set_bone_roll
         self.use_in_blender = addon_context.use_in_blender
 
@@ -38,11 +36,7 @@ class Blend_model:
         self.material_dict = None
         self.primitive_obj_dict = None
         self.mesh_joined_objects = None
-        model_name = json_get(
-            self.vrm_pydata.json,
-            ["extensions", VRM_Types.VRM, "meta", "title"],
-            "vrm_model",
-        )
+        model_name = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM, "meta", "title"], "vrm_model")
         self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
         self.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build()
@@ -115,9 +109,7 @@ class Blend_model:
             tex.image = img
             self.textures.append(tex)
 
-        thumbnail_id = json_get(
-            self.vrm_pydata.json, ["extensions", VRM_Types.VRM, "meta", "texture"]
-        )
+        thumbnail_id = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM, "meta", "texture"])
         if thumbnail_id not in (-1, None):
             self.textures[thumbnail_id].image.use_fake_user = True
 
@@ -165,36 +157,26 @@ class Blend_model:
 
                 # region temporary tail pos(gltf doesn't have bone. there defines as joints )
                 def vector_length(bone_vector):
-                    return sqrt(
-                        pow(bone_vector[0], 2)
-                        + pow(bone_vector[1], 2)
-                        + pow(bone_vector[2], 2)
-                    )
+                    return sqrt(pow(bone_vector[0], 2) + pow(bone_vector[1], 2) + pow(bone_vector[2], 2))
 
                 # gltfは関節で定義されていて骨の長さとか向きとかないからまあなんかそれっぽい方向にボーンを向けて伸ばしたり縮めたり
                 if py_bone.children is None:
-                    if parent_id == -1:  # 唯我独尊：上向けとけ
+                    if parent_id == -1:  # 唯我独尊:上向けとけ
                         b.tail = [b.head[0], b.head[1] + 0.05, b.head[2]]
-                    else:  # normalize length to 0.03　末代：親から距離をちょっととる感じ
-                        length = max(
-                            0.01, vector_length(py_bone.position) * 30
-                        )  # 0除算除けと気分
-                        posDiff = [py_bone.position[i] / length for i in range(3)]
-                        if vector_length(posDiff) <= 0.001:
-                            posDiff[
-                                1
-                            ] += 0.01  # ボーンの長さが1mm以下なら上に10cm延ばす 長さが０だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
-                        b.tail = [b.head[i] + posDiff[i] for i in range(3)]
+                    else:  # normalize length to 0.03 末代:親から距離をちょっととる感じ
+                        length = max(0.01, vector_length(py_bone.position) * 30)  # 0除算除けと気分
+                        pos_diff = [py_bone.position[i] / length for i in range(3)]
+                        if vector_length(pos_diff) <= 0.001:
+                            pos_diff[1] += 0.01  # ボーンの長さが1mm以下なら上に10cm延ばす 長さが0だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
+                        b.tail = [b.head[i] + pos_diff[i] for i in range(3)]
                 else:  # 子供たちの方向の中間を見る
                     mean_relate_pos = numpy.array([0.0, 0.0, 0.0], dtype=numpy.float)
                     count = 0
-                    for childID in py_bone.children:
+                    for child_id in py_bone.children:
                         count += 1
-                        mean_relate_pos += self.vrm_pydata.nodes_dict[childID].position
+                        mean_relate_pos += self.vrm_pydata.nodes_dict[child_id].position
                     mean_relate_pos = mean_relate_pos / count
-                    if (
-                        vector_length(mean_relate_pos) <= 0.001
-                    ):  # ボーンの長さが1mm以下なら上に10cm延ばす
+                    if vector_length(mean_relate_pos) <= 0.001:  # ボーンの長さが1mm以下なら上に10cm延ばす
                         mean_relate_pos[1] += 0.1
 
                     b.tail = [b.head[i] + mean_relate_pos[i] for i in range(3)]
@@ -214,11 +196,7 @@ class Blend_model:
         root_nodes = (
             root_node_set
             if root_node_set
-            else [
-                node
-                for scene in self.vrm_pydata.json["scenes"]
-                for node in scene["nodes"]
-            ]
+            else [node for scene in self.vrm_pydata.json["scenes"] for node in scene["nodes"]]
         )
         bone_nodes = [(root_node, -1) for root_node in root_nodes]
         while len(bone_nodes):
@@ -230,14 +208,14 @@ class Blend_model:
             for coll in self.armature.users_collection:
                 if coll.name != self.model_collection.name:
                     coll.objects.unlink(self.armature)
-        except:
+        except Exception:
             print("Master collection doesn't have armature obj")
             pass
         return
 
     # region material
     def make_material(self):
-        # Material_datas　適当なので要調整
+        # Material_datas 適当なので要調整
         self.material_dict = dict()
         for index, mat in enumerate(self.vrm_pydata.materials):
             b_mat = bpy.data.materials.new(mat.name)
@@ -245,12 +223,12 @@ class Blend_model:
                 self.build_principle_from_gltf_mat(b_mat, mat)
             else:
                 b_mat["shader_name"] = mat.shader_name
-                if type(mat) == VRM_Types.Material_GLTF:
-                    self.build_material_from_GLTF(b_mat, mat)
-                elif type(mat) == VRM_Types.Material_MToon:
-                    self.build_material_from_MToon(b_mat, mat)
-                elif type(mat) == VRM_Types.Material_Transparent_Z_write:
-                    self.build_material_from_Transparent_Z_write(b_mat, mat)
+                if type(mat) == vrm_types.MaterialGltf:
+                    self.build_material_from_gltf(b_mat, mat)
+                elif type(mat) == vrm_types.MaterialMtoon:
+                    self.build_material_from_mtoon(b_mat, mat)
+                elif type(mat) == vrm_types.MaterialTransparentZWrite:
+                    self.build_material_from_transparent_z_write(b_mat, mat)
                 else:
                     print(f"unknown material {mat.name}")
             self.node_placer(b_mat.node_tree.nodes["Material Output"])
@@ -265,14 +243,10 @@ class Blend_model:
             b_mat.blend_method = "CLIP"
             if pymat.shader_name == "VRM/MToon":
                 b_mat.alpha_threshold = (
-                    pymat.float_props_dic.get("_Cutoff")
-                    if pymat.float_props_dic.get("_Cutoff")
-                    else 0.5
+                    pymat.float_props_dic.get("_Cutoff") if pymat.float_props_dic.get("_Cutoff") else 0.5
                 )
             else:
-                b_mat.alpha_threshold = (
-                    pymat.alphaCutoff if "alphaCutoff" in dir(pymat) else 0.5
-                )
+                b_mat.alpha_threshold = pymat.alphaCutoff if "alphaCutoff" in dir(pymat) else 0.5
             b_mat.shadow_method = "CLIP"
         else:  # Z_TRANSPARENCY or Z()_zwrite
             if "transparent_shadow_method" in dir(b_mat):  # old blender280_beta
@@ -299,21 +273,15 @@ class Blend_model:
         material.node_tree.links.new(socket_to_connect, value_node.outputs[0])
         return value_node
 
-    def connect_rgb_node(
-        self, material, color, socket_to_connect, default_color=[1, 1, 1, 1]
-    ):
+    def connect_rgb_node(self, material, color, socket_to_connect, default_color=None):
         rgb_node = material.node_tree.nodes.new("ShaderNodeRGB")
         rgb_node.label = socket_to_connect.name
-        rgb_node.outputs[0].default_value = color if color else default_color
+        rgb_node.outputs[0].default_value = color if color else (default_color if default_color else [1, 1, 1, 1])
         material.node_tree.links.new(socket_to_connect, rgb_node.outputs[0])
         return rgb_node
 
     def connect_texture_node(
-        self,
-        material,
-        tex_index,
-        color_socket_to_connect=None,
-        alpha_socket_to_connect=None,
+        self, material, tex_index, color_socket_to_connect=None, alpha_socket_to_connect=None,
     ):
         if tex_index is None:
             return None
@@ -321,7 +289,7 @@ class Blend_model:
         sampler = (
             self.vrm_pydata.json["samplers"][tex["sampler"]]
             if "samplers" in self.vrm_pydata.json
-            else [{"wrapS": GL_CONSTANTS.REPEAT, "magFilter": GL_CONSTANTS.LINEAR}]
+            else [{"wrapS": GlConstants.REPEAT, "magFilter": GlConstants.LINEAR}]
         )
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         image_node.image = self.textures[tex["source"]].image
@@ -332,32 +300,24 @@ class Blend_model:
         else:
             image_node.label = "what_is_this_node"
         # blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
-        filter_type = (
-            sampler["magFilter"] if "magFilter" in sampler else GL_CONSTANTS.LINEAR
-        )
-        if filter_type == GL_CONSTANTS.NEAREST:
+        filter_type = sampler["magFilter"] if "magFilter" in sampler else GlConstants.LINEAR
+        if filter_type == GlConstants.NEAREST:
             image_node.interpolation = "Closest"
         else:
             image_node.interpolation = "Linear"
         # blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-        wrap_type = sampler["wrapS"] if "wrapS" in sampler else GL_CONSTANTS.REPEAT
-        if wrap_type in (GL_CONSTANTS.REPEAT, GL_CONSTANTS.MIRRORED_REPEAT):
+        wrap_type = sampler["wrapS"] if "wrapS" in sampler else GlConstants.REPEAT
+        if wrap_type in (GlConstants.REPEAT, GlConstants.MIRRORED_REPEAT):
             image_node.extension = "REPEAT"
         else:
             image_node.extension = "EXTEND"
         if None not in (color_socket_to_connect, tex_index):
-            material.node_tree.links.new(
-                color_socket_to_connect, image_node.outputs["Color"]
-            )
+            material.node_tree.links.new(color_socket_to_connect, image_node.outputs["Color"])
         if None not in (alpha_socket_to_connect, tex_index):
-            material.node_tree.links.new(
-                alpha_socket_to_connect, image_node.outputs["Alpha"]
-            )
+            material.node_tree.links.new(alpha_socket_to_connect, image_node.outputs["Alpha"])
         return image_node
 
-    def connect_with_color_multiply_node(
-        self, material, color, tex_index, socket_to_connect
-    ):
+    def connect_with_color_multiply_node(self, material, color, tex_index, socket_to_connect):
         multiply_node = material.node_tree.nodes.new("ShaderNodeMixRGB")
         multiply_node.blend_type = "MULTIPLY"
         self.connect_rgb_node(material, color, multiply_node.inputs[1])
@@ -368,15 +328,10 @@ class Blend_model:
     def node_group_import(self, shader_node_group_name):
         if shader_node_group_name not in bpy.data.node_groups:
             filedir = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)),
-                "resources",
-                "material_node_groups.blend",
-                "NodeTree",
+                os.path.dirname(os.path.dirname(__file__)), "resources", "material_node_groups.blend", "NodeTree",
             )
             filepath = os.path.join(filedir, shader_node_group_name)
-            bpy.ops.wm.append(
-                filepath=filepath, filename=shader_node_group_name, directory=filedir
-            )
+            bpy.ops.wm.append(filepath=filepath, filename=shader_node_group_name, directory=filedir)
 
     def node_group_create(self, material, shader_node_group_name):
         node_group = material.node_tree.nodes.new("ShaderNodeGroup")
@@ -385,16 +340,12 @@ class Blend_model:
 
     def node_placer(self, parent_node):
         bottom_pos = [parent_node.location[0] - 200, parent_node.location[1]]
-        for child_node in [
-            link.from_node for socket in parent_node.inputs for link in socket.links
-        ]:
+        for child_node in [link.from_node for socket in parent_node.inputs for link in socket.links]:
             if child_node.type != "GROUP":
                 child_node.hide = True
             child_node.location = bottom_pos
             bottom_pos[1] -= 40
-            for ch_node in [
-                link.from_node for socket in child_node.inputs for link in socket.links
-            ]:
+            for ch_node in [link.from_node for socket in child_node.inputs for link in socket.links]:
                 self.node_placer(child_node)
         return
 
@@ -405,15 +356,13 @@ class Blend_model:
         principled_node = b_mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
 
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
-            principled_node.outputs["BSDF"],
+            b_mat.node_tree.nodes["Material Output"].inputs["Surface"], principled_node.outputs["BSDF"],
         )
-        # self.connect_with_color_multiply_node(b_mat,pymat.base_color,pymat.color_texture_index,principled_node.inputs["Base Color"])
+        # self.connect_with_color_multiply_node(
+        #     b_mat, pymat.base_color, pymat.color_texture_index, principled_node.inputs["Base Color"]
+        # )
         self.connect_texture_node(
-            b_mat,
-            pymat.color_texture_index,
-            principled_node.inputs["Base Color"],
-            principled_node.inputs["Alpha"],
+            b_mat, pymat.color_texture_index, principled_node.inputs["Base Color"], principled_node.inputs["Alpha"],
         )
         """
         self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
@@ -421,52 +370,35 @@ class Blend_model:
         self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
         self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
         """
-        self.connect_texture_node(
-            b_mat, pymat.normal_texture_index, principled_node.inputs["Normal"]
-        )
+        self.connect_texture_node(b_mat, pymat.normal_texture_index, principled_node.inputs["Normal"])
         transparent_exchange_dic = {
             "OPAQUE": "OPAQUE",
             "MASK": "CUTOUT",
             "Z_TRANSPARENCY": "Z_TRANSPARENCY",
         }
-        self.set_material_transparent(
-            b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode]
-        )
+        self.set_material_transparent(b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode])
         b_mat.use_backface_culling = pymat.double_sided
 
-    def build_material_from_GLTF(self, b_mat, pymat):
+    def build_material_from_gltf(self, b_mat, pymat):
         self.material_init(b_mat)
         gltf_node_name = "GLTF"
         self.node_group_import(gltf_node_name)
         sg = self.node_group_create(b_mat, gltf_node_name)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
-            sg.outputs["BSDF"],
+            b_mat.node_tree.nodes["Material Output"].inputs["Surface"], sg.outputs["BSDF"],
         )
 
         self.connect_rgb_node(b_mat, pymat.base_color, sg.inputs["base_Color"])
-        self.connect_texture_node(
-            b_mat, pymat.color_texture_index, sg.inputs["color_texture"]
-        )
+        self.connect_texture_node(b_mat, pymat.color_texture_index, sg.inputs["color_texture"])
         self.connect_value_node(b_mat, pymat.metallic_factor, sg.inputs["metallic"])
         self.connect_value_node(b_mat, pymat.roughness_factor, sg.inputs["roughness"])
         self.connect_texture_node(
-            b_mat,
-            pymat.metallic_roughness_texture_index,
-            sg.inputs["metallic_roughness_texture"],
+            b_mat, pymat.metallic_roughness_texture_index, sg.inputs["metallic_roughness_texture"],
         )
-        self.connect_rgb_node(
-            b_mat, [*pymat.emissive_factor, 1], sg.inputs["emissive_color"]
-        )
-        self.connect_texture_node(
-            b_mat, pymat.emissive_texture_index, sg.inputs["emissive_texture"]
-        )
-        self.connect_texture_node(
-            b_mat, pymat.normal_texture_index, sg.inputs["normal"]
-        )
-        self.connect_texture_node(
-            b_mat, pymat.occlusion_texture_index, sg.inputs["occlusion_texture"]
-        )
+        self.connect_rgb_node(b_mat, [*pymat.emissive_factor, 1], sg.inputs["emissive_color"])
+        self.connect_texture_node(b_mat, pymat.emissive_texture_index, sg.inputs["emissive_texture"])
+        self.connect_texture_node(b_mat, pymat.normal_texture_index, sg.inputs["normal"])
+        self.connect_texture_node(b_mat, pymat.occlusion_texture_index, sg.inputs["occlusion_texture"])
         self.connect_value_node(b_mat, pymat.shadeless, sg.inputs["unlit"])
 
         transparent_exchange_dic = {
@@ -474,14 +406,12 @@ class Blend_model:
             "MASK": "CUTOUT",
             "Z_TRANSPARENCY": "Z_TRANSPARENCY",
         }
-        self.set_material_transparent(
-            b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode]
-        )
+        self.set_material_transparent(b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode])
         b_mat.use_backface_culling = pymat.double_sided
 
         return
 
-    def build_material_from_MToon(self, b_mat, pymat):
+    def build_material_from_mtoon(self, b_mat, pymat):
         self.material_init(b_mat)
 
         shader_node_group_name = "MToon_unversioned"
@@ -491,15 +421,12 @@ class Blend_model:
 
         sg = self.node_group_create(b_mat, shader_node_group_name)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
-            sg.outputs["Emission"],
+            b_mat.node_tree.nodes["Material Output"].inputs["Surface"], sg.outputs["Emission"],
         )
 
-        float_prop_exchange_dic = VRM_Types.Material_MToon.float_props_exchange_dic
+        float_prop_exchange_dic = vrm_types.MaterialMtoon.float_props_exchange_dic
         for k, v in pymat.float_props_dic.items():
-            if k in [
-                key for key, val in float_prop_exchange_dic.items() if val is not None
-            ]:
+            if k in [key for key, val in float_prop_exchange_dic.items() if val is not None]:
                 self.connect_value_node(b_mat, v, sg.inputs[float_prop_exchange_dic[k]])
                 if k == "_CullMode":
                     if v == 2:  # 0: no cull 1:front cull 2:back cull
@@ -513,20 +440,18 @@ class Blend_model:
             b_mat[k] = v
 
         uv_offset_tiling_value = [0, 0, 1, 1]
-        vector_props_dic = VRM_Types.Material_MToon.vector_props_exchange_dic
+        vector_props_dic = vrm_types.MaterialMtoon.vector_props_exchange_dic
         for k, v in pymat.vector_props_dic.items():
             if k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
                 self.connect_rgb_node(b_mat, v, sg.inputs[vector_props_dic[k]])
             elif k == "_RimColor":
-                self.connect_rgb_node(
-                    b_mat, v, sg.inputs[vector_props_dic[k]], default_color=[0, 0, 0, 1]
-                )
+                self.connect_rgb_node(b_mat, v, sg.inputs[vector_props_dic[k]], default_color=[0, 0, 0, 1])
             elif k == "_MainTex" and v is not None:
                 uv_offset_tiling_value = v
             else:
                 b_mat[k] = v
 
-        UV_map_node = b_mat.node_tree.nodes.new("ShaderNodeUVMap")
+        uv_map_node = b_mat.node_tree.nodes.new("ShaderNodeUVMap")
         uv_offset_tiling_node = b_mat.node_tree.nodes.new("ShaderNodeMapping")
         if bpy.app.version[1] == 80:
             uv_offset_tiling_node.translation[0] = uv_offset_tiling_value[0]
@@ -534,29 +459,17 @@ class Blend_model:
             uv_offset_tiling_node.scale[0] = uv_offset_tiling_value[2]
             uv_offset_tiling_node.scale[1] = uv_offset_tiling_value[3]
         else:
-            uv_offset_tiling_node.inputs["Location"].default_value[
-                0
-            ] = uv_offset_tiling_value[0]
-            uv_offset_tiling_node.inputs["Location"].default_value[
-                1
-            ] = uv_offset_tiling_value[1]
-            uv_offset_tiling_node.inputs["Scale"].default_value[
-                0
-            ] = uv_offset_tiling_value[2]
-            uv_offset_tiling_node.inputs["Scale"].default_value[
-                1
-            ] = uv_offset_tiling_value[3]
+            uv_offset_tiling_node.inputs["Location"].default_value[0] = uv_offset_tiling_value[0]
+            uv_offset_tiling_node.inputs["Location"].default_value[1] = uv_offset_tiling_value[1]
+            uv_offset_tiling_node.inputs["Scale"].default_value[0] = uv_offset_tiling_value[2]
+            uv_offset_tiling_node.inputs["Scale"].default_value[1] = uv_offset_tiling_value[3]
 
-        b_mat.node_tree.links.new(
-            uv_offset_tiling_node.inputs[0], UV_map_node.outputs[0]
-        )
+        b_mat.node_tree.links.new(uv_offset_tiling_node.inputs[0], uv_map_node.outputs[0])
 
         def connect_uv_map_to_texture(texture_node):
-            b_mat.node_tree.links.new(
-                texture_node.inputs[0], uv_offset_tiling_node.outputs[0]
-            )
+            b_mat.node_tree.links.new(texture_node.inputs[0], uv_offset_tiling_node.outputs[0])
 
-        tex_dic = VRM_Types.Material_MToon.texture_kind_exchange_dic
+        tex_dic = vrm_types.MaterialMtoon.texture_kind_exchange_dic
 
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_index is None:
@@ -564,56 +477,39 @@ class Blend_model:
             if tex_name not in tex_dic.keys():
                 if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
-                b_mat["unknown_texture"].update(
-                    {tex_name: self.textures[tex_index].name}
-                )
+                b_mat["unknown_texture"].update({tex_name: self.textures[tex_index].name})
                 print(f"unknown texture {tex_name}")
             elif tex_name == "_MainTex":
                 main_tex_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    sg.inputs[tex_dic[tex_name]],
-                    sg.inputs[tex_dic[tex_name] + "Alpha"],
+                    b_mat, tex_index, sg.inputs[tex_dic[tex_name]], sg.inputs[tex_dic[tex_name] + "Alpha"],
                 )
                 connect_uv_map_to_texture(main_tex_node)
             elif tex_name == "_BumpMap":
                 normalmap_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
+                    b_mat, tex_index, color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
                 )
                 try:
                     normalmap_node.image.colorspace_settings.name = "Non-Color"
                 except TypeError:  # non-colorが無いとき
-                    normalmap_node.image.colorspace_settings.name = (
-                        "Linear"  # 2.80 beta互換性コード
-                    )
+                    normalmap_node.image.colorspace_settings.name = "Linear"  # 2.80 beta互換性コード
                 connect_uv_map_to_texture(normalmap_node)
             elif tex_name == "_ReceiveShadowTexture":
-                RS_tex_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    alpha_socket_to_connect=sg.inputs[tex_dic[tex_name] + "_alpha"],
+                rs_tex_node = self.connect_texture_node(
+                    b_mat, tex_index, alpha_socket_to_connect=sg.inputs[tex_dic[tex_name] + "_alpha"],
                 )
-                connect_uv_map_to_texture(RS_tex_node)
+                connect_uv_map_to_texture(rs_tex_node)
             elif tex_name == "_SphereAdd":
                 tex_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
+                    b_mat, tex_index, color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
                 )
                 b_mat.node_tree.links.new(
                     tex_node.inputs["Vector"],
-                    self.node_group_create(
-                        b_mat, sphere_add_vector_node_group_name
-                    ).outputs["Vector"],
+                    self.node_group_create(b_mat, sphere_add_vector_node_group_name).outputs["Vector"],
                 )
             else:
                 if tex_dic.get(tex_name) is not None:  # Shade,Emissive,Rim,UVanimMask
                     other_tex_node = self.connect_texture_node(
-                        b_mat,
-                        tex_index,
-                        color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
+                        b_mat, tex_index, color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
                     )
                     connect_uv_map_to_texture(other_tex_node)
                 else:
@@ -630,15 +526,14 @@ class Blend_model:
 
         return
 
-    def build_material_from_Transparent_Z_write(self, b_mat, pymat):
+    def build_material_from_transparent_z_write(self, b_mat, pymat):
         self.material_init(b_mat)
 
         z_write_transparent_sg = "TRANSPARENT_ZWRITE"
         self.node_group_import(z_write_transparent_sg)
         sg = self.node_group_create(b_mat, z_write_transparent_sg)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
-            sg.outputs["Emission"],
+            b_mat.node_tree.nodes["Material Output"].inputs["Surface"], sg.outputs["Emission"],
         )
 
         for k, v in pymat.float_props_dic.items():
@@ -647,9 +542,7 @@ class Blend_model:
             b_mat[k] = v
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_name == "_MainTex":
-                self.connect_texture_node(
-                    b_mat, tex_index, sg.inputs["Main_Texture"], sg.inputs["Main_Alpha"]
-                )
+                self.connect_texture_node(b_mat, tex_index, sg.inputs["Main_Texture"], sg.inputs["Main_Alpha"])
         self.set_material_transparent(b_mat, pymat, "Z_TRANSPARENCY")
         return
 
@@ -657,9 +550,7 @@ class Blend_model:
 
     def make_primitive_mesh_objects(self, wm, progress):
         self.meshes = {}
-        self.primitive_obj_dict = {
-            pymesh[0].object_id: [] for pymesh in self.vrm_pydata.meshes
-        }
+        self.primitive_obj_dict = {pymesh[0].object_id: [] for pymesh in self.vrm_pydata.meshes}
         morph_cache_dict = {}  # key:tuple(POSITION,targets.POSITION),value:points_data
         # mesh_obj_build
         mesh_progress = 0
@@ -689,16 +580,12 @@ class Blend_model:
                                 parent_id = id
                         obj.parent = self.armature
                         obj.parent_type = "BONE"
-                        obj.parent_bone = self.armature.data.bones[
-                            self.vrm_pydata.nodes_dict[parent_id].name
-                        ].name
+                        obj.parent_bone = self.armature.data.bones[self.vrm_pydata.nodes_dict[parent_id].name].name
                         # boneのtail側にparentされるので、根元からmesh nodeのpositionに動かしなおす
                         obj.matrix_world = Matrix.Translation(
                             [
                                 self.armature.matrix_world.to_translation()[i]
-                                + self.armature.data.bones[
-                                    obj.parent_bone
-                                ].matrix_local.to_translation()[i]
+                                + self.armature.data.bones[obj.parent_bone].matrix_local.to_translation()[i]
                                 + node[0].position[i]
                                 for i in range(3)
                             ]
@@ -709,25 +596,17 @@ class Blend_model:
 
             # region  vertex groupの作成
             if origin is not None:
-                # TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
+                # TODO bone名の不具合などでリネームが発生してるとうまくいかない
                 nodes_index_list = self.vrm_pydata.skins_joints_list[origin[2]]
-                # TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
-                # VertexGroupに頂点属性から一個ずつｳｪｲﾄを入れる用の辞書作り
+                # TODO bone名の不具合などでリネームが発生してるとうまくいかない
+                # VertexGroupに頂点属性から一個ずつウェイトを入れる用の辞書作り
                 for prim in pymesh:
                     if hasattr(prim, "JOINTS_0") and hasattr(prim, "WEIGHTS_0"):
-                        vg_dict = {  # 使うkey(bone名)のvalueを空のリストで初期化（中身まで全部内包表記で？キモすぎるからしない。
-                            self.vrm_pydata.nodes_dict[
-                                nodes_index_list[joint_id]
-                            ].name: list()
-                            for joint_id in [
-                                joint_id
-                                for joint_ids in prim.JOINTS_0
-                                for joint_id in joint_ids
-                            ]
+                        vg_dict = {  # 使うkey(bone名)のvalueを空のリストで初期化(中身まで全部内包表記で?キモすぎるからしない。
+                            self.vrm_pydata.nodes_dict[nodes_index_list[joint_id]].name: list()
+                            for joint_id in [joint_id for joint_ids in prim.JOINTS_0 for joint_id in joint_ids]
                         }
-                        for v_index, (joint_ids, weights) in enumerate(
-                            zip(prim.JOINTS_0, prim.WEIGHTS_0)
-                        ):
+                        for v_index, (joint_ids, weights) in enumerate(zip(prim.JOINTS_0, prim.WEIGHTS_0)):
                             # region VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
                             normalized_joint_dic = {jid: 0 for jid in set(joint_ids)}
                             for i, k in enumerate(joint_ids):
@@ -735,28 +614,24 @@ class Blend_model:
                             # endregion VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
                             for joint_id, weight in normalized_joint_dic.items():
                                 node_id = nodes_index_list[joint_id]
-                                # TODO bone名の不具合などでﾘﾈｰﾑが発生してるとうまくいかない
-                                vg_dict[
-                                    self.vrm_pydata.nodes_dict[node_id].name
-                                ].append([v_index, weight])
+                                # TODO bone名の不具合などでリネームが発生してるとうまくいかない
+                                vg_dict[self.vrm_pydata.nodes_dict[node_id].name].append([v_index, weight])
                         vg_list = []  # VertexGroupのリスト
                         for vg_key in vg_dict.keys():
                             if vg_key not in obj.vertex_groups:
                                 vg_list.append(obj.vertex_groups.new(name=vg_key))
-                        # 頂点ﾘｽﾄに辞書から書き込む
+                        # 頂点リストに辞書から書き込む
                         for vg in vg_list:
                             weights = vg_dict[vg.name]
                             for w in weights:
                                 if w[1] != 0.0:
-                                    # 頂点はまとめてﾘｽﾄで追加できるようにしかなってない
+                                    # 頂点はまとめてリストで追加できるようにしかなってない
                                     vg.add([w[0]], w[1], "REPLACE")
                 obj.modifiers.new("amt", "ARMATURE").object = self.armature
             # endregion  vertex groupの作成
 
             # region uv
-            flatten_vrm_mesh_vert_index = [
-                ind for prim in pymesh for ind in prim.face_indices.flatten()
-            ]
+            flatten_vrm_mesh_vert_index = [ind for prim in pymesh for ind in prim.face_indices.flatten()]
 
             for prim in pymesh:
                 texcoord_num = 0
@@ -791,9 +666,7 @@ class Blend_model:
                     if hasattr(prim, "NORMAL"):
                         normalized_normal = prim.NORMAL
                         if not hasattr(prim, "vert_normal_normalized"):
-                            normalized_normal = [
-                                Vector(n).normalized() for n in prim.NORMAL
-                            ]
+                            normalized_normal = [Vector(n).normalized() for n in prim.NORMAL]
                             setattr(prim, "vert_normal_normalized", True)
                             prim.NORMAL = normalized_normal
                         b_mesh.normals_split_custom_set_from_vertices(normalized_normal)
@@ -803,17 +676,11 @@ class Blend_model:
             # region material適用
             face_length = 0
             for prim in pymesh:
-                if (
-                    self.material_dict[prim.material_index].name
-                    not in obj.data.materials
-                ):
+                if self.material_dict[prim.material_index].name not in obj.data.materials:
                     obj.data.materials.append(self.material_dict[prim.material_index])
                 mat_index = 0
                 for i, mat in enumerate(obj.material_slots):
-                    if (
-                        mat.material.name
-                        == self.material_dict[prim.material_index].name
-                    ):
+                    if mat.material.name == self.material_dict[prim.material_index].name:
                         mat_index = i
                 tris = len(prim.face_indices)
                 for n in range(tris):
@@ -824,9 +691,9 @@ class Blend_model:
 
             # region vertex_color
             # なぜかこれだけ面基準で、loose verts and edgesに色は塗れない
-            # また、2.79では頂点カラーにalpha（４要素目）がないから完全対応は無理だったが
+            # また、2.79では頂点カラーにalpha(4要素目)がないから完全対応は無理だったが
             # 2.80では4要素になった模様
-            # TODO: テスト (懸案：cleaningで頂点結合でデータ物故割れる説)
+            # TODO: テスト (懸案:cleaningで頂点結合でデータ物故割れる説)
 
             for prim in pymesh:
                 vcolor_count = 0
@@ -840,9 +707,7 @@ class Blend_model:
                         else:
                             vc = b_mesh.vertex_colors.new(name=vc_color_name)
                         for v_index, col in enumerate(vc.data):
-                            vc.data[v_index].color = getattr(prim, vc_color_name)[
-                                flatten_vrm_mesh_vert_index[v_index]
-                            ]
+                            vc.data[v_index].color = getattr(prim, vc_color_name)[flatten_vrm_mesh_vert_index[v_index]]
                         vcolor_count += 1
                     else:
                         vc_flag = False
@@ -851,43 +716,34 @@ class Blend_model:
 
             # region shape_key
             # shapekey_data_factory with cache
-            def absolutize_morph_Positions(basePoints, morphTargetpos_and_index, prim):
-                shape_key_Positions = []
-                morphTargetpos = morphTargetpos_and_index[0]
-                morphTargetindex = morphTargetpos_and_index[1]
+            def absolutize_morph_positions(base_points, morph_target_pos_and_index, prim):
+                shape_key_positions = []
+                morph_target_pos = morph_target_pos_and_index[0]
+                morph_target_index = morph_target_pos_and_index[1]
 
                 # すでに変換したことがあるならそれを使う
-                if (
-                    prim.POSITION_accessor,
-                    morphTargetindex,
-                ) in morph_cache_dict.keys():
-                    return morph_cache_dict[(prim.POSITION_accessor, morphTargetindex)]
+                if (prim.POSITION_accessor, morph_target_index) in morph_cache_dict.keys():
+                    return morph_cache_dict[(prim.POSITION_accessor, morph_target_index)]
 
-                for basePos, morphPos in zip(basePoints, morphTargetpos):
+                for base_pos, morph_pos in zip(base_points, morph_target_pos):
                     # numpy.array毎回作るのは見た目きれいだけど8倍くらい遅い
-                    shape_key_Positions.append(
-                        [basePos[i] + morphPos[i] for i in range(3)]
-                    )
-                morph_cache_dict[
-                    (prim.POSITION_accessor, morphTargetindex)
-                ] = shape_key_Positions
-                return shape_key_Positions
+                    shape_key_positions.append([base_pos[i] + morph_pos[i] for i in range(3)])
+                morph_cache_dict[(prim.POSITION_accessor, morph_target_index)] = shape_key_positions
+                return shape_key_positions
 
             # shapeKeys
             for prim in pymesh:
-                if hasattr(prim, "morphTarget_point_list_and_accessor_index_dict"):
+                if hasattr(prim, "morph_target_point_list_and_accessor_index_dict"):
                     if b_mesh.shape_keys is None:
                         obj.shape_key_add(name="Basis")
                     for (
-                        morphName,
-                        morphPos_and_index,
-                    ) in prim.morphTarget_point_list_and_accessor_index_dict.items():
-                        if morphName not in b_mesh.shape_keys.key_blocks:
-                            obj.shape_key_add(name=morphName)
-                        keyblock = b_mesh.shape_keys.key_blocks[morphName]
-                        shape_data = absolutize_morph_Positions(
-                            prim.POSITION, morphPos_and_index, prim
-                        )
+                        morph_name,
+                        morph_pos_and_index,
+                    ) in prim.morph_target_point_list_and_accessor_index_dict.items():
+                        if morph_name not in b_mesh.shape_keys.key_blocks:
+                            obj.shape_key_add(name=morph_name)
+                        keyblock = b_mesh.shape_keys.key_blocks[morph_name]
+                        shape_data = absolutize_morph_positions(prim.POSITION, morph_pos_and_index, prim)
                         for i, co in enumerate(shape_data):
                             keyblock.data[i].co = co
             # endregion shape_key
@@ -909,20 +765,18 @@ class Blend_model:
         return
 
     def attach_vrm_attributes(self):
-        VRM_extensions = json_get(
-            self.vrm_pydata.json, ["extensions", VRM_Types.VRM], {}
-        )
-        humanbones_relations = json_get(VRM_extensions, ["humanoid", "humanBones"], [])
+        vrm_extensions = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM], {})
+        humanbones_relations = json_get(vrm_extensions, ["humanoid", "humanBones"], [])
 
         for humanbone in humanbones_relations:
-            self.armature.data.bones[
-                self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]
-            ]["humanBone"] = humanbone["bone"]
+            self.armature.data.bones[self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]]["humanBone"] = humanbone[
+                "bone"
+            ]
             self.armature.data[humanbone["bone"]] = self.armature.data.bones[
                 self.vrm_pydata.json["nodes"][humanbone["node"]]["name"]
             ].name
 
-        for metatag, metainfo in json_get(VRM_extensions, ["meta"], {}).items():
+        for metatag, metainfo in json_get(vrm_extensions, ["meta"], {}).items():
             if metatag == "texture":
                 self.armature[metatag] = self.textures[metainfo].image.name
             else:
@@ -931,7 +785,7 @@ class Blend_model:
         return
 
     def json_dump(self):
-        vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", VRM_Types.VRM])
+        vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM])
         model_name = json_get(vrm_ext_dic, ["meta", "title"], "vrm_model")
         textblock = bpy.data.texts.new(name=f"{model_name}_raw.json")
         textblock.write(json.dumps(self.vrm_pydata.json, indent=4))
@@ -955,51 +809,38 @@ class Blend_model:
             ]["name"]
         if "meshAnnotations" in firstperson_params.keys():
             # TODO VRM1.0 is using node index that has mesh
-            for meshAnnotation in firstperson_params["meshAnnotations"]:
-                meshAnnotation["mesh"] = self.vrm_pydata.json["meshes"][
-                    meshAnnotation["mesh"]
-                ]["name"]
+            for mesh_annotation in firstperson_params["meshAnnotations"]:
+                mesh_annotation["mesh"] = self.vrm_pydata.json["meshes"][mesh_annotation["mesh"]]["name"]
 
         write_textblock_and_assign_to_armature("firstPerson_params", firstperson_params)
         # endregion first_person
 
         # region blendshape_master
-        blendShapeGroups_list = copy.deepcopy(
-            vrm_ext_dic["blendShapeMaster"]["blendShapeGroups"]
-        )
+        blendshape_groups_list = copy.deepcopy(vrm_ext_dic["blendShapeMaster"]["blendShapeGroups"])
         # meshをidから名前に
         # weightを0-100から0-1に
         # shape_indexを名前に
         # TODO VRM1.0 is using node index that has mesh
         # materialValuesはそのままで行けるハズ・・・
-        for bsg in blendShapeGroups_list:
+        for bsg in blendshape_groups_list:
             for bind_dic in bsg["binds"]:
-                bind_dic["index"] = self.vrm_pydata.json["meshes"][bind_dic["mesh"]][
-                    "primitives"
-                ][0]["extras"]["targetNames"][bind_dic["index"]]
+                bind_dic["index"] = self.vrm_pydata.json["meshes"][bind_dic["mesh"]]["primitives"][0]["extras"][
+                    "targetNames"
+                ][bind_dic["index"]]
                 bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].name
                 bind_dic["weight"] = bind_dic["weight"] / 100
-        write_textblock_and_assign_to_armature(
-            "blendshape_group", blendShapeGroups_list
-        )
+        write_textblock_and_assign_to_armature("blendshape_group", blendshape_groups_list)
         # endregion blendshape_master
 
         # region springbone
-        spring_bonegroup_list = copy.deepcopy(
-            vrm_ext_dic["secondaryAnimation"]["boneGroups"]
-        )
-        colliderGroups_list = vrm_ext_dic["secondaryAnimation"]["colliderGroups"]
+        spring_bonegroup_list = copy.deepcopy(vrm_ext_dic["secondaryAnimation"]["boneGroups"])
+        collider_groups_list = vrm_ext_dic["secondaryAnimation"]["colliderGroups"]
         # node_idを管理するのは面倒なので、名前に置き換える
         # collider_groupも同じく
         for bone_group in spring_bonegroup_list:
-            bone_group["bones"] = [
-                self.vrm_pydata.json["nodes"][node_id]["name"]
-                for node_id in bone_group["bones"]
-            ]
+            bone_group["bones"] = [self.vrm_pydata.json["nodes"][node_id]["name"] for node_id in bone_group["bones"]]
             bone_group["colliderGroups"] = [
-                self.vrm_pydata.json["nodes"][
-                    colliderGroups_list[collider_gp_id]["node"]
-                ]["name"]
+                self.vrm_pydata.json["nodes"][collider_groups_list[collider_gp_id]["node"]]["name"]
                 for collider_gp_id in bone_group["colliderGroups"]
             ]
 
@@ -1029,10 +870,7 @@ class Blend_model:
         self.armature.rotation_mode = "XYZ"
         self.armature.rotation_euler[0] = numpy.deg2rad(90)
         self.armature.rotation_euler[2] = numpy.deg2rad(-180)
-        self.armature.location = [
-            self.armature.location[axis] * inv
-            for axis, inv in zip([0, 2, 1], [-1, 1, 1])
-        ]
+        self.armature.location = [self.armature.location[axis] * inv for axis, inv in zip([0, 2, 1], [-1, 1, 1])]
         bpy.ops.object.transform_apply(location=True, rotation=True)
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -1044,9 +882,7 @@ class Blend_model:
             obj.rotation_mode = "XYZ"
             obj.rotation_euler[0] = numpy.deg2rad(90)
             obj.rotation_euler[2] = numpy.deg2rad(-180)
-            obj.location = [
-                obj.location[axis] * inv for axis, inv in zip([0, 2, 1], [-1, 1, 1])
-            ]
+            obj.location = [obj.location[axis] * inv for axis, inv in zip([0, 2, 1], [-1, 1, 1])]
             bpy.ops.object.transform_apply(location=True, rotation=True)
             obj.select_set(False)
         return
@@ -1057,7 +893,7 @@ class Blend_model:
         self.armature.select_set(True)
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
-        HB = VRM_Types.HumanBones
+        hb = vrm_types.HumanBones
         stop_bone_names = {*self.armature.data.values()[:]}
 
         def set_children_roll(bone_name, roll):
@@ -1073,37 +909,27 @@ class Blend_model:
                     roll_list.extend(bone.children)
                 return
 
-        for b in HB.center_req + HB.center_def:
+        for b in hb.center_req + hb.center_def:
             if b == "hips":
                 set_children_roll(b, 90)
             else:
                 set_children_roll(b, -90)
-        for deg, bs in zip(
-            [0, 180],
-            [HB.left_arm_req + HB.left_arm_def, HB.right_arm_req + HB.right_arm_def],
-        ):
+        for deg, bs in zip([0, 180], [hb.left_arm_req + hb.left_arm_def, hb.right_arm_req + hb.right_arm_def]):
             for b in bs:
                 set_children_roll(b, deg)
-        for b in (
-            HB.left_leg_req + HB.right_leg_req + HB.left_leg_def + HB.right_leg_def
-        ):
+        for b in hb.left_leg_req + hb.right_leg_req + hb.left_leg_def + hb.right_leg_def:
             set_children_roll(b, 90)
         bpy.ops.object.mode_set(mode="OBJECT")
         return
 
     def put_spring_bone_info(self):
 
-        if (
-            not "secondaryAnimation"
-            in self.vrm_pydata.json["extensions"][VRM_Types.VRM]
-        ):
+        if "secondaryAnimation" not in self.vrm_pydata.json["extensions"][vrm_types.VRM]:
             print("no secondary animation object")
             return
-        secondaryAnimation_json = self.vrm_pydata.json["extensions"][VRM_Types.VRM][
-            "secondaryAnimation"
-        ]
-        spring_rootbone_groups_json = secondaryAnimation_json["boneGroups"]
-        collider_groups_json = secondaryAnimation_json["colliderGroups"]
+        secondary_animation_json = self.vrm_pydata.json["extensions"][vrm_types.VRM]["secondaryAnimation"]
+        spring_rootbone_groups_json = secondary_animation_json["boneGroups"]
+        collider_groups_json = secondary_animation_json["colliderGroups"]
         nodes_json = self.vrm_pydata.json["nodes"]
         for bone_group in spring_rootbone_groups_json:
             for bone_id in bone_group["bones"]:
@@ -1113,7 +939,7 @@ class Blend_model:
                         continue
                     bone[key] = val
 
-        model_name = self.vrm_pydata.json["extensions"][VRM_Types.VRM]["meta"]["title"]
+        model_name = self.vrm_pydata.json["extensions"][vrm_types.VRM]["meta"]["title"]
         coll = bpy.data.collections.new(f"{model_name}_colliders")
         self.model_collection.children.link(coll)
         for collider_group in collider_groups_json:
@@ -1129,10 +955,10 @@ class Blend_model:
                     collider["offset"]["x"],
                     collider["offset"]["y"],
                     collider["offset"]["z"],
-                ]  # values直接はindexｱｸｾｽ出来ないのでしゃあなし
+                ]  # values直接はindexアクセス出来ないのでしゃあなし
                 offset = [
                     offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
-                ]  # TODO: Y軸反転はuniVRMのシリアライズに合わせてる
+                ]  # TODO: Y軸反転はUniVRMのシリアライズに合わせてる
 
                 obj.matrix_world = (
                     self.armature.matrix_world
@@ -1148,31 +974,27 @@ class Blend_model:
     def blendfy(self):
         bpy.context.view_layer.objects.active = self.armature
 
-        def make_pole_target(RL, upper_leg_name, lower_leg_name, foot_name):
+        def make_pole_target(rl, upper_leg_name, lower_leg_name, foot_name):
             bpy.ops.object.mode_set(mode="EDIT")
             ebd = self.armature.data.edit_bones
 
-            IK_Foot = self.armature.data.edit_bones.new(f"IK_LEG_TARGET_{RL}")
-            IK_Foot.head = [f + o for f, o in zip(ebd[foot_name].head[:], [0, 0, 0])]
-            IK_Foot.tail = [f + o for f, o in zip(ebd[foot_name].head[:], [0, -0.2, 0])]
+            ik_foot = self.armature.data.edit_bones.new(f"IK_LEG_TARGET_{rl}")
+            ik_foot.head = [f + o for f, o in zip(ebd[foot_name].head[:], [0, 0, 0])]
+            ik_foot.tail = [f + o for f, o in zip(ebd[foot_name].head[:], [0, -0.2, 0])]
 
-            pole = self.armature.data.edit_bones.new(f"leg_pole_{RL}")
-            pole.parent = IK_Foot
-            pole.head = [
-                f + o for f, o in zip(ebd[lower_leg_name].head[:], [0, -0.1, 0])
-            ]
-            pole.tail = [
-                f + o for f, o in zip(ebd[lower_leg_name].head[:], [0, -0.2, 0])
-            ]
+            pole = self.armature.data.edit_bones.new(f"leg_pole_{rl}")
+            pole.parent = ik_foot
+            pole.head = [f + o for f, o in zip(ebd[lower_leg_name].head[:], [0, -0.1, 0])]
+            pole.tail = [f + o for f, o in zip(ebd[lower_leg_name].head[:], [0, -0.2, 0])]
 
             pole_name = copy.copy(pole.name)
-            IK_Foot_name = copy.copy(IK_Foot.name)
+            ik_foot_name = copy.copy(ik_foot.name)
             bpy.context.view_layer.depsgraph.update()
             bpy.context.scene.view_layers.update()
             bpy.ops.object.mode_set(mode="POSE")
-            IKC = self.armature.pose.bones[lower_leg_name].constraints.new("IK")
-            IKC.target = self.armature
-            IKC.subtarget = self.armature.pose.bones[IK_Foot_name].name
+            ikc = self.armature.pose.bones[lower_leg_name].constraints.new("IK")
+            ikc.target = self.armature
+            ikc.subtarget = self.armature.pose.bones[ik_foot_name].name
 
             def chain_solver(child, parent):
                 current_bone = self.armature.pose.bones[child]
@@ -1182,16 +1004,16 @@ class Blend_model:
                     current_bone = current_bone.parent
                 return 11
 
-            IKC.chain_count = chain_solver(lower_leg_name, upper_leg_name)
+            ikc.chain_count = chain_solver(lower_leg_name, upper_leg_name)
 
-            IKC.pole_target = self.armature
-            IKC.pole_subtarget = pole_name
+            ikc.pole_target = self.armature
+            ikc.pole_subtarget = pole_name
             bpy.context.view_layer.depsgraph.update()
             bpy.context.scene.view_layers.update()
             return
 
         bpy.ops.object.mode_set(mode="EDIT")
-        edit_bones = self.armature.data.edit_bones
+        edit_bones = self.armature.data.edit_bones  # noqa: F841
 
         right_upper_leg_name = self.armature.data["rightUpperLeg"]
         right_lower_leg_name = self.armature.data["rightLowerLeg"]
@@ -1201,20 +1023,18 @@ class Blend_model:
         left_lower_leg_name = self.armature.data["leftLowerLeg"]
         left_foot_name = self.armature.data["leftFoot"]
 
-        make_pole_target(
-            "R", right_upper_leg_name, right_lower_leg_name, right_foot_name
-        )
+        make_pole_target("R", right_upper_leg_name, right_lower_leg_name, right_foot_name)
         make_pole_target("L", left_upper_leg_name, left_lower_leg_name, left_foot_name)
 
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
-        VRM_HELPER.Bones_rename(bpy.context)
+        vrm_helper.Bones_rename(bpy.context)
         return
 
 
 # DeprecationWarning
-class ICYP_OT_select_helper(bpy.types.Operator):
+class ICYP_OT_select_helper(bpy.types.Operator):  # noqa: N801
     bl_idname = "mesh.icyp_select_helper"
     bl_label = "VRM importer internal only func"
     bl_description = "VRM importer internal only"

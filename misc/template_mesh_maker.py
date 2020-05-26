@@ -1,10 +1,10 @@
 import bpy
 import bmesh
-from ..V_Types import HumanBones
+from ..vrm_types import HumanBones
 from mathutils import Matrix, Vector
 
 
-class ICYP_MESH_Maker:
+class IcypTemplateMeshMaker:
     def make_mesh_obj(self, name, method):
         mesh = bpy.data.meshes.new(name)
         method(mesh)
@@ -32,17 +32,10 @@ class ICYP_MESH_Maker:
 
         head_bone = self.get_humanoid_bone("head")
         head_matrix = head_bone.matrix_local
-        # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ（上底が身長の高さ）にする変換(matrixはYupだけど、bone座標系はZup)
+        # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
         head_matrix = (
             head_matrix
-            @ Matrix(
-                [
-                    [1, 0, 0, 0],
-                    [0, 1, 0, -head_bone.head_local[2]],
-                    [0, 0, 1, 0],
-                    [0, 0, 0, 1],
-                ]
-            )
+            @ Matrix([[1, 0, 0, 0], [0, 1, 0, -head_bone.head_local[2]], [0, 0, 1, 0], [0, 0, 0, 1]])
             @ Matrix.Translation(Vector([head_size / 16, args.tall - head_size, 0]))
         )
         self.make_half_trapezoid(
@@ -62,16 +55,14 @@ class ICYP_MESH_Maker:
 
         # make neckneck
         neck_bone = self.get_humanoid_bone("neck")
-        self.make_half_cube(
-            [head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local
-        )
+        self.make_half_cube([head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local)
         # make chest - upper and lower (肋骨の幅の最大値で分割)
         chest_bone = self.get_humanoid_bone("chest")
         shoulder_in = args.shoulder_in_width
-        leftUpperArm_bone = self.get_humanoid_bone("leftUpperArm")
+        left_upper_arm_bone = self.get_humanoid_bone("leftUpperArm")
         # upper chest shell
         self.make_half_trapezoid(
-            [head_size * 3 / 4, leftUpperArm_bone.head_local[0] * 2],
+            [head_size * 3 / 4, left_upper_arm_bone.head_local[0] * 2],
             [head_size * 3 / 4, shoulder_in],
             chest_bone.length,
             chest_bone.matrix_local,
@@ -79,20 +70,17 @@ class ICYP_MESH_Maker:
         # lower chest shell
         spine_bone = self.get_humanoid_bone("spine")
         self.make_half_trapezoid(
-            [head_size * 3 / 4, (leftUpperArm_bone.head_local[0] - shoulder_in) * 2],
-            [head_size * 3 / 4, leftUpperArm_bone.head_local[0] * 2],
+            [head_size * 3 / 4, (left_upper_arm_bone.head_local[0] - shoulder_in) * 2],
+            [head_size * 3 / 4, left_upper_arm_bone.head_local[0] * 2],
             spine_bone.length * 3 / 5,
-            spine_bone.matrix_local
-            @ Matrix.Translation(Vector([0, spine_bone.length * 2 / 5, 0])),
+            spine_bone.matrix_local @ Matrix.Translation(Vector([0, spine_bone.length * 2 / 5, 0])),
         )
 
         # make spine
         # make hips
         hips_bone = self.get_humanoid_bone("hips")
-        hips_size = leftUpperArm_bone.head_local[0] * 2 * 1.2
-        self.make_half_cube(
-            [hips_size, head_size * 3 / 4, hips_bone.length], hips_bone.head_local
-        )
+        hips_size = left_upper_arm_bone.head_local[0] * 2 * 1.2
+        self.make_half_cube([hips_size, head_size * 3 / 4, hips_bone.length], hips_bone.head_local)
         # endregion body
 
         # region arm
@@ -157,9 +145,7 @@ class ICYP_MESH_Maker:
                 head_z = 0.81 * hips_size / 2
                 tail_x = 0.81 * hips_size / 2
                 tail_z = 0.81 * hips_size / 2
-            self.make_trapezoid(
-                [head_x, head_z], [tail_x, tail_z], b.length, [0, 0, 0], b.matrix_local
-            )
+            self.make_trapezoid([head_x, head_z], [tail_x, tail_z], b.length, [0, 0, 0], b.matrix_local)
         # endregion leg
 
         self.bm.to_mesh(mesh)
@@ -279,12 +265,8 @@ class ICYP_MESH_Maker:
         [5, 4, 1, 0],
     ]
 
-    def make_trapezoid(
-        self, head_xz, tail_xz, height, translation=None, rot_matrix=None
-    ):
-        points = self.trapezoid_points(
-            head_xz, tail_xz, height, translation, rot_matrix
-        )
+    def make_trapezoid(self, head_xz, tail_xz, height, translation=None, rot_matrix=None):
+        points = self.trapezoid_points(head_xz, tail_xz, height, translation, rot_matrix)
         verts = []
         for p in points:
             verts.append(self.bm.verts.new(p))
@@ -292,9 +274,7 @@ class ICYP_MESH_Maker:
             self.bm.faces.new([verts[i] for i in poly])
 
     # 台形 軸方向高さ
-    def trapezoid_points(
-        self, head_xz, tail_xz, height, translation=None, rot_matrix=None
-    ):
+    def trapezoid_points(self, head_xz, tail_xz, height, translation=None, rot_matrix=None):
         if translation is None:
             translation = [0, 0, 0]
         if rot_matrix is None:

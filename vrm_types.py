@@ -7,7 +7,7 @@ https://opensource.org/licenses/mit-license.php
 VRM = "VRM"
 
 
-class VRM_pydata(object):
+class VrmPydata(object):
     def __init__(
         self,
         filepath=None,
@@ -29,15 +29,9 @@ class VRM_pydata(object):
         self.meshes = meshes if meshes is not None else []
         self.materials = materials if materials is not None else []
         self.nodes_dict = nodes_dict if nodes_dict is not None else {}
-        self.origin_nodes_dict = (
-            origin_nodes_dict if origin_nodes_dict is not None else {}
-        )
-        self.skins_joints_list = (
-            skins_joints_list if skins_joints_list is not None else []
-        )
-        self.skins_root_node_list = (
-            skins_root_node_list if skins_root_node_list is not None else []
-        )
+        self.origin_nodes_dict = origin_nodes_dict if origin_nodes_dict is not None else {}
+        self.skins_joints_list = skins_joints_list if skins_joints_list is not None else []
+        self.skins_root_node_list = skins_root_node_list if skins_root_node_list is not None else []
 
 
 class Mesh(object):
@@ -188,11 +182,11 @@ class HumanBones(object):
     }
 
 
-class Image_props(object):
-    def __init__(self, name, filepath, fileType):
+class ImageProps(object):
+    def __init__(self, name, file_path, file_type):
         self.name = name
-        self.filePath = filepath
-        self.fileType = fileType
+        self.filePath = file_path
+        self.fileType = file_type
 
 
 class Material(object):
@@ -201,7 +195,7 @@ class Material(object):
         self.shader_name = ""
 
 
-class Material_GLTF(Material):
+class MaterialGltf(Material):
     def __init__(self):
         super().__init__()
 
@@ -226,7 +220,7 @@ class Material_GLTF(Material):
         self.shadeless = 0  # 0 is shade ,1 is shadeless
 
 
-class Material_Transparent_Z_write(Material):
+class MaterialTransparentZWrite(Material):
     float_props = [
         "_MainTex",
         "_Cutoff",
@@ -247,7 +241,7 @@ class Material_Transparent_Z_write(Material):
         self.texture_index_dic = {tex: None for tex in self.texture_index_list}
 
 
-class Material_MToon(Material):
+class MaterialMtoon(Material):
     # {key = MToonProp, val = ShaderNodeGroup_member_name}
     version = 32
     float_props_exchange_dic = {
@@ -266,9 +260,9 @@ class Material_MToon(Material):
         "_OutlineWidth": "OutlineWidth",
         "_OutlineScaledMaxDistance": "OutlineScaleMaxDistance",
         "_OutlineLightingMix": "OutlineLightingMix",
-        "_UvAnimScrollX": "UV_Scroll_X",  ######
-        "_UvAnimScrollY": "UV_Scroll_Y",  ######
-        "_UvAnimRotation": "UV_Scroll_Rotation",  ######
+        "_UvAnimScrollX": "UV_Scroll_X",  # TODO #####
+        "_UvAnimScrollY": "UV_Scroll_Y",  # TODO #####
+        "_UvAnimRotation": "UV_Scroll_Rotation",  # TODO #####
         "_DebugMode": None,
         "_BlendMode": None,
         "_OutlineWidthMode": "OutlineWidthMode",
@@ -291,7 +285,7 @@ class Material_MToon(Material):
         "_SphereAdd": "SphereAddTexture",
         "_RimTexture": "RimTexture",
         "_OutlineWidthTexture": "OutlineWidthTexture",
-        "_UvAnimMaskTexture": "UV_Animation_Mask_Texture",  #####
+        "_UvAnimMaskTexture": "UV_Animation_Mask_Texture",  # TODO ####
     }
     vector_base_props_exchange_dic = {
         "_Color": "DiffuseColor",
@@ -321,15 +315,9 @@ class Material_MToon(Material):
 
     def __init__(self):
         super().__init__()
-        self.float_props_dic = {
-            prop: None for prop in self.float_props_exchange_dic.keys()
-        }
-        self.vector_props_dic = {
-            prop: None for prop in self.vector_props_exchange_dic.keys()
-        }
-        self.texture_index_dic = {
-            prop: None for prop in self.texture_kind_exchange_dic.keys()
-        }
+        self.float_props_dic = {prop: None for prop in self.float_props_exchange_dic.keys()}
+        self.vector_props_dic = {prop: None for prop in self.vector_props_exchange_dic.keys()}
+        self.texture_index_dic = {prop: None for prop in self.texture_kind_exchange_dic.keys()}
         self.keyword_dic = {kw: False for kw in self.keyword_list}
         self.tag_dic = {tag: None for tag in self.tagmap_list}
 

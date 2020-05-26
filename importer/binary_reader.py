@@ -6,10 +6,10 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import struct
-from ..gl_const import GL_CONSTANTS
+from ..gl_constants import GlConstants
 
 
-class Binary_Reader:
+class BinaryReader:
     def __init__(self, data: bytes) -> None:
         self.data = data
         self.pos = 0
@@ -18,63 +18,63 @@ class Binary_Reader:
         self.pos = pos
 
     def read_str(self, size):
-        result = self.data[self.pos : self.pos + size]
+        result = self.data[self.pos: self.pos + size]
         self.pos += size
         return result.decode("utf-8")
 
     def read_binary(self, size):
-        result = self.data[self.pos : self.pos + size]
+        result = self.data[self.pos: self.pos + size]
         self.pos += size
         return result
 
     def read_uint(self):
         # unpackは内容の個数に関わらずタプルで返すので[0]が必要
-        result = struct.unpack("<I", self.data[self.pos : self.pos + 4])[0]
+        result = struct.unpack("<I", self.data[self.pos: self.pos + 4])[0]
         self.pos += 4
         return result
 
     def read_int(self):
-        result = struct.unpack("<i", self.data[self.pos : self.pos + 4])[0]
+        result = struct.unpack("<i", self.data[self.pos: self.pos + 4])[0]
         self.pos += 4
         return result
 
     def read_ushort(self):
-        result = struct.unpack("<H", self.data[self.pos : self.pos + 2])[0]
+        result = struct.unpack("<H", self.data[self.pos: self.pos + 2])[0]
         self.pos += 2
         return result
 
     def read_short(self):
-        result = struct.unpack("<h", self.data[self.pos : self.pos + 2])[0]
+        result = struct.unpack("<h", self.data[self.pos: self.pos + 2])[0]
         self.pos += 2
         return result
 
     def read_float(self):
-        result = struct.unpack("<f", self.data[self.pos : self.pos + 4])[0]
+        result = struct.unpack("<f", self.data[self.pos: self.pos + 4])[0]
         self.pos += 4
         return result
 
     def read_ubyte(self):
-        result = struct.unpack("<B", self.data[self.pos : self.pos + 1])[0]
+        result = struct.unpack("<B", self.data[self.pos: self.pos + 1])[0]
         self.pos += 1
         return result
 
-    def read_as_dataType(self, dataType: GL_CONSTANTS):
-        if dataType == GL_CONSTANTS.UNSIGNED_INT:
+    def read_as_data_type(self, data_type: GlConstants):
+        if data_type == GlConstants.UNSIGNED_INT:
             return self.read_uint()
-        elif dataType == GL_CONSTANTS.INT:
+        elif data_type == GlConstants.INT:
             return self.read_int()
-        elif dataType == GL_CONSTANTS.UNSIGNED_SHORT:
+        elif data_type == GlConstants.UNSIGNED_SHORT:
             return self.read_ushort()
-        elif dataType == GL_CONSTANTS.SHORT:
+        elif data_type == GlConstants.SHORT:
             return self.read_short()
-        elif dataType == GL_CONSTANTS.FLOAT:
+        elif data_type == GlConstants.FLOAT:
             return self.read_float()
-        elif dataType == GL_CONSTANTS.UNSIGNED_BYTE:
+        elif data_type == GlConstants.UNSIGNED_BYTE:
             return self.read_ubyte()
         else:
-            print("unsupported type : {}".format(dataType))
+            print("unsupported type : {}".format(data_type))
             raise Exception
 
 
 if "__main__" == __name__:
-    Binary_Reader(None)
+    BinaryReader(b"Hello")

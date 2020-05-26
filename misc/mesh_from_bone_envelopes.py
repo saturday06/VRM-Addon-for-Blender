@@ -4,14 +4,14 @@ from mathutils import Vector
 from math import ceil
 
 
-class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
+class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
     bl_idname = "icyp.make_mesh_from_envelopes"
     bl_label = "(WIP)basic mesh for vrm"
     bl_description = "Create mesh along with a simple setup for VRM export"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
-    def poll(self, context):
+    def poll(cls, context):
         return True
 
     def execute(self, context):
@@ -32,15 +32,13 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
         armature = bpy.context.active_object
         mball = bpy.data.metaballs.new(f"{armature.name}_mball")
         mball.threshold = 0.001
-        is_VRM_humanoid = False
+        is_vrm_humanoid = False
         for bone in armature.data.bones:
             if self.use_selected_bones and bone.select is False:
                 continue
             if "title" in armature and self.may_vrm_humanoid:  # = is VRM humanoid
-                is_VRM_humanoid = True
-                if bone.name in [
-                    armature.data.get(s) for s in ("leftEye", "rightEye", "hips")
-                ]:
+                is_vrm_humanoid = True
+                if bone.name in [armature.data.get(s) for s in ("leftEye", "rightEye", "hips")]:
                     continue
                 if bone.name == "root":
                     continue
@@ -48,19 +46,13 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
             hrad = bone.head_radius
             tpos = bone.tail_local
             trad = bone.tail_radius
-            if is_VRM_humanoid and armature.data.get("head") == bone.name:
+            if is_vrm_humanoid and armature.data.get("head") == bone.name:
                 elem = mball.elements.new()
                 elem.co = (Vector(hpos) + Vector(tpos)) / 2
                 elem.radius = Vector(Vector(tpos) - Vector(hpos)).length / 2
                 continue
-            if (
-                Vector(Vector(tpos) - Vector(hpos)).length / self.resolution
-                > self.max_distance_between_mataballs
-            ):
-                self.resolution = ceil(
-                    Vector(Vector(tpos) - Vector(hpos)).length
-                    / self.max_distance_between_mataballs
-                )
+            if Vector(Vector(tpos) - Vector(hpos)).length / self.resolution > self.max_distance_between_mataballs:
+                self.resolution = ceil(Vector(Vector(tpos) - Vector(hpos)).length / self.max_distance_between_mataballs)
                 self.resolution = max(2, self.resolution)
             for i in range(self.resolution):
                 loc = hpos + ((tpos - hpos) / (self.resolution - 1)) * i
@@ -74,7 +66,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
         mobj.location = armature.location
         mobj.rotation_quaternion = armature.rotation_quaternion
         mobj.scale = armature.scale
-        obj_name = mobj.name
+        obj_name = mobj.name  # noqa: F841
         bpy.ops.object.select_all(action="DESELECT")
         bpy.ops.object.mode_set(mode="OBJECT")
         context.scene.collection.objects.link(mobj)
@@ -114,16 +106,11 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
         def node_group_import(shader_node_group_name):
             if shader_node_group_name not in bpy.data.node_groups:
                 filedir = os.path.join(
-                    os.path.dirname(os.path.dirname(__file__)),
-                    "resources",
-                    "material_node_groups.blend",
-                    "NodeTree",
+                    os.path.dirname(os.path.dirname(__file__)), "resources", "material_node_groups.blend", "NodeTree",
                 )
                 filepath = os.path.join(filedir, shader_node_group_name)
                 bpy.ops.wm.append(
-                    filepath=filepath,
-                    filename=shader_node_group_name,
-                    directory=filedir,
+                    filepath=filepath, filename=shader_node_group_name, directory=filedir,
                 )
             return
 
@@ -138,8 +125,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):
         material_init(b_mat)
         sg = node_group_create(b_mat, shader_node_group_name)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
-            sg.outputs["Emission"],
+            b_mat.node_tree.nodes["Material Output"].inputs["Surface"], sg.outputs["Emission"],
         )
         obj.data.materials.append(b_mat)
 

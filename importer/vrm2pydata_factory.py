@@ -5,11 +5,11 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-from .. import V_Types as VRM_Types
+from .. import vrm_types
 
 
-def bone(node) -> VRM_Types.Node:
-    v_node = VRM_Types.Node()
+def bone(node) -> vrm_types.Node:
+    v_node = vrm_types.Node()
     if "name" in node:
         v_node.name = node["name"]
     else:
@@ -31,14 +31,14 @@ def bone(node) -> VRM_Types.Node:
     return v_node
 
 
-def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material:
+def material(mat, ext_mat, use_simple_principled_material) -> vrm_types.Material:
     # standard, or VRM unsupported shader(no saved)
     if (
         ext_mat["shader"] == "VRM_USE_GLTFSHADER"
         or ext_mat["shader"] not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]
         or use_simple_principled_material
     ):
-        v_mat = VRM_Types.Material_GLTF()
+        v_mat = vrm_types.MaterialGltf()
         v_mat.name = mat["name"]
         v_mat.shader_name = "gltf"
         if "pbrMetallicRoughness" in mat:
@@ -56,9 +56,7 @@ def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material
             if "metallicRoughnessTexture" in pbrmat:
                 texture_index = pbrmat["metallicRoughnessTexture"]["index"]
                 v_mat.metallic_roughness_texture_index = texture_index
-                v_mat.metallic_roughness_texture_texcoord = pbrmat["baseColorTexture"][
-                    "texCoord"
-                ]
+                v_mat.metallic_roughness_texture_texcoord = pbrmat["baseColorTexture"]["texCoord"]
 
         if "normalTexture" in mat:
             v_mat.normal_texture_index = mat["normalTexture"]["index"]
@@ -91,26 +89,19 @@ def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material
 
     else:  # "MToon or Transparent_Zwrite"
         if ext_mat["shader"] == "VRM/MToon":
-            v_mat = VRM_Types.Material_MToon()
+            v_mat = vrm_types.MaterialMtoon()
             v_mat.name = ext_mat["name"]
             v_mat.shader_name = ext_mat["shader"]
             # region check unknown props exist
             subset = {
-                "float": ext_mat["floatProperties"].keys()
-                - v_mat.float_props_dic.keys(),
-                "vector": ext_mat["vectorProperties"].keys()
-                - v_mat.vector_props_dic.keys(),
-                "texture": ext_mat["textureProperties"].keys()
-                - v_mat.texture_index_dic.keys(),
+                "float": ext_mat["floatProperties"].keys() - v_mat.float_props_dic.keys(),
+                "vector": ext_mat["vectorProperties"].keys() - v_mat.vector_props_dic.keys(),
+                "texture": ext_mat["textureProperties"].keys() - v_mat.texture_index_dic.keys(),
                 "keyword": ext_mat["keywordMap"].keys() - v_mat.keyword_dic.keys(),
             }
             for k, _subset in subset.items():
                 if _subset:
-                    print(
-                        "unknown {} properties {} in {}".format(
-                            k, _subset, ext_mat["name"]
-                        )
-                    )
+                    print("unknown {} properties {} in {}".format(k, _subset, ext_mat["name"]))
             # endregion check unknown props exit
 
             v_mat.float_props_dic.update(ext_mat["floatProperties"])
@@ -120,7 +111,7 @@ def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material
             v_mat.tag_dic.update(ext_mat["tagMap"])
 
         elif ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
-            v_mat = VRM_Types.Material_Transparent_Z_write()
+            v_mat = vrm_types.MaterialTransparentZWrite()
             v_mat.name = ext_mat["name"]
             v_mat.shader_name = ext_mat["shader"]
             v_mat.float_props_dic = ext_mat["floatProperties"]
@@ -128,7 +119,5 @@ def material(mat, ext_mat, use_simple_principled_material) -> VRM_Types.Material
             v_mat.texture_index_dic = ext_mat["textureProperties"]
         else:
             # ここには入らないはず
-            print(
-                f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}"
-            )
+            print(f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}")
     return v_mat

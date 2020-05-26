@@ -4,11 +4,11 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
-from ..gl_const import GL_CONSTANTS
+from ..gl_constants import GlConstants
 from collections import OrderedDict
 
 
-class Glb_bin_collection:
+class GlbBinCollection:
     def __init__(self):
         self.vertex_attribute_bins = []  # Glb_bin list
         self.image_bins = []
@@ -16,7 +16,7 @@ class Glb_bin_collection:
 
     def pack_all(self):
         bin_dic = OrderedDict()
-        byteOffset = 0
+        byte_offset = 0
         bin_dic["bufferViews"] = []
         bin_dic["accessors"] = []
 
@@ -37,15 +37,9 @@ class Glb_bin_collection:
                 vab_dic["max"] = vab.min_max[1]
             bin_dic["accessors"].append(vab_dic)
             bin_dic["bufferViews"].append(
-                OrderedDict(
-                    {
-                        "buffer": 0,
-                        "byteOffset": byteOffset,
-                        "byteLength": vab.bin_length,
-                    }
-                )
+                OrderedDict({"buffer": 0, "byteOffset": byte_offset, "byteLength": vab.bin_length})
             )
-            byteOffset += vab.bin_length
+            byte_offset += vab.bin_length
 
         if len(self.image_bins) > 0:
             bin_dic["images"] = []
@@ -53,25 +47,15 @@ class Glb_bin_collection:
                 self.bin += img.bin
                 bin_dic["images"].append(
                     OrderedDict(
-                        {
-                            "name": img.name,
-                            "bufferView": self.get_new_buffer_view_id(),
-                            "mimeType": img.image_type,
-                        }
+                        {"name": img.name, "bufferView": self.get_new_buffer_view_id(), "mimeType": img.image_type}
                     )
                 )
                 bin_dic["bufferViews"].append(
-                    OrderedDict(
-                        {
-                            "buffer": 0,
-                            "byteOffset": byteOffset,
-                            "byteLength": img.bin_length,
-                        }
-                    )
+                    OrderedDict({"buffer": 0, "byteOffset": byte_offset, "byteLength": img.bin_length})
                 )
-                byteOffset += img.bin_length
+                byte_offset += img.bin_length
 
-        bin_dic["buffers"] = [{"byteLength": byteOffset}]
+        bin_dic["buffers"] = [{"byteLength": byte_offset}]
 
         buffer_view_and_accessors_ordered_dic = bin_dic
         return buffer_view_and_accessors_ordered_dic, self.bin
@@ -89,16 +73,14 @@ class Glb_bin_collection:
         return len(self.vertex_attribute_bins)
 
 
-class Base_bin:
+class BaseBin:
     def __init__(self, bin, glb_bin_collection):
         self.bin = bin
         self.bin_length = len(bin)
 
 
-class Image_bin(Base_bin):
-    def __init__(
-        self, image_bin="", name="", image_type="image/png", glb_bin_collection=None
-    ):
+class ImageBin(BaseBin):
+    def __init__(self, image_bin="", name="", image_type="image/png", glb_bin_collection=None):
         super().__init__(image_bin, glb_bin_collection)
         self.name = name
         self.image_type = image_type
@@ -106,12 +88,12 @@ class Image_bin(Base_bin):
         glb_bin_collection.image_bins.append(self)
 
 
-class Glb_bin(Base_bin):
+class GlbBin(BaseBin):
     def __init__(
         self,
         bin="",
         array_type="SCALAR",
-        component_type=GL_CONSTANTS.FLOAT,
+        component_type=GlConstants.FLOAT,
         array_count=0,
         min_max_tuple=None,
         glb_bin_collection=None,
