@@ -10,7 +10,7 @@ Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 �
 <a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/0_80_2.zip"><img src="./web/download_button.png"></a>
 
 # <Font color="red">ATTENTION 注意</font>
- If you using minisize cloud storage, texture foloder explanation must read and care about storage remaining capacity.
+ If you using minisize cloud storage, texture folder explanation must read and care about storage remaining capacity.
 
 小さいクラウドストレージに保存しているVRMをインポートしている場合下記の中のテクスチャフォルダの扱いをよく読み、残容量に気を付けてご利用ください。
 
@@ -30,7 +30,7 @@ Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 �
 - VRM import
  - This addon makes texture folder for import each times (max:10) name based on VRM title,author,model version.
 - Add VRM like shader as Node Group (Please use these node group and direct link it to TEX_IMAGE,RGBA,VALUE and Material output Nodes for export)
-- Add humanoid armature for VRM(Tpose, reqwired bone, and append custom properties to need export VRM (reference to VRM extensions textblock ,and bone tagging))
+- Add humanoid armature for VRM(Tpose, required bone, and append custom properties to need export VRM (reference to VRM extensions textblock ,and bone tagging))
 - VRM0.0 export (not complete function ,but easy to bridge UniVRM. )
 
 # VRM編集チュートリアル (VRM-in-out modify video tutorial(Japanese))
