@@ -48,4 +48,4 @@ https://qiita.com/iCyP/items/61af0ea93c604e37bed6
  - VENDER'S extension : NO without VRM
 
 # Spec
-<img src="./web/spec.jpg" />
+<img alt="spec figure" src="./web/spec.jpg" />
