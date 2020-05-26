@@ -18,8 +18,8 @@ import os
 
 class Bones_rename(bpy.types.Operator):  # noqa: N801
     bl_idname = "vrm.bones_rename"
-    bl_label = "Rename Vroid_bones"
-    bl_description = "Rename Vroid_bones as Blender type"
+    bl_label = "Rename VRoid_bones"
+    bl_description = "Rename VRoid_bones as Blender type"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
@@ -94,7 +94,7 @@ class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # noqa: N8
 class Vroid2VRC_ripsync_from_json_recipe(bpy.types.Operator):  # noqa: N801
     bl_idname = "vrm.ripsync_vrm"
     bl_label = "Make ripsync4VRC"
-    bl_description = "Make ripsync from Vroid to VRC by json"
+    bl_description = "Make ripsync from VRoid to VRC by json"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
