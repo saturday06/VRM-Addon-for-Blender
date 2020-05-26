@@ -1,4 +1,5 @@
 import bpy
+import os
 from mathutils import Vector
 from math import ceil
 
