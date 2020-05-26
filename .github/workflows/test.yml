@@ -45,7 +45,7 @@ jobs:
           echo "::add-path::$HOME/.local/bin"
       - name: Lint with black
         run: |
-          black --check $(find . -type d)
+          #black --check $(find . -type d)
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
