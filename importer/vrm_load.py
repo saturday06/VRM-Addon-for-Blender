@@ -285,7 +285,7 @@ def mesh_read(vrm_pydata):
                 # TODO その他メッシュタイプ対応
                 raise Exception("Unsupported polygon type(:{}) Exception".format(primitive["mode"]))
             vrm_mesh.face_indices = vrm_pydata.decoded_binary[primitive["indices"]]
-            # 3要素ずつに変換しておく(GCL.TRIANGLES前提なので)
+            # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
             # ATTENTION これだけndarray
             vrm_mesh.face_indices = numpy.reshape(vrm_mesh.face_indices, (-1, 3))
             # endregion 頂点index
