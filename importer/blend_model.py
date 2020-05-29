@@ -77,9 +77,40 @@ class BlendModel:
             pass
             # self.blendfy()
         i = prog(i)
+        self.connect_bones()
+        i = prog(i)
         self.finishing(affected_object)
         wm.progress_end()
         return 0
+
+    def connect_bones(self):
+        # Blender_VRMAutoIKSetup (MIT License)
+        # https://booth.pm/ja/items/1697977
+        previous_active = bpy.context.view_layer.objects.active
+        try:
+            bpy.context.view_layer.objects.active = self.armature  # アーマチャーをアクティブに
+            bpy.ops.object.mode_set(mode="EDIT")  # エディットモードに入る
+            disconnected_bone_names = []  # 結合されてないボーンのリスト
+            if self.vrm_pydata.json["extensions"][vrm_types.VRM]["exporterVersion"].startswith("VRoidStudio-"):
+                disconnected_bone_names = [
+                    "J_Bip_R_Hand",
+                    "J_Bip_L_Hand",
+                    "J_Bip_L_LowerLeg",
+                    "J_Bip_R_LowerLeg",
+                ]
+            bpy.ops.armature.select_all(action="SELECT")  # 全てのボーンを選択
+            for bone in bpy.context.selected_bones:  # 選択しているボーンに対して繰り返し処理
+                for disconnected_bone_name in disconnected_bone_names:  # 結合されてないボーンのリスト分繰り返し処理
+                    if bone.name == disconnected_bone_name:  # リストに該当するオブジェクトがシーン中にあったら処理
+                        disconnected_bone = self.armature.data.edit_bones[
+                            disconnected_bone_name
+                        ]  # disconnected_bone変数に処理ボーンを代入
+                        disconnected_bone.parent.tail = disconnected_bone.head  # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
+                if bone.parent:  # 親ボーンがある場合
+                    if bone.head == bone.parent.tail:  # ボーンのヘッドと親ボーンのテールが一致していたら
+                        bone.use_connect = True  # ボーンの関係の接続を有効に
+        finally:
+            bpy.context.view_layer.objects.active = previous_active
 
     def scene_init(self):
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るのでその回避と、それを元に戻す
