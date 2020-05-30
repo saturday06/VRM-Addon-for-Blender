@@ -113,6 +113,7 @@ class BlendModel:
                         numpy.abs(numpy.array(bone.head) - numpy.array(bone.parent.tail)) < sys.float_info.epsilon
                     ).all():
                         bone.use_connect = True  # ボーンの関係の接続を有効に
+            bpy.ops.object.mode_set(mode="OBJECT")
         finally:
             bpy.context.view_layer.objects.active = previous_active
 
