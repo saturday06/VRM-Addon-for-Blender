@@ -14,6 +14,7 @@ from ..vrm_types import nested_json_value_getter as json_get
 from ..gl_constants import GlConstants
 from math import sqrt, pow, radians
 import numpy
+import sys
 import os.path
 import json
 import copy
@@ -107,7 +108,10 @@ class BlendModel:
                         ]  # disconnected_bone変数に処理ボーンを代入
                         disconnected_bone.parent.tail = disconnected_bone.head  # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
                 if bone.parent:  # 親ボーンがある場合
-                    if bone.head == bone.parent.tail:  # ボーンのヘッドと親ボーンのテールが一致していたら
+                    # ボーンのヘッドと親ボーンのテールが一致していたら
+                    if (
+                        numpy.abs(numpy.array(bone.head) - numpy.array(bone.parent.tail)) < sys.float_info.epsilon
+                    ).all():
                         bone.use_connect = True  # ボーンの関係の接続を有効に
         finally:
             bpy.context.view_layer.objects.active = previous_active
