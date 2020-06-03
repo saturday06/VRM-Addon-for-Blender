@@ -2,7 +2,7 @@
 
 Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 の更新が終了してしまったため、勉強ついでにメンテナンスしてみようという試みです。バグ報告、機能要望、Pull request等歓迎します。
 
-- current : for blender 2.82
+- current : for blender 2.82 - 2.83
 - mesh import : done 
 - material import : wip forever
 - export : spec0.0 export may be possible.
