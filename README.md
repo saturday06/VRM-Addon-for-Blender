@@ -21,6 +21,7 @@ If you using minisize cloud storage, texture folder explanation must read and ca
   - humanoidボーン属性はVRM HELPERタブからアクセス可能です
   - これらはVRMエクスポート時に利用されます(詳しくは下部の図を参照
   - 10フォルダを上限にインポートごとに新たなテクスチャフォルダを作成する。(デフォルト動作) インポートウィンドウのオプションで->単一のテクスチャフォルダに存在しないテクスチャだけ書き込む仕様になりました。title,author,versionが設定していないと適当なフォルダ名で生成します。
+  - インポート時に自動でAutoIK用のボーンのセットアップを行います。もとのコードは[こちらで配布されているもの](https://booth.pm/ja/items/1697977)で、作者様から流用の許可はいただいています。
 - VRM 向けシェーダーノードグループ追加(※モックアップ程度の出来)(GLTF,MToon_unversioned,TransparentZwrite)
 - VRM 向けhumanoid Armature 追加(これを使わないとexport出来ません)(絶対に出来ないとは言ってないけど圧倒的に楽)
 - VRM0.0(のような何かの) export 完全ではないので、出力後にUniVRMを通してください。(他形式でUniVRMに渡すより物理やマテリアル、blendshape_groupの情報が多く残るのでマシ程度にお考え下さい
