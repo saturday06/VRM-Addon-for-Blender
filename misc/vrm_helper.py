@@ -647,7 +647,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             VRM_VALIDATOR.draw_func_add()
             raise {"CANCELLED"}
 
-        messages.add("Ready for export VRM")
+        messages.add("not found expected error for export")
         VRM_VALIDATOR.draw_func_add()
         return {"FINISHED"}
 
