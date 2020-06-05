@@ -19,12 +19,8 @@ import bmesh
 
 
 class GlbObj:
-    class ValidationError(Exception):
-        pass
-
     def __init__(self):
-        if bpy.ops.vrm.model_validate() != "{FINISHED}":
-            raise self.ValidationError()
+        bpy.ops.vrm.model_validate()
 
         self.json_dic = OrderedDict()
         self.bin = b""
