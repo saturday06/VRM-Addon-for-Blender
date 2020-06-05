@@ -27,7 +27,7 @@ class BinaryReader:
         self.pos += size
         return result
 
-    def read_uint(self):
+    def read_unsigned_int(self):
         # unpackは内容の個数に関わらずタプルで返すので[0]が必要
         result = struct.unpack("<I", self.data[self.pos: self.pos + 4])[0]
         self.pos += 4
@@ -38,7 +38,7 @@ class BinaryReader:
         self.pos += 4
         return result
 
-    def read_ushort(self):
+    def read_unsigned_short(self):
         result = struct.unpack("<H", self.data[self.pos: self.pos + 2])[0]
         self.pos += 2
         return result
@@ -53,24 +53,24 @@ class BinaryReader:
         self.pos += 4
         return result
 
-    def read_ubyte(self):
+    def read_unsigned_byte(self):
         result = struct.unpack("<B", self.data[self.pos: self.pos + 1])[0]
         self.pos += 1
         return result
 
     def read_as_data_type(self, data_type: GlConstants):
         if data_type == GlConstants.UNSIGNED_INT:
-            return self.read_uint()
+            return self.read_unsigned_int()
         elif data_type == GlConstants.INT:
             return self.read_int()
         elif data_type == GlConstants.UNSIGNED_SHORT:
-            return self.read_ushort()
+            return self.read_unsigned_short()
         elif data_type == GlConstants.SHORT:
             return self.read_short()
         elif data_type == GlConstants.FLOAT:
             return self.read_float()
         elif data_type == GlConstants.UNSIGNED_BYTE:
-            return self.read_ubyte()
+            return self.read_unsigned_byte()
         else:
             print("unsupported type : {}".format(data_type))
             raise Exception

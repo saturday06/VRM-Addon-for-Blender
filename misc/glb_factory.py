@@ -756,11 +756,11 @@ class GlbObj:
             joints_bin = b""
             weights_bin = b""
             texcoord_bins = {id: b"" for id in uvlayers_dic.keys()}
-            f_vec4_packer = struct.Struct("<ffff").pack
-            f_vec3_packer = struct.Struct("<fff").pack
-            f_pair_packer = struct.Struct("<ff").pack
-            i_scalar_packer = struct.Struct("<I").pack
-            h_vec4_packer = struct.Struct("<HHHH").pack
+            float_vec4_packer = struct.Struct("<ffff").pack
+            float_vec3_packer = struct.Struct("<fff").pack
+            float_pair_packer = struct.Struct("<ff").pack
+            unsigned_int_scalar_packer = struct.Struct("<I").pack
+            unsigned_short_vec4_packer = struct.Struct("<HHHH").pack
 
             def min_max(minmax, position):
                 for i in range(3):
@@ -798,9 +798,9 @@ class GlbObj:
                     vertex_key = (*uv_list, *vert_normal, loop.vert.index)
                     cached_vert_id = unique_vertex_dic.get(vertex_key)  # keyがなければNoneを返す
                     if cached_vert_id is not None:
-                        primitive_index_bin_dic[mat_id_dic[material_slot_dic[face.material_index]]] += i_scalar_packer(
-                            cached_vert_id
-                        )
+                        primitive_index_bin_dic[
+                            mat_id_dic[material_slot_dic[face.material_index]]
+                        ] += unsigned_int_scalar_packer(cached_vert_id)
                         primitive_index_vertex_count[mat_id_dic[material_slot_dic[face.material_index]]] += 1
                         continue
                     else:
@@ -808,15 +808,15 @@ class GlbObj:
                     for uvlayer_id, uvlayer_name in uvlayers_dic.items():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
                         uv = loop[uv_layer].uv
-                        texcoord_bins[uvlayer_id] += f_pair_packer(uv[0], 1 - uv[1])  # blenderとglbのuvは上下逆
+                        texcoord_bins[uvlayer_id] += float_pair_packer(uv[0], 1 - uv[1])  # blenderとglbのuvは上下逆
                     for shape_name in shape_pos_bin_dic.keys():
                         shape_layer = bm.verts.layers.shape[shape_name]
                         morph_pos = self.axis_blender_to_glb(
                             [loop.vert[shape_layer][i] - loop.vert.co[i] for i in range(3)]
                         )
-                        shape_pos_bin_dic[shape_name] += f_vec3_packer(*morph_pos)
+                        shape_pos_bin_dic[shape_name] += float_vec3_packer(*morph_pos)
                         if self.VRM_version == "0.0":
-                            shape_normal_bin_dic[shape_name] += f_vec3_packer(
+                            shape_normal_bin_dic[shape_name] += float_vec3_packer(
                                 *self.axis_blender_to_glb(morph_normal_diff_dic[shape_name][loop.vert.index])
                             )
                         min_max(shape_min_max_dic[shape_name], morph_pos)
@@ -846,16 +846,16 @@ class GlbObj:
                             raise ZeroDivisionError
                         if sum(weights) < 1:
                             weights[0] += 1 - sum(weights)
-                        joints_bin += h_vec4_packer(*joints)
-                        weights_bin += f_vec4_packer(*weights)
+                        joints_bin += unsigned_short_vec4_packer(*joints)
+                        weights_bin += float_vec4_packer(*weights)
 
                     vert_location = self.axis_blender_to_glb(loop.vert.co)
-                    position_bin += f_vec3_packer(*vert_location)
+                    position_bin += float_vec3_packer(*vert_location)
                     min_max(position_min_max, vert_location)
-                    normal_bin += f_vec3_packer(*self.axis_blender_to_glb(vert_normal))
-                    primitive_index_bin_dic[mat_id_dic[material_slot_dic[face.material_index]]] += i_scalar_packer(
-                        unique_vertex_id
-                    )
+                    normal_bin += float_vec3_packer(*self.axis_blender_to_glb(vert_normal))
+                    primitive_index_bin_dic[
+                        mat_id_dic[material_slot_dic[face.material_index]]
+                    ] += unsigned_int_scalar_packer(unique_vertex_id)
                     primitive_index_vertex_count[mat_id_dic[material_slot_dic[face.material_index]]] += 1
                     unique_vertex_id += 1
 
