@@ -1,2 +1,2 @@
 # To avoid circular reference
-addon_version = (0, 81, 0)
+addon_version = (0, 81, 1)
