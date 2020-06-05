@@ -140,7 +140,7 @@ class BlendModel:
     def texture_load(self):
         self.textures = []
         for image_props in self.vrm_pydata.image_properties:
-            img = bpy.data.images.load(image_props.filePath)
+            img = bpy.data.images.load(image_props.filepath)
             tex = bpy.data.textures.new(name=image_props.name, type="IMAGE")
             tex.image = img
             self.textures.append(tex)

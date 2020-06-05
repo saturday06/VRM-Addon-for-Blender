@@ -183,10 +183,10 @@ class HumanBones(object):
 
 
 class ImageProps(object):
-    def __init__(self, name, file_path, file_type):
+    def __init__(self, name, filepath, filetype):
         self.name = name
-        self.filePath = file_path
-        self.fileType = file_type
+        self.filepath = filepath
+        self.filetype = filetype
 
 
 class Material(object):
