@@ -645,7 +645,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
         if len(messages) > 0:
             VRM_VALIDATOR.draw_func_add()
-            raise {"CANCELLED"}
+            return {"CANCELLED"}
 
         messages.add("Ready for export VRM")
         VRM_VALIDATOR.draw_func_add()
