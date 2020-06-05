@@ -16,7 +16,9 @@ with tempfile.TemporaryDirectory() as temp_dir:
     bpy.ops.export_scene.vrm(filepath=filepath)
     assert os.path.getsize(filepath) > 0
 
+    assert "skeleton" in bpy.data.objects
     bpy.ops.wm.read_factory_settings()
+    assert "skeleton" not in bpy.data.objects
 
     bpy.ops.import_scene.vrm(filepath=filepath)
     bpy.data.objects["skeleton"].select_set(True)
