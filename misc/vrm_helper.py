@@ -645,10 +645,10 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
         if len(messages) > 0:
             VRM_VALIDATOR.draw_func_add()
-            raise Exception
-        else:
-            messages.add("not found expected error for export")
-            VRM_VALIDATOR.draw_func_add()
+            raise {"CANCELLED"}
+
+        messages.add("not found expected error for export")
+        VRM_VALIDATOR.draw_func_add()
         return {"FINISHED"}
 
     # region 3Dview drawer

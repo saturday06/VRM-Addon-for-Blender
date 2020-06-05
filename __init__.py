@@ -94,11 +94,14 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
     # VRM_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
 
     def execute(self, context):
-        fdir = self.filepath
-        # bin =  glb_factory.Glb_obj().convert_bpy2glb(self.VRM_version)
-        bin = glb_factory.GlbObj().convert_bpy2glb("0.0")
-        with open(fdir, "wb") as f:
-            f.write(bin)
+        try:
+            glb_obj = glb_factory.GlbObj()
+        except glb_factory.GlbObj.ValidationError:
+            return {"CANCELLED"}
+        # vrm_bin =  glb_obj().convert_bpy2glb(self.VRM_version)
+        vrm_bin = glb_obj.convert_bpy2glb("0.0")
+        with open(self.filepath, "wb") as f:
+            f.write(vrm_bin)
         return {"FINISHED"}
 
 
