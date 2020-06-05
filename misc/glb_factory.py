@@ -628,8 +628,9 @@ class GlbObj:
                         break
                 material_properties_dic, pbr_dic = make_trnszw_mat_dic(b_mat, zw_shader_node)
             else:
-                print("please use vrm_shader")
-                raise Exception  # ?
+                message = "VRM doesn't support \"" + b_mat["vrm_shader"] + '" shader.'
+                print(message)
+                raise Exception(message)
 
             glb_material_list.append(pbr_dic)
             vrm_material_props_list.append(material_properties_dic)
