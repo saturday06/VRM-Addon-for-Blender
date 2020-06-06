@@ -31,7 +31,7 @@ class BlendModel:
 
         self.context = context
         self.vrm_pydata = vrm_pydata
-        self.textures = None
+        self.textures = None  # TODO: The index of self.textures is image index. See self.texture_load(). Will fix it.
         self.armature = None
         self.bones = None
         self.material_dict = None
@@ -145,9 +145,11 @@ class BlendModel:
             tex.image = img
             self.textures.append(tex)
 
-        thumbnail_id = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM, "meta", "texture"])
-        if thumbnail_id not in (-1, None):
-            self.textures[thumbnail_id].image.use_fake_user = True
+        json_texture_index = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM, "meta", "texture"])
+        if json_texture_index not in (-1, None):
+            if "textures" in self.vrm_pydata.json and len(self.vrm_pydata.json["textures"]) > json_texture_index:
+                texture_index = self.vrm_pydata.json["textures"][json_texture_index]["source"]
+                self.textures[texture_index].image.use_fake_user = True
 
         return
 
@@ -814,7 +816,9 @@ class BlendModel:
 
         for metatag, metainfo in json_get(vrm_extensions, ["meta"], {}).items():
             if metatag == "texture":
-                self.armature[metatag] = self.textures[metainfo].image.name
+                if "textures" in self.vrm_pydata.json and len(self.vrm_pydata.json["textures"]) > metainfo:
+                    texture_index = self.vrm_pydata.json["textures"][metainfo]["source"]
+                    self.armature[metatag] = self.textures[texture_index].image.name
             else:
                 self.armature[metatag] = metainfo
 
