@@ -489,7 +489,7 @@ class BlendModel:
 
         uv_map_node = b_mat.node_tree.nodes.new("ShaderNodeUVMap")
         uv_offset_tiling_node = b_mat.node_tree.nodes.new("ShaderNodeMapping")
-        if bpy.app.version[1] == 80:
+        if bpy.app.version < (2, 81):
             uv_offset_tiling_node.translation[0] = uv_offset_tiling_value[0]
             uv_offset_tiling_node.translation[1] = uv_offset_tiling_value[1]
             uv_offset_tiling_node.scale[0] = uv_offset_tiling_value[2]
