@@ -424,6 +424,13 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             f"VRM権利情報の {k} は{v} のいずれかでないといけません。現在の設定値は {armature.get(k)} です",
                         )
                     )
+            if armature.get("licenseName") == "Other" and armature.get("otherLicenseUrl") in [None, ""]:
+                messages.add(
+                    lang_support(
+                        "`licenseName' is `Other' but `otherLicenseUrl' is empty. Please fill it.",
+                        "`licenseName'が`Other'ですが、`otherLicenseUrl'に値が設定されていません。値を設定してください。",
+                    )
+                )
 
             # region textblock_validate
 
