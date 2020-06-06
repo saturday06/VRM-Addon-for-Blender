@@ -57,18 +57,14 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
     use_in_blender: bpy.props.BoolProperty(name="NOTHING TO DO in CURRENT use in blender")  # noqa: F722
 
     def execute(self, context):
-        ui_localization = False
-        try:
+        has_ui_localization = bpy.app.version < (2, 83)
+        if has_ui_localization:
             ui_localization = bpy.context.preferences.view.use_international_fonts
-            bpy.context.preferences.view.use_international_fonts = False
-        except Exception:
-            pass
-        try:
-            fdir = self.filepath
-            blend_model.BlendModel(context, vrm_load.read_vrm(fdir, self), self)
-        finally:
-            if ui_localization:
-                bpy.context.preferences.view.use_international_fonts = ui_localization
+
+        blend_model.BlendModel(context, vrm_load.read_vrm(self.filepath, self), self)
+
+        if has_ui_localization and ui_localization:
+            bpy.context.preferences.view.use_international_fonts = ui_localization
 
         return {"FINISHED"}
 
