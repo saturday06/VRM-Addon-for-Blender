@@ -621,12 +621,12 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
         # endregion vrm metas check
 
-        for mes in messages:
-            self.report({"ERROR"}, mes)
         print("validation finished")
 
         if len(messages) > 0:
             VRM_VALIDATOR.draw_func_add()
+            for message in messages:
+                self.report({"ERROR"}, message)
             return {"CANCELLED"}
 
         if self.show_successful_message:
