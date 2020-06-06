@@ -417,38 +417,11 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 ],
             }
             for k, v in required_vrm_metas.items():
-                if armature.get(k) is None:
-                    armature[k] = v[0]
-                    messages.add(
-                        lang_support(
-                            f"{k} is not defined in armature as custom property. It set as {v}. Please check it.",
-                            f"VRM権利情報の {k} がアーマチュアのカスタムプロパティにセットされていなかったので、{v} をセットしました. 確認してください。",
-                        )
-                    )
-                if armature.get(k) not in v:
+                if armature.get(k) is not None and armature.get(k) not in v:
                     messages.add(
                         lang_support(
                             f"{k} value must be in {v}. Value is {armature.get(k)}",
                             f"VRM権利情報の {k} は{v} のいずれかでないといけません。現在の設定値は {armature.get(k)} です",
-                        )
-                    )
-            vrm_metas = [
-                "version",  # model version (not VRMspec etc)
-                "author",
-                "contactInformation",
-                "reference",
-                "title",
-                "otherPermissionUrl",
-                "otherLicenseUrl",
-            ]
-            for k in vrm_metas:
-                if armature.get(k) is None or armature.get(k) == "":
-                    armature[k] = "undefined"
-                    messages.add(
-                        lang_support(
-                            f'{k} is not defined in armature as custom property. It set as "undefined". '
-                            + "Please check it.",
-                            f"VRM(権利)情報 {k} がアーマチュアのカスタムプロパティにセットされていなかったので、undefined をセットしました. 確認してください。",
                         )
                     )
 
