@@ -216,7 +216,9 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
             image_name = "tex_2longname_" + str(id)
 
         image_name = invalid_chars_remover(image_name)
-        image_path = os.path.join(dir_path, image_name + "." + image_type)
+        image_path = os.path.join(dir_path, image_name)
+        if os.path.splitext(image_name)[1].lower() != ("." + image_type).lower():
+            image_path += "." + image_type
         if not os.path.exists(image_path):  # すでに同名の画像がある場合は基本上書きしない
             with open(image_path, "wb") as image_writer:
                 image_writer.write(image_binary)
