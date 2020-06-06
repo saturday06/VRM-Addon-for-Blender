@@ -401,7 +401,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
         if armature is not None:
             # region vrm metas check
-            required_vrm_metas = {  # care about order 0 : that must be SAFE SELECTION (for auto set custom properties )
+            enum_vrm_metas = {  # care about order 0 : that must be SAFE SELECTION (for auto set custom properties )
                 "allowedUserName": ["OnlyAuthor", "ExplicitlyLicensedPerson", "Everyone"],
                 "violentUssageName": ["Disallow", "Allow"],
                 "sexualUssageName": ["Disallow", "Allow"],
@@ -418,7 +418,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     "Other",
                 ],
             }
-            for k, v in required_vrm_metas.items():
+            for k, v in enum_vrm_metas.items():
                 if armature.get(k) is not None and armature.get(k) not in v:
                     messages.add(
                         lang_support(
