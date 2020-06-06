@@ -123,6 +123,8 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."
     bl_options = {"REGISTER", "UNDO"}
 
+    show_successful_message: bpy.props.BoolProperty(default=True)
+
     messages_set = []
 
     def execute(self, context):
@@ -627,8 +629,10 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             VRM_VALIDATOR.draw_func_add()
             return {"CANCELLED"}
 
-        messages.add("No error. Ready for export VRM.")
-        VRM_VALIDATOR.draw_func_add()
+        if self.show_successful_message:
+            messages.add("No error. Ready for export VRM.")
+            VRM_VALIDATOR.draw_func_add()
+
         return {"FINISHED"}
 
     # region 3Dview drawer
@@ -661,7 +665,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         blf.position(0, text_size, text_size * (2 + len(VRM_VALIDATOR.messages_set)) + 100, 0)
         blf.draw(0, "message delete count down...:{}".format(VRM_VALIDATOR.counter))
         VRM_VALIDATOR.counter -= 1
-        if VRM_VALIDATOR.counter <= 0:
+        if VRM_VALIDATOR.counter <= 0 or len(VRM_VALIDATOR.messages_set) == 0:
             VRM_VALIDATOR.draw_func_remove()
 
     # endregion 3Dview drawer

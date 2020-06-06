@@ -23,7 +23,7 @@ class GlbObj:
         pass
 
     def __init__(self):
-        if bpy.ops.vrm.model_validate() != {"FINISHED"}:
+        if bpy.ops.vrm.model_validate(show_successful_message=False) != {"FINISHED"}:
             raise self.ValidationError()
 
         self.json_dic = OrderedDict()
