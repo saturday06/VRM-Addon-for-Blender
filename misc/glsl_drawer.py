@@ -147,7 +147,7 @@ class MtoonGlsl:
             if k is not None:
                 if k == "SphereAddTexture":
                     self.texture_dic[k] = self.get_texture(k, "black")
-                elif k == "NormalmapTexture":
+                elif k == "NomalmapTexture":
                     self.texture_dic[k] = self.get_texture(k, "normal")
                 else:
                     self.texture_dic[k] = self.get_texture(k)
@@ -309,7 +309,7 @@ class GlslDrawObj:
         uniform sampler2D depth_image;
         uniform sampler2D MainTexture ;
         uniform sampler2D ShadeTexture ;
-        uniform sampler2D NormalmapTexture ;
+        uniform sampler2D NomalmapTexture ;
         uniform sampler2D ReceiveShadow_Texture ;
         uniform sampler2D ShadingGradeTexture ;
         uniform sampler2D Emission_Texture ;
@@ -382,7 +382,7 @@ class GlslDrawObj:
                             //texture( depth_image,uv) +
                             texture( MainTexture,uv) +
                             texture( ShadeTexture,uv) +
-                            texture( NormalmapTexture,uv) +
+                            texture( NomalmapTexture,uv) +
                             texture( ReceiveShadow_Texture,uv) +
                             texture( ShadingGradeTexture,uv) +
                             texture( Emission_Texture,uv) +
@@ -414,7 +414,7 @@ class GlslDrawObj:
             vec3 outline_col = col.rgb;
 
             vec3 mod_n = n;
-            vec3 normalmap = texture(NormalmapTexture,mainUV).rgb *2 -1;
+            vec3 normalmap = texture(NomalmapTexture,mainUV).rgb *2 -1;
             for (int i = 0;i<3;i++){
                 mod_n[i] = dot(vec3(tangent[i],bitangent[i],n[i]),normalmap);
             }
