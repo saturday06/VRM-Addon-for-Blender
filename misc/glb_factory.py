@@ -5,7 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from .glb_bin_collection import GlbBinCollection, ImageBin, GlbBin
-from .version import addon_version
+from .version import version
 from ..gl_constants import GlConstants
 from .. import vrm_types
 from collections import OrderedDict
@@ -948,12 +948,13 @@ class GlbObj:
         bpy.ops.object.mode_set(mode="OBJECT")
         return
 
-    exporter_name = "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, addon_version))
+    def exporter_name(self):
+        return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, version()))
 
     def gltf_meta_to_dic(self):
         gltf_meta_dic = {
             "extensionsUsed": ["VRM", "KHR_materials_unlit", "VRMC_materials_mtoon"],
-            "asset": {"generator": self.exporter_name, "version": "2.0"},  # GLTF version
+            "asset": {"generator": self.exporter_name(), "version": "2.0"},  # GLTF version
         }
 
         self.json_dic.update(gltf_meta_dic)
@@ -964,7 +965,7 @@ class GlbObj:
         # region vrm_extension
         vrm_extension_dic = OrderedDict()
         if self.VRM_version == "0.0":
-            vrm_extension_dic["exporterVersion"] = self.exporter_name
+            vrm_extension_dic["exporterVersion"] = self.exporter_name()
         vrm_extension_dic["specVersion"] = self.VRM_version
         # region meta
         vrm_extension_dic["meta"] = vrm_meta_dic = {}

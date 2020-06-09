@@ -1,2 +1,3 @@
 # To avoid circular reference
-addon_version = (0, 83, 0)
+def version():
+    return __import__(".".join(__name__.split(".")[:-1])).bl_info["version"]

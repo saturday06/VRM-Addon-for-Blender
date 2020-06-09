@@ -24,7 +24,7 @@ import os
 bl_info = {
     "name": "VRM_IMPORTER",
     "author": "saturday06, iCyP",
-    "version": (0, 83, 0),  # I'd like to use version.addon_version variable. But that is not allowed.
+    "version": (0, 83, 0),  # I'd like to use version.version(). But that is not allowed.
     "blender": (2, 82, 0),
     "location": "File->Import",
     "description": "VRM Importer",
@@ -35,8 +35,9 @@ bl_info = {
     "category": "Import-Export",
 }
 
-if bl_info["version"] != version.addon_version:
-    raise Exception(f'Version mismatch: {bl_info["version"]} != {version.addon_version}')
+# Sanity check
+if bl_info["version"] != version.version():
+    raise Exception(f'Version mismatch: {bl_info["version"]} != {version.version()}')
 
 
 class ImportVRM(bpy.types.Operator, ImportHelper):
