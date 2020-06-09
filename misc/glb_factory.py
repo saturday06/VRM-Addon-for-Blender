@@ -883,6 +883,9 @@ class GlbObj:
                 GlbBin(texcoord_bin, "VEC2", GlConstants.FLOAT, unique_vertex_id, None, self.glb_bin_collector)
                 for texcoord_bin in texcoord_bins.values()
             ]
+
+            joints_glb = None
+            weights_glb = None
             if is_skin_mesh:
                 joints_glb = GlbBin(
                     joints_bin, "VEC4", GlConstants.UNSIGNED_SHORT, unique_vertex_id, None, self.glb_bin_collector,
@@ -890,6 +893,9 @@ class GlbObj:
                 weights_glb = GlbBin(
                     weights_bin, "VEC4", GlConstants.FLOAT, unique_vertex_id, None, self.glb_bin_collector,
                 )
+
+            morph_pos_glbs = None
+            morph_normal_glbs = None
             if len(shape_pos_bin_dic.keys()) != 0:
                 morph_pos_glbs = [
                     GlbBin(
@@ -909,6 +915,7 @@ class GlbObj:
                         )
                         for morph_normal_bin in shape_normal_bin_dic.values()
                     ]
+
             primitive_list = []
             for primitive_id, index_glb in primitive_glbs_dic.items():
                 primitive = OrderedDict({"mode": 4})
