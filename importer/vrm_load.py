@@ -166,19 +166,25 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         safe_filename = filename.translate(remove_table)
         return safe_filename
 
-    def get_meta(param, defa, cla):
-        return (
-            vrm_pydata.json["extensions"]["VRM"]["meta"].get(param)[:cla]
-            if vrm_pydata.json["extensions"]["VRM"]["meta"].get(param) is not None
-            else defa
-        )
+    def get_meta(param, default_value, max_length):
+        meta_value = vrm_pydata.json["extensions"]["VRM"]["meta"].get(param)
+        if meta_value is not None:
+            return meta_value[:max_length]
+        else:
+            return default_value
 
-    model_title = get_meta("title", "no_title", 12)
-    model_author = get_meta("author", "ano", 8)
-    model_version = get_meta("version", "nv", 3)
-    dir_name = invalid_chars_remover(f"tex_{model_title}_by_{model_author}_of_{model_version}")
+    model_title = invalid_chars_remover(get_meta("title", "", 12))
+    model_author = invalid_chars_remover(get_meta("author", "", 8))
+    model_version = invalid_chars_remover(get_meta("version", "", 7))
+    dir_name = "tex"
+    if model_title != "":
+        dir_name += "_" + model_title
+    if model_author != "":
+        dir_name += "_by_" + model_author
+    if model_version != "":
+        dir_name += "_of_" + model_version
     dir_path = os.path.join(vrm_dir_path, dir_name)
-    if dir_name == "tex_no_title_by_ano_nv" or dir_name == "tex__by__of_":
+    if dir_name == "tex":
         dir_name = invalid_chars_remover(datetime.datetime.today().strftime("%M%D%H%I%M%S"))
         for i in range(10):
             dn = f"tex_{dir_name}_{i}"
