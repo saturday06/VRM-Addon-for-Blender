@@ -169,65 +169,64 @@ class BlendModel:
             parent_id = self_and_parent_id_tuple[1]
 
             if id == -1:  # 自身がrootのrootの時
-                pass
+                return
+
+            py_bone = self.vrm_pydata.nodes_dict[id]
+            if py_bone.blend_bone:  # すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
+                li = [py_bone.blend_bone]
+                while li:
+                    bo = li.pop()
+                    if parent_id != -1:
+                        bo.translate(self.bones[parent_id].head)
+                        bo.parent = self.bones[parent_id]
+                    for ch in bo.children:
+                        li.append(ch)
+                return
+            if py_bone.mesh_id is not None and py_bone.children is None:
+                return  # 子がなく、mesh属性を持つnodeはboneを生成しない
+            b = self.armature.data.edit_bones.new(py_bone.name)
+            py_bone.name = b.name
+            py_bone.blend_bone = b
+            if parent_id == -1:
+                parent_pos = [0, 0, 0]
             else:
-                py_bone = self.vrm_pydata.nodes_dict[id]
-                if py_bone.blend_bone:  # すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
-                    li = [py_bone.blend_bone]
-                    while li:
-                        bo = li.pop()
-                        if parent_id != -1:
-                            bo.translate(self.bones[parent_id].head)
-                            bo.parent = self.bones[parent_id]
-                        for ch in bo.children:
-                            li.append(ch)
-                    return
-                if py_bone.mesh_id is not None and py_bone.children is None:
-                    return  # 子がなく、mesh属性を持つnodeはboneを生成しない
-                b = self.armature.data.edit_bones.new(py_bone.name)
-                py_bone.name = b.name
-                py_bone.blend_bone = b
-                if parent_id == -1:
-                    parent_pos = [0, 0, 0]
-                else:
-                    parent_pos = self.bones[parent_id].head
-                b.head = numpy.array(parent_pos) + numpy.array(py_bone.position)
+                parent_pos = self.bones[parent_id].head
+            b.head = numpy.array(parent_pos) + numpy.array(py_bone.position)
 
-                # region temporary tail pos(gltf doesn't have bone. there defines as joints )
-                def vector_length(bone_vector):
-                    return sqrt(pow(bone_vector[0], 2) + pow(bone_vector[1], 2) + pow(bone_vector[2], 2))
+            # region temporary tail pos(gltf doesn't have bone. there defines as joints )
+            def vector_length(bone_vector):
+                return sqrt(pow(bone_vector[0], 2) + pow(bone_vector[1], 2) + pow(bone_vector[2], 2))
 
-                # gltfは関節で定義されていて骨の長さとか向きとかないからまあなんかそれっぽい方向にボーンを向けて伸ばしたり縮めたり
-                if py_bone.children is None:
-                    if parent_id == -1:  # 唯我独尊:上向けとけ
-                        b.tail = [b.head[0], b.head[1] + 0.05, b.head[2]]
-                    else:  # normalize length to 0.03 末代:親から距離をちょっととる感じ
-                        length = max(0.01, vector_length(py_bone.position) * 30)  # 0除算除けと気分
-                        pos_diff = [py_bone.position[i] / length for i in range(3)]
-                        if vector_length(pos_diff) <= 0.001:
-                            pos_diff[1] += 0.01  # ボーンの長さが1mm以下なら上に10cm延ばす 長さが0だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
-                        b.tail = [b.head[i] + pos_diff[i] for i in range(3)]
-                else:  # 子供たちの方向の中間を見る
-                    mean_relate_pos = numpy.array([0.0, 0.0, 0.0], dtype=numpy.float)
-                    count = 0
-                    for child_id in py_bone.children:
-                        count += 1
-                        mean_relate_pos += self.vrm_pydata.nodes_dict[child_id].position
-                    mean_relate_pos = mean_relate_pos / count
-                    if vector_length(mean_relate_pos) <= 0.001:  # ボーンの長さが1mm以下なら上に10cm延ばす
-                        mean_relate_pos[1] += 0.1
+            # gltfは関節で定義されていて骨の長さとか向きとかないからまあなんかそれっぽい方向にボーンを向けて伸ばしたり縮めたり
+            if py_bone.children is None:
+                if parent_id == -1:  # 唯我独尊:上向けとけ
+                    b.tail = [b.head[0], b.head[1] + 0.05, b.head[2]]
+                else:  # normalize length to 0.03 末代:親から距離をちょっととる感じ
+                    length = max(0.01, vector_length(py_bone.position) * 30)  # 0除算除けと気分
+                    pos_diff = [py_bone.position[i] / length for i in range(3)]
+                    if vector_length(pos_diff) <= 0.001:
+                        pos_diff[1] += 0.01  # ボーンの長さが1mm以下なら上に10cm延ばす 長さが0だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
+                    b.tail = [b.head[i] + pos_diff[i] for i in range(3)]
+            else:  # 子供たちの方向の中間を見る
+                mean_relate_pos = numpy.array([0.0, 0.0, 0.0], dtype=numpy.float)
+                count = 0
+                for child_id in py_bone.children:
+                    count += 1
+                    mean_relate_pos += self.vrm_pydata.nodes_dict[child_id].position
+                mean_relate_pos = mean_relate_pos / count
+                if vector_length(mean_relate_pos) <= 0.001:  # ボーンの長さが1mm以下なら上に10cm延ばす
+                    mean_relate_pos[1] += 0.1
 
-                    b.tail = [b.head[i] + mean_relate_pos[i] for i in range(3)]
+                b.tail = [b.head[i] + mean_relate_pos[i] for i in range(3)]
 
-                # endregion tail pos
-                self.bones[id] = b
+            # endregion tail pos
+            self.bones[id] = b
 
-                if parent_id != -1:
-                    b.parent = self.bones[parent_id]
-                if py_bone.children is not None:
-                    for x in py_bone.children:
-                        bone_nodes.append((x, id))
-            return 0
+            if parent_id != -1:
+                b.parent = self.bones[parent_id]
+            if py_bone.children is not None:
+                for x in py_bone.children:
+                    bone_nodes.append((x, id))
 
         # endregion bone recursive func
         root_node_set = list(set(self.vrm_pydata.skins_root_node_list))
