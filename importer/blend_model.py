@@ -170,12 +170,13 @@ class BlendModel:
 
             py_bone = self.vrm_pydata.nodes_dict[id]
             if py_bone.blend_bone:  # すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
+                if parent_id == -1 or py_bone.blend_bone.parent is not None:
+                    return
+                py_bone.blend_bone.parent = self.bones[parent_id]
                 li = [py_bone.blend_bone]
                 while li:
                     bo = li.pop()
-                    if parent_id != -1:
-                        bo.translate(self.bones[parent_id].head)
-                        bo.parent = self.bones[parent_id]
+                    bo.translate(self.bones[parent_id].head)
                     for ch in bo.children:
                         li.append(ch)
                 return
