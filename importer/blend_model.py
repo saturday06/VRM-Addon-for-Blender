@@ -164,10 +164,7 @@ class BlendModel:
         self.bones = dict()
 
         # region bone recursive func
-        def bone_chain(self_and_parent_id_tuple):
-            id = self_and_parent_id_tuple[0]
-            parent_id = self_and_parent_id_tuple[1]
-
+        def bone_chain(id, parent_id):
             if id == -1:  # 自身がrootのrootの時
                 return
 
@@ -237,7 +234,7 @@ class BlendModel:
         )
         bone_nodes = [(root_node, -1) for root_node in root_nodes]
         while len(bone_nodes):
-            bone_chain(bone_nodes.pop())
+            bone_chain(*bone_nodes.pop())
         # call when bone built
         self.context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="OBJECT")
