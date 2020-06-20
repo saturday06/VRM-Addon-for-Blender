@@ -162,6 +162,7 @@ class BlendModel:
         self.armature.show_in_front = True
         self.armature.data.display_type = "STICK"
         self.bones = dict()
+        armature_edit_bones = dict()
 
         # region bone recursive func
         def bone_chain(node_id, parent_node_id):
@@ -169,7 +170,7 @@ class BlendModel:
                 return
 
             py_bone = self.vrm_pydata.nodes_dict[node_id]
-            if py_bone.blend_bone:  # すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
+            if py_bone.blend_bone:  # すでに割り当て済みのボーンが出てきたとき、その親の位置に動かす
                 if parent_node_id == -1 or py_bone.blend_bone.parent is not None:
                     return
                 py_bone.blend_bone.parent = self.bones[parent_node_id]
@@ -182,7 +183,7 @@ class BlendModel:
                 return
             if py_bone.mesh_id is not None and py_bone.children is None:
                 return  # 子がなく、mesh属性を持つnodeはboneを生成しない
-            b = self.armature.data.edit_bones.new(py_bone.name)
+            b = armature_edit_bones[node_id]
             py_bone.name = b.name
             py_bone.blend_bone = b
             if parent_node_id == -1:
@@ -233,6 +234,19 @@ class BlendModel:
             if root_node_set
             else [node for scene in self.vrm_pydata.json["scenes"] for node in scene["nodes"]]
         )
+
+        # generate edit_bones sorted by node_id for deterministic vrm output
+        def find_connected_node_ids(parent_node_ids: [int]):
+            node_ids = set(parent_node_ids)
+            for parent_node_id in parent_node_ids:
+                py_bone = self.vrm_pydata.nodes_dict[parent_node_id]
+                if py_bone.children is not None:
+                    node_ids |= find_connected_node_ids(py_bone.children)
+            return node_ids
+        for node_id in sorted(find_connected_node_ids(root_nodes)):
+            bone_name = self.vrm_pydata.nodes_dict[node_id].name
+            armature_edit_bones[node_id] = self.armature.data.edit_bones.new(bone_name)
+
         bone_nodes = [(root_node, -1) for root_node in root_nodes]
         while len(bone_nodes):
             bone_chain(*bone_nodes.pop())
