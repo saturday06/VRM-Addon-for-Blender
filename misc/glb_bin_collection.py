@@ -74,9 +74,9 @@ class GlbBinCollection:
 
 
 class BaseBin:
-    def __init__(self, bin, glb_bin_collection):
-        self.bin = bin
-        self.bin_length = len(bin)
+    def __init__(self, binary, glb_bin_collection):
+        self.bin = binary
+        self.bin_length = len(binary)
 
 
 class ImageBin(BaseBin):
@@ -91,14 +91,14 @@ class ImageBin(BaseBin):
 class GlbBin(BaseBin):
     def __init__(
         self,
-        bin="",
+        binary="",
         array_type="SCALAR",
         component_type=GlConstants.FLOAT,
         array_count=0,
         min_max_tuple=None,
         glb_bin_collection=None,
     ):
-        super().__init__(bin, glb_bin_collection)
+        super().__init__(binary, glb_bin_collection)
         self.array_type = array_type  # String:scalar,VEC3 etc...
         self.component_type = component_type  # GL_CONSTANTS:FLOAT, uint etc...
         self.array_count = array_count  # array num

@@ -206,7 +206,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
                 os.mkdir(os.path.join(vrm_dir_path, dn))
                 dir_path = os.path.join(vrm_dir_path, dn)
                 break
-    for id, image_prop in enumerate(vrm_pydata.json["images"]):
+    for image_id, image_prop in enumerate(vrm_pydata.json["images"]):
         if "extra" in image_prop:
             image_name = image_prop["extra"]["name"]
         else:
@@ -215,11 +215,11 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         image_binary = binary_reader.read_binary(buffer_views[image_prop["bufferView"]]["byteLength"])
         image_type = image_prop["mimeType"].split("/")[-1]
         if image_name == "":
-            image_name = "texture_" + str(id)
+            image_name = "texture_" + str(image_id)
             print("no name image is named {}".format(image_name))
         elif len(image_name) >= 50:
-            print("too long name image: {} is named {}".format(image_name, "tex_2longname_" + str(id)))
-            image_name = "tex_2longname_" + str(id)
+            print("too long name image: {} is named {}".format(image_name, "tex_2longname_" + str(image_id)))
+            image_name = "tex_2longname_" + str(image_id)
 
         image_name = invalid_chars_remover(image_name)
         image_path = os.path.join(dir_path, image_name)

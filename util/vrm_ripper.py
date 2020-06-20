@@ -22,7 +22,7 @@ def exist_or_makedir(path):
 
 model_path = filedialog.askopenfilename(filetypes=[("", "*vrm")])
 with open(model_path, "rb") as f:
-    vrm_json, bin = parse_glb(f.read())
+    vrm_json, binary = parse_glb(f.read())
 if messagebox.askyesno(message="write VRM.json?"):
     writedir = exist_or_makedir(model_path)
     writejsonpath = os.path.join(writedir, "vrm.json")

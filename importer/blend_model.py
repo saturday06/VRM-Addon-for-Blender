@@ -164,19 +164,19 @@ class BlendModel:
         self.bones = dict()
 
         # region bone recursive func
-        def bone_chain(id, parent_id):
-            if id == -1:  # 自身がrootのrootの時
+        def bone_chain(node_id, parent_node_id):
+            if node_id == -1:  # 自身がrootのrootの時
                 return
 
-            py_bone = self.vrm_pydata.nodes_dict[id]
+            py_bone = self.vrm_pydata.nodes_dict[node_id]
             if py_bone.blend_bone:  # すでにインスタンス化済みのボーンが出てきたとき、その親の位置に動かす
-                if parent_id == -1 or py_bone.blend_bone.parent is not None:
+                if parent_node_id == -1 or py_bone.blend_bone.parent is not None:
                     return
-                py_bone.blend_bone.parent = self.bones[parent_id]
+                py_bone.blend_bone.parent = self.bones[parent_node_id]
                 li = [py_bone.blend_bone]
                 while li:
                     bo = li.pop()
-                    bo.translate(self.bones[parent_id].head)
+                    bo.translate(self.bones[parent_node_id].head)
                     for ch in bo.children:
                         li.append(ch)
                 return
@@ -185,10 +185,10 @@ class BlendModel:
             b = self.armature.data.edit_bones.new(py_bone.name)
             py_bone.name = b.name
             py_bone.blend_bone = b
-            if parent_id == -1:
+            if parent_node_id == -1:
                 parent_pos = [0, 0, 0]
             else:
-                parent_pos = self.bones[parent_id].head
+                parent_pos = self.bones[parent_node_id].head
             b.head = numpy.array(parent_pos) + numpy.array(py_bone.position)
 
             # region temporary tail pos(gltf doesn't have bone. there defines as joints )
@@ -197,7 +197,7 @@ class BlendModel:
 
             # gltfは関節で定義されていて骨の長さとか向きとかないからまあなんかそれっぽい方向にボーンを向けて伸ばしたり縮めたり
             if py_bone.children is None:
-                if parent_id == -1:  # 唯我独尊:上向けとけ
+                if parent_node_id == -1:  # 唯我独尊:上向けとけ
                     b.tail = [b.head[0], b.head[1] + 0.05, b.head[2]]
                 else:  # normalize length to 0.03 末代:親から距離をちょっととる感じ
                     length = max(0.01, vector_length(py_bone.position) * 30)  # 0除算除けと気分
@@ -218,13 +218,13 @@ class BlendModel:
                 b.tail = [b.head[i] + mean_relate_pos[i] for i in range(3)]
 
             # endregion tail pos
-            self.bones[id] = b
+            self.bones[node_id] = b
 
-            if parent_id != -1:
-                b.parent = self.bones[parent_id]
+            if parent_node_id != -1:
+                b.parent = self.bones[parent_node_id]
             if py_bone.children is not None:
                 for x in py_bone.children:
-                    bone_nodes.append((x, id))
+                    bone_nodes.append((x, node_id))
 
         # endregion bone recursive func
         root_node_set = list(set(self.vrm_pydata.skins_root_node_list))
@@ -607,15 +607,15 @@ class BlendModel:
                     if len(node) == 3:
                         origin = node
                     else:  # len=2 ≒ skinがない場合
-                        parent_id = None
-                        for id, py_node in self.vrm_pydata.nodes_dict.items():
+                        parent_node_id = None
+                        for node_id, py_node in self.vrm_pydata.nodes_dict.items():
                             if py_node.children is None:
                                 continue
                             if key_is_node_id in py_node.children:
-                                parent_id = id
+                                parent_node_id = node_id
                         obj.parent = self.armature
                         obj.parent_type = "BONE"
-                        obj.parent_bone = self.armature.data.bones[self.vrm_pydata.nodes_dict[parent_id].name].name
+                        obj.parent_bone = self.armature.data.bones[self.vrm_pydata.nodes_dict[parent_node_id].name].name
                         # boneのtail側にparentされるので、根元からmesh nodeのpositionに動かしなおす
                         obj.matrix_world = Matrix.Translation(
                             [
@@ -678,10 +678,10 @@ class BlendModel:
                             b_mesh.uv_layers.new(name=channel_name)
                         blen_uv_data = b_mesh.uv_layers[channel_name].data
                         vrm_texcoord = getattr(prim, channel_name)
-                        for id, v_index in enumerate(flatten_vrm_mesh_vert_index):
-                            blen_uv_data[id].uv = vrm_texcoord[v_index]
+                        for node_id, v_index in enumerate(flatten_vrm_mesh_vert_index):
+                            blen_uv_data[node_id].uv = vrm_texcoord[v_index]
                             # blender axisnaize(上下反転)
-                            blen_uv_data[id].uv[1] = blen_uv_data[id].uv[1] * -1 + 1
+                            blen_uv_data[node_id].uv[1] = blen_uv_data[node_id].uv[1] * -1 + 1
                         texcoord_num += 1
                     else:
                         uv_flag = False

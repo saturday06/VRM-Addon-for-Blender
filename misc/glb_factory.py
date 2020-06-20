@@ -647,7 +647,7 @@ class GlbObj:
 
     def mesh_to_bin_and_dic(self):
         self.json_dic["meshes"] = []
-        for id, mesh in enumerate([obj for obj in bpy.context.selected_objects if obj.type == "MESH"]):
+        for mesh_id, mesh in enumerate([obj for obj in bpy.context.selected_objects if obj.type == "MESH"]):
             is_skin_mesh = True
             if len([m for m in mesh.modifiers if m.type == "ARMATURE"]) == 0:
                 if mesh.parent is not None:
@@ -660,7 +660,7 @@ class GlbObj:
                     "translation": self.axis_blender_to_glb(mesh.location),
                     "rotation": [0, 0, 0, 1],  # このへんは規約なので
                     "scale": [1, 1, 1],  # このへんは規約なので
-                    "mesh": id,
+                    "mesh": mesh_id,
                 }
             )
             if is_skin_mesh:
@@ -755,7 +755,7 @@ class GlbObj:
             normal_bin = b""
             joints_bin = b""
             weights_bin = b""
-            texcoord_bins = {id: b"" for id in uvlayers_dic.keys()}
+            texcoord_bins = {uvlayer_id: b"" for uvlayer_id in uvlayers_dic.keys()}
             float_vec4_packer = struct.Struct("<ffff").pack
             float_vec3_packer = struct.Struct("<fff").pack
             float_pair_packer = struct.Struct("<ff").pack
@@ -1092,16 +1092,16 @@ class GlbObj:
         # meshを名前からid
         # weightを0-1から0-100に
         # shape_indexを名前からindexに
-        def clamp(min, val, max):
-            if max >= val:
-                if val >= min:
+        def clamp(min_val, val, max_val):
+            if max_val >= val:
+                if val >= min_val:
                     return val
                 else:
                     print("blendshapeGroup weight is between 0 and 1, value is {}".format(val))
-                    return min
+                    return min_val
             else:
                 print("blendshapeGroup weight is between 0 and 1, value is {}".format(val))
-                return max
+                return max_val
 
         for bsm in bsm_list:
             for bind in bsm["binds"]:
