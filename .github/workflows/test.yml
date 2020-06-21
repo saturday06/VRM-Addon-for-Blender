@@ -69,7 +69,25 @@ jobs:
           sudo apt-get install -y nkf python3-pip
         env:
           DEBIAN_FRONTEND: noninteractive
-      - name: Check character encoding
+      - name: Disable git config core.quotepath
+        run: git config core.quotepath off
+      - name: Check file permissions
+        run: |
+          git ls-files | grep -vx "test/run.py" | while read -r f; do
+            if [ -x $f ]; then
+              echo $f has unnecessary executable permission.
+              exit 1
+            fi
+          done
+      - name: Check file name character encoding
+        run: |
+          git ls-files | while read -r f; do
+            if [ "$(echo $f | nkf --guess)" != "ASCII (LF)" ]; then
+              echo $f is non ascii file name.
+              exit 1
+            fi
+          done
+      - name: Check file content character encoding
         run: |
           find . -name '*.py' -exec nkf -w -Lu -Z1 --in-place {} +
           find . -name '*.md' -exec nkf -w -Lu -Z1 --in-place {} +
