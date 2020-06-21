@@ -24,7 +24,7 @@ import os
 bl_info = {
     "name": "VRM_IMPORTER",
     "author": "saturday06, iCyP",
-    "version": (0, 86, 0),  # I'd like to use version.version(). But that is not allowed.
+    "version": (0, 87, 0),  # I'd like to use version.version(). But that is not allowed.
     "blender": (2, 82, 0),
     "location": "File->Import",
     "description": "VRM Importer",
