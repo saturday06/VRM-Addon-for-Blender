@@ -57,14 +57,15 @@ class GlbObj:
     def image_to_bin(self):
         # collect used image
         used_image = set()
-        used_material_set = set()
+        used_materials = []
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
             for mat in mesh.data.materials:
-                used_material_set.add(mat)
+                if mat not in used_materials:
+                    used_materials.append(mat)
 
         shader_nodes = [
             (node.inputs["Surface"].links[0].from_node, mat)
-            for mat in used_material_set
+            for mat in used_materials
             for node in mat.node_tree.nodes
             if node.type == "OUTPUT_MATERIAL"
             and node.inputs["Surface"].links[0].from_node.type == "GROUP"
@@ -224,10 +225,6 @@ class GlbObj:
         sampler_count = 0
         texture_count = 0
 
-        used_material_set = set()
-        for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
-            for mat in mesh.data.materials:
-                used_material_set.add(mat)
         # region texture func
 
         def add_texture(image_name, wrap_type, filter_type):
@@ -762,8 +759,13 @@ class GlbObj:
 
         # endregion function separate by shader
 
-        for b_mat in used_material_set:
+        used_materials = []
+        for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
+            for mat in mesh.data.materials:
+                if mat not in used_materials:
+                    used_materials.append(mat)
 
+        for b_mat in used_materials:
             if b_mat["vrm_shader"] == "MToon_unversioned":
                 for node in b_mat.node_tree.nodes:
                     if node.type == "OUTPUT_MATERIAL":
