@@ -793,7 +793,9 @@ class BlendModel:
                             zip(prim.JOINTS_0, prim.WEIGHTS_0)
                         ):
                             # region VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
-                            normalized_joint_dic = {jid: 0 for jid in set(joint_ids)}
+                            normalized_joint_dic = {
+                                jid: 0 for jid in list(dict.fromkeys(joint_ids))
+                            }
                             for i, k in enumerate(joint_ids):
                                 normalized_joint_dic[k] += weights[i]
                             # endregion VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
