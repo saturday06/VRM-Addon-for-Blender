@@ -56,7 +56,7 @@ class GlbObj:
 
     def image_to_bin(self):
         # collect used image
-        used_image = set()
+        used_images = []
         used_materials = []
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
             for mat in mesh.data.materials:
@@ -89,10 +89,12 @@ class GlbObj:
                                     .links[0]
                                     .from_node
                                 )
-                                used_image.add(n.image)
+                                if n.image not in used_images:
+                                    used_images.append(n.image)
                         elif node.inputs[shader_vals].links:
                             n = node.inputs[shader_vals].links[0].from_node
-                            used_image.add(n.image)
+                            if n.image not in used_images:
+                                used_images.append(n.image)
             elif node.node_tree["SHADER"] == "GLTF":
                 mat["vrm_shader"] = "GLTF"
                 texture_input_name_list = [
@@ -104,21 +106,30 @@ class GlbObj:
                 for k in texture_input_name_list:
                     if node.inputs[k].links:
                         n = node.inputs[k].links[0].from_node
-                        used_image.add(n.image)
+                        if n.image not in used_images:
+                            used_images.append(n.image)
 
             elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
                 mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
                 if node.inputs["Main_Texture"].links:
                     n = node.inputs["Main_Texture"].links[0].from_node
-                    used_image.add(n.image)
+                    if n.image not in used_images:
+                        used_images.append(n.image)
             else:
                 # ?
                 pass
         # thumbnail
         if self.armature.get("texture") is not None:
-            used_image.add(bpy.data.images[self.armature["texture"]])
+            image = bpy.data.images[self.armature["texture"]]
+            if image not in used_images:
+                used_images.append(image)
 
-        for image in used_image:
+        for image in sorted(
+            used_images,
+            key=lambda used_image: bpy.data.images.index(used_image)
+            if used_image in bpy.data.images.items()
+            else len(bpy.data.images) + used_images.index(used_image),
+        ):
             with open(image.filepath_from_user(), "rb") as f:
                 image_bin = f.read()
             name = image.name
