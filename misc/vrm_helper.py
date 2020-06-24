@@ -677,7 +677,9 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             return {"CANCELLED"}
 
         if self.show_successful_message:
-            messages.append("No error. Ready for export VRM.")
+            message = "No error. Ready for export VRM."
+            self.report({"INFO"}, message)
+            messages.append(message)
             VRM_VALIDATOR.draw_func_add()
 
         return {"FINISHED"}
