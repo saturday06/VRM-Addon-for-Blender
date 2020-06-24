@@ -258,7 +258,7 @@ class BlendModel:
                     bone_nodes.append((x, node_id))
 
         # endregion bone recursive func
-        root_node_set = list(set(self.vrm_pydata.skins_root_node_list))
+        root_node_set = list(dict.fromkeys(self.vrm_pydata.skins_root_node_list))
         root_nodes = (
             root_node_set
             if root_node_set
