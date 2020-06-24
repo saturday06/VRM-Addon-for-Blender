@@ -138,15 +138,15 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
     show_successful_message: bpy.props.BoolProperty(default=True)
 
-    messages_set = []
+    messages = []
 
     def execute(self, context):
-        messages = VRM_VALIDATOR.messages_set = set()
+        messages = VRM_VALIDATOR.messages = []
         is_lang_ja = True if bpy.app.translations.locale == "ja_JP" else False
         print("validation start")
         armature_count = 0
         armature = None
-        node_name_set = set()
+        node_names = []
 
         def lang_support(en_message, ja_message):
             if is_lang_ja:
@@ -156,14 +156,15 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
         # region selected object seeking
         for obj in bpy.context.selected_objects:
-            if obj.name in node_name_set and obj.type != "EMPTY":
-                messages.add(
+            if obj.name in node_names and obj.type != "EMPTY":
+                messages.append(
                     lang_support(
                         f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
                         f"gltfノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
                     )
                 )
-            node_name_set.add(obj.name)
+            if obj.name not in node_names:
+                node_names.append(obj.name)
             if obj.type != "EMPTY" and (
                 obj.parent is not None
                 and obj.parent.type != "ARMATURE"
@@ -172,7 +173,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 if obj.location != Vector(
                     [0.0, 0.0, 0.0]
                 ):  # mesh and armature origin is on [0,0,0]
-                    messages.add(
+                    messages.append(
                         lang_support(
                             f"There are not an object on the origin {obj.name}",
                             f"{obj.name} が原点座標にありません",
@@ -182,7 +183,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 armature = obj
                 armature_count += 1
                 if armature_count >= 2:  # only one armature
-                    messages.add(
+                    messages.append(
                         lang_support(
                             "Only one armature is required for VRM export. Multiple armatures found.",
                             "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています",
@@ -190,17 +191,18 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     )
                 already_root_bone_exist = False
                 for bone in obj.data.bones:
-                    if bone.name in node_name_set:  # nodes name is unique
-                        messages.add(
+                    if bone.name in node_names:  # nodes name is unique
+                        messages.append(
                             lang_support(
                                 f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
                                 f"gltfノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
                             )
                         )
-                    node_name_set.add(bone.name)
+                    if bone.name not in node_names:
+                        node_names.append(bone.name)
                     if bone.parent is None:  # root bone is only 1
                         if already_root_bone_exist:
-                            messages.add(
+                            messages.append(
                                 lang_support(
                                     "There is only one root bone."
                                     + f" {bone.name},{already_root_bone_exist} is root bone now",
@@ -214,7 +216,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         humanbone
                     ] not in ["", *[b.name for b in armature.data.bones],]:
                         armature.data[humanbone] = ""
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"humanBone: {humanbone} is not defined or bone is not found. "
                                 + 'fix armature "object" custom property.',
@@ -229,7 +231,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         ]:
                             if v in armature.data:
                                 armature.data[v] = ""
-                            messages.add(
+                            messages.append(
                                 lang_support(
                                     f"bone name: {armature.data[v]} as humanBone:{v} is not found. "
                                     + 'fix armature "object" custom property.',
@@ -239,7 +241,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
             if obj.type == "MESH":
                 if len(obj.data.materials) == 0:
-                    messages.add(
+                    messages.append(
                         lang_support(
                             f"There is no material assigned to mesh {obj.name}",
                             f"マテリアルが1つも設定されていないメッシュ( {obj.name} )があります。",
@@ -247,7 +249,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     )
                 for poly in obj.data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"Faces must be Triangle, but not face in {obj.name}",
                                 f"ポリゴンはすべて3角形である必要があります。:{obj.name}",
@@ -258,10 +260,12 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
         # endregion selected object seeking
         if armature_count == 0:
-            messages.add(lang_support("PLS SELECT with ARMATURE!", "アーマチュアが選択されていません"))
+            messages.append(
+                lang_support("PLS SELECT with ARMATURE!", "アーマチュアが選択されていません")
+            )
 
-        used_image = []
-        used_material_set = set()
+        used_images = []
+        used_materials = []
         bones_name = []
         if armature is not None:
             bones_name = [b.name for b in armature.data.bones]
@@ -269,12 +273,13 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
             for mat in mesh.data.materials:
-                used_material_set.add(mat)
+                if mat not in used_materials:
+                    used_materials.append(mat)
 
             for v in mesh.data.vertices:
                 if len(v.groups) == 0 and mesh.parent_bone == "":
                     if vertex_error_count < 5:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"vertex id {v.index} is no weight in {mesh.name}",
                                 f"{mesh.name}の頂点、id:{v.index} にウェイトが乗っていません。",
@@ -288,21 +293,21 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             if mesh_vertex_group_names[g.group] in bones_name:
                                 weight_count += 1
                         if weight_count > 4 and vertex_error_count < 5:
-                            messages.add(
+                            messages.append(
                                 lang_support(
                                     f"vertex id {v.index} has too many(over 4) weight in {mesh.name}",
                                     f"{mesh.name} の頂点id {v.index} に影響を与えるボーンが5以上あります。4つ以下にしてください",
                                 )
                             )
                             vertex_error_count = vertex_error_count + 1
-        for mat in used_material_set:
+        for mat in used_materials:
             for node in mat.node_tree.nodes:
                 if node.type == "OUTPUT_MATERIAL" and (
                     node.inputs["Surface"].links[0].from_node.type != "GROUP"
                     or node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
                     is None
                 ):
-                    messages.add(
+                    messages.append(
                         lang_support(
                             f"{mat.name} doesn't connect VRM SHADER node group to Material output node "
                             + "in material node tree. Please use them and connect properly.",
@@ -312,7 +317,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     )
         shader_nodes_and_material = [
             (node.inputs["Surface"].links[0].from_node, mat)
-            for mat in used_material_set
+            for mat in used_materials
             for node in mat.node_tree.nodes
             if node.type == "OUTPUT_MATERIAL"
             and node.inputs["Surface"].links[0].from_node.type == "GROUP"
@@ -326,7 +331,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 if node.inputs[shader_val].links:
                     n = node.inputs[shader_val].links[0].from_node
                     if n.type != expect_node_type:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"need {expect_node_type} input in {shader_val} of {material.name}",
                                 f"{material.name}の {shader_val}には、{expect_node_type} を直接つないでください。 ",
@@ -335,9 +340,9 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     else:
                         if expect_node_type == "TEX_IMAGE":
                             if n.image is not None:
-                                used_image.append(n.image)
+                                used_images.append(n.image)
                             else:
-                                messages.add(
+                                messages.append(
                                     lang_support(
                                         f"image in material:{material.name} is not putted . Please set image.",
                                         f"マテリアル:{material.name} にテクスチャが設定されていない imageノードがあります。削除か画像を設定してください",
@@ -394,9 +399,9 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 if armature.get("texture") is not None:
                     thumbnail_image = bpy.data.images.get(armature["texture"])
                     if thumbnail_image is not None:
-                        used_image.append(thumbnail_image)
+                        used_images.append(thumbnail_image)
                     else:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"thumbnail_image is missing. Please load {armature['texture']}",
                                 f"VRM用サムネ画像がblenderにロードされていません。{armature['texture']} を読み込んでください。",
@@ -404,7 +409,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         )
 
         except Exception:
-            messages.add(
+            messages.append(
                 lang_support(
                     f"thumbnail_image is missing. Please load {armature['texture']}",
                     f"VRM用サムネ画像がblenderにロードされていません。{armature['texture']} を読み込んでください。",
@@ -412,16 +417,16 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             )
             pass
 
-        for img in used_image:
+        for img in used_images:
             if img.is_dirty or img.filepath == "":
-                messages.add(
+                messages.append(
                     lang_support(
                         f"{img.name} is not saved. Please save.",
                         f"{img.name} のBlender上での変更を保存してください。",
                     )
                 )
             if img.file_format.lower() not in ["png", "jpeg"]:
-                messages.add(
+                messages.append(
                     lang_support(
                         f"glTF only supports PNG and JPEG textures: {img.name}",
                         f"gltfはPNGとJPEGのみの対応です。:{img.name}",
@@ -453,7 +458,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             }
             for k, v in enum_vrm_metas.items():
                 if armature.get(k) is not None and armature.get(k) not in v:
-                    messages.add(
+                    messages.append(
                         lang_support(
                             f"{k} value must be in {v}. Value is {armature.get(k)}",
                             f"VRM権利情報の {k} は{v} のいずれかでないといけません。現在の設定値は {armature.get(k)} です",
@@ -464,7 +469,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
             def text_block_name_to_json(textblock_name):
                 if textblock_name not in armature:
-                    messages.add(
+                    messages.append(
                         lang_support(
                             f"textblock name: {textblock_name} isn't putted on armature custom property.",
                             f"{textblock_name} のテキストブロックの指定がアーマチュアのカスタムプロパティにありません",
@@ -472,7 +477,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     )
                     return None
                 if not armature[textblock_name] in bpy.data.texts:
-                    messages.add(
+                    messages.append(
                         lang_support(
                             f"textblock name: {textblock_name} doesn't exist.",
                             f"{textblock_name} のテキストがエディタ上にありません。",
@@ -492,7 +497,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         object_pairs_hook=OrderedDict,
                     )
                 except json.JSONDecodeError as e:
-                    messages.add(
+                    messages.append(
                         lang_support(
                             f"Cannot load textblock of {textblock_name} as Json at line {e.pos.lineno}. "
                             + "please check json grammar.",
@@ -535,7 +540,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 fp_bone = json_get(firstperson_params, ["firstPersonBone"], -1)
                 if fp_bone != -1:
                     if not firstperson_params["firstPersonBone"] in armature.data.bones:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"firstPersonBone :{firstperson_params['firstPersonBone']} is not found."
                                 + f"Please fix in textblock : {first_person_params_name} ",
@@ -545,7 +550,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         )
                 if "meshAnnotations" in firstperson_params.keys():
                     if type(firstperson_params["meshAnnotations"]) is not list:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"meshAnnotations in textblock:{first_person_params_name} must be list.",
                                 f"テキストエディタの {first_person_params_name} のmeshAnnotations はリスト要素でないといけません。",
@@ -554,7 +559,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     else:
                         for mesh_annotation in firstperson_params["meshAnnotations"]:
                             if not mesh_annotation["mesh"] in mesh_obj_names:
-                                messages.add(
+                                messages.append(
                                     lang_support(
                                         f"mesh :{mesh_annotation['mesh']} is not found."
                                         + f"Please fix setting in textblock : {first_person_params_name} ",
@@ -567,7 +572,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         "Bone",
                         "BlendShape",
                     ]:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 'lookAtTypeName is "Bone" or "BlendShape". '
                                 + f"Current :{firstperson_params['lookAtTypeName']}."
@@ -588,7 +593,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             for bsg in blendshape_groups_list:
                 for bind_dic in bsg["binds"]:
                     if not bind_dic["mesh"] in mesh_obj_names:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"mesh :{bind_dic['mesh']} is not found."
                                 + f"Please fix setting in textblock : {blendshape_group_name} ",
@@ -598,7 +603,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         )
                     else:
                         if bpy.data.objects[bind_dic["mesh"]].data.shape_keys is None:
-                            messages.add(
+                            messages.append(
                                 lang_support(
                                     f"mesh :{bind_dic['mesh']} doesn't have shapekey. but blendshape Group need it."
                                     + f"Please fix setting in textblock :{blendshape_group_name}",
@@ -613,7 +618,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                                     bind_dic["mesh"]
                                 ].data.shape_keys.key_blocks
                             ):
-                                messages.add(
+                                messages.append(
                                     lang_support(
                                         f"mesh :{bind_dic['mesh']} doesn't have {bind_dic['index']} shapekey. "
                                         + "but blendshape Group need it."
@@ -624,7 +629,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                                     )
                                 )
                             if bind_dic["weight"] > 1 or bind_dic["weight"] < 0:
-                                messages.add(
+                                messages.append(
                                     lang_support(
                                         f"mesh :{bind_dic['mesh']}:shapekey:{bind_dic['index']}:value "
                                         + "needs between 0 and 1."
@@ -644,7 +649,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             for bone_group in spring_bonegroup_list:
                 for bone_name in bone_group["bones"]:
                     if bone_name not in bone_names_list:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"Bone name : {bone_name} is not found in spring_bone setting.",
                                 f"spring_bone settingにある、ボーン名 : {bone_name} がアーマチュア中に見つかりません。"
@@ -653,7 +658,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         )
                 for bone_name in bone_group["colliderGroups"]:
                     if bone_name not in bone_names_list:
-                        messages.add(
+                        messages.append(
                             lang_support(
                                 f"Bone name : {bone_name} is not found in spring_bone setting.",
                                 f"spring_bone settingにある、ボーン名 : {bone_name} がアーマチュア中に見つかりません。"
@@ -672,7 +677,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             return {"CANCELLED"}
 
         if self.show_successful_message:
-            messages.add("No error. Ready for export VRM.")
+            messages.append("No error. Ready for export VRM.")
             VRM_VALIDATOR.draw_func_add()
 
         return {"FINISHED"}
@@ -701,15 +706,15 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         text_size = 20
         dpi = 72
         blf.size(0, text_size, dpi)
-        for i, text in enumerate(list(VRM_VALIDATOR.messages_set)):
+        for i, text in enumerate(VRM_VALIDATOR.messages):
             blf.position(0, text_size, text_size * (i + 1) + 100, 0)
             blf.draw(0, text)
         blf.position(
-            0, text_size, text_size * (2 + len(VRM_VALIDATOR.messages_set)) + 100, 0
+            0, text_size, text_size * (2 + len(VRM_VALIDATOR.messagess)) + 100, 0
         )
         blf.draw(0, "message delete count down...:{}".format(VRM_VALIDATOR.counter))
         VRM_VALIDATOR.counter -= 1
-        if VRM_VALIDATOR.counter <= 0 or len(VRM_VALIDATOR.messages_set) == 0:
+        if VRM_VALIDATOR.counter <= 0 or len(VRM_VALIDATOR.messages) == 0:
             VRM_VALIDATOR.draw_func_remove()
 
     # endregion 3Dview drawer
