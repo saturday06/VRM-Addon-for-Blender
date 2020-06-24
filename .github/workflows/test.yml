@@ -91,6 +91,7 @@ jobs:
         run: |
           find . -name '*.py' -exec nkf -w -Lu -Z1 --in-place {} +
           find . -name '*.md' -exec nkf -w -Lu -Z1 --in-place {} +
+          find . -name '*.yml' -exec nkf -w -Lu -Z1 --in-place {} +
           git diff --exit-code
       - name: Install pip packages
         run: |
