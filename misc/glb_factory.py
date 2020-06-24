@@ -452,15 +452,23 @@ class GlbObj:
                 else:
                     outline_keyword_set(False, True, False, True)
 
-            vec_prop_set = set(
-                vrm_types.MaterialMtoon.vector_props_exchange_dic.values()
-            ) - set(vrm_types.MaterialMtoon.texture_kind_exchange_dic.values())
-            for vector_key, vector_props in [
+            vec_props = list(
+                dict.fromkeys(
+                    vrm_types.MaterialMtoon.vector_props_exchange_dic.values()
+                )
+            )
+            for (
+                remove_vec_prop
+            ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
+                if remove_vec_prop in vec_props:
+                    vec_props.remove(remove_vec_prop)
+
+            for vector_key, vector_prop in [
                 (k, v)
                 for k, v in vrm_types.MaterialMtoon.vector_props_exchange_dic.items()
-                if v in vec_prop_set
+                if v in vec_props
             ]:
-                vector_val = get_rgba_val(mtoon_shader_node, vector_props)
+                vector_val = get_rgba_val(mtoon_shader_node, vector_prop)
                 if vector_val is not None:
                     mtoon_vector_dic[vector_key] = vector_val
 
