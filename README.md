@@ -9,7 +9,7 @@ Upstreamのレポジトリ https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8 �
 - material import : wip forever
 - export : spec0.0 export may be possible.
 
-<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/0_87_0.zip"><img src="./web/download_button.png"></a>
+<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/0_88_0.zip"><img src="./web/download_button.png"></a>
 
 # <Font color="red">ATTENTION 注意</font>
 If you using minisize cloud storage, texture folder explanation must read and care about storage remaining capacity.
