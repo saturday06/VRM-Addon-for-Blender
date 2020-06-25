@@ -15,12 +15,12 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
     WIP_with_template_mesh: bpy.props.BoolProperty(default=False)
     # 身長 at meter
     tall: bpy.props.FloatProperty(
-        default=1.70, min=0.3, step=0.001, name="Bone tall"
-    )  # noqa: F722
+        default=1.70, min=0.3, step=0.001, name="Bone tall"  # noqa: F722
+    )
     # 頭身
     head_ratio: bpy.props.FloatProperty(
-        default=8.0, min=4, step=0.05, description="height per heads"
-    )  # noqa: F722
+        default=8.0, min=4, step=0.05, description="height per heads"  # noqa: F722
+    )
     head_width_ratio: bpy.props.FloatProperty(
         default=2 / 3,
         min=0.3,

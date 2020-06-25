@@ -24,11 +24,8 @@ import os
 bl_info = {
     "name": "VRM_IMPORTER",
     "author": "saturday06, iCyP",
-    "version": (
-        0,
-        87,
-        0,
-    ),  # I'd like to use version.version(). But that is not allowed.
+    # I'd like to use version.version(). But that is not allowed.
+    "version": (0, 87, 0,),
     "blender": (2, 82, 0),
     "location": "File->Import",
     "description": "VRM Importer",
@@ -52,24 +49,24 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".vrm"
     filter_glob: bpy.props.StringProperty(
-        default="*.vrm", options={"HIDDEN"}
-    )  # noqa: F722,F821
+        default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
+    )
 
     make_new_texture_folder: bpy.props.BoolProperty(
-        name="make new texture folder (limit:10)"
-    )  # noqa: F722
+        name="make new texture folder (limit:10)"  # noqa: F722
+    )
     is_put_spring_bone_info: bpy.props.BoolProperty(
-        name="Put Collider Empty"
-    )  # noqa: F722
+        name="Put Collider Empty"  # noqa: F722
+    )
     import_normal: bpy.props.BoolProperty(name="Import Normal")  # noqa: F722
     remove_doubles: bpy.props.BoolProperty(name="Remove doubles")  # noqa: F722
     set_bone_roll: bpy.props.BoolProperty(name="Set bone roll")  # noqa: F722
     use_simple_principled_material: bpy.props.BoolProperty(
-        name="use simple principled material"
-    )  # noqa: F722
+        name="use simple principled material"  # noqa: F722
+    )
     use_in_blender: bpy.props.BoolProperty(
-        name="NOTHING TO DO in CURRENT use in blender"
-    )  # noqa: F722
+        name="NOTHING TO DO in CURRENT use in blender"  # noqa: F722
+    )
 
     def execute(self, context):
         has_ui_localization = bpy.app.version < (2, 83)
@@ -101,8 +98,8 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
 
     filename_ext = ".vrm"
     filter_glob: bpy.props.StringProperty(
-        default="*.vrm", options={"HIDDEN"}
-    )  # noqa: F722,F821
+        default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
+    )
 
     # VRM_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
 

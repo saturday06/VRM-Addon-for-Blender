@@ -86,48 +86,48 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         default=1, min=0.2, max=1, soft_min=0.6, name="Face center ratio"  # noqa: F722
     )
     eye_width_ratio: bpy.props.FloatProperty(
-        default=2, min=0.5, max=4, name="Eye width ratio"
-    )  # noqa: F722
+        default=2, min=0.5, max=4, name="Eye width ratio"  # noqa: F722
+    )
     nose_head_height: bpy.props.FloatProperty(
-        default=1, min=0, max=1, name="nose head"
-    )  # noqa: F722
+        default=1, min=0, max=1, name="nose head"  # noqa: F722
+    )
     nose_top_pos: bpy.props.FloatProperty(
-        default=0.2, min=0, max=0.6, name="nose top position"
-    )  # noqa: F722
+        default=0.2, min=0, max=0.6, name="nose top position"  # noqa: F722
+    )
     nose_height: bpy.props.FloatProperty(
-        default=0.015, min=0.01, max=0.1, step=0.001, name="nose height"
-    )  # noqa: F722
+        default=0.015, min=0.01, max=0.1, step=0.001, name="nose height"  # noqa: F722
+    )
     nose_width: bpy.props.FloatProperty(
-        default=0.5, min=0.01, max=1, name="nose width"
-    )  # noqa: F722
+        default=0.5, min=0.01, max=1, name="nose width"  # noqa: F722
+    )
     eye_depth: bpy.props.FloatProperty(
-        default=0.01, min=0.01, max=0.1, name="Eye depth"
-    )  # noqa: F722
+        default=0.01, min=0.01, max=0.1, name="Eye depth"  # noqa: F722
+    )
     eye_angle: bpy.props.FloatProperty(
-        default=radians(15), min=0, max=0.55, name="Eye angle"
-    )  # noqa: F722
+        default=radians(15), min=0, max=0.55, name="Eye angle"  # noqa: F722
+    )
     eye_rotate: bpy.props.FloatProperty(
-        default=0.43, min=0, max=0.86, name="Eye rotation"
-    )  # noqa: F722
+        default=0.43, min=0, max=0.86, name="Eye rotation"  # noqa: F722
+    )
     cheek_ratio: bpy.props.FloatProperty(
-        default=0.5, min=0, max=1, name="cheek position"
-    )  # noqa: F722
+        default=0.5, min=0, max=1, name="cheek position"  # noqa: F722
+    )
     cheek_width: bpy.props.FloatProperty(
-        default=0.85, min=0.5, max=1, name="cheek width ratio"
-    )  # noqa: F722
+        default=0.85, min=0.5, max=1, name="cheek width ratio"  # noqa: F722
+    )
     mouth_width_ratio: bpy.props.FloatProperty(
-        default=0.5, min=0.3, max=0.9, name="Mouth width"
-    )  # noqa: F722
+        default=0.5, min=0.3, max=0.9, name="Mouth width"  # noqa: F722
+    )
     # 口角結節
     mouth_corner_nodule: bpy.props.FloatProperty(
-        default=0.1, min=0.01, max=1, name="oris width"
-    )  # noqa: F722
+        default=0.1, min=0.01, max=1, name="oris width"  # noqa: F722
+    )
     mouth_position_ratio: bpy.props.FloatProperty(
-        default=2 / 3, min=0.3, max=0.7, name="Mouth position"
-    )  # noqa: F722
+        default=2 / 3, min=0.3, max=0.7, name="Mouth position"  # noqa: F722
+    )
     mouth_flatten: bpy.props.FloatProperty(
-        default=0.1, min=0.0, max=1, name="Mouth flat"
-    )  # noqa: F722
+        default=0.1, min=0.0, max=1, name="Mouth flat"  # noqa: F722
+    )
 
     def make_face(self, context, mesh):
         def add_point(point):
@@ -175,9 +175,9 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         head_top_point_vert = add_point([0, self.head_tall_size, 0])  # noqa: F841
         add_point([-self.head_depth_size / 2, 0, 0])
 
-        neck_point_vert = add_point(
+        neck_point_vert = add_point(  # noqa: F841
             [-self.head_tall_size / 16, self.neck_tail_y, 0]
-        )  # noqa: F841
+        )
         eye_point = Vector(
             [
                 -self.eye_depth - self.head_depth_size / 2,
@@ -288,9 +288,9 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
             -self.nose_height,
         )
         nose_end_side_vert = add_point(nose_end_side_point)
-        nose_end_under_vert = add_point(
+        nose_end_under_vert = add_point(  # noqa: F841
             depth_add(nose_end_point, -self.nose_height)
-        )  # noqa: F841
+        )
 
         otogai_point = [-self.head_depth_size / 2, 0, 0]
         otogai_vert = add_point(otogai_point)
