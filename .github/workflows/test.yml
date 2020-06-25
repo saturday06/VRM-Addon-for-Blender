@@ -96,7 +96,7 @@ jobs:
       - name: Install pip packages
         run: |
           pip3 install --upgrade pip
-          pip3 install flake8 flake8-bugbear flake8-black pep8-naming
+          pip3 install flake8 flake8-black flake8-bugbear pep8-naming
           echo "::add-path::$HOME/.local/bin"
       - name: Lint
         run: flake8 . --count --show-source --statistics --verbose
