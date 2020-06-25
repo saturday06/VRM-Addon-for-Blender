@@ -998,7 +998,9 @@ class BlendModel:
             if metatag == "texture":
                 if (
                     "textures" in self.vrm_pydata.json
-                    and len(self.vrm_pydata.json["textures"]) > metainfo
+                    # extensions.VRM.meta.texture could be -1
+                    # https://github.com/vrm-c/UniVRM/issues/91#issuecomment-454284964
+                    and 0 <= metainfo < len(self.vrm_pydata.json["textures"])
                 ):
                     texture_index = self.vrm_pydata.json["textures"][metainfo]["source"]
                     self.armature[metatag] = self.textures[texture_index].image.name
