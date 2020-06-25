@@ -56,7 +56,9 @@ def material(mat, ext_mat, use_simple_principled_material) -> vrm_types.Material
             if "metallicRoughnessTexture" in pbrmat:
                 texture_index = pbrmat["metallicRoughnessTexture"]["index"]
                 v_mat.metallic_roughness_texture_index = texture_index
-                v_mat.metallic_roughness_texture_texcoord = pbrmat["baseColorTexture"]["texCoord"]
+                v_mat.metallic_roughness_texture_texcoord = pbrmat["baseColorTexture"][
+                    "texCoord"
+                ]
 
         if "normalTexture" in mat:
             v_mat.normal_texture_index = mat["normalTexture"]["index"]
@@ -94,14 +96,21 @@ def material(mat, ext_mat, use_simple_principled_material) -> vrm_types.Material
             v_mat.shader_name = ext_mat["shader"]
             # region check unknown props exist
             subset = {
-                "float": ext_mat["floatProperties"].keys() - v_mat.float_props_dic.keys(),
-                "vector": ext_mat["vectorProperties"].keys() - v_mat.vector_props_dic.keys(),
-                "texture": ext_mat["textureProperties"].keys() - v_mat.texture_index_dic.keys(),
+                "float": ext_mat["floatProperties"].keys()
+                - v_mat.float_props_dic.keys(),
+                "vector": ext_mat["vectorProperties"].keys()
+                - v_mat.vector_props_dic.keys(),
+                "texture": ext_mat["textureProperties"].keys()
+                - v_mat.texture_index_dic.keys(),
                 "keyword": ext_mat["keywordMap"].keys() - v_mat.keyword_dic.keys(),
             }
             for k, _subset in subset.items():
                 if _subset:
-                    print("unknown {} properties {} in {}".format(k, _subset, ext_mat["name"]))
+                    print(
+                        "unknown {} properties {} in {}".format(
+                            k, _subset, ext_mat["name"]
+                        )
+                    )
             # endregion check unknown props exit
 
             v_mat.float_props_dic.update(ext_mat["floatProperties"])
@@ -119,5 +128,7 @@ def material(mat, ext_mat, use_simple_principled_material) -> vrm_types.Material
             v_mat.texture_index_dic = ext_mat["textureProperties"]
         else:
             # ここには入らないはず
-            print(f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}")
+            print(
+                f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}"
+            )
     return v_mat

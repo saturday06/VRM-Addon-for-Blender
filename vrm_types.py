@@ -29,9 +29,15 @@ class VrmPydata(object):
         self.meshes = meshes if meshes is not None else []
         self.materials = materials if materials is not None else []
         self.nodes_dict = nodes_dict if nodes_dict is not None else {}
-        self.origin_nodes_dict = origin_nodes_dict if origin_nodes_dict is not None else {}
-        self.skins_joints_list = skins_joints_list if skins_joints_list is not None else []
-        self.skins_root_node_list = skins_root_node_list if skins_root_node_list is not None else []
+        self.origin_nodes_dict = (
+            origin_nodes_dict if origin_nodes_dict is not None else {}
+        )
+        self.skins_joints_list = (
+            skins_joints_list if skins_joints_list is not None else []
+        )
+        self.skins_root_node_list = (
+            skins_root_node_list if skins_root_node_list is not None else []
+        )
 
 
 class Mesh(object):
@@ -315,9 +321,15 @@ class MaterialMtoon(Material):
 
     def __init__(self):
         super().__init__()
-        self.float_props_dic = {prop: None for prop in self.float_props_exchange_dic.keys()}
-        self.vector_props_dic = {prop: None for prop in self.vector_props_exchange_dic.keys()}
-        self.texture_index_dic = {prop: None for prop in self.texture_kind_exchange_dic.keys()}
+        self.float_props_dic = {
+            prop: None for prop in self.float_props_exchange_dic.keys()
+        }
+        self.vector_props_dic = {
+            prop: None for prop in self.vector_props_exchange_dic.keys()
+        }
+        self.texture_index_dic = {
+            prop: None for prop in self.texture_kind_exchange_dic.keys()
+        }
         self.keyword_dic = {kw: False for kw in self.keyword_list}
         self.tag_dic = {tag: None for tag in self.tagmap_list}
 

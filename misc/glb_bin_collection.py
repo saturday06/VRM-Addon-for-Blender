@@ -37,7 +37,13 @@ class GlbBinCollection:
                 vab_dic["max"] = vab.min_max[1]
             bin_dic["accessors"].append(vab_dic)
             bin_dic["bufferViews"].append(
-                OrderedDict({"buffer": 0, "byteOffset": byte_offset, "byteLength": vab.bin_length})
+                OrderedDict(
+                    {
+                        "buffer": 0,
+                        "byteOffset": byte_offset,
+                        "byteLength": vab.bin_length,
+                    }
+                )
             )
             byte_offset += vab.bin_length
 
@@ -47,11 +53,21 @@ class GlbBinCollection:
                 self.bin += img.bin
                 bin_dic["images"].append(
                     OrderedDict(
-                        {"name": img.name, "bufferView": self.get_new_buffer_view_id(), "mimeType": img.image_type}
+                        {
+                            "name": img.name,
+                            "bufferView": self.get_new_buffer_view_id(),
+                            "mimeType": img.image_type,
+                        }
                     )
                 )
                 bin_dic["bufferViews"].append(
-                    OrderedDict({"buffer": 0, "byteOffset": byte_offset, "byteLength": img.bin_length})
+                    OrderedDict(
+                        {
+                            "buffer": 0,
+                            "byteOffset": byte_offset,
+                            "byteLength": img.bin_length,
+                        }
+                    )
                 )
                 byte_offset += img.bin_length
 
@@ -80,7 +96,9 @@ class BaseBin:
 
 
 class ImageBin(BaseBin):
-    def __init__(self, image_bin="", name="", image_type="image/png", glb_bin_collection=None):
+    def __init__(
+        self, image_bin="", name="", image_type="image/png", glb_bin_collection=None
+    ):
         super().__init__(image_bin, glb_bin_collection)
         self.name = name
         self.image_type = image_type

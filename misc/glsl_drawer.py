@@ -65,7 +65,9 @@ class MtoonGlsl:
             self.white_texture = bpy.data.images[shader_white]
         shader_normal = "shader_normal"
         if shader_normal not in bpy.data.images:
-            self.normal_texture = self.make_small_image(shader_normal, (0.5, 0.5, 1, 1), "Linear")
+            self.normal_texture = self.make_small_image(
+                shader_normal, (0.5, 0.5, 1, 1), "Linear"
+            )
         else:
             self.normal_texture = bpy.data.images[shader_normal]
         self.material = material
@@ -79,9 +81,14 @@ class MtoonGlsl:
             if self.main_node.inputs[tex_name].links[0].from_node.image is not None:
                 if (
                     default_color != "normal"
-                    and self.main_node.inputs[tex_name].links[0].from_node.image.colorspace_settings.name != "Linear"
+                    and self.main_node.inputs[tex_name]
+                    .links[0]
+                    .from_node.image.colorspace_settings.name
+                    != "Linear"
                 ):  # TODO bugyyyyyyyyyyyyyyyyy
-                    self.main_node.inputs[tex_name].links[0].from_node.image.colorspace_settings.name = "Linear"
+                    self.main_node.inputs[tex_name].links[
+                        0
+                    ].from_node.image.colorspace_settings.name = "Linear"
                 self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
                 return self.main_node.inputs[tex_name].links[0].from_node.image
             else:
@@ -111,13 +118,23 @@ class MtoonGlsl:
 
     def get_value(self, val_name):
         if self.main_node.inputs[val_name].links:
-            return self.main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
+            return (
+                self.main_node.inputs[val_name]
+                .links[0]
+                .from_node.outputs[0]
+                .default_value
+            )
         else:
             return self.main_node.inputs[val_name].default_value
 
     def get_color(self, vec_name):
         if self.main_node.inputs[vec_name].links:
-            return self.main_node.inputs[vec_name].links[0].from_node.outputs[0].default_value
+            return (
+                self.main_node.inputs[vec_name]
+                .links[0]
+                .from_node.outputs[0]
+                .default_value
+            )
         else:
             return self.main_node.inputs[vec_name].default_value
 
@@ -558,11 +575,15 @@ class GlslDrawObj:
         else:
             glsl_draw_obj = GlslDrawObj.myinstance
         glsl_draw_obj.objs = [obj for obj in glsl_draw_obj.draw_objs if obj is not None]
-        glsl_draw_obj.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT"][0]
+        glsl_draw_obj.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT"][
+            0
+        ]
         for obj in glsl_draw_obj.objs:
             for mat_slot in obj.material_slots:
                 if mat_slot.material.name not in glsl_draw_obj.materials.keys():
-                    glsl_draw_obj.materials[mat_slot.material.name] = MtoonGlsl(mat_slot.material)
+                    glsl_draw_obj.materials[mat_slot.material.name] = MtoonGlsl(
+                        mat_slot.material
+                    )
         # if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier implementation
         glsl_draw_obj.scene_meshes = []
         glsl_draw_obj.draw_x_offset = 0
@@ -576,8 +597,12 @@ class GlslDrawObj:
                         bounding_box_xyz[0][i] = xyz
                     if bounding_box_xyz[1][i] > xyz:
                         bounding_box_xyz[1][i] = xyz
-            glsl_draw_obj.bounding_center = [(i + n) / 2 for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])]
-            glsl_draw_obj.bounding_size = [i - n for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])]
+            glsl_draw_obj.bounding_center = [
+                (i + n) / 2 for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
+            ]
+            glsl_draw_obj.bounding_size = [
+                i - n for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
+            ]
 
         def build_mesh(obj):
             scene_mesh = GlMesh()
@@ -587,10 +612,17 @@ class GlslDrawObj:
             tmp_mesh.calc_loop_triangles()
             st = tmp_mesh.uv_layers[0].data
 
-            scene_mesh.mat_list = [glsl_draw_obj.materials[ms.material.name] for ms in obj.material_slots]
-            count_list = collections.Counter([tri.material_index for tri in tmp_mesh.loop_triangles])
+            scene_mesh.mat_list = [
+                glsl_draw_obj.materials[ms.material.name] for ms in obj.material_slots
+            ]
+            count_list = collections.Counter(
+                [tri.material_index for tri in tmp_mesh.loop_triangles]
+            )
             scene_mesh.index_per_mat = {
-                scene_mesh.mat_list[i]: [(n * 3, n * 3 + 1, n * 3 + 2) for n in range(v)] for i, v in count_list.items()
+                scene_mesh.mat_list[i]: [
+                    (n * 3, n * 3 + 1, n * 3 + 2) for n in range(v)
+                ]
+                for i, v in count_list.items()
             }
 
             def job_pos():
@@ -628,7 +660,12 @@ class GlslDrawObj:
 
             def job_uv():
                 return {
-                    k: [st[lo].uv for tri in tmp_mesh.loop_triangles for lo in tri.loops if tri.material_index == i]
+                    k: [
+                        st[lo].uv
+                        for tri in tmp_mesh.loop_triangles
+                        for lo in tri.loops
+                        if tri.material_index == i
+                    ]
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
@@ -697,7 +734,10 @@ class GlslDrawObj:
                     indices=vert_indices,
                 )
                 depth_batch = batch_for_shader(
-                    self.depth_shader, "TRIS", {"position": scene_mesh.pos[mat]}, indices=vert_indices,
+                    self.depth_shader,
+                    "TRIS",
+                    {"position": scene_mesh.pos[mat]},
+                    indices=vert_indices,
                 )
                 if mat.alpha_method not in ("OPAQUE", "CLIP"):
                     batches.append((mat, toon_batch, depth_batch))
@@ -712,7 +752,12 @@ class GlslDrawObj:
         else:
             glsl_draw_obj = GlslDrawObj.myinstance
         model_offset = Matrix.Translation((glsl_draw_obj.draw_x_offset, 0, 0))
-        light_pos = [i + n for i, n in zip(glsl_draw_obj.light.location, [-glsl_draw_obj.draw_x_offset, 0, 0])]
+        light_pos = [
+            i + n
+            for i, n in zip(
+                glsl_draw_obj.light.location, [-glsl_draw_obj.draw_x_offset, 0, 0]
+            )
+        ]
         batches = glsl_draw_obj.batches
         depth_shader = glsl_draw_obj.depth_shader
         toon_shader = glsl_draw_obj.toon_shader
@@ -727,12 +772,20 @@ class GlslDrawObj:
         up = light.rotation_euler.to_quaternion() @ Vector((0, 1, 0))
         tmp_bound_len = Vector(glsl_draw_obj.bounding_center).length
         camera_bias = 0.2
-        loc = Vector([glsl_draw_obj.bounding_center[i] + tar[i] * (tmp_bound_len + camera_bias) for i in range(3)])
+        loc = Vector(
+            [
+                glsl_draw_obj.bounding_center[i]
+                + tar[i] * (tmp_bound_len + camera_bias)
+                for i in range(3)
+            ]
+        )
 
         loc = model_offset @ loc
         v_matrix = lookat_cross(loc, tar, up)
         const_proj = 2 * max(glsl_draw_obj.bounding_size) / 2
-        p_matrix = ortho_proj_mat(-const_proj, const_proj, -const_proj, const_proj, -const_proj, const_proj)
+        p_matrix = ortho_proj_mat(
+            -const_proj, const_proj, -const_proj, const_proj, -const_proj, const_proj
+        )
         depth_matrix = v_matrix @ p_matrix  # reuse in main shader
         depth_matrix.transpose()
 
@@ -768,7 +821,9 @@ class GlslDrawObj:
                 bgl.glEnable(bgl.GL_CULL_FACE)  # そも輪郭線がの影は落ちる?
                 bgl.glCullFace(bgl.GL_BACK)
 
-                depth_shader.uniform_float("obj_matrix", model_offset)  # obj.matrix_world)
+                depth_shader.uniform_float(
+                    "obj_matrix", model_offset
+                )  # obj.matrix_world)
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
                 depth_bat.draw(depth_shader)
@@ -779,7 +834,9 @@ class GlslDrawObj:
         projection_mat = bpy.context.region_data.window_matrix
         view_dir = bpy.context.region_data.view_matrix[2][:3]
         view_up = bpy.context.region_data.view_matrix[1][:3]
-        normal_world_to_view_matrix = bpy.context.region_data.view_matrix.inverted_safe().transposed()
+        normal_world_to_view_matrix = (
+            bpy.context.region_data.view_matrix.inverted_safe().transposed()
+        )
         aspect = bpy.context.area.width / bpy.context.area.height
 
         for is_outline in [0, 1]:
@@ -812,19 +869,25 @@ class GlslDrawObj:
                     bgl.glEnable(bgl.GL_CULL_FACE)
                     bgl.glCullFace(bgl.GL_BACK)
 
-                toon_shader.uniform_float("obj_matrix", model_offset)  # obj.matrix_world)
+                toon_shader.uniform_float(
+                    "obj_matrix", model_offset
+                )  # obj.matrix_world)
                 toon_shader.uniform_float("projectionMatrix", projection_mat)
                 toon_shader.uniform_float("viewProjectionMatrix", vp_mat)
                 toon_shader.uniform_float("viewDirection", view_dir)
                 toon_shader.uniform_float("viewUpDirection", view_up)
-                toon_shader.uniform_float("normalWorldToViewMatrix", normal_world_to_view_matrix)
+                toon_shader.uniform_float(
+                    "normalWorldToViewMatrix", normal_world_to_view_matrix
+                )
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", light_pos)
                 toon_shader.uniform_float("aspect", aspect)
                 toon_shader.uniform_float("is_outline", is_outline)
                 toon_shader.uniform_float("isDebug", 0.0)
 
-                toon_shader.uniform_float("is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0)
+                toon_shader.uniform_float(
+                    "is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0
+                )
 
                 float_keys = [
                     "CutoffRate",
@@ -856,16 +919,24 @@ class GlslDrawObj:
 
                 bgl.glActiveTexture(bgl.GL_TEXTURE0)
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
-                bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE)  # TODO
-                bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE)
+                bgl.glTexParameteri(
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
+                )  # TODO
+                bgl.glTexParameteri(
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
+                )
                 toon_shader.uniform_int("depth_image", 0)
 
                 for i, k in enumerate(mat.texture_dic.keys()):
                     bgl.glActiveTexture(bgl.GL_TEXTURE1 + i)
                     texture = mat.texture_dic[k]
                     bgl.glBindTexture(bgl.GL_TEXTURE_2D, texture.bindcode)
-                    bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE)  # TODO
-                    bgl.glTexParameteri(bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE)
+                    bgl.glTexParameteri(
+                        bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
+                    )  # TODO
+                    bgl.glTexParameteri(
+                        bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
+                    )
                     toon_shader.uniform_int(k, 1 + i)
 
                 toon_bat.draw(toon_shader)
@@ -878,7 +949,9 @@ class GlslDrawObj:
     @staticmethod
     def draw_func_add():
         GlslDrawObj.draw_func_remove()
-        GlslDrawObj.draw_objs = [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]
+        GlslDrawObj.draw_objs = [
+            obj for obj in bpy.context.selected_objects if obj.type == "MESH"
+        ]
         if GlslDrawObj.myinstance is None or GlslDrawObj.draw_func is None:
             GlslDrawObj.myinstance = GlslDrawObj()
         GlslDrawObj.myinstance.build_scene()
@@ -893,7 +966,9 @@ class GlslDrawObj:
             and GlslDrawObj.build_mesh_func in bpy.app.handlers.depsgraph_update_post
         ):
             bpy.app.handlers.depsgraph_update_post.remove(GlslDrawObj.build_mesh_func)
-        bpy.app.handlers.depsgraph_update_post.append(GlslDrawObj.myinstance.build_scene)
+        bpy.app.handlers.depsgraph_update_post.append(
+            GlslDrawObj.myinstance.build_scene
+        )
         GlslDrawObj.build_mesh_func = bpy.app.handlers.depsgraph_update_post[-1]
         # bpy.app.handlers.frame_change_post.append(build_sub_index)
 

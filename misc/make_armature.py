@@ -14,11 +14,19 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
     #
     WIP_with_template_mesh: bpy.props.BoolProperty(default=False)
     # 身長 at meter
-    tall: bpy.props.FloatProperty(default=1.70, min=0.3, step=0.001, name="Bone tall")  # noqa: F722
+    tall: bpy.props.FloatProperty(
+        default=1.70, min=0.3, step=0.001, name="Bone tall"
+    )  # noqa: F722
     # 頭身
-    head_ratio: bpy.props.FloatProperty(default=8.0, min=4, step=0.05, description="height per heads")  # noqa: F722
+    head_ratio: bpy.props.FloatProperty(
+        default=8.0, min=4, step=0.05, description="height per heads"
+    )  # noqa: F722
     head_width_ratio: bpy.props.FloatProperty(
-        default=2 / 3, min=0.3, max=1.2, step=0.05, description="height per heads"  # noqa: F722
+        default=2 / 3,
+        min=0.3,
+        max=1.2,
+        step=0.05,
+        description="height per heads",  # noqa: F722
     )
     # 足-胴比率:0:子供、1:大人 に近くなる(低等身で有効)
     aging_ratio: bpy.props.FloatProperty(default=0.5, min=0, max=1, step=0.1)
@@ -26,27 +34,45 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
     eye_depth: bpy.props.FloatProperty(default=-0.03, min=-0.1, max=0, step=0.005)
     # 肩幅
     shoulder_in_width: bpy.props.FloatProperty(
-        default=0.05, min=0.01, step=0.005, description="Inner shoulder position"  # noqa: F722
+        default=0.05,
+        min=0.01,
+        step=0.005,
+        description="Inner shoulder position",  # noqa: F722
     )
     shoulder_width: bpy.props.FloatProperty(
-        default=0.08, min=0.01, step=0.005, description="shoulder roll position"  # noqa: F722
+        default=0.08,
+        min=0.01,
+        step=0.005,
+        description="shoulder roll position",  # noqa: F722
     )
     # 腕長さ率
     arm_length_ratio: bpy.props.FloatProperty(default=1, min=0.5, step=0.01)
     # 手
     hand_ratio: bpy.props.FloatProperty(default=1, min=0.5, max=2.0, step=0.05)
     finger_1_2_ratio: bpy.props.FloatProperty(
-        default=0.75, min=0.5, max=1, step=0.005, description="proximal / intermediate"  # noqa: F722,F821
+        default=0.75,
+        min=0.5,
+        max=1,
+        step=0.005,
+        description="proximal / intermediate",  # noqa: F722,F821
     )
     finger_2_3_ratio: bpy.props.FloatProperty(
-        default=0.75, min=0.5, max=1, step=0.005, description="intermediate / distal"  # noqa: F722,F821
+        default=0.75,
+        min=0.5,
+        max=1,
+        step=0.005,
+        description="intermediate / distal",  # noqa: F722,F821
     )
     nail_bone: bpy.props.BoolProperty(
         default=False, description="may need for finger collider"  # noqa: F722
     )  # 指先の当たり判定として必要
     # 足
     leg_length_ratio: bpy.props.FloatProperty(
-        default=0.5, min=0.3, max=0.6, step=0.01, description="upper body/lower body"  # noqa: F722
+        default=0.5,
+        min=0.3,
+        max=0.6,
+        step=0.01,
+        description="upper body/lower body",  # noqa: F722
     )
     leg_width_ratio: bpy.props.FloatProperty(default=1, min=0.01, step=0.005)
     leg_size: bpy.props.FloatProperty(default=0.26, min=0.05, step=0.005)
@@ -83,7 +109,12 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
 
         # bone_type = "leg" or "arm" for roll setting
         def x_mirror_bones_add(
-            base_name, right_head_pos, right_tail_pos, parent_bones, radius=0.1, bone_type="other",
+            base_name,
+            right_head_pos,
+            right_tail_pos,
+            parent_bones,
+            radius=0.1,
+            bone_type="other",
         ):
             right_roll = 0
             left_roll = 0
@@ -93,7 +124,12 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
                 right_roll = 90
                 left_roll = 90
             left_bone = bone_add(
-                base_name + "_L", right_head_pos, right_tail_pos, parent_bones[0], radius=radius, roll=left_roll,
+                base_name + "_L",
+                right_head_pos,
+                right_tail_pos,
+                parent_bones[0],
+                radius=radius,
+                roll=left_roll,
             )
             right_bone = bone_add(
                 base_name + "_R",
@@ -123,10 +159,12 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         # down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を年齢具合で線形補完)(股上高めにすると破綻する)
         eight_upside_ratio, four_upside_ratio = (
             1 - self.leg_length_ratio,
-            (2.5 / 4) * (1 - self.aging_ratio) + (1 - self.leg_length_ratio) * self.aging_ratio,
+            (2.5 / 4) * (1 - self.aging_ratio)
+            + (1 - self.leg_length_ratio) * self.aging_ratio,
         )
         hip_up_down_ratio = (
-            eight_upside_ratio * (1 - (8 - self.head_ratio) / 4) + four_upside_ratio * (8 - self.head_ratio) / 4
+            eight_upside_ratio * (1 - (8 - self.head_ratio) / 4)
+            + four_upside_ratio * (8 - self.head_ratio) / 4
         )
         # 体幹
         # 股間
@@ -144,9 +182,13 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         # 仙骨基部
         hips = bone_add("Hips", (0, 0, body_separate), (0, 0, hips_tall), root, roll=90)
         # 骨盤基部->胸郭基部
-        spine = bone_add("Spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=-90)
+        spine = bone_add(
+            "Spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=-90
+        )
         # 胸郭基部->首元
-        chest = bone_add("Chest", spine.tail, z_add(hips.tail, backbone_len), spine, roll=-90)
+        chest = bone_add(
+            "Chest", spine.tail, z_add(hips.tail, backbone_len), spine, roll=-90
+        )
         neck = bone_add(
             "Neck",
             (0, 0, self.tall - head_size - neck_len / 2),
@@ -155,14 +197,24 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             roll=-90,
         )
         # 首の1/2は顎の後ろに隠れてる
-        head = bone_add("Head", (0, 0, self.tall - head_size + neck_len / 2), (0, 0, self.tall), neck, roll=-90)
+        head = bone_add(
+            "Head",
+            (0, 0, self.tall - head_size + neck_len / 2),
+            (0, 0, self.tall),
+            neck,
+            roll=-90,
+        )
 
         # 目
         eye_depth = self.eye_depth
         eyes = x_mirror_bones_add(
             "eye",
             (head_size * self.head_width_ratio / 5, 0, self.tall - head_size / 2),
-            (head_size * self.head_width_ratio / 5, eye_depth, self.tall - head_size / 2),
+            (
+                head_size * self.head_width_ratio / 5,
+                eye_depth,
+                self.tall - head_size / 2,
+            ),
             (head, head),
         )
         # 足
@@ -173,7 +225,10 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         upside_legs = x_mirror_bones_add(
             "Upper_Leg",
             x_add((0, 0, body_separate + head_size * 3 / 8), leg_width),
-            x_add(z_add((0, 0, body_separate + head_size * 3 / 8), -leg_bone_length), leg_width),
+            x_add(
+                z_add((0, 0, body_separate + head_size * 3 / 8), -leg_bone_length),
+                leg_width,
+            ),
             (hips, hips),
             radius=leg_width * 0.9,
             bone_type="leg",
@@ -195,7 +250,12 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             bone_type="leg",
         )
         toes = x_mirror_bones_add(
-            "Toes", foots[0].tail, (leg_width, -leg_size, 0), foots, radius=leg_width * 0.5, bone_type="leg",
+            "Toes",
+            foots[0].tail,
+            (leg_width, -leg_size, 0),
+            foots,
+            radius=leg_width * 0.5,
+            bone_type="leg",
         )
 
         # 肩～指
@@ -247,10 +307,21 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
 
         def fingers(finger_name, proximal_pos, finger_len_sum):
 
-            finger_normalize = 1 / (self.finger_1_2_ratio * self.finger_2_3_ratio + self.finger_1_2_ratio + 1)
+            finger_normalize = 1 / (
+                self.finger_1_2_ratio * self.finger_2_3_ratio
+                + self.finger_1_2_ratio
+                + 1
+            )
             proximal_finger_len = finger_len_sum * finger_normalize
-            intermediate_finger_len = finger_len_sum * finger_normalize * self.finger_1_2_ratio
-            distal_finger_len = finger_len_sum * finger_normalize * self.finger_1_2_ratio * self.finger_2_3_ratio
+            intermediate_finger_len = (
+                finger_len_sum * finger_normalize * self.finger_1_2_ratio
+            )
+            distal_finger_len = (
+                finger_len_sum
+                * finger_normalize
+                * self.finger_1_2_ratio
+                * self.finger_2_3_ratio
+            )
             proximal_bones = x_mirror_bones_add(
                 f"{finger_name}_proximal",
                 proximal_pos,
@@ -287,7 +358,11 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             return proximal_bones, intermediate_bones, distal_bones
 
         finger_y_offset = -self.hand_size / 16
-        thumbs = fingers("finger_thumbs", y_add(hands[0].head, finger_y_offset * 3), self.hand_size / 2)
+        thumbs = fingers(
+            "finger_thumbs",
+            y_add(hands[0].head, finger_y_offset * 3),
+            self.hand_size / 2,
+        )
 
         mats = [thumbs[0][i].matrix.translation for i in [0, 1]]
         mats = [Matrix.Translation(mat) for mat in mats]
@@ -303,7 +378,9 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             y_add(hands[0].tail, finger_y_offset * 3),
             (self.hand_size / 2) - (1 / 2.3125) * (self.hand_size / 2) / 3,
         )
-        middle_fingers = fingers("finger_middle", y_add(hands[0].tail, finger_y_offset), self.hand_size / 2)
+        middle_fingers = fingers(
+            "finger_middle", y_add(hands[0].tail, finger_y_offset), self.hand_size / 2
+        )
         ring_fingers = fingers(
             "finger_ring",
             y_add(hands[0].tail, -finger_y_offset),
@@ -312,7 +389,8 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         little_fingers = fingers(
             "finger_little",
             y_add(hands[0].tail, -finger_y_offset * 3),
-            ((self.hand_size / 2) - (1 / 2.3125) * (self.hand_size / 2) / 3) * ((1 / 2.3125) + (1 / 2.3125) * 0.75),
+            ((self.hand_size / 2) - (1 / 2.3125) * (self.hand_size / 2) / 3)
+            * ((1 / 2.3125) + (1 / 2.3125) * 0.75),
         )
 
         body_dict = {
@@ -375,10 +453,18 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
                 armature[f"{block_name}"] = text_block.name
 
         # param_dicts are below of this method
-        write_textblock_and_assign_to_armature("humanoid_params", ICYP_OT_MAKE_ARMATURE.humanoid_params)
-        write_textblock_and_assign_to_armature("firstPerson_params", ICYP_OT_MAKE_ARMATURE.first_person_params)
-        write_textblock_and_assign_to_armature("blendshape_group", ICYP_OT_MAKE_ARMATURE.blendshape_group)
-        write_textblock_and_assign_to_armature("spring_bone", ICYP_OT_MAKE_ARMATURE.spring_bone_prams)
+        write_textblock_and_assign_to_armature(
+            "humanoid_params", ICYP_OT_MAKE_ARMATURE.humanoid_params
+        )
+        write_textblock_and_assign_to_armature(
+            "firstPerson_params", ICYP_OT_MAKE_ARMATURE.first_person_params
+        )
+        write_textblock_and_assign_to_armature(
+            "blendshape_group", ICYP_OT_MAKE_ARMATURE.blendshape_group
+        )
+        write_textblock_and_assign_to_armature(
+            "spring_bone", ICYP_OT_MAKE_ARMATURE.spring_bone_prams
+        )
 
         vrm_metas = [
             "version",  # model version (not VRMspec etc)
@@ -419,30 +505,148 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         "firstPersonBoneOffset": {"x": 0, "y": 0, "z": 0},
         "meshAnnotations": [],
         "lookAtTypeName": "Bone",
-        "lookAtHorizontalInner": {"curve": [0, 0, 0, 1, 1, 1, 1, 0], "xRange": 90, "yRange": 8},
-        "lookAtHorizontalOuter": {"curve": [0, 0, 0, 1, 1, 1, 1, 0], "xRange": 90, "yRange": 12},
-        "lookAtVerticalDown": {"curve": [0, 0, 0, 1, 1, 1, 1, 0], "xRange": 90, "yRange": 10},
-        "lookAtVerticalUp": {"curve": [0, 0, 0, 1, 1, 1, 1, 0], "xRange": 90, "yRange": 10},
+        "lookAtHorizontalInner": {
+            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
+            "xRange": 90,
+            "yRange": 8,
+        },
+        "lookAtHorizontalOuter": {
+            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
+            "xRange": 90,
+            "yRange": 12,
+        },
+        "lookAtVerticalDown": {
+            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
+            "xRange": 90,
+            "yRange": 10,
+        },
+        "lookAtVerticalUp": {
+            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
+            "xRange": 90,
+            "yRange": 10,
+        },
     }
 
     blendshape_group = [
-        {"name": "Neutral", "presetName": "neutral", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "A", "presetName": "a", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "I", "presetName": "i", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "U", "presetName": "u", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "E", "presetName": "e", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "O", "presetName": "o", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "Blink", "presetName": "blink", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "Joy", "presetName": "joy", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "Angry", "presetName": "angry", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "Sorrow", "presetName": "sorrow", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "Fun", "presetName": "fun", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "LookUp", "presetName": "lookup", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "LookDown", "presetName": "lookdown", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "LookLeft", "presetName": "lookleft", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "LookRight", "presetName": "lookright", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "Blink_L", "presetName": "blink_l", "binds": [], "materialValues": [], "isBinary": False},
-        {"name": "Blink_R", "presetName": "blink_r", "binds": [], "materialValues": [], "isBinary": False},
+        {
+            "name": "Neutral",
+            "presetName": "neutral",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "A",
+            "presetName": "a",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "I",
+            "presetName": "i",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "U",
+            "presetName": "u",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "E",
+            "presetName": "e",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "O",
+            "presetName": "o",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "Blink",
+            "presetName": "blink",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "Joy",
+            "presetName": "joy",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "Angry",
+            "presetName": "angry",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "Sorrow",
+            "presetName": "sorrow",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "Fun",
+            "presetName": "fun",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "LookUp",
+            "presetName": "lookup",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "LookDown",
+            "presetName": "lookdown",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "LookLeft",
+            "presetName": "lookleft",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "LookRight",
+            "presetName": "lookright",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "Blink_L",
+            "presetName": "blink_l",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
+        {
+            "name": "Blink_R",
+            "presetName": "blink_r",
+            "binds": [],
+            "materialValues": [],
+            "isBinary": False,
+        },
     ]
 
     spring_bone_prams = [

@@ -18,43 +18,43 @@ class BinaryReader:
         self.pos = pos
 
     def read_str(self, size):
-        result = self.data[self.pos: self.pos + size]
+        result = self.data[self.pos : self.pos + size]
         self.pos += size
         return result.decode("utf-8")
 
     def read_binary(self, size):
-        result = self.data[self.pos: self.pos + size]
+        result = self.data[self.pos : self.pos + size]
         self.pos += size
         return result
 
     def read_unsigned_int(self):
         # unpackは内容の個数に関わらずタプルで返すので[0]が必要
-        result = struct.unpack("<I", self.data[self.pos: self.pos + 4])[0]
+        result = struct.unpack("<I", self.data[self.pos : self.pos + 4])[0]
         self.pos += 4
         return result
 
     def read_int(self):
-        result = struct.unpack("<i", self.data[self.pos: self.pos + 4])[0]
+        result = struct.unpack("<i", self.data[self.pos : self.pos + 4])[0]
         self.pos += 4
         return result
 
     def read_unsigned_short(self):
-        result = struct.unpack("<H", self.data[self.pos: self.pos + 2])[0]
+        result = struct.unpack("<H", self.data[self.pos : self.pos + 2])[0]
         self.pos += 2
         return result
 
     def read_short(self):
-        result = struct.unpack("<h", self.data[self.pos: self.pos + 2])[0]
+        result = struct.unpack("<h", self.data[self.pos : self.pos + 2])[0]
         self.pos += 2
         return result
 
     def read_float(self):
-        result = struct.unpack("<f", self.data[self.pos: self.pos + 4])[0]
+        result = struct.unpack("<f", self.data[self.pos : self.pos + 4])[0]
         self.pos += 4
         return result
 
     def read_unsigned_byte(self):
-        result = struct.unpack("<B", self.data[self.pos: self.pos + 1])[0]
+        result = struct.unpack("<B", self.data[self.pos : self.pos + 1])[0]
         self.pos += 1
         return result
 

@@ -38,7 +38,9 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
                 continue
             if "title" in armature and self.may_vrm_humanoid:  # = is VRM humanoid
                 is_vrm_humanoid = True
-                if bone.name in [armature.data.get(s) for s in ("leftEye", "rightEye", "hips")]:
+                if bone.name in [
+                    armature.data.get(s) for s in ("leftEye", "rightEye", "hips")
+                ]:
                     continue
                 if bone.name == "root":
                     continue
@@ -51,8 +53,14 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
                 elem.co = (Vector(hpos) + Vector(tpos)) / 2
                 elem.radius = Vector(Vector(tpos) - Vector(hpos)).length / 2
                 continue
-            if Vector(Vector(tpos) - Vector(hpos)).length / self.resolution > self.max_distance_between_mataballs:
-                self.resolution = ceil(Vector(Vector(tpos) - Vector(hpos)).length / self.max_distance_between_mataballs)
+            if (
+                Vector(Vector(tpos) - Vector(hpos)).length / self.resolution
+                > self.max_distance_between_mataballs
+            ):
+                self.resolution = ceil(
+                    Vector(Vector(tpos) - Vector(hpos)).length
+                    / self.max_distance_between_mataballs
+                )
                 self.resolution = max(2, self.resolution)
             for i in range(self.resolution):
                 loc = hpos + ((tpos - hpos) / (self.resolution - 1)) * i
@@ -106,11 +114,16 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
         def node_group_import(shader_node_group_name):
             if shader_node_group_name not in bpy.data.node_groups:
                 filedir = os.path.join(
-                    os.path.dirname(os.path.dirname(__file__)), "resources", "material_node_groups.blend", "NodeTree",
+                    os.path.dirname(os.path.dirname(__file__)),
+                    "resources",
+                    "material_node_groups.blend",
+                    "NodeTree",
                 )
                 filepath = os.path.join(filedir, shader_node_group_name)
                 bpy.ops.wm.append(
-                    filepath=filepath, filename=shader_node_group_name, directory=filedir,
+                    filepath=filepath,
+                    filename=shader_node_group_name,
+                    directory=filedir,
                 )
             return
 
@@ -125,7 +138,8 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
         material_init(b_mat)
         sg = node_group_create(b_mat, shader_node_group_name)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"], sg.outputs["Emission"],
+            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
+            sg.outputs["Emission"],
         )
         obj.data.materials.append(b_mat)
 

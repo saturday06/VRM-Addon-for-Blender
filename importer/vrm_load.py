@@ -28,7 +28,9 @@ def parse_glb(data: bytes):
 
     version = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
     if version != 2:
-        raise Exception("version #{} found. This plugin only supports version 2".format(version))
+        raise Exception(
+            "version #{} found. This plugin only supports version 2".format(version)
+        )
 
     size = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
     size -= 12
@@ -39,7 +41,9 @@ def parse_glb(data: bytes):
         # print(size)
 
         if json_str is not None and body is not None:
-            raise Exception("This VRM has multiple chunks, this plugin reads one chunk only.")
+            raise Exception(
+                "This VRM has multiple chunks, this plugin reads one chunk only."
+            )
 
         chunk_size = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
         size -= 4
@@ -70,10 +74,15 @@ def read_vrm(model_path, addon_context):
     # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
     if "extensionsRequired" in vrm_pydata.json:
         if "KHR_DRACO_MESH_COMPRESSION" in vrm_pydata.json["extensionsRequired"]:
-            raise Exception("This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です")
+            raise Exception(
+                "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
+            )
     # 改変不可ライセンスを撥ねる
     # CC_ND
-    if re.match("CC(.*)ND(.*)", json_get(vrm_pydata.json, ["extensions", "VRM", "meta", "licenseName"], "")):
+    if re.match(
+        "CC(.*)ND(.*)",
+        json_get(vrm_pydata.json, ["extensions", "VRM", "meta", "licenseName"], ""),
+    ):
         raise Exception(
             "This VRM can not be edited. No derivative works are allowed. Please check its copyright license. "
             + "改変不可Licenseです。"
@@ -82,12 +91,20 @@ def read_vrm(model_path, addon_context):
     if "otherPermissionUrl" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
         from urllib.parse import parse_qsl, urlparse
 
-        address = urlparse(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]).hostname
+        address = urlparse(
+            vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]
+        ).hostname
         if address is None:
             pass
         elif "vroid" in address:
             if (
-                dict(parse_qsl(vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"])).get("modification")
+                dict(
+                    parse_qsl(
+                        vrm_pydata.json["extensions"]["VRM"]["meta"][
+                            "otherPermissionUrl"
+                        ]
+                    )
+                ).get("modification")
                 == "disallow"
             ):
                 raise Exception(
@@ -162,7 +179,9 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
             92: "\\",
             124: "|",
         }  # 32:space #33:!
-        remove_table = str.maketrans("", "", "".join([chr(charnum) for charnum in unsafe_chars.keys()]))
+        remove_table = str.maketrans(
+            "", "", "".join([chr(charnum) for charnum in unsafe_chars.keys()])
+        )
         safe_filename = filename.translate(remove_table)
         return safe_filename
 
@@ -185,7 +204,9 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         dir_name += "_of_" + model_version
     dir_path = os.path.join(vrm_dir_path, dir_name)
     if dir_name == "tex":
-        dir_name = invalid_chars_remover(datetime.datetime.today().strftime("%M%D%H%I%M%S"))
+        dir_name = invalid_chars_remover(
+            datetime.datetime.today().strftime("%M%D%H%I%M%S")
+        )
         for i in range(10):
             dn = f"tex_{dir_name}_{i}"
             if os.path.exists(os.path.join(vrm_dir_path, dn)):
@@ -212,13 +233,19 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         else:
             image_name = image_prop["name"]
         binary_reader.set_pos(buffer_views[image_prop["bufferView"]]["byteOffset"])
-        image_binary = binary_reader.read_binary(buffer_views[image_prop["bufferView"]]["byteLength"])
+        image_binary = binary_reader.read_binary(
+            buffer_views[image_prop["bufferView"]]["byteLength"]
+        )
         image_type = image_prop["mimeType"].split("/")[-1]
         if image_name == "":
             image_name = "texture_" + str(image_id)
             print("no name image is named {}".format(image_name))
         elif len(image_name) >= 50:
-            print("too long name image: {} is named {}".format(image_name, "tex_2longname_" + str(image_id)))
+            print(
+                "too long name image: {} is named {}".format(
+                    image_name, "tex_2longname_" + str(image_id)
+                )
+            )
             image_name = "tex_2longname_" + str(image_id)
 
         image_name = invalid_chars_remover(image_name)
@@ -228,11 +255,15 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         if not os.path.exists(image_path):  # すでに同名の画像がある場合は基本上書きしない
             with open(image_path, "wb") as image_writer:
                 image_writer.write(image_binary)
-        elif image_name in [img.name for img in vrm_pydata.image_properties]:  # ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
+        elif image_name in [
+            img.name for img in vrm_pydata.image_properties
+        ]:  # ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
             written_flag = False
             for i in range(5):
                 second_image_name = image_name + "_" + str(i)
-                image_path = os.path.join(dir_path, second_image_name + "." + image_type)
+                image_path = os.path.join(
+                    dir_path, second_image_name + "." + image_type
+                )
                 if not os.path.exists(image_path):
                     with open(image_path, "wb") as image_writer:
                         image_writer.write(image_binary)
@@ -291,7 +322,9 @@ def mesh_read(vrm_pydata):
             # region 頂点index
             if primitive["mode"] != GlConstants.TRIANGLES:
                 # TODO その他メッシュタイプ対応
-                raise Exception("Unsupported polygon type(:{}) Exception".format(primitive["mode"]))
+                raise Exception(
+                    "Unsupported polygon type(:{}) Exception".format(primitive["mode"])
+                )
             vrm_mesh.face_indices = vrm_pydata.decoded_binary[primitive["indices"]]
             # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
             # ATTENTION これだけndarray
@@ -302,7 +335,9 @@ def mesh_read(vrm_pydata):
             vertex_attributes = primitive["attributes"]
             # 頂点属性は実装によっては存在しない属性(例えばJOINTSやWEIGHTSがなかったりもする)もあるし、UVや頂点カラー0->Nで増やせる(スキニングは1要素(ボーン4本)限定
             for attr in vertex_attributes.keys():
-                vrm_mesh.__setattr__(attr, vrm_pydata.decoded_binary[vertex_attributes[attr]])
+                vrm_mesh.__setattr__(
+                    attr, vrm_pydata.decoded_binary[vertex_attributes[attr]]
+                )
 
             # region TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
             legacy_uv_flag = False  # f***
@@ -351,7 +386,8 @@ def mesh_read(vrm_pydata):
                     ]
 
                 vrm_mesh.__setattr__(
-                    "morph_target_point_list_and_accessor_index_dict", morph_target_point_list_and_accessor_index_dict,
+                    "morph_target_point_list_and_accessor_index_dict",
+                    morph_target_point_list_and_accessor_index_dict,
                 )
             primitives.append(vrm_mesh)
         vrm_pydata.meshes.append(primitives)
@@ -367,8 +403,12 @@ def material_read(vrm_pydata, use_simple_principled_material):
     )
     if "textures" in vrm_pydata.json:
         textures = vrm_pydata.json["textures"]  # noqa: F841
-    for mat, ext_mat in zip(vrm_pydata.json["materials"], vrm_extension_material_properties):
-        vrm_pydata.materials.append(vrm2pydata_factory.material(mat, ext_mat, use_simple_principled_material))
+    for mat, ext_mat in zip(
+        vrm_pydata.json["materials"], vrm_extension_material_properties
+    ):
+        vrm_pydata.materials.append(
+            vrm2pydata_factory.material(mat, ext_mat, use_simple_principled_material)
+        )
 
     # skinをパース ->バイナリの中身はskinning実装の横着用
     # skinのjointsの(nodesの)indexをvertsのjoints_0は指定してる
