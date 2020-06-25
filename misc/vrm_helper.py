@@ -214,7 +214,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 for humanbone in vrm_types.HumanBones.requires:
                     if humanbone not in armature.data or armature.data[
                         humanbone
-                    ] not in ["", *[b.name for b in armature.data.bones],]:
+                    ] not in ["", *[b.name for b in armature.data.bones]]:
                         armature.data[humanbone] = ""
                         messages.append(
                             lang_support(
