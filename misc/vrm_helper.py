@@ -712,7 +712,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             blf.position(0, text_size, text_size * (i + 1) + 100, 0)
             blf.draw(0, text)
         blf.position(
-            0, text_size, text_size * (2 + len(VRM_VALIDATOR.messagess)) + 100, 0
+            0, text_size, text_size * (2 + len(VRM_VALIDATOR.messages)) + 100, 0
         )
         blf.draw(0, "message delete count down...:{}".format(VRM_VALIDATOR.counter))
         VRM_VALIDATOR.counter -= 1
