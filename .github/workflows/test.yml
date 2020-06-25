@@ -99,4 +99,4 @@ jobs:
           pip3 install flake8 flake8-black flake8-bugbear pep8-naming
           echo "::add-path::$HOME/.local/bin"
       - name: Lint
-        run: flake8 . --count --show-source --statistics --verbose
+        run: flake8 . --count --show-source --statistics
