@@ -454,7 +454,7 @@ class BlendModel:
                 child_node.hide = True
             child_node.location = bottom_pos
             bottom_pos[1] -= 40
-            for ch_node in [
+            for _ in [
                 link.from_node for socket in child_node.inputs for link in socket.links
             ]:
                 self.node_placer(child_node)
@@ -860,7 +860,7 @@ class BlendModel:
                             normalized_normal = [
                                 Vector(n).normalized() for n in prim.NORMAL
                             ]
-                            setattr(prim, "vert_normal_normalized", True)
+                            prim.vert_normal_normalized = True
                             prim.NORMAL = normalized_normal
                         b_mesh.normals_split_custom_set_from_vertices(normalized_normal)
                 b_mesh.use_auto_smooth = True
@@ -905,7 +905,7 @@ class BlendModel:
                             vc = b_mesh.vertex_colors[vc_color_name]
                         else:
                             vc = b_mesh.vertex_colors.new(name=vc_color_name)
-                        for v_index, col in enumerate(vc.data):
+                        for v_index, _ in enumerate(vc.data):
                             vc.data[v_index].color = getattr(prim, vc_color_name)[
                                 flatten_vrm_mesh_vert_index[v_index]
                             ]

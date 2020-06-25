@@ -294,7 +294,7 @@ def decode_bin(json_data, binary):
         type_num = type_num_dict[accessor["type"]]
         br.set_pos(buffer_views[accessor["bufferView"]]["byteOffset"])
         data_list = []
-        for num in range(accessor["count"]):
+        for _ in range(accessor["count"]):
             if type_num == 1:
                 data = br.read_as_data_type(accessor["componentType"])
             else:

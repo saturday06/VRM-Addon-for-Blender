@@ -1552,11 +1552,11 @@ class GlbObj:
         magic = b"glTF" + struct.pack("<I", 2)
         json_str = json.dumps(self.json_dic).encode("utf-8")
         if len(json_str) % 4 != 0:
-            for i in range(4 - len(json_str) % 4):
+            for _ in range(4 - len(json_str) % 4):
                 json_str += b"\x20"
         json_size = struct.pack("<I", len(json_str))
         if len(self.bin) % 4 != 0:
-            for i in range(4 - len(self.bin) % 4):
+            for _ in range(4 - len(self.bin) % 4):
                 self.bin += b"\x00"
         bin_size = struct.pack("<I", len(self.bin))
         total_size = struct.pack(
