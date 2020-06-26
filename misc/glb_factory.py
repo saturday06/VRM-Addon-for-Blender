@@ -825,6 +825,36 @@ class GlbObj:
             )
         return
 
+    @staticmethod
+    def normalize_weights(weights: [float]) -> [float]:
+        if abs(sum(weights) - 1.0) <= float_info.epsilon:
+            return weights
+
+        def to_float32(array4: [float]) -> [float]:
+            return struct.unpack("<ffff", struct.pack("<ffff", *array4))
+
+        # Simulate export and import
+        for _ in range(10):
+            first_normalized_weights = to_float32(
+                [weights[i] / sum(weights) for i in range(4)]
+            )
+            second_normalized_weights = to_float32(
+                [
+                    first_normalized_weights[i] / sum(first_normalized_weights)
+                    for i in range(4)
+                ]
+            )
+            first_error = abs(sum(weights) - sum(first_normalized_weights))
+            second_error = abs(
+                sum(first_normalized_weights) - sum(second_normalized_weights)
+            )
+            if first_error > float_info.epsilon and first_error > second_error:
+                weights = first_normalized_weights
+            else:
+                break
+
+        return weights
+
     def mesh_to_bin_and_dic(self):
         self.json_dic["meshes"] = []
         for mesh_id, mesh in enumerate(
@@ -1052,10 +1082,8 @@ class GlbObj:
                             )
                         min_max(shape_min_max_dic[shape_name], morph_pos)
                     if is_skin_mesh:
-                        magic = 0
-                        joints = [magic, magic, magic, magic]
-                        weights = [0.0, 0.0, 0.0, 0.0]
-                        weight_count = 0
+                        joints = []
+                        weights = []
                         for v_group in mesh.data.vertices[loop.vert.index].groups:
                             joint_id = joint_id_from_node_name_solver(
                                 v_group_name_dic[v_group.group]
@@ -1063,25 +1091,26 @@ class GlbObj:
                             # 存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
                             if joint_id == -1:
                                 continue
-                            weight_count += 1
-                            weights.pop(3)
-                            weights.insert(0, v_group.weight)
-                            joints.pop(3)
-                            joints.insert(0, joint_id)
-                            if weight_count >= 4:
-                                break
-                        normalize_fact = sum(weights)
-                        if normalize_fact != 0:
-                            normalize_fact = 1 / normalize_fact
-                        try:
-                            weights = [weights[i] * normalize_fact for i in range(4)]
-                        except ZeroDivisionError:  # validationではじけてるはず…
+
+                            joints.append(joint_id)
+                            weights.append(v_group.weight)
+
+                        while len(joints) < 4:
+                            joints.append(0)
+                            weights.append(0.0)
+                        if len(joints) > 4:
+                            print(
+                                f"Joints on vertex id:{loop.vert.index} in: {mesh.name} are truncated"
+                            )
+                            joints = joints[:4]
+                            weights = weights[:4]
+                        if sum(weights) < float_info.epsilon:
                             print(
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
                             )
                             raise ZeroDivisionError
-                        if sum(weights) < 1:
-                            weights[0] += 1 - sum(weights)
+
+                        weights = self.normalize_weights(weights)
                         joints_bin += unsigned_short_vec4_packer(*joints)
                         weights_bin += float_vec4_packer(*weights)
 
