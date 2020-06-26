@@ -875,7 +875,11 @@ class BlendModel:
                         normalized_normal = prim.NORMAL
                         if not hasattr(prim, "vert_normal_normalized"):
                             normalized_normal = [
-                                Vector(n).normalized() for n in prim.NORMAL
+                                Vector(n)
+                                if abs(Vector(n).magnitude - 1.0)
+                                < sys.float_info.epsilon
+                                else Vector(n).normalized()
+                                for n in prim.NORMAL
                             ]
                             prim.vert_normal_normalized = True
                             prim.NORMAL = normalized_normal
