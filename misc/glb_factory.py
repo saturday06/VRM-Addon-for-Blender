@@ -847,12 +847,10 @@ class GlbObj:
             )
             if is_skin_mesh:
                 node_dic["translation"] = [0, 0, 0]  # skinnedmeshはtransformを無視される
-                mesh.data.transform(
-                    bMatrix.Translation(mesh.location), shape_keys=True
-                )  # 前に続きmeshを動かす(後で戻す
-                node_dic[
-                    "skin"
-                ] = 0  # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
+                # 前に続きmeshを動かす(後で戻す
+                mesh.data.transform(bMatrix.Translation(mesh.location), shape_keys=True)
+                # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
+                node_dic["skin"] = 0
             self.json_dic["nodes"].append(node_dic)
 
             mesh_node_id = len(self.json_dic["nodes"]) - 1
@@ -909,9 +907,8 @@ class GlbObj:
             v_group_name_dic = {i: vg.name for i, vg in enumerate(mesh.vertex_groups)}
             fmin, fmax = -float_info.max, float_info.max  # .minはfloatで一番細かい正の数を示す。
             unique_vertex_id = 0
-            unique_vertex_dic = (
-                {}
-            )  # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
+            # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
+            unique_vertex_dic = {}
             uvlayers_dic = {
                 i: uvlayer.name for i, uvlayer in enumerate(mesh.data.uv_layers)
             }
@@ -951,9 +948,10 @@ class GlbObj:
                 shape_min_max_dic = {}
                 morph_normal_diff_dic = {}
             else:
+                # 0番目Basisは省く
                 shape_pos_bin_dic = OrderedDict(
                     {shape.name: b"" for shape in mesh.data.shape_keys.key_blocks[1:]}
-                )  # 0番目Basisは省く
+                )
                 shape_normal_bin_dic = OrderedDict(
                     {shape.name: b"" for shape in mesh.data.shape_keys.key_blocks[1:]}
                 )
@@ -1062,7 +1060,8 @@ class GlbObj:
                             joint_id = joint_id_from_node_name_solver(
                                 v_group_name_dic[v_group.group]
                             )
-                            if joint_id == -1:  # 存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
+                            # 存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
+                            if joint_id == -1:
                                 continue
                             weight_count += 1
                             weights.pop(3)
@@ -1263,8 +1262,8 @@ class GlbObj:
             "extensionsUsed": ["VRM", "KHR_materials_unlit", "VRMC_materials_mtoon"],
             "asset": {
                 "generator": self.exporter_name(),
-                "version": "2.0",
-            },  # GLTF version
+                "version": "2.0",  # GLTF version
+            },
         }
 
         self.json_dic.update(gltf_meta_dic)

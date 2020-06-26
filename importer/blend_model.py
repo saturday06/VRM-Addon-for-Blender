@@ -112,15 +112,14 @@ class BlendModel:
                 for (
                     disconnected_bone_name
                 ) in disconnected_bone_names:  # 結合されてないボーンのリスト分繰り返し処理
-                    if (
-                        bone.name == disconnected_bone_name
-                    ):  # リストに該当するオブジェクトがシーン中にあったら処理
+                    # リストに該当するオブジェクトがシーン中にあったら処理
+                    if bone.name == disconnected_bone_name:
+                        # disconnected_bone変数に処理ボーンを代入
                         disconnected_bone = self.armature.data.edit_bones[
                             disconnected_bone_name
-                        ]  # disconnected_bone変数に処理ボーンを代入
-                        disconnected_bone.parent.tail = (
-                            disconnected_bone.head
-                        )  # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
+                        ]
+                        # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
+                        disconnected_bone.parent.tail = disconnected_bone.head
                 if bone.parent:  # 親ボーンがある場合
                     # ボーンのヘッドと親ボーンのテールが一致していたら
                     if (
@@ -232,9 +231,8 @@ class BlendModel:
                     length = max(0.01, vector_length(py_bone.position) * 30)  # 0除算除けと気分
                     pos_diff = [py_bone.position[i] / length for i in range(3)]
                     if vector_length(pos_diff) <= 0.001:
-                        pos_diff[
-                            1
-                        ] += 0.01  # ボーンの長さが1mm以下なら上に10cm延ばす 長さが0だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
+                        # ボーンの長さが1mm以下なら上に10cm延ばす 長さが0だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
+                        pos_diff[1] += 0.01
                     b.tail = [b.head[i] + pos_diff[i] for i in range(3)]
             else:  # 子供たちの方向の中間を見る
                 mean_relate_pos = numpy.array([0.0, 0.0, 0.0], dtype=numpy.float)
@@ -779,7 +777,8 @@ class BlendModel:
                 # VertexGroupに頂点属性から一個ずつウェイトを入れる用の辞書作り
                 for prim in pymesh:
                     if hasattr(prim, "JOINTS_0") and hasattr(prim, "WEIGHTS_0"):
-                        vg_dict = {  # 使うkey(bone名)のvalueを空のリストで初期化(中身まで全部内包表記で?キモすぎるからしない。
+                        # 使うkey(bone名)のvalueを空のリストで初期化(中身まで全部内包表記で?キモすぎるからしない。
+                        vg_dict = {
                             self.vrm_pydata.nodes_dict[
                                 nodes_index_list[joint_id]
                             ].name: list()
