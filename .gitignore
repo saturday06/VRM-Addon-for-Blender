@@ -6,17 +6,18 @@
 #
 /venv/
 # ホワイトリストに入れたいファイルを許可する
-!.gitignore
-!.git-blame-ignore-revs
+!/.gitignore
+!/.git-blame-ignore-revs
 !*.py
 !*.md
 !*.blend
-!LICENSE
+!/LICENSE
 !*.jpeg
-!setup.cfg
-!web/*.jpg
-!web/*.png
-!web/*.pptx
+!/setup.cfg
+!/web/*.jpg
+!/web/*.png
+!/web/*.pptx
+!/test/vrm/*.vrm
 .vscode/.ropeproject/objectdb
 .vscode/.ropeproject/config.py
 .vscode/tasks.json

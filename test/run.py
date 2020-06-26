@@ -23,21 +23,29 @@ if platform.system() == "Windows":
 else:
     os.symlink(repository_root_dir, addon_dir)
 
-env = os.environ.copy()
-env["BLENDER_USER_SCRIPTS"] = user_scripts_dir
-subprocess.run(
-    [
-        blender_command,
-        "-noaudio",  # sound system to None (less output on stdout)
-        "--factory-startup",  # factory settings
-        "--addons",
-        "io_scene_vrm_saturday06",  # enable the addon
-        "--python-exit-code",
-        "1",
-        "--background",
-        "--python",
-        os.path.join(repository_root_dir, "test", "stub.py"),  # run the test script
-    ],
-    env=env,
-    check=True,
-)
+
+def run_script(script, *args):
+    env = os.environ.copy()
+    env["BLENDER_USER_SCRIPTS"] = user_scripts_dir
+    subprocess.run(
+        [
+            blender_command,
+            "-noaudio",  # sound system to None (less output on stdout)
+            "--factory-startup",  # factory settings
+            "--addons",
+            "io_scene_vrm_saturday06",  # enable the addon
+            "--python-exit-code",
+            "1",
+            "--background",
+            "--python",
+            os.path.join(repository_root_dir, "test", script),  # run the test script
+            "--",
+            *args,
+        ],
+        env=env,
+        check=True,
+    )
+
+
+run_script("basic_armature.py")
+run_script("io.py", os.path.join(repository_root_dir, "test", "vrm", "sphere.vrm"))
