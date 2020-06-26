@@ -74,8 +74,6 @@ class BlendModel:
         i = prog(i)
         self.cleaning_data()
         i = prog(i)
-        self.axis_transform()
-        i = prog(i)
         if self.is_set_bone_roll:
             self.set_bone_roll()
         if self.is_put_spring_bone_info:
@@ -89,6 +87,10 @@ class BlendModel:
         self.finishing(affected_object)
         wm.progress_end()
         return 0
+
+    @staticmethod
+    def axis_glb_to_blender(vec3) -> [float]:
+        return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
     def connect_bones(self):
         # Blender_VRMAutoIKSetup (MIT License)
@@ -213,7 +215,9 @@ class BlendModel:
                 parent_pos = [0, 0, 0]
             else:
                 parent_pos = self.bones[parent_node_id].head
-            b.head = numpy.array(parent_pos) + numpy.array(py_bone.position)
+            b.head = numpy.array(parent_pos) + numpy.array(
+                self.axis_glb_to_blender(py_bone.position)
+            )
 
             # region temporary tail pos(gltf doesn't have bone. there defines as joints )
             def vector_length(bone_vector):
@@ -228,8 +232,15 @@ class BlendModel:
                 if parent_node_id == -1:  # 唯我独尊:上向けとけ
                     b.tail = [b.head[0], b.head[1] + 0.05, b.head[2]]
                 else:  # normalize length to 0.03 末代:親から距離をちょっととる感じ
-                    length = max(0.01, vector_length(py_bone.position) * 30)  # 0除算除けと気分
-                    pos_diff = [py_bone.position[i] / length for i in range(3)]
+                    # 0除算除けと気分
+                    length = max(
+                        0.01,
+                        vector_length(self.axis_glb_to_blender(py_bone.position)) * 30,
+                    )
+                    pos_diff = [
+                        self.axis_glb_to_blender(py_bone.position)[i] / length
+                        for i in range(3)
+                    ]
                     if vector_length(pos_diff) <= 0.001:
                         # ボーンの長さが1mm以下なら上に10cm延ばす 長さが0だとOBJECT MODEに戻った時にボーンが消えるので上向けとく
                         pos_diff[1] += 0.01
@@ -239,7 +250,9 @@ class BlendModel:
                 count = 0
                 for child_id in py_bone.children:
                     count += 1
-                    mean_relate_pos += self.vrm_pydata.nodes_dict[child_id].position
+                    mean_relate_pos += self.axis_glb_to_blender(
+                        self.vrm_pydata.nodes_dict[child_id].position
+                    )
                 mean_relate_pos = mean_relate_pos / count
                 if vector_length(mean_relate_pos) <= 0.001:  # ボーンの長さが1mm以下なら上に10cm延ばす
                     mean_relate_pos[1] += 0.1
@@ -729,7 +742,7 @@ class BlendModel:
         for pymesh in self.vrm_pydata.meshes:
             b_mesh = bpy.data.meshes.new(pymesh[0].name)
             face_index = [tri for prim in pymesh for tri in prim.face_indices]
-            pos = pymesh[0].POSITION
+            pos = list(map(tuple, map(self.axis_glb_to_blender, pymesh[0].POSITION)))
             b_mesh.from_pydata(pos, [], face_index)
             b_mesh.update()
             obj = bpy.data.objects.new(pymesh[0].name, b_mesh)
@@ -739,7 +752,8 @@ class BlendModel:
             origin = None
             for key_is_node_id, node in self.vrm_pydata.origin_nodes_dict.items():
                 if node[1] == pymesh[0].object_id:
-                    obj.location = node[0].position  # origin boneの場所に移動
+                    # origin boneの場所に移動
+                    obj.location = self.axis_glb_to_blender(node[0].position)
                     if len(node) == 3:
                         origin = node
                     else:  # len=2 ≒ skinがない場合
@@ -761,7 +775,7 @@ class BlendModel:
                                 + self.armature.data.bones[
                                     obj.parent_bone
                                 ].matrix_local.to_translation()[i]
-                                + node[0].position[i]
+                                + self.axis_glb_to_blender(node[0].position)[i]
                                 for i in range(3)
                             ]
                         )
@@ -883,7 +897,14 @@ class BlendModel:
                             ]
                             prim.vert_normal_normalized = True
                             prim.NORMAL = normalized_normal
-                        b_mesh.normals_split_custom_set_from_vertices(normalized_normal)
+                        b_mesh.normals_split_custom_set_from_vertices(
+                            list(
+                                map(
+                                    tuple,
+                                    map(self.axis_glb_to_blender, normalized_normal),
+                                )
+                            )
+                        )
                 b_mesh.use_auto_smooth = True
             # endregion Normal
 
@@ -957,7 +978,9 @@ class BlendModel:
                 for base_pos, morph_pos in zip(base_points, morph_target_pos):
                     # numpy.array毎回作るのは見た目きれいだけど8倍くらい遅い
                     shape_key_positions.append(
-                        [base_pos[i] + morph_pos[i] for i in range(3)]
+                        self.axis_glb_to_blender(
+                            [base_pos[i] + morph_pos[i] for i in range(3)]
+                        )
                     )
                 morph_cache_dict[
                     (prim.POSITION_accessor, morph_target_index)
@@ -1117,36 +1140,6 @@ class BlendModel:
             self.model_collection.objects.link(self.context.active_object)
             self.context.scene.collection.objects.unlink(self.context.active_object)
             bpy.ops.object.select_all(action="DESELECT")
-        return
-
-    def axis_transform(self):
-        # axis armature->>objの順でやらないと不具合
-        bpy.ops.object.select_all(action="DESELECT")
-        self.context.view_layer.objects.active = self.armature
-        self.armature.select_set(True)
-        self.armature.rotation_mode = "XYZ"
-        self.armature.rotation_euler[0] = numpy.deg2rad(90)
-        self.armature.rotation_euler[2] = numpy.deg2rad(-180)
-        self.armature.location = [
-            self.armature.location[axis] * inv
-            for axis, inv in zip([0, 2, 1], [-1, 1, 1])
-        ]
-        bpy.ops.object.transform_apply(location=True, rotation=True)
-        bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        for obj in self.meshes.values():
-            self.context.view_layer.objects.active = obj
-            obj.select_set(True)
-            if obj.parent_type == "BONE":  # ボーンにくっ付いて動くのは無視:なんか吹っ飛ぶ髪の毛がいる?
-                bpy.ops.object.transform_apply(rotation=True)
-            obj.rotation_mode = "XYZ"
-            obj.rotation_euler[0] = numpy.deg2rad(90)
-            obj.rotation_euler[2] = numpy.deg2rad(-180)
-            obj.location = [
-                obj.location[axis] * inv for axis, inv in zip([0, 2, 1], [-1, 1, 1])
-            ]
-            bpy.ops.object.transform_apply(location=True, rotation=True)
-            obj.select_set(False)
         return
 
     def set_bone_roll(self):
