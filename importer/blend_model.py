@@ -792,8 +792,24 @@ class BlendModel:
                             zip(prim.JOINTS_0, prim.WEIGHTS_0)
                         ):
                             # region VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
+                            normalized_joint_ids = list(dict.fromkeys(joint_ids))
+
+                            # for deterministic export
+                            def sort_by_vg_dict_key(joint_id):
+                                name = self.vrm_pydata.nodes_dict[
+                                    nodes_index_list[joint_id]
+                                ].name
+                                keys = list(vg_dict.keys())
+                                if name in keys:
+                                    return keys.index(name)
+                                else:
+                                    return len(keys) + joint_ids.index(joint_id)
+
                             normalized_joint_dic = {
-                                jid: 0 for jid in list(dict.fromkeys(joint_ids))
+                                jid: 0
+                                for jid in sorted(
+                                    normalized_joint_ids, key=sort_by_vg_dict_key
+                                )
                             }
                             for i, k in enumerate(joint_ids):
                                 normalized_joint_dic[k] += weights[i]
