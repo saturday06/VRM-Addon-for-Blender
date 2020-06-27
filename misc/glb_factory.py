@@ -928,11 +928,10 @@ class GlbObj:
             def joint_id_from_node_name_solver(node_name):
                 try:
                     node_id = node_id_dic[node_name]
-                    joint_id = self.json_dic["skins"][0]["joints"].index(node_id)
+                    return self.json_dic["skins"][0]["joints"].index(node_id)
                 except (ValueError, KeyError):
-                    joint_id = -1  # 存在しないボーンを指してる場合は-1を返す
                     print(f"{node_name} bone may be not exist")
-                return joint_id
+                    return -1  # 存在しないボーンを指してる場合は-1を返す
 
             v_group_name_dic = {i: vg.name for i, vg in enumerate(mesh.vertex_groups)}
             fmin, fmax = -float_info.max, float_info.max  # .minはfloatで一番細かい正の数を示す。
