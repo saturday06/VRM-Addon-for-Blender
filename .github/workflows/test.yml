@@ -103,4 +103,4 @@ jobs:
       - name: Check source code formatting
         run: black --check --diff $(git ls-files "**.py")
       - name: Lint
-        run: flake8 . --count --show-source --statistics
+        run: flake8 --count --show-source --statistics $(git ls-files "**.py")
