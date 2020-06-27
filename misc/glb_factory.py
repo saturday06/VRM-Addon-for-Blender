@@ -16,6 +16,7 @@ import struct
 from sys import float_info
 import bpy
 import bmesh
+import os
 
 
 class GlbObj:
@@ -1281,9 +1282,10 @@ class GlbObj:
         return
 
     def exporter_name(self):
-        return "saturday06_blender_vrm_exporter_experimental_" + ".".join(
-            map(str, version())
-        )
+        v = version()
+        if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
+            v = (999, 999, 999)
+        return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, v))
 
     def gltf_meta_to_dic(self):
         gltf_meta_dic = {
