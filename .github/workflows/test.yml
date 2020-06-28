@@ -91,9 +91,11 @@ jobs:
           done
       - name: Check file content character encoding
         run: |
-          find . -name '*.py' -exec nkf -w -Lu -Z1 --in-place {} +
-          find . -name '*.md' -exec nkf -w -Lu -Z1 --in-place {} +
-          find . -name '*.yml' -exec nkf -w -Lu -Z1 --in-place {} +
+          git ls-files | while read -r f; do
+            if [ "$(nkf --guess $f)" != "BINARY" ]; then
+              nkf -w -Lu -Z1 --in-place $f
+            fi
+          done
           git diff --exit-code
       - name: Install pip packages
         run: |
