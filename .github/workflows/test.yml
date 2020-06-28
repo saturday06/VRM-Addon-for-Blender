@@ -100,9 +100,11 @@ jobs:
       - name: Install pip packages
         run: |
           pip3 install --upgrade pip
-          pip3 install black flake8 flake8-black flake8-bugbear pep8-naming
+          pip3 install black flake8 flake8-black flake8-bugbear pep8-naming pylint
           echo "::add-path::$HOME/.local/bin"
       - name: Check source code formatting
         run: black --check --diff $(git ls-files "**.py")
-      - name: Lint
+      - name: Flake8
         run: flake8 --count --show-source --statistics $(git ls-files "**.py")
+      - name: Pylint
+        run: pylint $(git ls-files "**.py")

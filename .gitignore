@@ -8,6 +8,8 @@
 # ホワイトリストに入れたいファイルを許可する
 !/.gitignore
 !/.git-blame-ignore-revs
+!/.flake8
+!/.pylintrc
 !*.py
 !*.md
 !*.blend
