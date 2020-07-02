@@ -21,6 +21,8 @@
 !/web/*.pptx
 !/test/vrm/in/*.vrm
 !/test/vrm/out/*.vrm
+!/test/vrm/out2/*.vrm
+!/test/vrm/out3/*.vrm
 .vscode/.ropeproject/objectdb
 .vscode/.ropeproject/config.py
 .vscode/tasks.json
