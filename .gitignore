@@ -19,7 +19,8 @@
 !/web/*.jpg
 !/web/*.png
 !/web/*.pptx
-!/test/vrm/*.vrm
+!/test/vrm/in/*.vrm
+!/test/vrm/out/*.vrm
 .vscode/.ropeproject/objectdb
 .vscode/.ropeproject/config.py
 .vscode/tasks.json
