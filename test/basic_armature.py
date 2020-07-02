@@ -11,7 +11,7 @@ bpy.ops.icyp.make_basic_armature()
 bpy.data.objects["skeleton"].select_set(True)
 bpy.ops.vrm.model_validate()
 
-filepath = os.path.join(temp_dir_path, "basic_armature.vrm.glb")
+filepath = os.path.join(temp_dir_path, "basic_armature.vrm")
 bpy.ops.export_scene.vrm(filepath=filepath)
 assert os.path.getsize(filepath) > 0
 assert (
