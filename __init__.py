@@ -81,7 +81,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
         return {"FINISHED"}
 
 
-def menu_import(self, context):
+def menu_import(self, context):  # Same as test/io.py for now
     op = self.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
     op.make_new_texture_folder = True
     op.is_put_spring_bone_info = True

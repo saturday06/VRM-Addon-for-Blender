@@ -12,7 +12,14 @@ bpy.ops.object.delete()
 while bpy.data.collections:
     bpy.data.collections.remove(bpy.data.collections[0])
 
-bpy.ops.import_scene.vrm(filepath=in_path)
+bpy.ops.import_scene.vrm(
+    filepath=in_path,
+    # Same as __init__.py menu_import(self, context) for now
+    is_put_spring_bone_info=True,
+    import_normal=True,
+    remove_doubles=False,
+    set_bone_roll=True,
+)
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.vrm.model_validate()
 
