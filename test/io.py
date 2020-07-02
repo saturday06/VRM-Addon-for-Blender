@@ -22,7 +22,7 @@ expected_size = os.path.getsize(expected_out_path)
 actual_size = os.path.getsize(actual_out_path)
 assert expected_size == actual_size, (
     f'os.path.getsize("{expected_out_path}"):{expected_size}"'
-    + ' != os.path.getsize("{actual_out_path}"):{actual_size}'
+    + f' != os.path.getsize("{actual_out_path}"):{actual_size}'
 )
 if bpy.app.build_platform != b"Darwin":  # TODO: normals
     assert (  # pylint: disable=W0199
