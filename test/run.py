@@ -42,6 +42,7 @@ def run_script(script, *args):
             "--",
             *args,
         ],
+        cwd=repository_root_dir,
         env=env,
         check=True,
     )
@@ -57,6 +58,8 @@ test_out2_vrm_dir = os.path.join(test_vrm_dir, "out2")
 test_out3_vrm_dir = os.path.join(test_vrm_dir, "out3")
 
 os.makedirs(test_temp_vrm_dir, exist_ok=True)
+
+run_script("misc.py")
 
 run_script(
     "basic_armature.py",

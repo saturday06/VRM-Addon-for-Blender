@@ -826,36 +826,6 @@ class GlbObj:
             )
         return
 
-    @staticmethod
-    def normalize_weights(weights: [float]) -> [float]:
-        if abs(sum(weights) - 1.0) <= float_info.epsilon:
-            return weights
-
-        def to_float32(array4: [float]) -> [float]:
-            return struct.unpack("<ffff", struct.pack("<ffff", *array4))
-
-        # Simulate export and import
-        for _ in range(10):
-            first_normalized_weights = to_float32(
-                [weights[i] / sum(weights) for i in range(4)]
-            )
-            second_normalized_weights = to_float32(
-                [
-                    first_normalized_weights[i] / sum(first_normalized_weights)
-                    for i in range(4)
-                ]
-            )
-            first_error = abs(sum(weights) - sum(first_normalized_weights))
-            second_error = abs(
-                sum(first_normalized_weights) - sum(second_normalized_weights)
-            )
-            if first_error > float_info.epsilon and first_error > second_error:
-                weights = first_normalized_weights
-            else:
-                break
-
-        return weights
-
     def mesh_to_bin_and_dic(self):
         self.json_dic["meshes"] = []
         for mesh_id, mesh in enumerate(
@@ -1110,7 +1080,9 @@ class GlbObj:
                             )
                             raise ZeroDivisionError
 
-                        weights = self.normalize_weights(weights)
+                        weights = vrm_types.normalize_weights_compatible_with_gl_float(
+                            weights
+                        )
                         joints_bin += unsigned_short_vec4_packer(*joints)
                         weights_bin += float_vec4_packer(*weights)
 

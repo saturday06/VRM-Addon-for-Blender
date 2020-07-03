@@ -4,6 +4,10 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
+
+import struct
+from sys import float_info
+
 VRM = "VRM"
 
 
@@ -346,6 +350,27 @@ def nested_json_value_getter(target_dict, attr_list, default=None):
             else:
                 _result = target_dict[_attr]
     return _result
+
+
+def normalize_weights_compatible_with_gl_float(weights: [float]) -> [float]:
+    if abs(sum(weights) - 1.0) < float_info.epsilon:
+        return weights
+
+    def to_gl_float(array4: [float]) -> [float]:
+        return list(struct.unpack("<ffff", struct.pack("<ffff", *array4)))
+
+    # Simulate export and import
+    weights = to_gl_float(weights)
+    for _ in range(10):
+        next_weights = to_gl_float([weights[i] / sum(weights) for i in range(4)])
+        error = abs(1 - sum(weights))
+        next_error = abs(1 - sum(next_weights))
+        if error >= float_info.epsilon and error > next_error:
+            weights = next_weights
+        else:
+            break
+
+    return weights
 
 
 if "__main__" == __name__:
