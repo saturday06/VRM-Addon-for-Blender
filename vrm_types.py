@@ -352,11 +352,11 @@ def nested_json_value_getter(target_dict, attr_list, default=None):
     return _result
 
 
-def normalize_weights_compatible_with_gl_float(weights: [float]) -> [float]:
+def normalize_weights_compatible_with_gl_float(weights):
     if abs(sum(weights) - 1.0) < float_info.epsilon:
         return weights
 
-    def to_gl_float(array4: [float]) -> [float]:
+    def to_gl_float(array4):
         return list(struct.unpack("<ffff", struct.pack("<ffff", *array4)))
 
     # Simulate export and import

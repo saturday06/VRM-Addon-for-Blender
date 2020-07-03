@@ -89,7 +89,7 @@ class BlendModel:
         return 0
 
     @staticmethod
-    def axis_glb_to_blender(vec3) -> [float]:
+    def axis_glb_to_blender(vec3):
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
     def connect_bones(self):
@@ -281,7 +281,7 @@ class BlendModel:
         )
 
         # generate edit_bones sorted by node_id for deterministic vrm output
-        def find_connected_node_ids(parent_node_ids: [int]):
+        def find_connected_node_ids(parent_node_ids):
             node_ids = set(parent_node_ids)
             for parent_node_id in parent_node_ids:
                 py_bone = self.vrm_pydata.nodes_dict[parent_node_id]
