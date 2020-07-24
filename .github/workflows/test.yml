@@ -11,7 +11,8 @@ jobs:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-windows64.zip
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.0-windows64.zip
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.2-windows64.zip
-          - https://builder.blender.org/download/blender-2.90.0-a7f1c68938f9-windows64.zip
+          - https://builder.blender.org/download/blender-2.90.0-9cbf43801ba2-windows64.zip
+          - https://builder.blender.org/download/blender-2.91.0-698af2e774b5-windows64.zip
     steps:
       - uses: actions/checkout@v2
       - name: Cache archive
@@ -41,7 +42,8 @@ jobs:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-macOS.dmg
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.0-macOS.dmg
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.2-macOS.dmg
-          - https://builder.blender.org/download/blender-2.90.0-a7f1c68938f9-macOS.dmg
+          - https://builder.blender.org/download/blender-2.90.0-9cbf43801ba2-macOS.dmg
+          - https://builder.blender.org/download/blender-2.91.0-698af2e774b5-macOS.dmg
     steps:
       - uses: actions/checkout@v2
       - name: Cache archive
