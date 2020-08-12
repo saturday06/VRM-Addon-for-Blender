@@ -6,7 +6,7 @@ https://opensource.org/licenses/mit-license.php
 """
 
 
-from math import sqrt, pow, radians
+from math import sqrt, radians
 import sys
 import os.path
 import json
