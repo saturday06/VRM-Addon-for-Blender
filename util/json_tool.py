@@ -8,6 +8,7 @@ https://opensource.org/licenses/mit-license.php
 import json
 import tkinter.filedialog
 import struct
+import sys
 from collections import OrderedDict
 
 read_path = tkinter.filedialog.askopenfilename(
@@ -30,7 +31,7 @@ with open(read_path, "rb") as f:
         loaded_json = json.load(f)
     else:
         print("unsupported format :{}".format(filetype))
-        exit()
+        sys.exit(1)
 
 # something do in below with loaded_json
 
