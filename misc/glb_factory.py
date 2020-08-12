@@ -168,12 +168,12 @@ class GlbObj:
                 skin["skeleton"] = root_bone_id
                 scene.append(root_bone_id)
                 nodes.append(bone_to_node(bone))
-                bone_children = [b for b in bone.children]
+                bone_children = list(bone.children)
                 while bone_children:
                     child = bone_children.pop()
                     nodes.append(bone_to_node(child))
                     skin["joints"].append(bone_id_dic[child.name])
-                    bone_children += [ch for ch in child.children]
+                    bone_children += list(child.children)
                 nodes = sorted(nodes, key=lambda node: bone_id_dic[node["name"]])
         skins.append(skin)
 
@@ -1222,9 +1222,7 @@ class GlbObj:
                             for morph_pos_glb in morph_pos_glbs
                         ]
                     primitive["extras"] = {
-                        "targetNames": [
-                            shape_name for shape_name in shape_pos_bin_dic.keys()
-                        ]
+                        "targetNames": list(shape_pos_bin_dic.keys())
                     }
                 primitive_list.append(primitive)
             self.json_dic["meshes"].append(
@@ -1496,13 +1494,9 @@ class GlbObj:
                 if self.VRM_version == "0.0":
                     collider["radius"] = empty.empty_display_size
                     collider["offset"] = OrderedDict(
-                        {
-                            axis: o_s
-                            for axis, o_s in zip(
-                                ("x", "y", "z"),
-                                self.axis_blender_to_glb(empty_offset_pos),
-                            )
-                        }
+                        zip(
+                            ("x", "y", "z"), self.axis_blender_to_glb(empty_offset_pos),
+                        )
                     )
                     collider["offset"]["z"] = collider["offset"]["z"] * -1
                 else:
