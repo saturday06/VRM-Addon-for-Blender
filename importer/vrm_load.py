@@ -438,7 +438,7 @@ def node_read(vrm_pydata):
                 print(node["name"] + "is not have skin")
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     model_path = "./AliciaSolid\\AliciaSolid.vrm"
     model_path = "./Vroid\\Vroid.vrm"
     read_vrm(model_path)

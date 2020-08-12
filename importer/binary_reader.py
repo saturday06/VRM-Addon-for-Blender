@@ -76,5 +76,5 @@ class BinaryReader:
             raise Exception
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     BinaryReader(b"Hello")

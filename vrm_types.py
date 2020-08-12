@@ -373,5 +373,5 @@ def normalize_weights_compatible_with_gl_float(weights):
     return weights
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     pass
