@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-import vrm_types  # noqa: E402
+import vrm_types  # noqa: E402 pylint: disable=wrong-import-position
 
 for arg, expected in [
     ([1, 0, 0, 0], [1, 0, 0, 0]),

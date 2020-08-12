@@ -46,4 +46,3 @@ disable=attribute-defined-outside-init,
         useless-object-inheritance,
         useless-return,
         wrong-import-order,
-        wrong-import-position

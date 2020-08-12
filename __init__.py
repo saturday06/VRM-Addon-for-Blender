@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+import os
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.app.handlers import persistent
@@ -19,7 +20,6 @@ from . import vrm_types
 
 if bpy.app.build_platform != b"Darwin":
     from .misc import glsl_drawer
-import os
 
 bl_info = {
     "name": "VRM_IMPORTER",
