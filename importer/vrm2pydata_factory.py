@@ -18,7 +18,7 @@ def bone(node) -> vrm_types.Node:
     v_node.rotation = node.get("rotation", (0, 0, 0, 1))
     v_node.scale = node.get("scale", (1, 1, 1))
     if "children" in node:
-        if type(node["children"]) is int:
+        if isinstance(node["children"], int):
             v_node.children = [node["children"]]
         else:
             v_node.children = node["children"]

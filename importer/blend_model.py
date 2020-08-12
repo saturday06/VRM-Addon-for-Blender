@@ -313,11 +313,11 @@ class BlendModel:
                 self.build_principle_from_gltf_mat(b_mat, mat)
             else:
                 b_mat["shader_name"] = mat.shader_name
-                if type(mat) == vrm_types.MaterialGltf:
+                if isinstance(mat, vrm_types.MaterialGltf):
                     self.build_material_from_gltf(b_mat, mat)
-                elif type(mat) == vrm_types.MaterialMtoon:
+                elif isinstance(mat, vrm_types.MaterialMtoon):
                     self.build_material_from_mtoon(b_mat, mat)
-                elif type(mat) == vrm_types.MaterialTransparentZWrite:
+                elif isinstance(mat, vrm_types.MaterialTransparentZWrite):
                     self.build_material_from_transparent_z_write(b_mat, mat)
                 else:
                     print(f"unknown material {mat.name}")
@@ -481,12 +481,10 @@ class BlendModel:
             principled_node.inputs["Base Color"],
             principled_node.inputs["Alpha"],
         )
-        """
-        self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
-        self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
-        self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
-        self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
-        """
+        # self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
+        # self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
+        # self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
+        # self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
         self.connect_texture_node(
             b_mat, pymat.normal_texture_index, principled_node.inputs["Normal"]
         )

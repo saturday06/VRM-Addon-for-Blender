@@ -541,14 +541,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             )
                         )
                 if "meshAnnotations" in firstperson_params.keys():
-                    if type(firstperson_params["meshAnnotations"]) is not list:
-                        messages.append(
-                            lang_support(
-                                f"meshAnnotations in textblock:{first_person_params_name} must be list.",
-                                f"テキストエディタの {first_person_params_name} のmeshAnnotations はリスト要素でないといけません。",
-                            )
-                        )
-                    else:
+                    if isinstance(firstperson_params["meshAnnotations"], list):
                         for mesh_annotation in firstperson_params["meshAnnotations"]:
                             if not mesh_annotation["mesh"] in mesh_obj_names:
                                 messages.append(
@@ -559,6 +552,13 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                                         + f"テキストエディタの {first_person_params_name} を修正してください。",
                                     )
                                 )
+                    else:
+                        messages.append(
+                            lang_support(
+                                f"meshAnnotations in textblock:{first_person_params_name} must be list.",
+                                f"テキストエディタの {first_person_params_name} のmeshAnnotations はリスト要素でないといけません。",
+                            )
+                        )
                 if "lookAtTypeName" in firstperson_params:
                     if not firstperson_params["lookAtTypeName"] in [
                         "Bone",

@@ -439,4 +439,4 @@ def node_read(vrm_pydata):
 if __name__ == "__main__":
     model_path = "./AliciaSolid\\AliciaSolid.vrm"
     model_path = "./Vroid\\Vroid.vrm"
-    read_vrm(model_path)
+    read_vrm(model_path, None)
