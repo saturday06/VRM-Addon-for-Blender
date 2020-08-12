@@ -305,7 +305,6 @@ class BlendModel:
                     coll.objects.unlink(self.armature)
         except Exception:
             print("Master collection doesn't have armature obj")
-            pass
         return
 
     # region material

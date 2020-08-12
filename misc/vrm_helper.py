@@ -391,8 +391,6 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             # Transparent_Zwrite
             elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
                 input_check("TEX_IMAGE", "Main_Texture")
-            else:
-                pass  # ?
         # thumbnail
         try:
             if armature is not None:
@@ -415,7 +413,6 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     f"VRM用サムネ画像がblenderにロードされていません。{armature['texture']} を読み込んでください。",
                 )
             )
-            pass
 
         for img in used_images:
             if img.is_dirty or img.filepath == "":
