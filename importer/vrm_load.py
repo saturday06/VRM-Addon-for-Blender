@@ -189,8 +189,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         meta_value = vrm_pydata.json["extensions"]["VRM"]["meta"].get(param)
         if meta_value is not None:
             return meta_value[:max_length]
-        else:
-            return default_value
+        return default_value
 
     model_title = invalid_chars_remover(get_meta("title", "", 12))
     model_author = invalid_chars_remover(get_meta("author", "", 8))

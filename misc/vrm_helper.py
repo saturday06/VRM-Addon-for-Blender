@@ -151,8 +151,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         def lang_support(en_message, ja_message):
             if is_lang_ja:
                 return ja_message
-            else:
-                return en_message
+            return en_message
 
         # region selected object seeking
         for obj in bpy.context.selected_objects:

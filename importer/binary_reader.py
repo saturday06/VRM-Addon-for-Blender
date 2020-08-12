@@ -61,19 +61,18 @@ class BinaryReader:
     def read_as_data_type(self, data_type: GlConstants):
         if data_type == GlConstants.UNSIGNED_INT:
             return self.read_unsigned_int()
-        elif data_type == GlConstants.INT:
+        if data_type == GlConstants.INT:
             return self.read_int()
-        elif data_type == GlConstants.UNSIGNED_SHORT:
+        if data_type == GlConstants.UNSIGNED_SHORT:
             return self.read_unsigned_short()
-        elif data_type == GlConstants.SHORT:
+        if data_type == GlConstants.SHORT:
             return self.read_short()
-        elif data_type == GlConstants.FLOAT:
+        if data_type == GlConstants.FLOAT:
             return self.read_float()
-        elif data_type == GlConstants.UNSIGNED_BYTE:
+        if data_type == GlConstants.UNSIGNED_BYTE:
             return self.read_unsigned_byte()
-        else:
-            print("unsupported type : {}".format(data_type))
-            raise Exception
+        print("unsupported type : {}".format(data_type))
+        raise Exception
 
 
 if __name__ == "__main__":

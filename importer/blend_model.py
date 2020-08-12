@@ -802,8 +802,7 @@ class BlendModel:
                                 keys = list(vg_dict.keys())
                                 if name in keys:
                                     return keys.index(name)
-                                else:
-                                    return len(keys) + joint_ids.index(joint_id)
+                                return len(keys) + joint_ids.index(joint_id)
 
                             normalized_joint_dic = {
                                 jid: 0

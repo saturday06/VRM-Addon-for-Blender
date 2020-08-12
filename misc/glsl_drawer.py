@@ -90,18 +90,16 @@ class MtoonGlsl:
                     ].from_node.image.colorspace_settings.name = "Linear"
                 self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
                 return self.main_node.inputs[tex_name].links[0].from_node.image
-            else:
-                if default_color == "white":
-                    self.white_texture.gl_load()
-                    return self.white_texture
-                elif default_color == "black":
-                    self.black_texture.gl_load()
-                    return self.black_texture
-                elif default_color == "normal":
-                    self.normal_texture.gl_load()
-                    return self.normal_texture
-                else:
-                    raise Exception
+            if default_color == "white":
+                self.white_texture.gl_load()
+                return self.white_texture
+            elif default_color == "black":
+                self.black_texture.gl_load()
+                return self.black_texture
+            elif default_color == "normal":
+                self.normal_texture.gl_load()
+                return self.normal_texture
+            raise Exception
         else:
             if default_color == "white":
                 self.white_texture.gl_load()
@@ -112,8 +110,7 @@ class MtoonGlsl:
             elif default_color == "normal":
                 self.normal_texture.gl_load()
                 return self.normal_texture
-            else:
-                raise Exception
+            raise Exception
 
     def get_value(self, val_name):
         if self.main_node.inputs[val_name].links:
@@ -123,8 +120,7 @@ class MtoonGlsl:
                 .from_node.outputs[0]
                 .default_value
             )
-        else:
-            return self.main_node.inputs[val_name].default_value
+        return self.main_node.inputs[val_name].default_value
 
     def get_color(self, vec_name):
         if self.main_node.inputs[vec_name].links:
@@ -134,8 +130,7 @@ class MtoonGlsl:
                 .from_node.outputs[0]
                 .default_value
             )
-        else:
-            return self.main_node.inputs[vec_name].default_value
+        return self.main_node.inputs[vec_name].default_value
 
     def update(self):
         if self.material.blend_method in ("OPAQUE", "CLIP"):
@@ -646,16 +641,15 @@ class GlslDrawObj:
                         ]
                         for i, k in enumerate(scene_mesh.index_per_mat.keys())
                     }
-                else:
-                    return {
-                        k: [
-                            tmp_mesh.vertices[vid].normal
-                            for tri in tmp_mesh.loop_triangles
-                            for vid in tri.vertices
-                            if tri.material_index == i
-                        ]
-                        for i, k in enumerate(scene_mesh.index_per_mat.keys())
-                    }
+                return {
+                    k: [
+                        tmp_mesh.vertices[vid].normal
+                        for tri in tmp_mesh.loop_triangles
+                        for vid in tri.vertices
+                        if tri.material_index == i
+                    ]
+                    for i, k in enumerate(scene_mesh.index_per_mat.keys())
+                }
 
             def job_uv():
                 return {

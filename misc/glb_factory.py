@@ -1438,18 +1438,12 @@ class GlbObj:
             if max_val >= val:
                 if val >= min_val:
                     return val
-                else:
-                    print(
-                        "blendshapeGroup weight is between 0 and 1, value is {}".format(
-                            val
-                        )
-                    )
-                    return min_val
-            else:
                 print(
                     "blendshapeGroup weight is between 0 and 1, value is {}".format(val)
                 )
-                return max_val
+                return min_val
+            print("blendshapeGroup weight is between 0 and 1, value is {}".format(val))
+            return max_val
 
         for bsm in bsm_list:
             for bind in bsm["binds"]:
