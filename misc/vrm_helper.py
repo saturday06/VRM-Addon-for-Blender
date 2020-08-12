@@ -4,16 +4,16 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
-import bpy
-import blf
-from .. import vrm_types
-from ..vrm_types import nested_json_value_getter as json_get
-from .make_armature import ICYP_OT_MAKE_ARMATURE
-import re
-from mathutils import Vector
 import json
 from collections import OrderedDict
 import os
+import re
+import bpy
+import blf
+from mathutils import Vector
+from .. import vrm_types
+from ..vrm_types import nested_json_value_getter as json_get
+from .make_armature import ICYP_OT_MAKE_ARMATURE
 
 
 class Bones_rename(bpy.types.Operator):  # noqa: N801

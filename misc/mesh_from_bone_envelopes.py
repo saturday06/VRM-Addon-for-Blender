@@ -1,7 +1,7 @@
-import bpy
-import os
-from mathutils import Vector
 from math import ceil
+import os
+import bpy
+from mathutils import Vector
 
 
 class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801

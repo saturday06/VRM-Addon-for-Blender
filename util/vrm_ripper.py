@@ -5,11 +5,11 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-from ..importer.vrm_load import parse_glb
 import os
 import json
 import tkinter.filedialog as filedialog
 import tkinter.messagebox as messagebox
+from ..importer.vrm_load import parse_glb
 
 
 def exist_or_makedir(path):

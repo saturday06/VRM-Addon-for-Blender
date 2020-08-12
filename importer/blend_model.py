@@ -6,18 +6,18 @@ https://opensource.org/licenses/mit-license.php
 """
 
 
+from math import sqrt, pow, radians
+import sys
+import os.path
+import json
+import copy
+import numpy
 import bpy
 from mathutils import Vector, Matrix
 from .. import vrm_types
 from ..misc import vrm_helper
 from ..vrm_types import nested_json_value_getter as json_get
 from ..gl_constants import GlConstants
-from math import sqrt, pow, radians
-import numpy
-import sys
-import os.path
-import json
-import copy
 
 
 class BlendModel:

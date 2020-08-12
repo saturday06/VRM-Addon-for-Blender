@@ -4,19 +4,19 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
+import json
+import os
+import struct
+from collections import OrderedDict
+from math import floor
+from sys import float_info
+from mathutils import Matrix as bMatrix
+import bpy
+import bmesh
 from .glb_bin_collection import GlbBinCollection, ImageBin, GlbBin
 from .version import version
 from ..gl_constants import GlConstants
 from .. import vrm_types
-from collections import OrderedDict
-from math import floor
-from mathutils import Matrix as bMatrix
-import json
-import struct
-from sys import float_info
-import bpy
-import bmesh
-import os
 
 
 class GlbObj:

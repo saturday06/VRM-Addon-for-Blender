@@ -1,7 +1,7 @@
 import bpy
 import bmesh
-from ..vrm_types import HumanBones
 from mathutils import Matrix, Vector
+from ..vrm_types import HumanBones
 
 
 class IcypTemplateMeshMaker:

@@ -1,8 +1,8 @@
+import json
+from math import radians
 import bpy
 from mathutils import Matrix
-from math import radians
 from .template_mesh_maker import IcypTemplateMeshMaker
-import json
 
 
 class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
