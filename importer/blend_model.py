@@ -294,7 +294,7 @@ class BlendModel:
             armature_edit_bones[node_id] = self.armature.data.edit_bones.new(bone_name)
 
         bone_nodes = [(root_node, -1) for root_node in root_nodes]
-        while len(bone_nodes):
+        while bone_nodes:
             bone_chain(*bone_nodes.pop())
         # call when bone built
         self.context.scene.view_layers.update()
