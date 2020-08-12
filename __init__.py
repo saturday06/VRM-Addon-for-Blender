@@ -196,7 +196,6 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
 
             abox.label(icon="ERROR", text="EXPERIMENTAL!!!")
             abox.operator(vrm_helper.Bones_rename.bl_idname)
-            return
 
         # endregion helper
 
@@ -228,7 +227,6 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         if context.mode == "POSE":
             if context.active_object.type == "ARMATURE":
                 armature_ui()
-        return
         # endregion draw_main
 
 

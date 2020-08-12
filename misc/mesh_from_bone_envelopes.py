@@ -109,7 +109,6 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
             for node in mat.node_tree.nodes:
                 if node.type != "OUTPUT_MATERIAL":
                     mat.node_tree.nodes.remove(node)
-            return
 
         def node_group_import(shader_node_group_name):
             if shader_node_group_name not in bpy.data.node_groups:
@@ -125,7 +124,6 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
                     filename=shader_node_group_name,
                     directory=filedir,
                 )
-            return
 
         def node_group_create(material, shader_node_group_name):
             node_group = material.node_tree.nodes.new("ShaderNodeGroup")

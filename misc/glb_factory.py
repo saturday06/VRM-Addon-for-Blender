@@ -136,7 +136,6 @@ class GlbObj:
             name = image.name
             filetype = "image/" + image.file_format.lower()
             ImageBin(image_bin, name, filetype, self.glb_bin_collector)
-        return
 
     def armature_to_node_and_scenes_dic(self):
         nodes = []
@@ -223,7 +222,6 @@ class GlbObj:
         self.json_dic.update({"scenes": [{"nodes": scene}]})
         self.json_dic.update({"nodes": nodes})
         self.json_dic.update({"skins": skins})
-        return
 
     def material_to_dic(self):
         glb_material_list = []
@@ -824,7 +822,6 @@ class GlbObj:
             self.json_dic.update(
                 {"extensions": {"VRM": {"materialProperties": vrm_material_props_list}}}
             )
-        return
 
     def mesh_to_bin_and_dic(self):
         self.json_dic["meshes"] = []
@@ -986,7 +983,6 @@ class GlbObj:
                     minmax[1][i] = (
                         position[i] if position[i] > minmax[1][i] else minmax[1][i]
                     )
-                return
 
             if mesh.data.has_custom_normals:
                 mesh.data.calc_loop_triangles()
@@ -1251,7 +1247,6 @@ class GlbObj:
                     shape_keys=True,
                 )
         bpy.ops.object.mode_set(mode="OBJECT")
-        return
 
     def exporter_name(self):
         v = version()
@@ -1269,7 +1264,6 @@ class GlbObj:
         }
 
         self.json_dic.update(gltf_meta_dic)
-        return
 
     def vrm_meta_to_dic(self):
         # materialProperties は material_to_dic()で処理する
@@ -1566,7 +1560,6 @@ class GlbObj:
             }
         )
         self.json_dic["scenes"][0]["nodes"].append(len(self.json_dic["nodes"]) - 1)
-        return
 
     def finalize(self):
         bin_json, self.bin = self.glb_bin_collector.pack_all()
@@ -1594,4 +1587,3 @@ class GlbObj:
             + b"BIN\x00"
             + self.bin
         )
-        return

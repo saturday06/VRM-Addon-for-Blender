@@ -156,7 +156,6 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
                 verts.append(vert)
 
             bm.faces.new(verts)
-            return
 
         def width_add(point, add_loc):
             return Vector([p + a for p, a in zip(point, [0, 0, add_loc])])
@@ -553,4 +552,3 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         bm.to_mesh(mesh)
         bm.free()
-        return

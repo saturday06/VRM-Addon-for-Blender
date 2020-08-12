@@ -20,7 +20,6 @@ class IcypTemplateMeshMaker:
         self.head_size = args.tall / args.head_ratio
         self.make_mesh_obj("head", self.make_head)
         self.make_mesh_obj("body", self.make_humanoid)
-        return
 
     def get_humanoid_bone(self, bone):
         return self.args.armature_obj.data.bones[self.args.armature_obj.data[bone]]
@@ -164,7 +163,6 @@ class IcypTemplateMeshMaker:
 
         self.bm.to_mesh(mesh)
         self.bm.free()
-        return
 
     def make_cube(self, xyz, translation=None, rot_matrix=None):
         points = self.cubic_points(xyz, translation, rot_matrix)

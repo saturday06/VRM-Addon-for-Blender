@@ -488,7 +488,6 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         for k, v in required_vrm_metas.items():
             if k not in armature:
                 armature[k] = v
-        return
 
     humanoid_params = {
         "armStretch": 0.05,

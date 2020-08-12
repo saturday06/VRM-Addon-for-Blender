@@ -151,7 +151,6 @@ class BlendModel:
         # initで弄ったやつを戻す
         if affected_object is not None:
             affected_object.hide_viewport = True
-        return
 
         # image_path_to Texture
 
@@ -175,8 +174,6 @@ class BlendModel:
                     "source"
                 ]
                 self.textures[texture_index].image.use_fake_user = True
-
-        return
 
     def make_armature(self):
         # build bones as armature
@@ -305,7 +302,6 @@ class BlendModel:
                     coll.objects.unlink(self.armature)
         except Exception:
             print("Master collection doesn't have armature obj")
-        return
 
     # region material
     def make_material(self):
@@ -327,7 +323,6 @@ class BlendModel:
                     print(f"unknown material {mat.name}")
             self.node_placer(b_mat.node_tree.nodes["Material Output"])
             self.material_dict[index] = b_mat
-        return
 
     # region material_util func
     def set_material_transparent(self, b_mat, pymat, transparent_mode):
@@ -353,14 +348,12 @@ class BlendModel:
             else:
                 b_mat.blend_method = "HASHED"
                 b_mat.shadow_method = "HASHED"
-        return
 
     def material_init(self, b_mat):
         b_mat.use_nodes = True
         for node in b_mat.node_tree.nodes:
             if node.type != "OUTPUT_MATERIAL":
                 b_mat.node_tree.nodes.remove(node)
-        return
 
     def connect_value_node(self, material, value, socket_to_connect):
         if value is None:
@@ -468,7 +461,6 @@ class BlendModel:
                 link.from_node for socket in child_node.inputs for link in socket.links
             ]:
                 self.node_placer(child_node)
-        return
 
     # endregion material_util func
 
@@ -552,8 +544,6 @@ class BlendModel:
             b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode]
         )
         b_mat.use_backface_culling = pymat.double_sided
-
-        return
 
     def build_material_from_mtoon(self, b_mat, pymat):
         self.material_init(b_mat)
@@ -702,8 +692,6 @@ class BlendModel:
         transparent_mode = transparent_exchange_dic[pymat.float_props_dic["_BlendMode"]]
         self.set_material_transparent(b_mat, pymat, transparent_mode)
 
-        return
-
     def build_material_from_transparent_z_write(self, b_mat, pymat):
         self.material_init(b_mat)
 
@@ -725,7 +713,6 @@ class BlendModel:
                     b_mat, tex_index, sg.inputs["Main_Texture"], sg.inputs["Main_Alpha"]
                 )
         self.set_material_transparent(b_mat, pymat, "Z_TRANSPARENCY")
-        return
 
     # endregion material
 
@@ -1019,7 +1006,6 @@ class BlendModel:
             mesh_progress += mesh_progress_unit
             wm.progress_update(progress + mesh_progress)
         wm.progress_update(progress + 1)
-        return
 
     def attach_vrm_attributes(self):
         vrm_extensions = json_get(
@@ -1047,8 +1033,6 @@ class BlendModel:
                     self.armature[metatag] = self.textures[texture_index].image.name
             else:
                 self.armature[metatag] = metainfo
-
-        return
 
     def json_dump(self):
         vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM])
@@ -1126,8 +1110,6 @@ class BlendModel:
         write_textblock_and_assign_to_armature("spring_bone", spring_bonegroup_list)
         # endregion springbone
 
-        return
-
     def cleaning_data(self):
         # collection setting
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -1139,7 +1121,6 @@ class BlendModel:
             self.model_collection.objects.link(self.context.active_object)
             self.context.scene.collection.objects.unlink(self.context.active_object)
             bpy.ops.object.select_all(action="DESELECT")
-        return
 
     def set_bone_roll(self):
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -1179,7 +1160,6 @@ class BlendModel:
         ):
             set_children_roll(b, 90)
         bpy.ops.object.mode_set(mode="OBJECT")
-        return
 
     def put_spring_bone_info(self):
 
@@ -1278,7 +1258,6 @@ class BlendModel:
             ikc.pole_subtarget = pole_name
             bpy.context.view_layer.depsgraph.update()
             bpy.context.scene.view_layers.update()
-            return
 
         bpy.ops.object.mode_set(mode="EDIT")
         edit_bones = self.armature.data.edit_bones  # noqa: F841
@@ -1300,7 +1279,6 @@ class BlendModel:
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
         vrm_helper.Bones_rename(bpy.context)
-        return
 
 
 # DeprecationWarning

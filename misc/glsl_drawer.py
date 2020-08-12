@@ -701,7 +701,6 @@ class GlslDrawObj:
             glsl_draw_obj.scene_meshes.append(mesh)
 
         glsl_draw_obj.build_batches()
-        return
 
     batches = None
 
@@ -742,7 +741,6 @@ class GlslDrawObj:
                     batches.append((mat, toon_batch, depth_batch))
                 else:
                     batches.insert(0, (mat, toon_batch, depth_batch))
-        return
 
     def glsl_draw(self):
         if GlslDrawObj.myinstance is None and GlslDrawObj.draw_func is None:
@@ -939,7 +937,6 @@ class GlslDrawObj:
                     toon_shader.uniform_int(k, 1 + i)
 
                 toon_bat.draw(toon_shader)
-        return
         # endregion shader main
 
     draw_func = None
