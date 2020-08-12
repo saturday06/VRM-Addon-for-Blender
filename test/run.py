@@ -29,24 +29,23 @@ else:
 def run_script(script, *args):
     env = os.environ.copy()
     env["BLENDER_USER_SCRIPTS"] = user_scripts_dir
+    command = [
+        blender_command,
+        "-noaudio",  # sound system to None (less output on stdout)
+        "--factory-startup",  # factory settings
+        "--addons",
+        "io_scene_vrm_saturday06",  # enable the addon
+        "--python-exit-code",
+        "1",
+        "--background",
+        "--python",
+        os.path.join(repository_root_dir, "test", script),  # run the test script
+        "--",
+        *args,
+    ]
+    print(f"run: {command}")
     subprocess.run(
-        [
-            blender_command,
-            "-noaudio",  # sound system to None (less output on stdout)
-            "--factory-startup",  # factory settings
-            "--addons",
-            "io_scene_vrm_saturday06",  # enable the addon
-            "--python-exit-code",
-            "1",
-            "--background",
-            "--python",
-            os.path.join(repository_root_dir, "test", script),  # run the test script
-            "--",
-            *args,
-        ],
-        cwd=repository_root_dir,
-        env=env,
-        check=True,
+        command, cwd=repository_root_dir, env=env, check=True,
     )
 
 
