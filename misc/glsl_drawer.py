@@ -76,41 +76,25 @@ class MtoonGlsl:
     def get_texture(self, tex_name, default_color="white"):
         if tex_name == "ReceiveShadow_Texture":
             tex_name += "_alpha"
-        if self.main_node.inputs[tex_name].links:
-            if self.main_node.inputs[tex_name].links[0].from_node.image is not None:
-                if (
-                    default_color != "normal"
-                    and self.main_node.inputs[tex_name]
-                    .links[0]
-                    .from_node.image.colorspace_settings.name
-                    != "Linear"
-                ):  # TODO bugyyyyyyyyyyyyyyyyy
-                    self.main_node.inputs[tex_name].links[
-                        0
-                    ].from_node.image.colorspace_settings.name = "Linear"
-                self.main_node.inputs[tex_name].links[0].from_node.image.gl_load()
-                return self.main_node.inputs[tex_name].links[0].from_node.image
-            if default_color == "white":
-                self.white_texture.gl_load()
-                return self.white_texture
-            elif default_color == "black":
-                self.black_texture.gl_load()
-                return self.black_texture
-            elif default_color == "normal":
-                self.normal_texture.gl_load()
-                return self.normal_texture
-            raise Exception
-        else:
-            if default_color == "white":
-                self.white_texture.gl_load()
-                return self.white_texture
-            elif default_color == "black":
-                self.black_texture.gl_load()
-                return self.black_texture
-            elif default_color == "normal":
-                self.normal_texture.gl_load()
-                return self.normal_texture
-            raise Exception
+        links = self.main_node.inputs[tex_name].links
+        if links and links[0].from_node.image is not None:
+            if (
+                default_color != "normal"
+                and links[0].from_node.image.colorspace_settings.name != "Linear"
+            ):  # TODO bugyyyyyyyyyyyyyyyyy
+                links[0].from_node.image.colorspace_settings.name = "Linear"
+            links[0].from_node.image.gl_load()
+            return links[0].from_node.image
+        if default_color == "white":
+            self.white_texture.gl_load()
+            return self.white_texture
+        if default_color == "black":
+            self.black_texture.gl_load()
+            return self.black_texture
+        if default_color == "normal":
+            self.normal_texture.gl_load()
+            return self.normal_texture
+        raise Exception
 
     def get_value(self, val_name):
         if self.main_node.inputs[val_name].links:

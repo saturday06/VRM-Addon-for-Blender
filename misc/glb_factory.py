@@ -82,20 +82,15 @@ class GlbObj:
                 ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
                     if shader_vals is None:
                         continue
-                    else:
-                        if shader_vals == "ReceiveShadow_Texture":
-                            if node.inputs[shader_vals + "_alpha"].links:
-                                n = (
-                                    node.inputs[shader_vals + "_alpha"]
-                                    .links[0]
-                                    .from_node
-                                )
-                                if n.image not in used_images:
-                                    used_images.append(n.image)
-                        elif node.inputs[shader_vals].links:
-                            n = node.inputs[shader_vals].links[0].from_node
+                    if shader_vals == "ReceiveShadow_Texture":
+                        if node.inputs[shader_vals + "_alpha"].links:
+                            n = node.inputs[shader_vals + "_alpha"].links[0].from_node
                             if n.image not in used_images:
                                 used_images.append(n.image)
+                    elif node.inputs[shader_vals].links:
+                        n = node.inputs[shader_vals].links[0].from_node
+                        if n.image not in used_images:
+                            used_images.append(n.image)
             elif node.node_tree["SHADER"] == "GLTF":
                 mat["vrm_shader"] = "GLTF"
                 texture_input_name_list = [
@@ -1023,8 +1018,7 @@ class GlbObj:
                             mat_id_dic[material_slot_dic[face.material_index]]
                         ] += 1
                         continue
-                    else:
-                        unique_vertex_dic[vertex_key] = unique_vertex_id
+                    unique_vertex_dic[vertex_key] = unique_vertex_id
                     for uvlayer_id, uvlayer_name in uvlayers_dic.items():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
                         uv = loop[uv_layer].uv

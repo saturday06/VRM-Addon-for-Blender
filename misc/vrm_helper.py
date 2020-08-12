@@ -353,20 +353,16 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 for (
                     shader_val
                 ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
-                    if shader_val is None:
+                    if shader_val is None or shader_val == "ReceiveShadow_Texture":
                         continue
-                    else:
-                        if shader_val == "ReceiveShadow_Texture":
-                            continue
-                        input_check("TEX_IMAGE", shader_val)
+                    input_check("TEX_IMAGE", shader_val)
                 for shader_val in [
                     *list(vrm_types.MaterialMtoon.float_props_exchange_dic.values()),
                     "ReceiveShadow_Texture_alpha",
                 ]:
                     if shader_val is None:
                         continue
-                    else:
-                        input_check("VALUE", shader_val)
+                    input_check("VALUE", shader_val)
                 for k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
                     input_check(
                         "RGB", vrm_types.MaterialMtoon.vector_props_exchange_dic[k]

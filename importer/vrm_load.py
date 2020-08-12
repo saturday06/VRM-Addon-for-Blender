@@ -210,13 +210,12 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
             dn = f"tex_{dir_name}_{i}"
             if os.path.exists(os.path.join(vrm_dir_path, dn)):
                 continue
-            elif os.path.exists(os.path.join(vrm_dir_path, dn)) and i == 9:
+            if os.path.exists(os.path.join(vrm_dir_path, dn)) and i == 9:
                 dir_path = os.path.join(vrm_dir_path, dn)
                 break
-            else:
-                os.mkdir(os.path.join(vrm_dir_path, dn))
-                dir_path = os.path.join(vrm_dir_path, dn)
-                break
+            os.mkdir(os.path.join(vrm_dir_path, dn))
+            dir_path = os.path.join(vrm_dir_path, dn)
+            break
     elif not os.path.exists(os.path.join(vrm_dir_path, dir_name)):
         os.mkdir(dir_path)
     elif make_new_texture_folder:
