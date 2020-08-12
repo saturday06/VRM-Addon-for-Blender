@@ -4,6 +4,7 @@ import os
 import subprocess
 import tempfile
 import platform
+import pathlib
 import sys
 
 if platform.system() == "Windows":
@@ -13,6 +14,7 @@ if platform.system() == "Windows":
 else:
     exeext = ""
 
+update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "yes"
 blender_command = sys.argv[1] if len(sys.argv) > 1 else "blender" + exeext
 repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 user_scripts_dir = tempfile.mkdtemp()
@@ -58,6 +60,9 @@ test_out2_vrm_dir = os.path.join(test_vrm_dir, "out2")
 test_out3_vrm_dir = os.path.join(test_vrm_dir, "out3")
 
 os.makedirs(test_temp_vrm_dir, exist_ok=True)
+os.makedirs(test_out_vrm_dir, exist_ok=True)
+os.makedirs(test_out2_vrm_dir, exist_ok=True)
+os.makedirs(test_out3_vrm_dir, exist_ok=True)
 
 run_script("misc.py")
 
@@ -74,7 +79,7 @@ for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
         os.path.join(test_out_vrm_dir, vrm),
         test_temp_vrm_dir,
     )
-    if os.path.exists(os.path.join(test_out2_vrm_dir, vrm)):
+    if os.path.exists(os.path.join(test_out2_vrm_dir, vrm)) or update_vrm_dir:
         run_script(
             "io.py",
             os.path.join(test_out_vrm_dir, vrm),
@@ -82,8 +87,15 @@ for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
             test_temp_vrm_dir,
         )
 
+        if (
+            pathlib.Path(os.path.join(test_out_vrm_dir, vrm)).read_bytes()
+            == pathlib.Path(os.path.join(test_out2_vrm_dir, vrm)).read_bytes()
+        ):
+            os.remove(os.path.join(test_out2_vrm_dir, vrm))
+            continue
+
         test_last_vrm_dir = test_out2_vrm_dir
-        if os.path.exists(os.path.join(test_out3_vrm_dir, vrm)):
+        if os.path.exists(os.path.join(test_out3_vrm_dir, vrm)) or update_vrm_dir:
             test_last_vrm_dir = test_out3_vrm_dir
 
         run_script(
@@ -92,6 +104,13 @@ for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
             os.path.join(test_last_vrm_dir, vrm),
             test_temp_vrm_dir,
         )
+
+        if (
+            test_last_vrm_dir == test_out3_vrm_dir
+            and pathlib.Path(os.path.join(test_out2_vrm_dir, vrm)).read_bytes()
+            == pathlib.Path(os.path.join(test_out3_vrm_dir, vrm)).read_bytes()
+        ):
+            os.remove(os.path.join(test_last_vrm_dir, vrm))
     else:
         run_script(
             "io.py",
