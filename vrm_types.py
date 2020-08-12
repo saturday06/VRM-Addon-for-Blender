@@ -11,7 +11,7 @@ from sys import float_info
 VRM = "VRM"
 
 
-class VrmPydata(object):
+class VrmPydata:
     def __init__(
         self,
         filepath=None,
@@ -44,7 +44,7 @@ class VrmPydata(object):
         )
 
 
-class Mesh(object):
+class Mesh:
     def __init__(self):
         self.name = ""
         self.face_indices = []
@@ -52,7 +52,7 @@ class Mesh(object):
         self.object_id = None
 
 
-class Node(object):
+class Node:
     def __init__(self):
         self.name = ""
         self.position = None
@@ -64,7 +64,7 @@ class Node(object):
         self.skin_id = None
 
 
-class HumanBones(object):
+class HumanBones:
     center_req = ["hips", "spine", "chest", "neck", "head"]
     left_leg_req = ["leftUpperLeg", "leftLowerLeg", "leftFoot"]
     left_arm_req = ["leftUpperArm", "leftLowerArm", "leftHand"]
@@ -192,14 +192,14 @@ class HumanBones(object):
     }
 
 
-class ImageProps(object):
+class ImageProps:
     def __init__(self, name, filepath, filetype):
         self.name = name
         self.filepath = filepath
         self.filetype = filetype
 
 
-class Material(object):
+class Material:
     def __init__(self):
         self.name = ""
         self.shader_name = ""
