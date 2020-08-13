@@ -13,11 +13,10 @@ from ..importer.vrm_load import parse_glb
 
 
 def exist_or_makedir(path):
-    dirname = os.path.dirname(os.path.abspath(path))
-    writedir = os.path.join(dirname, "ripped")
-    if not os.path.exists(writedir):
-        os.mkdir(writedir)
-    return writedir
+    ripped_dir = os.path.join(os.path.dirname(os.path.abspath(path)), "ripped")
+    if not os.path.exists(ripped_dir):
+        os.mkdir(ripped_dir)
+    return ripped_dir
 
 
 model_path = filedialog.askopenfilename(filetypes=[("", "*vrm")])

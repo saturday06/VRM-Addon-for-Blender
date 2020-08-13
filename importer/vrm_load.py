@@ -11,6 +11,7 @@ import os
 import re
 import datetime
 import json
+import sys
 from collections import OrderedDict
 import numpy
 from .binary_reader import BinaryReader
@@ -437,6 +438,4 @@ def node_read(vrm_pydata):
 
 
 if __name__ == "__main__":
-    model_path = "./AliciaSolid\\AliciaSolid.vrm"
-    model_path = "./Vroid\\Vroid.vrm"
-    read_vrm(model_path, None)
+    read_vrm(sys.argv[1], None)
