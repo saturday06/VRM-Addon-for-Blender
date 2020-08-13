@@ -38,7 +38,7 @@ class GlbObj:
     def convert_bpy2glb(self, vrm_version):
         self.VRM_version = vrm_version
         self.image_to_bin()
-        self.armature_to_node_and_scenes_dic()  # 親のないboneは1つだけ as root_bone
+        self.armature_to_node_and_scenes_dic()
         self.material_to_dic()
         self.mesh_to_bin_and_dic()
         self.json_dic["scene"] = 0

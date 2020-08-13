@@ -188,7 +188,6 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています",
                         )
                     )
-                already_root_bone_exist = False
                 for bone in obj.data.bones:
                     if bone.name in node_names:  # nodes name is unique
                         messages.append(
@@ -199,16 +198,6 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         )
                     if bone.name not in node_names:
                         node_names.append(bone.name)
-                    if bone.parent is None:  # root bone is only 1
-                        if already_root_bone_exist:
-                            messages.append(
-                                lang_support(
-                                    "There is only one root bone."
-                                    + f" {bone.name},{already_root_bone_exist} is root bone now",
-                                    f"ルートボーンが複数あると出力できません。現在、{bone.name} と {already_root_bone_exist} があります。",
-                                )
-                            )
-                        already_root_bone_exist = bone.name
                 # TODO: T_POSE,
                 for humanbone in vrm_types.HumanBones.requires:
                     if humanbone not in armature.data or armature.data[
