@@ -142,7 +142,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
     def execute(self, context):
         messages = VRM_VALIDATOR.messages = []
-        is_lang_ja = True if bpy.app.translations.locale == "ja_JP" else False
+        is_lang_ja = bpy.app.translations.locale == "ja_JP"
         print("validation start")
         armature_count = 0
         armature = None

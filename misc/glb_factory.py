@@ -726,9 +726,7 @@ class GlbObj:
                 ),
                 transparent_method=transparent_method,
                 transparency_cutoff=transparency_cutoff,
-                unlit=True
-                if get_float_value(gltf_shader_node, "unlit") >= 0.5
-                else False,
+                unlit=get_float_value(gltf_shader_node, "unlit") >= 0.5,
                 doublesided=b_mat.use_backface_culling,
             )
 
