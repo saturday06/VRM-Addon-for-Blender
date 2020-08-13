@@ -70,6 +70,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         has_ui_localization = bpy.app.version < (2, 83)
+        ui_localization = False
         if has_ui_localization:
             ui_localization = bpy.context.preferences.view.use_international_fonts
 
