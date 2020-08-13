@@ -1,3 +1,15 @@
+# 何かを求めて来た方へ
+https://vrm.dev/vrm_applications/　から最新の情報を得てください。
+
+# How to get maintenanced addon 
+Please visit below and get news
+https://vrm.dev/en/vrm_applications/　
+
+
+
+
+
+
 # VRM_IMPORTER_for_Blender2.8
 - current :for blender 2.81
 - mesh import : done 
