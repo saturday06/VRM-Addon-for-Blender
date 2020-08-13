@@ -6,7 +6,7 @@ https://vrm.dev/vrm_applications/
 # How to get maintenanced addon 
 Please visit below and get news
 
-https://vrm.dev/en/vrm_applications/　
+https://vrm.dev/en/vrm_applications/
 
 
 
