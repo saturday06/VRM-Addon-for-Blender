@@ -160,9 +160,9 @@ class GlbObj:
                 del node["children"]
             return node
 
-        skin = {"joints": []}
         for bone in self.armature.data.bones:
             if bone.parent is None:  # root bone
+                skin = {"joints": []}
                 root_bone_id = bone_id_dic[bone.name]
                 skin["joints"].append(root_bone_id)
                 skin["skeleton"] = root_bone_id
@@ -175,44 +175,45 @@ class GlbObj:
                     skin["joints"].append(bone_id_dic[child.name])
                     bone_children += list(child.children)
                 nodes = sorted(nodes, key=lambda node: bone_id_dic[node["name"]])
-        skins.append(skin)
+                skins.append(skin)
 
-        skin_invert_matrix_bin = b""
-        f_4x4_packer = struct.Struct("<16f").pack
-        for node_id in skins[0]["joints"]:
-            bone_name = nodes[node_id]["name"]
-            bone_glb_world_pos = self.axis_blender_to_glb(
-                self.armature.data.bones[bone_name].head_local
+        for skin in skins:
+            skin_invert_matrix_bin = b""
+            f_4x4_packer = struct.Struct("<16f").pack
+            for node_id in skin["joints"]:
+                bone_name = nodes[node_id]["name"]
+                bone_glb_world_pos = self.axis_blender_to_glb(
+                    self.armature.data.bones[bone_name].head_local
+                )
+                inv_matrix = [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -bone_glb_world_pos[0],
+                    -bone_glb_world_pos[1],
+                    -bone_glb_world_pos[2],
+                    1,
+                ]
+                skin_invert_matrix_bin += f_4x4_packer(*inv_matrix)
+
+            im_bin = GlbBin(
+                skin_invert_matrix_bin,
+                "MAT4",
+                GlConstants.FLOAT,
+                len(skin["joints"]),
+                None,
+                self.glb_bin_collector,
             )
-            inv_matrix = [
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                -bone_glb_world_pos[0],
-                -bone_glb_world_pos[1],
-                -bone_glb_world_pos[2],
-                1,
-            ]
-            skin_invert_matrix_bin += f_4x4_packer(*inv_matrix)
-
-        im_bin = GlbBin(
-            skin_invert_matrix_bin,
-            "MAT4",
-            GlConstants.FLOAT,
-            len(skins[0]["joints"]),
-            None,
-            self.glb_bin_collector,
-        )
-        skins[0]["inverseBindMatrices"] = im_bin.accessor_id
+            skin["inverseBindMatrices"] = im_bin.accessor_id
 
         self.json_dic.update({"scenes": [{"nodes": scene}]})
         self.json_dic.update({"nodes": nodes})
