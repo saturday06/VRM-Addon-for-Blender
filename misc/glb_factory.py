@@ -160,21 +160,37 @@ class GlbObj:
                 del node["children"]
             return node
 
+        human_bone_node_names = []
+        for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
+            if (
+                human_bone in self.armature.data.keys()
+                and self.armature.data[human_bone] != ""
+            ):
+                human_bone_node_names.append(self.armature.data[human_bone])
+
         for bone in self.armature.data.bones:
-            if bone.parent is None:  # root bone
-                skin = {"joints": []}
-                root_bone_id = bone_id_dic[bone.name]
-                skin["joints"].append(root_bone_id)
-                skin["skeleton"] = root_bone_id
-                scene.append(root_bone_id)
-                nodes.append(bone_to_node(bone))
-                bone_children = list(bone.children)
-                while bone_children:
-                    child = bone_children.pop()
-                    nodes.append(bone_to_node(child))
-                    skin["joints"].append(bone_id_dic[child.name])
-                    bone_children += list(child.children)
-                nodes = sorted(nodes, key=lambda node: bone_id_dic[node["name"]])
+            if bone.parent is not None:
+                continue
+
+            has_human_bone = False
+            if bone.name in human_bone_node_names:
+                has_human_bone = True
+            skin = {"joints": []}
+            root_bone_id = bone_id_dic[bone.name]
+            skin["joints"].append(root_bone_id)
+            skin["skeleton"] = root_bone_id
+            scene.append(root_bone_id)
+            nodes.append(bone_to_node(bone))
+            bone_children = list(bone.children)
+            while bone_children:
+                child = bone_children.pop()
+                if child.name in human_bone_node_names:
+                    has_human_bone = True
+                nodes.append(bone_to_node(child))
+                skin["joints"].append(bone_id_dic[child.name])
+                bone_children += list(child.children)
+            nodes = sorted(nodes, key=lambda node: bone_id_dic[node["name"]])
+            if has_human_bone:
                 skins.append(skin)
 
         for skin in skins:
