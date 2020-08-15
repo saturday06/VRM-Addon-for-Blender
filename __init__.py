@@ -6,6 +6,7 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import os
+import traceback
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.app.handlers import persistent
@@ -287,8 +288,16 @@ def unregister():
     # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
     bpy.types.TOPBAR_MT_file_import.remove(menu_export)
     bpy.types.TOPBAR_MT_file_export.remove(menu_import)
+    errors = []
     for cls in classes:
-        bpy.utils.unregister_class(cls)
+        try:
+            bpy.utils.unregister_class(cls)
+        except RuntimeError:
+            errors.append(
+                traceback.format_exc() + f"\nbpy.utils.unregister_class({cls}):"
+            )
+    if errors:
+        raise RuntimeError("\n".join(errors))
 
 
 if __name__ == "__main__":
