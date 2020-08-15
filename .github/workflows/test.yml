@@ -98,7 +98,7 @@ jobs:
       - name: Install pip packages
         run: |
           pip3 install --upgrade pip
-          pip3 install black flake8 flake8-black flake8-bugbear pep8-naming pylint
+          pip3 install black flake8 flake8-black flake8-bugbear mypy pep8-naming pylint
           echo "::add-path::$HOME/.local/bin"
       - name: Check source code formatting
         run: black --check --diff $(git ls-files "**.py")
@@ -106,3 +106,8 @@ jobs:
         run: flake8 --count --show-source --statistics $(git ls-files "**.py")
       - name: Pylint
         run: pylint $(git ls-files "**.py")
+      - name: mypy
+        run: |
+          src_dir=$PWD
+          cd ..
+          mypy --namespace-packages --config-file "$src_dir/mypy.ini" --show-error-code "$src_dir"

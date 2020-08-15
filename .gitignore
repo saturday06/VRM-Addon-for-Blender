@@ -15,6 +15,7 @@
 !*.blend
 !/LICENSE
 !*.jpeg
+!/mypy.ini
 !/setup.cfg
 !/web/*.jpg
 !/web/*.png
