@@ -4,7 +4,7 @@
 
 VRM形式のインポートとエクスポートをできるようにするプラグインです。バグ報告、機能要望、Pull request等歓迎します。[バージョン0.79](https://github.com/saturday06/VRM_IMPORTER_for_Blender/archive/0.79.zip)以降の開発を、オリジナル版のメンテナである[@iCyP](https://github.com/iCyP)さんから引き継がせていただきました。
 
-- current : for blender 2.82 - 2.83
+- current : for blender 2.82 - 2.90
 - mesh import : done 
 - material import : wip forever
 - export : spec0.0 export may be possible.
