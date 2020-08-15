@@ -8,6 +8,8 @@ import json
 from collections import OrderedDict
 import os
 import re
+from typing import List
+
 import bpy
 import blf
 from mathutils import Vector
@@ -140,7 +142,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         default=True
     )
 
-    messages = []
+    messages = List[str]
 
     def execute(self, context):
         messages = VRM_VALIDATOR.messages = []

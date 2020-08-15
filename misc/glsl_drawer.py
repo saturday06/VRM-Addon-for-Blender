@@ -1,5 +1,7 @@
 import collections
 from concurrent.futures import ThreadPoolExecutor
+from typing import Dict, List
+
 import bpy
 import gpu
 from gpu_extras.batch import batch_for_shader
@@ -40,9 +42,9 @@ class MtoonGlsl:
     name = None
     alpha_method = None
 
-    float_dic = {}
-    vector_dic = {}
-    texture_dic = {}
+    float_dic = Dict[str, float]
+    vector_dic = Dict[str, List[float]]
+    texture_dic = Dict[str, bpy.types.Image]
     cull_mode = "BACK"
 
     def make_small_image(self, name, color=(1, 1, 1, 1), color_space="sRGB"):
@@ -148,7 +150,11 @@ class MtoonGlsl:
                     self.texture_dic[k] = self.get_texture(k)
 
 
-class GlslDrawObj:
+class BaseGlslDrawObjForStaticTyping:
+    pass
+
+
+class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
 
     toon_vertex_shader = """
         in vec3 position;
@@ -527,12 +533,12 @@ class GlslDrawObj:
 
     depth_shader = None
 
-    objs = []
+    objs = List[BaseGlslDrawObjForStaticTyping]
     light = None
     offscreen = None
     materials = None
     myinstance = None
-    draw_objs = []
+    draw_objs = List[bpy.types.Object]
     shadowmap_res = 2048
     draw_x_offset = 0.3
     bounding_center = [0, 0, 0]

@@ -32,6 +32,8 @@ def bone(node) -> vrm_types.Node:
 
 
 def material(mat, ext_mat, use_simple_principled_material) -> vrm_types.Material:
+    v_mat: vrm_types.Material
+
     # standard, or VRM unsupported shader(no saved)
     if (
         ext_mat["shader"] == "VRM_USE_GLTFSHADER"
