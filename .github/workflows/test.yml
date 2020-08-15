@@ -102,12 +102,21 @@ jobs:
           echo "::add-path::$HOME/.local/bin"
       - name: Check source code formatting
         run: black --check --diff $(git ls-files "**.py")
-      - name: Flake8
-        run: flake8 --count --show-source --statistics $(git ls-files "**.py")
       - name: Pylint
         run: pylint $(git ls-files "**.py")
       - name: mypy
         run: |
+          pip3 install fake-bpy-module-2.82
+          stubgen \
+            -p blf \
+            -p bmesh \
+            -p bpy_extras \
+            -p gpu \
+            -p gpu_extras \
+            -p mathutils \
+            -o stubs
           src_dir=$PWD
           cd ..
-          mypy --namespace-packages --config-file "$src_dir/mypy.ini" --show-error-code "$src_dir"
+          MYPYPATH=$src_dir/stubs mypy --namespace-packages --config-file "$src_dir/mypy.ini" --show-error-code "$src_dir"
+      - name: Flake8
+        run: flake8 --count --show-source --statistics $(git ls-files "**.py")
