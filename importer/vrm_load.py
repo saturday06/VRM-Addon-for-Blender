@@ -61,7 +61,8 @@ def parse_glb(data: bytes):
             json_str = chunk_data.decode("utf-8")  # blenderのpythonverが古く自前decode要す
         else:
             raise Exception("unknown chunk_type: {}".format(chunk_type))
-
+    if not json_str:
+        raise Exception("failed to read json chunk")
     return json.loads(json_str, object_pairs_hook=OrderedDict), body
 
 
