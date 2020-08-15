@@ -136,7 +136,9 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."
     bl_options = {"REGISTER", "UNDO"}
 
-    show_successful_message: bpy.props.BoolProperty(default=True)
+    show_successful_message: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        default=True
+    )
 
     messages = []
 

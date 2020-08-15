@@ -48,23 +48,29 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
     bl_options = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
-    filter_glob: bpy.props.StringProperty(
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
         default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
     )
 
-    make_new_texture_folder: bpy.props.BoolProperty(
+    make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="make new texture folder (limit:10)"  # noqa: F722
     )
-    is_put_spring_bone_info: bpy.props.BoolProperty(
+    is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Put Collider Empty"  # noqa: F722
     )
-    import_normal: bpy.props.BoolProperty(name="Import Normal")  # noqa: F722
-    remove_doubles: bpy.props.BoolProperty(name="Remove doubles")  # noqa: F722
-    set_bone_roll: bpy.props.BoolProperty(name="Set bone roll")  # noqa: F722
-    use_simple_principled_material: bpy.props.BoolProperty(
+    import_normal: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Import Normal"  # noqa: F722
+    )
+    remove_doubles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Remove doubles"  # noqa: F722
+    )
+    set_bone_roll: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Set bone roll"  # noqa: F722
+    )
+    use_simple_principled_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="use simple principled material"  # noqa: F722
     )
-    use_in_blender: bpy.props.BoolProperty(
+    use_in_blender: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="NOTHING TO DO in CURRENT use in blender"  # noqa: F722
     )
 
@@ -98,7 +104,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
     bl_options = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
-    filter_glob: bpy.props.StringProperty(
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
         default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
     )
 
