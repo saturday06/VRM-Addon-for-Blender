@@ -224,6 +224,7 @@ class MaterialGltf(Material):
         self.emissive_texture_texcoord_index = None
         self.occlusion_texture_index = None
         self.occlusion_texture_texcoord_index = None
+        self.alphaCutoff = None
 
         self.double_sided = False
         self.alpha_mode = "OPAQUE"
