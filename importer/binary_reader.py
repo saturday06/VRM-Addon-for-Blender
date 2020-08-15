@@ -58,7 +58,7 @@ class BinaryReader:
         self.pos += 1
         return result
 
-    def read_as_data_type(self, data_type: GlConstants):
+    def read_as_data_type(self, data_type: int):
         if data_type == GlConstants.UNSIGNED_INT:
             return self.read_unsigned_int()
         if data_type == GlConstants.INT:
