@@ -247,7 +247,7 @@ class MaterialTransparentZWrite(Material):
 
     def __init__(self):
         super().__init__()
-        self.float_prop_dic = {prop: None for prop in self.float_props}
+        self.float_props_dic = {prop: None for prop in self.float_props}
         self.vector_props_dic = {prop: None for prop in self.vector_props}
         self.texture_index_dic = {tex: None for tex in self.texture_index_list}
 
