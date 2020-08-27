@@ -1510,7 +1510,8 @@ class GlbObj:
                     collider["radius"] = empty.empty_display_size
                     collider["offset"] = OrderedDict(
                         zip(
-                            ("x", "y", "z"), self.axis_blender_to_glb(empty_offset_pos),
+                            ("x", "y", "z"),
+                            self.axis_blender_to_glb(empty_offset_pos),
                         )
                     )
                     collider["offset"]["z"] = collider["offset"]["z"] * -1

@@ -45,7 +45,10 @@ def run_script(script, *args):
     ]
     print(f"run: {command}")
     subprocess.run(
-        command, cwd=repository_root_dir, env=env, check=True,
+        command,
+        cwd=repository_root_dir,
+        env=env,
+        check=True,
     )
 
 
