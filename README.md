@@ -2,7 +2,7 @@
 <a href="https://github.com/saturday06/VRM_IMPORTER_for_Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_IMPORTER_for_Blender/workflows/Test/badge.svg"></a>
 <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
-VRM形式のインポートとエクスポートをできるようにするプラグインです。バグ報告、機能要望、Pull request等歓迎します。更新が終了した [VRM_IMPORTER_for_Blender](https://github.com/iCyP/VRM_IMPORTER_for_Blender) の非公式な後継になります。
+VRM形式のインポートとエクスポートをできるようにするプラグインです。バグ報告、機能要望、Pull request等歓迎します。更新が終了した [VRM_IMPORTER_for_Blender2_8](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8) の非公式な後継になります。
 
 - current : for blender 2.82 - 2.83
 - mesh import : done 
