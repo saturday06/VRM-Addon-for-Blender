@@ -1,4 +1,4 @@
-# VRM_IMPORTER_for_Blender2.8
+# VRM_IMPORTER_for_Blender
 <a href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/workflows/Test/badge.svg"></a>
 <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
