@@ -1,15 +1,15 @@
 # VRM_IMPORTER_for_Blender
-<a href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/workflows/Test/badge.svg"></a>
+<a href="https://github.com/saturday06/VRM_IMPORTER_for_Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_IMPORTER_for_Blender/workflows/Test/badge.svg"></a>
 <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
-VRM形式のインポートとエクスポートをできるようにするプラグインです。バグ報告、機能要望、Pull request等歓迎します。更新が終了した [VRM_IMPORTER_for_Blender2_8](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8) の非公式な後継になります。
+VRM形式のインポートとエクスポートをできるようにするプラグインです。バグ報告、機能要望、Pull request等歓迎します。更新が終了した [VRM_IMPORTER_for_Blender](https://github.com/iCyP/VRM_IMPORTER_for_Blender) の非公式な後継になります。
 
 - current : for blender 2.82 - 2.83
 - mesh import : done 
 - material import : wip forever
 - export : spec0.0 export may be possible.
 
-<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender2_8/archive/master.zip"><img src="./web/download_button.png"></a>
+<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender/archive/master.zip"><img src="./web/download_button.png"></a>
 
 # <Font color="red">ATTENTION 注意</font>
 If you using minisize cloud storage, texture folder explanation must read and care about storage remaining capacity.
