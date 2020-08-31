@@ -5,24 +5,28 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+import os
+import traceback
 import bpy
-from bpy_extras.io_utils import ImportHelper,ExportHelper
-from .importer import vrm_load,model_build
-from .misc import VRM_HELPER
+from bpy_extras.io_utils import ImportHelper, ExportHelper
+from bpy.app.handlers import persistent
+from .importer import vrm_load, blend_model
+from .misc import vrm_helper
 from .misc import glb_factory
-from .misc import armature_maker
+from .misc import make_armature
 from .misc import detail_mesh_maker
 from .misc import mesh_from_bone_envelopes
-from . import V_Types
-if bpy.app.build_platform != b'Darwin':
-    from .misc import glsl_drawer
-import os
+from .misc import version
+from . import vrm_types
 
+if bpy.app.build_platform != b"Darwin":
+    from .misc import glsl_drawer
 
 bl_info = {
-    "name":"VRM_IMPORTER",
-    "author": "iCyP",
-    "version": (0, 79),
+    "name": "VRM_IMPORTER",
+    "author": "saturday06, iCyP",
+    # I'd like to use version.version(). But that is not allowed.
+    "version": (0, 96, 1),
     "blender": (2, 82, 0),
     "location": "File->Import",
     "description": "VRM Importer",
@@ -30,51 +34,62 @@ bl_info = {
     "support": "TESTING",
     "wiki_url": "",
     "tracker_url": "",
-    "category": "Import-Export"
+    "category": "Import-Export",
 }
 
+# Sanity check
+if bl_info["version"] != version.version():
+    raise Exception(f'Version mismatch: {bl_info["version"]} != {version.version()}')
 
-class ImportVRM(bpy.types.Operator,ImportHelper):
+
+class ImportVRM(bpy.types.Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
     bl_description = "Import VRM"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
-    filename_ext = '.vrm'
-    filter_glob : bpy.props.StringProperty(
-        default='*.vrm',
-        options={'HIDDEN'}
+    filename_ext = ".vrm"
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+        default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
     )
 
-    make_new_texture_folder : bpy.props.BoolProperty(name = "make new texture folder (limit:10)")
-    is_put_spring_bone_info : bpy.props.BoolProperty(name = "Put Collider Empty")
-    import_normal : bpy.props.BoolProperty(name = "Import Normal")
-    remove_doubles: bpy.props.BoolProperty(name="Remove doubles")
-    set_bone_roll : bpy.props.BoolProperty(name="Set bone roll")
-    use_simple_principled_material: bpy.props.BoolProperty(name = "use simple principled material")
-    use_in_blender: bpy.props.BoolProperty(name = "NOTHING TO DO in CURRENT use in blender")
+    make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="make new texture folder (limit:10)"  # noqa: F722
+    )
+    is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Put Collider Empty"  # noqa: F722
+    )
+    import_normal: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Import Normal"  # noqa: F722
+    )
+    remove_doubles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Remove doubles"  # noqa: F722
+    )
+    set_bone_roll: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Set bone roll"  # noqa: F722
+    )
+    use_simple_principled_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="use simple principled material"  # noqa: F722
+    )
+    use_in_blender: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="NOTHING TO DO in CURRENT use in blender"  # noqa: F722
+    )
 
     def execute(self, context):
+        has_ui_localization = bpy.app.version < (2, 83)
         ui_localization = False
-        try:
+        if has_ui_localization:
             ui_localization = bpy.context.preferences.view.use_international_fonts
-            bpy.context.preferences.view.use_international_fonts = False
-        except Exception:
-            pass
-        try:
-            fdir = self.filepath
-            model_build.Blend_model(context, vrm_load.read_vrm(fdir,self), self)
 
-            if ui_localization is not None:
-                bpy.context.preferences.view.use_international_fonts = ui_localization
+        blend_model.BlendModel(context, vrm_load.read_vrm(self.filepath, self), self)
 
-        except Exception as e:
-            raise e
-            
-        return {'FINISHED'}
+        if has_ui_localization and ui_localization:
+            bpy.context.preferences.view.use_international_fonts = ui_localization
+
+        return {"FINISHED"}
 
 
-def menu_import(self, context):
+def menu_import(self, context):  # Same as test/io.py for now
     op = self.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
     op.make_new_texture_folder = True
     op.is_put_spring_bone_info = True
@@ -82,43 +97,60 @@ def menu_import(self, context):
     op.remove_doubles = False
     op.set_bone_roll = True
 
-class ExportVRM(bpy.types.Operator,ExportHelper):
+
+class ExportVRM(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
     bl_description = "Export VRM"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
-    filename_ext = '.vrm'
-    filter_glob : bpy.props.StringProperty(
-        default='*.vrm',
-        options={'HIDDEN'}
+    filename_ext = ".vrm"
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+        default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
     )
-    
-    #VRM_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
 
-    def execute(self,context):
-        fdir = self.filepath
-        #bin =  glb_factory.Glb_obj().convert_bpy2glb(self.VRM_version)
-        bin =  glb_factory.Glb_obj().convert_bpy2glb("0.0")
-        with open(fdir,"wb") as f:
-            f.write(bin)
-        return {'FINISHED'}
+    # VRM_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
+
+    def execute(self, context):
+        try:
+            glb_obj = glb_factory.GlbObj()
+        except glb_factory.GlbObj.ValidationError:
+            return {"CANCELLED"}
+        # vrm_bin =  glb_obj().convert_bpy2glb(self.VRM_version)
+        vrm_bin = glb_obj.convert_bpy2glb("0.0")
+        with open(self.filepath, "wb") as f:
+            f.write(vrm_bin)
+        return {"FINISHED"}
 
 
 def menu_export(self, context):
-    op = self.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
+    self.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
+
 
 def add_armature(self, context):
-    op = self.layout.operator(armature_maker.ICYP_OT_MAKE_ARAMATURE.bl_idname, text="VRM humanoid")
+    self.layout.operator(
+        make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname, text="VRM humanoid"
+    )
+
 
 def make_mesh(self, context):
     self.layout.separator()
-    op = self.layout.operator(mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname, text="Mesh from selected armature",icon='PLUGIN')
-    op = self.layout.operator(detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,text = "(WIP)Face mesh from selected armature and bound mesh",icon='PLUGIN')
-class VRM_IMPORTER_PT_controller(bpy.types.Panel):
+    self.layout.operator(
+        mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname,
+        text="Mesh from selected armature",
+        icon="PLUGIN",
+    )
+    self.layout.operator(
+        detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,
+        text="(WIP)Face mesh from selected armature and bound mesh",
+        icon="PLUGIN",
+    )
+
+
+class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "vrm import helper"
-    #どこに置くかの定義
+    # どこに置くかの定義
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM HELPER"
@@ -128,36 +160,54 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
         return True
 
     def draw(self, context):
-        #region helper
-        def armature_UI():
+        # region helper
+        def armature_ui():
             self.layout.separator()
             abox = self.layout.row(align=False).box()
             abox.label(text="Armature Help")
-            abox.operator(VRM_HELPER.Add_VRM_extensions_to_armature.bl_idname)
+            abox.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
             self.layout.separator()
 
             reqbox = abox.box()
             reqrow = reqbox.row()
-            reqrow.label(text = "VRM Requwire Bones")
-            for req in V_Types.HumanBones.requires:
+            reqrow.label(text="VRM Required Bones")
+            for req in vrm_types.HumanBones.requires:
                 if req in context.active_object.data:
-                    reqbox.prop_search(context.active_object.data, f'[\"{req}\"]', context.active_object.data, "bones", text=req)
+                    reqbox.prop_search(
+                        context.active_object.data,
+                        f'["{req}"]',
+                        context.active_object.data,
+                        "bones",
+                        text=req,
+                    )
                 else:
-                    reqbox.operator(VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty.bl_idname,text = f"Add {req} propaty")
+                    reqbox.operator(
+                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+                        text=f"Add {req} property",
+                    )
             defbox = abox.box()
-            defbox.label(text="VRM option Bones")
-            for defs in V_Types.HumanBones.defines:
+            defbox.label(text="VRM Optional Bones")
+            for defs in vrm_types.HumanBones.defines:
                 if defs in context.active_object.data:
-                    defbox.prop_search(context.active_object.data, f'[\"{defs}\"]', context.active_object.data, "bones", text=defs)
+                    defbox.prop_search(
+                        context.active_object.data,
+                        f'["{defs}"]',
+                        context.active_object.data,
+                        "bones",
+                        text=defs,
+                    )
                 else:
-                    defbox.operator(VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty.bl_idname,text = f"Add {defs} propaty")     
+                    defbox.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                    )
 
-            abox.label(icon ="ERROR" ,text="EXPERIMENTAL!!!")
-            abox.operator(VRM_HELPER.Bones_rename.bl_idname)
-            return
-        #endregion helper
+            abox.label(icon="ERROR", text="EXPERIMENTAL!!!")
+            abox.operator(vrm_helper.Bones_rename.bl_idname)
 
-        #region draw_main
+        # endregion helper
+
+        # region draw_main
         self.layout.label(text="If you select armature in object mode")
         self.layout.label(text="armature renamer is shown")
         self.layout.label(text="If you in MESH EDIT")
@@ -165,32 +215,34 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):
         self.layout.label(text="*Symmetry is in default blender function")
         if context.mode == "OBJECT":
             if context.active_object is not None:
-                self.layout.operator(VRM_HELPER.VRM_VALIDATOR.bl_idname)
-                if bpy.app.build_platform != b'Darwin':
+                self.layout.operator(vrm_helper.VRM_VALIDATOR.bl_idname)
+                if bpy.app.build_platform != b"Darwin":
                     mbox = self.layout.box()
                     mbox.label(text="MToon preview")
                     mbox.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
                     mbox.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
-                if context.active_object.type == 'ARMATURE':
-                    armature_UI()
-                if context.active_object.type =="MESH":
-                    self.layout.label(icon="ERROR",text="EXPERIMENTAL！！！")
-                    self.layout.operator(VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe.bl_idname)
-        
+                if context.active_object.type == "ARMATURE":
+                    armature_ui()
+                if context.active_object.type == "MESH":
+                    self.layout.label(icon="ERROR", text="EXPERIMENTAL!!!")
+                    self.layout.operator(
+                        vrm_helper.Vroid2VRC_ripsync_from_json_recipe.bl_idname
+                    )
+
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
-            
-        if context.mode == "POSE":
-            if context.active_object.type == 'ARMATURE':
-                armature_UI()          
-        return
-        #endregion draw_main
 
-from bpy.app.handlers import persistent
+        if context.mode == "POSE":
+            if context.active_object.type == "ARMATURE":
+                armature_ui()
+        # endregion draw_main
+
 
 @persistent
 def add_shaders(self):
-    filedir = os.path.join(os.path.dirname(__file__),"resources","material_node_groups.blend")
+    filedir = os.path.join(
+        os.path.dirname(__file__), "resources", "material_node_groups.blend"
+    )
     with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
         for nt in data_from.node_groups:
             if nt not in bpy.data.node_groups:
@@ -198,25 +250,25 @@ def add_shaders(self):
 
 
 classes = [
-        ImportVRM,
-        ExportVRM,
-        VRM_HELPER.Bones_rename,
-        VRM_HELPER.Add_VRM_extensions_to_armature,
-        VRM_HELPER.Add_VRM_reqwire_humanbone_custom_propaty,
-        VRM_HELPER.Add_VRM_defined_humanbone_custom_propaty,
-        VRM_HELPER.Vroid2VRC_ripsync_from_json_recipe,
-        VRM_HELPER.VRM_VALIDATOR,
-        VRM_IMPORTER_PT_controller,
-        armature_maker.ICYP_OT_MAKE_ARAMATURE,
-        #detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
-        #model_build.ICYP_OT_select_helper,
-        #mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
-    ]
-if bpy.app.build_platform != b'Darwin':
-    classes.extend([
-        glsl_drawer.ICYP_OT_Draw_Model,
-        glsl_drawer.ICYP_OT_Remove_Draw_Model,
-        ])
+    ImportVRM,
+    ExportVRM,
+    vrm_helper.Bones_rename,
+    vrm_helper.Add_VRM_extensions_to_armature,
+    vrm_helper.Add_VRM_require_humanbone_custom_property,
+    vrm_helper.Add_VRM_defined_humanbone_custom_property,
+    vrm_helper.Vroid2VRC_ripsync_from_json_recipe,
+    vrm_helper.VRM_VALIDATOR,
+    VRM_IMPORTER_PT_controller,
+    make_armature.ICYP_OT_MAKE_ARMATURE,
+    # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
+    # blend_model.ICYP_OT_select_helper,
+    # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
+]
+if bpy.app.build_platform != b"Darwin":
+    classes.extend(
+        [glsl_drawer.ICYP_OT_Draw_Model, glsl_drawer.ICYP_OT_Remove_Draw_Model]
+    )
+
 
 # アドオン有効化時の処理
 def register():
@@ -225,20 +277,28 @@ def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
-    #bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
-    bpy.app.handlers.load_post.append(add_shaders) 
-    
+    # bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
+    bpy.app.handlers.load_post.append(add_shaders)
+
 
 # アドオン無効化時の処理
 def unregister():
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
-    #bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
+    # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
     bpy.types.TOPBAR_MT_file_import.remove(menu_export)
     bpy.types.TOPBAR_MT_file_export.remove(menu_import)
+    errors = []
     for cls in classes:
-        bpy.utils.unregister_class(cls)
+        try:
+            bpy.utils.unregister_class(cls)
+        except RuntimeError:
+            errors.append(
+                traceback.format_exc() + f"\nbpy.utils.unregister_class({cls}):"
+            )
+    if errors:
+        raise RuntimeError("\n".join(errors))
 
-if "__main__" == __name__:
+
+if __name__ == "__main__":
     register()
-

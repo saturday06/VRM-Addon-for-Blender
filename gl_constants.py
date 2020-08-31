@@ -5,7 +5,8 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-class GL_CONSTANS:
+
+class GlConstants:
     NONE = 0
     NO_ERROR = 0
     POINTS = 0

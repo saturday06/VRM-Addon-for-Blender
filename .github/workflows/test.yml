@@ -1,0 +1,122 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test-windows:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        archive_url:
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-windows64.zip
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.0-windows64.zip
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.5-windows64.zip
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@v2
+        with:
+          path: blender.zip
+          key: ${{ matrix.archive_url }}-archive-3
+      - name: Download archive
+        if: steps.cache-archive.outputs.cache-hit != 'true'
+        run: Invoke-WebRequest -Uri "${{ matrix.archive_url }}" -OutFile blender.zip
+      - name: Test
+        run: |
+          $expansion_name = "${{ matrix.archive_url }}".Split("/") | Select-Object -Last 1 | Split-Path -LeafBase
+          $major_minor = $expansion_name.Split("-")[1].Split(".")[0..1] -join "."
+
+          Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP"
+          &"$env:TEMP\$expansion_name\$major_minor\python\bin\python.exe" `
+            test\run.py `
+            "$env:TEMP\$expansion_name\blender.exe"
+
+  test-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        archive_url:
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-macOS.dmg
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.0-macOS.dmg
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.5-macOS.dmg
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@v2
+        with:
+          path: blender.dmg
+          key: ${{ matrix.archive_url }}-archive-3
+      - name: Download archive
+        if: steps.cache-archive.outputs.cache-hit != 'true'
+        run: curl -fsLS "${{ matrix.archive_url }}" -o blender.dmg
+      - name: Test
+        run: |
+          hdiutil attach blender.dmg
+          cp -fr /Volumes/Blender/Blender.app /Applications
+          hdiutil detach $(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')
+          major_minor=$(ruby -e "puts ARGV[0].split('/').last.split('-')[1].split('.')[0, 2].join('.')" "${{ matrix.archive_url }}")
+          python=$(find /Applications/Blender.app/Contents/Resources/$major_minor/python/bin -name "python*" -type f -perm -u+x | sort | head -n 1)
+          $python ./test/run.py /Applications/Blender.app/Contents/MacOS/Blender
+  lint:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deb packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y nkf python3-pip python3-setuptools
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - name: Disable git config core.quotepath
+        run: git config core.quotepath off
+      - name: Check file permissions
+        run: |
+          git ls-files | grep -vx "test/run.py" | while read -r f; do
+            if [ -x $f ]; then
+              echo $f has unnecessary executable permission.
+              exit 1
+            fi
+          done
+      - name: Check file name character encoding
+        run: |
+          git ls-files | while read -r f; do
+            if [ "$(echo $f | nkf --guess)" != "ASCII (LF)" ]; then
+              echo $f is non ascii file name.
+              exit 1
+            fi
+          done
+      - name: Check file content character encoding
+        run: |
+          git ls-files | while read -r f; do
+            if [ "$(nkf --guess $f)" != "BINARY" ]; then
+              nkf -w -Lu -Z1 --in-place $f
+            fi
+          done
+          git diff --exit-code
+      - name: Install pip packages
+        run: |
+          pip3 install --upgrade pip
+          pip3 install black flake8 flake8-black flake8-bugbear mypy pep8-naming pylint
+          echo "::add-path::$HOME/.local/bin"
+      - name: Check source code formatting
+        run: black --check --diff $(git ls-files "**.py")
+      - name: Pylint
+        run: pylint $(git ls-files "**.py")
+      - name: mypy
+        run: |
+          pip3 install fake-bpy-module-2.82
+          stubgen \
+            -p blf \
+            -p bmesh \
+            -p bpy_extras \
+            -p gpu \
+            -p gpu_extras \
+            -p mathutils \
+            -o stubs
+          src_dir=$PWD
+          cd ..
+          MYPYPATH=$src_dir/stubs mypy --namespace-packages --config-file "$src_dir/mypy.ini" --show-error-code "$src_dir"
+      - name: Flake8
+        run: flake8 --count --show-source --statistics $(git ls-files "**.py")
