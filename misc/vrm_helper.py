@@ -267,7 +267,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         messages.append(
                             lang_support(
                                 f"Faces must be Triangle, but not face in {obj.name}",
-                                f"ポリゴンはすべて3角形である必要があります。:{obj.name}",
+                                f"ポリゴンはすべて三角形である必要があります。:{obj.name}",
                             )
                         )
                         break
