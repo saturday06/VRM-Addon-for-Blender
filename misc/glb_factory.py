@@ -15,6 +15,7 @@ import bpy
 import bmesh
 from .glb_bin_collection import GlbBinCollection, ImageBin, GlbBin
 from .version import version
+from .vrm_helper import find_export_objects
 from ..gl_constants import GlConstants
 from .. import vrm_types
 
@@ -31,7 +32,7 @@ class GlbObj:
         self.bin = b""
         self.glb_bin_collector = GlbBinCollection()
         self.armature = [
-            obj for obj in bpy.context.selected_objects if obj.type == "ARMATURE"
+            obj for obj in find_export_objects() if obj.type == "ARMATURE"
         ][0]
         self.result = None
 
@@ -59,7 +60,7 @@ class GlbObj:
         # collect used image
         used_images = []
         used_materials = []
-        for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
+        for mesh in [obj for obj in find_export_objects() if obj.type == "MESH"]:
             for mat in mesh.data.materials:
                 if mat not in used_materials:
                     used_materials.append(mat)
@@ -788,7 +789,7 @@ class GlbObj:
         # endregion function separate by shader
 
         used_materials = []
-        for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
+        for mesh in [obj for obj in find_export_objects() if obj.type == "MESH"]:
             for mat in mesh.data.materials:
                 if mat not in used_materials:
                     used_materials.append(mat)
@@ -836,7 +837,7 @@ class GlbObj:
     def mesh_to_bin_and_dic(self):
         self.json_dic["meshes"] = []
         for mesh_id, mesh in enumerate(
-            [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]
+            [obj for obj in find_export_objects() if obj.type == "MESH"]
         ):
             is_skin_mesh = True
             if len([m for m in mesh.modifiers if m.type == "ARMATURE"]) == 0:

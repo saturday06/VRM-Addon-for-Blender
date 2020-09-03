@@ -132,6 +132,28 @@ class Vroid2VRC_ripsync_from_json_recipe(bpy.types.Operator):  # noqa: N801
         return {"FINISHED"}
 
 
+def find_export_objects() -> List[bpy.types.Object]:
+    selected_objects = list(bpy.context.selected_objects)
+    if selected_objects:
+        return selected_objects
+
+    # The doc says that bpy.context.collection is instance of LayerCollection
+    collection = bpy.context.collection
+    if isinstance(collection, bpy.types.Collection):
+        objects = list(collection.all_objects)
+    else:
+        objects = bpy.context.selectable_objects
+
+    exclusion_types = ["LIGHT", "CAMERA"]
+    export_objects = list(
+        filter(lambda o: o.visible_get() and o.type not in exclusion_types, objects)
+    )
+    if len(list(filter(lambda o: o.type == "ARMATURE", export_objects))) == 1:
+        return export_objects
+
+    return []
+
+
 class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
     bl_idname = "vrm.model_validate"
     bl_label = "Validate VRM model"
@@ -157,8 +179,9 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 return ja_message
             return en_message
 
-        # region selected object seeking
-        for obj in bpy.context.selected_objects:
+        # region export object seeking
+        export_objects = find_export_objects()
+        for obj in export_objects:
             if obj.name in node_names and obj.type != "EMPTY":
                 messages.append(
                     lang_support(
@@ -250,10 +273,12 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         break
 
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
-        # endregion selected object seeking
+        # endregion export object seeking
         if armature_count == 0:
             messages.append(
-                lang_support("PLS SELECT with ARMATURE!", "アーマチュアが選択されていません")
+                lang_support(
+                    "Please add ARMATURE to selections", "アーマチュアが選択範囲に含まれていません"
+                )
             )
 
         used_images = []
@@ -262,7 +287,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         if armature is not None:
             bones_name = [b.name for b in armature.data.bones]
         vertex_error_count = 0
-        for mesh in [obj for obj in bpy.context.selected_objects if obj.type == "MESH"]:
+        for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
             for mat in mesh.data.materials:
                 if mat not in used_materials:
@@ -497,9 +522,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 textblock.write(json.dumps(data_dict, indent=4))
                 return textblock
 
-            mesh_obj_names = [
-                obj.name for obj in bpy.context.selected_objects if obj.type == "MESH"
-            ]
+            mesh_obj_names = [obj.name for obj in export_objects if obj.type == "MESH"]
             # region humanoid_parameter
             humanoid_param_name = "humanoid_params"
             humanoid_param = text_block_name_to_json(humanoid_param_name)

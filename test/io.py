@@ -22,7 +22,7 @@ bpy.ops.import_scene.vrm(
     remove_doubles=False,
     set_bone_roll=True,
 )
-bpy.ops.object.select_all(action="SELECT")
+# bpy.ops.object.select_all(action="SELECT")
 bpy.ops.vrm.model_validate()
 
 actual_out_path = os.path.join(temp_dir_path, os.path.basename(in_path))
