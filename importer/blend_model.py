@@ -152,6 +152,12 @@ class BlendModel:
         if affected_object is not None:
             affected_object.hide_viewport = True
 
+        for obj in bpy.context.selected_objects:
+            obj.select_set(False)
+
+        for obj in self.model_collection.all_objects:
+            obj.select_set(True)
+
         # image_path_to Texture
 
     def texture_load(self):
