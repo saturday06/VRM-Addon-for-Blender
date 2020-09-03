@@ -361,7 +361,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             else:
                                 messages.append(
                                     lang_support(
-                                        f"image in material:{material.name} is not putted . Please set image.",
+                                        f"image in material:{material.name} is not put. Please set image.",
                                         f"マテリアル:{material.name} にテクスチャが設定されていない imageノードがあります。削除か画像を設定してください",
                                     )
                                 )
@@ -481,7 +481,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 if textblock_name not in armature:
                     messages.append(
                         lang_support(
-                            f"textblock name: {textblock_name} isn't putted on armature custom property.",
+                            f"textblock name: {textblock_name} isn't put on armature custom property.",
                             f"{textblock_name} のテキストブロックの指定がアーマチュアのカスタムプロパティにありません",
                         )
                     )
@@ -550,7 +550,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     if not firstperson_params["firstPersonBone"] in armature.data.bones:
                         messages.append(
                             lang_support(
-                                f"firstPersonBone :{firstperson_params['firstPersonBone']} is not found."
+                                f"firstPersonBone :{firstperson_params['firstPersonBone']} is not found. "
                                 + f"Please fix in textblock : {first_person_params_name} ",
                                 f"firstPersonBone :{firstperson_params['firstPersonBone']} がアーマチュアにありませんでした。"
                                 + f"テキストエディタの  {first_person_params_name} の該当項目を修正してください。",
@@ -562,7 +562,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             if not mesh_annotation["mesh"] in mesh_obj_names:
                                 messages.append(
                                     lang_support(
-                                        f"mesh :{mesh_annotation['mesh']} is not found."
+                                        f"mesh :{mesh_annotation['mesh']} is not found. "
                                         + f"Please fix setting in textblock : {first_person_params_name} ",
                                         f"{mesh_annotation['mesh']} というメッシュオブジェクトが見つかりません。"
                                         + f"テキストエディタの {first_person_params_name} を修正してください。",
@@ -583,9 +583,9 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         messages.append(
                             lang_support(
                                 'lookAtTypeName is "Bone" or "BlendShape". '
-                                + f"Current :{firstperson_params['lookAtTypeName']}."
+                                + f"Current :{firstperson_params['lookAtTypeName']}. "
                                 + f"Please fix setting in textblock : {first_person_params_name} ",
-                                'lookAtTypeName は "Bone" か "BlendShape"です.'
+                                'lookAtTypeName は "Bone" か "BlendShape"です。'
                                 + f"今は :{firstperson_params['lookAtTypeName']}です。"
                                 + f"テキストエディタの {first_person_params_name} を修正してください。",
                             )
@@ -603,8 +603,8 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     if not bind_dic["mesh"] in mesh_obj_names:
                         messages.append(
                             lang_support(
-                                f"mesh :{bind_dic['mesh']} is not found."
-                                + f"Please fix setting in textblock : {blendshape_group_name} ",
+                                f"mesh :{bind_dic['mesh']} is not found. "
+                                + f"Please fix setting in textblock : {blendshape_group_name}",
                                 f"メッシュ :{bind_dic['mesh']} が見つかりません。"
                                 + f"テキストエディタの {blendshape_group_name} を修正してください。",
                             )
@@ -613,7 +613,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         if bpy.data.objects[bind_dic["mesh"]].data.shape_keys is None:
                             messages.append(
                                 lang_support(
-                                    f"mesh :{bind_dic['mesh']} doesn't have shapekey. but blendshape Group need it."
+                                    f"mesh :{bind_dic['mesh']} doesn't have shapekey. but blendshape Group need it. "
                                     + f"Please fix setting in textblock :{blendshape_group_name}",
                                     f"メッシュ :{bind_dic['mesh']} はシェイプキーがありません。 しかし blendshape Group の設定はそれを必要としています。"
                                     + f"テキストエディタの {blendshape_group_name} を修正してください。",
@@ -629,7 +629,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                                 messages.append(
                                     lang_support(
                                         f"mesh :{bind_dic['mesh']} doesn't have {bind_dic['index']} shapekey. "
-                                        + "but blendshape Group need it."
+                                        + "but blendshape Group need it. "
                                         + f"Please fix setting in textblock :{blendshape_group_name}",
                                         f"メッシュ :{bind_dic['mesh']} はシェイプキー {bind_dic['index']} が足りません。"
                                         + "しかし blendshape Group の設定はそれを必要としています。"
