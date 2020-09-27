@@ -9,9 +9,8 @@ jobs:
       matrix:
         archive_url:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-windows64.zip
-          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.0-windows64.zip
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.5-windows64.zip
-          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.90/blender-2.90.0-windows64.zip
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.90/blender-2.90.1-windows64.zip
     steps:
       - uses: actions/checkout@v2
       - name: Cache archive
@@ -39,9 +38,8 @@ jobs:
       matrix:
         archive_url:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-macOS.dmg
-          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.0-macOS.dmg
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.5-macOS.dmg
-          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.90/blender-2.90.0-macOS.dmg
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.90/blender-2.90.1-macOS.dmg
     steps:
       - uses: actions/checkout@v2
       - name: Cache archive
