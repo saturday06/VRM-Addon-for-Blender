@@ -431,10 +431,10 @@ class GlbObj:
                 float_val = get_float_value(mtoon_shader_node, float_prop)
                 if float_val is not None:
                     mtoon_float_dic[float_key] = float_val
-                    if float_key == "OutlineWidthMode":
+                    if float_key == "_OutlineWidthMode":
                         outline_width_mode = min(max(round(float_val), 0), 2)
                         mtoon_float_dic[float_key] = int(outline_width_mode)
-                    if float_key == "OutlineColorMode":
+                    if float_key == "_OutlineColorMode":
                         outline_color_mode = min(max(round(float_val), 0), 1)
                         mtoon_float_dic[float_key] = int(outline_color_mode)
 
