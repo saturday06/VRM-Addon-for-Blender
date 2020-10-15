@@ -486,7 +486,13 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         )
                     )
                     return None
-                if not armature[textblock_name] in bpy.data.texts:
+                text_key = armature[textblock_name]
+                text_found = False
+                try:
+                    text_found = text_key in bpy.data.texts
+                except TypeError:
+                    pass
+                if not text_found:
                     messages.append(
                         lang_support(
                             f"textblock name: {textblock_name} doesn't exist.",
@@ -496,14 +502,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     return None
                 try:
                     json_as_dict = json.loads(
-                        "".join(
-                            [
-                                line.body
-                                for line in bpy.data.texts[
-                                    armature[textblock_name]
-                                ].lines
-                            ]
-                        ),
+                        "".join([line.body for line in bpy.data.texts[text_key].lines]),
                         object_pairs_hook=OrderedDict,
                     )
                 except json.JSONDecodeError as e:
