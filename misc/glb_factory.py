@@ -1081,10 +1081,9 @@ class GlbObj:
                             joints = joints[:4]
                             weights = weights[:4]
                         if sum(weights) < float_info.epsilon:
-                            print(
+                            raise RuntimeError(
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
                             )
-                            raise ZeroDivisionError
 
                         weights = vrm_types.normalize_weights_compatible_with_gl_float(
                             weights
