@@ -7,6 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 # coding :utf-8
 # for python3.5 - for blender2.79
+import contextlib
 import os
 import re
 import datetime
@@ -57,10 +58,13 @@ def parse_glb(data: bytes):
 
         if chunk_type == "BIN\x00":
             body = chunk_data
-        elif chunk_type == "JSON":
+            continue
+        if chunk_type == "JSON":
             json_str = chunk_data.decode("utf-8")  # blenderのpythonverが古く自前decode要す
-        else:
-            raise Exception("unknown chunk_type: {}".format(chunk_type))
+            continue
+
+        raise Exception("unknown chunk_type: {}".format(chunk_type))
+
     if not json_str:
         raise Exception("failed to read json chunk")
     return json.loads(json_str, object_pairs_hook=OrderedDict), body
@@ -74,11 +78,13 @@ def read_vrm(model_path, addon_context):
         vrm_pydata.json, body_binary = parse_glb(f.read())
 
     # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
-    if "extensionsRequired" in vrm_pydata.json:
-        if "KHR_DRACO_MESH_COMPRESSION" in vrm_pydata.json["extensionsRequired"]:
-            raise Exception(
-                "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
-            )
+    if (
+        "extensionsRequired" in vrm_pydata.json
+        and "KHR_DRACO_MESH_COMPRESSION" in vrm_pydata.json["extensionsRequired"]
+    ):
+        raise Exception(
+            "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
+        )
     # 改変不可ライセンスを撥ねる
     # CC_ND
     if re.match(
@@ -98,21 +104,18 @@ def read_vrm(model_path, addon_context):
         ).hostname
         if address is None:
             pass
-        elif "vroid" in address:
-            if (
-                dict(
-                    parse_qsl(
-                        vrm_pydata.json["extensions"]["VRM"]["meta"][
-                            "otherPermissionUrl"
-                        ]
-                    )
-                ).get("modification")
-                == "disallow"
-            ):
-                raise Exception(
-                    "This VRM can not be edited. No modifications are allowed. Please check its copyright license. "
-                    + "改変不可Licenseです。"
+        elif "vroid" in address and (
+            dict(
+                parse_qsl(
+                    vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]
                 )
+            ).get("modification")
+            == "disallow"
+        ):
+            raise Exception(
+                "This VRM can not be edited. No modifications are allowed. Please check its copyright license. "
+                + "改変不可Licenseです。"
+            )
     # オリジナルライセンスに対する注意
     if vrm_pydata.json["extensions"]["VRM"]["meta"]["licenseName"] == "Other":
         print("Is this VRM allowed to edited? Please check its copyright license.")
@@ -343,11 +346,9 @@ def mesh_read(vrm_pydata):
             legacy_uv_flag = False  # f***
             gen = json_get(vrm_pydata.json, ["assets", "generator"], "")
             if re.match("UniGLTF", gen):
-                try:
+                with contextlib.suppress(ValueError):
                     if float("".join(gen[-4:])) < 1.16:
                         legacy_uv_flag = True
-                except ValueError:
-                    pass
 
             uv_count = 0
             while True:

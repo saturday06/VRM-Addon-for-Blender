@@ -43,10 +43,9 @@ try:
             f'"{in_path}" was converted to "{actual_out_path}".'
             + f' The result is different from "{expected_out_path}"'
         )
+    print("OK")
 except (AssertionError, FileNotFoundError):
-    if update_vrm_dir:
-        shutil.copy(actual_out_path, expected_out_path)
-    else:
+    if not update_vrm_dir:
         raise
-
-print("OK")
+    shutil.copy(actual_out_path, expected_out_path)
+    print("NG")

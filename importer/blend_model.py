@@ -124,15 +124,18 @@ class BlendModel:
                         ]
                         # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
                         disconnected_bone.parent.tail = disconnected_bone.head
-                if bone.parent:  # 親ボーンがある場合
-                    # ボーンのヘッドと親ボーンのテールが一致していたら
-                    if (
+                # 親ボーンがある場合かつ、ボーンのヘッドと親ボーンのテールが一致していたら
+                if (
+                    bone.parent
+                    and (
                         numpy.abs(
                             numpy.array(bone.head) - numpy.array(bone.parent.tail)
                         )
                         < sys.float_info.epsilon
-                    ).all():
-                        bone.use_connect = True  # ボーンの関係の接続を有効に
+                    ).all()
+                ):
+                    # ボーンの関係の接続を有効に
+                    bone.use_connect = True
             bpy.ops.object.mode_set(mode="OBJECT")
         finally:
             bpy.context.view_layer.objects.active = previous_active
@@ -141,10 +144,12 @@ class BlendModel:
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るのでその回避と、それを元に戻す
         affected_object = None
         if self.context.active_object is not None:
-            if hasattr(self.context.active_object, "hide_viewport"):
-                if self.context.active_object.hide_viewport:
-                    self.context.active_object.hide_viewport = False
-                    affected_object = self.context.active_object
+            if (
+                hasattr(self.context.active_object, "hide_viewport")
+                and self.context.active_object.hide_viewport
+            ):
+                self.context.active_object.hide_viewport = False
+                affected_object = self.context.active_object
             bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.object.select_all(action="DESELECT")
         return affected_object
@@ -173,15 +178,14 @@ class BlendModel:
         json_texture_index = json_get(
             self.vrm_pydata.json, ["extensions", "VRM", "meta", "texture"]
         )
-        if json_texture_index not in (-1, None):
-            if (
-                "textures" in self.vrm_pydata.json
-                and len(self.vrm_pydata.json["textures"]) > json_texture_index
-            ):
-                texture_index = self.vrm_pydata.json["textures"][json_texture_index][
-                    "source"
-                ]
-                self.textures[texture_index].image.use_fake_user = True
+        if json_texture_index not in (-1, None) and (
+            "textures" in self.vrm_pydata.json
+            and len(self.vrm_pydata.json["textures"]) > json_texture_index
+        ):
+            texture_index = self.vrm_pydata.json["textures"][json_texture_index][
+                "source"
+            ]
+            self.textures[texture_index].image.use_fake_user = True
 
     def make_armature(self):
         # build bones as armature

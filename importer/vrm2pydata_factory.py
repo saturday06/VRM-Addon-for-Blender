@@ -87,9 +87,8 @@ def material(mat, ext_mat, use_simple_principled_material) -> vrm_types.Material
                 v_mat.alpha_mode = "Z_TRANSPARENCY"
             elif mat["alphaMode"] == "OPAQUE":
                 v_mat.alpha_mode = "OPAQUE"
-        if "extensions" in mat:
-            if "KHR_materials_unlit" in mat["extensions"]:
-                v_mat.shadeless = 1  # 0 is shade ,1 is shadeless
+        if "extensions" in mat and "KHR_materials_unlit" in mat["extensions"]:
+            v_mat.shadeless = 1  # 0 is shade ,1 is shadeless
 
     else:  # "MToon or Transparent_Zwrite"
         if ext_mat["shader"] == "VRM/MToon":

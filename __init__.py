@@ -213,28 +213,26 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         self.layout.label(text="If you in MESH EDIT")
         self.layout.label(text="symmetry button is shown")
         self.layout.label(text="*Symmetry is in default blender function")
-        if context.mode == "OBJECT":
-            if context.active_object is not None:
-                self.layout.operator(vrm_helper.VRM_VALIDATOR.bl_idname)
-                if bpy.app.build_platform != b"Darwin":
-                    mbox = self.layout.box()
-                    mbox.label(text="MToon preview")
-                    mbox.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
-                    mbox.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
-                if context.active_object.type == "ARMATURE":
-                    armature_ui()
-                if context.active_object.type == "MESH":
-                    self.layout.label(icon="ERROR", text="EXPERIMENTAL!!!")
-                    self.layout.operator(
-                        vrm_helper.Vroid2VRC_ripsync_from_json_recipe.bl_idname
-                    )
+        if context.mode == "OBJECT" and context.active_object is not None:
+            self.layout.operator(vrm_helper.VRM_VALIDATOR.bl_idname)
+            if bpy.app.build_platform != b"Darwin":
+                mbox = self.layout.box()
+                mbox.label(text="MToon preview")
+                mbox.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+                mbox.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
+            if context.active_object.type == "ARMATURE":
+                armature_ui()
+            if context.active_object.type == "MESH":
+                self.layout.label(icon="ERROR", text="EXPERIMENTAL!!!")
+                self.layout.operator(
+                    vrm_helper.Vroid2VRC_ripsync_from_json_recipe.bl_idname
+                )
 
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
 
-        if context.mode == "POSE":
-            if context.active_object.type == "ARMATURE":
-                armature_ui()
+        if context.mode == "POSE" and context.active_object.type == "ARMATURE":
+            armature_ui()
         # endregion draw_main
 
 

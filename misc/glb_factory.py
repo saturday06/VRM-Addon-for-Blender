@@ -335,33 +335,35 @@ class GlbObj:
             tex_name = None
             wrap_type = None
             filter_type = None
-            if shader_node.inputs.get(input_socket_name):
-                if shader_node.inputs.get(input_socket_name).links:
-                    tex_name = (
-                        shader_node.inputs.get(input_socket_name)
-                        .links[0]
-                        .from_node.image.name
-                    )
-                    # blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
-                    if (
-                        shader_node.inputs.get(input_socket_name)
-                        .links[0]
-                        .from_node.interpolation
-                        == "Closest"
-                    ):
-                        filter_type = GlConstants.NEAREST
-                    else:
-                        filter_type = GlConstants.LINEAR
-                    # blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-                    if (
-                        shader_node.inputs.get(input_socket_name)
-                        .links[0]
-                        .from_node.extension
-                        == "REPEAT"
-                    ):
-                        wrap_type = GlConstants.REPEAT
-                    else:
-                        wrap_type = GlConstants.CLAMP_TO_EDGE
+            if (
+                shader_node.inputs.get(input_socket_name)
+                and shader_node.inputs.get(input_socket_name).links
+            ):
+                tex_name = (
+                    shader_node.inputs.get(input_socket_name)
+                    .links[0]
+                    .from_node.image.name
+                )
+                # blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
+                if (
+                    shader_node.inputs.get(input_socket_name)
+                    .links[0]
+                    .from_node.interpolation
+                    == "Closest"
+                ):
+                    filter_type = GlConstants.NEAREST
+                else:
+                    filter_type = GlConstants.LINEAR
+                # blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
+                if (
+                    shader_node.inputs.get(input_socket_name)
+                    .links[0]
+                    .from_node.extension
+                    == "REPEAT"
+                ):
+                    wrap_type = GlConstants.REPEAT
+                else:
+                    wrap_type = GlConstants.CLAMP_TO_EDGE
             return tex_name, wrap_type, filter_type
 
         def get_float_value(shader_node, input_socket_name):
@@ -857,11 +859,13 @@ class GlbObj:
             [obj for obj in find_export_objects() if obj.type == "MESH"]
         ):
             is_skin_mesh = True
-            if len([m for m in mesh.modifiers if m.type == "ARMATURE"]) == 0:
-                if mesh.parent is not None:
-                    if mesh.parent.type == "ARMATURE":
-                        if mesh.parent_bone is not None:
-                            is_skin_mesh = False
+            if (
+                len([m for m in mesh.modifiers if m.type == "ARMATURE"]) == 0
+                and mesh.parent is not None
+                and mesh.parent.type == "ARMATURE"
+                and mesh.parent_bone is not None
+            ):
+                is_skin_mesh = False
             node_dic = OrderedDict(
                 {
                     "name": mesh.name,
@@ -1272,11 +1276,9 @@ class GlbObj:
         if self.vrm_version.startswith("0."):
             required_vrm_metas = vrm_types.Vrm0.REQUIRED_METAS
             vrm_metas = vrm_types.Vrm0.METAS
-        elif self.vrm_version.startswith("1."):
+        else:
             required_vrm_metas = vrm_types.Vrm1.REQUIRED_METAS
             vrm_metas = vrm_types.Vrm1.METAS
-        else:
-            raise NotImplementedError
 
         for k, v in required_vrm_metas.items():
             vrm_meta_dic[k] = self.armature[k] if k in self.armature.keys() else v
@@ -1366,11 +1368,13 @@ class GlbObj:
                 object_pairs_hook=OrderedDict,
             )
         )
-        if "firstPersonBone" in vrm_fp_dic.keys():
-            if vrm_fp_dic["firstPersonBone"] != -1:
-                vrm_fp_dic["firstPersonBone"] = node_name_id_dic[
-                    vrm_fp_dic["firstPersonBone"]
-                ]
+        if (
+            "firstPersonBone" in vrm_fp_dic.keys()
+            and vrm_fp_dic["firstPersonBone"] != -1
+        ):
+            vrm_fp_dic["firstPersonBone"] = node_name_id_dic[
+                vrm_fp_dic["firstPersonBone"]
+            ]
         if "meshAnnotations" in vrm_fp_dic.keys():
             for mesh_annotation in vrm_fp_dic["meshAnnotations"]:
                 mesh_annotation["mesh"] = [
