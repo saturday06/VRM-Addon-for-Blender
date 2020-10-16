@@ -553,7 +553,8 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
 
     scene_meshes = None
 
-    def build_scene(self=None, *args):
+    @staticmethod
+    def build_scene(dummy=None):
         if GlslDrawObj.myinstance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()
         else:
@@ -934,7 +935,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
         ]
         if GlslDrawObj.myinstance is None or GlslDrawObj.draw_func is None:
             GlslDrawObj.myinstance = GlslDrawObj()
-        GlslDrawObj.myinstance.build_scene()
+        GlslDrawObj.build_scene()
         if GlslDrawObj.draw_func is not None:
             GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_func = bpy.types.SpaceView3D.draw_handler_add(
@@ -946,9 +947,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
             and GlslDrawObj.build_mesh_func in bpy.app.handlers.depsgraph_update_post
         ):
             bpy.app.handlers.depsgraph_update_post.remove(GlslDrawObj.build_mesh_func)
-        bpy.app.handlers.depsgraph_update_post.append(
-            GlslDrawObj.myinstance.build_scene
-        )
+        bpy.app.handlers.depsgraph_update_post.append(GlslDrawObj.build_scene)
         GlslDrawObj.build_mesh_func = bpy.app.handlers.depsgraph_update_post[-1]
         # bpy.app.handlers.frame_change_post.append(build_sub_index)
 
