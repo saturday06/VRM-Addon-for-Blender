@@ -16,6 +16,7 @@ class IcypTemplateMeshMaker:
         return obj
 
     def __init__(self, args):
+        self.bm = None
         self.args = args
         self.head_size = args.tall / args.head_ratio
         self.make_mesh_obj("head", self.make_head)
@@ -105,11 +106,11 @@ class IcypTemplateMeshMaker:
         left_hand_bone = self.get_humanoid_bone("leftHand")
         for b in left_arm_bones:
             base_xz = [
-                b.head_radius if b != left_hand_bone else args.hand_size / 2,
+                b.head_radius if b != left_hand_bone else args.hand_size() / 2,
                 b.head_radius,
             ]
             top_xz = [
-                b.tail_radius if b != left_hand_bone else args.hand_size / 2,
+                b.tail_radius if b != left_hand_bone else args.hand_size() / 2,
                 b.tail_radius,
             ]
             self.make_trapezoid(base_xz, top_xz, b.length, [0, 0, 0], b.matrix_local)

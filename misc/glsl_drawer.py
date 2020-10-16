@@ -1019,3 +1019,4 @@ class GlMesh:
         self.uvs = []
         self.tangents = []
         self.index_per_mat = {}
+        self.mat_list = None

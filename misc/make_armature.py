@@ -100,6 +100,12 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             IcypTemplateMeshMaker(self)
         return {"FINISHED"}
 
+    def head_size(self):
+        return self.tall / self.head_ratio
+
+    def hand_size(self):
+        return self.head_size() * 0.75 * self.hand_ratio
+
     def make_armature(self, context):
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
@@ -169,7 +175,7 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             return pos
 
         root = bone_add("root", (0, 0, 0), (0, 0, 0.3))
-        head_size = self.tall / self.head_ratio
+        head_size = self.head_size()
         # down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を年齢具合で線形補完)(股上高めにすると破綻する)
         eight_upside_ratio, four_upside_ratio = (
             1 - self.leg_length_ratio,
@@ -273,7 +279,6 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         )
 
         # 肩～指
-        self.hand_size = head_size * 0.75 * self.hand_ratio
         shoulder_in_pos = self.shoulder_in_width / 2
 
         shoulder_parent = chest
@@ -282,7 +287,7 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             x_add(shoulder_parent.tail, shoulder_in_pos),
             x_add(shoulder_parent.tail, shoulder_in_pos + self.shoulder_width),
             (shoulder_parent, shoulder_parent),
-            radius=self.hand_size * 0.4,
+            radius=self.hand_size() * 0.4,
             bone_type="arm",
         )
 
@@ -296,26 +301,26 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             shoulders[0].tail,
             x_add(shoulders[0].tail, arm_length),
             shoulders,
-            radius=self.hand_size * 0.4,
+            radius=self.hand_size() * 0.4,
             bone_type="arm",
         )
 
         # グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが概ね一緒、けど手がでかすぎると破綻する
-        forearm_length = max(arm_length - self.hand_size / 2, arm_length * 0.8)
+        forearm_length = max(arm_length - self.hand_size() / 2, arm_length * 0.8)
         forearms = x_mirror_bones_add(
             "forearm",
             arms[0].tail,
             x_add(arms[0].tail, forearm_length),
             arms,
-            radius=self.hand_size * 0.4,
+            radius=self.hand_size() * 0.4,
             bone_type="arm",
         )
         hands = x_mirror_bones_add(
             "hand",
             forearms[0].tail,
-            x_add(forearms[0].tail, self.hand_size / 2),
+            x_add(forearms[0].tail, self.hand_size() / 2),
             forearms,
-            radius=self.hand_size / 4,
+            radius=self.hand_size() / 4,
             bone_type="arm",
         )
 
@@ -341,7 +346,7 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
                 proximal_pos,
                 x_add(proximal_pos, proximal_finger_len),
                 hands,
-                self.hand_size / 18,
+                self.hand_size() / 18,
                 bone_type="arm",
             )
             intermediate_bones = x_mirror_bones_add(
@@ -349,7 +354,7 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
                 proximal_bones[0].tail,
                 x_add(proximal_bones[0].tail, intermediate_finger_len),
                 proximal_bones,
-                self.hand_size / 18,
+                self.hand_size() / 18,
                 bone_type="arm",
             )
             distal_bones = x_mirror_bones_add(
@@ -357,7 +362,7 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
                 intermediate_bones[0].tail,
                 x_add(intermediate_bones[0].tail, distal_finger_len),
                 intermediate_bones,
-                self.hand_size / 18,
+                self.hand_size() / 18,
                 bone_type="arm",
             )
             if self.nail_bone:
@@ -366,16 +371,16 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
                     distal_bones[0].tail,
                     x_add(distal_bones[0].tail, distal_finger_len),
                     distal_bones,
-                    self.hand_size / 20,
+                    self.hand_size() / 20,
                     bone_type="arm",
                 )
             return proximal_bones, intermediate_bones, distal_bones
 
-        finger_y_offset = -self.hand_size / 16
+        finger_y_offset = -self.hand_size() / 16
         thumbs = fingers(
             "finger_thumbs",
             y_add(hands[0].head, finger_y_offset * 3),
-            self.hand_size / 2,
+            self.hand_size() / 2,
         )
 
         mats = [thumbs[0][i].matrix.translation for i in [0, 1]]
@@ -390,20 +395,20 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         index_fingers = fingers(
             "finger_index",
             y_add(hands[0].tail, finger_y_offset * 3),
-            (self.hand_size / 2) - (1 / 2.3125) * (self.hand_size / 2) / 3,
+            (self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3,
         )
         middle_fingers = fingers(
-            "finger_middle", y_add(hands[0].tail, finger_y_offset), self.hand_size / 2
+            "finger_middle", y_add(hands[0].tail, finger_y_offset), self.hand_size() / 2
         )
         ring_fingers = fingers(
             "finger_ring",
             y_add(hands[0].tail, -finger_y_offset),
-            (self.hand_size / 2) - (1 / 2.3125) * (self.hand_size / 2) / 3,
+            (self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3,
         )
         little_fingers = fingers(
             "finger_little",
             y_add(hands[0].tail, -finger_y_offset * 3),
-            ((self.hand_size / 2) - (1 / 2.3125) * (self.hand_size / 2) / 3)
+            ((self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3)
             * ((1 / 2.3125) + (1 / 2.3125) * 0.75),
         )
 

@@ -28,6 +28,7 @@ class GlbObj:
         if bpy.ops.vrm.model_validate(show_successful_message=False) != {"FINISHED"}:
             raise self.ValidationError()
 
+        self.VRM_version = None
         self.json_dic = OrderedDict()
         self.bin = b""
         self.glb_bin_collector = GlbBinCollection()

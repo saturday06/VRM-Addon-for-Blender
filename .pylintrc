@@ -1,6 +1,5 @@
 [MASTER]
-disable=attribute-defined-outside-init,
-        bad-continuation,
+disable=bad-continuation,
         broad-except,
         cell-var-from-loop,
         consider-iterating-dictionary,

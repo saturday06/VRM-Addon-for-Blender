@@ -22,6 +22,7 @@ from ..gl_constants import GlConstants
 
 class BlendModel:
     def __init__(self, context, vrm_pydata, addon_context):
+        self.meshes = None
         self.is_put_spring_bone_info = addon_context.is_put_spring_bone_info
         self.import_normal = addon_context.import_normal
         self.remove_doubles = addon_context.remove_doubles

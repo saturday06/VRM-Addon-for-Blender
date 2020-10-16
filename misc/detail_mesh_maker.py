@@ -11,6 +11,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
     bl_options = {"REGISTER", "UNDO"}
 
     # init before execute
+    # https://docs.blender.org/api/2.82/bpy.types.Operator.html#invoke-function
+    # pylint: disable=W0201
     def invoke(self, context, event):
         self.base_armature_name = [
             o for o in bpy.context.selected_objects if o.type == "ARMATURE"
