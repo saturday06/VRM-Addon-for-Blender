@@ -6,9 +6,9 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import json
-import tkinter.filedialog
 import struct
 import sys
+import tkinter.filedialog
 from collections import OrderedDict
 
 read_path = tkinter.filedialog.askopenfilename(

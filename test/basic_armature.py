@@ -1,6 +1,7 @@
 import os
 import pathlib
 import sys
+
 import bpy
 
 os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"

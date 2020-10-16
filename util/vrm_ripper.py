@@ -5,10 +5,11 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-import os
 import json
+import os
 import tkinter.filedialog as filedialog
 import tkinter.messagebox as messagebox
+
 from ..importer.vrm_load import parse_glb
 
 

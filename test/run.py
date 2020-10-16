@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import os
-import subprocess
-import tempfile
-import platform
 import pathlib
+import platform
+import subprocess
 import sys
+import tempfile
 
 if platform.system() == "Windows":
     import _winapi

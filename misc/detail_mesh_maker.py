@@ -1,7 +1,9 @@
-from math import sin, cos, radians, atan2
-import bpy
+from math import atan2, cos, radians, sin
+
 import bmesh
+import bpy
 from mathutils import Matrix, Vector
+
 from .template_mesh_maker import IcypTemplateMeshMaker
 
 

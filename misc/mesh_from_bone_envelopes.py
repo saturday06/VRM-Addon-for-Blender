@@ -1,6 +1,8 @@
 from math import ceil
+
 import bpy
 from mathutils import Vector
+
 from ..importer.blend_model import shader_node_group_import
 
 

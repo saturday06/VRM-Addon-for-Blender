@@ -10,14 +10,16 @@ import struct
 from collections import OrderedDict
 from math import floor
 from sys import float_info
-from mathutils import Matrix as bMatrix
-import bpy
+
 import bmesh
-from .glb_bin_collection import GlbBinCollection, ImageBin, GlbBin
+import bpy
+from mathutils import Matrix as bMatrix
+
+from .. import vrm_types
+from ..gl_constants import GlConstants
+from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 from .version import version
 from .vrm_helper import find_export_objects, shader_nodes_and_materials
-from ..gl_constants import GlConstants
-from .. import vrm_types
 
 
 class GlbObj:

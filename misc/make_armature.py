@@ -1,7 +1,9 @@
 import json
 from math import radians
+
 import bpy
 from mathutils import Matrix
+
 from ..vrm_types import Vrm0
 from .template_mesh_maker import IcypTemplateMeshMaker
 

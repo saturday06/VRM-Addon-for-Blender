@@ -6,6 +6,7 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import struct
+
 from ..gl_constants import GlConstants
 
 

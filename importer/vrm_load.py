@@ -8,18 +8,20 @@ https://opensource.org/licenses/mit-license.php
 # coding :utf-8
 # for python3.5 - for blender2.79
 import contextlib
-import os
-import re
 import datetime
 import json
+import os
+import re
 import sys
 from collections import OrderedDict
+
 import numpy
-from .binary_reader import BinaryReader
-from ..gl_constants import GlConstants
+
 from .. import vrm_types
+from ..gl_constants import GlConstants
 from ..vrm_types import nested_json_value_getter as json_get
 from . import vrm2pydata_factory
+from .binary_reader import BinaryReader
 
 
 def parse_glb(data: bytes):

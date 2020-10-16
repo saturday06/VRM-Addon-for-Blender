@@ -98,7 +98,7 @@ jobs:
       - name: Install pip packages
         run: |
           pip3 install --upgrade pip
-          pip3 install black flake8 flake8-black flake8-bugbear flake8-simplify mypy pep8-naming pylint
+          pip3 install black flake8 flake8-black flake8-bugbear flake8-simplify isort mypy pep8-naming pylint
           echo "::add-path::$HOME/.local/bin"
       - name: Check source code formatting
         run: black --check --diff $(git ls-files "**.py")
@@ -120,3 +120,5 @@ jobs:
           MYPYPATH=$src_dir/stubs mypy --namespace-packages --config-file "$src_dir/mypy.ini" --show-error-code "$src_dir"
       - name: Flake8
         run: flake8 --count --show-source --statistics $(git ls-files "**.py")
+      - name: Check import sorting order
+        run: isort $(git ls-files "**.py") && black $(git ls-files "**.py") && git diff --exit-code

@@ -6,16 +6,18 @@ https://opensource.org/licenses/mit-license.php
 """
 import contextlib
 import json
-from collections import OrderedDict
 import os
 import re
+from collections import OrderedDict
 from typing import List
 
-import bpy
 import blf
+import bpy
 from mathutils import Vector
+
 from .. import vrm_types
-from ..vrm_types import nested_json_value_getter as json_get, Gltf
+from ..vrm_types import Gltf
+from ..vrm_types import nested_json_value_getter as json_get
 from .make_armature import ICYP_OT_MAKE_ARMATURE
 
 

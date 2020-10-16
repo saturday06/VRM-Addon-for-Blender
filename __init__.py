@@ -7,17 +7,21 @@ https://opensource.org/licenses/mit-license.php
 
 import os
 import traceback
+
 import bpy
-from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.app.handlers import persistent
-from .importer import vrm_load, blend_model
-from .misc import vrm_helper
-from .misc import glb_factory
-from .misc import make_armature
-from .misc import detail_mesh_maker
-from .misc import mesh_from_bone_envelopes
-from .misc import version
+from bpy_extras.io_utils import ExportHelper, ImportHelper
+
 from . import vrm_types
+from .importer import blend_model, vrm_load
+from .misc import (
+    detail_mesh_maker,
+    glb_factory,
+    make_armature,
+    mesh_from_bone_envelopes,
+    version,
+    vrm_helper,
+)
 
 if bpy.app.build_platform != b"Darwin":
     from .misc import glsl_drawer

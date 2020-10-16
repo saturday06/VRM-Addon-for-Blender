@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from collections import OrderedDict
+
 from ..gl_constants import GlConstants
 
 
