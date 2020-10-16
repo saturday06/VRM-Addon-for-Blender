@@ -60,7 +60,7 @@ jobs:
           python=$(find /Applications/Blender.app/Contents/Resources/$major_minor/python/bin -name "python*" -type f -perm -u+x | sort | head -n 1)
           $python ./test/run.py /Applications/Blender.app/Contents/MacOS/Blender
   lint:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Install deb packages
