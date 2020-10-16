@@ -108,7 +108,7 @@ jobs:
         run: |
           pip3 install --upgrade pip
           pip3 install black flake8 flake8-black flake8-bugbear flake8-simplify flake8-spellcheck isort mypy pep8-naming pylint
-          echo "::add-path::$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Check source code formatting
         run: black --check --diff $(git ls-files "**.py")
       - name: Pylint
