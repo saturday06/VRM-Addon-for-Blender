@@ -182,7 +182,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
             124: "|",
         }  # 32:space #33:!
         remove_table = str.maketrans(
-            "", "", "".join([chr(charnum) for charnum in unsafe_chars.keys()])
+            "", "", "".join([chr(charnum) for charnum in unsafe_chars])
         )
         safe_filename = filename.translate(remove_table)
         return safe_filename

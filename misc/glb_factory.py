@@ -1043,7 +1043,7 @@ class GlbObj:
                         texcoord_bins[uvlayer_id] += float_pair_packer(
                             uv[0], 1 - uv[1]
                         )  # blenderとglbのuvは上下逆
-                    for shape_name in shape_pos_bin_dic.keys():
+                    for shape_name in shape_pos_bin_dic:
                         shape_layer = bm.verts.layers.shape[shape_name]
                         morph_pos = self.axis_blender_to_glb(
                             [

@@ -326,15 +326,9 @@ class MaterialMtoon(Material):
 
     def __init__(self):
         super().__init__()
-        self.float_props_dic = {
-            prop: None for prop in self.float_props_exchange_dic.keys()
-        }
-        self.vector_props_dic = {
-            prop: None for prop in self.vector_props_exchange_dic.keys()
-        }
-        self.texture_index_dic = {
-            prop: None for prop in self.texture_kind_exchange_dic.keys()
-        }
+        self.float_props_dic = {prop: None for prop in self.float_props_exchange_dic}
+        self.vector_props_dic = {prop: None for prop in self.vector_props_exchange_dic}
+        self.texture_index_dic = {prop: None for prop in self.texture_kind_exchange_dic}
         self.keyword_dic = {kw: False for kw in self.keyword_list}
         self.tag_dic = {tag: None for tag in self.tagmap_list}
 
