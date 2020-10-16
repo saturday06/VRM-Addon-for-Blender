@@ -295,6 +295,7 @@ class GlbObj:
 
         # region function separate by shader
         def pbr_fallback(
+            b_mat,
             base_color=(1, 1, 1, 1),
             metalness=0,
             roughness=0.9,
@@ -593,6 +594,7 @@ class GlbObj:
                 transparent_method = "BLEND"
                 transparency_cutoff = None
             pbr_dic = pbr_fallback(
+                b_mat,
                 base_color=mtoon_vector_dic["_Color"],
                 base_color_texture=maintex,
                 transparent_method=transparent_method,
@@ -734,6 +736,7 @@ class GlbObj:
                 transparency_cutoff = None
 
             pbr_dic = pbr_fallback(
+                b_mat,
                 base_color=get_rgba_val(gltf_shader_node, "base_Color"),
                 metalness=get_float_value(gltf_shader_node, "metallic"),
                 roughness=get_float_value(gltf_shader_node, "roughness"),
@@ -782,7 +785,7 @@ class GlbObj:
                 zw_dic["textureProperties"] = {"_MainTex": add_texture(*color_tex)}
                 zw_dic["vectorProperties"] = {"_MainTex": [0, 0, 1, 1]}
             pbr_dic = pbr_fallback(
-                base_color_texture=color_tex, transparent_method="BLEND"
+                b_mat, base_color_texture=color_tex, transparent_method="BLEND"
             )
 
             return zw_dic, pbr_dic
