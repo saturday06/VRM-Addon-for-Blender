@@ -1,4 +1,3 @@
-
 # すべてをignore
 *
 # すべてのディレクトリをホワイトリストに追加する
@@ -6,26 +5,26 @@
 #
 /venv/
 # ホワイトリストに入れたいファイルを許可する
-!/.gitignore
-!/.git-blame-ignore-revs
-!/.flake8
-!/.pylintrc
-!*.py
-!*.md
 !*.blend
-!/LICENSE
 !*.jpeg
+!*.md
+!*.py
+!/.flake8
+!/.git-blame-ignore-revs
+!/.gitignore
+!/.pylintrc
+!/LICENSE
 !/mypy.ini
 !/setup.cfg
-!/web/*.jpg
-!/web/*.png
-!/web/*.pptx
 !/test/vrm/in/*.vrm
 !/test/vrm/out/*.vrm
 !/test/vrm/out2/*.vrm
 !/test/vrm/out3/*.vrm
-.vscode/.ropeproject/objectdb
-.vscode/.ropeproject/config.py
-.vscode/tasks.json
-*.pyc
+!/web/*.jpg
+!/web/*.png
+!/web/*.pptx
 *.blend1
+*.pyc
+.vscode/.ropeproject/config.py
+.vscode/.ropeproject/objectdb
+.vscode/tasks.json
