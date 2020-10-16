@@ -43,7 +43,7 @@ class BlendModel:
         self.mesh_joined_objects = None
         model_name = json_get(
             self.vrm_pydata.json,
-            ["extensions", vrm_types.VRM, "meta", "title"],
+            ["extensions", "VRM", "meta", "title"],
             "vrm_model",
         )
         self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
@@ -102,9 +102,9 @@ class BlendModel:
             bpy.context.view_layer.objects.active = self.armature  # アーマチャーをアクティブに
             bpy.ops.object.mode_set(mode="EDIT")  # エディットモードに入る
             disconnected_bone_names = []  # 結合されてないボーンのリスト
-            if self.vrm_pydata.json["extensions"][vrm_types.VRM][
-                "exporterVersion"
-            ].startswith("VRoidStudio-"):
+            if self.vrm_pydata.json["extensions"]["VRM"]["exporterVersion"].startswith(
+                "VRoidStudio-"
+            ):
                 disconnected_bone_names = [
                     "J_Bip_R_Hand",
                     "J_Bip_L_Hand",
@@ -171,7 +171,7 @@ class BlendModel:
             self.textures.append(tex)
 
         json_texture_index = json_get(
-            self.vrm_pydata.json, ["extensions", vrm_types.VRM, "meta", "texture"]
+            self.vrm_pydata.json, ["extensions", "VRM", "meta", "texture"]
         )
         if json_texture_index not in (-1, None):
             if (
@@ -1017,9 +1017,7 @@ class BlendModel:
         wm.progress_update(progress + 1)
 
     def attach_vrm_attributes(self):
-        vrm_extensions = json_get(
-            self.vrm_pydata.json, ["extensions", vrm_types.VRM], {}
-        )
+        vrm_extensions = json_get(self.vrm_pydata.json, ["extensions", "VRM"], {})
         humanbones_relations = json_get(vrm_extensions, ["humanoid", "humanBones"], [])
 
         for humanbone in humanbones_relations:
@@ -1044,7 +1042,7 @@ class BlendModel:
                 self.armature[metatag] = metainfo
 
     def json_dump(self):
-        vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", vrm_types.VRM])
+        vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", "VRM"])
         model_name = json_get(vrm_ext_dic, ["meta", "title"], "vrm_model")
         textblock = bpy.data.texts.new(name=f"{model_name}_raw.json")
         textblock.write(json.dumps(self.vrm_pydata.json, indent=4))
@@ -1172,13 +1170,10 @@ class BlendModel:
 
     def put_spring_bone_info(self):
 
-        if (
-            "secondaryAnimation"
-            not in self.vrm_pydata.json["extensions"][vrm_types.VRM]
-        ):
+        if "secondaryAnimation" not in self.vrm_pydata.json["extensions"]["VRM"]:
             print("no secondary animation object")
             return
-        secondary_animation_json = self.vrm_pydata.json["extensions"][vrm_types.VRM][
+        secondary_animation_json = self.vrm_pydata.json["extensions"]["VRM"][
             "secondaryAnimation"
         ]
         spring_rootbone_groups_json = secondary_animation_json["boneGroups"]
@@ -1192,7 +1187,7 @@ class BlendModel:
                         continue
                     bone[key] = val
 
-        model_name = self.vrm_pydata.json["extensions"][vrm_types.VRM]["meta"]["title"]
+        model_name = self.vrm_pydata.json["extensions"]["VRM"]["meta"]["title"]
         coll = bpy.data.collections.new(f"{model_name}_colliders")
         self.model_collection.children.link(coll)
         for collider_group in collider_groups_json:

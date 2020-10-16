@@ -8,8 +8,6 @@ https://opensource.org/licenses/mit-license.php
 import struct
 from sys import float_info
 
-VRM = "VRM"
-
 
 class Gltf:
     TEXTURE_INPUT_NAMES = [

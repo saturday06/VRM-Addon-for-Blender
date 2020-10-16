@@ -114,7 +114,7 @@ def read_vrm(model_path, addon_context):
                     + "改変不可Licenseです。"
                 )
     # オリジナルライセンスに対する注意
-    if vrm_pydata.json["extensions"][vrm_types.VRM]["meta"]["licenseName"] == "Other":
+    if vrm_pydata.json["extensions"]["VRM"]["meta"]["licenseName"] == "Other":
         print("Is this VRM allowed to edited? Please check its copyright license.")
 
     texture_rip(vrm_pydata, body_binary, addon_context.make_new_texture_folder)
@@ -398,7 +398,7 @@ def mesh_read(vrm_pydata):
 def material_read(vrm_pydata, use_simple_principled_material):
     vrm_extension_material_properties = json_get(
         vrm_pydata.json,
-        ["extensions", vrm_types.VRM, "materialProperties"],
+        ["extensions", "VRM", "materialProperties"],
         default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(vrm_pydata.json["materials"]),
     )
     if "textures" in vrm_pydata.json:
