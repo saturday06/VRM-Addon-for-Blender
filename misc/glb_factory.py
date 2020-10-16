@@ -28,7 +28,7 @@ class GlbObj:
         if bpy.ops.vrm.model_validate(show_successful_message=False) != {"FINISHED"}:
             raise self.ValidationError()
 
-        self.VRM_version = None
+        self.vrm_version = None
         self.json_dic = OrderedDict()
         self.bin = b""
         self.glb_bin_collector = GlbBinCollection()
@@ -38,7 +38,7 @@ class GlbObj:
         self.result = None
 
     def convert_bpy2glb(self, vrm_version):
-        self.VRM_version = vrm_version
+        self.vrm_version = vrm_version
         self.image_to_bin()
         self.armature_to_node_and_scenes_dic()
         self.material_to_dic()
@@ -586,7 +586,7 @@ class GlbObj:
                 transparency_cutoff=transparency_cutoff,
                 doublesided=b_mat.use_backface_culling,
             )
-            if self.VRM_version == "1.0":
+            if self.vrm_version.startswith("1."):
                 mtoon_ext_dic = {}
                 mtoon_ext_dic["properties"] = mt_prop = {}
                 mt_prop = {"version": "3.2"}
@@ -818,7 +818,7 @@ class GlbObj:
 
         apply_texture_and_sampler_to_dic()
         self.json_dic.update({"materials": glb_material_list})
-        if self.VRM_version == "0.0":
+        if self.vrm_version.startswith("0."):
             self.json_dic.update(
                 {"extensions": {"VRM": {"materialProperties": vrm_material_props_list}}}
             )
@@ -958,7 +958,7 @@ class GlbObj:
                 )
                 morph_normal_diff_dic = (
                     self.fetch_morph_vertex_normal_difference(mesh)
-                    if self.VRM_version == "0.0"
+                    if self.vrm_version.startswith("0.")
                     else {}
                 )  # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
             position_bin = b""
@@ -1037,7 +1037,7 @@ class GlbObj:
                             ]
                         )
                         shape_pos_bin_dic[shape_name] += float_vec3_packer(*morph_pos)
-                        if self.VRM_version == "0.0":
+                        if self.vrm_version.startswith("0."):
                             shape_normal_bin_dic[shape_name] += float_vec3_packer(
                                 *self.axis_blender_to_glb(
                                     morph_normal_diff_dic[shape_name][loop.vert.index]
@@ -1172,7 +1172,7 @@ class GlbObj:
                         shape_pos_bin_dic.values(), shape_min_max_dic.values()
                     )
                 ]
-                if self.VRM_version == "0.0":
+                if self.vrm_version.startswith("0."):
                     morph_normal_glbs = [
                         GlbBin(
                             morph_normal_bin,
@@ -1208,7 +1208,7 @@ class GlbObj:
                     }
                 )
                 if len(shape_pos_bin_dic.keys()) != 0:
-                    if self.VRM_version == "0.0":
+                    if self.vrm_version.startswith("0."):
                         primitive["targets"] = [
                             {
                                 "POSITION": morph_pos_glb.accessor_id,
@@ -1263,16 +1263,16 @@ class GlbObj:
         # materialProperties は material_to_dic()で処理する
         # region vrm_extension
         vrm_extension_dic = OrderedDict()
-        if self.VRM_version == "0.0":
+        if self.vrm_version.startswith("0."):
             vrm_extension_dic["exporterVersion"] = self.exporter_name()
-        vrm_extension_dic["specVersion"] = self.VRM_version
+        vrm_extension_dic["specVersion"] = self.vrm_version
         # region meta
         vrm_extension_dic["meta"] = vrm_meta_dic = {}
         # 安全側に寄せておく
-        if self.VRM_version.startswith("0."):
+        if self.vrm_version.startswith("0."):
             required_vrm_metas = vrm_types.Vrm0.REQUIRED_METAS
             vrm_metas = vrm_types.Vrm0.METAS
-        elif self.VRM_version.startswith("1."):
+        elif self.vrm_version.startswith("1."):
             required_vrm_metas = vrm_types.Vrm1.REQUIRED_METAS
             vrm_metas = vrm_types.Vrm1.METAS
         else:
@@ -1309,7 +1309,7 @@ class GlbObj:
                 vrm_meta_dic["texture"] = len(self.json_dic["textures"]) - 1
         # endregion meta
         # region humanoid
-        if self.VRM_version == "0.0":
+        if self.vrm_version.startswith("0."):
             vrm_extension_dic["humanoid"] = vrm_humanoid_dic = {"humanBones": []}
             node_name_id_dic = {
                 node["name"]: i for i, node in enumerate(self.json_dic["nodes"])
@@ -1380,7 +1380,7 @@ class GlbObj:
                 ][0]
                 # TODO VRM1.0 is using node index that has mesh
         # TODO
-        if self.VRM_version == "1.0":
+        if self.vrm_version.startswith("1."):
             vrm_extension_dic["lookAt"] = vrm_la_dic = {}
             vrm_la_dic.update(
                 json.loads(
@@ -1392,7 +1392,7 @@ class GlbObj:
         # endregion firstPerson
         # region blendShapeMaster
         blendshape_group_name = (
-            "blendShapeMaster" if self.VRM_version == "0.0" else "blendShape"
+            "blendShapeMaster" if self.vrm_version.startswith("0.") else "blendShape"
         )
         vrm_extension_dic[blendshape_group_name] = vrm_bsm_dic = {}
         bsm_list = json.loads(
@@ -1427,10 +1427,10 @@ class GlbObj:
                 ]["targetNames"].index(bind["index"])
                 bind["weight"] = (
                     clamp(0, bind["weight"] * 100, 100)
-                    if self.VRM_version == "0.0"
+                    if self.vrm_version.startswith("0.")
                     else clamp(0, bind["weight"], 1)
                 )
-            if self.VRM_version != "0.0":
+            if self.vrm_version.startswith("1."):
                 for matval in bsm["materialValues"]:
                     matval["material"] = [
                         i
@@ -1443,7 +1443,7 @@ class GlbObj:
 
         # region secondaryAnimation
         springbone_name = (
-            "springBone" if self.VRM_version == "1.0" else "secondaryAnimation"
+            "springBone" if self.vrm_version.startswith("1.") else "secondaryAnimation"
         )
         vrm_extension_dic[springbone_name] = {"boneGroups": [], "colliderGroups": []}
 
@@ -1468,7 +1468,7 @@ class GlbObj:
                     - self.armature.data.bones[empty.parent_bone].head_local[i]
                     for i in range(3)
                 ]
-                if self.VRM_version == "0.0":
+                if self.vrm_version.startswith("0."):
                     collider["radius"] = empty.empty_display_size
                     collider["offset"] = OrderedDict(
                         zip(
@@ -1506,7 +1506,7 @@ class GlbObj:
         vrm_extension_dic[springbone_name]["boneGroups"] = bg_list
         # endregion boneGroup
         # endregion secondaryAnimation
-        extension_name = "VRM" if self.VRM_version == "0.0" else "VRMC_vrm"
+        extension_name = "VRM" if self.vrm_version.startswith("0.") else "VRMC_vrm"
         self.json_dic["extensions"][extension_name].update(vrm_extension_dic)
         # endregion vrm_extension
 
