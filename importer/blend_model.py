@@ -9,6 +9,7 @@ https://opensource.org/licenses/mit-license.php
 from math import sqrt, radians
 import sys
 import os.path
+import itertools
 import json
 import copy
 import numpy
@@ -800,21 +801,38 @@ class BlendModel:
                             normalized_joint_ids = list(dict.fromkeys(joint_ids))
 
                             # for deterministic export
-                            def sort_by_vg_dict_key(joint_id):
+                            def sort_by_vg_dict_key(sort_data):
+                                (
+                                    sort_joint_id,
+                                    sort_joint_ids,
+                                    sort_nodes_index_list,
+                                    sort_vg_dict,
+                                ) = sort_data
                                 name = self.vrm_pydata.nodes_dict[
-                                    nodes_index_list[joint_id]
+                                    sort_nodes_index_list[sort_joint_id]
                                 ].name
-                                keys = list(vg_dict.keys())
+                                keys = list(sort_vg_dict.keys())
                                 if name in keys:
                                     return keys.index(name)
-                                return len(keys) + joint_ids.index(joint_id)
+                                return len(keys) + sort_joint_ids.index(sort_joint_id)
+
+                            sorted_joint_ids = map(
+                                lambda sort_data: sort_data[0],
+                                sorted(
+                                    zip(
+                                        normalized_joint_ids,
+                                        itertools.repeat(joint_ids),
+                                        itertools.repeat(nodes_index_list),
+                                        itertools.repeat(vg_dict),
+                                    ),
+                                    key=sort_by_vg_dict_key,
+                                ),
+                            )
 
                             normalized_joint_dic = {
-                                jid: 0
-                                for jid in sorted(
-                                    normalized_joint_ids, key=sort_by_vg_dict_key
-                                )
+                                joint_id: 0 for joint_id in sorted_joint_ids
                             }
+
                             for i, k in enumerate(joint_ids):
                                 normalized_joint_dic[k] += weights[i]
                             # endregion VroidがJoints:[18,18,0,0]とかで格納してるからその処理を

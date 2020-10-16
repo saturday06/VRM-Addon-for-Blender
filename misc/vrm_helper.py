@@ -168,16 +168,10 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
     def execute(self, context):
         messages = VRM_VALIDATOR.messages = []
-        is_lang_ja = bpy.app.translations.locale == "ja_JP"
         print("validation start")
         armature_count = 0
         armature = None
         node_names = []
-
-        def lang_support(en_message, ja_message):
-            if is_lang_ja:
-                return ja_message
-            return en_message
 
         # region export object seeking
         export_objects = find_export_objects()
@@ -343,29 +337,6 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         ]
 
         for node, material in shader_nodes_and_material:
-
-            def input_check(expect_node_type, shader_val):
-                if node.inputs[shader_val].links:
-                    n = node.inputs[shader_val].links[0].from_node
-                    if n.type != expect_node_type:
-                        messages.append(
-                            lang_support(
-                                f"need {expect_node_type} input in {shader_val} of {material.name}",
-                                f"{material.name}の {shader_val}には、{expect_node_type} を直接つないでください。 ",
-                            )
-                        )
-                    else:
-                        if expect_node_type == "TEX_IMAGE":
-                            if n.image is not None:
-                                used_images.append(n.image)
-                            else:
-                                messages.append(
-                                    lang_support(
-                                        f"image in material:{material.name} is not put. Please set image.",
-                                        f"マテリアル:{material.name} にテクスチャが設定されていない imageノードがあります。削除か画像を設定してください",
-                                    )
-                                )
-
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 for (
@@ -373,17 +344,26 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
                     if shader_val is None or shader_val == "ReceiveShadow_Texture":
                         continue
-                    input_check("TEX_IMAGE", shader_val)
+                    node_material_input_check(
+                        node, material, "TEX_IMAGE", shader_val, messages, used_images
+                    )
                 for shader_val in [
                     *list(vrm_types.MaterialMtoon.float_props_exchange_dic.values()),
                     "ReceiveShadow_Texture_alpha",
                 ]:
                     if shader_val is None:
                         continue
-                    input_check("VALUE", shader_val)
+                    node_material_input_check(
+                        node, material, "VALUE", shader_val, messages, used_images
+                    )
                 for k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
-                    input_check(
-                        "RGB", vrm_types.MaterialMtoon.vector_props_exchange_dic[k]
+                    node_material_input_check(
+                        node,
+                        material,
+                        "RGB",
+                        vrm_types.MaterialMtoon.vector_props_exchange_dic[k],
+                        messages,
+                        used_images,
                     )
             # GLTF
             elif node.node_tree["SHADER"] == "GLTF":
@@ -396,14 +376,22 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 val_input_name_list = ["metallic", "roughness", "unlit"]
                 rgba_input_name_list = ["base_Color", "emissive_color"]
                 for k in texture_input_name_list:
-                    input_check("TEX_IMAGE", k)
+                    node_material_input_check(
+                        node, material, "TEX_IMAGE", k, messages, used_images
+                    )
                 for k in val_input_name_list:
-                    input_check("VALUE", k)
+                    node_material_input_check(
+                        node, material, "VALUE", k, messages, used_images
+                    )
                 for k in rgba_input_name_list:
-                    input_check("RGB", k)
+                    node_material_input_check(
+                        node, material, "RGB", k, messages, used_images
+                    )
             # Transparent_Zwrite
             elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
-                input_check("TEX_IMAGE", "Main_Texture")
+                node_material_input_check(
+                    node, material, "TEX_IMAGE", "Main_Texture", messages, used_images
+                )
         # thumbnail
         try:
             if armature is not None:
@@ -727,3 +715,34 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             VRM_VALIDATOR.draw_func_remove()
 
     # endregion 3Dview drawer
+
+
+def lang_support(en_message, ja_message):
+    if bpy.app.translations.locale == "ja_JP":
+        return ja_message
+    return en_message
+
+
+def node_material_input_check(
+    node, material, expect_node_type, shader_val, messages, used_images
+):
+    if node.inputs[shader_val].links:
+        n = node.inputs[shader_val].links[0].from_node
+        if n.type != expect_node_type:
+            messages.append(
+                lang_support(
+                    f"need {expect_node_type} input in {shader_val} of {material.name}",
+                    f"{material.name}の {shader_val}には、{expect_node_type} を直接つないでください。 ",
+                )
+            )
+        else:
+            if expect_node_type == "TEX_IMAGE":
+                if n.image is not None:
+                    used_images.append(n.image)
+                else:
+                    messages.append(
+                        lang_support(
+                            f"image in material:{material.name} is not put. Please set image.",
+                            f"マテリアル:{material.name} にテクスチャが設定されていない imageノードがあります。削除か画像を設定してください",
+                        )
+                    )

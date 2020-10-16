@@ -1,7 +1,6 @@
 [MASTER]
 disable=bad-continuation,
         broad-except,
-        cell-var-from-loop,
         consider-iterating-dictionary,
         duplicate-code,
         fixme,

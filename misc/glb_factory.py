@@ -835,6 +835,34 @@ class GlbObj:
                 {"extensions": {"VRM": {"materialProperties": vrm_material_props_list}}}
             )
 
+    def joint_id_from_node_name_solver(self, node_name, node_id_dic):
+        try:
+            node_id = node_id_dic[node_name]
+            return self.json_dic["skins"][0]["joints"].index(node_id)
+        except (ValueError, KeyError):
+            print(f"{node_name} bone may be not exist")
+            return -1  # 存在しないボーンを指してる場合は-1を返す
+
+    @staticmethod
+    def fetch_morph_vertex_normal_difference(mesh):
+        morph_normal_diff_dic = {}
+        vert_base_normal_dic = OrderedDict()
+        for kb in mesh.data.shape_keys.key_blocks:
+            vert_base_normal_dic.update({kb.name: kb.normals_vertex_get()})
+        for k, v in vert_base_normal_dic.items():
+            if k == "Basis":
+                continue
+            values = []
+            for vert_morph_normal, vert_base_normal in zip(
+                zip(*[iter(v)] * 3),
+                zip(*[iter(vert_base_normal_dic["Basis"])] * 3),
+            ):
+                values.append(
+                    [vert_morph_normal[i] - vert_base_normal[i] for i in range(3)]
+                )
+            morph_normal_diff_dic.update({k: values})
+        return morph_normal_diff_dic
+
     def mesh_to_bin_and_dic(self):
         self.json_dic["meshes"] = []
         for mesh_id, mesh in enumerate(
@@ -905,14 +933,6 @@ class GlbObj:
                 node["name"]: i for i, node in enumerate(self.json_dic["nodes"])
             }
 
-            def joint_id_from_node_name_solver(node_name):
-                try:
-                    node_id = node_id_dic[node_name]
-                    return self.json_dic["skins"][0]["joints"].index(node_id)
-                except (ValueError, KeyError):
-                    print(f"{node_name} bone may be not exist")
-                    return -1  # 存在しないボーンを指してる場合は-1を返す
-
             v_group_name_dic = {i: vg.name for i, vg in enumerate(mesh.vertex_groups)}
             fmin, fmax = -float_info.max, float_info.max  # .minはfloatで一番細かい正の数を示す。
             unique_vertex_id = 0
@@ -921,28 +941,6 @@ class GlbObj:
             uvlayers_dic = {
                 i: uvlayer.name for i, uvlayer in enumerate(mesh.data.uv_layers)
             }
-
-            def fetch_morph_vertex_normal_difference():
-                morph_normal_diff_dic = {}
-                vert_base_normal_dic = OrderedDict()
-                for kb in mesh.data.shape_keys.key_blocks:
-                    vert_base_normal_dic.update({kb.name: kb.normals_vertex_get()})
-                for k, v in vert_base_normal_dic.items():
-                    if k == "Basis":
-                        continue
-                    values = []
-                    for vert_morph_normal, vert_base_normal in zip(
-                        zip(*[iter(v)] * 3),
-                        zip(*[iter(vert_base_normal_dic["Basis"])] * 3),
-                    ):
-                        values.append(
-                            [
-                                vert_morph_normal[i] - vert_base_normal[i]
-                                for i in range(3)
-                            ]
-                        )
-                    morph_normal_diff_dic.update({k: values})
-                return morph_normal_diff_dic
 
             # endregion  temporary_used
             primitive_index_bin_dic = OrderedDict(
@@ -971,7 +969,7 @@ class GlbObj:
                     }
                 )
                 morph_normal_diff_dic = (
-                    fetch_morph_vertex_normal_difference()
+                    self.fetch_morph_vertex_normal_difference(mesh)
                     if self.VRM_version == "0.0"
                     else {}
                 )  # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
@@ -1062,8 +1060,8 @@ class GlbObj:
                         joints = []
                         weights = []
                         for v_group in mesh.data.vertices[loop.vert.index].groups:
-                            joint_id = joint_id_from_node_name_solver(
-                                v_group_name_dic[v_group.group]
+                            joint_id = self.joint_id_from_node_name_solver(
+                                v_group_name_dic[v_group.group], node_id_dic
                             )
                             # 存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
                             if joint_id == -1:
