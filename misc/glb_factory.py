@@ -346,7 +346,7 @@ class GlbObj:
                     .links[0]
                     .from_node.image.name
                 )
-                # blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
+                # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
                 if (
                     shader_node.inputs.get(input_socket_name)
                     .links[0]
@@ -356,7 +356,7 @@ class GlbObj:
                     filter_type = GlConstants.NEAREST
                 else:
                     filter_type = GlConstants.LINEAR
-                # blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
+                # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
                 if (
                     shader_node.inputs.get(input_socket_name)
                     .links[0]
@@ -1259,7 +1259,7 @@ class GlbObj:
             "extensionsUsed": ["VRM", "KHR_materials_unlit", "VRMC_materials_mtoon"],
             "asset": {
                 "generator": self.exporter_name(),
-                "version": "2.0",  # GLTF version
+                "version": "2.0",  # glTF version
             },
         }
 

@@ -230,7 +230,7 @@ class BlendModel:
                 self.axis_glb_to_blender(py_bone.position)
             )
 
-            # region temporary tail pos(gltf doesn't have bone. there defines as joints )
+            # region temporary tail pos(glTF doesn't have bone. there defines as joints )
             def vector_length(bone_vector):
                 return sqrt(
                     pow(bone_vector[0], 2)
@@ -238,7 +238,7 @@ class BlendModel:
                     + pow(bone_vector[2], 2)
                 )
 
-            # gltfは関節で定義されていて骨の長さとか向きとかないからまあなんかそれっぽい方向にボーンを向けて伸ばしたり縮めたり
+            # glTFは関節で定義されていて骨の長さとか向きとかないからまあなんかそれっぽい方向にボーンを向けて伸ばしたり縮めたり
             if py_bone.children is None:
                 if parent_node_id == -1:  # 唯我独尊:上向けとけ
                     b.tail = [b.head[0], b.head[1] + 0.05, b.head[2]]
@@ -410,7 +410,7 @@ class BlendModel:
             image_node.label = alpha_socket_to_connect.name
         else:
             image_node.label = "what_is_this_node"
-        # blender is ('Linear', 'Closest', 'Cubic', 'Smart') gltf is Linear, Closest
+        # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
         filter_type = (
             sampler["magFilter"] if "magFilter" in sampler else GlConstants.LINEAR
         )
@@ -418,7 +418,7 @@ class BlendModel:
             image_node.interpolation = "Closest"
         else:
             image_node.interpolation = "Linear"
-        # blender is ('REPEAT', 'EXTEND', 'CLIP') gltf is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
+        # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
         wrap_type = sampler["wrapS"] if "wrapS" in sampler else GlConstants.REPEAT
         if wrap_type in (GlConstants.REPEAT, GlConstants.MIRRORED_REPEAT):
             image_node.extension = "REPEAT"

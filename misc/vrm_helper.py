@@ -183,7 +183,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 messages.append(
                     lang_support(
                         f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
-                        f"gltfノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
+                        f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
                     )
                 )
             if obj.name not in node_names:
@@ -216,7 +216,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         messages.append(
                             lang_support(
                                 f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
-                                f"gltfノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
+                                f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
                             )
                         )
                     if bone.name not in node_names:
