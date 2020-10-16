@@ -6,7 +6,7 @@ https://opensource.org/licenses/mit-license.php
 """
 
 # coding :utf-8
-# for python3.5 - for blender2.79
+# for python 3.5 - for blender 2.79
 import contextlib
 import datetime
 import json

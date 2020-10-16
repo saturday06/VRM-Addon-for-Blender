@@ -66,7 +66,7 @@ class IcypTemplateMeshMaker:
         head_size = self.head_size
         # region body
 
-        # make neckneck
+        # make neck
         neck_bone = self.get_humanoid_bone("neck")
         self.make_half_cube(
             [head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local
@@ -293,7 +293,7 @@ class IcypTemplateMeshMaker:
         verts = []
         for p in points:
             verts.append(self.bm.verts.new(p))
-        for poly in self.tpzoid_points:
+        for poly in self.trapezoid_poly_indices:
             self.bm.faces.new([verts[i] for i in poly])
 
     # 台形 軸方向高さ
@@ -325,7 +325,7 @@ class IcypTemplateMeshMaker:
 
         return [rot_matrix @ Vector(p) for p in points]
 
-    tpzoid_points = [
+    trapezoid_poly_indices = [
         [3, 2, 1, 0],
         [6, 5, 4, 7],
         [5, 1, 0, 4],

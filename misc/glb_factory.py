@@ -694,11 +694,11 @@ class GlbObj:
                 mt_prop["uvAnimationRotationSpeedFactor"] = mtoon_float_dic.get(
                     "_UvAnimRotation"
                 )
-                gc_list = []
+                garbage_list = []
                 for k, v in mt_prop.items():
                     if v is None:
-                        gc_list.append(k)
-                for garbage in gc_list:
+                        garbage_list.append(k)
+                for garbage in garbage_list:
                     mt_prop.pop(garbage)
 
                 pbr_dic["extensions"].update({"VRMC_materials_mtoon": mtoon_ext_dic})
@@ -757,7 +757,7 @@ class GlbObj:
 
             return gltf_dic, pbr_dic
 
-        def make_trnszw_mat_dic(b_mat, transzw_shader_node):
+        def make_transzw_mat_dic(b_mat, transzw_shader_node):
             zw_dic = OrderedDict()
             zw_dic["name"] = b_mat.name
             zw_dic["shader"] = "VRM/UnlitTransparentZWrite"
@@ -809,7 +809,7 @@ class GlbObj:
                     if node.type == "OUTPUT_MATERIAL":
                         zw_shader_node = node.inputs["Surface"].links[0].from_node
                         break
-                material_properties_dic, pbr_dic = make_trnszw_mat_dic(
+                material_properties_dic, pbr_dic = make_transzw_mat_dic(
                     b_mat, zw_shader_node
                 )
             else:
@@ -1387,8 +1387,8 @@ class GlbObj:
                 # TODO VRM1.0 is using node index that has mesh
         # TODO
         if self.vrm_version.startswith("1."):
-            vrm_extension_dic["lookAt"] = vrm_la_dic = {}
-            vrm_la_dic.update(
+            vrm_extension_dic["lookAt"] = vrm_look_at_dic = {}
+            vrm_look_at_dic.update(
                 json.loads(
                     self.textblock2str(bpy.data.texts[self.armature["lookat_params"]]),
                     object_pairs_hook=OrderedDict,
@@ -1400,8 +1400,8 @@ class GlbObj:
         blendshape_group_name = (
             "blendShapeMaster" if self.vrm_version.startswith("0.") else "blendShape"
         )
-        vrm_extension_dic[blendshape_group_name] = vrm_bsm_dic = {}
-        bsm_list = json.loads(
+        vrm_extension_dic[blendshape_group_name] = vrm_blend_shape_groups_dic = {}
+        blend_shape_groups = json.loads(
             self.textblock2str(bpy.data.texts[self.armature["blendshape_group"]]),
             object_pairs_hook=OrderedDict,
         )
@@ -1420,8 +1420,8 @@ class GlbObj:
             print("blendshapeGroup weight is between 0 and 1, value is {}".format(val))
             return max_val
 
-        for bsm in bsm_list:
-            for bind in bsm["binds"]:
+        for blend_shape_group in blend_shape_groups:
+            for bind in blend_shape_group["binds"]:
                 # TODO VRM1.0 is using node index that has mesh
                 bind["mesh"] = [
                     i
@@ -1437,14 +1437,14 @@ class GlbObj:
                     else clamp(0, bind["weight"], 1)
                 )
             if self.vrm_version.startswith("1."):
-                for matval in bsm["materialValues"]:
+                for matval in blend_shape_group["materialValues"]:
                     matval["material"] = [
                         i
                         for i, mat in enumerate(self.json_dic["materials"])
                         if mat["name"] == matval["material"]
                     ][0]
         # TODO isBinary handle : 0 or 1 にするフラグ
-        vrm_bsm_dic["blendShapeGroups"] = bsm_list
+        vrm_blend_shape_groups_dic["blendShapeGroups"] = blend_shape_groups
         # endregion blendShapeMaster
 
         # region secondaryAnimation
@@ -1497,11 +1497,11 @@ class GlbObj:
         # ボーン名からnode_idに
         # collider_groupも名前からcolliderGroupのindexに直す
         collider_node_id_list = [c_g["node"] for c_g in collider_group_list]
-        bg_list = json.loads(
+        bone_groups = json.loads(
             self.textblock2str(bpy.data.texts[self.armature["spring_bone"]]),
             object_pairs_hook=OrderedDict,
         )
-        for bone_group in bg_list:
+        for bone_group in bone_groups:
             bone_group["bones"] = [
                 node_name_id_dic[name] for name in bone_group["bones"]
             ]
@@ -1509,7 +1509,7 @@ class GlbObj:
                 collider_node_id_list.index(node_name_id_dic[name])
                 for name in bone_group["colliderGroups"]
             ]
-        vrm_extension_dic[springbone_name]["boneGroups"] = bg_list
+        vrm_extension_dic[springbone_name]["boneGroups"] = bone_groups
         # endregion boneGroup
         # endregion secondaryAnimation
         extension_name = "VRM" if self.vrm_version.startswith("0.") else "VRMC_vrm"

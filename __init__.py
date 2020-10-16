@@ -167,17 +167,17 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         # region helper
         def armature_ui():
             self.layout.separator()
-            abox = self.layout.row(align=False).box()
-            abox.label(text="Armature Help")
-            abox.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
+            armature_box = self.layout.row(align=False).box()
+            armature_box.label(text="Armature Help")
+            armature_box.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
             self.layout.separator()
 
-            reqbox = abox.box()
-            reqrow = reqbox.row()
-            reqrow.label(text="VRM Required Bones")
+            requires_box = armature_box.box()
+            requires_row = requires_box.row()
+            requires_row.label(text="VRM Required Bones")
             for req in vrm_types.HumanBones.requires:
                 if req in context.active_object.data:
-                    reqbox.prop_search(
+                    requires_box.prop_search(
                         context.active_object.data,
                         f'["{req}"]',
                         context.active_object.data,
@@ -185,15 +185,15 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
                         text=req,
                     )
                 else:
-                    reqbox.operator(
+                    requires_box.operator(
                         vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
                         text=f"Add {req} property",
                     )
-            defbox = abox.box()
-            defbox.label(text="VRM Optional Bones")
+            defines_box = armature_box.box()
+            defines_box.label(text="VRM Optional Bones")
             for defs in vrm_types.HumanBones.defines:
                 if defs in context.active_object.data:
-                    defbox.prop_search(
+                    defines_box.prop_search(
                         context.active_object.data,
                         f'["{defs}"]',
                         context.active_object.data,
@@ -201,13 +201,13 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
                         text=defs,
                     )
                 else:
-                    defbox.operator(
+                    defines_box.operator(
                         vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
                         text=f"Add {defs} property",
                     )
 
-            abox.label(icon="ERROR", text="EXPERIMENTAL!!!")
-            abox.operator(vrm_helper.Bones_rename.bl_idname)
+            armature_box.label(icon="ERROR", text="EXPERIMENTAL!!!")
+            armature_box.operator(vrm_helper.Bones_rename.bl_idname)
 
         # endregion helper
 
@@ -220,16 +220,18 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         if context.mode == "OBJECT" and context.active_object is not None:
             self.layout.operator(vrm_helper.VRM_VALIDATOR.bl_idname)
             if bpy.app.build_platform != b"Darwin":
-                mbox = self.layout.box()
-                mbox.label(text="MToon preview")
-                mbox.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
-                mbox.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
+                mtoon_preview_box = self.layout.box()
+                mtoon_preview_box.label(text="MToon preview")
+                mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+                mtoon_preview_box.operator(
+                    glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname
+                )
             if context.active_object.type == "ARMATURE":
                 armature_ui()
             if context.active_object.type == "MESH":
                 self.layout.label(icon="ERROR", text="EXPERIMENTAL!!!")
                 self.layout.operator(
-                    vrm_helper.Vroid2VRC_ripsync_from_json_recipe.bl_idname
+                    vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname
                 )
 
         if context.mode == "EDIT_MESH":
@@ -258,7 +260,7 @@ classes = [
     vrm_helper.Add_VRM_extensions_to_armature,
     vrm_helper.Add_VRM_require_humanbone_custom_property,
     vrm_helper.Add_VRM_defined_humanbone_custom_property,
-    vrm_helper.Vroid2VRC_ripsync_from_json_recipe,
+    vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
     vrm_helper.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
     make_armature.ICYP_OT_MAKE_ARMATURE,

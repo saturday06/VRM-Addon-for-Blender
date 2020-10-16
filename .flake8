@@ -3,3 +3,5 @@
 max-line-length = 120
 # https://github.com/PyCQA/pycodestyle/issues/373
 extend-ignore = E203
+
+dictionaries=en_US,python,technical

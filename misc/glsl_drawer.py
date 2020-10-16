@@ -18,7 +18,7 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):  # noqa: N801
     bl_options = {"REGISTER"}
 
     def execute(self, context):
-        gdo = GlslDrawObj()  # noqa: F841
+        GlslDrawObj()
         GlslDrawObj.draw_func_add()
         return {"FINISHED"}
 
@@ -528,7 +528,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
 
     """
 
-    execulutor = None
+    executor = None
 
     toon_shader = None
 
@@ -549,8 +549,8 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
         GlslDrawObj.myinstance = self
         self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
         self.materials = {}
-        self.main_execulutor = ThreadPoolExecutor()
-        self.sub_execulutor = ThreadPoolExecutor()
+        self.main_executor = ThreadPoolExecutor()
+        self.sub_executor = ThreadPoolExecutor()
 
     scene_meshes = None
 
@@ -665,10 +665,10 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            scene_mesh.pos = glsl_draw_obj.sub_execulutor.submit(job_pos)
-            scene_mesh.normals = glsl_draw_obj.sub_execulutor.submit(job_normal)
-            scene_mesh.uvs = glsl_draw_obj.sub_execulutor.submit(job_uv)
-            scene_mesh.tangents = glsl_draw_obj.sub_execulutor.submit(job_tangent)
+            scene_mesh.pos = glsl_draw_obj.sub_executor.submit(job_pos)
+            scene_mesh.normals = glsl_draw_obj.sub_executor.submit(job_normal)
+            scene_mesh.uvs = glsl_draw_obj.sub_executor.submit(job_uv)
+            scene_mesh.tangents = glsl_draw_obj.sub_executor.submit(job_tangent)
 
             scene_mesh.pos = scene_mesh.pos.result()
             scene_mesh.normals = scene_mesh.normals.result()
@@ -676,7 +676,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
             scene_mesh.tangents = scene_mesh.tangents.result()
             return scene_mesh
 
-        meshes = glsl_draw_obj.main_execulutor.map(build_mesh, glsl_draw_obj.objs)
+        meshes = glsl_draw_obj.main_executor.map(build_mesh, glsl_draw_obj.objs)
         for mesh in meshes:
             unneeded_mat = []
             for k in mesh.index_per_mat.keys():

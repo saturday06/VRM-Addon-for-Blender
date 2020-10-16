@@ -98,15 +98,15 @@ class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # noqa: N8
         return {"FINISHED"}
 
 
-class Vroid2VRC_ripsync_from_json_recipe(bpy.types.Operator):  # noqa: N801
-    bl_idname = "vrm.ripsync_vrm"
-    bl_label = "Make ripsync4VRC"
-    bl_description = "Make ripsync from VRoid to VRC by json"
+class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # noqa: N801
+    bl_idname = "vrm.lipsync_vrm"
+    bl_label = "Make lipsync4VRC"
+    bl_description = "Make lipsync from VRoid to VRC by json"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
         recipe_uri = os.path.join(
-            os.path.dirname(__file__), "vroid2vrc_ripsync_recipe.json"
+            os.path.dirname(__file__), "vroid2vrc_lipsync_recipe.json"
         )
         recipe = None
         with open(recipe_uri, "rt") as raw_recipe:
@@ -556,12 +556,12 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
             # region blendshape_master
             blendshape_group_name = "blendshape_group"
-            blendshape_groups_list = text_block_name_to_json(blendshape_group_name)
-            if blendshape_groups_list is None:
-                blendshape_groups_list = []
-            # TODO material value and material existance
-            for bsg in blendshape_groups_list:
-                for bind_dic in bsg["binds"]:
+            blendshape_groups = text_block_name_to_json(blendshape_group_name)
+            if blendshape_groups is None:
+                blendshape_groups = []
+            # TODO material value and material existence
+            for blendshape_group in blendshape_groups:
+                for bind_dic in blendshape_group["binds"]:
                     if bind_dic["mesh"] not in mesh_obj_names:
                         messages.append(
                             lang_support(

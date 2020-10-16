@@ -23,6 +23,7 @@
 !/web/*.jpg
 !/web/*.png
 !/web/*.pptx
+!/whitelist.txt
 *.blend1
 *.pyc
 .vscode/.ropeproject/config.py

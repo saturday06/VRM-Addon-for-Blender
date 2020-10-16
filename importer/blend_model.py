@@ -319,7 +319,7 @@ class BlendModel:
 
     # region material
     def make_material(self):
-        # Material_datas 適当なので要調整
+        # 適当なので要調整
         self.material_dict = dict()
         for index, mat in enumerate(self.vrm_pydata.materials):
             b_mat = bpy.data.materials.new(mat.name)
@@ -356,7 +356,7 @@ class BlendModel:
                 )
             b_mat.shadow_method = "CLIP"
         else:  # Z_TRANSPARENCY or Z()_zwrite
-            if "transparent_shadow_method" in dir(b_mat):  # old blender280_beta
+            if "transparent_shadow_method" in dir(b_mat):  # old blender 2.80 beta
                 b_mat.blend_method = "HASHED"
                 b_mat.transparent_shadow_method = "HASHED"
             else:
@@ -862,13 +862,13 @@ class BlendModel:
                     if hasattr(prim, channel_name):
                         if channel_name not in b_mesh.uv_layers:
                             b_mesh.uv_layers.new(name=channel_name)
-                        blen_uv_data = b_mesh.uv_layers[channel_name].data
+                        blender_uv_data = b_mesh.uv_layers[channel_name].data
                         vrm_texcoord = getattr(prim, channel_name)
                         for node_id, v_index in enumerate(flatten_vrm_mesh_vert_index):
-                            blen_uv_data[node_id].uv = vrm_texcoord[v_index]
-                            # blender axisnaize(上下反転)
-                            blen_uv_data[node_id].uv[1] = (
-                                blen_uv_data[node_id].uv[1] * -1 + 1
+                            blender_uv_data[node_id].uv = vrm_texcoord[v_index]
+                            # to blender axis (上下反転)
+                            blender_uv_data[node_id].uv[1] = (
+                                blender_uv_data[node_id].uv[1] * -1 + 1
                             )
                         texcoord_num += 1
                     else:
@@ -1081,7 +1081,7 @@ class BlendModel:
         # endregion first_person
 
         # region blendshape_master
-        blendshape_groups_list = copy.deepcopy(
+        blendshape_groups = copy.deepcopy(
             vrm_ext_dic["blendShapeMaster"]["blendShapeGroups"]
         )
         # meshをidから名前に
@@ -1089,16 +1089,14 @@ class BlendModel:
         # shape_indexを名前に
         # TODO VRM1.0 is using node index that has mesh
         # materialValuesはそのままで行けるハズ・・・
-        for bsg in blendshape_groups_list:
-            for bind_dic in bsg["binds"]:
+        for blendshape_group in blendshape_groups:
+            for bind_dic in blendshape_group["binds"]:
                 bind_dic["index"] = self.vrm_pydata.json["meshes"][bind_dic["mesh"]][
                     "primitives"
                 ][0]["extras"]["targetNames"][bind_dic["index"]]
                 bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].name
                 bind_dic["weight"] = bind_dic["weight"] / 100
-        write_textblock_and_assign_to_armature(
-            "blendshape_group", blendshape_groups_list
-        )
+        write_textblock_and_assign_to_armature("blendshape_group", blendshape_groups)
         # endregion blendshape_master
 
         # region springbone
@@ -1225,50 +1223,51 @@ class BlendModel:
 
         return
 
+    def make_pole_target(self, rl, upper_leg_name, lower_leg_name, foot_name):
+        bpy.ops.object.mode_set(mode="EDIT")
+        edit_bones = self.armature.data.edit_bones
+
+        ik_foot = self.armature.data.edit_bones.new(f"IK_LEG_TARGET_{rl}")
+        ik_foot.head = [f + o for f, o in zip(edit_bones[foot_name].head[:], [0, 0, 0])]
+        ik_foot.tail = [
+            f + o for f, o in zip(edit_bones[foot_name].head[:], [0, -0.2, 0])
+        ]
+
+        pole = self.armature.data.edit_bones.new(f"leg_pole_{rl}")
+        pole.parent = ik_foot
+        pole.head = [
+            f + o for f, o in zip(edit_bones[lower_leg_name].head[:], [0, -0.1, 0])
+        ]
+        pole.tail = [
+            f + o for f, o in zip(edit_bones[lower_leg_name].head[:], [0, -0.2, 0])
+        ]
+
+        pole_name = copy.copy(pole.name)
+        ik_foot_name = copy.copy(ik_foot.name)
+        bpy.context.view_layer.depsgraph.update()
+        bpy.context.scene.view_layers.update()
+        bpy.ops.object.mode_set(mode="POSE")
+        ikc = self.armature.pose.bones[lower_leg_name].constraints.new("IK")
+        ikc.target = self.armature
+        ikc.subtarget = self.armature.pose.bones[ik_foot_name].name
+
+        def chain_solver(child, parent):
+            current_bone = self.armature.pose.bones[child]
+            for i in range(10):
+                if current_bone.name == parent:
+                    return i + 1
+                current_bone = current_bone.parent
+            return 11
+
+        ikc.chain_count = chain_solver(lower_leg_name, upper_leg_name)
+
+        ikc.pole_target = self.armature
+        ikc.pole_subtarget = pole_name
+        bpy.context.view_layer.depsgraph.update()
+        bpy.context.scene.view_layers.update()
+
     def blendfy(self):
         bpy.context.view_layer.objects.active = self.armature
-
-        def make_pole_target(rl, upper_leg_name, lower_leg_name, foot_name):
-            bpy.ops.object.mode_set(mode="EDIT")
-            ebd = self.armature.data.edit_bones
-
-            ik_foot = self.armature.data.edit_bones.new(f"IK_LEG_TARGET_{rl}")
-            ik_foot.head = [f + o for f, o in zip(ebd[foot_name].head[:], [0, 0, 0])]
-            ik_foot.tail = [f + o for f, o in zip(ebd[foot_name].head[:], [0, -0.2, 0])]
-
-            pole = self.armature.data.edit_bones.new(f"leg_pole_{rl}")
-            pole.parent = ik_foot
-            pole.head = [
-                f + o for f, o in zip(ebd[lower_leg_name].head[:], [0, -0.1, 0])
-            ]
-            pole.tail = [
-                f + o for f, o in zip(ebd[lower_leg_name].head[:], [0, -0.2, 0])
-            ]
-
-            pole_name = copy.copy(pole.name)
-            ik_foot_name = copy.copy(ik_foot.name)
-            bpy.context.view_layer.depsgraph.update()
-            bpy.context.scene.view_layers.update()
-            bpy.ops.object.mode_set(mode="POSE")
-            ikc = self.armature.pose.bones[lower_leg_name].constraints.new("IK")
-            ikc.target = self.armature
-            ikc.subtarget = self.armature.pose.bones[ik_foot_name].name
-
-            def chain_solver(child, parent):
-                current_bone = self.armature.pose.bones[child]
-                for i in range(10):
-                    if current_bone.name == parent:
-                        return i + 1
-                    current_bone = current_bone.parent
-                return 11
-
-            ikc.chain_count = chain_solver(lower_leg_name, upper_leg_name)
-
-            ikc.pole_target = self.armature
-            ikc.pole_subtarget = pole_name
-            bpy.context.view_layer.depsgraph.update()
-            bpy.context.scene.view_layers.update()
-
         bpy.ops.object.mode_set(mode="EDIT")
         edit_bones = self.armature.data.edit_bones  # noqa: F841
 
@@ -1280,10 +1279,12 @@ class BlendModel:
         left_lower_leg_name = self.armature.data["leftLowerLeg"]
         left_foot_name = self.armature.data["leftFoot"]
 
-        make_pole_target(
+        self.make_pole_target(
             "R", right_upper_leg_name, right_lower_leg_name, right_foot_name
         )
-        make_pole_target("L", left_upper_leg_name, left_lower_leg_name, left_foot_name)
+        self.make_pole_target(
+            "L", left_upper_leg_name, left_lower_leg_name, left_foot_name
+        )
 
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.context.view_layer.depsgraph.update()
