@@ -398,19 +398,19 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 )
             )
 
-        for img in used_images:
-            if img.is_dirty or img.filepath == "":
+        for image in used_images:
+            if image.is_dirty or not image.filepath:
                 messages.append(
                     lang_support(
-                        f"{img.name} is not saved. Please save.",
-                        f"{img.name} のBlender上での変更を保存してください。",
+                        f"{image.name} is not saved. Please save.",
+                        f"{image.name} のBlender上での変更を保存してください。",
                     )
                 )
-            if img.file_format.lower() not in ["png", "jpeg"]:
+            if image.file_format.lower() not in ["png", "jpeg"]:
                 messages.append(
                     lang_support(
-                        f"glTF only supports PNG and JPEG textures: {img.name}",
-                        f"gltfはPNGとJPEGのみの対応です。:{img.name}",
+                        f"glTF only supports PNG and JPEG textures but {image.name} is {image.file_format}",
+                        f"glTFはPNGとJPEGのみの対応ですが、{image.name}は{image.file_format}です。",
                     )
                 )
 
