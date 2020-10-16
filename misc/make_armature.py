@@ -2,6 +2,7 @@ import json
 from math import radians
 import bpy
 from mathutils import Matrix
+from ..vrm_types import Vrm0
 from .template_mesh_maker import IcypTemplateMeshMaker
 
 
@@ -485,39 +486,14 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             "spring_bone", ICYP_OT_MAKE_ARMATURE.spring_bone_prams
         )
 
-        vrm_metas = [
-            "version",  # model version (not VRMspec etc)
-            "author",
-            "contactInformation",
-            "reference",
-            "title",
-            "otherPermissionUrl",
-            "otherLicenseUrl",
-        ]
-        for v in vrm_metas:
+        for v in Vrm0.METAS:
             if v not in armature:
                 armature[v] = "undefined"
-        required_vrm_metas = {
-            "allowedUserName": "OnlyAuthor",
-            "violentUssageName": "Disallow",
-            "sexualUssageName": "Disallow",
-            "commercialUssageName": "Disallow",
-            "licenseName": "Redistribution_Prohibited",
-        }
-        for k, v in required_vrm_metas.items():
+        for k, v in Vrm0.REQUIRED_METAS.items():
             if k not in armature:
                 armature[k] = v
 
-    humanoid_params = {
-        "armStretch": 0.05,
-        "legStretch": 0.05,
-        "upperArmTwist": 0.5,
-        "lowerArmTwist": 0.5,
-        "upperLegTwist": 0.5,
-        "lowerLegTwist": 0.5,
-        "feetSpacing": 0,
-        "hasTranslationDoF": False,
-    }
+    humanoid_params = Vrm0.HUMANOID_DEFAULT_PARAMS
     first_person_params = {
         "firstPersonBone": "Head",
         "firstPersonBoneOffset": {"x": 0, "y": 0, "z": 0},

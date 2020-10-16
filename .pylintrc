@@ -1,7 +1,6 @@
 [MASTER]
 disable=bad-continuation,
         broad-except,
-        duplicate-code,
         fixme,
         import-error,
         import-outside-toplevel,

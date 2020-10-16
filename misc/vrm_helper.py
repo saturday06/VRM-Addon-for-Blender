@@ -14,7 +14,7 @@ import bpy
 import blf
 from mathutils import Vector
 from .. import vrm_types
-from ..vrm_types import nested_json_value_getter as json_get
+from ..vrm_types import nested_json_value_getter as json_get, Gltf
 from .make_armature import ICYP_OT_MAKE_ARMATURE
 
 
@@ -326,17 +326,8 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             + "ノードグループからそれらを使ってください.",
                         )
                     )
-        shader_nodes_and_material = [
-            (node.inputs["Surface"].links[0].from_node, mat)
-            for mat in used_materials
-            for node in mat.node_tree.nodes
-            if node.type == "OUTPUT_MATERIAL"
-            and node.inputs["Surface"].links[0].from_node.type == "GROUP"
-            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
-            is not None
-        ]
 
-        for node, material in shader_nodes_and_material:
+        for node, material in shader_nodes_and_materials(used_materials):
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 for (
@@ -367,23 +358,15 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     )
             # GLTF
             elif node.node_tree["SHADER"] == "GLTF":
-                texture_input_name_list = [
-                    "color_texture",
-                    "normal",
-                    "emissive_texture",
-                    "occlusion_texture",
-                ]
-                val_input_name_list = ["metallic", "roughness", "unlit"]
-                rgba_input_name_list = ["base_Color", "emissive_color"]
-                for k in texture_input_name_list:
+                for k in Gltf.TEXTURE_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "TEX_IMAGE", k, messages, used_images
                     )
-                for k in val_input_name_list:
+                for k in Gltf.VAL_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "VALUE", k, messages, used_images
                     )
-                for k in rgba_input_name_list:
+                for k in Gltf.RGBA_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "RGB", k, messages, used_images
                     )
@@ -516,16 +499,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             if humanoid_param is None:
                 armature[humanoid_param_name] = text_block_write(
                     humanoid_param_name,
-                    {
-                        "armStretch": 0.05,
-                        "legStretch": 0.05,
-                        "upperArmTwist": 0.5,
-                        "lowerArmTwist": 0.5,
-                        "upperLegTwist": 0.5,
-                        "lowerLegTwist": 0.5,
-                        "feetSpacing": 0,
-                        "hasTranslationDoF": False,
-                    },
+                    vrm_types.Vrm0.HUMANOID_DEFAULT_PARAMS,
                 )
             # endregion humanoid_parameter
             # region first_person
@@ -746,3 +720,15 @@ def node_material_input_check(
                             f"マテリアル:{material.name} にテクスチャが設定されていない imageノードがあります。削除か画像を設定してください",
                         )
                     )
+
+
+def shader_nodes_and_materials(used_materials):
+    return [
+        (node.inputs["Surface"].links[0].from_node, mat)
+        for mat in used_materials
+        for node in mat.node_tree.nodes
+        if node.type == "OUTPUT_MATERIAL"
+        and node.inputs["Surface"].links[0].from_node.type == "GROUP"
+        and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
+        is not None
+    ]

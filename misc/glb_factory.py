@@ -15,7 +15,7 @@ import bpy
 import bmesh
 from .glb_bin_collection import GlbBinCollection, ImageBin, GlbBin
 from .version import version
-from .vrm_helper import find_export_objects
+from .vrm_helper import find_export_objects, shader_nodes_and_materials
 from ..gl_constants import GlConstants
 from .. import vrm_types
 
@@ -66,17 +66,8 @@ class GlbObj:
                 if mat not in used_materials:
                     used_materials.append(mat)
 
-        shader_nodes = [
-            (node.inputs["Surface"].links[0].from_node, mat)
-            for mat in used_materials
-            for node in mat.node_tree.nodes
-            if node.type == "OUTPUT_MATERIAL"
-            and node.inputs["Surface"].links[0].from_node.type == "GROUP"
-            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
-            is not None
-        ]
         # image fetching
-        for node, mat in shader_nodes:
+        for node, mat in shader_nodes_and_materials(used_materials):
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 mat["vrm_shader"] = "MToon_unversioned"
                 for (
@@ -95,13 +86,7 @@ class GlbObj:
                             used_images.append(n.image)
             elif node.node_tree["SHADER"] == "GLTF":
                 mat["vrm_shader"] = "GLTF"
-                texture_input_name_list = [
-                    "color_texture",
-                    "normal",
-                    "emissive_texture",
-                    "occlusion_texture",
-                ]
-                for k in texture_input_name_list:
+                for k in vrm_types.Gltf.TEXTURE_INPUT_NAMES:
                     if node.inputs[k].links:
                         n = node.inputs[k].links[0].from_node
                         if n.image not in used_images:
@@ -1284,40 +1269,15 @@ class GlbObj:
         # region meta
         vrm_extension_dic["meta"] = vrm_meta_dic = {}
         # 安全側に寄せておく
-        if self.VRM_version == "0.0":
-            required_vrm_metas = {
-                "allowedUserName": "OnlyAuthor",
-                "violentUssageName": "Disallow",
-                "sexualUssageName": "Disallow",
-                "commercialUssageName": "Disallow",
-                "licenseName": "Redistribution_Prohibited",
-            }
-            vrm_metas = [
-                "version",  # model version (not VRMspec etc)
-                "author",
-                "contactInformation",
-                "reference",
-                "title",
-                "otherPermissionUrl",
-                "otherLicenseUrl",
-            ]
+        if self.VRM_version.startswith("0."):
+            required_vrm_metas = vrm_types.Vrm0.REQUIRED_METAS
+            vrm_metas = vrm_types.Vrm0.METAS
+        elif self.VRM_version.startswith("1."):
+            required_vrm_metas = vrm_types.Vrm1.REQUIRED_METAS
+            vrm_metas = vrm_types.Vrm1.METAS
         else:
-            required_vrm_metas = {
-                "allowedUser": "OnlyAuthor",
-                "violentUsage": "Disallow",
-                "sexualUsage": "Disallow",
-                "commercialUsage": "Disallow",
-                "license": "Redistribution_Prohibited",
-            }
-            vrm_metas = [
-                "version",  # model version (not VRMspec etc)
-                "author",
-                "contactInformation",
-                "reference",
-                "title",
-                "otherPermissionUrl",
-                "otherLicenseUrl",
-            ]
+            raise NotImplementedError
+
         for k, v in required_vrm_metas.items():
             vrm_meta_dic[k] = self.armature[k] if k in self.armature.keys() else v
         for key in vrm_metas:

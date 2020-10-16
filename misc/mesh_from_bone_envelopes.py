@@ -1,7 +1,7 @@
 from math import ceil
-import os
 import bpy
 from mathutils import Vector
+from ..importer.blend_model import shader_node_group_import
 
 
 class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
@@ -114,28 +114,13 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
                 if node.type != "OUTPUT_MATERIAL":
                     mat.node_tree.nodes.remove(node)
 
-        def node_group_import(shader_node_group_name):
-            if shader_node_group_name not in bpy.data.node_groups:
-                filedir = os.path.join(
-                    os.path.dirname(os.path.dirname(__file__)),
-                    "resources",
-                    "material_node_groups.blend",
-                    "NodeTree",
-                )
-                filepath = os.path.join(filedir, shader_node_group_name)
-                bpy.ops.wm.append(
-                    filepath=filepath,
-                    filename=shader_node_group_name,
-                    directory=filedir,
-                )
-
         def node_group_create(material, shader_node_group_name):
             node_group = material.node_tree.nodes.new("ShaderNodeGroup")
             node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
             return node_group
 
         shader_node_group_name = "MToon_unversioned"
-        node_group_import(shader_node_group_name)
+        shader_node_group_import(shader_node_group_name)
         b_mat = bpy.data.materials.new(f"{armature.name}_mesh_mat")
         material_init(b_mat)
         sg = node_group_create(b_mat, shader_node_group_name)

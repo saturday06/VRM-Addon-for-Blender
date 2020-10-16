@@ -438,19 +438,6 @@ class BlendModel:
         material.node_tree.links.new(socket_to_connect, multiply_node.outputs[0])
         return multiply_node
 
-    def node_group_import(self, shader_node_group_name):
-        if shader_node_group_name not in bpy.data.node_groups:
-            filedir = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)),
-                "resources",
-                "material_node_groups.blend",
-                "NodeTree",
-            )
-            filepath = os.path.join(filedir, shader_node_group_name)
-            bpy.ops.wm.append(
-                filepath=filepath, filename=shader_node_group_name, directory=filedir
-            )
-
     def node_group_create(self, material, shader_node_group_name):
         node_group = material.node_tree.nodes.new("ShaderNodeGroup")
         node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
@@ -509,7 +496,7 @@ class BlendModel:
     def build_material_from_gltf(self, b_mat, pymat):
         self.material_init(b_mat)
         gltf_node_name = "GLTF"
-        self.node_group_import(gltf_node_name)
+        shader_node_group_import(gltf_node_name)
         sg = self.node_group_create(b_mat, gltf_node_name)
         b_mat.node_tree.links.new(
             b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
@@ -556,8 +543,8 @@ class BlendModel:
 
         shader_node_group_name = "MToon_unversioned"
         sphere_add_vector_node_group_name = "matcap_vector"
-        self.node_group_import(shader_node_group_name)
-        self.node_group_import(sphere_add_vector_node_group_name)
+        shader_node_group_import(shader_node_group_name)
+        shader_node_group_import(sphere_add_vector_node_group_name)
 
         sg = self.node_group_create(b_mat, shader_node_group_name)
         b_mat.node_tree.links.new(
@@ -702,7 +689,7 @@ class BlendModel:
         self.material_init(b_mat)
 
         z_write_transparent_sg = "TRANSPARENT_ZWRITE"
-        self.node_group_import(z_write_transparent_sg)
+        shader_node_group_import(z_write_transparent_sg)
         sg = self.node_group_create(b_mat, z_write_transparent_sg)
         b_mat.node_tree.links.new(
             b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
@@ -1319,3 +1306,20 @@ class ICYP_OT_select_helper(bpy.types.Operator):  # noqa: N801
         bpy.ops.object.mode_set(mode="EDIT")
         bpy.types.Scene.icyp_select_helper_select_list = list()
         return {"FINISHED"}
+
+
+def shader_node_group_import(shader_node_group_name):
+    if shader_node_group_name in bpy.data.node_groups:
+        return
+    filedir = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "resources",
+        "material_node_groups.blend",
+        "NodeTree",
+    )
+    filepath = os.path.join(filedir, shader_node_group_name)
+    bpy.ops.wm.append(
+        filepath=filepath,
+        filename=shader_node_group_name,
+        directory=filedir,
+    )

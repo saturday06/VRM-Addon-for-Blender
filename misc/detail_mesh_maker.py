@@ -2,6 +2,7 @@ from math import sin, cos, radians, atan2
 import bpy
 import bmesh
 from mathutils import Matrix, Vector
+from .template_mesh_maker import IcypTemplateMeshMaker
 
 
 class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
@@ -37,27 +38,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         self.base_armature = bpy.data.objects[self.base_armature_name]
         self.face_mesh = bpy.data.objects[self.face_mesh_name]
         head_bone = self.get_humanoid_bone("head")
-        head_matrix = head_bone.matrix_local
-        # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
-        head_matrix = (
-            head_matrix
-            @ Matrix(
-                [
-                    [1, 0, 0, 0],
-                    [0, 1, 0, -head_bone.head_local[2]],
-                    [0, 0, 1, 0],
-                    [0, 0, 0, 1],
-                ]
-            )
-            @ Matrix.Translation(
-                Vector(
-                    [
-                        self.head_tall_size / 16,
-                        self.neck_depth_offset - self.head_tall_size,
-                        0,
-                    ]
-                )
-            )
+        head_matrix = IcypTemplateMeshMaker.head_bone_to_head_matrix(
+            head_bone, self.head_tall_size, self.neck_depth_offset
         )
 
         self.neck_tail_y = self.head_tall_size - (

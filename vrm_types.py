@@ -11,6 +11,51 @@ from sys import float_info
 VRM = "VRM"
 
 
+class Gltf:
+    TEXTURE_INPUT_NAMES = [
+        "color_texture",
+        "normal",
+        "emissive_texture",
+        "occlusion_texture",
+    ]
+    VAL_INPUT_NAMES = ["metallic", "roughness", "unlit"]
+    RGBA_INPUT_NAMES = ["base_Color", "emissive_color"]
+
+
+class Vrm0:
+    METAS = [
+        "version",  # model version (not VRMspec etc)
+        "author",
+        "contactInformation",
+        "reference",
+        "title",
+        "otherPermissionUrl",
+        "otherLicenseUrl",
+    ]
+    REQUIRED_METAS = {
+        "allowedUserName": "OnlyAuthor",
+        "violentUssageName": "Disallow",
+        "sexualUssageName": "Disallow",
+        "commercialUssageName": "Disallow",
+        "licenseName": "Redistribution_Prohibited",
+    }
+    HUMANOID_DEFAULT_PARAMS = {
+        "armStretch": 0.05,
+        "legStretch": 0.05,
+        "upperArmTwist": 0.5,
+        "lowerArmTwist": 0.5,
+        "upperLegTwist": 0.5,
+        "lowerLegTwist": 0.5,
+        "feetSpacing": 0,
+        "hasTranslationDoF": False,
+    }
+
+
+class Vrm1:
+    METAS = None
+    REQUIRED_METAS = None
+
+
 class VrmPydata:
     def __init__(
         self,

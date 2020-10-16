@@ -25,16 +25,11 @@ class IcypTemplateMeshMaker:
     def get_humanoid_bone(self, bone):
         return self.args.armature_obj.data.bones[self.args.armature_obj.data[bone]]
 
-    def make_head(self, mesh):
-        args = self.args
-        self.bm = bmesh.new()
-        head_size = self.head_size
-
-        head_bone = self.get_humanoid_bone("head")
-        head_matrix = head_bone.matrix_local
-        # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
-        head_matrix = (
-            head_matrix
+    # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
+    @staticmethod
+    def head_bone_to_head_matrix(head_bone, head_tall_size, neck_depth_offset):
+        return (
+            head_bone.matrix_local
             @ Matrix(
                 [
                     [1, 0, 0, 0],
@@ -43,8 +38,18 @@ class IcypTemplateMeshMaker:
                     [0, 0, 0, 1],
                 ]
             )
-            @ Matrix.Translation(Vector([head_size / 16, args.tall - head_size, 0]))
+            @ Matrix.Translation(
+                Vector([head_tall_size / 16, neck_depth_offset - head_tall_size, 0])
+            )
         )
+
+    def make_head(self, mesh):
+        args = self.args
+        self.bm = bmesh.new()
+        head_size = self.head_size
+
+        head_bone = self.get_humanoid_bone("head")
+        head_matrix = self.head_bone_to_head_matrix(head_bone, head_size, args.tall)
         self.make_half_trapezoid(
             [head_size * 7 / 8, head_size * args.head_width_ratio],
             [head_size * 7 / 8, head_size * args.head_width_ratio],
