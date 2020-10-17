@@ -24,17 +24,20 @@ out vec3 tangent;
 out vec3 bitangent;
 out vec4 shadowCoord;
 
-void main(){
+void main() {
+    // clang-format off
     mat4 biasMat4 = mat4(
         0.5, 0.0, 0.0, 0.0,
         0.0, 0.5, 0.0, 0.0,
         0.0, 0.0, 0.5, 0.0,
         0.5, 0.5, 0.5, 1.0
     );
+    // clang-format on
+
     mat4 depthBiasMVP = biasMat4 * depthMVP;
 
     if (is_outline == 0) {
-        for (int i = 0; i<3; i++){
+        for (int i = 0; i < 3; i++) {
             uv = uva[i];
             n = na[i];
             tangent = rtangent[i];
@@ -45,39 +48,42 @@ void main(){
         }
         EndPrimitive();
     } else {
-        if (OutlineWidthMode == 1){ // world space outline
-            for (int i = 2; i>=0; i--){
+        if (OutlineWidthMode == 1) {  // world space outline
+            for (int i = 2; i >= 0; i--) {
                 uv = uva[i];
                 n = na[i];
                 tangent = rtangent[i];
                 float outlinewidth_tex = texture(OutlineWidthTexture, uv).r;
-                gl_Position = viewProjectionMatrix * obj_matrix
-                * (posa[i] + vec4(na[i], 0)*OutlineWidth*outlinewidth_tex*0.01);
+                gl_Position = viewProjectionMatrix * obj_matrix *
+                              (posa[i] + vec4(na[i], 0) * OutlineWidth *
+                                             outlinewidth_tex * 0.01);
                 shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                 EmitVertex();
             }
             EndPrimitive();
-        }
-        else if (OutlineWidthMode == 2){ //screen space outline
-            for (int i = 2; i>=0; i--){
+        } else if (OutlineWidthMode == 2) {  // screen space outline
+            for (int i = 2; i >= 0; i--) {
                 uv = uva[i];
                 n = na[i];
                 tangent = rtangent[i];
                 gl_Position = viewProjectionMatrix * obj_matrix * posa[i];
-                vec3 view_normal = normalize(mat3(normalWorldToViewMatrix) * na[i]);
-                vec3 extend_dir = normalize(mat3(projectionMatrix) * view_normal);
-                extend_dir = extend_dir * min(gl_Position.w, OutlineScaleMaxDistance);
+                vec3 view_normal =
+                    normalize(mat3(normalWorldToViewMatrix) * na[i]);
+                vec3 extend_dir =
+                    normalize(mat3(projectionMatrix) * view_normal);
+                extend_dir =
+                    extend_dir * min(gl_Position.w, OutlineScaleMaxDistance);
                 extend_dir.y = extend_dir.y * aspect;
                 float outlinewidth_tex = texture(OutlineWidthTexture, uv).r;
-                gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth * outlinewidth_tex
-                * clamp(1-abs(view_normal.z), 0.0, 1.0);
+                gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth *
+                                  outlinewidth_tex *
+                                  clamp(1 - abs(view_normal.z), 0.0, 1.0);
                 shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                 EmitVertex();
             }
             EndPrimitive();
-        }
-        else { // nothing come here ...maybe.
-            for (int i = 0; i<3; i++){
+        } else {  // nothing come here ...maybe.
+            for (int i = 0; i < 3; i++) {
                 uv = uva[i];
                 n = na[i];
                 tangent = rtangent[i];

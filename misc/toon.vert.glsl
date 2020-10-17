@@ -7,8 +7,7 @@ out vec2 uva;
 out vec3 na;
 out vec3 rtangent;
 
-void main()
-{
+void main() {
     na = normal;
     uva = rawuv;
     gl_Position = vec4(position, 1);
