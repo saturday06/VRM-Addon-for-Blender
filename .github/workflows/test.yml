@@ -66,7 +66,7 @@ jobs:
       - name: Install deb packages
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y clang-format glslang-tools nkf python3-pip python3-setuptools
+          sudo apt-get install -y clang-format glslang-tools nkf python3-pip python3-setuptools uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
       - name: Disable git config core.quotepath
@@ -82,17 +82,28 @@ jobs:
       - name: Check file name character encoding
         run: |
           git ls-files | while read -r f; do
-            if [ "$(echo $f | nkf --guess)" != "ASCII (LF)" ]; then
-              echo $f is non ascii file name.
+            encoding=$(echo $f | uchardet)
+            if [ "$encoding" != "ASCII" ]; then
+              echo $f is not ascii file name but $encoding.
               exit 1
             fi
           done
       - name: Check file content character encoding
         run: |
           git ls-files | while read -r f; do
-            if [ "$(nkf --guess $f)" != "BINARY" ]; then
-              nkf -w -Lu -Z1 --in-place $f
-            fi
+            encoding=$(file --brief --mime-encoding $f)
+            case "$encoding" in
+              binary)
+                file $f
+                ;;
+              us-ascii | utf-8)
+                nkf -w -Lu -Z1 --in-place $f
+                ;;
+              *)
+                echo $f is not ascii nor utf-8 but $encoding.
+                exit 1
+                ;;
+            esac
           done
           git diff --exit-code
       - name: Validate GLSL
