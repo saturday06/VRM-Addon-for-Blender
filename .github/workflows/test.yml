@@ -115,7 +115,7 @@ jobs:
             cat $orig >> $versioned
             glslangValidator $versioned
           done
-      - name: Format GLSL (May break syntax !)
+      - name: Format GLSL (May break syntax!)
         run: |
           clang-format -style="{BasedOnStyle: Chromium, IndentWidth: 4}" -i $(git ls-files "**.glsl")
           git diff --exit-code
