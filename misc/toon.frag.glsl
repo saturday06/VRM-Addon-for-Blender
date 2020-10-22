@@ -37,7 +37,7 @@ uniform vec4 OutlineColor;
 uniform sampler2D depth_image;
 uniform sampler2D MainTexture;
 uniform sampler2D ShadeTexture;
-uniform sampler2D NomalmapTexture;
+uniform sampler2D NormalmapTexture;
 uniform sampler2D ReceiveShadow_Texture;
 uniform sampler2D ShadingGradeTexture;
 uniform sampler2D Emission_Texture;
@@ -109,7 +109,7 @@ void main() {
         // texture( depth_image,uv) +
         texture(MainTexture, uv) +
         texture(ShadeTexture, uv) +
-        texture(NomalmapTexture, uv) +
+        texture(NormalmapTexture, uv) +
         texture(ReceiveShadow_Texture, uv) +
         texture(ShadingGradeTexture, uv) +
         texture(Emission_Texture, uv) +
@@ -146,7 +146,7 @@ void main() {
     vec3 outline_col = col.rgb;
 
     vec3 mod_n = n;
-    vec3 normalmap = texture(NomalmapTexture, mainUV).rgb * 2 - 1;
+    vec3 normalmap = texture(NormalmapTexture, mainUV).rgb * 2 - 1;
     for (int i = 0; i < 3; i++) {
         mod_n[i] = dot(vec3(tangent[i], bitangent[i], n[i]), normalmap);
     }

@@ -146,7 +146,7 @@ class MtoonGlsl:
             if k is not None:
                 if k == "SphereAddTexture":
                     self.texture_dic[k] = self.get_texture(k, "black")
-                elif k == "NomalmapTexture":
+                elif k == "NormalmapTexture":
                     self.texture_dic[k] = self.get_texture(k, "normal")
                 else:
                     self.texture_dic[k] = self.get_texture(k)

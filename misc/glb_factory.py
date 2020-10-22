@@ -526,7 +526,7 @@ class GlbObj:
                                 ]
                         else:
                             mtoon_vector_dic[texture_key] = [0, 0, 1, 1]
-                    elif texture_prop == "NomalmapTexture":
+                    elif texture_prop == "NormalmapTexture":
                         use_normalmap = True
 
             def material_prop_setter(
