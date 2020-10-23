@@ -202,9 +202,10 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
         else:
             glsl_draw_obj = GlslDrawObj.myinstance
         glsl_draw_obj.objs = [obj for obj in glsl_draw_obj.draw_objs if obj is not None]
-        glsl_draw_obj.light = [obj for obj in bpy.data.objects if obj.type == "LIGHT"][
-            0
-        ]
+        lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
+        if not lights:
+            raise Exception("Please add a light to scene")
+        glsl_draw_obj.light = lights[0]
         for obj in glsl_draw_obj.objs:
             for mat_slot in obj.material_slots:
                 if mat_slot.material.name not in glsl_draw_obj.materials.keys():
