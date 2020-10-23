@@ -17,14 +17,12 @@ from .importer import blend_model, vrm_load
 from .misc import (
     detail_mesh_maker,
     glb_factory,
+    glsl_drawer,
     make_armature,
     mesh_from_bone_envelopes,
     version,
     vrm_helper,
 )
-
-if bpy.app.build_platform != b"Darwin":
-    from .misc import glsl_drawer
 
 bl_info = {
     "name": "VRM_IMPORTER",
@@ -219,13 +217,10 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         self.layout.label(text="*Symmetry is in default blender function")
         if context.mode == "OBJECT" and context.active_object is not None:
             self.layout.operator(vrm_helper.VRM_VALIDATOR.bl_idname)
-            if bpy.app.build_platform != b"Darwin":
-                mtoon_preview_box = self.layout.box()
-                mtoon_preview_box.label(text="MToon preview")
-                mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
-                mtoon_preview_box.operator(
-                    glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname
-                )
+            mtoon_preview_box = self.layout.box()
+            mtoon_preview_box.label(text="MToon preview")
+            mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+            mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
             if context.active_object.type == "ARMATURE":
                 armature_ui()
             if context.active_object.type == "MESH":
@@ -264,14 +259,12 @@ classes = [
     vrm_helper.VRM_VALIDATOR,
     VRM_IMPORTER_PT_controller,
     make_armature.ICYP_OT_MAKE_ARMATURE,
+    glsl_drawer.ICYP_OT_Draw_Model,
+    glsl_drawer.ICYP_OT_Remove_Draw_Model,
     # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     # blend_model.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
 ]
-if bpy.app.build_platform != b"Darwin":
-    classes.extend(
-        [glsl_drawer.ICYP_OT_Draw_Model, glsl_drawer.ICYP_OT_Remove_Draw_Model]
-    )
 
 
 # アドオン有効化時の処理
