@@ -52,6 +52,8 @@ in vec3 tangent;
 in vec3 bitangent;
 in vec4 shadowCoord;
 
+out vec4 FragColor;
+
 vec4 color_linearlize(vec4 color) {
     vec4 linear_color = color;
     for (int i = 0; i < 3; i++) {
@@ -222,13 +224,13 @@ void main() {
     output_color += emission;
 
     if (is_outline == 0) {
-        gl_FragColor = color_sRGBlize(vec4(output_color, lit.a));
+        FragColor = color_sRGBlize(vec4(output_color, lit.a));
     } else {  // is_outline in (1,2)//world or screen
         if (OutlineColorMode == 0) {
-            gl_FragColor = color_sRGBlize(color_linearlize(OutlineColor) +
-                                          debug_unused_vec4);
+            FragColor = color_sRGBlize(color_linearlize(OutlineColor) +
+                                       debug_unused_vec4);
         } else {
-            gl_FragColor = color_sRGBlize(vec4(
+            FragColor = color_sRGBlize(vec4(
                 color_linearlize(OutlineColor).rgb *
                     color_linearlize(
                         vec4(mix(vec3(1.0), outline_col, OutlineLightingMix),
@@ -238,7 +240,7 @@ void main() {
         }
     }
     if (isDebug == 1.0) {
-        gl_FragColor = vec4(mod_n * 0.5 + 0.5, lit.a);
-        // gl_FragColor = vec4(n*0.5+0.5,lit.a);
+        FragColor = vec4(mod_n * 0.5 + 0.5, lit.a);
+        // FragColor = vec4(n*0.5+0.5,lit.a);
     }
 }
