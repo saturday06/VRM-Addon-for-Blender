@@ -406,7 +406,16 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         f"{image.name} のBlender上での変更を保存してください。",
                     )
                 )
-            if image.file_format.lower() not in ["png", "jpeg"]:
+            if not os.path.exists(image.filepath_from_user()):
+                messages.append(
+                    lang_support(
+                        f'{image.name} is not found in file path "{image.filepath_from_user()}". '
+                        + "Please load file of it in blender.",
+                        f'{image.name} の画像ファイルが指定ファイルパス "{image.filepath_from_user()}" '
+                        + "に見つかりません。画像を読み込み直してください。",
+                    )
+                )
+            elif image.file_format.lower() not in ["png", "jpeg"]:
                 messages.append(
                     lang_support(
                         f"glTF only supports PNG and JPEG textures but {image.name} is {image.file_format}",
