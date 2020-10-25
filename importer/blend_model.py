@@ -92,6 +92,10 @@ class BlendModel:
             self.finishing(affected_object)
         finally:
             wm.progress_end()
+            if (2, 90) <= bpy.app.version < (2, 91):
+                # https://developer.blender.org/T79182
+                bpy.context.window.cursor_modal_set("HAND")
+                bpy.context.window.cursor_modal_restore()
         return 0
 
     @staticmethod
