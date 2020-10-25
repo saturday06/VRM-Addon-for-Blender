@@ -28,7 +28,7 @@ bl_info = {
     "name": "VRM_IMPORTER",
     "author": "saturday06, iCyP",
     # I'd like to use version.version(). But that is not allowed.
-    "version": (0, 100, 0),
+    "version": (0, 100, 1),
     "blender": (2, 82, 0),
     "location": "File->Import",
     "description": "VRM Importer",
