@@ -54,42 +54,43 @@ class BlendModel:
 
     def vrm_model_build(self):
         wm = bpy.context.window_manager
-        wm.progress_begin(0, 11)
-        i = 1
 
         def prog(z):
-            z = z + 1
-            wm.progress_update(i)
-            return z
+            wm.progress_update(z)
+            return z + 1
 
-        affected_object = self.scene_init()
-        i = prog(i)
-        self.texture_load()
-        i = prog(i)
-        self.make_armature()
-        i = prog(i)
-        self.make_material()
-        i = prog(i)
-        self.make_primitive_mesh_objects(wm, i)
-        # i=prog(i) ↑関数内でやる
-        self.json_dump()
-        i = prog(i)
-        self.attach_vrm_attributes()
-        i = prog(i)
-        self.cleaning_data()
-        i = prog(i)
-        if self.is_set_bone_roll:
-            self.set_bone_roll()
-        if self.is_put_spring_bone_info:
-            self.put_spring_bone_info()
-        if self.use_in_blender:
-            pass
-            # self.blendfy()
-        i = prog(i)
-        self.connect_bones()
-        i = prog(i)
-        self.finishing(affected_object)
-        wm.progress_end()
+        wm.progress_begin(0, 11)
+        try:
+            i = 1
+            affected_object = self.scene_init()
+            i = prog(i)
+            self.texture_load()
+            i = prog(i)
+            self.make_armature()
+            i = prog(i)
+            self.make_material()
+            i = prog(i)
+            self.make_primitive_mesh_objects(wm, i)
+            # i=prog(i) ↑関数内でやる
+            self.json_dump()
+            i = prog(i)
+            self.attach_vrm_attributes()
+            i = prog(i)
+            self.cleaning_data()
+            i = prog(i)
+            if self.is_set_bone_roll:
+                self.set_bone_roll()
+            if self.is_put_spring_bone_info:
+                self.put_spring_bone_info()
+            if self.use_in_blender:
+                pass
+                # self.blendfy()
+            i = prog(i)
+            self.connect_bones()
+            i = prog(i)
+            self.finishing(affected_object)
+        finally:
+            wm.progress_end()
         return 0
 
     @staticmethod
