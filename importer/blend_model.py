@@ -43,12 +43,13 @@ class BlendModel:
         self.material_dict = None
         self.primitive_obj_dict = None
         self.mesh_joined_objects = None
-        model_name = json_get(
-            self.vrm_pydata.json,
-            ["extensions", "VRM", "meta", "title"],
-            "vrm_model",
+        self.model_name = (
+            json_get(self.vrm_pydata.json, ["extensions", "VRM", "meta", "title"])
+            or os.path.splitext(os.path.basename(addon_context.filepath))[0]
         )
-        self.model_collection = bpy.data.collections.new(f"{model_name}_collection")
+        self.model_collection = bpy.data.collections.new(
+            f"{self.model_name}_collection"
+        )
         self.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build()
 
@@ -1050,12 +1051,11 @@ class BlendModel:
 
     def json_dump(self):
         vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", "VRM"])
-        model_name = json_get(vrm_ext_dic, ["meta", "title"], "vrm_model")
-        textblock = bpy.data.texts.new(name=f"{model_name}_raw.json")
+        textblock = bpy.data.texts.new(name=f"{self.model_name}_raw.json")
         textblock.write(json.dumps(self.vrm_pydata.json, indent=4))
 
         def write_textblock_and_assign_to_armature(block_name, value):
-            text_block = bpy.data.texts.new(name=f"{model_name}_{block_name}.json")
+            text_block = bpy.data.texts.new(name=f"{self.model_name}_{block_name}.json")
             text_block.write(json.dumps(value, indent=4))
             self.armature[f"{block_name}"] = text_block.name
 
@@ -1192,8 +1192,7 @@ class BlendModel:
                         continue
                     bone[key] = val
 
-        model_name = self.vrm_pydata.json["extensions"]["VRM"]["meta"]["title"]
-        coll = bpy.data.collections.new(f"{model_name}_colliders")
+        coll = bpy.data.collections.new(f"{self.model_name}_colliders")
         self.model_collection.children.link(coll)
         for collider_group in collider_groups_json:
             collider_base_node = nodes_json[collider_group["node"]]
