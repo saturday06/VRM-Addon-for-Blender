@@ -1096,7 +1096,7 @@ class GlbObj:
                     primitive_index_vertex_count[
                         mat_id_dic[material_slot_dic[face.material_index]]
                     ] += 1
-                    unique_vertex_id += 1
+                    unique_vertex_id += 1  # noqa: SIM113
 
             # DONE :index position, uv, normal, position morph,JOINT WEIGHT
             # TODO: morph_normal, v_color...?
@@ -1533,8 +1533,7 @@ class GlbObj:
         magic = b"glTF" + struct.pack("<I", 2)
         json_str = json.dumps(self.json_dic).encode("utf-8")
         if len(json_str) % 4 != 0:
-            for _ in range(4 - len(json_str) % 4):
-                json_str += b"\x20"
+            json_str += b"\x20" * (4 - len(json_str) % 4)
         json_size = struct.pack("<I", len(json_str))
         if len(self.bin) % 4 != 0:
             for _ in range(4 - len(self.bin) % 4):

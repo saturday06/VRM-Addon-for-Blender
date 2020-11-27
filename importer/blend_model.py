@@ -264,15 +264,17 @@ class BlendModel:
                     b.tail = [b.head[i] + pos_diff[i] for i in range(3)]
             else:  # 子供たちの方向の中間を見る
                 mean_relate_pos = numpy.array([0.0, 0.0, 0.0], dtype=numpy.float)
-                count = 0
                 for child_id in py_bone.children:
-                    count += 1
                     mean_relate_pos += self.axis_glb_to_blender(
                         self.vrm_pydata.nodes_dict[child_id].position
                     )
-                mean_relate_pos = mean_relate_pos / count
-                if vector_length(mean_relate_pos) <= 0.001:  # ボーンの長さが1mm以下なら上に10cm延ばす
-                    mean_relate_pos[1] += 0.1
+                children_len = len(py_bone.children)
+                if children_len > 0:
+                    mean_relate_pos = mean_relate_pos / children_len
+                    if (
+                        vector_length(mean_relate_pos) <= 0.001
+                    ):  # ボーンの長さが1mm以下なら上に10cm延ばす
+                        mean_relate_pos[1] += 0.1
 
                 b.tail = [b.head[i] + mean_relate_pos[i] for i in range(3)]
 
