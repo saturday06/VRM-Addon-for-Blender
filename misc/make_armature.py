@@ -1,7 +1,9 @@
 import json
+import sys
 from math import radians
 
 import bpy
+import numpy
 from mathutils import Matrix
 
 from ..vrm_types import Vrm0
@@ -456,6 +458,8 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         bone_name_all_dict.update(left_right_body_dict)
         bone_name_all_dict.update(fingers_dict)
 
+        connect_parent_tail_and_child_head_if_same_position(armature.data)
+
         context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="OBJECT")
         context.scene.view_layers.update()
@@ -658,3 +662,17 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             "colliderGroups": [],
         }
     ]
+
+
+def connect_parent_tail_and_child_head_if_same_position(armature):
+    for bone in armature.edit_bones:
+        # 親ボーンがある場合かつ、ボーンのヘッドと親ボーンのテールが一致していたら
+        if (
+            bone.parent
+            and (
+                numpy.abs(numpy.array(bone.head) - numpy.array(bone.parent.tail))
+                < sys.float_info.epsilon
+            ).all()
+        ):
+            # ボーンの関係の接続を有効に
+            bone.use_connect = True

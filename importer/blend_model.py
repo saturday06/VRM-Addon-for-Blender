@@ -19,7 +19,7 @@ from mathutils import Matrix, Vector
 
 from .. import vrm_types
 from ..gl_constants import GlConstants
-from ..misc import vrm_helper
+from ..misc import make_armature, vrm_helper
 from ..vrm_types import nested_json_value_getter as json_get
 
 
@@ -132,18 +132,10 @@ class BlendModel:
                         ]
                         # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
                         disconnected_bone.parent.tail = disconnected_bone.head
-                # 親ボーンがある場合かつ、ボーンのヘッドと親ボーンのテールが一致していたら
-                if (
-                    bone.parent
-                    and (
-                        numpy.abs(
-                            numpy.array(bone.head) - numpy.array(bone.parent.tail)
-                        )
-                        < sys.float_info.epsilon
-                    ).all()
-                ):
-                    # ボーンの関係の接続を有効に
-                    bone.use_connect = True
+
+            make_armature.connect_parent_tail_and_child_head_if_same_position(
+                self.armature.data
+            )
             bpy.ops.object.mode_set(mode="OBJECT")
         finally:
             bpy.context.view_layer.objects.active = previous_active
