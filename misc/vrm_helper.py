@@ -9,6 +9,7 @@ import json
 import os
 import re
 from collections import OrderedDict
+from sys import float_info
 from typing import List
 
 import blf
@@ -302,7 +303,10 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 elif len(v.groups) >= 5 and armature is not None:
                     weight_count = 0
                     for g in v.groups:
-                        if mesh_vertex_group_names[g.group] in bones_name:
+                        if (
+                            mesh_vertex_group_names[g.group] in bones_name
+                            and g.weight < float_info.epsilon
+                        ):
                             weight_count += 1
                     if weight_count > 4 and vertex_error_count < 5:
                         messages.append(
