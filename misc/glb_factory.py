@@ -1051,8 +1051,7 @@ class GlbObj:
                             )
                         min_max(shape_min_max_dic[shape_name], morph_pos)
                     if is_skin_mesh:
-                        joints = []
-                        weights = []
+                        weight_and_joint_list = []
                         for v_group in mesh.data.vertices[loop.vert.index].groups:
                             joint_id = self.joint_id_from_node_name_solver(
                                 v_group_name_dic[v_group.group], node_id_dic
@@ -1065,18 +1064,22 @@ class GlbObj:
                             if v_group.weight < float_info.epsilon:
                                 continue
 
-                            joints.append(joint_id)
-                            weights.append(v_group.weight)
+                            weight_and_joint_list.append((v_group.weight, joint_id))
 
-                        while len(joints) < 4:
-                            joints.append(0)
-                            weights.append(0.0)
-                        if len(joints) > 4:
+                        while len(weight_and_joint_list) < 4:
+                            weight_and_joint_list.append((0.0, 0))
+
+                        weight_and_joint_list.sort(reverse=True)
+
+                        if len(weight_and_joint_list) > 4:
                             print(
                                 f"Joints on vertex id:{loop.vert.index} in: {mesh.name} are truncated"
                             )
-                            joints = joints[:4]
-                            weights = weights[:4]
+                            weight_and_joint_list = weight_and_joint_list[:4]
+
+                        weights = [weight for weight, _ in weight_and_joint_list]
+                        joints = [joint for _, joint in weight_and_joint_list]
+
                         if sum(weights) < float_info.epsilon:
                             raise RuntimeError(
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
