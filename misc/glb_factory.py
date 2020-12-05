@@ -1060,6 +1060,10 @@ class GlbObj:
                             # 存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
                             if joint_id == -1:
                                 continue
+                            # ウエイトがゼロのジョイントの値は無視してゼロになるようにする
+                            # https://github.com/KhronosGroup/glTF/tree/f33f90ad9439a228bf90cde8319d851a52a3f470/specification/2.0#skinned-mesh-attributes
+                            if v_group.weight < float_info.epsilon:
+                                continue
 
                             joints.append(joint_id)
                             weights.append(v_group.weight)
