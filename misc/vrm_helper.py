@@ -660,9 +660,12 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             return {"CANCELLED"}
 
         if self.show_successful_message:
-            message = "No error. Ready for export VRM."
+            message = lang_support(
+                "No error. Ready for export VRM",
+                "エラーはありませんでした。VRMのエクスポートをすることができます",
+            )
             self.report({"INFO"}, message)
-            messages.append(message)
+            messages.append("[ " + message + " ]")
             VRM_VALIDATOR.draw_func_add()
 
         return {"FINISHED"}
@@ -697,7 +700,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         blf.position(
             0, text_size, text_size * (2 + len(VRM_VALIDATOR.messages)) + 100, 0
         )
-        blf.draw(0, "message delete count down...:{}".format(VRM_VALIDATOR.counter))
+        blf.draw(0, "[ Message delete count down: {} ]".format(VRM_VALIDATOR.counter))
         VRM_VALIDATOR.counter -= 1
         if VRM_VALIDATOR.counter <= 0 or len(VRM_VALIDATOR.messages) == 0:
             VRM_VALIDATOR.draw_func_remove()
