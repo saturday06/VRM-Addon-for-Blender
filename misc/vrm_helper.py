@@ -172,6 +172,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
     def execute(self, context):
         messages = VRM_VALIDATOR.messages = []
+        warning_messages = []
         print("validation start")
         armature_count = 0
         armature = None
@@ -666,6 +667,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
             )
             self.report({"INFO"}, message)
             messages.append("[ " + message + " ]")
+            messages.extend(warning_messages)
             VRM_VALIDATOR.draw_func_add()
 
         return {"FINISHED"}
