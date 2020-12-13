@@ -261,10 +261,11 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     )
                 for poly in obj.data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle
-                        messages.append(
+                        warning_messages.append(
                             lang_support(
-                                f"Faces must be Triangle, but not face in {obj.name}",
-                                f"ポリゴンはすべて三角形である必要があります。:{obj.name}",
+                                f"Faces must be Triangle, but not face in {obj.name} or "
+                                + "it will be triangulated automatically.",
+                                f"{obj.name}のポリゴンに三角形以外のものが含まれます。" + "自動的に三角形に分割されます",
                             )
                         )
                         break

@@ -920,6 +920,7 @@ class GlbObj:
             if not is_skin_mesh:
                 # TODO:
                 bmesh.ops.translate(bm_temp, vec=-mesh.location)
+            bmesh.ops.triangulate(bm_temp, faces=bm_temp.faces[:])
             bm_temp.to_mesh(mesh_data)
             bm_temp.free()
 
