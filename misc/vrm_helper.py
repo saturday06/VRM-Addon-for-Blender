@@ -310,10 +310,12 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         ):
                             weight_count += 1
                     if weight_count > 4 and vertex_error_count < 5:
-                        messages.append(
+                        warning_messages.append(
                             lang_support(
-                                f"vertex id {v.index} has too many(over 4) weight in {mesh.name}",
-                                f"{mesh.name} の頂点id {v.index} に影響を与えるボーンが5以上あります。4つ以下にしてください",
+                                f"vertex id {v.index} has too many(over 4) weight in {mesh.name}. "
+                                + "It will be truncated to 4 descending order by its weight.",
+                                f"{mesh.name} の頂点id {v.index} に影響を与えるボーンが5以上あります。"
+                                + "重い順に4つまでエクスポートされます。",
                             )
                         )
                         vertex_error_count = vertex_error_count + 1
