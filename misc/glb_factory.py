@@ -13,7 +13,6 @@ from sys import float_info
 
 import bmesh
 import bpy
-from mathutils import Matrix as bMatrix
 
 from .. import vrm_types
 from ..gl_constants import GlConstants
@@ -836,10 +835,10 @@ class GlbObj:
             return -1  # 存在しないボーンを指してる場合は-1を返す
 
     @staticmethod
-    def fetch_morph_vertex_normal_difference(mesh):
+    def fetch_morph_vertex_normal_difference(mesh_data):
         morph_normal_diff_dic = {}
         vert_base_normal_dic = OrderedDict()
-        for kb in mesh.data.shape_keys.key_blocks:
+        for kb in mesh_data.shape_keys.key_blocks:
             vert_base_normal_dic.update({kb.name: kb.normals_vertex_get()})
         for k, v in vert_base_normal_dic.items():
             if k == "Basis":
@@ -879,8 +878,6 @@ class GlbObj:
             )
             if is_skin_mesh:
                 node_dic["translation"] = [0, 0, 0]  # skinnedmeshはtransformを無視される
-                # 前に続きmeshを動かす(後で戻す
-                mesh.data.transform(bMatrix.Translation(mesh.location), shape_keys=True)
                 # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
                 node_dic["skin"] = 0
             self.json_dic["nodes"].append(node_dic)
@@ -914,7 +911,24 @@ class GlbObj:
             mesh.hide_select = False
             bpy.context.view_layer.objects.active = mesh
             bpy.ops.object.mode_set(mode="EDIT")
-            bm = bmesh.from_edit_mesh(mesh.data)
+
+            mesh_data = mesh.data.copy()
+
+            bm_temp = bmesh.new()
+            bm_temp.from_mesh(mesh_data)
+            bmesh.ops.transform(bm_temp, matrix=mesh.matrix_world, verts=bm_temp.verts)
+            if not is_skin_mesh:
+                # TODO:
+                bmesh.ops.translate(bm_temp, vec=-mesh.location)
+            bm_temp.to_mesh(mesh_data)
+            bm_temp.free()
+
+            if mesh_data.has_custom_normals:
+                mesh_data.calc_loop_triangles()
+                mesh_data.calc_normals_split()
+
+            bm = bmesh.new()
+            bm.from_mesh(mesh_data)
 
             # region temporary used
             mat_id_dic = {
@@ -933,7 +947,7 @@ class GlbObj:
             # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
             unique_vertex_dic = {}
             uvlayers_dic = {
-                i: uvlayer.name for i, uvlayer in enumerate(mesh.data.uv_layers)
+                i: uvlayer.name for i, uvlayer in enumerate(mesh_data.uv_layers)
             }
 
             # endregion  temporary_used
@@ -943,7 +957,7 @@ class GlbObj:
             primitive_index_vertex_count = OrderedDict(
                 {mat_id_dic[mat.name]: 0 for mat in mesh.material_slots}
             )
-            if mesh.data.shape_keys is None:
+            if mesh_data.shape_keys is None:
                 shape_pos_bin_dic = {}
                 shape_normal_bin_dic = {}
                 shape_min_max_dic = {}
@@ -951,19 +965,19 @@ class GlbObj:
             else:
                 # 0番目Basisは省く
                 shape_pos_bin_dic = OrderedDict(
-                    {shape.name: b"" for shape in mesh.data.shape_keys.key_blocks[1:]}
+                    {shape.name: b"" for shape in mesh_data.shape_keys.key_blocks[1:]}
                 )
                 shape_normal_bin_dic = OrderedDict(
-                    {shape.name: b"" for shape in mesh.data.shape_keys.key_blocks[1:]}
+                    {shape.name: b"" for shape in mesh_data.shape_keys.key_blocks[1:]}
                 )
                 shape_min_max_dic = OrderedDict(
                     {
                         shape.name: [[fmax, fmax, fmax], [fmin, fmin, fmin]]
-                        for shape in mesh.data.shape_keys.key_blocks[1:]
+                        for shape in mesh_data.shape_keys.key_blocks[1:]
                     }
                 )
                 morph_normal_diff_dic = (
-                    self.fetch_morph_vertex_normal_difference(mesh)
+                    self.fetch_morph_vertex_normal_difference(mesh_data)
                     if self.vrm_version.startswith("0.")
                     else {}
                 )  # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
@@ -988,10 +1002,6 @@ class GlbObj:
                         position[i] if position[i] > minmax[1][i] else minmax[1][i]
                     )
 
-            if mesh.data.has_custom_normals:
-                mesh.data.calc_loop_triangles()
-                mesh.data.calc_normals_split()
-
             for face in bm.faces:
                 for loop in face.loops:
                     uv_list = []
@@ -1000,8 +1010,8 @@ class GlbObj:
                         uv_list += [loop[uv_layer].uv[0], loop[uv_layer].uv[1]]
 
                     vert_normal = [0, 0, 0]
-                    if mesh.data.has_custom_normals:
-                        tri = mesh.data.loop_triangles[face.index]
+                    if mesh_data.has_custom_normals:
+                        tri = mesh_data.loop_triangles[face.index]
                         vid = -1
                         for i, _vid in enumerate(tri.vertices):
                             if _vid == loop.vert.index:
@@ -1052,7 +1062,7 @@ class GlbObj:
                         min_max(shape_min_max_dic[shape_name], morph_pos)
                     if is_skin_mesh:
                         weight_and_joint_list = []
-                        for v_group in mesh.data.vertices[loop.vert.index].groups:
+                        for v_group in mesh_data.vertices[loop.vert.index].groups:
                             joint_id = self.joint_id_from_node_name_solver(
                                 v_group_name_dic[v_group.group], node_id_dic
                             )
@@ -1253,16 +1263,10 @@ class GlbObj:
             self.json_dic["meshes"].append(
                 OrderedDict({"name": mesh.name, "primitives": primitive_list})
             )
+            bm.free()
             # endregion hell
-            # skinnedmeshなら最初にずらした位置を戻す
+
             bpy.ops.object.mode_set(mode="OBJECT")
-            if is_skin_mesh:
-                mesh.data.transform(
-                    bMatrix.Translation(
-                        [n * m for n, m in zip(mesh.location, [-1, -1, -1])]
-                    ),
-                    shape_keys=True,
-                )
         bpy.ops.object.mode_set(mode="OBJECT")
 
     def exporter_name(self):
