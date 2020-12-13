@@ -324,7 +324,8 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         for mat in used_materials:
             for node in mat.node_tree.nodes:
                 if node.type == "OUTPUT_MATERIAL" and (
-                    node.inputs["Surface"].links[0].from_node.type != "GROUP"
+                    not node.inputs["Surface"].links
+                    or node.inputs["Surface"].links[0].from_node.type != "GROUP"
                     or node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
                     is None
                 ):
@@ -751,6 +752,7 @@ def shader_nodes_and_materials(used_materials):
         for mat in used_materials
         for node in mat.node_tree.nodes
         if node.type == "OUTPUT_MATERIAL"
+        and node.inputs["Surface"].links
         and node.inputs["Surface"].links[0].from_node.type == "GROUP"
         and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
         is not None
