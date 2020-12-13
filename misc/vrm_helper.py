@@ -294,10 +294,12 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 if len(v.groups) == 0 and mesh.parent_bone == "":
                     if vertex_error_count > 5:
                         continue
-                    messages.append(
+                    warning_messages.append(
                         lang_support(
-                            f"vertex id {v.index} is no weight in {mesh.name}",
-                            f"{mesh.name}の頂点、id:{v.index} にウェイトが乗っていません。",
+                            f"vertex id {v.index} is no weight in {mesh.name}. "
+                            + "Add weight to hips automatically.",
+                            f"{mesh.name}の頂点、id:{v.index} にウェイトが乗っていません。"
+                            + "hipsへのウエイトを自動で割り当てます。",
                         )
                     )
                     vertex_error_count = vertex_error_count + 1

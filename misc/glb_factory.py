@@ -1081,9 +1081,19 @@ class GlbObj:
                         joints = [joint for _, joint in weight_and_joint_list]
 
                         if sum(weights) < float_info.epsilon:
-                            raise RuntimeError(
+                            print(
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
                             )
+
+                            # Attach hips bone
+                            hips_bone_name = self.armature.data["hips"]
+                            hips_bone_index = next(
+                                index
+                                for index, node in enumerate(self.json_dic["nodes"])
+                                if node["name"] == hips_bone_name
+                            )
+                            weights = [1.0, 0, 0, 0]
+                            joints = [hips_bone_index, 0, 0, 0]
 
                         weights = vrm_types.normalize_weights_compatible_with_gl_float(
                             weights
