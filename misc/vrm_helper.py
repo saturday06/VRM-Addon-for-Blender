@@ -332,8 +332,8 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         lang_support(
                             f"{mat.name} doesn't connect VRM SHADER node group to Material output node "
                             + "in material node tree. Please use them and connect properly.",
-                            f"マテリアル:{mat.name} はVRMexport向けノードグループが直接 Material output node に繋がれていません."
-                            + "ノードグループからそれらを使ってください.",
+                            f"マテリアル:{mat.name} はVRMエクスポート向けノードグループが直接 Material output node "
+                            + "に繋がれていません。ノードグループからそれらを使ってください。",
                         )
                     )
 
