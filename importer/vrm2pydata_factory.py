@@ -14,7 +14,7 @@ def bone(node) -> vrm_types.Node:
         v_node.name = node["name"]
     else:
         v_node.name = "tmp"
-    v_node.position = node["translation"]
+    v_node.position = node.get("translation", [0, 0, 0])
     v_node.rotation = node.get("rotation", (0, 0, 0, 1))
     v_node.scale = node.get("scale", (1, 1, 1))
     if "children" in node:
