@@ -131,7 +131,7 @@ def menu_export(self, context):
 
 def add_armature(self, context):
     self.layout.operator(
-        make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname, text="VRM humanoid"
+        make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname, text="VRM Humanoid"
     )
 
 

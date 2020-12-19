@@ -20,8 +20,8 @@ class IcypTemplateMeshMaker:
         self.bm = None
         self.args = args
         self.head_size = args.tall / args.head_ratio
-        self.make_mesh_obj("head", self.make_head)
-        self.make_mesh_obj("body", self.make_humanoid)
+        self.make_mesh_obj("Head", self.make_head)
+        self.make_mesh_obj("Body", self.make_humanoid)
 
     def get_humanoid_bone(self, bone):
         return self.args.armature_obj.data.bones[self.args.armature_obj.data[bone]]
