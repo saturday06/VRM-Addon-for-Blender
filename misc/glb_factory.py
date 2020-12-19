@@ -840,13 +840,14 @@ class GlbObj:
         vert_base_normal_dic = OrderedDict()
         for kb in mesh_data.shape_keys.key_blocks:
             vert_base_normal_dic.update({kb.name: kb.normals_vertex_get()})
+        reference_key_name = mesh_data.shape_keys.reference_key.name
         for k, v in vert_base_normal_dic.items():
-            if k == "Basis":
+            if k == reference_key_name:
                 continue
             values = []
             for vert_morph_normal, vert_base_normal in zip(
                 zip(*[iter(v)] * 3),
-                zip(*[iter(vert_base_normal_dic["Basis"])] * 3),
+                zip(*[iter(vert_base_normal_dic[reference_key_name])] * 3),
             ):
                 values.append(
                     [vert_morph_normal[i] - vert_base_normal[i] for i in range(3)]
