@@ -26,7 +26,7 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):  # noqa: N801
 
 class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):  # noqa: N801
     bl_idname = "vrm.model_draw_remove"
-    bl_label = "remove MToon preview"
+    bl_label = "Remove MToon preview"
     bl_description = "remove draw function"
     bl_options = {"REGISTER"}
 

@@ -151,7 +151,7 @@ def make_mesh(self, context):
 
 class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
     bl_idname = "ICYP_PT_ui_controller"
-    bl_label = "vrm import helper"
+    bl_label = "VRM Helper"
     # どこに置くかの定義
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
