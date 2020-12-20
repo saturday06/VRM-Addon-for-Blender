@@ -710,7 +710,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
     @staticmethod
     def texts_draw():
-        text_size = 20
+        text_size = 14
         dpi = 72
         blf.size(0, text_size, dpi)
         offset = 50
