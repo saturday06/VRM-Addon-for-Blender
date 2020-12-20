@@ -137,25 +137,27 @@ class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # noqa: N801
 
 
 def find_export_objects() -> List[bpy.types.Object]:
+    print("Searching for VRM export objects:")
     selected_objects = list(bpy.context.selected_objects)
     if selected_objects:
+        print("  Selected objects are found:")
+        for selected_object in selected_objects:
+            print(f"  -> {selected_object.name}")
         return selected_objects
 
-    # The doc says that bpy.context.collection is instance of LayerCollection
-    collection = bpy.context.collection
-    if isinstance(collection, bpy.types.Collection):
-        objects = list(collection.all_objects)
-    else:
-        objects = bpy.context.selectable_objects
+    print("  Select all selectable objects:")
+    objects = bpy.context.selectable_objects
 
     exclusion_types = ["LIGHT", "CAMERA"]
     export_objects = list(
+        # TODO: こちらの議論の結果を参照して修正する
+        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/1139
         filter(lambda o: o.visible_get() and o.type not in exclusion_types, objects)
     )
-    if len(list(filter(lambda o: o.type == "ARMATURE", export_objects))) == 1:
-        return export_objects
+    for export_object in export_objects:
+        print(f"  -> {export_object.name}")
 
-    return []
+    return export_objects
 
 
 class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
