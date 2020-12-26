@@ -187,7 +187,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                 messages.append(
                     lang_support(
                         f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
-                        f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
+                        f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
                     )
                 )
             if obj.name not in node_names:
@@ -220,7 +220,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                         messages.append(
                             lang_support(
                                 f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
-                                f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。:重複:{obj.name}",
+                                f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
                             )
                         )
                     if bone.name not in node_names:
@@ -235,8 +235,8 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                             lang_support(
                                 f' Required VRM HumanBone "{humanbone}" is not defined or bone is not found. '
                                 + 'Fix armature "object" custom property.',
-                                f'必須VRMヒューマンボーン「{humanbone}」の属性を持つボーンがありません。"'
-                                + '"アーマチュア"オブジェクト"のカスタムプロパティを修正してください。',
+                                f'必須VRMヒューマンボーン「{humanbone}」の属性を持つボーンがありません。'
+                                + 'アーマチュア「オブジェクト」のカスタムプロパティを修正してください。',
                             )
                         )
                 for v in vrm_types.HumanBones.defines:
@@ -251,7 +251,7 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                                 f'Bone name "{armature.data[v]}" as VRM HumanBone "{v}" is not found. '
                                 + 'fix armature "object" custom property.',
                                 f"ボーン名「{armature.data[v]}」のVRMヒューマンボーン属性「{v}」がありません。"
-                                + 'アーマチュア"オブジェクト"のカスタムプロパティを修正してください。',
+                                + 'アーマチュア「オブジェクト」のカスタムプロパティを修正してください。',
                             )
                         )
 
