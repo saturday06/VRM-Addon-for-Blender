@@ -226,34 +226,36 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
                     if bone.name not in node_names:
                         node_names.append(bone.name)
                 # TODO: T_POSE,
-                for humanbone in vrm_types.HumanBones.requires:
-                    if humanbone not in armature.data or armature.data[
-                        humanbone
-                    ] not in ["", *[b.name for b in armature.data.bones]]:
-                        armature.data[humanbone] = ""
-                        messages.append(
-                            lang_support(
-                                f' Required VRM HumanBone "{humanbone}" is not defined or bone is not found. '
-                                + 'Fix armature "object" custom property.',
-                                f'必須VRMヒューマンボーン「{humanbone}」の属性を持つボーンがありません。'
-                                + 'アーマチュア「オブジェクト」のカスタムプロパティを修正してください。',
-                            )
+                for humanoid_name in vrm_types.HumanBones.requires:
+                    if humanoid_name in armature.data and armature.data[
+                        humanoid_name
+                    ] in [bone.name for bone in armature.data.bones]:
+                        continue
+                    messages.append(
+                        lang_support(
+                            f'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found. '
+                            + 'Fix armature "object" custom property.',
+                            f"必須VRMヒューマンボーン「{humanoid_name}」の属性を持つボーンがありません。"
+                            + "アーマチュア「オブジェクト」のカスタムプロパティを修正してください。",
                         )
-                for v in vrm_types.HumanBones.defines:
-                    if v in armature.data and armature.data[v] not in [
-                        "",
-                        *[b.name for b in armature.data.bones],
+                    )
+
+                for humanoid_name in vrm_types.HumanBones.defines:
+                    if humanoid_name not in armature.data:
+                        continue
+                    node_name = armature.data[humanoid_name]
+                    if not node_name or node_name in [
+                        bone.name for bone in armature.data.bones
                     ]:
-                        if v in armature.data:
-                            armature.data[v] = ""
-                        messages.append(
-                            lang_support(
-                                f'Bone name "{armature.data[v]}" as VRM HumanBone "{v}" is not found. '
-                                + 'fix armature "object" custom property.',
-                                f"ボーン名「{armature.data[v]}」のVRMヒューマンボーン属性「{v}」がありません。"
-                                + 'アーマチュア「オブジェクト」のカスタムプロパティを修正してください。',
-                            )
+                        continue
+                    warning_messages.append(
+                        lang_support(
+                            f'Bone name "{node_name}" as VRM HumanBone "{humanoid_name}" is not found. '
+                            + 'Fix armature "object" custom property.',
+                            f"ボーン名「{node_name}」のVRMヒューマンボーン属性「{humanoid_name}」がありません。"
+                            + "アーマチュア「オブジェクト」のカスタムプロパティを修正してください。",
                         )
+                    )
 
             if obj.type == "MESH":
                 if len(obj.data.materials) == 0:

@@ -152,7 +152,9 @@ class GlbObj:
         for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
             if (
                 human_bone in self.armature.data.keys()
-                and self.armature.data[human_bone] != ""
+                and self.armature.data[human_bone]
+                and self.armature.data[human_bone]
+                in [bone.name for bone in self.armature.data.bones]
             ):
                 human_bone_node_names.append(self.armature.data[human_bone])
 
@@ -1346,7 +1348,8 @@ class GlbObj:
             ):
                 if (
                     humanbone in self.armature.data.keys()
-                    and self.armature.data[humanbone] != ""
+                    and self.armature.data[humanbone]
+                    and self.armature.data[humanbone] in node_name_id_dic
                 ):
                     vrm_humanoid_dic["humanBones"].append(
                         {
@@ -1374,7 +1377,8 @@ class GlbObj:
             ):
                 if (
                     humanbone in self.armature.data.keys()
-                    and self.armature.data[humanbone] != ""
+                    and self.armature.data[humanbone]
+                    and self.armature.data[humanbone] in node_name_id_dic
                 ):
                     vrm_humanoid_dic["humanBones"].update(
                         {
