@@ -52,6 +52,55 @@ def run_script(script, *args):
     )
 
 
+def run_io_script():
+    for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
+        run_script(
+            "io.py",
+            os.path.join(test_in_vrm_dir, vrm),
+            os.path.join(test_out_vrm_dir, vrm),
+            test_temp_vrm_dir,
+        )
+        if os.path.exists(os.path.join(test_out2_vrm_dir, vrm)) or update_vrm_dir:
+            run_script(
+                "io.py",
+                os.path.join(test_out_vrm_dir, vrm),
+                os.path.join(test_out2_vrm_dir, vrm),
+                test_temp_vrm_dir,
+            )
+
+            if (
+                pathlib.Path(os.path.join(test_out_vrm_dir, vrm)).read_bytes()
+                == pathlib.Path(os.path.join(test_out2_vrm_dir, vrm)).read_bytes()
+            ):
+                os.remove(os.path.join(test_out2_vrm_dir, vrm))
+                continue
+
+            test_last_vrm_dir = test_out2_vrm_dir
+            if os.path.exists(os.path.join(test_out3_vrm_dir, vrm)) or update_vrm_dir:
+                test_last_vrm_dir = test_out3_vrm_dir
+
+            run_script(
+                "io.py",
+                os.path.join(test_out2_vrm_dir, vrm),
+                os.path.join(test_last_vrm_dir, vrm),
+                test_temp_vrm_dir,
+            )
+
+            if (
+                test_last_vrm_dir == test_out3_vrm_dir
+                and pathlib.Path(os.path.join(test_out2_vrm_dir, vrm)).read_bytes()
+                == pathlib.Path(os.path.join(test_out3_vrm_dir, vrm)).read_bytes()
+            ):
+                os.remove(os.path.join(test_last_vrm_dir, vrm))
+        else:
+            run_script(
+                "io.py",
+                os.path.join(test_out_vrm_dir, vrm),
+                os.path.join(test_out_vrm_dir, vrm),
+                test_temp_vrm_dir,
+            )
+
+
 test_vrm_dir = os.environ.get(
     "BLENDER_VRM_TEST_VRM_DIR", os.path.join(repository_root_dir, "test", "vrm")
 )
@@ -74,49 +123,7 @@ run_script(
     test_temp_vrm_dir,
 )
 
-for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
-    run_script(
-        "io.py",
-        os.path.join(test_in_vrm_dir, vrm),
-        os.path.join(test_out_vrm_dir, vrm),
-        test_temp_vrm_dir,
-    )
-    if os.path.exists(os.path.join(test_out2_vrm_dir, vrm)) or update_vrm_dir:
-        run_script(
-            "io.py",
-            os.path.join(test_out_vrm_dir, vrm),
-            os.path.join(test_out2_vrm_dir, vrm),
-            test_temp_vrm_dir,
-        )
-
-        if (
-            pathlib.Path(os.path.join(test_out_vrm_dir, vrm)).read_bytes()
-            == pathlib.Path(os.path.join(test_out2_vrm_dir, vrm)).read_bytes()
-        ):
-            os.remove(os.path.join(test_out2_vrm_dir, vrm))
-            continue
-
-        test_last_vrm_dir = test_out2_vrm_dir
-        if os.path.exists(os.path.join(test_out3_vrm_dir, vrm)) or update_vrm_dir:
-            test_last_vrm_dir = test_out3_vrm_dir
-
-        run_script(
-            "io.py",
-            os.path.join(test_out2_vrm_dir, vrm),
-            os.path.join(test_last_vrm_dir, vrm),
-            test_temp_vrm_dir,
-        )
-
-        if (
-            test_last_vrm_dir == test_out3_vrm_dir
-            and pathlib.Path(os.path.join(test_out2_vrm_dir, vrm)).read_bytes()
-            == pathlib.Path(os.path.join(test_out3_vrm_dir, vrm)).read_bytes()
-        ):
-            os.remove(os.path.join(test_last_vrm_dir, vrm))
-    else:
-        run_script(
-            "io.py",
-            os.path.join(test_out_vrm_dir, vrm),
-            os.path.join(test_out_vrm_dir, vrm),
-            test_temp_vrm_dir,
-        )
+os.environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "false"
+run_io_script()
+os.environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
+run_io_script()

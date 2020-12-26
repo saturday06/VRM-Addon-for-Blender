@@ -24,16 +24,25 @@ from ..vrm_types import nested_json_value_getter as json_get
 
 
 class BlendModel:
-    def __init__(self, context, vrm_pydata, addon_context):
+    def __init__(
+        self,
+        context,
+        vrm_pydata: vrm_types.VrmPydata,
+        filepath: str,
+        is_put_spring_bone_info,
+        import_normal: bool,
+        remove_doubles: bool,
+        use_simple_principled_material: bool,
+        set_bone_roll: bool,
+        use_in_blender: bool,
+    ):
         self.meshes = None
-        self.is_put_spring_bone_info = addon_context.is_put_spring_bone_info
-        self.import_normal = addon_context.import_normal
-        self.remove_doubles = addon_context.remove_doubles
-        self.use_simple_principled_material = (
-            addon_context.use_simple_principled_material
-        )
-        self.is_set_bone_roll = addon_context.set_bone_roll
-        self.use_in_blender = addon_context.use_in_blender
+        self.is_put_spring_bone_info = is_put_spring_bone_info
+        self.import_normal = import_normal
+        self.remove_doubles = remove_doubles
+        self.use_simple_principled_material = use_simple_principled_material
+        self.is_set_bone_roll = set_bone_roll
+        self.use_in_blender = use_in_blender
 
         self.context = context
         self.vrm_pydata = vrm_pydata
@@ -45,7 +54,7 @@ class BlendModel:
         self.mesh_joined_objects = None
         self.model_name = (
             json_get(self.vrm_pydata.json, ["extensions", "VRM", "meta", "title"])
-            or os.path.splitext(os.path.basename(addon_context.filepath))[0]
+            or os.path.splitext(os.path.basename(filepath))[0]
         )
         self.model_collection = bpy.data.collections.new(
             f"{self.model_name}_collection"

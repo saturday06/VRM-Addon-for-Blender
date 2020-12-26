@@ -14,14 +14,57 @@ import os
 import re
 import sys
 from collections import OrderedDict
+from typing import Dict, List, Optional
+from urllib.parse import ParseResult, parse_qsl, urlparse
 
 import numpy
 
 from .. import vrm_types
 from ..gl_constants import GlConstants
+from ..misc import vrm_helper
 from ..vrm_types import nested_json_value_getter as json_get
 from . import vrm2pydata_factory
 from .binary_reader import BinaryReader
+
+
+class LicenseConfirmationRequiredProp:
+    def __init__(
+        self,
+        url: Optional[str],
+        json_key: Optional[str],
+        message_en: str,
+        message_ja: str,
+    ):
+        self.url = url
+        self.json_key = json_key
+        self.message = vrm_helper.lang_support(message_en, message_ja)
+
+    def description(self) -> str:
+        return f"""class=LicenseConfirmationRequired
+url={self.url}
+json_key={self.json_key}
+message={self.message}
+"""
+
+
+class LicenseConfirmationRequired(Exception):
+    def __init__(self, props: List[LicenseConfirmationRequiredProp]):
+        self.props = props
+        super().__init__(self.description())
+
+    def description(self) -> str:
+        return "\n".join([prop.description() for prop in self.props])
+
+    def license_confirmations(self) -> List[Dict[str, str]]:
+        return [
+            {
+                "name": "LicenseConfirmation" + str(index),
+                "url": prop.url or "",
+                "json_key": prop.json_key or "",
+                "message": prop.message or "",
+            }
+            for index, prop in enumerate(self.props)
+        ]
 
 
 def parse_glb(data: bytes):
@@ -73,7 +116,12 @@ def parse_glb(data: bytes):
 
 
 # あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
-def read_vrm(model_path, addon_context):
+def read_vrm(
+    model_path: str,
+    make_new_texture_folder: bool,
+    use_simple_principled_material: bool,
+    license_check: bool,
+) -> vrm_types.VrmPydata:
     vrm_pydata = vrm_types.VrmPydata(filepath=model_path)
     # datachunkは普通一つしかない
     with open(model_path, "rb") as f:
@@ -87,51 +135,104 @@ def read_vrm(model_path, addon_context):
         raise Exception(
             "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
         )
-    # 改変不可ライセンスを撥ねる
-    # CC_ND
-    if re.match(
-        "CC(.*)ND(.*)",
-        json_get(vrm_pydata.json, ["extensions", "VRM", "meta", "licenseName"], ""),
-    ):
-        raise Exception(
-            "This VRM can not be edited. No derivative works are allowed. Please check its copyright license. "
-            + "改変不可Licenseです。"
-        )
-    # Vroidhub licence
-    if "otherPermissionUrl" in vrm_pydata.json["extensions"]["VRM"]["meta"]:
-        from urllib.parse import parse_qsl, urlparse
 
-        address = urlparse(
-            vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]
-        ).hostname
-        if address is None:
-            pass
-        elif "vroid" in address and (
-            dict(
-                parse_qsl(
-                    vrm_pydata.json["extensions"]["VRM"]["meta"]["otherPermissionUrl"]
-                )
-            ).get("modification")
-            == "disallow"
-        ):
-            raise Exception(
-                "This VRM can not be edited. No modifications are allowed. Please check its copyright license. "
-                + "改変不可Licenseです。"
-            )
-    # オリジナルライセンスに対する注意
-    if vrm_pydata.json["extensions"]["VRM"]["meta"]["licenseName"] == "Other":
-        print("Is this VRM allowed to edited? Please check its copyright license.")
+    if license_check:
+        validate_license(vrm_pydata)
 
-    texture_rip(vrm_pydata, body_binary, addon_context.make_new_texture_folder)
+    texture_rip(vrm_pydata, body_binary, make_new_texture_folder)
 
     vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json, body_binary)
 
     mesh_read(vrm_pydata)
-    material_read(vrm_pydata, addon_context.use_simple_principled_material)
+    material_read(vrm_pydata, use_simple_principled_material)
     skin_read(vrm_pydata)
     node_read(vrm_pydata)
 
     return vrm_pydata
+
+
+def validate_license_url(
+    url_str: str, json_key: str, props: List[LicenseConfirmationRequiredProp]
+) -> None:
+    if url_str == "undefined":  # Our plugin........................
+        return
+    url = None
+    with contextlib.suppress(ValueError):
+        url = urlparse(url_str)
+    if url and (
+        validate_vroid_hub_license_url(url, json_key, props)
+        or validate_uni_virtual_license_url(url)
+    ):
+        return
+    props.append(
+        LicenseConfirmationRequiredProp(
+            url_str,
+            json_key,
+            "Is this VRM allowed to edited? Please check its copyright license.",
+            "独自のライセンスが記載されています。",
+        )
+    )
+
+
+def validate_vroid_hub_license_url(
+    url: ParseResult, json_key: str, props: List[LicenseConfirmationRequiredProp]
+) -> bool:
+    # https://hub.vroid.com/en/license?allowed_to_use_user=everyone&characterization_allowed_user=everyone&corporate_commercial_use=allow&credit=unnecessary&modification=allow&personal_commercial_use=profit&redistribution=allow&sexual_expression=allow&version=1&violent_expression=allow
+    if url.hostname != "hub.vroid.com" or not url.path.endswith("/license"):
+        return False
+    if dict(parse_qsl(url.query)).get("modification") == "disallow":
+        props.append(
+            LicenseConfirmationRequiredProp(
+                url.geturl(),
+                json_key,
+                'This VRM is licensed by VRoid Hub License "Alterations: No".',
+                "このVRMにはVRoid Hubの「改変: NG」ライセンスが設定されています。",
+            )
+        )
+    return True
+
+
+def validate_uni_virtual_license_url(url: ParseResult) -> bool:
+    # https://uv-license.com/en/license?utf8=%E2%9C%93&pcu=true
+    if url.hostname != "uv-license.com" or not url.path.endswith("/license"):
+        return False
+    return True
+
+
+def validate_license(vrm_pydata: vrm_types.VrmPydata):
+    confirmations: List[LicenseConfirmationRequiredProp] = []
+
+    # 既知の改変不可ライセンスを撥ねる
+    # CC_NDなど
+    license_name = json_get(
+        vrm_pydata.json, ["extensions", "VRM", "meta", "licenseName"], ""
+    )
+    if re.match("CC(.*)ND(.*)", license_name):
+        confirmations.append(
+            LicenseConfirmationRequiredProp(
+                None,
+                None,
+                'The VRM is licensed by "{license_name}".\nNo derivative works are allowed.',
+                f"指定されたVRMは改変不可ライセンス「{license_name}」が設定されています。\n改変することはできません。",
+            )
+        )
+
+    other_permission_url_str = json_get(
+        vrm_pydata.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], None
+    )
+    if other_permission_url_str:
+        validate_license_url(
+            other_permission_url_str, "otherPermissionUrl", confirmations
+        )
+
+    if license_name == "Other":
+        other_license_url_str = json_get(
+            vrm_pydata.json, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""
+        )
+        validate_license_url(other_license_url_str, "otherLicenseUrl", confirmations)
+
+    if confirmations:
+        raise LicenseConfirmationRequired(confirmations)
 
 
 def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
@@ -442,4 +543,9 @@ def node_read(vrm_pydata):
 
 
 if __name__ == "__main__":
-    read_vrm(sys.argv[1], None)
+    read_vrm(
+        sys.argv[1],
+        make_new_texture_folder=True,
+        use_simple_principled_material=False,
+        license_check=True,
+    )

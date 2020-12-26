@@ -7,6 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import os
 import traceback
+from typing import Set
 
 import bpy
 from bpy.app.handlers import persistent
@@ -44,6 +45,12 @@ if bl_info["version"] != version.version():
     raise Exception(f'Version mismatch: {bl_info["version"]} != {version.version()}')
 
 
+class LicenseConfirmation(bpy.types.PropertyGroup):
+    message: bpy.props.StringProperty()  # type: ignore[valid-type]
+    url: bpy.props.StringProperty()  # type: ignore[valid-type]
+    json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+
 class ImportVRM(bpy.types.Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
@@ -78,17 +85,66 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
     )
 
     def execute(self, context):
-        has_ui_localization = bpy.app.version < (2, 83)
-        ui_localization = False
-        if has_ui_localization:
-            ui_localization = bpy.context.preferences.view.use_international_fonts
+        license_error = None
+        try:
+            return create_blend_model(
+                self,
+                context,
+                vrm_load.read_vrm(
+                    self.filepath,
+                    self.make_new_texture_folder,
+                    self.use_simple_principled_material,
+                    license_check=True,
+                ),
+            )
+        except vrm_load.LicenseConfirmationRequired as e:
+            license_error = e  # Prevent traceback dump on another exception
 
-        blend_model.BlendModel(context, vrm_load.read_vrm(self.filepath, self), self)
+        print(license_error.description())
 
+        execution_context = "INVOKE_DEFAULT"
+        import_anyway = False
+        if os.environ.get("BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION") == "true":
+            execution_context = "EXEC_DEFAULT"
+            import_anyway = True
+
+        return bpy.ops.wm.vrm_license_warning(
+            execution_context,
+            import_anyway=import_anyway,
+            license_confirmations=license_error.license_confirmations(),
+            filepath=self.filepath,
+            make_new_texture_folder=self.make_new_texture_folder,
+            is_put_spring_bone_info=self.is_put_spring_bone_info,
+            import_normal=self.import_normal,
+            remove_doubles=self.remove_doubles,
+            set_bone_roll=self.set_bone_roll,
+            use_simple_principled_material=self.use_simple_principled_material,
+            use_in_blender=self.use_in_blender,
+        )
+
+
+def create_blend_model(addon, context, vrm_pydata: vrm_types.VrmPydata) -> Set[str]:
+    has_ui_localization = bpy.app.version < (2, 83)
+    ui_localization = False
+    if has_ui_localization:
+        ui_localization = bpy.context.preferences.view.use_international_fonts
+    try:
+        blend_model.BlendModel(
+            context,
+            vrm_pydata,
+            addon.filepath,
+            addon.is_put_spring_bone_info,
+            addon.import_normal,
+            addon.remove_doubles,
+            addon.use_simple_principled_material,
+            addon.set_bone_roll,
+            addon.use_in_blender,
+        )
+    finally:
         if has_ui_localization and ui_localization:
             bpy.context.preferences.view.use_international_fonts = ui_localization
 
-        return {"FINISHED"}
+    return {"FINISHED"}
 
 
 def menu_import(self, context):  # Same as test/io.py for now
@@ -237,6 +293,66 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         # endregion draw_main
 
 
+class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
+    bl_label = "License confirmation"
+    bl_idname = "wm.vrm_license_warning"
+    bl_options = {"REGISTER", "UNDO"}
+
+    filepath: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    license_confirmations: bpy.props.CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
+    import_anyway: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
+    make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    is_put_spring_bone_info: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    import_normal: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    remove_doubles: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    set_bone_roll: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    use_simple_principled_material: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    use_in_blender: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
+    def execute(self, context):
+        if not self.import_anyway:
+            return {"CANCELLED"}
+        return create_blend_model(
+            self,
+            context,
+            vrm_load.read_vrm(
+                self.filepath,
+                self.make_new_texture_folder,
+                self.use_simple_principled_material,
+                license_check=False,
+            ),
+        )
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=600)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text=self.filepath)
+        for license_confirmation in self.license_confirmations:
+            for line in license_confirmation.message.split("\n"):
+                layout.label(text=line)
+            if license_confirmation.json_key:
+                layout.label(
+                    text=vrm_helper.lang_support(
+                        "For more information please check following URL.",
+                        "詳しくは下記のURLを確認してください。",
+                    )
+                )
+                layout.prop(
+                    license_confirmation,
+                    "url",
+                    text=license_confirmation.json_key,
+                )
+        layout.prop(
+            self,
+            "import_anyway",
+            text=vrm_helper.lang_support("Import anyway", "インポートします"),
+        )
+
+
 @persistent
 def add_shaders(self):
     filedir = os.path.join(
@@ -249,6 +365,8 @@ def add_shaders(self):
 
 
 classes = [
+    LicenseConfirmation,
+    WM_OT_licenseConfirmation,
     ImportVRM,
     ExportVRM,
     vrm_helper.Bones_rename,

@@ -78,6 +78,7 @@ fromkeys
 func
 geocode
 getsize
+geturl
 gl
 glb
 glbs
@@ -102,6 +103,7 @@ keyblock
 khr
 ld
 lfd
+licenseConfirmation
 lipsync
 listdir
 loc
