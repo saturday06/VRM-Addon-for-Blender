@@ -56,7 +56,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
     )
 
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="make new texture folder (limit:10)"  # noqa: F722
+        name="Make new texture folder (limit:10)"  # noqa: F722
     )
     is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Put Collider Empty"  # noqa: F722
@@ -71,7 +71,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
         name="Set bone roll"  # noqa: F722
     )
     use_simple_principled_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="use simple principled material"  # noqa: F722
+        name="Use simple principled material"  # noqa: F722
     )
     use_in_blender: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="NOTHING TO DO in CURRENT use in blender"  # noqa: F722
