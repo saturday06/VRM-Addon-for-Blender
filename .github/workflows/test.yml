@@ -106,6 +106,8 @@ jobs:
             esac
           done
           git diff --exit-code
+      - name: Check whitelist.txt ordering
+        run: LC_ALL=C sort whitelist.txt | diff -u whitelist.txt -
       - name: Validate GLSL
         run: |
           git ls-files "**.glsl" | while read -r orig; do
