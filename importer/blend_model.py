@@ -119,9 +119,9 @@ class BlendModel:
             bpy.context.view_layer.objects.active = self.armature  # アーマチャーをアクティブに
             bpy.ops.object.mode_set(mode="EDIT")  # エディットモードに入る
             disconnected_bone_names = []  # 結合されてないボーンのリスト
-            if self.vrm_pydata.json["extensions"]["VRM"]["exporterVersion"].startswith(
-                "VRoidStudio-"
-            ):
+            if json_get(
+                self.vrm_pydata.json, ["extensions", "VRM", "exporterVersion"], ""
+            ).startswith("VRoidStudio-"):
                 disconnected_bone_names = [
                     "J_Bip_R_Hand",
                     "J_Bip_L_Hand",
@@ -1097,13 +1097,22 @@ class BlendModel:
         # shape_indexを名前に
         # TODO VRM1.0 is using node index that has mesh
         # materialValuesはそのままで行けるハズ・・・
+        legacy_vrm0 = False
         for blendshape_group in blendshape_groups:
             for bind_dic in blendshape_group["binds"]:
-                bind_dic["index"] = self.vrm_pydata.json["meshes"][bind_dic["mesh"]][
-                    "primitives"
-                ][0]["extras"]["targetNames"][bind_dic["index"]]
+                try:
+                    bind_dic["index"] = self.vrm_pydata.json["meshes"][
+                        bind_dic["mesh"]
+                    ]["primitives"][0]["extras"]["targetNames"][bind_dic["index"]]
+                except KeyError:
+                    legacy_vrm0 = True
+                    break
                 bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].name
                 bind_dic["weight"] = bind_dic["weight"] / 100
+            if legacy_vrm0:
+                break
+        if legacy_vrm0:
+            blendshape_groups = []
         write_textblock_and_assign_to_armature("blendshape_group", blendshape_groups)
         # endregion blendshape_master
 
