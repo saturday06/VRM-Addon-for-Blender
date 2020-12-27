@@ -890,20 +890,24 @@ class GlbObj:
             if is_skin_mesh:
                 self.json_dic["scenes"][0]["nodes"].append(mesh_node_id)
             else:
-                parent_node = [
-                    node
-                    for node in self.json_dic["nodes"]
-                    if node["name"] == mesh.parent_bone
-                ][0]
-                if "children" in parent_node.keys():
-                    parent_node["children"].append(mesh_node_id)
+                parent_node = (
+                    [
+                        node
+                        for node in self.json_dic["nodes"]
+                        if node["name"] == mesh.parent_bone
+                    ]
+                    + [None]
+                )[0]
+                base_pos = [0, 0, 0]
+                if parent_node:
+                    if "children" in parent_node.keys():
+                        parent_node["children"].append(mesh_node_id)
+                    else:
+                        parent_node["children"] = [mesh_node_id]
+                    base_pos = self.armature.data.bones[mesh.parent_bone].head_local
                 else:
-                    parent_node["children"] = [mesh_node_id]
-                relate_pos = [
-                    mesh.location[i]
-                    - self.armature.data.bones[mesh.parent_bone].head_local[i]
-                    for i in range(3)
-                ]
+                    self.json_dic["scenes"][0]["nodes"].append(mesh_node_id)
+                relate_pos = [mesh.location[i] - base_pos[i] for i in range(3)]
                 self.json_dic["nodes"][mesh_node_id][
                     "translation"
                 ] = self.axis_blender_to_glb(relate_pos)
