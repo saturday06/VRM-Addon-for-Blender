@@ -480,6 +480,7 @@ translation_dictionary = {
     }
 }
 
+
 # アドオン有効化時の処理
 def register():
     for cls in classes:
