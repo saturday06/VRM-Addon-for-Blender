@@ -25,17 +25,20 @@ class GlbObj:
     class ValidationError(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self, export_invisibles: bool, export_only_selections: bool):
         if bpy.ops.vrm.model_validate(show_successful_message=False) != {"FINISHED"}:
             raise self.ValidationError()
 
+        self.export_objects = find_export_objects(
+            export_invisibles, export_only_selections
+        )
         self.vrm_version = None
         self.json_dic = OrderedDict()
         self.bin = b""
         self.glb_bin_collector = GlbBinCollection()
-        self.armature = [
-            obj for obj in find_export_objects() if obj.type == "ARMATURE"
-        ][0]
+        self.armature = [obj for obj in self.export_objects if obj.type == "ARMATURE"][
+            0
+        ]
         self.result = None
 
     def convert_bpy2glb(self, vrm_version):
@@ -62,7 +65,7 @@ class GlbObj:
         # collect used image
         used_images = []
         used_materials = []
-        for mesh in [obj for obj in find_export_objects() if obj.type == "MESH"]:
+        for mesh in [obj for obj in self.export_objects if obj.type == "MESH"]:
             for mat in mesh.data.materials:
                 if mat not in used_materials:
                     used_materials.append(mat)
@@ -783,7 +786,7 @@ class GlbObj:
         # endregion function separate by shader
 
         used_materials = []
-        for mesh in [obj for obj in find_export_objects() if obj.type == "MESH"]:
+        for mesh in [obj for obj in self.export_objects if obj.type == "MESH"]:
             for mat in mesh.data.materials:
                 if mat not in used_materials:
                     used_materials.append(mat)
@@ -860,7 +863,7 @@ class GlbObj:
     def mesh_to_bin_and_dic(self):
         self.json_dic["meshes"] = []
         for mesh_id, mesh in enumerate(
-            [obj for obj in find_export_objects() if obj.type == "MESH"]
+            [obj for obj in self.export_objects if obj.type == "MESH"]
         ):
             is_skin_mesh = True
             if (

@@ -17,6 +17,7 @@ absolutize
 accessor
 accessors
 addon
+addons
 alphatest
 arcus
 array4
@@ -97,6 +98,7 @@ ikc
 img
 incr
 inv
+invisibles
 ja
 jdic
 keyblock

@@ -20,6 +20,7 @@ from .. import vrm_types
 from ..vrm_types import Gltf
 from ..vrm_types import nested_json_value_getter as json_get
 from .make_armature import ICYP_OT_MAKE_ARMATURE
+from .preferences import get_preferences
 
 
 class Bones_rename(bpy.types.Operator):  # noqa: N801
@@ -136,24 +137,33 @@ class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # noqa: N801
         return {"FINISHED"}
 
 
-def find_export_objects() -> List[bpy.types.Object]:
+def find_export_objects(
+    export_invisibles: bool, export_only_selections: bool
+) -> List[bpy.types.Object]:
     print("Searching for VRM export objects:")
-    selected_objects = list(bpy.context.selected_objects)
-    if selected_objects:
-        print("  Selected objects are found:")
-        for selected_object in selected_objects:
-            print(f"  -> {selected_object.name}")
-        return selected_objects
 
-    print("  Select all selectable objects:")
-    objects = bpy.context.selectable_objects
+    objects = []
+    if export_only_selections:
+        print("  Selected objects:")
+        objects = list(bpy.context.selected_objects)
+    elif export_invisibles:
+        print("  Select all objects:")
+        objects = list(bpy.data.objects)
+    else:
+        print("  Select all selectable objects:")
+        objects = list(bpy.context.selectable_objects)
 
     exclusion_types = ["LIGHT", "CAMERA"]
-    export_objects = list(
-        # TODO: こちらの議論の結果を参照して修正する
-        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/1139
-        filter(lambda o: o.visible_get() and o.type not in exclusion_types, objects)
-    )
+    export_objects = []
+    for obj in objects:
+        if obj.type in exclusion_types:
+            print(f"  EXCLUDE: {obj.name}")
+            continue
+        if not export_invisibles and not obj.visible_get():
+            print(f"  EXCLUDE: {obj.name}")
+            continue
+        export_objects.append(obj)
+
     for export_object in export_objects:
         print(f"  -> {export_object.name}")
 
@@ -181,7 +191,14 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
         node_names = []
 
         # region export object seeking
-        export_objects = find_export_objects()
+        export_invisibles = False
+        export_only_selections = False
+        preferences = get_preferences(context)
+        if preferences:
+            export_invisibles = bool(preferences.export_invisibles)
+            export_only_selections = bool(preferences.export_only_selections)
+        export_objects = find_export_objects(export_invisibles, export_only_selections)
+
         for obj in export_objects:
             if obj.name in node_names and obj.type != "EMPTY":
                 messages.append(

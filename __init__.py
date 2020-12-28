@@ -24,6 +24,7 @@ from .misc import (
     version,
     vrm_helper,
 )
+from .misc.preferences import get_preferences
 
 bl_info = {
     "name": "VRM_IMPORTER",
@@ -43,6 +44,24 @@ bl_info = {
 # Sanity check
 if bl_info["version"] != version.version():
     raise Exception(f'Version mismatch: {bl_info["version"]} != {version.version()}')
+
+
+class VrmAddonPreferences(bpy.types.AddonPreferences):
+    bl_idname = __name__
+
+    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export invisible objects",  # noqa: F722
+        default=False,
+    )
+    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export only selections",  # noqa: F722
+        default=False,
+    )
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+        layout.prop(self, "export_invisibles")
+        layout.prop(self, "export_only_selections")
 
 
 class LicenseConfirmation(bpy.types.PropertyGroup):
@@ -156,6 +175,16 @@ def menu_import(self, context):  # Same as test/io.py for now
     op.set_bone_roll = True
 
 
+def export_vrm_update_addon_preferences(self, context: bpy.types.Context) -> None:
+    preferences = get_preferences(context)
+    if not preferences:
+        return
+    if bool(preferences.export_invisibles) != bool(self.export_invisibles):
+        preferences.export_invisibles = self.export_invisibles
+    if bool(preferences.export_only_selections) != bool(self.export_only_selections):
+        preferences.export_only_selections = self.export_only_selections
+
+
 class ExportVRM(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
@@ -168,10 +197,20 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
     )
 
     # vrm_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
+    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export invisible objects",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+    )
+    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export only selections",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+    )
 
     def execute(self, context):
         try:
-            glb_obj = glb_factory.GlbObj()
+            glb_obj = glb_factory.GlbObj(
+                bool(self.export_invisibles), bool(self.export_only_selections)
+            )
         except glb_factory.GlbObj.ValidationError:
             return {"CANCELLED"}
         # vrm_bin =  glb_obj().convert_bpy2glb(self.vrm_version)
@@ -179,6 +218,13 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
         with open(self.filepath, "wb") as f:
             f.write(vrm_bin)
         return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+        preferences = get_preferences(context)
+        if preferences:
+            self.export_invisibles = bool(preferences.export_invisibles)
+            self.export_only_selections = bool(preferences.export_only_selections)
+        return ExportHelper.invoke(self, context, event)
 
 
 def menu_export(self, context):
@@ -272,7 +318,27 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         self.layout.label(text="symmetry button is shown")
         self.layout.label(text="*Symmetry is in default blender function")
         if context.mode == "OBJECT" and context.active_object is not None:
-            self.layout.operator(vrm_helper.VRM_VALIDATOR.bl_idname)
+            export_validation_box = self.layout.box()
+            preferences = get_preferences(context)
+            if preferences:
+                export_validation_box.prop(
+                    preferences,
+                    "export_invisibles",
+                    text=vrm_helper.lang_support(
+                        "Export invisible objects", "非表示オブジェクトを含める"
+                    ),
+                )
+                export_validation_box.prop(
+                    preferences,
+                    "export_only_selections",
+                    text=vrm_helper.lang_support(
+                        "Export only selections", "選択されたオブジェクトのみ"
+                    ),
+                )
+            export_validation_box.operator(
+                vrm_helper.VRM_VALIDATOR.bl_idname,
+                text=vrm_helper.lang_support("Validate VRM model", "VRMモデルのチェック"),
+            )
             mtoon_preview_box = self.layout.box()
             mtoon_preview_box.label(text="MToon preview")
             mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
@@ -365,6 +431,7 @@ def add_shaders(self):
 
 
 classes = [
+    VrmAddonPreferences,
     LicenseConfirmation,
     WM_OT_licenseConfirmation,
     ImportVRM,
@@ -384,6 +451,14 @@ classes = [
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
 ]
 
+translation_dictionary = {
+    "ja_JP": {
+        ("*", "Export invisible objects"): "非表示のオブジェクトも含める",
+        ("*", "Export only selections"): "選択されたオブジェクトのみ",
+        ("*", "VRM Export"): "VRMエクスポート",
+        ("*", "MToon preview"): "MToonのプレビュー",
+    }
+}
 
 # アドオン有効化時の処理
 def register():
@@ -394,10 +469,12 @@ def register():
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
+    bpy.app.translations.register(__name__, translation_dictionary)
 
 
 # アドオン無効化時の処理
 def unregister():
+    bpy.app.translations.unregister(__name__)
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
