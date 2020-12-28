@@ -10,6 +10,7 @@ import struct
 from collections import OrderedDict
 from math import floor
 from sys import float_info
+from typing import Any, Dict
 
 import bmesh
 import bpy
@@ -33,7 +34,7 @@ class GlbObj:
             export_invisibles, export_only_selections
         )
         self.vrm_version = None
-        self.json_dic = OrderedDict()
+        self.json_dic: Dict[str, Any] = OrderedDict()
         self.bin = b""
         self.glb_bin_collector = GlbBinCollection()
         self.armature = [obj for obj in self.export_objects if obj.type == "ARMATURE"][

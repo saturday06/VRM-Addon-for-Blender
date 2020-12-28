@@ -188,7 +188,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
     offscreen = None
     materials = None
     myinstance = None
-    draw_objs = List[bpy.types.Object]
+    draw_objs: List[bpy.types.Object] = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
     bounding_center = [0, 0, 0]

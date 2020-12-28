@@ -92,7 +92,7 @@ def parse_glb(data: bytes):
                 "This VRM has multiple chunks, this plugin reads one chunk only."
             )
 
-        chunk_size = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
+        chunk_size = reader.read_unsigned_int()
         size -= 4
 
         chunk_type = reader.read_str(4)
