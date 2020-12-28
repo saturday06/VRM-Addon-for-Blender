@@ -32,18 +32,24 @@ bpy.ops.export_scene.vrm(filepath=actual_out_path)
 try:
     expected_size = os.path.getsize(expected_out_path)
     actual_size = os.path.getsize(actual_out_path)
-    assert expected_size == actual_size, (
-        f'"{in_path}" was converted to "{actual_out_path}". The result\'s size {actual_size} is'
-        + f'different from "{expected_out_path}"\'s size {expected_size}"'
-    )
+    assert (
+        expected_size == actual_size
+    ), f"""Unexpected VRM Output Size
+  Input: {in_path}
+  Expected Output: {expected_out_path}
+  Expected Size: {expected_size}
+  Actual Output: {actual_out_path}
+  Actual Size: {actual_size}
+"""
     if bpy.app.build_platform != b"Darwin":  # TODO: normals
         assert (  # pylint: disable=W0199
             pathlib.Path(expected_out_path).read_bytes()
             == pathlib.Path(actual_out_path).read_bytes()
-        ), (
-            f'"{in_path}" was converted to "{actual_out_path}".'
-            + f' The result is different from "{expected_out_path}"'
-        )
+        ), f"""Unexpected VRM Binary
+  Input: {in_path}
+  Expected Output: {expected_out_path}
+  Actual Output: {actual_out_path}
+"""
     print("OK")
 except (AssertionError, FileNotFoundError):
     if not update_vrm_dir:

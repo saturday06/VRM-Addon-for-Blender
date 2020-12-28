@@ -43,7 +43,7 @@ def run_script(script, *args):
         "--",
         *args,
     ]
-    print(f"run: {command}")
+    print("run: " + "\n  ".join(command))
     subprocess.run(
         command,
         cwd=repository_root_dir,
