@@ -24,6 +24,7 @@ from .misc import (
     version,
     vrm_helper,
 )
+from .misc.glsl_drawer import GlslDrawObj
 from .misc.preferences import get_preferences
 
 bl_info = {
@@ -347,8 +348,17 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
             )
             mtoon_preview_box = self.layout.box()
             mtoon_preview_box.label(text="MToon preview")
-            mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
-            mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname)
+            if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
+                mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+            else:
+                mtoon_preview_box.label(
+                    icon="INFO",
+                    text=vrm_helper.lang_support("A light is required", "ライトが必要です"),
+                )
+            if GlslDrawObj.draw_objs:
+                mtoon_preview_box.operator(
+                    glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname
+                )
             if context.active_object.type == "ARMATURE":
                 armature_ui()
             if context.active_object.type == "MESH":
