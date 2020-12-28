@@ -312,11 +312,17 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         # endregion helper
 
         # region draw_main
-        self.layout.label(text="If you select armature in object mode")
-        self.layout.label(text="armature renamer is shown")
-        self.layout.label(text="If you in MESH EDIT")
-        self.layout.label(text="symmetry button is shown")
-        self.layout.label(text="*Symmetry is in default blender function")
+        if (
+            context.mode != "POSE"
+            or context.active_object is None
+            or context.active_object.type != "ARMATURE"
+        ):
+            self.layout.label(text="If you select armature in object mode")
+            self.layout.label(text="armature renamer is shown")
+        if context.mode != "EDIT_MESH":
+            self.layout.label(text="If you in MESH EDIT")
+            self.layout.label(text="symmetry button is shown")
+            self.layout.label(text="*Symmetry is in default blender function")
         if context.mode == "OBJECT" and context.active_object is not None:
             export_validation_box = self.layout.box()
             preferences = get_preferences(context)
@@ -354,7 +360,11 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
 
-        if context.mode == "POSE" and context.active_object.type == "ARMATURE":
+        if (
+            context.mode == "POSE"
+            and context.active_object is not None  # Noneになることは有り得ないかもしれない
+            and context.active_object.type == "ARMATURE"
+        ):
             armature_ui()
         # endregion draw_main
 
