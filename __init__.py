@@ -324,48 +324,48 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
             self.layout.label(text="If you in MESH EDIT")
             self.layout.label(text="symmetry button is shown")
             self.layout.label(text="*Symmetry is in default blender function")
-        if context.mode == "OBJECT" and context.active_object is not None:
-            export_validation_box = self.layout.box()
+        if context.mode == "OBJECT":
+            object_mode_box = self.layout.box()
             preferences = get_preferences(context)
             if preferences:
-                export_validation_box.prop(
+                object_mode_box.prop(
                     preferences,
                     "export_invisibles",
                     text=vrm_helper.lang_support(
                         "Export invisible objects", "非表示オブジェクトを含める"
                     ),
                 )
-                export_validation_box.prop(
+                object_mode_box.prop(
                     preferences,
                     "export_only_selections",
                     text=vrm_helper.lang_support(
                         "Export only selections", "選択されたオブジェクトのみ"
                     ),
                 )
-            export_validation_box.operator(
+            object_mode_box.operator(
                 vrm_helper.VRM_VALIDATOR.bl_idname,
                 text=vrm_helper.lang_support("Validate VRM model", "VRMモデルのチェック"),
             )
-            mtoon_preview_box = self.layout.box()
-            mtoon_preview_box.label(text="MToon preview")
+            object_mode_box.label(text="MToon preview")
             if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
-                mtoon_preview_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+                object_mode_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
             else:
-                mtoon_preview_box.label(
+                object_mode_box.box().label(
                     icon="INFO",
                     text=vrm_helper.lang_support("A light is required", "ライトが必要です"),
                 )
             if GlslDrawObj.draw_objs:
-                mtoon_preview_box.operator(
+                object_mode_box.operator(
                     glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname
                 )
-            if context.active_object.type == "ARMATURE":
-                armature_ui()
-            if context.active_object.type == "MESH":
-                self.layout.label(icon="ERROR", text="EXPERIMENTAL!!!")
-                self.layout.operator(
-                    vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname
-                )
+            if context.active_object is not None:
+                if context.active_object.type == "ARMATURE":
+                    armature_ui()
+                if context.active_object.type == "MESH":
+                    self.layout.label(icon="ERROR", text="EXPERIMENTAL!!!")
+                    self.layout.operator(
+                        vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname
+                    )
 
         if context.mode == "EDIT_MESH":
             self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())

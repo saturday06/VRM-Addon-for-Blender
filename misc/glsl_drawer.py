@@ -10,6 +10,8 @@ from gpu_extras.batch import batch_for_shader
 from mathutils import Matrix, Vector
 
 from .. import vrm_types
+from .preferences import get_preferences
+from .vrm_helper import find_export_objects
 
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):  # noqa: N801
@@ -18,9 +20,15 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):  # noqa: N801
     bl_description = "Draw selected with MToon of GLSL"
     bl_options = {"REGISTER"}
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         GlslDrawObj()
-        GlslDrawObj.draw_func_add()
+        invisibles = False
+        only_selections = False
+        preferences = get_preferences(context)
+        if preferences:
+            invisibles = bool(preferences.export_invisibles)
+            only_selections = bool(preferences.export_only_selections)
+        GlslDrawObj.draw_func_add(invisibles, only_selections)
         return {"FINISHED"}
 
 
@@ -571,10 +579,12 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
     build_mesh_func = None
 
     @staticmethod
-    def draw_func_add():
+    def draw_func_add(invisibles: bool, only_selections: bool):
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [
-            obj for obj in bpy.context.selected_objects if obj.type == "MESH"
+            obj
+            for obj in find_export_objects(invisibles, only_selections)
+            if obj.type == "MESH"
         ]
         if GlslDrawObj.myinstance is None or GlslDrawObj.draw_func is None:
             GlslDrawObj.myinstance = GlslDrawObj()
