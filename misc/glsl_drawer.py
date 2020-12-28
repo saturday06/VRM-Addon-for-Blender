@@ -593,6 +593,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
         bpy.app.handlers.depsgraph_update_post.append(GlslDrawObj.build_scene)
         GlslDrawObj.build_mesh_func = bpy.app.handlers.depsgraph_update_post[-1]
         # bpy.app.handlers.frame_change_post.append(build_sub_index)
+        bpy.ops.wm.redraw_timer(type="DRAW", iterations=1)  # Force redraw
 
     @staticmethod
     def draw_func_remove():
@@ -607,6 +608,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
             bpy.app.handlers.depsgraph_update_post.remove(GlslDrawObj.build_mesh_func)
             GlslDrawObj.build_mesh_func = None
         GlslDrawObj.draw_objs = []
+        bpy.ops.wm.redraw_timer(type="DRAW", iterations=1)  # Force redraw
 
     # endregion 3Dview drawer
 
