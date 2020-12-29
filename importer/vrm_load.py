@@ -14,7 +14,7 @@ import os
 import re
 import sys
 from collections import OrderedDict
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
 import numpy
@@ -67,7 +67,7 @@ class LicenseConfirmationRequired(Exception):
         ]
 
 
-def parse_glb(data: bytes):
+def parse_glb(data: bytes) -> Tuple[Any, bytes]:
     reader = BinaryReader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
@@ -112,7 +112,9 @@ def parse_glb(data: bytes):
 
     if not json_str:
         raise Exception("failed to read json chunk")
-    return json.loads(json_str, object_pairs_hook=OrderedDict), body
+    return json.loads(json_str, object_pairs_hook=OrderedDict), (
+        body if body else bytes()
+    )
 
 
 # あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
