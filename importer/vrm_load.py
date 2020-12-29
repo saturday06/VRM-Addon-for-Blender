@@ -159,11 +159,12 @@ def validate_license_url(
     url = None
     with contextlib.suppress(ValueError):
         url = urlparse(url_str)
-    if url and (
-        validate_vroid_hub_license_url(url, json_key, props)
-        or validate_uni_virtual_license_url(url)
-    ):
-        return
+    if url:
+        query_dict = dict(parse_qsl(url.query))
+        if validate_vroid_hub_license_url(
+            url, query_dict, json_key, props
+        ) or validate_uni_virtual_license_url(url, query_dict, json_key, props):
+            return
     props.append(
         LicenseConfirmationRequiredProp(
             url_str,
@@ -175,12 +176,15 @@ def validate_license_url(
 
 
 def validate_vroid_hub_license_url(
-    url: ParseResult, json_key: str, props: List[LicenseConfirmationRequiredProp]
+    url: ParseResult,
+    query_dict: Dict[str, str],
+    json_key: str,
+    props: List[LicenseConfirmationRequiredProp],
 ) -> bool:
     # https://hub.vroid.com/en/license?allowed_to_use_user=everyone&characterization_allowed_user=everyone&corporate_commercial_use=allow&credit=unnecessary&modification=allow&personal_commercial_use=profit&redistribution=allow&sexual_expression=allow&version=1&violent_expression=allow
     if url.hostname != "hub.vroid.com" or not url.path.endswith("/license"):
         return False
-    if dict(parse_qsl(url.query)).get("modification") == "disallow":
+    if query_dict.get("modification") == "disallow":
         props.append(
             LicenseConfirmationRequiredProp(
                 url.geturl(),
@@ -192,10 +196,24 @@ def validate_vroid_hub_license_url(
     return True
 
 
-def validate_uni_virtual_license_url(url: ParseResult) -> bool:
+def validate_uni_virtual_license_url(
+    url: ParseResult,
+    query_dict: Dict[str, str],
+    json_key: str,
+    props: List[LicenseConfirmationRequiredProp],
+) -> bool:
     # https://uv-license.com/en/license?utf8=%E2%9C%93&pcu=true
     if url.hostname != "uv-license.com" or not url.path.endswith("/license"):
         return False
+    if query_dict.get("remarks") == "true":
+        props.append(
+            LicenseConfirmationRequiredProp(
+                url.geturl(),
+                json_key,
+                'This VRM is licensed by UV License with "Remarks".',
+                "このVRMには特記事項(Remarks)付きのUVライセンスが設定されています。",
+            )
+        )
     return True
 
 
