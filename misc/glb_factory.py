@@ -918,12 +918,36 @@ class GlbObj:
 
             # region hell
             bpy.ops.object.mode_set(mode="OBJECT")
+
+            # region glTF-Blender-IO
+            # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.91-release/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_nodes.py#L285-L303
+            # http://www.apache.org/licenses/LICENSE-2.0
+            armature_modifiers = {}
+            if is_skin_mesh:
+                # temporarily disable Armature modifiers if exporting skins
+                for idx, modifier in enumerate(mesh.modifiers):
+                    if modifier.type == "ARMATURE":
+                        armature_modifiers[idx] = modifier.show_viewport
+                        modifier.show_viewport = False
+
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            mesh_owner = mesh.evaluated_get(depsgraph)
+            mesh_data = mesh_owner.to_mesh(
+                preserve_all_data_layers=True, depsgraph=depsgraph
+            ).copy()
+            for prop in mesh.data.keys():
+                mesh_data[prop] = mesh.data[prop]
+
+            if is_skin_mesh:
+                # restore Armature modifiers
+                for idx, show_viewport in armature_modifiers.items():
+                    mesh.modifiers[idx].show_viewport = show_viewport
+            # endregion glTF-Blender-IO
+
             mesh.hide_viewport = False
             mesh.hide_select = False
             bpy.context.view_layer.objects.active = mesh
             bpy.ops.object.mode_set(mode="EDIT")
-
-            mesh_data = mesh.data.copy()
 
             bm_temp = bmesh.new()
             bm_temp.from_mesh(mesh_data)
