@@ -10,9 +10,8 @@ import os
 import re
 from collections import OrderedDict
 from sys import float_info
-from typing import List
+from typing import List, Set
 
-import blf
 import bpy
 from mathutils import Vector
 
@@ -170,8 +169,38 @@ def find_export_objects(
     return export_objects
 
 
-class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
+class VrmValidationError(bpy.types.PropertyGroup):
+    message: bpy.props.StringProperty()  # type: ignore[valid-type]
+    fatal: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
+
+# WM_OT_vrmValidator.errorsをlayout.operator呼び出しからクリアするDocumentedな方式が無いので
+# この処理を噛ませて強制的にクリアする
+class WM_OT_vrmValidator(bpy.types.Operator):  # noqa: N801
     bl_idname = "vrm.model_validate"
+    bl_label = "Validate VRM model"
+    bl_options = {"REGISTER", "UNDO"}
+
+    show_successful_message: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        default=True
+    )
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        return bpy.ops.vrm.model_validate_private(
+            show_successful_message=self.show_successful_message,
+            errors=[],
+        )
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        return bpy.ops.vrm.model_validate_private(
+            "INVOKE_DEFAULT",
+            show_successful_message=self.show_successful_message,
+            errors=[],
+        )
+
+
+class WM_OT_vrmValidatorPrivate(bpy.types.Operator):  # noqa: N801
+    bl_idname = "vrm.model_validate_private"
     bl_label = "Validate VRM model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."
     bl_options = {"REGISTER", "UNDO"}
@@ -179,11 +208,51 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
     show_successful_message: bpy.props.BoolProperty(  # type: ignore[valid-type]
         default=True
     )
+    errors: bpy.props.CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
 
-    messages = List[str]
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        self.detect_errors_and_warnings(context)
+        if any(error.fatal for error in self.errors):
+            return {"CANCELLED"}
+        return {"FINISHED"}
 
-    def execute(self, context):
-        messages = VRM_VALIDATOR.messages = []
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        self.detect_errors_and_warnings(context)
+        if (
+            not any(error.fatal for error in self.errors)
+            and not self.show_successful_message
+        ):
+            return {"FINISHED"}
+        return context.window_manager.invoke_props_dialog(self, width=800)
+
+    def draw(self, context: bpy.types.Context):
+        layout = self.layout
+        errors = [error for error in self.errors if error.fatal]
+        warnings = [error for error in self.errors if not error.fatal]
+
+        if not errors:
+            layout.label(text="No error. Ready for export VRM")
+        if errors:
+            layout.label(text="Error", icon="ERROR")
+            for error in errors:
+                layout.prop(
+                    error,
+                    "message",
+                    text="",
+                    translate=False,
+                )
+        if warnings:
+            layout.label(text="Info", icon="INFO")
+            for warning in warnings:
+                layout.prop(
+                    warning,
+                    "message",
+                    text="",
+                    translate=False,
+                )
+
+    def detect_errors_and_warnings(self, context: bpy.types.Context) -> None:
+        messages = []
         warning_messages = []
         print("validation start")
         armature_count = 0
@@ -689,65 +758,19 @@ class VRM_VALIDATOR(bpy.types.Operator):  # noqa: N801
 
         print("validation finished")
 
-        if len(messages) > 0:
-            VRM_VALIDATOR.draw_func_add()
-            for message in messages:
-                self.report({"ERROR"}, message)
-            return {"CANCELLED"}
-
-        if self.show_successful_message:
-            message = lang_support(
-                "No error. Ready for export VRM",
-                "エラーはありませんでした。VRMのエクスポートをすることができます",
-            )
-            self.report({"INFO"}, message)
-            messages.append("[ " + message + " ]")
-            messages.extend(warning_messages)
-            VRM_VALIDATOR.draw_func_add()
-
-        return {"FINISHED"}
-
-    # region 3Dview drawer
-    draw_func = None
-    counter = 0
-
-    @staticmethod
-    def draw_func_add():
-        if VRM_VALIDATOR.draw_func is not None:
-            VRM_VALIDATOR.draw_func_remove()
-        VRM_VALIDATOR.counter = 300
-        VRM_VALIDATOR.draw_func = bpy.types.SpaceView3D.draw_handler_add(
-            VRM_VALIDATOR.texts_draw, (), "WINDOW", "POST_PIXEL"
-        )
-        bpy.ops.wm.redraw_timer(type="DRAW", iterations=1)  # Force redraw
-
-    @staticmethod
-    def draw_func_remove():
-        if VRM_VALIDATOR.draw_func is not None:
-            bpy.types.SpaceView3D.draw_handler_remove(VRM_VALIDATOR.draw_func, "WINDOW")
-            VRM_VALIDATOR.draw_func = None
-
-    @staticmethod
-    def texts_draw():
-        text_size = 14
-        dpi = 72
-        blf.size(0, text_size, dpi)
-        offset = 50
-        for i, text in enumerate(VRM_VALIDATOR.messages):
-            blf.position(0, text_size, text_size * (i + 1) + offset, 0)
-            blf.draw(0, text)
-        blf.position(
-            0, text_size, text_size * (1 + len(VRM_VALIDATOR.messages)) + offset, 0
-        )
-        blf.draw(0, "[ Message delete count down: {} ]".format(VRM_VALIDATOR.counter))
-        VRM_VALIDATOR.counter -= 1
-        if VRM_VALIDATOR.counter <= 0 or len(VRM_VALIDATOR.messages) == 0:
-            VRM_VALIDATOR.draw_func_remove()
-
-    # endregion 3Dview drawer
+        for index, message in enumerate(messages):
+            error = self.errors.add()
+            error.name = "LicenseError" + str(index)
+            error.fatal = True
+            error.message = message
+        for index, message in enumerate(warning_messages):
+            error = self.errors.add()
+            error.name = "LicenseWarning" + str(index)
+            error.fatal = False
+            error.message = message
 
 
-def lang_support(en_message, ja_message):
+def lang_support(en_message: str, ja_message: str) -> str:
     if bpy.app.translations.locale == "ja_JP":
         return ja_message
     return en_message

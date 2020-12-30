@@ -27,7 +27,9 @@ class GlbObj:
         pass
 
     def __init__(self, export_invisibles: bool, export_only_selections: bool):
-        if bpy.ops.vrm.model_validate(show_successful_message=False) != {"FINISHED"}:
+        if bpy.ops.vrm.model_validate(
+            "INVOKE_DEFAULT", show_successful_message=False
+        ) != {"FINISHED"}:
             raise self.ValidationError()
 
         self.export_objects = find_export_objects(

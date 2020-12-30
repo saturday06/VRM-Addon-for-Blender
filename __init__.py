@@ -207,7 +207,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
         update=export_vrm_update_addon_preferences,
     )
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         try:
             glb_obj = glb_factory.GlbObj(
                 bool(self.export_invisibles), bool(self.export_only_selections)
@@ -220,7 +220,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
             f.write(vrm_bin)
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         preferences = get_preferences(context)
         if preferences:
             self.export_invisibles = bool(preferences.export_invisibles)
@@ -342,10 +342,12 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
                         "Export only selections", "選択されたオブジェクトのみ"
                     ),
                 )
-            object_mode_box.operator(
-                vrm_helper.VRM_VALIDATOR.bl_idname,
+            vrm_validator_prop = object_mode_box.operator(
+                vrm_helper.WM_OT_vrmValidator.bl_idname,
                 text=vrm_helper.lang_support("Validate VRM model", "VRMモデルのチェック"),
             )
+            vrm_validator_prop.show_successful_message = True
+            # vrm_validator_prop.errors = []  # これはできない
             object_mode_box.label(text="MToon preview")
             if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
                 object_mode_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
@@ -397,7 +399,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
     use_simple_principled_material: bpy.props.BoolProperty()  # type: ignore[valid-type]
     use_in_blender: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         if not self.import_anyway:
             return {"CANCELLED"}
         return create_blend_model(
@@ -411,10 +413,10 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
             ),
         )
 
-    def invoke(self, context, event):
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
         return context.window_manager.invoke_props_dialog(self, width=600)
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context):
         layout = self.layout
         layout.label(text=self.filepath)
         for license_confirmation in self.license_confirmations:
@@ -431,6 +433,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
                     license_confirmation,
                     "url",
                     text=license_confirmation.json_key,
+                    translate=False,
                 )
         layout.prop(
             self,
@@ -461,7 +464,9 @@ classes = [
     vrm_helper.Add_VRM_require_humanbone_custom_property,
     vrm_helper.Add_VRM_defined_humanbone_custom_property,
     vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
-    vrm_helper.VRM_VALIDATOR,
+    vrm_helper.VrmValidationError,
+    vrm_helper.WM_OT_vrmValidator,
+    vrm_helper.WM_OT_vrmValidatorPrivate,
     VRM_IMPORTER_PT_controller,
     make_armature.ICYP_OT_MAKE_ARMATURE,
     glsl_drawer.ICYP_OT_Draw_Model,
@@ -475,8 +480,10 @@ translation_dictionary = {
     "ja_JP": {
         ("*", "Export invisible objects"): "非表示のオブジェクトも含める",
         ("*", "Export only selections"): "選択されたオブジェクトのみ",
-        ("*", "VRM Export"): "VRMエクスポート",
         ("*", "MToon preview"): "MToonのプレビュー",
+        ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
+        ("*", "VRM Export"): "VRMエクスポート",
+        ("*", "Validate VRM model"): "VRMモデルのチェック",
     }
 }
 
