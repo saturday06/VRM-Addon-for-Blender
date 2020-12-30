@@ -224,12 +224,12 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
             f.write(vrm_bin)
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
         preferences = get_preferences(context)
         if preferences:
             self.export_invisibles = bool(preferences.export_invisibles)
             self.export_only_selections = bool(preferences.export_only_selections)
-        return cast(Set[str], ExportHelper.invoke(self, context, event))
+        return ExportHelper.invoke(self, context, event)
 
 
 def menu_export(self, context):
