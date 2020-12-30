@@ -7,7 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import os
 import traceback
-from typing import Set, cast
+from typing import Set
 
 import bpy
 from bpy.app.handlers import persistent
