@@ -7,7 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import os
 import traceback
-from typing import Set
+from typing import Set, cast
 
 import bpy
 from bpy.app.handlers import persistent
@@ -208,6 +208,10 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
     )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
+        if not self.filepath:
+            return {"CANCELLED"}
+        filepath: str = self.filepath
+
         try:
             glb_obj = glb_factory.GlbObj(
                 bool(self.export_invisibles), bool(self.export_only_selections)
@@ -216,7 +220,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
             return {"CANCELLED"}
         # vrm_bin =  glb_obj().convert_bpy2glb(self.vrm_version)
         vrm_bin = glb_obj.convert_bpy2glb("0.0")
-        with open(self.filepath, "wb") as f:
+        with open(filepath, "wb") as f:
             f.write(vrm_bin)
         return {"FINISHED"}
 
@@ -225,7 +229,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
         if preferences:
             self.export_invisibles = bool(preferences.export_invisibles)
             self.export_only_selections = bool(preferences.export_only_selections)
-        return ExportHelper.invoke(self, context, event)
+        return cast(Set[str], ExportHelper.invoke(self, context, event))
 
 
 def menu_export(self, context):

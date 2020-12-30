@@ -10,7 +10,7 @@ import os
 import re
 from collections import OrderedDict
 from sys import float_info
-from typing import List, Set
+from typing import List, Set, Tuple
 
 import bpy
 from mathutils import Vector
@@ -369,7 +369,7 @@ class WM_OT_vrmValidatorPrivate(bpy.types.Operator):  # noqa: N801
                 lang_support("Please add ARMATURE to selections", "アーマチュアを選択範囲に含めてください")
             )
 
-        used_images = []
+        used_images: List[bpy.types.Image] = []
         used_materials = []
         bones_name = []
         if armature is not None:
@@ -438,21 +438,21 @@ class WM_OT_vrmValidatorPrivate(bpy.types.Operator):  # noqa: N801
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 for (
-                    shader_val
+                    texture_val
                 ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
-                    if shader_val is None or shader_val == "ReceiveShadow_Texture":
+                    if texture_val is None or texture_val == "ReceiveShadow_Texture":
                         continue
                     node_material_input_check(
-                        node, material, "TEX_IMAGE", shader_val, messages, used_images
+                        node, material, "TEX_IMAGE", texture_val, messages, used_images
                     )
-                for shader_val in [
+                for float_val in [
                     *list(vrm_types.MaterialMtoon.float_props_exchange_dic.values()),
                     "ReceiveShadow_Texture_alpha",
                 ]:
-                    if shader_val is None:
+                    if float_val is None:
                         continue
                     node_material_input_check(
-                        node, material, "VALUE", shader_val, messages, used_images
+                        node, material, "VALUE", float_val, messages, used_images
                     )
                 for k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
                     node_material_input_check(
@@ -777,7 +777,12 @@ def lang_support(en_message: str, ja_message: str) -> str:
 
 
 def node_material_input_check(
-    node, material, expect_node_type, shader_val, messages, used_images
+    node: bpy.types.ShaderNodeGroup,
+    material: bpy.types.Material,
+    expect_node_type: str,
+    shader_val: str,
+    messages: List[str],
+    used_images: List[bpy.types.Image],
 ):
     if node.inputs[shader_val].links:
         n = node.inputs[shader_val].links[0].from_node
@@ -801,7 +806,9 @@ def node_material_input_check(
                     )
 
 
-def shader_nodes_and_materials(used_materials):
+def shader_nodes_and_materials(
+    used_materials: List[bpy.types.Material],
+) -> List[Tuple[bpy.types.ShaderNodeGroup, bpy.types.Material]]:
     return [
         (node.inputs["Surface"].links[0].from_node, mat)
         for mat in used_materials
