@@ -334,11 +334,11 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         dir_name = invalid_chars_remover(
             datetime.datetime.today().strftime("%M%D%H%I%M%S")
         )
-        for i in range(10):
+        for i in range(100000):
             dn = f"tex_{dir_name}_{i}"
             if os.path.exists(os.path.join(vrm_dir_path, dn)):
                 continue
-            if os.path.exists(os.path.join(vrm_dir_path, dn)) and i == 9:
+            if os.path.exists(os.path.join(vrm_dir_path, dn)) and i == 99999:
                 dir_path = os.path.join(vrm_dir_path, dn)
                 break
             os.mkdir(os.path.join(vrm_dir_path, dn))
@@ -347,7 +347,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
     elif not os.path.exists(os.path.join(vrm_dir_path, dir_name)):
         os.mkdir(dir_path)
     elif make_new_texture_folder:
-        for i in range(11):
+        for i in range(100001):
             dn = f"{dir_name}_{i}" if i != 0 else dir_name
             if not os.path.exists(os.path.join(vrm_dir_path, dn)):
                 os.mkdir(os.path.join(vrm_dir_path, dn))
