@@ -123,7 +123,5 @@ run_script(
     test_temp_vrm_dir,
 )
 
-os.environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "false"
-run_io_script()
 os.environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
 run_io_script()
