@@ -250,6 +250,7 @@ tri
 tris
 tz
 ui
+unittest
 unlink
 unregister
 unversioned

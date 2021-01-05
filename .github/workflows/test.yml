@@ -9,7 +9,7 @@ jobs:
       matrix:
         archive_url:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-windows64.zip
-          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.9-windows64.zip
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.10-windows64.zip
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.91/blender-2.91.0-windows64.zip
     steps:
       - uses: actions/checkout@v2
@@ -24,13 +24,8 @@ jobs:
         run: Invoke-WebRequest -Uri "${{ matrix.archive_url }}" -OutFile blender.zip
       - name: Test
         run: |
-          $expansion_name = "${{ matrix.archive_url }}".Split("/") | Select-Object -Last 1 | Split-Path -LeafBase
-          $major_minor = $expansion_name.Split("-")[1].Split(".")[0..1] -join "."
-
-          Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP"
-          &"$env:TEMP\$expansion_name\$major_minor\python\bin\python.exe" `
-            test\run.py `
-            "$env:TEMP\$expansion_name\blender.exe"
+          Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
+          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python test/unittest_discover.py
 
   test-macos:
     runs-on: macos-latest
@@ -38,7 +33,7 @@ jobs:
       matrix:
         archive_url:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.82/blender-2.82-macOS.dmg
-          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.9-macOS.dmg
+          - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.83/blender-2.83.10-macOS.dmg
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender2.91/blender-2.91.0-macOS.dmg
     steps:
       - uses: actions/checkout@v2
@@ -56,9 +51,8 @@ jobs:
           hdiutil attach blender.dmg
           cp -fr /Volumes/Blender/Blender.app /Applications
           hdiutil detach $(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')
-          major_minor=$(ruby -e "puts ARGV[0].split('/').last.split('-')[1].split('.')[0, 2].join('.')" "${{ matrix.archive_url }}")
-          python=$(find /Applications/Blender.app/Contents/Resources/$major_minor/python/bin -name "python*" -type f -perm -u+x | sort | head -n 1)
-          $python ./test/run.py /Applications/Blender.app/Contents/MacOS/Blender
+          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python test/unittest_discover.py
+
   lint:
     runs-on: ubuntu-20.04
     steps:
@@ -73,7 +67,7 @@ jobs:
         run: git config core.quotepath off
       - name: Check file permissions
         run: |
-          git ls-files | grep -vx "test/run.py" | while read -r f; do
+          git ls-files | while read -r f; do
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."
               exit 1
@@ -143,7 +137,7 @@ jobs:
             -o stubs
           src_dir=$PWD
           cd ..
-          MYPYPATH=$src_dir/stubs mypy --namespace-packages --config-file "$src_dir/mypy.ini" --show-error-code "$src_dir"
+          MYPYPATH=$src_dir/stubs mypy --config-file "$src_dir/mypy.ini" --show-error-code "$src_dir"
       - name: Flake8
         run: flake8 --count --show-source --statistics $(git ls-files "**.py")
       - name: Check import sorting order

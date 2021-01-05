@@ -193,7 +193,7 @@ def create_blend_model(addon, context, vrm_pydata: vrm_types.VrmPydata) -> Set[s
     return {"FINISHED"}
 
 
-def menu_import(self, context):  # Same as test/io.py for now
+def menu_import(self, context):  # Same as test/blender_io.py for now
     op = self.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
     op.make_new_texture_folder = True
     op.is_put_spring_bone_info = True
@@ -472,15 +472,17 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
         )
 
 
-@persistent
-def add_shaders(self):
-    filedir = os.path.join(
-        os.path.dirname(__file__), "resources", "material_node_groups.blend"
-    )
-    with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
-        for nt in data_from.node_groups:
-            if nt not in bpy.data.node_groups:
-                data_to.node_groups.append(nt)
+if persistent:  # for fake-bpy-modules
+
+    @persistent
+    def add_shaders(self):
+        filedir = os.path.join(
+            os.path.dirname(__file__), "resources", "material_node_groups.blend"
+        )
+        with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
+            for nt in data_from.node_groups:
+                if nt not in bpy.data.node_groups:
+                    data_to.node_groups.append(nt)
 
 
 classes = [

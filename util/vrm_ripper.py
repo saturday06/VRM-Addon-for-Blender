@@ -26,5 +26,5 @@ with open(model_path, "rb") as f:
 if messagebox.askyesno(message="write VRM.json?"):
     writedir = exist_or_makedir(model_path)
     writejsonpath = os.path.join(writedir, "vrm.json")
-    with open(writejsonpath, "w") as f:
-        json.dump(vrm_json, f, indent=4)
+    with open(writejsonpath, "w") as json_file:
+        json.dump(vrm_json, json_file, indent=4)
