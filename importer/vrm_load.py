@@ -156,7 +156,7 @@ def read_vrm(
 def validate_license_url(
     url_str: str, json_key: str, props: List[LicenseConfirmationRequiredProp]
 ) -> None:
-    if url_str == "undefined":  # Our plugin........................
+    if not url_str:
         return
     url = None
     with contextlib.suppress(ValueError):
@@ -237,19 +237,31 @@ def validate_license(vrm_pydata: vrm_types.VrmPydata):
             )
         )
 
-    other_permission_url_str = json_get(
-        vrm_pydata.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], None
+    validate_license_url(
+        json_get(
+            vrm_pydata.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], ""
+        ),
+        "otherPermissionUrl",
+        confirmations,
     )
-    if other_permission_url_str:
-        validate_license_url(
-            other_permission_url_str, "otherPermissionUrl", confirmations
-        )
 
     if license_name == "Other":
         other_license_url_str = json_get(
             vrm_pydata.json, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""
         )
-        validate_license_url(other_license_url_str, "otherLicenseUrl", confirmations)
+        if not other_license_url_str:
+            confirmations.append(
+                LicenseConfirmationRequiredProp(
+                    None,
+                    None,
+                    'The VRM selects "Other" license but no license url is found.',
+                    "このVRMには「Other」ライセンスが指定されていますが、URLが設定されていません。",
+                )
+            )
+        else:
+            validate_license_url(
+                other_license_url_str, "otherLicenseUrl", confirmations
+            )
 
     if confirmations:
         raise LicenseConfirmationRequired(confirmations)

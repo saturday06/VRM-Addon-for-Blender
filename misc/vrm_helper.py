@@ -771,6 +771,10 @@ class WM_OT_vrmValidatorPrivate(bpy.types.Operator):  # noqa: N801
 
 
 def lang_support(en_message: str, ja_message: str) -> str:
+    # for fake-bpy-module
+    if not bpy.app.translations:
+        return en_message
+
     if bpy.app.translations.locale == "ja_JP":
         return ja_message
     return en_message
