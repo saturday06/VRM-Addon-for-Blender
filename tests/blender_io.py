@@ -51,8 +51,11 @@ try:
   Actual Output: {actual_out_path}
 """
     print("OK")
-except (AssertionError, FileNotFoundError):
-    if not update_vrm_dir:
-        raise
-    shutil.copy(actual_out_path, expected_out_path)
-    print("NG")
+except FileNotFoundError:
+    if update_vrm_dir:
+        shutil.copy(actual_out_path, in_path)
+    raise
+except AssertionError:
+    if update_vrm_dir:
+        shutil.copy(actual_out_path, expected_out_path)
+    raise
