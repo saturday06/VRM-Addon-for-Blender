@@ -17,6 +17,8 @@
 !/.pylintrc
 !/LICENSE
 !/mypy.ini
+!/scripts/stubgen.bat
+!/scripts/stubgen.sh
 !/tests/vrm/in/*.vrm
 !/tests/vrm/out/*.vrm
 !/tests/vrm/out2/*.vrm
