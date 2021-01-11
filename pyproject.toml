@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "io_scene_vrm"
+version = "1.0.0" # Dummy version. See __init__.bl_info["version"] instead.
+description = ""
+authors = ["Isamu Mogi <isamu@leafytree.jp>", "iCyP"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+"fake-bpy-module-2.82" = "*"
+numpy = "~1.17"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+flake8 = "*"
+flake8-bugbear = "*"
+flake8-no-pep420 = "*"
+flake8-simplify = "*"
+flake8-spellcheck = "*"
+isort = "*"
+mypy = "*"
+pep8-naming = "*"
+pylint = "*"
+
+[tool.black]
+target-version = ['py37']
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

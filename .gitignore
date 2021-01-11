@@ -17,6 +17,8 @@
 !/.pylintrc
 !/LICENSE
 !/mypy.ini
+!/poetry.lock
+!/pyproject.toml
 !/scripts/stubgen.bat
 !/scripts/stubgen.sh
 !/tests/vrm/in/*.vrm
