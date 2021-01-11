@@ -17,7 +17,6 @@
 !/.pylintrc
 !/LICENSE
 !/mypy.ini
-!/setup.cfg
 !/tests/vrm/in/*.vrm
 !/tests/vrm/out/*.vrm
 !/tests/vrm/out2/*.vrm
