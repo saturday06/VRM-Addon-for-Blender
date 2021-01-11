@@ -569,15 +569,15 @@ class BlendModel:
 
         float_prop_exchange_dic = vrm_types.MaterialMtoon.float_props_exchange_dic
         for k, v in pymat.float_props_dic.items():
+            if k == "_CullMode":
+                if v == 2:  # 0: no cull 1:front cull 2:back cull
+                    b_mat.use_backface_culling = True
+                elif v == 0:
+                    b_mat.use_backface_culling = False
             if k in [
                 key for key, val in float_prop_exchange_dic.items() if val is not None
             ]:
                 self.connect_value_node(b_mat, v, sg.inputs[float_prop_exchange_dic[k]])
-                if k == "_CullMode":
-                    if v == 2:  # 0: no cull 1:front cull 2:back cull
-                        b_mat.use_backface_culling = True
-                    elif v == 0:
-                        b_mat.use_backface_culling = False
             else:
                 b_mat[k] = v
 
