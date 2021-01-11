@@ -4,8 +4,6 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
-import typing
-
 
 # Script reloading (if the user calls 'Reload Scripts' from Blender)
 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/04e26bef903543d08947c5a9a5fea4e787b68f17/addons/io_scene_gltf2/__init__.py#L32-L54
@@ -49,6 +47,7 @@ bl_info = {
 
 def register():
     # Lazy import to minimize initialization before reload_package()
+    # 'import io_scene_vrm' causes error in blender and vscode mypy integration
     from . import io_scene_vrm  # pylint: disable=no-name-in-module
 
     io_scene_vrm.register(bl_info["version"])
@@ -56,16 +55,11 @@ def register():
 
 def unregister():
     # Lazy import to minimize initialization before reload_package()
+    # 'import io_scene_vrm' causes error in blender and vscode mypy integration
     from . import io_scene_vrm  # pylint: disable=no-name-in-module
 
     io_scene_vrm.unregister()
 
-
-if typing.TYPE_CHECKING:
-    import io_scene_vrm
-
-    io_scene_vrm.register((0, 0, 0))
-    io_scene_vrm.unregister()
 
 if __name__ == "__main__":
     register()
