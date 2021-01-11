@@ -397,7 +397,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
             img.name for img in vrm_pydata.image_properties
         ]:  # ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
             written_flag = False
-            for i in range(5):
+            for i in range(100000):
                 second_image_name = image_name + "_" + str(i)
                 image_path = os.path.join(
                     dir_path, second_image_name + "." + image_type
@@ -410,9 +410,8 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
                     break
             if not written_flag:
                 print(
-                    "There are more than 5 images with the same name in the folder. Failed to write file: {}".format(
-                        image_name
-                    )
+                    "There are more than 100000 images with the same name in the folder."
+                    + f" Failed to write file: {image_name}"
                 )
         else:
             print(image_name + " Image already exists. Was not overwritten.")
