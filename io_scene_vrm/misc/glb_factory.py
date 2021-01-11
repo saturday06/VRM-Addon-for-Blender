@@ -595,7 +595,7 @@ class GlbObj:
                 base_color_texture=maintex,
                 transparent_method=transparent_method,
                 transparency_cutoff=transparency_cutoff,
-                doublesided=b_mat.use_backface_culling,
+                doublesided=not b_mat.use_backface_culling,
             )
             if self.vrm_version.startswith("1."):
                 mtoon_ext_dic = {}
@@ -745,7 +745,7 @@ class GlbObj:
                 transparent_method=transparent_method,
                 transparency_cutoff=transparency_cutoff,
                 unlit=get_float_value(gltf_shader_node, "unlit") >= 0.5,
-                doublesided=b_mat.use_backface_culling,
+                doublesided=not b_mat.use_backface_culling,
             )
 
             def pbr_tex_add(texture_type, socket_name):

@@ -506,7 +506,7 @@ class BlendModel:
         self.set_material_transparent(
             b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode]
         )
-        b_mat.use_backface_culling = pymat.double_sided
+        b_mat.use_backface_culling = not pymat.double_sided
 
     def build_material_from_gltf(self, b_mat, pymat):
         self.material_init(b_mat)
@@ -551,7 +551,7 @@ class BlendModel:
         self.set_material_transparent(
             b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode]
         )
-        b_mat.use_backface_culling = pymat.double_sided
+        b_mat.use_backface_culling = not pymat.double_sided
 
     def build_material_from_mtoon(self, b_mat, pymat):
         self.material_init(b_mat)
