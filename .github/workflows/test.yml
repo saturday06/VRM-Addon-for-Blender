@@ -74,6 +74,13 @@ jobs:
               exit 1
             fi
           done
+          git ls-files scripts/ | while read -r f; do
+            echo $f
+            if [ ! -x "$f" ]; then
+              echo "$f has no executable permission."
+              exit 1
+            fi
+          done
       - name: Check file name character encoding
         run: |
           git ls-files | while read -r f; do
