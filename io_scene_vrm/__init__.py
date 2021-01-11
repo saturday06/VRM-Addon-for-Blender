@@ -7,7 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import os
 import traceback
-from typing import Set
+from typing import Set, Tuple
 
 import bpy
 from bpy.app.handlers import persistent
@@ -27,54 +27,11 @@ from .misc import (
 from .misc.glsl_drawer import GlslDrawObj
 from .misc.preferences import get_preferences
 
-
-# Script reloading (if the user calls 'Reload Scripts' from Blender)
-# https://github.com/KhronosGroup/glTF-Blender-IO/blob/04e26bef903543d08947c5a9a5fea4e787b68f17/addons/io_scene_gltf2/__init__.py#L32-L54
-# http://www.apache.org/licenses/LICENSE-2.0
-def reload_package(module_dict_main):
-    import importlib
-    from pathlib import Path
-
-    def reload_package_recursive(current_dir, module_dict):
-        for path in current_dir.iterdir():
-            if "__init__" in str(path) or path.stem not in module_dict:
-                continue
-
-            if path.is_file() and path.suffix == ".py":
-                importlib.reload(module_dict[path.stem])
-            elif path.is_dir():
-                reload_package_recursive(path, module_dict[path.stem].__dict__)
-
-    reload_package_recursive(Path(__file__).parent, module_dict_main)
-
-
-# Place it before "bl_info" to detect script reloading.
-if "bl_info" in locals():
-    reload_package(locals())
-
-# Place it after "if "bl_info" in locals():" to detect script reloading.
-bl_info = {
-    "name": "VRM_IMPORTER",
-    "author": "saturday06, iCyP",
-    # I'd like to use version.version(). But that is not allowed.
-    "version": (0, 107, 0),
-    "blender": (2, 82, 0),
-    "location": "File->Import",
-    "description": "VRM Importer",
-    "warning": "",
-    "support": "TESTING",
-    "wiki_url": "",
-    "tracker_url": "",
-    "category": "Import-Export",
-}
-
-# Sanity check
-if bl_info["version"] != version.version():
-    raise Exception(f'Version mismatch: {bl_info["version"]} != {version.version()}')
+addon_package_name = ".".join(__name__.split(".")[:-1])
 
 
 class VrmAddonPreferences(bpy.types.AddonPreferences):
-    bl_idname = __name__
+    bl_idname = addon_package_name
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export invisible objects",  # noqa: F722
@@ -521,7 +478,11 @@ translation_dictionary = {
 
 
 # アドオン有効化時の処理
-def register():
+def register(init_version: Tuple[int, int, int]):
+    # Sanity check
+    if init_version != version.version():
+        raise Exception(f"Version mismatch: {init_version} != {version.version()}")
+
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(menu_import)
@@ -529,12 +490,12 @@ def register():
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
-    bpy.app.translations.register(__name__, translation_dictionary)
+    bpy.app.translations.register(addon_package_name, translation_dictionary)
 
 
 # アドオン無効化時の処理
 def unregister():
-    bpy.app.translations.unregister(__name__)
+    bpy.app.translations.unregister(addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
@@ -550,7 +511,3 @@ def unregister():
             )
     if errors:
         raise RuntimeError("\n".join(errors))
-
-
-if __name__ == "__main__":
-    register()

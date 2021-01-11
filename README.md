@@ -9,7 +9,7 @@ VRM形式のインポートとエクスポートをできるようにするプ�
 - material import : wip forever
 - export : spec0.0 export may be possible.
 
-<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender/archive/master.zip"><img src="./web/download_button.png"></a>
+<a alt="Download add-on for Blender 2.8x" href="https://github.com/saturday06/VRM_IMPORTER_for_Blender/archive/master.zip"><img src="./docs/download_button.png"></a>
 
 # <Font color="red">ATTENTION 注意</font>
 If you using minisize cloud storage, texture folder explanation must read and care about storage remaining capacity.
@@ -52,4 +52,4 @@ https://qiita.com/iCyP/items/61af0ea93c604e37bed6
 - VENDER'S extension : NO without VRM
 
 # Spec
-<img alt="spec figure" src="./web/spec.jpg" />
+<img alt="spec figure" src="./docs/spec.jpg" />

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from ..importer import vrm_load
+from io_scene_vrm.importer import vrm_load
 
 
 class TestImporter(TestCase):

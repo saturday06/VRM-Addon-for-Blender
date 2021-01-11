@@ -25,7 +25,7 @@ jobs:
       - name: Test
         run: |
           Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
-          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python test/unittest_discover.py
+          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\unittest_discover.py
 
   test-macos:
     runs-on: macos-latest
@@ -51,7 +51,7 @@ jobs:
           hdiutil attach blender.dmg
           cp -fr /Volumes/Blender/Blender.app /Applications
           hdiutil detach $(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')
-          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python test/unittest_discover.py
+          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/unittest_discover.py
 
   lint:
     runs-on: ubuntu-20.04
@@ -67,7 +67,8 @@ jobs:
         run: git config core.quotepath off
       - name: Check file permissions
         run: |
-          git ls-files | while read -r f; do
+          git ls-files ':!scripts/'  | while read -r f; do
+            echo $f
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."
               exit 1

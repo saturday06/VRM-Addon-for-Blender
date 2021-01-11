@@ -1,7 +1,7 @@
 import sys
 from unittest import TestCase
 
-from .. import vrm_types
+from io_scene_vrm import vrm_types
 
 
 class TestVrmTypes(TestCase):

@@ -1,10 +1,7 @@
-import os
-import sys
 import unittest
+from os.path import dirname
 
-test = unittest.TestLoader().discover(
-    start_dir=os.path.dirname(os.path.dirname(__file__)), top_level_dir="."
-)
+test = unittest.TestLoader().discover(start_dir=dirname(dirname(__file__)))
 runner = unittest.runner.TextTestRunner()
 result = runner.run(test)
 sys.exit(result.wasSuccessful())

@@ -22,7 +22,7 @@ else:
     os.symlink(repository_root_dir, addon_dir)
 
 test_vrm_dir = os.environ.get(
-    "BLENDER_VRM_TEST_VRM_DIR", os.path.join(repository_root_dir, "test", "vrm")
+    "BLENDER_VRM_TEST_VRM_DIR", os.path.join(repository_root_dir, "tests", "vrm")
 )
 test_temp_vrm_dir = os.path.join(test_vrm_dir, "temp")
 test_in_vrm_dir = os.path.join(test_vrm_dir, "in")
@@ -85,7 +85,7 @@ def run_script(script, *args):
         "1",
         "--background",
         "--python",
-        os.path.join(repository_root_dir, "test", script),  # run the test script
+        os.path.join(repository_root_dir, "tests", script),  # run the test script
         "--",
         *args,
     ]
