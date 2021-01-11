@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+
 # Script reloading (if the user calls 'Reload Scripts' from Blender)
 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/04e26bef903543d08947c5a9a5fea4e787b68f17/addons/io_scene_gltf2/__init__.py#L32-L54
 # http://www.apache.org/licenses/LICENSE-2.0
