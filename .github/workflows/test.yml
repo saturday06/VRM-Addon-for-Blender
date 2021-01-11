@@ -136,7 +136,11 @@ jobs:
       - name: Check source code formatting
         run: poetry run black --check --diff $(git ls-files "*.py")
       - name: Pylint
-        run: poetry run pylint $(git ls-files "*.py")
+        run: |
+          poetry remove fake-bpy-module-2.82 # pylint and fake-bpy-module are incompatible
+          poetry run pylint $(git ls-files "*.py")
+          git checkout .
+          poetry install
       - name: mypy
         run: |
           poetry run ./scripts/stubgen.sh
