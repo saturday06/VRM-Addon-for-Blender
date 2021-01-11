@@ -18,7 +18,9 @@ sys.path.insert(0, dirname(dirname(__file__)))
 
 # pylint: disable=wrong-import-position;
 from io_scene_vrm.importer.vrm_load import parse_glb  # noqa: E402
+
 # pylint: enable=wrong-import-position;
+
 
 def exist_or_makedir(path):
     ripped_dir = os.path.join(os.path.dirname(os.path.abspath(path)), "ripped")
