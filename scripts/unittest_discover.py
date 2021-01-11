@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+# noqa: INP001
+"""
+
 import unittest
 from os.path import dirname
 
