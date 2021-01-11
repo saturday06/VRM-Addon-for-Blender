@@ -1,3 +1,4 @@
+import contextlib
 import os
 import pathlib
 import platform
@@ -36,7 +37,15 @@ os.makedirs(test_out2_vrm_dir, exist_ok=True)
 os.makedirs(test_out3_vrm_dir, exist_ok=True)
 
 
-def find_blender_command():
+def process_output_to_str(process_output: bytes) -> str:
+    if platform.system() != "Windows":
+        return process_output.decode()
+    with contextlib.suppress(UnicodeDecodeError):
+        return process_output.decode("ansi")
+    return process_output.decode()
+
+
+def find_blender_command() -> str:
     try:
         import bpy
 
@@ -53,13 +62,13 @@ def find_blender_command():
             ["where", "blender"], shell=True, capture_output=True, check=False
         )
         if completed_process.returncode == 0:
-            return completed_process.stdout.decode("oem").splitlines()[0]
+            return process_output_to_str(completed_process.stdout).splitlines()[0]
     if os.name == "posix":
         completed_process = subprocess.run(
             ["which", "blender"], shell=True, capture_output=True, check=False
         )
         if completed_process.returncode == 0:
-            return completed_process.stdout.decode().splitlines()[0]
+            return process_output_to_str(completed_process.stdout).splitlines()[0]
     if platform.system() == "Darwin":
         default_path = "/Applications/Blender.app/Contents/MacOS/Blender"
         if os.path.exists(default_path):
@@ -71,7 +80,7 @@ def find_blender_command():
     )
 
 
-def run_script(script, *args):
+def run_script(script: str, *args: str):
     env = os.environ.copy()
     env["BLENDER_USER_SCRIPTS"] = user_scripts_dir
     env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
@@ -89,26 +98,28 @@ def run_script(script, *args):
         "--",
         *args,
     ]
-    print("run: " + "\n  ".join(command))
-    return subprocess.run(command, check=False, cwd=repository_root_dir, env=env)
+    print("run:" + "\n  ".join(command))
+    completed_process = subprocess.run(
+        command, check=False, capture_output=True, cwd=repository_root_dir, env=env
+    )
+    print("stdout:\n" + process_output_to_str(completed_process.stdout))
+    print("stderr:\n" + process_output_to_str(completed_process.stderr))
+    completed_process.check_returncode()
 
 
 class TestBlender(TestCase):
-    def run_script(self, script, *args):
-        self.assertEqual(0, run_script(script, *args).returncode)
-
-    def test_basic_armature(self):
-        self.run_script(
+    def test_basic_armature(self) -> None:
+        run_script(
             "blender_basic_armature.py",
             os.path.join(test_in_vrm_dir, "basic_armature.vrm"),
             test_temp_vrm_dir,
         )
 
-    def test_io(self):
+    def test_io(self) -> None:
         update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "yes"
         for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
             with self.subTest(vrm):
-                self.run_script(
+                run_script(
                     "blender_io.py",
                     os.path.join(test_in_vrm_dir, vrm),
                     os.path.join(test_out_vrm_dir, vrm),
@@ -118,7 +129,7 @@ class TestBlender(TestCase):
                     os.path.exists(os.path.join(test_out2_vrm_dir, vrm))
                     or update_vrm_dir
                 ):
-                    self.run_script(
+                    run_script(
                         "blender_io.py",
                         os.path.join(test_out_vrm_dir, vrm),
                         os.path.join(test_out2_vrm_dir, vrm),
@@ -141,7 +152,7 @@ class TestBlender(TestCase):
                     ):
                         test_last_vrm_dir = test_out3_vrm_dir
 
-                    self.run_script(
+                    run_script(
                         "blender_io.py",
                         os.path.join(test_out2_vrm_dir, vrm),
                         os.path.join(test_last_vrm_dir, vrm),
@@ -159,7 +170,7 @@ class TestBlender(TestCase):
                     ):
                         os.remove(os.path.join(test_last_vrm_dir, vrm))
                 else:
-                    self.run_script(
+                    run_script(
                         "blender_io.py",
                         os.path.join(test_out_vrm_dir, vrm),
                         os.path.join(test_out_vrm_dir, vrm),
