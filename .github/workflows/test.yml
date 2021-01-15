@@ -59,7 +59,7 @@ jobs:
       - name: Install deb packages
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y clang-format glslang-tools nkf python3 uchardet
+          sudo apt-get install -y clang-format glslang-tools nkf python3 shellcheck uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v2
@@ -123,6 +123,8 @@ jobs:
             cat "$orig" >> "$versioned"
             glslangValidator "$versioned"
           done
+      - name: Shellcheck
+        run: shellcheck $(git ls-files "*.sh")
       - name: Format GLSL (May break syntax!)
         run: |
           clang-format -style="{BasedOnStyle: Chromium, IndentWidth: 4}" -i $(git ls-files "**.glsl")
