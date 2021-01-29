@@ -777,7 +777,7 @@ class GlbObj:
             color_tex = get_texture_name_and_sampler_type(
                 transzw_shader_node, "Main_Texture"
             )
-            if color_tex is not None:
+            if color_tex[0] is not None:
                 zw_dic["textureProperties"] = {"_MainTex": add_texture(*color_tex)}
                 zw_dic["vectorProperties"] = {"_MainTex": [0, 0, 1, 1]}
             pbr_dic = pbr_fallback(
