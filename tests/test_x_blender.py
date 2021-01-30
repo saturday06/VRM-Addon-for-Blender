@@ -7,8 +7,6 @@ import tempfile
 from unittest import TestCase
 
 if platform.system() == "Windows":
-    import _winapi
-
     exeext = ".exe"
 else:
     exeext = ""
@@ -18,6 +16,8 @@ user_scripts_dir = tempfile.mkdtemp()
 os.mkdir(os.path.join(user_scripts_dir, "addons"))
 addon_dir = os.path.join(user_scripts_dir, "addons", "io_scene_vrm_saturday06")
 if platform.system() == "Windows":
+    import _winapi
+
     _winapi.CreateJunction(repository_root_dir, addon_dir)
 else:
     os.symlink(repository_root_dir, addon_dir)
