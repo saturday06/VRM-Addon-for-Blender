@@ -1,6 +1,5 @@
 import contextlib
 import os
-import pathlib
 import platform
 import subprocess
 import tempfile
@@ -125,54 +124,41 @@ class TestBlender(TestCase):
                     os.path.join(test_out_vrm_dir, vrm),
                     test_temp_vrm_dir,
                 )
+
                 if (
-                    os.path.exists(os.path.join(test_out2_vrm_dir, vrm))
-                    or update_vrm_dir
+                    not os.path.exists(os.path.join(test_out2_vrm_dir, vrm))
+                    and not update_vrm_dir
                 ):
                     run_script(
                         "blender_io.py",
                         os.path.join(test_out_vrm_dir, vrm),
-                        os.path.join(test_out2_vrm_dir, vrm),
-                        test_temp_vrm_dir,
-                    )
-
-                    if (
-                        pathlib.Path(os.path.join(test_out_vrm_dir, vrm)).read_bytes()
-                        == pathlib.Path(
-                            os.path.join(test_out2_vrm_dir, vrm)
-                        ).read_bytes()
-                    ):
-                        os.remove(os.path.join(test_out2_vrm_dir, vrm))
-                        continue
-
-                    test_last_vrm_dir = test_out2_vrm_dir
-                    if (
-                        os.path.exists(os.path.join(test_out3_vrm_dir, vrm))
-                        or update_vrm_dir
-                    ):
-                        test_last_vrm_dir = test_out3_vrm_dir
-
-                    run_script(
-                        "blender_io.py",
-                        os.path.join(test_out2_vrm_dir, vrm),
-                        os.path.join(test_last_vrm_dir, vrm),
-                        test_temp_vrm_dir,
-                    )
-
-                    if (
-                        test_last_vrm_dir == test_out3_vrm_dir
-                        and pathlib.Path(
-                            os.path.join(test_out2_vrm_dir, vrm)
-                        ).read_bytes()
-                        == pathlib.Path(
-                            os.path.join(test_out3_vrm_dir, vrm)
-                        ).read_bytes()
-                    ):
-                        os.remove(os.path.join(test_last_vrm_dir, vrm))
-                else:
-                    run_script(
-                        "blender_io.py",
-                        os.path.join(test_out_vrm_dir, vrm),
                         os.path.join(test_out_vrm_dir, vrm),
                         test_temp_vrm_dir,
                     )
+                    continue
+
+                run_script(
+                    "blender_io.py",
+                    os.path.join(test_out_vrm_dir, vrm),
+                    os.path.join(test_out2_vrm_dir, vrm),
+                    test_temp_vrm_dir,
+                )
+
+                if update_vrm_dir and not os.path.exists(
+                    os.path.join(test_out2_vrm_dir, vrm)
+                ):
+                    continue
+
+                test_last_vrm_dir = test_out2_vrm_dir
+                if (
+                    os.path.exists(os.path.join(test_out3_vrm_dir, vrm))
+                    or update_vrm_dir
+                ):
+                    test_last_vrm_dir = test_out3_vrm_dir
+
+                run_script(
+                    "blender_io.py",
+                    os.path.join(test_out2_vrm_dir, vrm),
+                    os.path.join(test_last_vrm_dir, vrm),
+                    test_temp_vrm_dir,
+                )
