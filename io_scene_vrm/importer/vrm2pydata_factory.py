@@ -5,23 +5,24 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+from typing import Any, Dict, Optional
+
 from .. import vrm_types
 
 
-def bone(node) -> vrm_types.Node:
-    v_node = vrm_types.Node()
-    if "name" in node:
-        v_node.name = node["name"]
-    else:
-        v_node.name = "tmp"
-    v_node.position = node.get("translation", [0, 0, 0])
-    v_node.rotation = node.get("rotation", (0, 0, 0, 1))
-    v_node.scale = node.get("scale", (1, 1, 1))
+def bone(node: Dict[str, Any]) -> vrm_types.Node:
+    v_node = vrm_types.Node(
+        name=node.get("name", "tmp"),
+        position=node.get("translation", [0, 0, 0]),
+        rotation=node.get("rotation", (0, 0, 0, 1)),
+        scale=node.get("scale", (1, 1, 1)),
+    )
     if "children" in node:
-        if isinstance(node["children"], int):
-            v_node.children = [node["children"]]
+        children = node["children"]
+        if isinstance(children, int):
+            v_node.children = [children]
         else:
-            v_node.children = node["children"]
+            v_node.children = children
     else:
         v_node.children = None
     if "mesh" in node:
@@ -31,105 +32,112 @@ def bone(node) -> vrm_types.Node:
     return v_node
 
 
-def material(mat, ext_mat, use_simple_principled_material) -> vrm_types.Material:
-    v_mat: vrm_types.Material
-
+def material(
+    mat: Dict[str, Any], ext_mat: Dict[str, Any], use_simple_principled_material: bool
+) -> Optional[vrm_types.Material]:
     # standard, or VRM unsupported shader(no saved)
     if (
-        ext_mat["shader"] == "VRM_USE_GLTFSHADER"
-        or ext_mat["shader"] not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]
+        ext_mat.get("shader") == "VRM_USE_GLTFSHADER"
+        or ext_mat.get("shader") not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]
         or use_simple_principled_material
     ):
-        v_mat = vrm_types.MaterialGltf()
-        v_mat.name = mat["name"]
-        v_mat.shader_name = "gltf"
+        gltf = vrm_types.MaterialGltf()
+        gltf.name = mat.get("name", "")
+        gltf.shader_name = "gltf"
         if "pbrMetallicRoughness" in mat:
             pbrmat = mat["pbrMetallicRoughness"]
             if "baseColorTexture" in pbrmat:
-                texture_index = pbrmat["baseColorTexture"]["index"]
-                v_mat.color_texture_index = texture_index
-                v_mat.color_texcoord_index = pbrmat["baseColorTexture"]["texCoord"]
+                texture_index = pbrmat["baseColorTexture"].get("index")
+                gltf.color_texture_index = texture_index
+                gltf.color_texcoord_index = pbrmat["baseColorTexture"].get("texCoord")
             if "baseColorFactor" in pbrmat:
-                v_mat.base_color = pbrmat["baseColorFactor"]
+                gltf.base_color = pbrmat["baseColorFactor"]
             if "metallicFactor" in pbrmat:
-                v_mat.metallic_factor = pbrmat["metallicFactor"]
+                gltf.metallic_factor = pbrmat["metallicFactor"]
             if "roughnessFactor" in pbrmat:
-                v_mat.roughness_factor = pbrmat["roughnessFactor"]
+                gltf.roughness_factor = pbrmat["roughnessFactor"]
             if "metallicRoughnessTexture" in pbrmat:
-                texture_index = pbrmat["metallicRoughnessTexture"]["index"]
-                v_mat.metallic_roughness_texture_index = texture_index
-                v_mat.metallic_roughness_texture_texcoord = pbrmat["baseColorTexture"][
-                    "texCoord"
-                ]
+                texture_index = pbrmat["metallicRoughnessTexture"].get("index")
+                gltf.metallic_roughness_texture_index = texture_index
+                gltf.metallic_roughness_texture_texcoord = pbrmat[
+                    "baseColorTexture"
+                ].get("texCoord")
 
         if "normalTexture" in mat:
-            v_mat.normal_texture_index = mat["normalTexture"]["index"]
-            v_mat.normal_texture_texcoord_index = mat["normalTexture"]["texCoord"]
+            gltf.normal_texture_index = mat["normalTexture"].get("index")
+            gltf.normal_texture_texcoord_index = mat["normalTexture"].get("texCoord")
         if "emissiveTexture" in mat:
-            v_mat.emissive_texture_index = mat["emissiveTexture"]["index"]
-            v_mat.emissive_texture_texcoord_index = mat["emissiveTexture"]["texCoord"]
+            gltf.emissive_texture_index = mat["emissiveTexture"].get("index")
+            gltf.emissive_texture_texcoord_index = mat["emissiveTexture"].get(
+                "texCoord"
+            )
         if "occlusionTexture" in mat:
-            v_mat.occlusion_texture_index = mat["occlusionTexture"]["index"]
-            v_mat.occlusion_texture_texcoord_index = mat["occlusionTexture"]["texCoord"]
+            gltf.occlusion_texture_index = mat["occlusionTexture"].get("index")
+            gltf.occlusion_texture_texcoord_index = mat["occlusionTexture"].get(
+                "texCoord"
+            )
         if "emissiveFactor" in mat:
-            v_mat.emissive_factor = mat["emissiveFactor"]
+            gltf.emissive_factor = mat["emissiveFactor"]
 
         if "doubleSided" in mat:
-            v_mat.double_sided = mat["doubleSided"]
+            gltf.double_sided = mat["doubleSided"]
         if "alphaMode" in mat:
             if mat["alphaMode"] == "MASK":
-                v_mat.alpha_mode = "MASK"
+                gltf.alpha_mode = "MASK"
                 if mat.get("alphaCutoff"):
-                    v_mat.alphaCutoff = mat.get("alphaCutoff")
+                    gltf.alphaCutoff = mat.get("alphaCutoff")
                 else:
-                    v_mat.alphaCutoff = 0.5
+                    gltf.alphaCutoff = 0.5
             elif mat["alphaMode"] == "BLEND":
-                v_mat.alpha_mode = "Z_TRANSPARENCY"
+                gltf.alpha_mode = "Z_TRANSPARENCY"
             elif mat["alphaMode"] == "OPAQUE":
-                v_mat.alpha_mode = "OPAQUE"
+                gltf.alpha_mode = "OPAQUE"
         if "extensions" in mat and "KHR_materials_unlit" in mat["extensions"]:
-            v_mat.shadeless = 1  # 0 is shade ,1 is shadeless
+            gltf.shadeless = 1  # 0 is shade ,1 is shadeless
+        return gltf
 
-    else:  # "MToon or Transparent_Zwrite"
-        if ext_mat["shader"] == "VRM/MToon":
-            v_mat = vrm_types.MaterialMtoon()
-            v_mat.name = ext_mat["name"]
-            v_mat.shader_name = ext_mat["shader"]
-            # region check unknown props exist
-            subset = {
-                "float": ext_mat["floatProperties"].keys()
-                - v_mat.float_props_dic.keys(),
-                "vector": ext_mat["vectorProperties"].keys()
-                - v_mat.vector_props_dic.keys(),
-                "texture": ext_mat["textureProperties"].keys()
-                - v_mat.texture_index_dic.keys(),
-                "keyword": ext_mat["keywordMap"].keys() - v_mat.keyword_dic.keys(),
-            }
-            for k, _subset in subset.items():
-                if _subset:
-                    print(
-                        "unknown {} properties {} in {}".format(
-                            k, _subset, ext_mat["name"]
-                        )
+    # "MToon or Transparent_Zwrite"
+    if ext_mat["shader"] == "VRM/MToon":
+        mtoon = vrm_types.MaterialMtoon()
+        mtoon.name = ext_mat.get("name", "")
+        mtoon.shader_name = ext_mat.get("shader", "")
+        # region check unknown props exist
+        subset = {
+            "float": ext_mat.get("floatProperties", {}).keys()
+            - mtoon.float_props_dic.keys(),
+            "vector": ext_mat.get("vectorProperties", {}).keys()
+            - mtoon.vector_props_dic.keys(),
+            "texture": ext_mat.get("textureProperties", {}).keys()
+            - mtoon.texture_index_dic.keys(),
+            "keyword": ext_mat.get("keywordMap", {}).keys() - mtoon.keyword_dic.keys(),
+        }
+        for k, _subset in subset.items():
+            if _subset:
+                print(
+                    "unknown {} properties {} in {}".format(
+                        k, _subset, ext_mat.get("name")
                     )
-            # endregion check unknown props exit
+                )
+        # endregion check unknown props exit
 
-            v_mat.float_props_dic.update(ext_mat["floatProperties"])
-            v_mat.vector_props_dic.update(ext_mat["vectorProperties"])
-            v_mat.texture_index_dic.update(ext_mat["textureProperties"])
-            v_mat.keyword_dic.update(ext_mat["keywordMap"])
-            v_mat.tag_dic.update(ext_mat["tagMap"])
+        mtoon.float_props_dic.update(ext_mat.get("floatProperties", {}))
+        mtoon.vector_props_dic.update(ext_mat.get("vectorProperties", {}))
+        mtoon.texture_index_dic.update(ext_mat.get("textureProperties", {}))
+        mtoon.keyword_dic.update(ext_mat.get("keywordMap", {}))
+        mtoon.tag_dic.update(ext_mat.get("tagMap", {}))
+        return mtoon
 
-        elif ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
-            v_mat = vrm_types.MaterialTransparentZWrite()
-            v_mat.name = ext_mat["name"]
-            v_mat.shader_name = ext_mat["shader"]
-            v_mat.float_props_dic = ext_mat["floatProperties"]
-            v_mat.vector_props_dic = ext_mat["vectorProperties"]
-            v_mat.texture_index_dic = ext_mat["textureProperties"]
-        else:
-            # ここには入らないはず
-            print(
-                f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}"
-            )
-    return v_mat
+    if ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
+        transparent_z_write = vrm_types.MaterialTransparentZWrite()
+        transparent_z_write.name = ext_mat.get("name", "")
+        transparent_z_write.shader_name = ext_mat.get("shader", "")
+        transparent_z_write.float_props_dic = ext_mat.get("floatProperties", {})
+        transparent_z_write.vector_props_dic = ext_mat.get("vectorProperties", {})
+        transparent_z_write.texture_index_dic = ext_mat.get("textureProperties", {})
+        return transparent_z_write
+
+    # ここには入らないはず
+    print(
+        f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}"
+    )
+    return None

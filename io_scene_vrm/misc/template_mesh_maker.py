@@ -1,12 +1,18 @@
+from typing import Callable, List, Optional, Tuple
+
 import bmesh
 import bpy
+from bmesh.types import BMesh
+from bpy.types import Mesh
 from mathutils import Matrix, Vector
 
 from ..vrm_types import HumanBones
 
 
 class IcypTemplateMeshMaker:
-    def make_mesh_obj(self, name, method):
+    def make_mesh_obj(
+        self, name: str, method: Callable[[Mesh], None]
+    ) -> bpy.types.Object:
         mesh = bpy.data.meshes.new(name)
         method(mesh)
         obj = bpy.data.objects.new(name, mesh)
@@ -16,19 +22,20 @@ class IcypTemplateMeshMaker:
         bpy.ops.object.modifier_add(type="MIRROR")
         return obj
 
-    def __init__(self, args):
-        self.bm = None
+    def __init__(self, args: bpy.types.Operator) -> None:
         self.args = args
         self.head_size = args.tall / args.head_ratio
         self.make_mesh_obj("Head", self.make_head)
         self.make_mesh_obj("Body", self.make_humanoid)
 
-    def get_humanoid_bone(self, bone):
+    def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
         return self.args.armature_obj.data.bones[self.args.armature_obj.data[bone]]
 
     # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod
-    def head_bone_to_head_matrix(head_bone, head_tall_size, neck_depth_offset):
+    def head_bone_to_head_matrix(
+        head_bone: bpy.types.Bone, head_tall_size: float, neck_depth_offset: float
+    ) -> Matrix:
         return (
             head_bone.matrix_local
             @ Matrix(
@@ -44,9 +51,9 @@ class IcypTemplateMeshMaker:
             )
         )
 
-    def make_head(self, mesh):
+    def make_head(self, mesh: bpy.types.Mesh) -> None:
         args = self.args
-        self.bm = bmesh.new()
+        bm = bmesh.new()
         head_size = self.head_size
 
         head_bone = self.get_humanoid_bone("head")
@@ -57,12 +64,12 @@ class IcypTemplateMeshMaker:
             head_size,
             head_matrix,
         )
-        self.bm.to_mesh(mesh)
-        self.bm.free()
+        bm.to_mesh(mesh)
+        bm.free()
 
-    def make_humanoid(self, mesh):
+    def make_humanoid(self, mesh: bpy.types.Mesh) -> None:
         args = self.args
-        self.bm = bmesh.new()
+        bm = bmesh.new()
         head_size = self.head_size
         # region body
 
@@ -119,7 +126,9 @@ class IcypTemplateMeshMaker:
                 b.tail_radius if b != left_hand_bone else args.hand_size() / 2,
                 b.tail_radius,
             ]
-            self.make_trapezoid(base_xz, top_xz, b.length, [0, 0, 0], b.matrix_local)
+            self.make_trapezoid(
+                bm, base_xz, top_xz, b.length, [0, 0, 0], b.matrix_local
+            )
         # TODO Thumb rotation
         # endregion arm
 
@@ -163,31 +172,51 @@ class IcypTemplateMeshMaker:
                 head_z = 0.81 * hips_size / 2
                 tail_x = 0.81 * hips_size / 2
                 tail_z = 0.81 * hips_size / 2
+            else:
+                continue
             self.make_trapezoid(
-                [head_x, head_z], [tail_x, tail_z], b.length, [0, 0, 0], b.matrix_local
+                bm,
+                [head_x, head_z],
+                [tail_x, tail_z],
+                b.length,
+                [0, 0, 0],
+                b.matrix_local,
             )
         # endregion leg
 
-        self.bm.to_mesh(mesh)
-        self.bm.free()
+        bm.to_mesh(mesh)
+        bm.free()
 
-    def make_cube(self, xyz, translation=None, rot_matrix=None):
+    def make_cube(
+        self,
+        bm: BMesh,
+        xyz: List[float],
+        translation: Optional[List[float]] = None,
+        rot_matrix: Optional[Matrix] = None,
+    ) -> None:
         points = self.cubic_points(xyz, translation, rot_matrix)
         verts = []
         for p in points:
-            verts.append(self.bm.verts.new(p))
+            verts.append(bm.verts.new(p))
         for poly in self.cube_loop:
-            self.bm.faces.new([verts[i] for i in poly])
+            bm.faces.new([verts[i] for i in poly])
 
-    def make_half_cube(self, xyz, translation=None):
+    def make_half_cube(
+        self, bm: BMesh, xyz: List[float], translation: Optional[List[float]] = None
+    ) -> None:
         points = self.half_cubic_points(xyz, translation)
         verts = []
         for p in points:
-            verts.append(self.bm.verts.new(p))
+            verts.append(bm.verts.new(p))
         for poly in self.cube_loop_half:
-            self.bm.faces.new([verts[i] for i in poly])
+            bm.faces.new([verts[i] for i in poly])
 
-    def cubic_points(self, xyz, translation=None, rot_matrix=None):
+    def cubic_points(
+        self,
+        xyz: List[float],
+        translation: Optional[List[float]] = None,
+        rot_matrix: Optional[Matrix] = None,
+    ) -> List[Vector]:
         if translation is None:
             translation = [0, 0, 0]
         if rot_matrix is None:
@@ -220,7 +249,18 @@ class IcypTemplateMeshMaker:
         [7, 4, 0, 3],
     ]
 
-    def half_cubic_points(self, xyz, translation=None):
+    def half_cubic_points(
+        self, xyz: List[float], translation: Optional[List[float]] = None
+    ) -> Tuple[
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+    ]:
         if translation is None:
             translation = [0, 0, 0]
         x = xyz[0]
@@ -248,15 +288,28 @@ class IcypTemplateMeshMaker:
         [7, 4, 0, 3],
     ]
 
-    def make_half_trapezoid(self, head_xz, tail_xz, height, matrix=None):
+    def make_half_trapezoid(
+        self,
+        bm: BMesh,
+        head_xz: List[float],
+        tail_xz: List[float],
+        height: float,
+        matrix: Optional[Matrix] = None,
+    ) -> None:
         points = self.half_trapezoid_points(head_xz, tail_xz, height, matrix)
         verts = []
         for p in points:
-            verts.append(self.bm.verts.new(p))
+            verts.append(bm.verts.new(p))
         for poly in self.half_trapezoid_loop:
-            self.bm.faces.new([verts[i] for i in poly])
+            bm.faces.new([verts[i] for i in poly])
 
-    def half_trapezoid_points(self, head_xz, tail_xz, height, matrix=None):
+    def half_trapezoid_points(
+        self,
+        head_xz: List[float],
+        tail_xz: List[float],
+        height: float,
+        matrix: Optional[Matrix] = None,
+    ) -> List[Vector]:
         if matrix is None:
             matrix = Matrix.Identity(4)
         hx = head_xz[0]
@@ -285,21 +338,32 @@ class IcypTemplateMeshMaker:
     ]
 
     def make_trapezoid(
-        self, head_xz, tail_xz, height, translation=None, rot_matrix=None
-    ):
+        self,
+        bm: BMesh,
+        head_xz: List[float],
+        tail_xz: List[float],
+        height: float,
+        translation: Optional[List[float]] = None,
+        rot_matrix: Optional[Matrix] = None,
+    ) -> None:
         points = self.trapezoid_points(
             head_xz, tail_xz, height, translation, rot_matrix
         )
         verts = []
         for p in points:
-            verts.append(self.bm.verts.new(p))
+            verts.append(bm.verts.new(p))
         for poly in self.trapezoid_poly_indices:
-            self.bm.faces.new([verts[i] for i in poly])
+            bm.faces.new([verts[i] for i in poly])
 
     # 台形 軸方向高さ
     def trapezoid_points(
-        self, head_xz, tail_xz, height, translation=None, rot_matrix=None
-    ):
+        self,
+        head_xz: List[float],
+        tail_xz: List[float],
+        height: float,
+        translation: Optional[List[float]] = None,
+        rot_matrix: Optional[Matrix] = None,
+    ) -> List[Vector]:
         if translation is None:
             translation = [0, 0, 0]
         if rot_matrix is None:

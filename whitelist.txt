@@ -42,6 +42,7 @@ charnum
 collidergroup
 colorspace
 const
+cullmode
 customdata
 datachunk
 datas
@@ -64,6 +65,7 @@ exc
 exeext
 existance
 f00
+fabs
 filedialog
 filedir
 filepath
@@ -76,6 +78,7 @@ fp
 fragcode
 framebuffer
 fromkeys
+fsum
 func
 geocode
 getsize
@@ -253,6 +256,7 @@ ui
 unittest
 unlink
 unregister
+untyped
 unversioned
 util
 utils

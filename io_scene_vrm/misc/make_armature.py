@@ -1,6 +1,7 @@
 import json
 import sys
 from math import radians
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import bpy
 import numpy
@@ -98,20 +99,28 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
 
     armature_obj = None
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         self.armature_obj, compare_dict = self.make_armature(context)
         self.setup_as_vrm(self.armature_obj, compare_dict)
         if self.WIP_with_template_mesh:
             IcypTemplateMeshMaker(self)
         return {"FINISHED"}
 
-    def head_size(self):
-        return self.tall / self.head_ratio
+    def float_prop(self, name: str) -> float:
+        prop = getattr(self, name)
+        if not isinstance(prop, float):
+            raise Exception(f"prop {name} is not float")
+        return prop
 
-    def hand_size(self):
-        return self.head_size() * 0.75 * self.hand_ratio
+    def head_size(self) -> float:
+        return self.float_prop("tall") / self.float_prop("head_ratio")
 
-    def make_armature(self, context):
+    def hand_size(self) -> float:
+        return self.head_size() * 0.75 * self.float_prop("hand_ratio")
+
+    def make_armature(
+        self, context: bpy.types.Context
+    ) -> Tuple[bpy.types.Object, Dict[str, Any]]:
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
         armature.name = "Skeleton"
@@ -119,7 +128,14 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
 
         bone_dic = {}
 
-        def bone_add(name, head_pos, tail_pos, parent_bone=None, radius=0.1, roll=0):
+        def bone_add(
+            name: str,
+            head_pos: Tuple[float, float, float],
+            tail_pos: Tuple[float, float, float],
+            parent_bone: Optional[bpy.types.Bone] = None,
+            radius: float = 0.1,
+            roll: float = 0,
+        ) -> bpy.types.Bone:
             bone_name = name + "Bone"
             added_bone = armature.data.edit_bones.new(bone_name)
             added_bone.head = head_pos
@@ -135,13 +151,13 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
 
         # bone_type = "leg" or "arm" for roll setting
         def x_mirror_bones_add(
-            base_name,
-            right_head_pos,
-            right_tail_pos,
-            parent_bones,
-            radius=0.1,
-            bone_type="other",
-        ):
+            base_name: str,
+            right_head_pos: Tuple[float, float, float],
+            right_tail_pos: Tuple[float, float, float],
+            parent_bones: Tuple[bpy.types.Bone, bpy.types.Bone],
+            radius: float = 0.1,
+            bone_type: str = "other",
+        ) -> Tuple[bpy.types.Bone, bpy.types.Bone]:
             right_roll = 0
             left_roll = 0
             if bone_type == "arm":
@@ -157,10 +173,13 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
                 radius=radius,
                 roll=left_roll,
             )
+
+            head_pos = [pos * axis for pos, axis in zip(right_head_pos, (-1, 1, 1))]
+            tail_pos = [pos * axis for pos, axis in zip(right_tail_pos, (-1, 1, 1))]
             right_bone = bone_add(
                 "Right" + base_name,
-                [pos * axis for pos, axis in zip(right_head_pos, (-1, 1, 1))],
-                [pos * axis for pos, axis in zip(right_tail_pos, (-1, 1, 1))],
+                (head_pos[0], head_pos[1], head_pos[2]),
+                (tail_pos[0], tail_pos[1], tail_pos[2]),
                 parent_bones[1],
                 radius=radius,
                 roll=right_roll,
@@ -168,17 +187,23 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
 
             return left_bone, right_bone
 
-        def x_add(pos_a, add_x):
+        def x_add(
+            pos_a: Tuple[float, float, float], add_x: float
+        ) -> Tuple[float, float, float]:
             pos = [p_a + _add for p_a, _add in zip(pos_a, [add_x, 0, 0])]
-            return pos
+            return (pos[0], pos[1], pos[2])
 
-        def y_add(pos_a, add_y):
+        def y_add(
+            pos_a: Tuple[float, float, float], add_y: float
+        ) -> Tuple[float, float, float]:
             pos = [p_a + _add for p_a, _add in zip(pos_a, [0, add_y, 0])]
-            return pos
+            return (pos[0], pos[1], pos[2])
 
-        def z_add(pos_a, add_z):
+        def z_add(
+            pos_a: Tuple[float, float, float], add_z: float
+        ) -> Tuple[float, float, float]:
             pos = [p_a + _add for p_a, _add in zip(pos_a, [0, 0, add_z])]
-            return pos
+            return (pos[0], pos[1], pos[2])
 
         head_size = self.head_size()
         # down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を年齢具合で線形補完)(股上高めにすると破綻する)
@@ -329,7 +354,15 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
             bone_type="arm",
         )
 
-        def fingers(finger_name, proximal_pos, finger_len_sum):
+        def fingers(
+            finger_name: str,
+            proximal_pos: Tuple[float, float, float],
+            finger_len_sum: float,
+        ) -> Tuple[
+            Tuple[bpy.types.Bone, bpy.types.Bone],
+            Tuple[bpy.types.Bone, bpy.types.Bone],
+            Tuple[bpy.types.Bone, bpy.types.Bone],
+        ]:
 
             finger_normalize = 1 / (
                 self.finger_1_2_ratio * self.finger_2_3_ratio
@@ -465,14 +498,18 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
         context.scene.view_layers.update()
         return armature, bone_name_all_dict
 
-    def setup_as_vrm(self, armature, compare_dict):
+    def setup_as_vrm(
+        self, armature: bpy.types.Object, compare_dict: Dict[str, str]
+    ) -> None:
         for vrm_bone_name, blender_bone_name in compare_dict.items():
             armature.data[vrm_bone_name] = blender_bone_name
         ICYP_OT_MAKE_ARMATURE.make_extension_setting_and_metas(armature)
 
     @classmethod
-    def make_extension_setting_and_metas(cls, armature):
-        def write_textblock_and_assign_to_armature(block_name, value):
+    def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
+        def write_textblock_and_assign_to_armature(
+            block_name: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]
+        ) -> None:
             text_block = bpy.data.texts.new(name=f"{armature.name}_{block_name}.json")
             text_block.write(json.dumps(value, indent=4))
             if block_name not in armature:
@@ -664,7 +701,9 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
     ]
 
 
-def connect_parent_tail_and_child_head_if_same_position(armature):
+def connect_parent_tail_and_child_head_if_same_position(
+    armature: bpy.types.Object,
+) -> None:
     for bone in armature.edit_bones:
         # 親ボーンがある場合かつ、ボーンのヘッドと親ボーンのテールが一致していたら
         if (

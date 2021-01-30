@@ -5,18 +5,17 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from collections import OrderedDict
-
-from ..gl_constants import GlConstants
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class GlbBinCollection:
-    def __init__(self):
-        self.vertex_attribute_bins = []  # Glb_bin list
-        self.image_bins = []
+    def __init__(self) -> None:
+        self.vertex_attribute_bins: List[GlbBin] = []  # Glb_bin list
+        self.image_bins: List[ImageBin] = []
         self.bin = b""
 
-    def pack_all(self):
-        bin_dic = OrderedDict()
+    def pack_all(self) -> Tuple[Dict[str, Any], bytes]:
+        bin_dic: Dict[str, Any] = OrderedDict()
         byte_offset = 0
         bin_dic["bufferViews"] = []
         bin_dic["accessors"] = []
@@ -79,27 +78,31 @@ class GlbBinCollection:
 
     buffer_count = 0
 
-    def get_new_buffer_view_id(self):
+    def get_new_buffer_view_id(self) -> int:
         self.buffer_count += 1
         return self.buffer_count - 1
 
-    def get_new_image_id(self):
+    def get_new_image_id(self) -> int:
         return len(self.image_bins)
 
-    def get_new_glb_bin_id(self):
+    def get_new_glb_bin_id(self) -> int:
         return len(self.vertex_attribute_bins)
 
 
 class BaseBin:
-    def __init__(self, binary, glb_bin_collection):
+    def __init__(self, binary: bytes, glb_bin_collection: GlbBinCollection) -> None:
         self.bin = binary
         self.bin_length = len(binary)
 
 
 class ImageBin(BaseBin):
     def __init__(
-        self, image_bin="", name="", image_type="image/png", glb_bin_collection=None
-    ):
+        self,
+        image_bin: bytes,
+        name: str,
+        image_type: str,
+        glb_bin_collection: GlbBinCollection,
+    ) -> None:
         super().__init__(image_bin, glb_bin_collection)
         self.name = name
         self.image_type = image_type
@@ -110,13 +113,13 @@ class ImageBin(BaseBin):
 class GlbBin(BaseBin):
     def __init__(
         self,
-        binary="",
-        array_type="SCALAR",
-        component_type=GlConstants.FLOAT,
-        array_count=0,
-        min_max_tuple=None,
-        glb_bin_collection=None,
-    ):
+        binary: bytes,
+        array_type: str,
+        component_type: int,
+        array_count: int,
+        min_max_tuple: Optional[List[List[float]]],
+        glb_bin_collection: GlbBinCollection,
+    ) -> None:
         super().__init__(binary, glb_bin_collection)
         self.array_type = array_type  # String: scalar, VEC3 etc...
         self.component_type = component_type  # GL_CONSTANTS:FLOAT, uint etc...

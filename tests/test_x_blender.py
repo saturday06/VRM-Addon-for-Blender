@@ -5,7 +5,8 @@ import subprocess
 import tempfile
 from unittest import TestCase
 
-if platform.system() == "Windows":
+system = platform.system()
+if system == "Windows":
     exeext = ".exe"
 else:
     exeext = ""
@@ -14,7 +15,7 @@ repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)
 user_scripts_dir = tempfile.mkdtemp()
 os.mkdir(os.path.join(user_scripts_dir, "addons"))
 addon_dir = os.path.join(user_scripts_dir, "addons", "io_scene_vrm_saturday06")
-if platform.system() == "Windows":
+if system == "Windows":
     import _winapi
 
     _winapi.CreateJunction(repository_root_dir, addon_dir)
@@ -48,7 +49,7 @@ def find_blender_command() -> str:
     try:
         import bpy
 
-        bpy_binary_path = bpy.app.binary_path
+        bpy_binary_path = str(bpy.app.binary_path)
         if bpy_binary_path and os.path.exists(bpy_binary_path):
             return bpy_binary_path
     except ImportError:
@@ -79,7 +80,7 @@ def find_blender_command() -> str:
     )
 
 
-def run_script(script: str, *args: str):
+def run_script(script: str, *args: str) -> None:
     env = os.environ.copy()
     env["BLENDER_USER_SCRIPTS"] = user_scripts_dir
     env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"

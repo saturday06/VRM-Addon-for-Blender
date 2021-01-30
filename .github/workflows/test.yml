@@ -144,9 +144,7 @@ jobs:
           git checkout .
           poetry install
       - name: mypy
-        run: |
-          poetry run ./scripts/stubgen.sh
-          poetry run mypy --show-error-code $(git ls-files "*.py")
+        run: poetry run mypy --show-error-code $(git ls-files "*.py")
       - name: Flake8
         run: poetry run flake8 --count --show-source --statistics $(git ls-files "*.py")
       - name: Check import sorting order

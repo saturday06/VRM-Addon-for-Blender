@@ -1,4 +1,5 @@
 from math import atan2, cos, radians, sin
+from typing import List, Set
 
 import bmesh
 import bpy
@@ -16,7 +17,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
     # init before execute
     # https://docs.blender.org/api/2.82/bpy.types.Operator.html#invoke-function
     # pylint: disable=W0201
-    def invoke(self, context, event):
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         self.base_armature_name = [
             o for o in bpy.context.selected_objects if o.type == "ARMATURE"
         ][0].name
@@ -36,7 +37,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         self.head_depth_size = rfd[1] - rbd[1]
         return self.execute(context)
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         self.base_armature = bpy.data.objects[self.base_armature_name]
         self.face_mesh = bpy.data.objects[self.face_mesh_name]
         head_bone = self.get_humanoid_bone("head")
@@ -65,7 +66,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         bpy.context.view_layer.objects.active = self.face_mesh
         return {"FINISHED"}
 
-    def get_humanoid_bone(self, bone):
+    def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
         return self.base_armature.data.bones[self.base_armature.data[bone]]
 
     face_center_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -115,11 +116,19 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         default=0.1, min=0.0, max=1, name="Mouth flat"  # noqa: F722
     )
 
-    def make_face(self, context, mesh):
-        def add_point(point):
+    def make_face(self, context: bpy.types.Context, mesh: bpy.types.Mesh) -> None:
+        def add_point(point: Vector) -> bmesh.types.BMVert:
             return bm.verts.new(point)
 
-        def make_circle(center, radius, axis, divide, angle=360, x_ratio=1, y_ratio=1):
+        def make_circle(
+            center: Vector,
+            radius: float,
+            axis: str,
+            divide: int,
+            angle: int = 360,
+            x_ratio: float = 1,
+            y_ratio: float = 1,
+        ) -> None:
             if axis == "X":
                 axis_n = (0, 1)
             elif axis == "Y":
@@ -143,13 +152,13 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
 
             bm.faces.new(verts)
 
-        def width_add(point, add_loc):
+        def width_add(point: Vector, add_loc: float) -> Vector:
             return Vector([p + a for p, a in zip(point, [0, 0, add_loc])])
 
-        def up_add(point, add_loc):
+        def up_add(point: Vector, add_loc: float) -> Vector:
             return Vector([p + a for p, a in zip(point, [0, add_loc, 0])])
 
-        def depth_add(point, add_loc):
+        def depth_add(point: Vector, add_loc: float) -> Vector:
             return Vector([p + a for p, a in zip(point, [add_loc, 0, 0])])
             # X depth Y up Z width
 
@@ -404,7 +413,7 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # noqa: N801
         bm.edges.new([otogai_vert, jaw_vert])
         bm.edges.new([jaw_vert, ear_hole_vert])
 
-        def add_mesh(points):
+        def add_mesh(points: List[bmesh.types.BMVert]) -> None:
             bm.faces.new(points)
 
         add_mesh(

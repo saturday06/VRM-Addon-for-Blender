@@ -1,10 +1,11 @@
+from typing import List
 from unittest import TestCase
 
 from io_scene_vrm.importer import vrm_load
 
 
 class TestImporter(TestCase):
-    def test_validate_license_url(self):
+    def test_validate_license_url(self) -> None:
         for url, confirmation_required in [
             ("", False),
             ("test", True),
@@ -30,7 +31,9 @@ class TestImporter(TestCase):
             ),
         ]:
             with self.subTest(url):
-                confirmation_props = list()
+                confirmation_props: List[
+                    vrm_load.LicenseConfirmationRequiredProp
+                ] = list()
                 vrm_load.validate_license_url(url, "key", confirmation_props)
                 if confirmation_required:
                     self.assertEqual(1, len(confirmation_props))

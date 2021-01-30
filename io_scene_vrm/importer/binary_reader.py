@@ -6,7 +6,7 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import struct
-from typing import Union
+from typing import Tuple, Union, cast
 
 from ..gl_constants import GlConstants
 
@@ -31,32 +31,44 @@ class BinaryReader:
 
     def read_unsigned_int(self) -> int:
         # unpackは内容の個数に関わらずタプルで返すので[0]が必要
-        result = struct.unpack("<I", self.data[self.pos : self.pos + 4])[0]
+        result = cast(
+            Tuple[int], struct.unpack("<I", self.data[self.pos : self.pos + 4])
+        )[0]
         self.pos += 4
         return result
 
     def read_int(self) -> int:
-        result = struct.unpack("<i", self.data[self.pos : self.pos + 4])[0]
+        result = cast(
+            Tuple[int], struct.unpack("<i", self.data[self.pos : self.pos + 4])
+        )[0]
         self.pos += 4
         return result
 
     def read_unsigned_short(self) -> int:
-        result = struct.unpack("<H", self.data[self.pos : self.pos + 2])[0]
+        result = cast(
+            Tuple[int], struct.unpack("<H", self.data[self.pos : self.pos + 2])
+        )[0]
         self.pos += 2
         return result
 
     def read_short(self) -> int:
-        result = struct.unpack("<h", self.data[self.pos : self.pos + 2])[0]
+        result = cast(
+            Tuple[int], struct.unpack("<h", self.data[self.pos : self.pos + 2])
+        )[0]
         self.pos += 2
         return result
 
     def read_float(self) -> float:
-        result = struct.unpack("<f", self.data[self.pos : self.pos + 4])[0]
+        result = cast(
+            Tuple[float], struct.unpack("<f", self.data[self.pos : self.pos + 4])
+        )[0]
         self.pos += 4
         return result
 
     def read_unsigned_byte(self) -> int:
-        result = struct.unpack("<B", self.data[self.pos : self.pos + 1])[0]
+        result = cast(
+            Tuple[int], struct.unpack("<B", self.data[self.pos : self.pos + 1])
+        )[0]
         self.pos += 1
         return result
 

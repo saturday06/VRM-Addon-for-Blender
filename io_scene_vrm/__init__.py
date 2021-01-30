@@ -7,7 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import os
 import traceback
-from typing import Set, Tuple
+from typing import Any, Set, Tuple, cast
 
 import bpy
 from bpy.app.handlers import persistent
@@ -87,7 +87,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
         name="NOTHING TO DO in CURRENT use in blender"  # noqa: F722
     )
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         license_error = None
         try:
             return create_blend_model(
@@ -111,22 +111,27 @@ class ImportVRM(bpy.types.Operator, ImportHelper):
             execution_context = "EXEC_DEFAULT"
             import_anyway = True
 
-        return bpy.ops.wm.vrm_license_warning(
-            execution_context,
-            import_anyway=import_anyway,
-            license_confirmations=license_error.license_confirmations(),
-            filepath=self.filepath,
-            make_new_texture_folder=self.make_new_texture_folder,
-            is_put_spring_bone_info=self.is_put_spring_bone_info,
-            import_normal=self.import_normal,
-            remove_doubles=self.remove_doubles,
-            set_bone_roll=self.set_bone_roll,
-            use_simple_principled_material=self.use_simple_principled_material,
-            use_in_blender=self.use_in_blender,
+        return cast(
+            Set[str],
+            bpy.ops.wm.vrm_license_warning(
+                execution_context,
+                import_anyway=import_anyway,
+                license_confirmations=license_error.license_confirmations(),
+                filepath=self.filepath,
+                make_new_texture_folder=self.make_new_texture_folder,
+                is_put_spring_bone_info=self.is_put_spring_bone_info,
+                import_normal=self.import_normal,
+                remove_doubles=self.remove_doubles,
+                set_bone_roll=self.set_bone_roll,
+                use_simple_principled_material=self.use_simple_principled_material,
+                use_in_blender=self.use_in_blender,
+            ),
         )
 
 
-def create_blend_model(addon, context, vrm_pydata: vrm_types.VrmPydata) -> Set[str]:
+def create_blend_model(
+    addon: Any, context: bpy.types.Context, vrm_pydata: vrm_types.VrmPydata
+) -> Set[str]:
     has_ui_localization = bpy.app.version < (2, 83)
     ui_localization = False
     if has_ui_localization:
@@ -150,8 +155,10 @@ def create_blend_model(addon, context, vrm_pydata: vrm_types.VrmPydata) -> Set[s
     return {"FINISHED"}
 
 
-def menu_import(self, context):  # Same as test/blender_io.py for now
-    op = self.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
+def menu_import(
+    import_op: bpy.types.Operator, context: bpy.types.Context
+) -> None:  # Same as test/blender_io.py for now
+    op = import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
     op.make_new_texture_folder = True
     op.is_put_spring_bone_info = True
     op.import_normal = True
@@ -159,14 +166,18 @@ def menu_import(self, context):  # Same as test/blender_io.py for now
     op.set_bone_roll = True
 
 
-def export_vrm_update_addon_preferences(self, context: bpy.types.Context) -> None:
+def export_vrm_update_addon_preferences(
+    export_op: bpy.types.Operator, context: bpy.types.Context
+) -> None:
     preferences = get_preferences(context)
     if not preferences:
         return
-    if bool(preferences.export_invisibles) != bool(self.export_invisibles):
-        preferences.export_invisibles = self.export_invisibles
-    if bool(preferences.export_only_selections) != bool(self.export_only_selections):
-        preferences.export_only_selections = self.export_only_selections
+    if bool(preferences.export_invisibles) != bool(export_op.export_invisibles):
+        preferences.export_invisibles = export_op.export_invisibles
+    if bool(preferences.export_only_selections) != bool(
+        export_op.export_only_selections
+    ):
+        preferences.export_only_selections = export_op.export_only_selections
 
 
 class ExportVRM(bpy.types.Operator, ExportHelper):
@@ -203,36 +214,40 @@ class ExportVRM(bpy.types.Operator, ExportHelper):
             return {"CANCELLED"}
         # vrm_bin =  glb_obj().convert_bpy2glb(self.vrm_version)
         vrm_bin = glb_obj.convert_bpy2glb("0.0")
+        if vrm_bin is None:
+            return {"CANCELLED"}
         with open(filepath, "wb") as f:
             f.write(vrm_bin)
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         preferences = get_preferences(context)
         if preferences:
             self.export_invisibles = bool(preferences.export_invisibles)
             self.export_only_selections = bool(preferences.export_only_selections)
-        return ExportHelper.invoke(self, context, event)
+        return cast(Set[str], ExportHelper.invoke(self, context, event))
 
 
-def menu_export(self, context):
-    self.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
+def menu_export(export_op: bpy.types.Operator, context: bpy.types.Context) -> None:
+    export_op.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
 
 
-def add_armature(self, context):
-    self.layout.operator(
+def add_armature(
+    add_armature_op: bpy.types.Operator, context: bpy.types.Context
+) -> None:
+    add_armature_op.layout.operator(
         make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname, text="VRM Humanoid"
     )
 
 
-def make_mesh(self, context):
-    self.layout.separator()
-    self.layout.operator(
+def make_mesh(make_mesh_op: bpy.types.Operator, context: bpy.types.Context) -> None:
+    make_mesh_op.layout.separator()
+    make_mesh_op.layout.operator(
         mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname,
         text="Mesh from selected armature",
         icon="PLUGIN",
     )
-    self.layout.operator(
+    make_mesh_op.layout.operator(
         detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,
         text="(WIP)Face mesh from selected armature and bound mesh",
         icon="PLUGIN",
@@ -248,12 +263,12 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
     bl_category = "VRM HELPER"
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         return True
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context) -> None:
         # region helper
-        def armature_ui():
+        def armature_ui() -> None:
             self.layout.separator()
             armature_box = self.layout.row(align=False).box()
             armature_box.label(text="Armature Help")
@@ -386,7 +401,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
     use_simple_principled_material: bpy.props.BoolProperty()  # type: ignore[valid-type]
     use_in_blender: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.import_anyway:
             return {"CANCELLED"}
         return create_blend_model(
@@ -400,10 +415,12 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
             ),
         )
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
-        return context.window_manager.invoke_props_dialog(self, width=600)
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        return cast(
+            Set[str], context.window_manager.invoke_props_dialog(self, width=600)
+        )
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(text=self.filepath)
         for license_confirmation in self.license_confirmations:
@@ -431,8 +448,8 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
 
 if persistent:  # for fake-bpy-modules
 
-    @persistent
-    def add_shaders(self):
+    @persistent  # type: ignore[misc]
+    def add_shaders(self: Any) -> None:
         filedir = os.path.join(
             os.path.dirname(__file__), "resources", "material_node_groups.blend"
         )
@@ -478,7 +495,7 @@ translation_dictionary = {
 
 
 # アドオン有効化時の処理
-def register(init_version: Tuple[int, int, int]):
+def register(init_version: Tuple[int, int, int]) -> None:
     # Sanity check
     if init_version != version.version():
         raise Exception(f"Version mismatch: {init_version} != {version.version()}")
@@ -494,7 +511,7 @@ def register(init_version: Tuple[int, int, int]):
 
 
 # アドオン無効化時の処理
-def unregister():
+def unregister() -> None:
     bpy.app.translations.unregister(addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)

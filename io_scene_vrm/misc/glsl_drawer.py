@@ -1,7 +1,7 @@
 import collections
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
 import bgl
 import bpy
@@ -20,7 +20,7 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):  # noqa: N801
     bl_description = "Draw selected with MToon of GLSL"
     bl_options = {"REGISTER"}
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         GlslDrawObj()
         invisibles = False
         only_selections = False
@@ -38,32 +38,32 @@ class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):  # noqa: N801
     bl_description = "remove draw function"
     bl_options = {"REGISTER"}
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         GlslDrawObj.draw_func_remove()
         return {"FINISHED"}
 
 
 class MtoonGlsl:
-    white_texture = None
-    black_texture = None
-    normal_texture = None
-    material = None
-    main_node = None
-    name = None
+    main_node: Optional[bpy.types.Node] = None
     alpha_method = None
 
-    float_dic = Dict[str, float]
-    vector_dic = Dict[str, List[float]]
-    texture_dic = Dict[str, bpy.types.Image]
+    float_dic: Dict[str, float]
+    vector_dic: Dict[str, List[float]]
+    texture_dic: Dict[str, bpy.types.Image]
     cull_mode = "BACK"
 
-    def make_small_image(self, name, color=(1, 1, 1, 1), color_space="sRGB"):
+    def make_small_image(
+        self,
+        name: str,
+        color: Tuple[float, float, float, float] = (1, 1, 1, 1),
+        color_space: str = "sRGB",
+    ) -> bpy.types.Image:
         image = bpy.data.images.new(name, 1, 1)
         image.colorspace_settings.name = color_space
         image.generated_color = color
         return image
 
-    def __init__(self, material):
+    def __init__(self, material: bpy.types.Material) -> None:
         shader_black = "shader_black"
         if shader_black not in bpy.data.images:
             self.black_texture = self.make_small_image(shader_black, (0, 0, 0, 0))
@@ -85,10 +85,15 @@ class MtoonGlsl:
         self.name = material.name
         self.update()
 
-    def get_texture(self, tex_name, default_color="white"):
+    def get_texture(
+        self, tex_name: str, default_color: str = "white"
+    ) -> bpy.types.Texture:
         if tex_name == "ReceiveShadow_Texture":
             tex_name += "_alpha"
-        links = self.main_node.inputs[tex_name].links
+        main_node = self.main_node
+        if main_node is None:
+            raise Exception("main node is None")
+        links = main_node.inputs[tex_name].links
         if links and links[0].from_node.image is not None:
             if (
                 default_color != "normal"
@@ -108,27 +113,27 @@ class MtoonGlsl:
             return self.normal_texture
         raise Exception
 
-    def get_value(self, val_name):
-        if self.main_node.inputs[val_name].links:
+    def get_value(self, val_name: str) -> Any:
+        main_node = self.main_node
+        if main_node is None:
+            raise Exception("main node is None")
+        if main_node.inputs[val_name].links:
             return (
-                self.main_node.inputs[val_name]
-                .links[0]
-                .from_node.outputs[0]
-                .default_value
+                main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
             )
-        return self.main_node.inputs[val_name].default_value
+        return main_node.inputs[val_name].default_value
 
-    def get_color(self, vec_name):
-        if self.main_node.inputs[vec_name].links:
+    def get_color(self, vec_name: str) -> Any:
+        main_node = self.main_node
+        if main_node is None:
+            raise Exception("main node is None")
+        if main_node.inputs[vec_name].links:
             return (
-                self.main_node.inputs[vec_name]
-                .links[0]
-                .from_node.outputs[0]
-                .default_value
+                main_node.inputs[vec_name].links[0].from_node.outputs[0].default_value
             )
-        return self.main_node.inputs[vec_name].default_value
+        return main_node.inputs[vec_name].default_value
 
-    def update(self):
+    def update(self) -> None:
         if self.material.blend_method in ("OPAQUE", "CLIP"):
             self.alpha_method = self.material.blend_method
         else:
@@ -141,7 +146,7 @@ class MtoonGlsl:
             if node.type == "OUTPUT_MATERIAL":
                 self.main_node = node.inputs["Surface"].links[0].from_node
 
-        self.float_dic = {}
+        self.float_dic: Dict[str, float] = {}
         self.vector_dic = {}
         self.texture_dic = {}
         for k in vrm_types.MaterialMtoon.float_props_exchange_dic.values():
@@ -160,11 +165,18 @@ class MtoonGlsl:
                     self.texture_dic[k] = self.get_texture(k)
 
 
-class BaseGlslDrawObjForStaticTyping:
-    pass
+class GlMesh:
+    def __init__(self) -> None:
+        self.pos: Dict[Any, Any] = {}
+        self.normals: Dict[Any, Any] = {}
+        self.uvs: Dict[Any, Any] = {}
+        self.tangents: Dict[Any, Any] = {}
+        self.index_per_mat: Dict[Any, Any] = {}
+        self.mat_list: List[MtoonGlsl] = []
+        self.index_per_mat = {}  # material : vert index
 
 
-class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
+class GlslDrawObj:
     toon_vertex_shader = (
         pathlib.Path(__file__).with_name("toon.vert.glsl").read_text(encoding="UTF-8")
     )
@@ -183,32 +195,35 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
     executor = None
     toon_shader = None
     depth_shader = None
-    objs = List[BaseGlslDrawObjForStaticTyping]
+    objs: List[bpy.types.Object] = []
     light = None
     offscreen = None
-    materials = None
-    myinstance = None
+    materials: Dict[str, MtoonGlsl] = {}
+    myinstance: Optional[Any] = None
     draw_objs: List[bpy.types.Object] = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
     bounding_center = [0, 0, 0]
     bounding_size = [1, 1, 1]
 
-    def __init__(self):
+    def __init__(self) -> None:
         GlslDrawObj.myinstance = self
         self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
         self.materials = {}
         self.main_executor = ThreadPoolExecutor()
         self.sub_executor = ThreadPoolExecutor()
 
-    scene_meshes = None
+    scene_meshes: List[GlMesh] = []
 
     @staticmethod
-    def build_scene(dummy=None):
+    def build_scene(dummy: None = None) -> None:
+        glsl_draw_obj: Optional[GlslDrawObj] = None
         if GlslDrawObj.myinstance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()
         else:
             glsl_draw_obj = GlslDrawObj.myinstance
+        if glsl_draw_obj is None:
+            return
         glsl_draw_obj.objs = [obj for obj in glsl_draw_obj.draw_objs if obj is not None]
         lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
         if not lights:
@@ -240,7 +255,10 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                 i - n for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
             ]
 
-        def build_mesh(obj):
+        def build_mesh(obj: bpy.types.Object) -> GlMesh:
+            if glsl_draw_obj is None:
+                raise Exception("glsl draw obj is None")
+
             scene_mesh = GlMesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
@@ -261,7 +279,9 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                 for i, v in count_list.items()
             }
 
-            def job_pos():
+            def job_pos() -> Dict[Any, Any]:
+                if scene_mesh.index_per_mat is None:
+                    raise Exception("scene mesh index per mat is None")
                 return {
                     k: [
                         tmp_mesh.vertices[vid].co
@@ -272,7 +292,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_normal():
+            def job_normal() -> Dict[Any, Any]:
                 if tmp_mesh.has_custom_normals:
                     return {
                         k: [
@@ -293,7 +313,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_uv():
+            def job_uv() -> Dict[Any, Any]:
                 return {
                     k: [
                         st[lo].uv
@@ -304,7 +324,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_tangent():
+            def job_tangent() -> Dict[Any, Any]:
                 return {
                     k: [
                         tmp_mesh.loops[lo].tangent
@@ -315,15 +335,15 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            scene_mesh.pos = glsl_draw_obj.sub_executor.submit(job_pos)
-            scene_mesh.normals = glsl_draw_obj.sub_executor.submit(job_normal)
-            scene_mesh.uvs = glsl_draw_obj.sub_executor.submit(job_uv)
-            scene_mesh.tangents = glsl_draw_obj.sub_executor.submit(job_tangent)
+            pos_future = glsl_draw_obj.sub_executor.submit(job_pos)
+            normals_future = glsl_draw_obj.sub_executor.submit(job_normal)
+            uvs_future = glsl_draw_obj.sub_executor.submit(job_uv)
+            tangents_future = glsl_draw_obj.sub_executor.submit(job_tangent)
 
-            scene_mesh.pos = scene_mesh.pos.result()
-            scene_mesh.normals = scene_mesh.normals.result()
-            scene_mesh.uvs = scene_mesh.uvs.result()
-            scene_mesh.tangents = scene_mesh.tangents.result()
+            scene_mesh.pos = pos_future.result()
+            scene_mesh.normals = normals_future.result()
+            scene_mesh.uvs = uvs_future.result()
+            scene_mesh.tangents = tangents_future.result()
             return scene_mesh
 
         meshes = glsl_draw_obj.main_executor.map(build_mesh, glsl_draw_obj.objs)
@@ -334,13 +354,14 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                     unneeded_mat.append(k)
             for k in unneeded_mat:
                 del mesh.index_per_mat[k]
-            glsl_draw_obj.scene_meshes.append(mesh)
+            scene_meshes = glsl_draw_obj.scene_meshes
+            scene_meshes.append(mesh)
 
         glsl_draw_obj.build_batches()
 
-    batches = None
+    batches: Optional[List[Tuple[Any, Any, Any]]] = None
 
-    def build_batches(self):
+    def build_batches(self) -> None:
         if self.toon_shader is None:
             self.toon_shader = gpu.types.GPUShader(
                 vertexcode=self.toon_vertex_shader,
@@ -378,27 +399,38 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                 else:
                     batches.insert(0, (mat, toon_batch, depth_batch))
 
-    def glsl_draw(self):
+    def glsl_draw(self) -> None:
+        glsl_draw_obj: Optional[GlslDrawObj] = None
         if GlslDrawObj.myinstance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()
             glsl_draw_obj.build_scene()
         else:
             glsl_draw_obj = GlslDrawObj.myinstance
+        if glsl_draw_obj is None:
+            raise Exception("glsl draw obj is None")
+        light = glsl_draw_obj.light
+        if light is None:
+            raise Exception("no light exists")
+
         model_offset = Matrix.Translation((glsl_draw_obj.draw_x_offset, 0, 0))
         light_pos = [
-            i + n
-            for i, n in zip(
-                glsl_draw_obj.light.location, [-glsl_draw_obj.draw_x_offset, 0, 0]
-            )
+            i + n for i, n in zip(light.location, [-glsl_draw_obj.draw_x_offset, 0, 0])
         ]
         batches = glsl_draw_obj.batches
+        if batches is None:
+            raise Exception("batches is None")
         depth_shader = glsl_draw_obj.depth_shader
+        if depth_shader is None:
+            raise Exception("depth shader is None")
         toon_shader = glsl_draw_obj.toon_shader
+        if toon_shader is None:
+            raise Exception("toon shader is None")
         offscreen = glsl_draw_obj.offscreen
+        if offscreen is None:
+            raise Exception("offscreen is None")
         # need bone etc changed only update
         depth_matrix = None
 
-        light = glsl_draw_obj.light
         light_lookat = light.rotation_euler.to_quaternion() @ Vector((0, 0, -1))
         # TODO このへん
         tar = light_lookat.normalized()
@@ -575,11 +607,11 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
                 toon_bat.draw(toon_shader)
         # endregion shader main
 
-    draw_func = None
-    build_mesh_func = None
+    draw_func: Optional[bpy.types.Object] = None
+    build_mesh_func: Optional[bpy.types.Object] = None
 
     @staticmethod
-    def draw_func_add(invisibles: bool, only_selections: bool):
+    def draw_func_add(invisibles: bool, only_selections: bool) -> None:
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [
             obj
@@ -606,7 +638,7 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
         bpy.ops.wm.redraw_timer(type="DRAW", iterations=1)  # Force redraw
 
     @staticmethod
-    def draw_func_remove():
+    def draw_func_remove() -> None:
         if GlslDrawObj.draw_func is not None:
             bpy.types.SpaceView3D.draw_handler_remove(GlslDrawObj.draw_func, "WINDOW")
             GlslDrawObj.draw_func = None
@@ -624,13 +656,15 @@ class GlslDrawObj(BaseGlslDrawObjForStaticTyping):
 
 
 # region util func
-def ortho_proj_mat(left, right, bottom, top, near, far):
+def ortho_proj_mat(
+    left: float, right: float, bottom: float, top: float, near: float, far: float
+) -> Matrix:
     mat4 = Matrix.Identity(4)
     mat4[0][0] = 2 / (right - left)
     mat4[1][1] = 2 / (top - bottom)
     mat4[2][2] = -2 / (far - near)
 
-    def tmpfunc(a, b):
+    def tmpfunc(a: float, b: float) -> float:
         return -(a + b) / (a - b)
 
     mat4[3][0] = tmpfunc(right, left)
@@ -640,7 +674,9 @@ def ortho_proj_mat(left, right, bottom, top, near, far):
     return mat4
 
 
-def lookat_cross(loc, tar, up):
+def lookat_cross(
+    loc: Sequence[float], tar: Sequence[float], up: Sequence[float]
+) -> Matrix:
     lv = Vector(loc)
     tv = Vector(tar)
     uv = Vector(up)
@@ -659,18 +695,3 @@ def lookat_cross(loc, tar, up):
         mat4[i][2] = z[i]
         mat4[3][i] = n[i]
     return mat4
-
-
-class GlMesh:
-    pos = None
-    normals = None
-    uvs = None
-    index_per_mat = None  # material : vert index
-
-    def __init__(self):
-        self.pos = []
-        self.normals = []
-        self.uvs = []
-        self.tangents = []
-        self.index_per_mat = {}
-        self.mat_list = None

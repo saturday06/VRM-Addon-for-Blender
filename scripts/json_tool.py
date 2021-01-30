@@ -14,7 +14,7 @@ import sys
 import tkinter.filedialog
 from collections import OrderedDict
 
-read_path = tkinter.filedialog.askopenfilename(
+read_path = tkinter.filedialog.askopenfilename(  # type: ignore[no-untyped-call]
     filetypes=[("glb,vrm,json", "*.glb;*.vrm;*.json")]
 )
 loaded_json = {}

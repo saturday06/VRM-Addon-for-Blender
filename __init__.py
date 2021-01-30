@@ -5,15 +5,25 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+#
+#
+# Please don't import anything before "bl_info" assignment and reload_package().
+#
+#
+
 
 # Script reloading (if the user calls 'Reload Scripts' from Blender)
 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/04e26bef903543d08947c5a9a5fea4e787b68f17/addons/io_scene_gltf2/__init__.py#L32-L54
 # http://www.apache.org/licenses/LICENSE-2.0
-def reload_package(module_dict_main):
+def reload_package(module_dict_main: dict) -> None:  # type: ignore[type-arg]
+    # Lazy import to minimize initialization before reload_package()
     import importlib
     from pathlib import Path
+    from typing import Any, Dict
 
-    def reload_package_recursive(current_dir, module_dict):
+    def reload_package_recursive(
+        current_dir: Path, module_dict: Dict[str, Any]
+    ) -> None:
         for path in current_dir.iterdir():
             if "__init__" in str(path) or path.stem not in module_dict:
                 continue
@@ -46,18 +56,22 @@ bl_info = {
 }
 
 
-def register():
+def register() -> None:
+    # Lazy import to minimize initialization before reload_package()
+    from typing import Tuple, cast
+
+    # 'import io_scene_vrm' causes error in blender and vscode mypy integration
+    # pylint: disable=no-name-in-module
+    from . import io_scene_vrm  # type: ignore[attr-defined]
+
+    io_scene_vrm.register(cast(Tuple[int, int, int], bl_info["version"]))
+
+
+def unregister() -> None:
     # Lazy import to minimize initialization before reload_package()
     # 'import io_scene_vrm' causes error in blender and vscode mypy integration
-    from . import io_scene_vrm  # pylint: disable=no-name-in-module
-
-    io_scene_vrm.register(bl_info["version"])
-
-
-def unregister():
-    # Lazy import to minimize initialization before reload_package()
-    # 'import io_scene_vrm' causes error in blender and vscode mypy integration
-    from . import io_scene_vrm  # pylint: disable=no-name-in-module
+    # pylint: disable=no-name-in-module
+    from . import io_scene_vrm  # type: ignore[attr-defined]
 
     io_scene_vrm.unregister()
 

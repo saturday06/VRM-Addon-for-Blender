@@ -23,14 +23,14 @@ from io_scene_vrm.importer.vrm_load import parse_glb  # noqa: E402
 # pylint: enable=wrong-import-position;
 
 
-def exist_or_makedir(path):
+def exist_or_makedir(path: str) -> str:
     ripped_dir = os.path.join(os.path.dirname(os.path.abspath(path)), "ripped")
     if not os.path.exists(ripped_dir):
         os.mkdir(ripped_dir)
     return ripped_dir
 
 
-model_path = filedialog.askopenfilename(filetypes=[("", "*vrm")])
+model_path = filedialog.askopenfilename(filetypes=[("", "*vrm")])  # type: ignore[no-untyped-call]
 with open(model_path, "rb") as f:
     vrm_json, binary = parse_glb(f.read())
 if messagebox.askyesno(message="write VRM.json?"):

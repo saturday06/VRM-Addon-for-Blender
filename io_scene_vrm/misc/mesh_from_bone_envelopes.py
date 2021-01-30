@@ -1,4 +1,5 @@
 from math import ceil
+from typing import Set
 
 import bpy
 from mathutils import Vector
@@ -13,10 +14,10 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         return True
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         self.build_mesh(context)
         return {"FINISHED"}
 
@@ -31,7 +32,7 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
     with_auto_weight: bpy.props.BoolProperty(default=False)  # type: ignore[valid-type]
     not_to_mesh: bpy.props.BoolProperty(default=True)  # type: ignore[valid-type]
 
-    def build_mesh(self, context):
+    def build_mesh(self, context: bpy.types.Context) -> None:
         if bpy.context.active_object.type != "ARMATURE":
             return
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -110,13 +111,15 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
         bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
         bpy.ops.uv.smart_project()
 
-        def material_init(mat):
+        def material_init(mat: bpy.types.Material) -> None:
             mat.use_nodes = True
             for node in mat.node_tree.nodes:
                 if node.type != "OUTPUT_MATERIAL":
                     mat.node_tree.nodes.remove(node)
 
-        def node_group_create(material, shader_node_group_name):
+        def node_group_create(
+            material: bpy.types.Material, shader_node_group_name: str
+        ) -> bpy.types.ShaderNodeGroup:
             node_group = material.node_tree.nodes.new("ShaderNodeGroup")
             node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
             return node_group
@@ -134,5 +137,3 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # noqa: N801
 
         bpy.ops.object.mode_set(mode="OBJECT")
         armature.select_set(True)
-
-        return

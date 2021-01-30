@@ -34,7 +34,7 @@ class LicenseConfirmationRequiredProp:
         json_key: Optional[str],
         message_en: str,
         message_ja: str,
-    ):
+    ) -> None:
         self.url = url
         self.json_key = json_key
         self.message = vrm_helper.lang_support(message_en, message_ja)
@@ -48,7 +48,7 @@ message={self.message}
 
 
 class LicenseConfirmationRequired(Exception):
-    def __init__(self, props: List[LicenseConfirmationRequiredProp]):
+    def __init__(self, props: List[LicenseConfirmationRequiredProp]) -> None:
         self.props = props
         super().__init__(self.description())
 
@@ -67,7 +67,7 @@ class LicenseConfirmationRequired(Exception):
         ]
 
 
-def parse_glb(data: bytes) -> Tuple[Any, bytes]:
+def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     reader = BinaryReader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
@@ -82,8 +82,8 @@ def parse_glb(data: bytes) -> Tuple[Any, bytes]:
     size = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
     size -= 12
 
-    json_str = None
-    body = None
+    json_str: Optional[str] = None
+    body: Optional[bytes] = None
     while size > 0:
         # print(size)
 
@@ -112,9 +112,11 @@ def parse_glb(data: bytes) -> Tuple[Any, bytes]:
 
     if not json_str:
         raise Exception("failed to read json chunk")
-    return json.loads(json_str, object_pairs_hook=OrderedDict), (
-        body if body else bytes()
-    )
+
+    json_obj = json.loads(json_str, object_pairs_hook=OrderedDict)
+    if not isinstance(json_obj, dict):
+        raise Exception("VRM has invalid json: " + str(json_obj))
+    return json_obj, body if body else bytes()
 
 
 # あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
@@ -124,10 +126,10 @@ def read_vrm(
     use_simple_principled_material: bool,
     license_check: bool,
 ) -> vrm_types.VrmPydata:
-    vrm_pydata = vrm_types.VrmPydata(filepath=model_path)
     # datachunkは普通一つしかない
     with open(model_path, "rb") as f:
-        vrm_pydata.json, body_binary = parse_glb(f.read())
+        json_dict, body_binary = parse_glb(f.read())
+        vrm_pydata = vrm_types.VrmPydata(model_path, json_dict)
 
     # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
     if (
@@ -219,13 +221,13 @@ def validate_uni_virtual_license_url(
     return True
 
 
-def validate_license(vrm_pydata: vrm_types.VrmPydata):
+def validate_license(vrm_pydata: vrm_types.VrmPydata) -> None:
     confirmations: List[LicenseConfirmationRequiredProp] = []
 
     # 既知の改変不可ライセンスを撥ねる
     # CC_NDなど
-    license_name = json_get(
-        vrm_pydata.json, ["extensions", "VRM", "meta", "licenseName"], ""
+    license_name = str(
+        json_get(vrm_pydata.json, ["extensions", "VRM", "meta", "licenseName"], "")
     )
     if re.match("CC(.*)ND(.*)", license_name):
         confirmations.append(
@@ -238,16 +240,20 @@ def validate_license(vrm_pydata: vrm_types.VrmPydata):
         )
 
     validate_license_url(
-        json_get(
-            vrm_pydata.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], ""
+        str(
+            json_get(
+                vrm_pydata.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], ""
+            )
         ),
         "otherPermissionUrl",
         confirmations,
     )
 
     if license_name == "Other":
-        other_license_url_str = json_get(
-            vrm_pydata.json, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""
+        other_license_url_str = str(
+            json_get(
+                vrm_pydata.json, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""
+            )
         )
         if not other_license_url_str:
             confirmations.append(
@@ -267,7 +273,9 @@ def validate_license(vrm_pydata: vrm_types.VrmPydata):
         raise LicenseConfirmationRequired(confirmations)
 
 
-def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
+def texture_rip(
+    vrm_pydata: vrm_types.VrmPydata, body_binary: bytes, make_new_texture_folder: bool
+) -> None:
     buffer_views = vrm_pydata.json["bufferViews"]
     binary_reader = BinaryReader(body_binary)
     # ここ画像切り出し #blenderはバイト列から画像を読み込む術がないので、画像ファイルを書き出して、それを読み込むしかない。
@@ -275,7 +283,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
     if "images" not in vrm_pydata.json:
         return
 
-    def invalid_chars_remover(filename):
+    def invalid_chars_remover(filename: str) -> str:
         unsafe_chars = {
             0: "\x00",
             1: "\x01",
@@ -325,15 +333,15 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
         safe_filename = filename.translate(remove_table)
         return safe_filename
 
-    def get_meta(param, default_value, max_length):
+    def get_meta_str(param: str, default_value: str, max_length: int) -> str:
         meta_value = vrm_pydata.json["extensions"]["VRM"]["meta"].get(param)
         if meta_value is not None:
-            return meta_value[:max_length]
+            return str(meta_value)[:max_length]
         return default_value
 
-    model_title = invalid_chars_remover(get_meta("title", "", 12))
-    model_author = invalid_chars_remover(get_meta("author", "", 8))
-    model_version = invalid_chars_remover(get_meta("version", "", 7))
+    model_title = invalid_chars_remover(get_meta_str("title", "", 12))
+    model_author = invalid_chars_remover(get_meta_str("author", "", 8))
+    model_version = invalid_chars_remover(get_meta_str("version", "", 7))
     dir_name = "tex"
     if model_title != "":
         dir_name += "_" + model_title
@@ -420,7 +428,7 @@ def texture_rip(vrm_pydata, body_binary, make_new_texture_folder):
 
 
 #  "accessorの順に" データを読み込んでリストにしたものを返す
-def decode_bin(json_data, binary):
+def decode_bin(json_data: Dict[str, Any], binary: bytes) -> List[Any]:
     br = BinaryReader(binary)
     # This list indexed by accessor index
     decoded_binary = []
@@ -435,22 +443,21 @@ def decode_bin(json_data, binary):
             if type_num == 1:
                 data = br.read_as_data_type(accessor["componentType"])
             else:
-                data = []
+                data = []  # type: ignore[assignment]
                 for _ in range(type_num):
-                    data.append(br.read_as_data_type(accessor["componentType"]))
+                    data.append(br.read_as_data_type(accessor["componentType"]))  # type: ignore[union-attr]
             data_list.append(data)
         decoded_binary.append(data_list)
 
     return decoded_binary
 
 
-def mesh_read(vrm_pydata):
+def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     # メッシュをパースする
     for n, mesh in enumerate(vrm_pydata.json["meshes"]):
         primitives = []
         for j, primitive in enumerate(mesh["primitives"]):
-            vrm_mesh = vrm_types.Mesh()
-            vrm_mesh.object_id = n
+            vrm_mesh = vrm_types.Mesh(object_id=n)
             if j == 0:  # mesh annotationとの兼ね合い
                 vrm_mesh.name = mesh["name"]
             else:
@@ -462,10 +469,10 @@ def mesh_read(vrm_pydata):
                 raise Exception(
                     "Unsupported polygon type(:{}) Exception".format(primitive["mode"])
                 )
-            vrm_mesh.face_indices = vrm_pydata.decoded_binary[primitive["indices"]]
+            face_indices = vrm_pydata.decoded_binary[primitive["indices"]]
             # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
             # ATTENTION これだけndarray
-            vrm_mesh.face_indices = numpy.reshape(vrm_mesh.face_indices, (-1, 3))
+            vrm_mesh.face_indices = numpy.reshape(face_indices, (-1, 3))
             # endregion 頂点index
 
             # ここから頂点属性
@@ -478,7 +485,7 @@ def mesh_read(vrm_pydata):
 
             # region TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
             legacy_uv_flag = False  # f***
-            gen = json_get(vrm_pydata.json, ["assets", "generator"], "")
+            gen = str(json_get(vrm_pydata.json, ["assets", "generator"], ""))
             if re.match("UniGLTF", gen):
                 with contextlib.suppress(ValueError):
                     if float("".join(gen[-4:])) < 1.16:
@@ -511,18 +518,16 @@ def mesh_read(vrm_pydata):
                     pos_array = vrm_pydata.decoded_binary[morph_target["POSITION"]]
                     if "extra" in morph_target:  # for old AliciaSolid
                         # accessorのindexを持つのは変換時のキャッシュ対応のため
-                        morph_name = primitive["targets"][i]["extra"]["name"]
+                        morph_name = str(primitive["targets"][i]["extra"]["name"])
                     else:
-                        morph_name = primitive["extras"]["targetNames"][i]
+                        morph_name = str(primitive["extras"]["targetNames"][i])
                         # 同上
                     morph_target_point_list_and_accessor_index_dict[morph_name] = [
                         pos_array,
                         primitive["targets"][i]["POSITION"],
                     ]
-
-                vrm_mesh.__setattr__(
-                    "morph_target_point_list_and_accessor_index_dict",
-                    morph_target_point_list_and_accessor_index_dict,
+                vrm_mesh.morph_target_point_list_and_accessor_index_dict = (
+                    morph_target_point_list_and_accessor_index_dict
                 )
             primitives.append(vrm_mesh)
         vrm_pydata.meshes.append(primitives)
@@ -530,20 +535,27 @@ def mesh_read(vrm_pydata):
     # ここからマテリアル
 
 
-def material_read(vrm_pydata, use_simple_principled_material):
+def material_read(
+    vrm_pydata: vrm_types.VrmPydata, use_simple_principled_material: bool
+) -> None:
     vrm_extension_material_properties = json_get(
         vrm_pydata.json,
         ["extensions", "VRM", "materialProperties"],
         default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(vrm_pydata.json["materials"]),
     )
+    if not isinstance(vrm_extension_material_properties, list):
+        return
+
     if "textures" in vrm_pydata.json:
         textures = vrm_pydata.json["textures"]  # noqa: F841
     for mat, ext_mat in zip(
         vrm_pydata.json["materials"], vrm_extension_material_properties
     ):
-        vrm_pydata.materials.append(
-            vrm2pydata_factory.material(mat, ext_mat, use_simple_principled_material)
+        material = vrm2pydata_factory.material(
+            mat, ext_mat, use_simple_principled_material
         )
+        if material is not None:
+            vrm_pydata.materials.append(material)
 
     # skinをパース ->バイナリの中身はskinning実装の横着用
     # skinのjointsの(nodesの)indexをvertsのjoints_0は指定してる
@@ -552,7 +564,7 @@ def material_read(vrm_pydata, use_simple_principled_material):
     # joints:JOINTS_0の指定node番号のindex
 
 
-def skin_read(vrm_pydata):
+def skin_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     for skin in vrm_pydata.json.get("skins", []):
         vrm_pydata.skins_joints_list.append(skin["joints"])
         if "skeleton" in skin.keys():
@@ -561,7 +573,7 @@ def skin_read(vrm_pydata):
     # node(ボーン)をパースする->親からの相対位置で記録されている
 
 
-def node_read(vrm_pydata):
+def node_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     for i, node in enumerate(vrm_pydata.json["nodes"]):
         vrm_pydata.nodes_dict[i] = vrm2pydata_factory.bone(node)
         # TODO こっからorigin_bone
