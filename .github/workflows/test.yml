@@ -143,7 +143,7 @@ jobs:
           poetry run pylint $(git ls-files "*.py")
           git checkout .
           poetry install
-      - name: mypy
+      - name: Mypy
         run: poetry run mypy --show-error-code $(git ls-files "*.py")
       - name: Flake8
         run: poetry run flake8 --count --show-source --statistics $(git ls-files "*.py")
