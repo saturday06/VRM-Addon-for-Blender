@@ -47,8 +47,7 @@ try:
   Expected Output: {expected_out_path}
   Expected Size: {expected_size}
   Actual Output: {actual_out_path}
-  Actual Size: {actual_size}
-"""
+  Actual Size: {actual_size}"""
     if bpy.app.build_platform != b"Darwin":  # TODO: normals
         expected_bytes = pathlib.Path(expected_out_path).read_bytes()
         assert (  # pylint: disable=W0199
@@ -56,8 +55,7 @@ try:
         ), f"""Unexpected VRM Binary
   Input: {in_path}
   Expected Output: {expected_out_path}
-  Actual Output: {actual_out_path}
-"""
+  Actual Output: {actual_out_path}"""
     print("OK")
 except FileNotFoundError:
     if update_vrm_dir:

@@ -38,11 +38,17 @@ os.makedirs(test_out3_vrm_dir, exist_ok=True)
 
 
 def process_output_to_str(process_output: bytes) -> str:
+    output = None
     if platform.system() != "Windows":
-        return process_output.decode()
-    with contextlib.suppress(UnicodeDecodeError):
-        return process_output.decode("ansi")
-    return process_output.decode()
+        output = process_output.decode()
+    else:
+        with contextlib.suppress(UnicodeDecodeError):
+            output = process_output.decode("ansi")
+        if output is None:
+            output = process_output.decode()
+    if output != "" and not output.endswith("\n"):
+        output += "\n"
+    return output
 
 
 def find_blender_command() -> str:
@@ -80,36 +86,48 @@ def find_blender_command() -> str:
     )
 
 
-def run_script(script: str, *args: str) -> None:
-    env = os.environ.copy()
-    env["BLENDER_USER_SCRIPTS"] = user_scripts_dir
-    env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
-    command = [
-        find_blender_command(),
-        "-noaudio",  # sound system to None (less output on stdout)
-        "--factory-startup",  # factory settings
-        "--addons",
-        "io_scene_vrm_saturday06",  # enable the addon
-        "--python-exit-code",
-        "1",
-        "--background",
-        "--python",
-        os.path.join(repository_root_dir, "tests", script),  # run the test script
-        "--",
-        *args,
-    ]
-    print("run:" + "\n  ".join(command))
-    completed_process = subprocess.run(
-        command, check=False, capture_output=True, cwd=repository_root_dir, env=env
-    )
-    print("stdout:\n" + process_output_to_str(completed_process.stdout))
-    print("stderr:\n" + process_output_to_str(completed_process.stderr))
-    completed_process.check_returncode()
-
-
 class TestBlender(TestCase):
+    def run_script(self, script: str, *args: str) -> None:
+        env = os.environ.copy()
+        env["BLENDER_USER_SCRIPTS"] = user_scripts_dir
+        env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
+        command = [
+            find_blender_command(),
+            "-noaudio",  # sound system to None (less output on stdout)
+            "--factory-startup",  # factory settings
+            "--addons",
+            "io_scene_vrm_saturday06",  # enable the addon
+            "--python-exit-code",
+            "1",
+            "--background",
+            "--python",
+            os.path.join(repository_root_dir, "tests", script),  # run the test script
+            "--",
+            *args,
+        ]
+        indented_command_str = "\n  ".join(command)
+        print("run: " + indented_command_str)
+        completed_process = subprocess.run(
+            command, check=False, capture_output=True, cwd=repository_root_dir, env=env
+        )
+        stdout_str = process_output_to_str(completed_process.stdout)
+        stderr_str = process_output_to_str(completed_process.stderr)
+        output = (
+            "===== stdout =====\n"
+            + stdout_str
+            + "===== stderr =====\n"
+            + stderr_str
+            + "=================="
+        )
+        print(output)
+        self.assertEqual(
+            completed_process.returncode,
+            0,
+            f"Failed to execute command:\n{indented_command_str}\n" + output,
+        )
+
     def test_basic_armature(self) -> None:
-        run_script(
+        self.run_script(
             "blender_basic_armature.py",
             os.path.join(test_in_vrm_dir, "basic_armature.vrm"),
             test_temp_vrm_dir,
@@ -119,7 +137,7 @@ class TestBlender(TestCase):
         update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "yes"
         for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
             with self.subTest(vrm):
-                run_script(
+                self.run_script(
                     "blender_io.py",
                     os.path.join(test_in_vrm_dir, vrm),
                     os.path.join(test_out_vrm_dir, vrm),
@@ -130,7 +148,7 @@ class TestBlender(TestCase):
                     not os.path.exists(os.path.join(test_out2_vrm_dir, vrm))
                     and not update_vrm_dir
                 ):
-                    run_script(
+                    self.run_script(
                         "blender_io.py",
                         os.path.join(test_out_vrm_dir, vrm),
                         os.path.join(test_out_vrm_dir, vrm),
@@ -138,7 +156,7 @@ class TestBlender(TestCase):
                     )
                     continue
 
-                run_script(
+                self.run_script(
                     "blender_io.py",
                     os.path.join(test_out_vrm_dir, vrm),
                     os.path.join(test_out2_vrm_dir, vrm),
@@ -157,7 +175,7 @@ class TestBlender(TestCase):
                 ):
                     test_last_vrm_dir = test_out3_vrm_dir
 
-                run_script(
+                self.run_script(
                     "blender_io.py",
                     os.path.join(test_out2_vrm_dir, vrm),
                     os.path.join(test_last_vrm_dir, vrm),
