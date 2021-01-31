@@ -10,7 +10,7 @@ import struct
 from collections import OrderedDict
 from math import floor
 from sys import float_info
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import bmesh
 import bpy
@@ -25,6 +25,23 @@ from .vrm_helper import find_export_objects, shader_nodes_and_materials
 class GlbObj:
     class ValidationError(Exception):
         pass
+
+    class KhrTextureTransform:
+        def __init__(self, offset: Tuple[float, float], scale: Tuple[float, float]):
+            self.offset = offset
+            self.scale = scale
+
+        def add_to(self, texture_info: Dict[str, Any]) -> None:
+            texture_info.update(
+                {
+                    "extensions": {
+                        "KHR_texture_transform": {
+                            "scale": self.scale,
+                            "offset": self.offset,
+                        }
+                    }
+                }
+            )
 
     def __init__(self, export_invisibles: bool, export_only_selections: bool) -> None:
         if bpy.ops.vrm.model_validate(
@@ -293,10 +310,15 @@ class GlbObj:
             roughness: Optional[float] = None,
             base_color_texture: Optional[Tuple[str, int, int]] = None,
             metallic_roughness_texture: Optional[Tuple[str, int, int]] = None,
+            normal_texture: Optional[Tuple[str, int, int]] = None,
+            normal_texture_scale: Optional[float] = None,
+            occlusion_texture: Optional[Tuple[str, int, int]] = None,
+            emissive_texture: Optional[Tuple[str, int, int]] = None,
             transparent_method: str = "OPAQUE",
             transparency_cutoff: Optional[float] = 0.5,
             unlit: Optional[bool] = None,
             doublesided: bool = False,
+            texture_transform: Optional[GlbObj.KhrTextureTransform] = None,
         ) -> Dict[str, Any]:
             """transparent_method = {"OPAQUE","MASK","BLEND"}"""
             if base_color is None:
@@ -320,23 +342,52 @@ class GlbObj:
                     del fallback_dic["pbrMetallicRoughness"][k]
 
             if base_color_texture is not None:
+                texture_info = {
+                    "index": add_texture(*base_color_texture),
+                    "texCoord": 0,
+                }
+                if texture_transform is not None:
+                    texture_transform.add_to(texture_info)
                 fallback_dic["pbrMetallicRoughness"].update(
-                    {
-                        "baseColorTexture": {
-                            "index": add_texture(*base_color_texture),
-                            "texCoord": 0,
-                        }
-                    }  # TODO:
+                    {"baseColorTexture": texture_info}  # TODO:
                 )
             if metallic_roughness_texture is not None:
+                texture_info = {
+                    "index": add_texture(*metallic_roughness_texture),
+                    "texCoord": 0,  # TODO:
+                }
+                if texture_transform is not None:
+                    texture_transform.add_to(texture_info)
                 fallback_dic["pbrMetallicRoughness"].update(
-                    {
-                        "metallicRoughnessTexture": {
-                            "index": add_texture(*metallic_roughness_texture),
-                            "texCoord": 0,  # TODO:
-                        }
-                    }
+                    {"metallicRoughnessTexture": texture_info}
                 )
+            if normal_texture is not None:
+                normal_texture_info: Dict[str, Union[int, float]] = {
+                    "index": add_texture(*normal_texture),
+                    "texCoord": 0,  # TODO:
+                }
+                if normal_texture_scale is not None:
+                    normal_texture_info["scale"] = normal_texture_scale
+                if texture_transform is not None:
+                    texture_transform.add_to(normal_texture_info)
+                fallback_dic["normalTexture"] = normal_texture_info
+            if occlusion_texture is not None:
+                occlusion_texture_info = {
+                    "index": add_texture(*occlusion_texture),
+                    "texCoord": 0,  # TODO:
+                }
+                if texture_transform is not None:
+                    texture_transform.add_to(occlusion_texture_info)
+                fallback_dic["occlusionTexture"] = occlusion_texture_info
+            if emissive_texture is not None:
+                emissive_texture_info = {
+                    "index": add_texture(*emissive_texture),
+                    "texCoord": 0,  # TODO:
+                }
+                if texture_transform is not None:
+                    texture_transform.add_to(emissive_texture_info)
+                fallback_dic["emissiveTexture"] = emissive_texture_info
+
             fallback_dic["alphaMode"] = transparent_method
             if transparent_method == "MASK":
                 fallback_dic["alphaCutoff"] = (
@@ -502,7 +553,11 @@ class GlbObj:
                     mtoon_vector_dic[vector_key] = vector_val
 
             use_normalmap = False
-            maintex: Optional[Tuple[str, int, int]] = None
+            main_texture: Optional[Tuple[str, int, int]] = None
+            main_texture_transform: Optional[GlbObj.KhrTextureTransform] = None
+            normal_texture: Optional[Tuple[str, int, int]] = None
+            emissive_texture: Optional[Tuple[str, int, int]] = None
+
             for (
                 texture_key,
                 texture_prop,
@@ -514,7 +569,7 @@ class GlbObj:
                 mtoon_texture_dic[texture_key] = add_texture(*tex)
                 mtoon_vector_dic[texture_key] = [0, 0, 1, 1]
                 if texture_prop == "MainTexture":
-                    maintex = tex
+                    main_texture = tex
                     uv_offset_scaling_node = None
                     try:
                         uv_offset_scaling_node = (
@@ -550,8 +605,21 @@ class GlbObj:
                             ]
                     else:
                         mtoon_vector_dic[texture_key] = [0, 0, 1, 1]
+                    main_texture_transform = GlbObj.KhrTextureTransform(
+                        offset=(
+                            mtoon_vector_dic[texture_key][0],
+                            mtoon_vector_dic[texture_key][1],
+                        ),
+                        scale=(
+                            mtoon_vector_dic[texture_key][2],
+                            mtoon_vector_dic[texture_key][3],
+                        ),
+                    )
                 elif texture_prop == "NomalmapTexture":
                     use_normalmap = True
+                    normal_texture = tex
+                elif texture_prop == "Emission_Texture":
+                    emissive_texture = tex
 
             def material_prop_setter(
                 blend_mode: int,
@@ -609,10 +677,14 @@ class GlbObj:
             pbr_dic = pbr_fallback(
                 b_mat,
                 base_color=mtoon_vector_dic["_Color"],
-                base_color_texture=maintex,
+                base_color_texture=main_texture,
+                normal_texture=normal_texture,
+                normal_texture_scale=mtoon_float_dic.get("_BumpScale"),
+                emissive_texture=emissive_texture,
                 transparent_method=transparent_method,
                 transparency_cutoff=transparency_cutoff,
                 doublesided=not b_mat.use_backface_culling,
+                texture_transform=main_texture_transform,
             )
             vrm_version = self.vrm_version
             if vrm_version is None:
@@ -1371,7 +1443,12 @@ class GlbObj:
 
     def gltf_meta_to_dic(self) -> None:
         gltf_meta_dic = {
-            "extensionsUsed": ["VRM", "KHR_materials_unlit", "VRMC_materials_mtoon"],
+            "extensionsUsed": [
+                "VRM",
+                "KHR_materials_unlit",
+                "KHR_texture_transform",
+                "VRMC_materials_mtoon",
+            ],
             "asset": {
                 "generator": self.exporter_name(),
                 "version": "2.0",  # glTF version
