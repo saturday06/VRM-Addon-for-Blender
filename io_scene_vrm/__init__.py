@@ -30,7 +30,7 @@ from .misc.preferences import get_preferences
 addon_package_name = ".".join(__name__.split(".")[:-1])
 
 
-class VrmAddonPreferences(bpy.types.AddonPreferences):
+class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     bl_idname = addon_package_name
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
@@ -48,13 +48,13 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         layout.prop(self, "export_only_selections")
 
 
-class LicenseConfirmation(bpy.types.PropertyGroup):
+class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
     url: bpy.props.StringProperty()  # type: ignore[valid-type]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
-class ImportVRM(bpy.types.Operator, ImportHelper):
+class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
     bl_description = "Import VRM"
@@ -180,7 +180,7 @@ def export_vrm_update_addon_preferences(
         preferences.export_only_selections = export_op.export_only_selections
 
 
-class ExportVRM(bpy.types.Operator, ExportHelper):
+class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
     bl_description = "Export VRM"
@@ -254,7 +254,7 @@ def make_mesh(make_mesh_op: bpy.types.Operator, context: bpy.types.Context) -> N
     )
 
 
-class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
+class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "VRM Helper"
     # どこに置くかの定義
@@ -383,7 +383,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # noqa: N801
         # endregion draw_main
 
 
-class WM_OT_licenseConfirmation(bpy.types.Operator):  # noqa: N801
+class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_label = "License confirmation"
     bl_idname = "wm.vrm_license_warning"
     bl_options = {"REGISTER", "UNDO"}

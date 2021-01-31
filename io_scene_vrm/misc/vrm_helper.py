@@ -22,7 +22,7 @@ from .make_armature import ICYP_OT_MAKE_ARMATURE
 from .preferences import get_preferences
 
 
-class Bones_rename(bpy.types.Operator):  # noqa: N801
+class Bones_rename(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.bones_rename"
     bl_label = "Rename VRoid_bones"
     bl_description = "Rename VRoid_bones as Blender type"
@@ -62,7 +62,7 @@ class Bones_rename(bpy.types.Operator):  # noqa: N801
         return {"FINISHED"}
 
 
-class Add_VRM_extensions_to_armature(bpy.types.Operator):  # noqa: N801
+class Add_VRM_extensions_to_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_extensions"
     bl_label = "Add vrm attributes"
     bl_description = "Add vrm extensions & metas to armature"
@@ -73,7 +73,7 @@ class Add_VRM_extensions_to_armature(bpy.types.Operator):  # noqa: N801
         return {"FINISHED"}
 
 
-class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # noqa: N801
+class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_req_humanbone_prop"
     bl_label = "Add vrm humanbone_prop"
     bl_description = ""
@@ -87,7 +87,7 @@ class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # noqa: N8
         return {"FINISHED"}
 
 
-class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # noqa: N801
+class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_def_humanbone_prop"
     bl_label = "Add vrm humanbone_prop"
     bl_description = ""
@@ -101,7 +101,7 @@ class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # noqa: N8
         return {"FINISHED"}
 
 
-class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # noqa: N801
+class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.lipsync_vrm"
     bl_label = "Make lipsync4VRC"
     bl_description = "Make lipsync from VRoid to VRC by json"
@@ -171,14 +171,14 @@ def find_export_objects(
     return export_objects
 
 
-class VrmValidationError(bpy.types.PropertyGroup):
+class VrmValidationError(bpy.types.PropertyGroup):  # type: ignore[misc]
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
     fatal: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 # WM_OT_vrmValidator.errorsをlayout.operator呼び出しからクリアするDocumentedな方式が無いので
 # この処理を噛ませて強制的にクリアする
-class WM_OT_vrmValidator(bpy.types.Operator):  # noqa: N801
+class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.model_validate"
     bl_label = "Validate VRM model"
     bl_options = {"REGISTER", "UNDO"}
@@ -207,7 +207,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # noqa: N801
         )
 
 
-class WM_OT_vrmValidatorPrivate(bpy.types.Operator):  # noqa: N801
+class WM_OT_vrmValidatorPrivate(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.model_validate_private"
     bl_label = "Validate VRM model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."

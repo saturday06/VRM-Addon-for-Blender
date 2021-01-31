@@ -11,7 +11,7 @@ from ..vrm_types import Vrm0
 from .template_mesh_maker import IcypTemplateMeshMaker
 
 
-class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # noqa: N801
+class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "Create armature along with a simple setup for VRM export"
