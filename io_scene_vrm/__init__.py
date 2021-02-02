@@ -236,7 +236,9 @@ def add_armature(
     add_armature_op: bpy.types.Operator, context: bpy.types.Context
 ) -> None:
     add_armature_op.layout.operator(
-        make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname, text="VRM Humanoid"
+        make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname,
+        text="VRM Humanoid",
+        icon="OUTLINER_OB_ARMATURE",
     )
 
 
