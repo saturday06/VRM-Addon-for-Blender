@@ -312,13 +312,6 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     )
 
             if obj.type == "MESH":
-                if len(obj.data.materials) == 0:
-                    messages.append(
-                        lang_support(
-                            f'There is no material assigned to mesh "{obj.name}"',
-                            f"マテリアルが1つも設定されていないメッシュ「{obj.name}」があります。",
-                        )
-                    )
                 for poly in obj.data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle
                         warning_messages.append(
@@ -395,10 +388,12 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     ]
                     groups_en_str = "/".join(groups)
                     groups_ja_str = "".join(f"「{group}」" for group in groups)
-                    messages.append(
+                    warning_messages.append(
                         lang_support(
-                            f'"{mat.name}" needs to connect {groups_en_str} to "Surface" directly.',
-                            f"マテリアル「{mat.name}」は{groups_ja_str}のいずれかを直接「サーフェス」に指定してください。",
+                            f'"{mat.name}" needs to connect {groups_en_str} to "Surface" directly. '
+                            + "Empty material will be exported.",
+                            f"マテリアル「{mat.name}」には{groups_ja_str}のいずれかを直接「サーフェス」に指定してください。"
+                            + "空のマテリアルを出力します。",
                         )
                     )
 

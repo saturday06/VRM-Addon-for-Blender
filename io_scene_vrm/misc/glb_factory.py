@@ -897,7 +897,7 @@ class GlbObj:
         for b_mat in used_materials:
             material_properties_dic: Dict[str, Any] = {}
             pbr_dic: Dict[str, Any] = {}
-            if b_mat["vrm_shader"] == "MToon_unversioned":
+            if b_mat.get("vrm_shader") == "MToon_unversioned":
                 for node in b_mat.node_tree.nodes:
                     if node.type == "OUTPUT_MATERIAL":
                         mtoon_shader_node = node.inputs["Surface"].links[0].from_node
@@ -908,7 +908,7 @@ class GlbObj:
                             b_mat, mtoon_shader_node
                         )
                         break
-            elif b_mat["vrm_shader"] == "GLTF":
+            elif b_mat.get("vrm_shader") == "GLTF":
                 for node in b_mat.node_tree.nodes:
                     if node.type == "OUTPUT_MATERIAL":
                         gltf_shader_node = node.inputs["Surface"].links[0].from_node
@@ -916,7 +916,7 @@ class GlbObj:
                             b_mat, gltf_shader_node
                         )
                         break
-            elif b_mat["vrm_shader"] == "TRANSPARENT_ZWRITE":
+            elif b_mat.get("vrm_shader") == "TRANSPARENT_ZWRITE":
                 for node in b_mat.node_tree.nodes:
                     if node.type == "OUTPUT_MATERIAL":
                         zw_shader_node = node.inputs["Surface"].links[0].from_node
@@ -925,9 +925,23 @@ class GlbObj:
                         )
                         break
             else:
-                message = "VRM doesn't support \"" + b_mat["vrm_shader"] + '" shader.'
-                print(message)
-                raise Exception(message)
+                print(
+                    "VRM doesn't support \""
+                    + str(b_mat.get("vrm_shader"))
+                    + '" shader.'
+                )
+                pbr_dic["name"] = b_mat.name
+                material_properties_dic.update(
+                    {
+                        "name": b_mat.name,
+                        "shader": "VRM_USE_GLTFSHADER",
+                        "keywordMap": {},
+                        "tagMap": {},
+                        "floatProperties": {},
+                        "vectorProperties": {},
+                        "textureProperties": {},
+                    }
+                )
 
             glb_material_list.append(pbr_dic)
             vrm_material_props_list.append(material_properties_dic)
@@ -1107,12 +1121,16 @@ class GlbObj:
             }
 
             # endregion  temporary_used
-            primitive_index_bin_dic = OrderedDict(
+            primitive_index_bin_dic: Dict[Optional[int], bytes] = OrderedDict(
                 {mat_id_dic[mat.name]: b"" for mat in mesh.material_slots}
             )
-            primitive_index_vertex_count = OrderedDict(
+            if not primitive_index_bin_dic:
+                primitive_index_bin_dic[None] = b""
+            primitive_index_vertex_count: Dict[Optional[int], int] = OrderedDict(
                 {mat_id_dic[mat.name]: 0 for mat in mesh.material_slots}
             )
+            if not primitive_index_vertex_count:
+                primitive_index_vertex_count[None] = 0
 
             shape_pos_bin_dic: Dict[str, bytes] = {}
             shape_normal_bin_dic: Dict[str, bytes] = {}
@@ -1186,12 +1204,15 @@ class GlbObj:
                         vertex_key
                     )  # keyがなければNoneを返す
                     if cached_vert_id is not None:
+                        primitive_index = None
+                        if face.material_index in material_slot_dic:
+                            primitive_index = mat_id_dic[
+                                material_slot_dic[face.material_index]
+                            ]
                         primitive_index_bin_dic[
-                            mat_id_dic[material_slot_dic[face.material_index]]
+                            primitive_index
                         ] += unsigned_int_scalar_packer(cached_vert_id)
-                        primitive_index_vertex_count[
-                            mat_id_dic[material_slot_dic[face.material_index]]
-                        ] += 1
+                        primitive_index_vertex_count[primitive_index] += 1
                         continue
                     unique_vertex_dic[vertex_key] = unique_vertex_id
                     for uvlayer_id, uvlayer_name in uvlayers_dic.items():
@@ -1275,12 +1296,15 @@ class GlbObj:
                     normal_bin += float_vec3_packer(
                         *self.axis_blender_to_glb(vert_normal)
                     )
+                    primitive_index = None
+                    if face.material_index in material_slot_dic:
+                        primitive_index = mat_id_dic[
+                            material_slot_dic[face.material_index]
+                        ]
                     primitive_index_bin_dic[
-                        mat_id_dic[material_slot_dic[face.material_index]]
+                        primitive_index
                     ] += unsigned_int_scalar_packer(unique_vertex_id)
-                    primitive_index_vertex_count[
-                        mat_id_dic[material_slot_dic[face.material_index]]
-                    ] += 1
+                    primitive_index_vertex_count[primitive_index] += 1
                     unique_vertex_id += 1  # noqa: SIM113
 
             # DONE :index position, uv, normal, position morph,JOINT WEIGHT
@@ -1379,7 +1403,8 @@ class GlbObj:
             primitive_list = []
             for primitive_id, index_glb in primitive_glbs_dic.items():
                 primitive: Dict[str, Any] = OrderedDict({"mode": 4})
-                primitive["material"] = primitive_id
+                if primitive_id is not None:
+                    primitive["material"] = primitive_id
                 primitive["indices"] = index_glb.accessor_id
                 primitive["attributes"] = {
                     "POSITION": pos_glb.accessor_id,
