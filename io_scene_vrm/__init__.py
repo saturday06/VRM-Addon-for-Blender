@@ -201,6 +201,8 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
         update=export_vrm_update_addon_preferences,
     )
 
+    errors: bpy.props.CollectionProperty(type=vrm_helper.VrmValidationError)  # type: ignore[valid-type]
+
     def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.filepath:
             return {"CANCELLED"}
@@ -226,6 +228,37 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
             self.export_invisibles = bool(preferences.export_invisibles)
             self.export_only_selections = bool(preferences.export_only_selections)
         return cast(Set[str], ExportHelper.invoke(self, context, event))
+
+    def draw(self, context: bpy.types.Context) -> None:
+        pass  # Is needed to get panels available
+
+
+class VRM_IMPORTER_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_space_type = "FILE_BROWSER"
+    bl_region_type = "TOOL_PROPS"
+    bl_parent_id = "FILE_PT_operator"
+    bl_label = ""
+    bl_options = {"HIDE_HEADER"}
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return (
+            str(context.space_data.active_operator.bl_idname) == "EXPORT_SCENE_OT_vrm"
+        )
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        operator = context.space_data.active_operator
+
+        layout.prop(operator, "export_invisibles")
+        layout.prop(operator, "export_only_selections")
+
+        vrm_helper.WM_OT_vrmValidator.detect_errors_and_warnings(
+            context, operator.errors, False, layout
+        )
 
 
 def menu_export(export_op: bpy.types.Operator, context: bpy.types.Context) -> None:
@@ -465,8 +498,6 @@ classes = [
     VrmAddonPreferences,
     LicenseConfirmation,
     WM_OT_licenseConfirmation,
-    ImportVRM,
-    ExportVRM,
     vrm_helper.Bones_rename,
     vrm_helper.Add_VRM_extensions_to_armature,
     vrm_helper.Add_VRM_require_humanbone_custom_property,
@@ -474,7 +505,9 @@ classes = [
     vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
     vrm_helper.VrmValidationError,
     vrm_helper.WM_OT_vrmValidator,
-    vrm_helper.WM_OT_vrmValidatorPrivate,
+    ImportVRM,
+    ExportVRM,
+    VRM_IMPORTER_PT_export_error_messages,
     VRM_IMPORTER_PT_controller,
     make_armature.ICYP_OT_MAKE_ARMATURE,
     glsl_drawer.ICYP_OT_Draw_Model,

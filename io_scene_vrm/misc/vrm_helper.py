@@ -188,13 +188,17 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     errors: bpy.props.CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        self.detect_errors_and_warnings(context)
+        self.detect_errors_and_warnings(
+            context, self.errors, self.show_successful_message
+        )
         if any(error.fatal for error in self.errors):
             return {"CANCELLED"}
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        self.detect_errors_and_warnings(context)
+        self.detect_errors_and_warnings(
+            context, self.errors, self.show_successful_message
+        )
         if (
             not any(error.fatal for error in self.errors)
             and not self.show_successful_message
@@ -205,32 +209,17 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         )
 
     def draw(self, context: bpy.types.Context) -> None:
-        layout = self.layout
-        errors = [error for error in self.errors if error.fatal]
-        warnings = [error for error in self.errors if not error.fatal]
+        self.detect_errors_and_warnings(
+            context, self.errors, self.show_successful_message, self.layout
+        )
 
-        if not errors:
-            layout.label(text="No error. Ready for export VRM")
-        if errors:
-            layout.label(text="Error", icon="ERROR")
-            for error in errors:
-                layout.prop(
-                    error,
-                    "message",
-                    text="",
-                    translate=False,
-                )
-        if warnings:
-            layout.label(text="Info", icon="INFO")
-            for warning in warnings:
-                layout.prop(
-                    warning,
-                    "message",
-                    text="",
-                    translate=False,
-                )
-
-    def detect_errors_and_warnings(self, context: bpy.types.Context) -> None:
+    @staticmethod
+    def detect_errors_and_warnings(
+        context: bpy.types.Context,
+        error_collection: bpy.types.CollectionProperty,
+        show_successful_message: bool = True,
+        layout: Optional[bpy.types.UILayout] = None,
+    ) -> None:
         messages = []
         warning_messages = []
         print("validation start")
@@ -743,16 +732,45 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
 
         print("validation finished")
 
+        error_collection.clear()
+
+        errors = []
+        warnings = []
         for index, message in enumerate(messages):
-            error = self.errors.add()
-            error.name = "LicenseError" + str(index)
+            error = error_collection.add()
+            error.name = f"VrmModelError{index}"
             error.fatal = True
             error.message = message
+            errors.append(error)
         for index, message in enumerate(warning_messages):
-            error = self.errors.add()
-            error.name = "LicenseWarning" + str(index)
-            error.fatal = False
-            error.message = message
+            warning = error_collection.add()
+            warning.name = f"VrmModelWarning{index}"
+            warning.fatal = False
+            warning.message = message
+            warnings.append(warning)
+
+        if layout is None:
+            return
+        if not errors and show_successful_message:
+            layout.label(text="No error. Ready for export VRM")
+        if errors:
+            layout.label(text="Error", icon="ERROR")
+            for error in errors:
+                layout.prop(
+                    error,
+                    "message",
+                    text="",
+                    translate=False,
+                )
+        if warnings:
+            layout.label(text="Info", icon="INFO")
+            for warning in warnings:
+                layout.prop(
+                    warning,
+                    "message",
+                    text="",
+                    translate=False,
+                )
 
 
 def lang_support(en_message: str, ja_message: str) -> str:
