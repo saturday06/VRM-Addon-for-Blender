@@ -176,39 +176,8 @@ class VrmValidationError(bpy.types.PropertyGroup):  # type: ignore[misc]
     fatal: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
-# WM_OT_vrmValidator.errorsをlayout.operator呼び出しからクリアするDocumentedな方式が無いので
-# この処理を噛ませて強制的にクリアする
 class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.model_validate"
-    bl_label = "Validate VRM model"
-    bl_options = {"REGISTER", "UNDO"}
-
-    show_successful_message: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        default=True
-    )
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        return cast(
-            Set[str],
-            bpy.ops.vrm.model_validate_private(
-                show_successful_message=self.show_successful_message,
-                errors=[],
-            ),
-        )
-
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        return cast(
-            Set[str],
-            bpy.ops.vrm.model_validate_private(
-                "INVOKE_DEFAULT",
-                show_successful_message=self.show_successful_message,
-                errors=[],
-            ),
-        )
-
-
-class WM_OT_vrmValidatorPrivate(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.model_validate_private"
     bl_label = "Validate VRM model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."
     bl_options = {"REGISTER", "UNDO"}
