@@ -89,6 +89,8 @@ class GlbObj:
         for mesh in [obj for obj in self.export_objects if obj.type == "MESH"]:
             for mat in mesh.data.materials:
                 if mat not in used_materials:
+                    if "vrm_shader" in mat:
+                        del mat["vrm_shader"]
                     used_materials.append(mat)
 
         # image fetching
