@@ -135,8 +135,11 @@ class GlbObj:
             else len(bpy.data.images) + used_images.index(used_image)
         )
         for image in sorted(used_images, key=image_to_image_index):
-            with open(image.filepath_from_user(), "rb") as f:
-                image_bin = f.read()
+            if image.packed_file is not None:
+                image_bin = image.packed_file.data
+            else:
+                with open(image.filepath_from_user(), "rb") as f:
+                    image_bin = f.read()
             name = image.name
             filetype = "image/" + image.file_format.lower()
             ImageBin(image_bin, name, filetype, self.glb_bin_collector)

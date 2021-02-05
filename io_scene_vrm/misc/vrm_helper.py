@@ -448,9 +448,8 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         # thumbnail
         try:
             if armature is not None and armature.get("texture") is not None:
-                thumbnail_image = bpy.data.images.get(armature["texture"])
-                if thumbnail_image is not None:
-                    used_images.append(thumbnail_image)
+                if armature["texture"] in bpy.data.images:
+                    used_images.append(bpy.data.images[armature["texture"]])
                 else:
                     messages.append(
                         lang_support(
@@ -468,14 +467,17 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             )
 
         for image in used_images:
-            if image.is_dirty or not image.filepath:
+            if image.is_dirty or (image.packed_file is None and not image.filepath):
                 messages.append(
                     lang_support(
                         f'"{image.name}" is not saved. Please save.',
                         f"「{image.name}」のBlender上での変更を保存してください。",
                     )
                 )
-            if not os.path.exists(image.filepath_from_user()):
+                continue
+            if image.packed_file is None and not os.path.exists(
+                image.filepath_from_user()
+            ):
                 messages.append(
                     lang_support(
                         f'"{image.name}" is not found in file path "{image.filepath_from_user()}". '
@@ -484,7 +486,8 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         + "に存在しません。画像を読み込み直してください。",
                     )
                 )
-            elif image.file_format.lower() not in ["png", "jpeg"]:
+                continue
+            if image.file_format.lower() not in ["png", "jpeg"]:
                 messages.append(
                     lang_support(
                         f'glTF only supports PNG and JPEG textures but "{image.name}" is "{image.file_format}"',
