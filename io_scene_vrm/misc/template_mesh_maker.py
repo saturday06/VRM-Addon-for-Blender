@@ -59,6 +59,7 @@ class IcypTemplateMeshMaker:
         head_bone = self.get_humanoid_bone("head")
         head_matrix = self.head_bone_to_head_matrix(head_bone, head_size, args.tall)
         self.make_half_trapezoid(
+            bm,
             [head_size * 7 / 8, head_size * args.head_width_ratio],
             [head_size * 7 / 8, head_size * args.head_width_ratio],
             head_size,
@@ -76,7 +77,7 @@ class IcypTemplateMeshMaker:
         # make neck
         neck_bone = self.get_humanoid_bone("neck")
         self.make_half_cube(
-            [head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local
+            bm, [head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local
         )
         # make chest - upper and lower (肋骨の幅の最大値で分割)
         chest_bone = self.get_humanoid_bone("chest")
@@ -84,6 +85,7 @@ class IcypTemplateMeshMaker:
         left_upper_arm_bone = self.get_humanoid_bone("leftUpperArm")
         # upper chest shell
         self.make_half_trapezoid(
+            bm,
             [head_size * 3 / 4, left_upper_arm_bone.head_local[0] * 2],
             [head_size * 3 / 4, shoulder_in],
             chest_bone.length,
@@ -92,6 +94,7 @@ class IcypTemplateMeshMaker:
         # lower chest shell
         spine_bone = self.get_humanoid_bone("spine")
         self.make_half_trapezoid(
+            bm,
             [head_size * 3 / 4, (left_upper_arm_bone.head_local[0] - shoulder_in) * 2],
             [head_size * 3 / 4, left_upper_arm_bone.head_local[0] * 2],
             spine_bone.length * 3 / 5,
@@ -104,7 +107,7 @@ class IcypTemplateMeshMaker:
         hips_bone = self.get_humanoid_bone("hips")
         hips_size = left_upper_arm_bone.head_local[0] * 2 * 1.2
         self.make_half_cube(
-            [hips_size, head_size * 3 / 4, hips_bone.length], hips_bone.head_local
+            bm, [hips_size, head_size * 3 / 4, hips_bone.length], hips_bone.head_local
         )
         # endregion body
 
@@ -202,7 +205,7 @@ class IcypTemplateMeshMaker:
             bm.faces.new([verts[i] for i in poly])
 
     def make_half_cube(
-        self, bm: BMesh, xyz: List[float], translation: Optional[List[float]] = None
+        self, bm: BMesh, xyz: List[float], translation: List[float]
     ) -> None:
         points = self.half_cubic_points(xyz, translation)
         verts = []
@@ -250,7 +253,7 @@ class IcypTemplateMeshMaker:
     ]
 
     def half_cubic_points(
-        self, xyz: List[float], translation: Optional[List[float]] = None
+        self, xyz: List[float], translation: List[float]
     ) -> Tuple[
         Tuple[float, float, float],
         Tuple[float, float, float],
@@ -261,8 +264,6 @@ class IcypTemplateMeshMaker:
         Tuple[float, float, float],
         Tuple[float, float, float],
     ]:
-        if translation is None:
-            translation = [0, 0, 0]
         x = xyz[0]
         y = xyz[1]
         z = xyz[2]
@@ -294,7 +295,7 @@ class IcypTemplateMeshMaker:
         head_xz: List[float],
         tail_xz: List[float],
         height: float,
-        matrix: Optional[Matrix] = None,
+        matrix: Matrix,
     ) -> None:
         points = self.half_trapezoid_points(head_xz, tail_xz, height, matrix)
         verts = []
@@ -308,7 +309,7 @@ class IcypTemplateMeshMaker:
         head_xz: List[float],
         tail_xz: List[float],
         height: float,
-        matrix: Optional[Matrix] = None,
+        matrix: Matrix,
     ) -> List[Vector]:
         if matrix is None:
             matrix = Matrix.Identity(4)
