@@ -56,10 +56,17 @@ class BlendModel:
         self.material_dict: Dict[int, Any] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
-        self.model_name = (
-            json_get(self.vrm_pydata.json, ["extensions", "VRM", "meta", "title"])
-            or os.path.splitext(os.path.basename(filepath))[0]
+        model_name = json_get(
+            self.vrm_pydata.json, ["extensions", "VRM", "meta", "title"]
         )
+        if model_name is None:
+            model_name = ""
+        if not isinstance(model_name, str):
+            model_name = str(model_name)
+        model_name = model_name.replace("\r\n", " ").replace("\n", " ").strip()
+        if not model_name:
+            model_name = os.path.splitext(os.path.basename(vrm_pydata.filepath))[0]
+        self.model_name = model_name
         self.model_collection = bpy.data.collections.new(
             f"{self.model_name}_collection"
         )
