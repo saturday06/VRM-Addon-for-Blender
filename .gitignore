@@ -19,6 +19,7 @@
 !/mypy.ini
 !/poetry.lock
 !/pyproject.toml
+!/scripts/*.sh
 !/tests/vrm/in/*.vrm
 !/tests/vrm/out/*.vrm
 !/tests/vrm/out2/*.vrm
