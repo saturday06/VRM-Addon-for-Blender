@@ -229,8 +229,9 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         chest_len = backbone_len * 12 / 17  # noqa: F841 mesh生成で使ってる
         spine_len = backbone_len * 5 / 17
 
+        root = bone_add("Root", (0, 0, 0), (0, 0, 0.3))
         # 仙骨基部
-        hips = bone_add("Hips", (0, 0, body_separate), (0, 0, hips_tall), roll=90)
+        hips = bone_add("Hips", (0, 0, body_separate), (0, 0, hips_tall), root, roll=90)
         # 骨盤基部->胸郭基部
         spine = bone_add(
             "Spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=-90
