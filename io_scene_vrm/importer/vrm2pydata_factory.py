@@ -35,10 +35,11 @@ def bone(node: Dict[str, Any]) -> vrm_types.Node:
 def material(
     mat: Dict[str, Any], ext_mat: Dict[str, Any], use_simple_principled_material: bool
 ) -> Optional[vrm_types.Material]:
+    shader = ext_mat.get("shader")
+
     # standard, or VRM unsupported shader(no saved)
     if (
-        ext_mat.get("shader") == "VRM_USE_GLTFSHADER"
-        or ext_mat.get("shader") not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]
+        shader not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]
         or use_simple_principled_material
     ):
         gltf = vrm_types.MaterialGltf()
@@ -97,7 +98,7 @@ def material(
         return gltf
 
     # "MToon or Transparent_Zwrite"
-    if ext_mat["shader"] == "VRM/MToon":
+    if shader == "VRM/MToon":
         mtoon = vrm_types.MaterialMtoon()
         mtoon.name = ext_mat.get("name", "")
         mtoon.shader_name = ext_mat.get("shader", "")
@@ -127,7 +128,7 @@ def material(
         mtoon.tag_dic.update(ext_mat.get("tagMap", {}))
         return mtoon
 
-    if ext_mat["shader"] == "VRM/UnlitTransparentZWrite":
+    if shader == "VRM/UnlitTransparentZWrite":
         transparent_z_write = vrm_types.MaterialTransparentZWrite()
         transparent_z_write.name = ext_mat.get("name", "")
         transparent_z_write.shader_name = ext_mat.get("shader", "")
