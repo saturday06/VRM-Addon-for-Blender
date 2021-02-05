@@ -38,7 +38,7 @@ class BlendModel:
         set_bone_roll: bool,
         use_in_blender: bool,
     ) -> None:
-        self.meshes: Optional[Dict[int, bpy.types.Mesh]] = None
+        self.meshes: Dict[int, bpy.types.Mesh] = {}
         self.is_put_spring_bone_info = is_put_spring_bone_info
         self.import_normal = import_normal
         self.remove_doubles = remove_doubles
@@ -799,7 +799,6 @@ class BlendModel:
         armature = self.armature
         if armature is None:
             raise Exception("armature is None")
-        self.meshes = {}
         self.primitive_obj_dict = {
             pymesh[0].object_id: [] for pymesh in self.vrm_pydata.meshes
         }
@@ -1231,9 +1230,6 @@ class BlendModel:
         # TODO VRM1.0 is using node index that has mesh
         # materialValuesはそのままで行けるハズ・・・
         legacy_vrm0 = False
-        meshes = self.meshes
-        if meshes is None:
-            raise Exception("meshes is None")
         for blendshape_group in blendshape_groups:
             for bind_dic in blendshape_group["binds"]:
                 try:
@@ -1243,7 +1239,7 @@ class BlendModel:
                 except KeyError:
                     legacy_vrm0 = True
                     break
-                bind_dic["mesh"] = meshes[bind_dic["mesh"]].name
+                bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].name
                 bind_dic["weight"] = bind_dic["weight"] / 100
             if legacy_vrm0:
                 break
@@ -1282,14 +1278,10 @@ class BlendModel:
         # endregion springbone
 
     def cleaning_data(self) -> None:
-        meshes = self.meshes
-        if meshes is None:
-            raise Exception("meshes is None")
-
         # collection setting
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
-        for obj in meshes.values():
+        for obj in self.meshes.values():
             self.context.view_layer.objects.active = obj
             obj.select_set(True)
             bpy.ops.object.shade_smooth()
