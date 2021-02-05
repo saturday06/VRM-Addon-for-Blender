@@ -53,7 +53,7 @@ class BlendModel:
         ] = None  # TODO: The index of self.textures is image index. See self.texture_load(). Will fix it.
         self.armature: Optional[bpy.types.Object] = None
         self.bones: Dict[int, bpy.types.Bone] = {}
-        self.material_dict: Dict[int, Any] = {}
+        self.materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
         model_name = json_get(
@@ -348,7 +348,6 @@ class BlendModel:
     # region material
     def make_material(self) -> None:
         # 適当なので要調整
-        self.material_dict = dict()
         for index, mat in enumerate(self.vrm_pydata.materials):
             b_mat = bpy.data.materials.new(mat.name)
             if self.use_simple_principled_material and isinstance(
@@ -366,7 +365,7 @@ class BlendModel:
                 else:
                     print(f"unknown material {mat.name}")
             self.node_placer(b_mat.node_tree.nodes["Material Output"])
-            self.material_dict[index] = b_mat
+            self.materials[index] = b_mat
 
     # region material_util func
     def set_material_transparent(
@@ -1011,17 +1010,11 @@ class BlendModel:
             for prim in pymesh:
                 if prim.material_index is None:
                     continue
-                if (
-                    self.material_dict[prim.material_index].name
-                    not in obj.data.materials
-                ):
-                    obj.data.materials.append(self.material_dict[prim.material_index])
+                if self.materials[prim.material_index].name not in obj.data.materials:
+                    obj.data.materials.append(self.materials[prim.material_index])
                 mat_index = 0
                 for i, mat in enumerate(obj.material_slots):
-                    if (
-                        mat.material.name
-                        == self.material_dict[prim.material_index].name
-                    ):
+                    if mat.material.name == self.materials[prim.material_index].name:
                         mat_index = i
                 tris = len(prim.face_indices)
                 for n in range(tris):
