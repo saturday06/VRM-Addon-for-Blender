@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import bmesh
 import bpy
+from mathutils import Matrix
 
 from .. import vrm_types
 from ..gl_constants import GlConstants
@@ -157,11 +158,20 @@ class GlbObj:
             parent_head_local = (
                 b_bone.parent.head_local if b_bone.parent is not None else [0, 0, 0]
             )
+            world_head_local = (
+                self.armature.matrix_world @ Matrix.Translation(b_bone.head_local)
+            ).to_translation()
+            parent_world_head_local = (
+                self.armature.matrix_world @ Matrix.Translation(parent_head_local)
+            ).to_translation()
             node = OrderedDict(
                 {
                     "name": b_bone.name,
                     "translation": self.axis_blender_to_glb(
-                        [b_bone.head_local[i] - parent_head_local[i] for i in range(3)]
+                        [
+                            world_head_local[i] - parent_world_head_local[i]
+                            for i in range(3)
+                        ]
                     ),
                     # "rotation":[0,0,0,1],
                     # "scale":[1,1,1],
@@ -213,7 +223,12 @@ class GlbObj:
             for node_id in skin["joints"]:
                 bone_name = nodes[node_id]["name"]
                 bone_glb_world_pos = self.axis_blender_to_glb(
-                    self.armature.data.bones[bone_name].head_local
+                    (
+                        self.armature.matrix_world
+                        @ Matrix.Translation(
+                            self.armature.data.bones[bone_name].head_local
+                        )
+                    ).to_translation()
                 )
                 inv_matrix = [
                     1,
@@ -1087,8 +1102,8 @@ class GlbObj:
             bpy.ops.object.mode_set(mode="EDIT")
 
             bm_temp = bmesh.new()
+            mesh_data.transform(mesh.matrix_world, shape_keys=True)
             bm_temp.from_mesh(mesh_data)
-            bmesh.ops.transform(bm_temp, matrix=mesh.matrix_world, verts=bm_temp.verts)
             if not is_skin_mesh:
                 # TODO:
                 bmesh.ops.translate(bm_temp, vec=-mesh.location)
@@ -1701,8 +1716,12 @@ class GlbObj:
                 collider = {}
                 empty_offset_pos = [
                     empty.matrix_world.to_translation()[i]
-                    - self.armature.location[i]
-                    - self.armature.data.bones[empty.parent_bone].head_local[i]
+                    - (
+                        self.armature.matrix_world
+                        @ Matrix.Translation(
+                            self.armature.data.bones[empty.parent_bone].head_local
+                        )
+                    ).to_translation()[i]
                     for i in range(3)
                 ]
                 if vrm_version.startswith("0."):
