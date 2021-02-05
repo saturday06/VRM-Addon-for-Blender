@@ -7,7 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import os
 import traceback
-from typing import Any, Set, Tuple, cast
+from typing import Any, Set, cast
 
 import bpy
 from bpy.app.handlers import persistent
@@ -530,7 +530,7 @@ translation_dictionary = {
 
 
 # アドオン有効化時の処理
-def register(init_version: Tuple[int, int, int]) -> None:
+def register(init_version: Any) -> None:
     # Sanity check
     if init_version != version.version():
         raise Exception(f"Version mismatch: {init_version} != {version.version()}")

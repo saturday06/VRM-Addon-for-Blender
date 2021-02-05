@@ -58,13 +58,11 @@ bl_info = {
 
 def register() -> None:
     # Lazy import to minimize initialization before reload_package()
-    from typing import Tuple, cast
-
     # 'import io_scene_vrm' causes error in blender and vscode mypy integration
     # pylint: disable=no-name-in-module
     from . import io_scene_vrm  # type: ignore[attr-defined]
 
-    io_scene_vrm.register(cast(Tuple[int, int, int], bl_info["version"]))
+    io_scene_vrm.register(bl_info.get("version"))
 
 
 def unregister() -> None:
