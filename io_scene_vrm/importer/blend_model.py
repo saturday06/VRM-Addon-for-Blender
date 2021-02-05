@@ -1260,6 +1260,13 @@ class BlendModel:
         # node_idを管理するのは面倒なので、名前に置き換える
         # collider_groupも同じく
         for bone_group in spring_bonegroup_list:
+            center_node_id = bone_group.get("center")
+            if isinstance(center_node_id, int) and 0 <= center_node_id < len(
+                self.vrm_pydata.json["nodes"]
+            ):
+                bone_group["center"] = self.vrm_pydata.json["nodes"][center_node_id][
+                    "name"
+                ]
             bone_group["bones"] = [
                 self.vrm_pydata.json["nodes"][node_id]["name"]
                 for node_id in bone_group["bones"]

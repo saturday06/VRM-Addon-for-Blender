@@ -1726,6 +1726,12 @@ class GlbObj:
             object_pairs_hook=OrderedDict,
         )
         for bone_group in bone_groups:
+            center_node_name = bone_group.get("center")
+            if (
+                isinstance(center_node_name, str)
+                and center_node_name in node_name_id_dic
+            ):
+                bone_group["center"] = node_name_id_dic[center_node_name]
             bone_group["bones"] = [
                 node_name_id_dic[name] for name in bone_group["bones"]
             ]
