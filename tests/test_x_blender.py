@@ -65,13 +65,13 @@ def find_blender_command() -> str:
         return env
     if platform.system() == "Windows":
         completed_process = subprocess.run(
-            ["where", "blender"], shell=True, capture_output=True, check=False
+            "where blender", shell=True, capture_output=True, check=False
         )
         if completed_process.returncode == 0:
             return process_output_to_str(completed_process.stdout).splitlines()[0]
     if os.name == "posix":
         completed_process = subprocess.run(
-            ["which", "blender"], shell=True, capture_output=True, check=False
+            "which blender", shell=True, capture_output=True, check=False
         )
         if completed_process.returncode == 0:
             return process_output_to_str(completed_process.stdout).splitlines()[0]
