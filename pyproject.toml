@@ -18,7 +18,7 @@ flake8-no-pep420 = "*"
 flake8-simplify = "*"
 flake8-spellcheck = "*"
 isort = "*"
-mypy = "*"
+mypy = "0.790"
 pep8-naming = "*"
 pylint = "*"
 
