@@ -694,7 +694,7 @@ class GlbObj:
                 transparency_cutoff = None
             pbr_dic = pbr_fallback(
                 b_mat,
-                base_color=mtoon_vector_dic["_Color"],
+                base_color=mtoon_vector_dic.get("_Color"),
                 base_color_texture=main_texture,
                 normal_texture=normal_texture,
                 normal_texture_scale=mtoon_float_dic.get("_BumpScale"),
