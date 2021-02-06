@@ -701,7 +701,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         warning_messages.append(
                             lang_support(
                                 f'Bone name "{bone_name}" is not found in spring_bone setting.',
-                                f"spring_bone settingにある、ボーン名「{bone_name}」がアーマチュア中に見つかりません。"
+                                f"spring_boneのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
                                 + "テキストエディタの spring_bone の json を修正してください。",
                             )
                         )
