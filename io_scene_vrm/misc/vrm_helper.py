@@ -571,22 +571,9 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     json_as_dict = None
                 return make_json_return_value(json_as_dict)
 
-            def text_block_write(
-                block_name: str, data_dict: Dict[str, Any]
-            ) -> bpy.types.Text:
-                textblock = bpy.data.texts.new(name=f"{block_name}_.json")
-                textblock.write(json.dumps(data_dict, indent=4))
-                return textblock
-
             mesh_obj_names = [obj.name for obj in export_objects if obj.type == "MESH"]
             # region humanoid_parameter
-            humanoid_param_name = "humanoid_params"
-            humanoid_param = text_block_name_to_json(humanoid_param_name)
-            if humanoid_param is None:
-                armature[humanoid_param_name] = text_block_write(
-                    humanoid_param_name,
-                    vrm_types.Vrm0.HUMANOID_DEFAULT_PARAMS,
-                )
+            text_block_name_to_json("humanoid_params")
             # endregion humanoid_parameter
             # region first_person
             first_person_params_name = "firstPerson_params"

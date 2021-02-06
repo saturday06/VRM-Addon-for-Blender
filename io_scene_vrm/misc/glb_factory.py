@@ -1598,11 +1598,8 @@ class GlbObj:
                         }
                     )
             vrm0_humanoid_dic.update(
-                json.loads(
-                    self.textblock2str(
-                        bpy.data.texts[self.armature["humanoid_params"]]
-                    ),
-                    object_pairs_hook=OrderedDict,
+                self.textblock2json_dict(
+                    "humanoid_params", vrm_types.Vrm0.HUMANOID_DEFAULT_PARAMS
                 )
             )
         else:
