@@ -535,7 +535,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 if armature is None:
                     return None
                 if textblock_name not in armature:
-                    messages.append(
+                    warning_messages.append(
                         lang_support(
                             f'textblock name "{textblock_name}" isn\'t put on armature custom property.',
                             f"「{textblock_name}」のテキストブロックの指定がアーマチュアのカスタムプロパティにありません。",
@@ -547,7 +547,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 with contextlib.suppress(TypeError):
                     text_found = text_key in bpy.data.texts
                 if not text_found:
-                    messages.append(
+                    warning_messages.append(
                         lang_support(
                             f'textblock name "{textblock_name}" doesn\'t exist.',
                             f"「{textblock_name}」のテキストがエディタ上にありません。",
@@ -560,7 +560,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         object_pairs_hook=OrderedDict,
                     )
                 except json.JSONDecodeError as e:
-                    messages.append(
+                    warning_messages.append(
                         lang_support(
                             f'Cannot load textblock of "{textblock_name}" as Json at line {e.lineno}. '
                             + "please check json grammar.",
