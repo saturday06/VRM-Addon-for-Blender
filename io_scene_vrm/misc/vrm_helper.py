@@ -470,8 +470,8 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             if image.is_dirty or (image.packed_file is None and not image.filepath):
                 messages.append(
                     lang_support(
-                        f'"{image.name}" is not saved. Please save.',
-                        f"「{image.name}」のBlender上での変更を保存してください。",
+                        f'Image "{image.name}" is not saved. Please save.',
+                        f"画像「{image.name}」のBlender上での変更を保存してください。",
                     )
                 )
                 continue
