@@ -640,7 +640,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             for blendshape_group in blendshape_groups:
                 for bind_dic in blendshape_group["binds"]:
                     if bind_dic["mesh"] not in mesh_obj_names:
-                        messages.append(
+                        warning_messages.append(
                             lang_support(
                                 f"mesh \"{bind_dic['mesh']}\" is not found. "
                                 + f'Please fix setting in textblock "{blendshape_group_name}"',
@@ -650,7 +650,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         )
                     else:
                         if bpy.data.objects[bind_dic["mesh"]].data.shape_keys is None:
-                            messages.append(
+                            warning_messages.append(
                                 lang_support(
                                     f"mesh \"{bind_dic['mesh']}\" doesn't have shapekey. "
                                     + "But blendshape Group needs it. "
@@ -667,7 +667,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                                     bind_dic["mesh"]
                                 ].data.shape_keys.key_blocks
                             ):
-                                messages.append(
+                                warning_messages.append(
                                     lang_support(
                                         f"mesh \"{bind_dic['mesh']}\" doesn't have \"{bind_dic['index']}\" shapekey. "
                                         + "But blendshape Group needs it. "
@@ -678,7 +678,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                                     )
                                 )
                             if bind_dic["weight"] > 1 or bind_dic["weight"] < 0:
-                                messages.append(
+                                warning_messages.append(
                                     lang_support(
                                         f"mesh \"{bind_dic['mesh']}:shapekey:{bind_dic['index']}:value\" "
                                         + "needs between 0 and 1."

@@ -19,6 +19,7 @@ from mathutils import Matrix
 
 from .. import vrm_types
 from ..gl_constants import GlConstants
+from ..vrm_types import nested_json_list_getter as json_list_get
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 from .version import version
 from .vrm_helper import find_export_objects, shader_nodes_and_materials
@@ -1658,10 +1659,7 @@ class GlbObj:
             "blendShapeMaster" if vrm_version.startswith("0.") else "blendShape"
         )
         vrm_extension_dic[blendshape_group_name] = vrm_blend_shape_groups_dic = {}
-        blend_shape_groups = json.loads(
-            self.textblock2str(bpy.data.texts[self.armature["blendshape_group"]]),
-            object_pairs_hook=OrderedDict,
-        )
+        blend_shape_groups = self.textblock2json_list("blendshape_group", [])
 
         # meshを名前からid
         # weightを0-1から0-100に
@@ -1678,16 +1676,27 @@ class GlbObj:
             return max_val
 
         for blend_shape_group in blend_shape_groups:
-            for bind in blend_shape_group["binds"]:
+            binds = list(blend_shape_group["binds"])
+            for bind in binds:
                 # TODO VRM1.0 is using node index that has mesh
-                bind["mesh"] = [
+                matched_mesh_indices = [
                     i
                     for i, mesh in enumerate(self.json_dic["meshes"])
                     if mesh["name"] == bind["mesh"]
-                ][0]
-                bind["index"] = self.json_dic["meshes"][bind["mesh"]]["primitives"][0][
-                    "extras"
-                ]["targetNames"].index(bind["index"])
+                ]
+                if not matched_mesh_indices:
+                    blend_shape_group["binds"].remove(bind)
+                    continue
+                bind["mesh"] = matched_mesh_indices[0]
+                target_names = json_list_get(
+                    self.json_dic,
+                    ["meshes", bind["mesh"], "primitives", 0, "extras", "targetNames"],
+                    [],
+                )
+                if bind["index"] not in target_names:
+                    blend_shape_group["binds"].remove(bind)
+                    continue
+                bind["index"] = target_names.index(bind["index"])
                 bind["weight"] = (
                     clamp(0, bind["weight"] * 100, 100)
                     if vrm_version.startswith("0.")

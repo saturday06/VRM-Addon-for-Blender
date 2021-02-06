@@ -449,6 +449,15 @@ def nested_json_value_getter(
     return default
 
 
+def nested_json_list_getter(
+    json: Optional[Union[Dict[str, Any], List[Any]]],
+    attrs: List[Union[int, str]],
+    default: List[Any],
+) -> List[Any]:
+    result = nested_json_value_getter(json, attrs, default)
+    return result if isinstance(result, list) else default
+
+
 def normalize_weights_compatible_with_gl_float(
     weights: Sequence[float],
 ) -> Sequence[float]:
