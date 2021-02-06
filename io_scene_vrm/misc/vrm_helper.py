@@ -698,7 +698,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             for bone_group in spring_bonegroup_list:
                 for bone_name in bone_group["bones"]:
                     if bone_name not in bone_names_list:
-                        messages.append(
+                        warning_messages.append(
                             lang_support(
                                 f'Bone name "{bone_name}" is not found in spring_bone setting.',
                                 f"spring_bone settingにある、ボーン名「{bone_name}」がアーマチュア中に見つかりません。"
@@ -707,7 +707,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         )
                 for bone_name in bone_group["colliderGroups"]:
                     if bone_name not in bone_names_list:
-                        messages.append(
+                        warning_messages.append(
                             lang_support(
                                 f'Bone name "{bone_name}" is not found in spring_bone setting.',
                                 f"spring_bone settingにある、ボーン名「{bone_name}」がアーマチュア中に見つかりません。"

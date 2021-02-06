@@ -1771,10 +1771,7 @@ class GlbObj:
         # ボーン名からnode_idに
         # collider_groupも名前からcolliderGroupのindexに直す
         collider_node_id_list = [c_g["node"] for c_g in collider_group_list]
-        bone_groups = json.loads(
-            self.textblock2str(bpy.data.texts[self.armature["spring_bone"]]),
-            object_pairs_hook=OrderedDict,
-        )
+        bone_groups = self.textblock2json_list("spring_bone", [])
         for bone_group in bone_groups:
             center_node_name = bone_group.get("center")
             if (
@@ -1782,12 +1779,18 @@ class GlbObj:
                 and center_node_name in node_name_id_dic
             ):
                 bone_group["center"] = node_name_id_dic[center_node_name]
+            else:
+                bone_group["center"] = -1
             bone_group["bones"] = [
-                node_name_id_dic[name] for name in bone_group["bones"]
+                node_name_id_dic[name]
+                for name in bone_group["bones"]
+                if name in node_name_id_dic
             ]
             bone_group["colliderGroups"] = [
                 collider_node_id_list.index(node_name_id_dic[name])
                 for name in bone_group["colliderGroups"]
+                if name in node_name_id_dic
+                and node_name_id_dic[name] in collider_node_id_list
             ]
         vrm_extension_dic[springbone_name]["boneGroups"] = bone_groups
         # endregion boneGroup
