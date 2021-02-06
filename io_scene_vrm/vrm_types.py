@@ -421,7 +421,7 @@ def nested_json_value_getter(
 
     attr = attrs.pop(0)
 
-    if isinstance(json, list) and isinstance(attr, int) and 0 < len(json) < attr:
+    if isinstance(json, list) and isinstance(attr, int) and 0 <= attr < len(json):
         if not attrs:
             return make_json_return_value(json[attr])
         return nested_json_value_getter(json[attr], attrs, default)
