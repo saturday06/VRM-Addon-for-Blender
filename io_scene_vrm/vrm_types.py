@@ -51,6 +51,21 @@ class Vrm0:
         "feetSpacing": 0,
         "hasTranslationDoF": False,
     }
+    FIRST_PERSON_DEFAULT_LOOK_AT_PARAMS = {
+        "curve": [0, 0, 0, 1, 1, 1, 1, 0],
+        "xRange": 90,
+        "yRange": 10,
+    }
+    FIRST_PERSON_DEFAULT_PARAMS: Dict[str, Any] = {
+        "firstPersonBone": -1,
+        "firstPersonBoneOffset": {"x": 0, "y": 0.06, "z": 0},
+        "lookAtHorizontalInner": FIRST_PERSON_DEFAULT_LOOK_AT_PARAMS,
+        "lookAtHorizontalOuter": FIRST_PERSON_DEFAULT_LOOK_AT_PARAMS,
+        "lookAtTypeName": "Bone",
+        "lookAtVerticalDown": FIRST_PERSON_DEFAULT_LOOK_AT_PARAMS,
+        "lookAtVerticalUp": FIRST_PERSON_DEFAULT_LOOK_AT_PARAMS,
+        "meshAnnotations": [],
+    }
 
 
 class Vrm1:

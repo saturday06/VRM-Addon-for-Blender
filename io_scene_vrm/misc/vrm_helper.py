@@ -597,19 +597,21 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     fp_bone != -1
                     and firstperson_params["firstPersonBone"] not in armature.data.bones
                 ):
-                    messages.append(
+                    warning_messages.append(
                         lang_support(
                             f"firstPersonBone \"{firstperson_params['firstPersonBone']}\" is not found. "
-                            + f'Please fix in textblock "{first_person_params_name}"',
+                            + f'Please fix in textblock "{first_person_params_name}". '
+                            + 'Set VRM HumanBone "head" instead automatically.',
                             f"firstPersonBone「{firstperson_params['firstPersonBone']}」がアーマチュアにありませんでした。"
-                            + f"テキストエディタの「{first_person_params_name}」の該当項目を修正してください。",
+                            + f"テキストエディタの「{first_person_params_name}」の該当項目を修正してください。"
+                            + "代わりにfirstPersonBoneとしてVRMヒューマンボーン「head」を自動で設定します。",
                         )
                     )
                 if "meshAnnotations" in firstperson_params.keys():
                     if isinstance(firstperson_params["meshAnnotations"], list):
                         for mesh_annotation in firstperson_params["meshAnnotations"]:
                             if mesh_annotation["mesh"] not in mesh_obj_names:
-                                messages.append(
+                                warning_messages.append(
                                     lang_support(
                                         f"mesh \"{mesh_annotation['mesh']}\" is not found. "
                                         + f'Please fix setting in textblock "{first_person_params_name}"',
@@ -618,7 +620,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                                     )
                                 )
                     else:
-                        messages.append(
+                        warning_messages.append(
                             lang_support(
                                 f'meshAnnotations in textblock "{first_person_params_name}" must be list.',
                                 f"テキストエディタの「{first_person_params_name}」のmeshAnnotationsはリスト要素でないといけません。",

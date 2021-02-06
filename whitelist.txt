@@ -205,7 +205,7 @@ superciliaris
 tagmap
 texcoord
 textblock
-textblock2str
+textblock2json
 texture0
 texture1
 texture10

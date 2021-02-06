@@ -4,6 +4,7 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
+import contextlib
 import json
 import os
 import struct
@@ -78,9 +79,30 @@ class GlbObj:
     def axis_blender_to_glb(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
-    @staticmethod
-    def textblock2str(textblock: bpy.types.Text) -> str:
-        return "".join([line.body for line in textblock.lines])
+    def textblock2json(self, armature_key: str, default: Any) -> Any:
+        if armature_key not in self.armature:
+            return default
+        with contextlib.suppress(TypeError):
+            if self.armature[armature_key] not in bpy.data.texts:
+                return default
+        textblock = bpy.data.texts[self.armature[armature_key]]
+        textblock_str = "".join([line.body for line in textblock.lines])
+        with contextlib.suppress(json.JSONDecodeError):
+            return json.loads(
+                textblock_str,
+                object_pairs_hook=OrderedDict,
+            )
+        return default
+
+    def textblock2json_dict(
+        self, armature_key: str, default: Dict[Any, Any]
+    ) -> Dict[Any, Any]:
+        result = self.textblock2json(armature_key, default)
+        return result if isinstance(result, dict) else default
+
+    def textblock2json_list(self, armature_key: str, default: List[Any]) -> List[Any]:
+        result = self.textblock2json(armature_key, default)
+        return result if isinstance(result, list) else default
 
     def image_to_bin(self) -> None:
         # collect used image
@@ -1607,37 +1629,31 @@ class GlbObj:
 
         # endregion humanoid
         # region firstPerson
-        vrm_extension_dic["firstPerson"] = vrm_fp_dic = {}
-        vrm_fp_dic.update(
-            json.loads(
-                self.textblock2str(bpy.data.texts[self.armature["firstPerson_params"]]),
-                object_pairs_hook=OrderedDict,
-            )
+        vrm_fp_dic = self.textblock2json_dict(
+            "firstPerson_params", vrm_types.Vrm0.FIRST_PERSON_DEFAULT_PARAMS
         )
+        vrm_extension_dic["firstPerson"] = vrm_fp_dic
         if (
             "firstPersonBone" in vrm_fp_dic.keys()
             and vrm_fp_dic["firstPersonBone"] != -1
         ):
-            vrm_fp_dic["firstPersonBone"] = node_name_id_dic[
-                vrm_fp_dic["firstPersonBone"]
-            ]
+            node_name = vrm_fp_dic["firstPersonBone"]
+            if node_name not in node_name_id_dic:
+                node_name = self.armature.data["head"]
+            vrm_fp_dic["firstPersonBone"] = node_name_id_dic[node_name]
         if "meshAnnotations" in vrm_fp_dic.keys():
             for mesh_annotation in vrm_fp_dic["meshAnnotations"]:
-                mesh_annotation["mesh"] = [
+                matched_mesh_indices = [
                     i
                     for i, mesh in enumerate(self.json_dic["meshes"])
                     if mesh["name"] == mesh_annotation["mesh"]
-                ][0]
+                ]
+                mesh_annotation["mesh"] = (matched_mesh_indices + [-1])[0]
                 # TODO VRM1.0 is using node index that has mesh
         # TODO
         if vrm_version.startswith("1."):
-            vrm_extension_dic["lookAt"] = vrm_look_at_dic = {}
-            vrm_look_at_dic.update(
-                json.loads(
-                    self.textblock2str(bpy.data.texts[self.armature["lookat_params"]]),
-                    object_pairs_hook=OrderedDict,
-                )
-            )
+            vrm_extension_dic["lookAt"] = {}
+            self.textblock2json("lookat_params", {})
 
         # endregion firstPerson
         # region blendShapeMaster
