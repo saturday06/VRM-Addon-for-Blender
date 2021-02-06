@@ -696,6 +696,18 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             if not isinstance(spring_bonegroup_list, list):
                 spring_bonegroup_list = []
             for bone_group in spring_bonegroup_list:
+                if (
+                    isinstance(bone_group.get("center"), str)
+                    and bone_group["center"] not in bone_names_list
+                ):
+                    bone_name = bone_group["center"]
+                    warning_messages.append(
+                        lang_support(
+                            f'Center bone name "{bone_name}" is not found in spring_bone setting.',
+                            f"spring_boneのcenterのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
+                            + "テキストエディタの spring_bone の json を修正してください。",
+                        )
+                    )
                 for bone_name in bone_group["bones"]:
                     if bone_name not in bone_names_list:
                         warning_messages.append(
