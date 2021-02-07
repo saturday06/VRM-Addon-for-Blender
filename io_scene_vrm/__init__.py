@@ -295,7 +295,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
     # どこに置くかの定義
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM HELPER"
+    bl_category = "VRM"
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:

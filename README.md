@@ -20,7 +20,7 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 
 - VRMの物理拡張などの設定は Blender内蔵テキストエディタに出力、アーマチュアのオブジェクトカスタムプロパティにそのパスが書かれます
 - モデルライセンスはアーマチュアのオブジェクトカスタムプロパティに出力されます
-- Humanoidボーン属性はVRM HELPERタブからアクセス可能です
+- Humanoidボーン属性はVRMタブからアクセス可能です
 - これらはVRMエクスポート時に利用されます(詳しくは下部の図を参照
 - 100,000フォルダを上限にインポートごとに新たなテクスチャフォルダを作成する。(デフォルト動作) インポートウィンドウのオプションで->単一のテクスチャフォルダに存在しないテクスチャだけ書き込む仕様になりました。title,author,versionが設定していないと適当なフォルダ名で生成します。
 - This addon makes texture folder for import each times (max:100,000) name based on VRM title, author, model version.
