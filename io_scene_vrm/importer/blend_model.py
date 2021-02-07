@@ -67,9 +67,7 @@ class BlendModel:
         if not model_name:
             model_name = os.path.splitext(os.path.basename(vrm_pydata.filepath))[0]
         self.model_name = model_name
-        self.model_collection = bpy.data.collections.new(
-            f"{self.model_name}_collection"
-        )
+        self.model_collection = bpy.data.collections.new(self.model_name)
         self.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build()
 
@@ -1348,7 +1346,7 @@ class BlendModel:
                         continue
                     bone[key] = val
 
-        coll = bpy.data.collections.new(f"{self.model_name}_colliders")
+        coll = bpy.data.collections.new("Colliders")
         self.model_collection.children.link(coll)
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
@@ -1378,8 +1376,6 @@ class BlendModel:
                 obj.empty_display_size = collider["radius"]
                 obj.empty_display_type = "SPHERE"
                 coll.objects.link(obj)
-
-        return
 
     def make_pole_target(
         self, rl: str, upper_leg_name: str, lower_leg_name: str, foot_name: str
