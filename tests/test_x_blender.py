@@ -134,9 +134,9 @@ class TestBlender(TestCase):
         )
 
     def test_io(self) -> None:
-        update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "yes"
         for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
             with self.subTest(vrm):
+        update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
                 self.run_script(
                     "blender_io.py",
                     os.path.join(test_in_vrm_dir, vrm),

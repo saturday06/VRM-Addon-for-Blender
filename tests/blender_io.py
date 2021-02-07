@@ -6,7 +6,7 @@ import sys
 import bpy
 
 os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
-update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "yes"
+update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
 
 in_path, expected_out_path, temp_dir_path = sys.argv[sys.argv.index("--") + 1 :]
 
