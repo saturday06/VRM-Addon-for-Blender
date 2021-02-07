@@ -1,10 +1,10 @@
-# VRM Addon for Blender <a href="https://github.com/saturday06/VRM_Addon_for_Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_Addon_for_Blender/workflows/Test/badge.svg"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM_Addon_for_Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_Addon_for_Blender/workflows/Test/badge.svg"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 BlenderにVRM関連機能を追加するアドオンです。<strong>2021年2月7日のリリースでアドオン名(旧名:VRM_IMPORTER_for_Blender)とインストール方法が変わりました。ご注意ください。アップデートの際は古いアドオンを削除お願いします。</strong>
 
-An addon that adds VRM-related functions to Blender. <strong>Please note that the addon name (ex-VRM_IMPORTER_for_Blender) and its installation method has changed since the release on February 7, 2021. Please remove the old addon when updating.</strong>
+An add-on that adds VRM-related functions to Blender. <strong>Please note that the add-on name (ex-VRM_IMPORTER_for_Blender) and its installation method has changed since the release on February 7, 2021. Please remove the old add-on when updating.</strong>
 
-<a alt="Download addon for Blender 2.82+" href="https://github.com/saturday06/VRM_Addon_for_Blender/archive/release.zip"><img src="./docs/download_button.png"></a>
+<a alt="Download add-on for Blender 2.82+" href="https://github.com/saturday06/VRM_Addon_for_Blender/archive/release.zip"><img src="./docs/download_button.png"></a>
 
 # Installation / インストール方法
 
@@ -23,7 +23,7 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 - Humanoidボーン属性はVRMタブからアクセス可能です
 - これらはVRMエクスポート時に利用されます(詳しくは下部の図を参照
 - 100,000フォルダを上限にインポートごとに新たなテクスチャフォルダを作成する。(デフォルト動作) インポートウィンドウのオプションで->単一のテクスチャフォルダに存在しないテクスチャだけ書き込む仕様になりました。title,author,versionが設定していないと適当なフォルダ名で生成します。
-- This addon makes texture folder for import each times (max:100,000) name based on VRM title, author, model version.
+- This add-on makes texture folder for import each times (max:100,000) name based on VRM title, author, model version.
 - インポート時に自動でAutoIK用のボーンのセットアップを行います。もとのコードは[こちらで配布されているもの](https://booth.pm/ja/items/1697977)で、作者様から許可をいただきマージしました。
 
 ## Edit / 編集
