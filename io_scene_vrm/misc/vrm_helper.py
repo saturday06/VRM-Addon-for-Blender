@@ -449,7 +449,9 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         try:
             if armature is not None and armature.get("texture") is not None:
                 if armature["texture"] in bpy.data.images:
-                    used_images.append(bpy.data.images[armature["texture"]])
+                    image = bpy.data.images[armature["texture"]]
+                    if image not in used_images:
+                        used_images.append(image)
                 else:
                     messages.append(
                         lang_support(
@@ -802,7 +804,8 @@ def node_material_input_check(
         else:
             if expect_node_type == "TEX_IMAGE":
                 if n.image is not None:
-                    used_images.append(n.image)
+                    if n.image not in used_images:
+                        used_images.append(n.image)
                 else:
                     messages.append(
                         lang_support(
