@@ -8,7 +8,10 @@ import bpy
 os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
 
-in_path, expected_out_path, temp_dir_path = sys.argv[sys.argv.index("--") + 1 :]
+in_path, expected_out_path, temp_dir_path, extract_textures_str = sys.argv[
+    sys.argv.index("--") + 1 :
+]
+extract_textures = extract_textures_str == "true"
 
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.object.delete()
@@ -17,6 +20,8 @@ while bpy.data.collections:
 
 bpy.ops.import_scene.vrm(
     filepath=in_path,
+    extract_textures_into_folder=extract_textures,
+    make_new_texture_folder=extract_textures,
     # Same as __init__.py menu_import(self, context) for now
     is_put_spring_bone_info=True,
     import_normal=True,
@@ -43,6 +48,7 @@ try:
     assert (
         expected_size == actual_size
     ), f"""Unexpected VRM Output Size
+  Extract textures: {extract_textures}
   Input: {in_path}
   Expected Output: {expected_out_path}
   Expected Size: {expected_size}
@@ -53,6 +59,7 @@ try:
         assert (  # pylint: disable=W0199
             expected_bytes == actual_bytes
         ), f"""Unexpected VRM Binary
+  Extract textures: {extract_textures}
   Input: {in_path}
   Expected Output: {expected_out_path}
   Actual Output: {actual_out_path}"""

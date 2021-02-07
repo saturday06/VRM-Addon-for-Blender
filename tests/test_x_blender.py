@@ -134,14 +134,20 @@ class TestBlender(TestCase):
         )
 
     def test_io(self) -> None:
-        for vrm in [f for f in os.listdir(test_in_vrm_dir) if f.endswith(".vrm")]:
-            with self.subTest(vrm):
         update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
+        for (vrm, extract_textures) in [
+            (v, e)
+            for e in ["false", "true"]
+            for v in os.listdir(test_in_vrm_dir)
+            if v.endswith(".vrm")
+        ]:
+            with self.subTest((vrm, extract_textures)):
                 self.run_script(
                     "blender_io.py",
                     os.path.join(test_in_vrm_dir, vrm),
                     os.path.join(test_out_vrm_dir, vrm),
                     test_temp_vrm_dir,
+                    extract_textures,
                 )
 
                 if (
@@ -153,6 +159,7 @@ class TestBlender(TestCase):
                         os.path.join(test_out_vrm_dir, vrm),
                         os.path.join(test_out_vrm_dir, vrm),
                         test_temp_vrm_dir,
+                        extract_textures,
                     )
                     continue
 
@@ -161,6 +168,7 @@ class TestBlender(TestCase):
                     os.path.join(test_out_vrm_dir, vrm),
                     os.path.join(test_out2_vrm_dir, vrm),
                     test_temp_vrm_dir,
+                    extract_textures,
                 )
 
                 if update_vrm_dir and not os.path.exists(
@@ -180,4 +188,5 @@ class TestBlender(TestCase):
                     os.path.join(test_out2_vrm_dir, vrm),
                     os.path.join(test_last_vrm_dir, vrm),
                     test_temp_vrm_dir,
+                    extract_textures,
                 )
