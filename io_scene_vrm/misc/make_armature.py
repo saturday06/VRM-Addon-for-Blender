@@ -123,8 +123,6 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N
     ) -> Tuple[bpy.types.Object, Dict[str, Any]]:
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
-        armature.name = "Skeleton"
-        armature.show_in_front = True
 
         bone_dic = {}
 

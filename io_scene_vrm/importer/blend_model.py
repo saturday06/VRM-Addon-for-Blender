@@ -220,9 +220,6 @@ class BlendModel:
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         self.armature = self.context.object
         self.model_collection.objects.link(self.armature)
-        self.armature.name = "Skeleton"
-        self.armature.show_in_front = True
-        self.armature.data.display_type = "STICK"
         self.bones = {}
         armature_edit_bones: Dict[int, bpy.types.Bone] = {}
 
