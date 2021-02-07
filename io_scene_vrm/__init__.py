@@ -54,6 +54,24 @@ class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
+def disable_make_new_texture_folder_if_disabled(
+    import_op: bpy.types.Operator, context: bpy.types.Context
+) -> None:
+    if not bool(import_op.extract_textures_into_folder) and bool(
+        import_op.make_new_texture_folder
+    ):
+        import_op.make_new_texture_folder = False
+
+
+def enable_extract_textures_into_folder_if_enabled(
+    import_op: bpy.types.Operator, context: bpy.types.Context
+) -> None:
+    if bool(import_op.make_new_texture_folder) and not bool(
+        import_op.extract_textures_into_folder
+    ):
+        import_op.extract_textures_into_folder = True
+
+
 class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
@@ -65,8 +83,13 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
         default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
     )
 
+    extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Extract texture images into the folder",  # noqa: F722
+        update=disable_make_new_texture_folder_if_disabled,
+    )
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Make new texture folder (limit:100,000)"  # noqa: F722
+        name="Make new texture and json folder (limit:100,000)",  # noqa: F722
+        update=enable_extract_textures_into_folder_if_enabled,
     )
     is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Put Collider Empty"  # noqa: F722
@@ -92,6 +115,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                 context,
                 vrm_load.read_vrm(
                     self.filepath,
+                    self.extract_textures_into_folder,
                     self.make_new_texture_folder,
                     self.use_simple_principled_material,
                     license_check=True,
@@ -115,6 +139,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                 import_anyway=import_anyway,
                 license_confirmations=license_error.license_confirmations(),
                 filepath=self.filepath,
+                extract_textures_into_folder=self.extract_textures_into_folder,
                 make_new_texture_folder=self.make_new_texture_folder,
                 is_put_spring_bone_info=self.is_put_spring_bone_info,
                 import_normal=self.import_normal,
@@ -137,6 +162,7 @@ def create_blend_model(
             context,
             vrm_pydata,
             addon.filepath,
+            addon.extract_textures_into_folder,
             addon.is_put_spring_bone_info,
             addon.import_normal,
             addon.remove_doubles,
@@ -154,7 +180,8 @@ def menu_import(
     import_op: bpy.types.Operator, context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
     op = import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
-    op.make_new_texture_folder = True
+    op.extract_textures_into_folder = False
+    op.make_new_texture_folder = False
     op.is_put_spring_bone_info = True
     op.import_normal = True
     op.remove_doubles = False
@@ -423,6 +450,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
     license_confirmations: bpy.props.CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
     import_anyway: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
+    extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
     make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
     is_put_spring_bone_info: bpy.props.BoolProperty()  # type: ignore[valid-type]
     import_normal: bpy.props.BoolProperty()  # type: ignore[valid-type]
@@ -438,6 +466,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
             context,
             vrm_load.read_vrm(
                 self.filepath,
+                self.extract_textures_into_folder,
                 self.make_new_texture_folder,
                 self.use_simple_principled_material,
                 license_check=False,
@@ -519,7 +548,7 @@ translation_dictionary = {
         ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
         ("*", "VRM Export"): "VRMエクスポート",
         ("*", "Validate VRM model"): "VRMモデルのチェック",
-        ("*", "Extract texture images and json to folder"): "テクスチャー画像やjsonをフォルダに展開",
+        ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
     }
 }
 

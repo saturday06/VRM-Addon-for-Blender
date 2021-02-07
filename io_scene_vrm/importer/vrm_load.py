@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import ParseResult, parse_qsl, urlparse
@@ -120,6 +121,7 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
 # あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
 def read_vrm(
     model_path: str,
+    extract_textures_into_folder: bool,
     make_new_texture_folder: bool,
     use_simple_principled_material: bool,
     license_check: bool,
@@ -141,7 +143,9 @@ def read_vrm(
     if license_check:
         validate_license(vrm_pydata)
 
-    texture_rip(vrm_pydata, body_binary, make_new_texture_folder)
+    texture_rip(
+        vrm_pydata, body_binary, extract_textures_into_folder, make_new_texture_folder
+    )
 
     vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json, body_binary)
 
@@ -272,12 +276,17 @@ def validate_license(vrm_pydata: vrm_types.VrmPydata) -> None:
 
 
 def texture_rip(
-    vrm_pydata: vrm_types.VrmPydata, body_binary: bytes, make_new_texture_folder: bool
+    vrm_pydata: vrm_types.VrmPydata,
+    body_binary: bytes,
+    extract_textures_into_folder: bool,
+    make_new_texture_folder: bool,
 ) -> None:
     buffer_views = vrm_pydata.json["bufferViews"]
     binary_reader = BinaryReader(body_binary)
-    # ここ画像切り出し #blenderはバイト列から画像を読み込む術がないので、画像ファイルを書き出して、それを読み込むしかない。
-    vrm_dir_path = os.path.dirname(os.path.abspath(vrm_pydata.filepath))
+    if extract_textures_into_folder:
+        vrm_dir_path = os.path.dirname(os.path.abspath(vrm_pydata.filepath))
+    else:
+        vrm_dir_path = tempfile.mkdtemp()  # TODO: cleanup
     if "images" not in vrm_pydata.json:
         return
 
@@ -586,6 +595,7 @@ def node_read(vrm_pydata: vrm_types.VrmPydata) -> None:
 if __name__ == "__main__":
     read_vrm(
         sys.argv[1],
+        extract_textures_into_folder=True,
         make_new_texture_folder=True,
         use_simple_principled_material=False,
         license_check=True,

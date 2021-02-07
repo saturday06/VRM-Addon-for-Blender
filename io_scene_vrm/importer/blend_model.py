@@ -31,6 +31,7 @@ class BlendModel:
         context: bpy.types.Context,
         vrm_pydata: vrm_types.VrmPydata,
         filepath: str,
+        extract_textures_into_folder: bool,
         is_put_spring_bone_info: bool,
         import_normal: bool,
         remove_doubles: bool,
@@ -38,6 +39,7 @@ class BlendModel:
         set_bone_roll: bool,
     ) -> None:
         self.meshes: Dict[int, bpy.types.Mesh] = {}
+        self.extract_textures_into_folder = extract_textures_into_folder
         self.is_put_spring_bone_info = is_put_spring_bone_info
         self.import_normal = import_normal
         self.remove_doubles = remove_doubles
@@ -191,6 +193,9 @@ class BlendModel:
         self.textures = []
         for image_props in self.vrm_pydata.image_properties:
             img = bpy.data.images.load(image_props.filepath)
+            if not self.extract_textures_into_folder:
+                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.82-release/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L100
+                img.pack()
             tex = bpy.data.textures.new(name=image_props.name, type="IMAGE")
             tex.image = img
             self.textures.append(tex)
