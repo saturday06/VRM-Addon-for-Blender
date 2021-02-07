@@ -88,7 +88,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
         update=disable_make_new_texture_folder_if_disabled,
     )
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Make new texture and json folder (limit:100,000)",  # noqa: F722
+        name="Make new texture folder (limit:100,000)",  # noqa: F722
         update=enable_extract_textures_into_folder_if_enabled,
     )
     is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
