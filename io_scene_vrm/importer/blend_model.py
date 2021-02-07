@@ -67,8 +67,6 @@ class BlendModel:
         if not model_name:
             model_name = os.path.splitext(os.path.basename(vrm_pydata.filepath))[0]
         self.model_name = model_name
-        self.model_collection = bpy.data.collections.new(self.model_name)
-        self.context.scene.collection.children.link(self.model_collection)
         self.vrm_model_build()
 
     def vrm_model_build(self) -> None:
@@ -182,9 +180,6 @@ class BlendModel:
         for obj in bpy.context.selected_objects:
             obj.select_set(False)
 
-        for obj in self.model_collection.all_objects:
-            obj.select_set(True)
-
         # image_path_to Texture
 
     def texture_load(self) -> None:
@@ -215,9 +210,11 @@ class BlendModel:
 
     def make_armature(self) -> None:
         # build bones as armature
-        bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
-        self.armature = self.context.object
-        self.model_collection.objects.link(self.armature)
+        armature_data = bpy.data.armatures.new("Armature")
+        self.armature = bpy.data.objects.new(armature_data.name, armature_data)
+        self.context.scene.collection.objects.link(self.armature)
+        bpy.context.view_layer.objects.active = self.armature
+        bpy.ops.object.mode_set(mode="EDIT")
         self.bones = {}
         armature_edit_bones: Dict[int, bpy.types.Bone] = {}
 
@@ -333,12 +330,6 @@ class BlendModel:
         # call when bone built
         self.context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="OBJECT")
-        try:
-            for coll in self.armature.users_collection:
-                if coll.name != self.model_collection.name:
-                    coll.objects.unlink(self.armature)
-        except Exception:
-            print("Master collection doesn't have armature obj")
 
     # region material
     def make_material(self) -> None:
@@ -811,6 +802,7 @@ class BlendModel:
             b_mesh.from_pydata(pos, [], face_index)
             b_mesh.update()
             obj = bpy.data.objects.new(pymesh[0].name, b_mesh)
+            obj.parent = self.armature
             self.meshes[pymesh[0].object_id] = obj
             # region obj setting
             # origin 0:Vtype_Node 1:mesh 2:skin
@@ -830,7 +822,6 @@ class BlendModel:
                         continue
                     if key_is_node_id in py_node.children:
                         parent_node_id = node_id
-                obj.parent = self.armature
                 obj.parent_type = "BONE"
                 if parent_node_id is not None:
                     obj.parent_bone = armature.data.bones[
@@ -1273,8 +1264,6 @@ class BlendModel:
             self.context.view_layer.objects.active = obj
             obj.select_set(True)
             bpy.ops.object.shade_smooth()
-            self.model_collection.objects.link(self.context.active_object)
-            self.context.scene.collection.objects.unlink(self.context.active_object)
             bpy.ops.object.select_all(action="DESELECT")
 
     def set_bone_roll(self) -> None:
@@ -1347,7 +1336,7 @@ class BlendModel:
                     bone[key] = val
 
         coll = bpy.data.collections.new("Colliders")
-        self.model_collection.children.link(coll)
+        self.context.scene.collection.children.link(coll)
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
         for collider_group in collider_groups_json:
