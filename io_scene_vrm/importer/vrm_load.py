@@ -438,12 +438,18 @@ def texture_rip(
 def decode_bin(json_data: Dict[str, Any], binary: bytes) -> List[Any]:
     br = BinaryReader(binary)
     # This list indexed by accessor index
-    decoded_binary = []
+    decoded_binary: List[Any] = []
     buffer_views = json_data["bufferViews"]
     accessors = json_data["accessors"]
     type_num_dict = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
-    for accessor in accessors:
+    for accessor_index, accessor in enumerate(accessors):
         type_num = type_num_dict[accessor["type"]]
+        if "bufferView" not in accessor:
+            print(
+                f"WARNING: accessors[{accessor_index}] doesn't have bufferView that is not implemented yet"
+            )
+            decoded_binary.append([])
+            continue
         br.set_pos(buffer_views[accessor["bufferView"]]["byteOffset"])
         data_list = []
         for _ in range(accessor["count"]):
