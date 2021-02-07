@@ -66,7 +66,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     )
 
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Make new texture folder (limit:10)"  # noqa: F722
+        name="Make new texture folder (limit:100,000)"  # noqa: F722
     )
     is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Put Collider Empty"  # noqa: F722
