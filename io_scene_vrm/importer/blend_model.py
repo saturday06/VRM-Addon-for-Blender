@@ -56,17 +56,6 @@ class BlendModel:
         self.materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
-        model_name = json_get(
-            self.vrm_pydata.json, ["extensions", "VRM", "meta", "title"]
-        )
-        if model_name is None:
-            model_name = ""
-        if not isinstance(model_name, str):
-            model_name = str(model_name)
-        model_name = model_name.replace("\r\n", " ").replace("\n", " ").strip()
-        if not model_name:
-            model_name = os.path.splitext(os.path.basename(vrm_pydata.filepath))[0]
-        self.model_name = model_name
         self.vrm_model_build()
 
     def vrm_model_build(self) -> None:
@@ -1166,11 +1155,11 @@ class BlendModel:
         vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", "VRM"])
         if not isinstance(vrm_ext_dic, dict):
             raise Exception("json extensions VRM is not dict")
-        textblock = bpy.data.texts.new(name=f"{self.model_name}_raw.json")
+        textblock = bpy.data.texts.new(name="raw.json")
         textblock.write(json.dumps(self.vrm_pydata.json, indent=4))
 
         def write_textblock_and_assign_to_armature(block_name: str, value: str) -> None:
-            text_block = bpy.data.texts.new(name=f"{self.model_name}_{block_name}.json")
+            text_block = bpy.data.texts.new(name=f"{block_name}.json")
             text_block.write(json.dumps(value, indent=4))
             armature = self.armature
             if armature is None:
