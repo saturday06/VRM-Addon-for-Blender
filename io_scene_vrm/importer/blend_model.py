@@ -36,7 +36,6 @@ class BlendModel:
         remove_doubles: bool,
         use_simple_principled_material: bool,
         set_bone_roll: bool,
-        use_in_blender: bool,
     ) -> None:
         self.meshes: Dict[int, bpy.types.Mesh] = {}
         self.is_put_spring_bone_info = is_put_spring_bone_info
@@ -44,7 +43,6 @@ class BlendModel:
         self.remove_doubles = remove_doubles
         self.use_simple_principled_material = use_simple_principled_material
         self.is_set_bone_roll = set_bone_roll
-        self.use_in_blender = use_in_blender
 
         self.context = context
         self.vrm_pydata = vrm_pydata
@@ -103,9 +101,6 @@ class BlendModel:
                 self.set_bone_roll()
             if self.is_put_spring_bone_info:
                 self.put_spring_bone_info()
-            if self.use_in_blender:
-                pass
-                # self.blendfy()
             i = prog(i)
             self.connect_bones()
             i = prog(i)

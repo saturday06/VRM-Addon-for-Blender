@@ -83,9 +83,6 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     use_simple_principled_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Use simple principled material"  # noqa: F722
     )
-    use_in_blender: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="NOTHING TO DO in CURRENT use in blender"  # noqa: F722
-    )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         license_error = None
@@ -124,7 +121,6 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                 remove_doubles=self.remove_doubles,
                 set_bone_roll=self.set_bone_roll,
                 use_simple_principled_material=self.use_simple_principled_material,
-                use_in_blender=self.use_in_blender,
             ),
         )
 
@@ -146,7 +142,6 @@ def create_blend_model(
             addon.remove_doubles,
             addon.use_simple_principled_material,
             addon.set_bone_roll,
-            addon.use_in_blender,
         )
     finally:
         if has_ui_localization and ui_localization:
@@ -434,7 +429,6 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
     remove_doubles: bpy.props.BoolProperty()  # type: ignore[valid-type]
     set_bone_roll: bpy.props.BoolProperty()  # type: ignore[valid-type]
     use_simple_principled_material: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    use_in_blender: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.import_anyway:
@@ -525,6 +519,7 @@ translation_dictionary = {
         ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
         ("*", "VRM Export"): "VRMエクスポート",
         ("*", "Validate VRM model"): "VRMモデルのチェック",
+        ("*", "Extract texture images and json to folder"): "テクスチャー画像やjsonをフォルダに展開",
     }
 }
 
