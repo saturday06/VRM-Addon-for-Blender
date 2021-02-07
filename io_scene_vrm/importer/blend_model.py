@@ -1348,6 +1348,8 @@ class BlendModel:
 
         coll = bpy.data.collections.new(f"{self.model_name}_colliders")
         self.model_collection.children.link(coll)
+        bpy.context.view_layer.depsgraph.update()
+        bpy.context.scene.view_layers.update()
         for collider_group in collider_groups_json:
             collider_base_node = nodes_json[collider_group["node"]]
             node_name = collider_base_node["name"]
