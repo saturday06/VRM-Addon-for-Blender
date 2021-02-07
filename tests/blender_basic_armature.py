@@ -22,5 +22,3 @@ assert os.path.getsize(filepath) > 0
 assert (
     pathlib.Path(filepath).read_bytes() == pathlib.Path(expected_out_path).read_bytes()
 )
-
-print("OK")
