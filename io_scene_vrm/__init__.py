@@ -54,24 +54,6 @@ class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
-def disable_make_new_texture_folder_if_disabled(
-    import_op: bpy.types.Operator, context: bpy.types.Context
-) -> None:
-    if not bool(import_op.extract_textures_into_folder) and bool(
-        import_op.make_new_texture_folder
-    ):
-        import_op.make_new_texture_folder = False
-
-
-def enable_extract_textures_into_folder_if_enabled(
-    import_op: bpy.types.Operator, context: bpy.types.Context
-) -> None:
-    if bool(import_op.make_new_texture_folder) and not bool(
-        import_op.extract_textures_into_folder
-    ):
-        import_op.extract_textures_into_folder = True
-
-
 class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
@@ -84,12 +66,10 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     )
 
     extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Extract texture images into the folder",  # noqa: F722
-        update=disable_make_new_texture_folder_if_disabled,
+        name="Extract texture images into the folder"  # noqa: F722
     )
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Make new texture folder (limit:100,000)",  # noqa: F722
-        update=enable_extract_textures_into_folder_if_enabled,
+        name="Don't overwrite existing texture folder (limit:100,000)"  # noqa: F722
     )
     is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Put Collider Empty"  # noqa: F722
