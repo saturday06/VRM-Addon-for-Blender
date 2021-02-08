@@ -161,7 +161,7 @@ def menu_import(
 ) -> None:  # Same as test/blender_io.py for now
     op = import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
     op.extract_textures_into_folder = False
-    op.make_new_texture_folder = False
+    op.make_new_texture_folder = True
     op.is_put_spring_bone_info = True
     op.import_normal = True
     op.remove_doubles = False
