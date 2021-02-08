@@ -6,7 +6,6 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import contextlib
-import datetime
 import json
 import os
 import re
