@@ -22,8 +22,8 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 - モデルライセンスはアーマチュアのオブジェクトカスタムプロパティに出力されます
 - Humanoidボーン属性はVRMタブからアクセス可能です
 - これらはVRMエクスポート時に利用されます(詳しくは下部の図を参照
-- 「テクスチャ画像をフォルダに展開」オプションを有効にすると、100,000フォルダを上限にインポートごとに新たなテクスチャフォルダを作成する。インポートウィンドウのオプションで->単一のテクスチャフォルダに存在しないテクスチャだけ書き込む仕様になりました。title,author,versionが設定していないと適当なフォルダ名で生成します。
-- If "Extract texture images into the folder" option enabled this add-on makes texture folder for import each times (max:100,000) name based on VRM title, author, model version.
+- 「テクスチャ画像をフォルダに展開」オプションを有効にすると、100,000フォルダを上限にインポートごとに新たなテクスチャフォルダを作成する。インポートウィンドウのオプションで単一のテクスチャフォルダに存在しないテクスチャだけ書き込む仕様になりました。
+- If "Extract texture images into the folder" option enabled this add-on makes texture folder for import each times (max:100,000) name.
 - インポート時に自動でAutoIK用のボーンのセットアップを行います。もとのコードは[こちらで配布されているもの](https://booth.pm/ja/items/1697977)で、作者様から許可をいただきマージしました。
 
 ## Edit / 編集

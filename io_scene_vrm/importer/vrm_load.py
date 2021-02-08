@@ -283,12 +283,20 @@ def texture_rip(
 ) -> None:
     buffer_views = vrm_pydata.json["bufferViews"]
     binary_reader = BinaryReader(body_binary)
-    if extract_textures_into_folder:
-        vrm_dir_path = os.path.dirname(os.path.abspath(vrm_pydata.filepath))
-    else:
-        vrm_dir_path = tempfile.mkdtemp()  # TODO: cleanup
     if "images" not in vrm_pydata.json:
         return
+
+    if extract_textures_into_folder:
+        dir_path = os.path.abspath(vrm_pydata.filepath) + ".textures"
+        if make_new_texture_folder:
+            for i in range(100001):
+                checking_dir_path = dir_path if i == 0 else f"{dir_path}.{i}"
+                if not os.path.exists(checking_dir_path):
+                    os.mkdir(checking_dir_path)
+                    dir_path = checking_dir_path
+                    break
+    else:
+        dir_path = tempfile.mkdtemp()  # TODO: cleanup
 
     def invalid_chars_remover(filename: str) -> str:
         unsafe_chars = {
@@ -340,46 +348,6 @@ def texture_rip(
         safe_filename = filename.translate(remove_table)
         return safe_filename
 
-    def get_meta_str(param: str, default_value: str, max_length: int) -> str:
-        meta_value = vrm_pydata.json["extensions"]["VRM"]["meta"].get(param)
-        if meta_value is not None:
-            return str(meta_value)[:max_length]
-        return default_value
-
-    model_title = invalid_chars_remover(get_meta_str("title", "", 12))
-    model_author = invalid_chars_remover(get_meta_str("author", "", 8))
-    model_version = invalid_chars_remover(get_meta_str("version", "", 7))
-    dir_name = "tex"
-    if model_title != "":
-        dir_name += "_" + model_title
-    if model_author != "":
-        dir_name += "_by_" + model_author
-    if model_version != "":
-        dir_name += "_of_" + model_version
-    dir_path = os.path.join(vrm_dir_path, dir_name)
-    if dir_name == "tex":
-        dir_name = invalid_chars_remover(
-            datetime.datetime.today().strftime("%M%D%H%I%M%S")
-        )
-        for i in range(100000):
-            dn = f"tex_{dir_name}_{i}"
-            if os.path.exists(os.path.join(vrm_dir_path, dn)):
-                continue
-            if os.path.exists(os.path.join(vrm_dir_path, dn)) and i == 99999:
-                dir_path = os.path.join(vrm_dir_path, dn)
-                break
-            os.mkdir(os.path.join(vrm_dir_path, dn))
-            dir_path = os.path.join(vrm_dir_path, dn)
-            break
-    elif not os.path.exists(os.path.join(vrm_dir_path, dir_name)):
-        os.mkdir(dir_path)
-    elif make_new_texture_folder:
-        for i in range(100001):
-            dn = f"{dir_name}_{i}" if i != 0 else dir_name
-            if not os.path.exists(os.path.join(vrm_dir_path, dn)):
-                os.mkdir(os.path.join(vrm_dir_path, dn))
-                dir_path = os.path.join(vrm_dir_path, dn)
-                break
     for image_id, image_prop in enumerate(vrm_pydata.json["images"]):
         if "extra" in image_prop:
             image_name = image_prop["extra"]["name"]
