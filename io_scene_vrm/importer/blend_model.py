@@ -6,23 +6,31 @@ https://opensource.org/licenses/mit-license.php
 """
 
 
+import base64
 import copy
 import itertools
 import json
 import math
 import os.path
+import secrets
+import shutil
+import string
+import struct
 import sys
+import tempfile
 from math import radians, sqrt
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple
 
 import bpy
+import mathutils
 import numpy
 from mathutils import Matrix, Vector
 
 from .. import vrm_types
 from ..gl_constants import GlConstants
-from ..misc import make_armature, vrm_helper
+from ..misc import glb_factory, make_armature, vrm_helper
 from ..vrm_types import nested_json_value_getter as json_get
+from .vrm_load import parse_glb, remove_unsafe_path_chars
 
 
 class BlendModel:
@@ -30,30 +38,26 @@ class BlendModel:
         self,
         context: bpy.types.Context,
         vrm_pydata: vrm_types.VrmPydata,
-        filepath: str,
         extract_textures_into_folder: bool,
-        is_put_spring_bone_info: bool,
-        import_normal: bool,
-        remove_doubles: bool,
-        use_simple_principled_material: bool,
-        set_bone_roll: bool,
+        make_new_texture_folder: bool,
+        legacy_importer: bool,
     ) -> None:
         self.meshes: Dict[int, bpy.types.Mesh] = {}
         self.extract_textures_into_folder = extract_textures_into_folder
-        self.is_put_spring_bone_info = is_put_spring_bone_info
-        self.import_normal = import_normal
-        self.remove_doubles = remove_doubles
-        self.use_simple_principled_material = use_simple_principled_material
-        self.is_set_bone_roll = set_bone_roll
+        self.make_new_texture_folder = make_new_texture_folder
+        self.legacy_importer = legacy_importer
+        self.import_id = "BlenderVrmAddon" + (
+            "".join(secrets.choice(string.digits) for _ in range(10))
+        )
+        self.temp_object_name_count = 0
 
         self.context = context
         self.vrm_pydata = vrm_pydata
-        self.textures: Optional[
-            List[bpy.types.Texture]
-        ] = None  # TODO: The index of self.textures is image index. See self.texture_load(). Will fix it.
+        self.images: Dict[int, bpy.types.Image] = {}
         self.armature: Optional[bpy.types.Object] = None
         self.bones: Dict[int, bpy.types.Bone] = {}
-        self.materials: Dict[int, bpy.types.Material] = {}
+        self.gltf_materials: Dict[int, bpy.types.Material] = {}
+        self.vrm_materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
         self.vrm_model_build()
@@ -70,26 +74,34 @@ class BlendModel:
             i = 1
             affected_object = self.scene_init()
             i = prog(i)
-            self.texture_load()
+            if self.legacy_importer:
+                self.texture_load()
+                i = prog(i)
+                self.make_armature()
+            else:
+                self.summon()
+                if self.extract_textures_into_folder:
+                    i = prog(i)
+                    self.extract_textures()
             i = prog(i)
-            self.make_armature()
+            self.use_fake_user_for_thumbnail()
             i = prog(i)
             self.connect_bones()
             i = prog(i)
             self.make_material()
             i = prog(i)
-            self.make_primitive_mesh_objects(wm, i)
-            # i=prog(i) ↑関数内でやる
+            if self.legacy_importer:
+                self.make_primitive_mesh_objects(wm, i)
+                # i=prog(i) ↑関数内でやる
             self.json_dump()
             i = prog(i)
             self.attach_vrm_attributes()
             i = prog(i)
             self.cleaning_data()
             i = prog(i)
-            if self.is_set_bone_roll:
-                self.set_bone_roll()
-            if self.is_put_spring_bone_info:
-                self.put_spring_bone_info()
+            self.set_bone_roll()
+            i = prog(i)
+            self.put_spring_bone_info()
             i = prog(i)
             self.finishing(affected_object)
         finally:
@@ -102,6 +114,455 @@ class BlendModel:
     @staticmethod
     def axis_glb_to_blender(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
+
+    def summon(self) -> None:
+        with open(self.vrm_pydata.filepath, "rb") as f:
+            json_dict, body_binary = parse_glb(f.read())
+
+        for key in ["nodes", "materials", "meshes"]:
+            if key not in json_dict or not isinstance(json_dict[key], list):
+                continue
+            for index, value in enumerate(json_dict[key]):
+                if not isinstance(value, dict):
+                    continue
+                if "extras" not in value:
+                    value["extras"] = {}
+                value["extras"].update({self.import_id + key.capitalize(): index})
+
+        image_name_prefix = "{" + self.import_id + "-"
+        if isinstance(json_dict.get("images"), list):
+            for image_index, image in enumerate(json_dict["images"]):
+                if not isinstance(image, dict):
+                    continue
+                if not isinstance(image.get("name"), str) or not image["name"]:
+                    image["name"] = f"Image{image_index}"
+                image["name"] = (
+                    image_name_prefix + str(image_index) + "}" + image["name"]
+                )
+
+        if isinstance(json_dict.get("meshes"), list):
+            for mesh in json_dict["meshes"]:
+                if (
+                    isinstance(mesh.get("extras"), dict)
+                    and isinstance(mesh["extras"].get("targetNames"), list)
+                ) or not isinstance(mesh["primitives"], list):
+                    continue
+                for primitive in mesh["primitives"]:
+                    if (
+                        not isinstance(primitive, dict)
+                        or not isinstance(primitive.get("extras"), dict)
+                        or not isinstance(primitive["extras"].get("targetNames"), list)
+                    ):
+                        continue
+                    if mesh.get("extras") is None:
+                        mesh["extras"] = {}
+                    mesh["extras"]["targetNames"] = primitive["extras"]["targetNames"]
+                    break
+
+        if (
+            isinstance(json_dict.get("textures"), list)
+            and len(json_dict["textures"]) > 0
+        ):
+            primitives = []
+
+            for texture_index, _ in enumerate(json_dict["textures"]):
+                if not isinstance(json_dict.get("buffers"), list):
+                    json_dict["buffers"] = []
+                position_buffer_index = len(json_dict["buffers"])
+                position_buffer_bytes = struct.pack(
+                    "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
+                )
+                json_dict["buffers"].append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(position_buffer_bytes).decode("ascii"),
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                texcoord_buffer_index = len(json_dict["buffers"])
+                texcoord_buffer_bytes = struct.pack("<6f", 0.0, 0.0, 1.0, 0.0, 0.0, 1.0)
+                json_dict["buffers"].append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(texcoord_buffer_bytes).decode("ascii"),
+                        "byteLength": len(texcoord_buffer_bytes),
+                    }
+                )
+
+                if not isinstance(json_dict.get("bufferViews"), list):
+                    json_dict["bufferViews"] = []
+                position_buffer_view_index = len(json_dict["bufferViews"])
+                json_dict["bufferViews"].append(
+                    {
+                        "buffer": position_buffer_index,
+                        "byteOffset": 0,
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                texcoord_buffer_view_index = len(json_dict["bufferViews"])
+                json_dict["bufferViews"].append(
+                    {
+                        "buffer": texcoord_buffer_index,
+                        "byteOffset": 0,
+                        "byteLength": 24,
+                    }
+                )
+
+                if not isinstance(json_dict.get("accessors"), list):
+                    json_dict["accessors"] = []
+                position_accessors_index = len(json_dict["accessors"])
+                json_dict["accessors"].append(
+                    {
+                        "bufferView": position_buffer_view_index,
+                        "byteOffset": 0,
+                        "type": "VEC3",
+                        "componentType": GlConstants.FLOAT,
+                        "count": 3,
+                        "min": [0, 0, 0],
+                        "max": [1, 1, 0],
+                    }
+                )
+                texcoord_accessors_index = len(json_dict["accessors"])
+                json_dict["accessors"].append(
+                    {
+                        "bufferView": texcoord_buffer_view_index,
+                        "byteOffset": 0,
+                        "type": "VEC2",
+                        "componentType": GlConstants.FLOAT,
+                        "count": 3,
+                    }
+                )
+
+                if not isinstance(json_dict.get("materials"), list):
+                    json_dict["materials"] = []
+                tex_material_index = len(json_dict["materials"])
+                json_dict["materials"].append(
+                    {
+                        "name": self.temp_object_name(),
+                        "emissiveTexture": {"index": texture_index},
+                    }
+                )
+                primitives.append(
+                    {
+                        "attributes": {
+                            "POSITION": position_accessors_index,
+                            "TEXCOORD_0": texcoord_accessors_index,
+                        },
+                        "material": tex_material_index,
+                    }
+                )
+
+            if not isinstance(json_dict.get("meshes"), list):
+                json_dict["meshes"] = []
+            tex_mesh_index = len(json_dict["meshes"])
+            json_dict["meshes"].append(
+                {"name": self.temp_object_name(), "primitives": primitives}
+            )
+
+            if not isinstance(json_dict.get("nodes"), list):
+                json_dict["nodes"] = []
+            tex_node_index = len(json_dict["nodes"])
+            json_dict["nodes"].append(
+                {"name": self.temp_object_name(), "mesh": tex_mesh_index}
+            )
+
+            if not isinstance(json_dict.get("scenes"), list):
+                json_dict["scenes"] = []
+            json_dict["scenes"].append(
+                {"name": self.temp_object_name(), "nodes": [tex_node_index]}
+            )
+
+        if isinstance(json_dict.get("scenes"), list) and isinstance(
+            json_dict.get("nodes"), list
+        ):
+            nodes = json_dict["nodes"]
+            skins = json_dict.get("skins", [])
+            for scene in json_dict["scenes"]:
+                if not isinstance(scene.get("nodes"), list):
+                    continue
+
+                all_node_indices = list(scene["nodes"])
+                referenced_node_indices = list(scene["nodes"])
+                search_node_indices = list(scene["nodes"])
+                while search_node_indices:
+                    search_node_index = search_node_indices.pop()
+                    if not isinstance(search_node_index, int):
+                        continue
+                    all_node_indices.append(search_node_index)
+                    if search_node_index < 0 or len(nodes) <= search_node_index:
+                        continue
+                    node = nodes[search_node_index]
+                    if isinstance(node.get("mesh"), int):
+                        referenced_node_indices.append(search_node_index)
+                    if isinstance(node.get("skin"), int):
+                        referenced_node_indices.append(search_node_index)
+                        if node["skin"] < 0 or len(skins) <= node["skin"]:
+                            continue
+                        skin = skins[node["skin"]]
+                        if isinstance(skin.get("skeleton"), int):
+                            referenced_node_indices.append(skin["skeleton"])
+                        if isinstance(skin.get("joints"), list):
+                            referenced_node_indices.extend(skin["joints"])
+                    if isinstance(node.get("children"), list):
+                        search_node_indices.extend(node["children"])
+
+                retain_node_indices = list(dict.fromkeys(all_node_indices))  # distinct
+                for referenced_node_index in referenced_node_indices:
+                    if referenced_node_index in retain_node_indices:
+                        retain_node_indices.remove(referenced_node_index)
+
+                if not retain_node_indices:
+                    continue
+
+                if not isinstance(json_dict.get("buffers"), list):
+                    json_dict["buffers"] = []
+                position_buffer_index = len(json_dict["buffers"])
+                position_buffer_bytes = struct.pack(
+                    "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
+                )
+                json_dict["buffers"].append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(position_buffer_bytes).decode("ascii"),
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                joints_buffer_index = len(json_dict["buffers"])
+                joints_buffer_bytes = struct.pack(
+                    "<12H", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                )
+                json_dict["buffers"].append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(joints_buffer_bytes).decode("ascii"),
+                        "byteLength": len(joints_buffer_bytes),
+                    }
+                )
+                weights_buffer_index = len(json_dict["buffers"])
+                weights_buffer_bytes = struct.pack(
+                    "<12f", 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0
+                )
+                json_dict["buffers"].append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(weights_buffer_bytes).decode("ascii"),
+                        "byteLength": len(weights_buffer_bytes),
+                    }
+                )
+
+                if not isinstance(json_dict.get("bufferViews"), list):
+                    json_dict["bufferViews"] = []
+                position_buffer_view_index = len(json_dict["bufferViews"])
+                json_dict["bufferViews"].append(
+                    {
+                        "buffer": position_buffer_index,
+                        "byteOffset": 0,
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                joints_buffer_view_index = len(json_dict["bufferViews"])
+                json_dict["bufferViews"].append(
+                    {
+                        "buffer": joints_buffer_index,
+                        "byteOffset": 0,
+                        "byteLength": len(joints_buffer_bytes),
+                    }
+                )
+                weights_buffer_view_index = len(json_dict["bufferViews"])
+                json_dict["bufferViews"].append(
+                    {
+                        "buffer": weights_buffer_index,
+                        "byteOffset": 0,
+                        "byteLength": len(weights_buffer_bytes),
+                    }
+                )
+
+                if not isinstance(json_dict.get("accessors"), list):
+                    json_dict["accessors"] = []
+                position_accessors_index = len(json_dict["accessors"])
+                json_dict["accessors"].append(
+                    {
+                        "bufferView": position_buffer_view_index,
+                        "byteOffset": 0,
+                        "type": "VEC3",
+                        "componentType": GlConstants.FLOAT,
+                        "count": 3,
+                        "min": [0, 0, 0],
+                        "max": [1, 1, 0],
+                    }
+                )
+                joints_accessors_index = len(json_dict["accessors"])
+                json_dict["accessors"].append(
+                    {
+                        "bufferView": joints_buffer_view_index,
+                        "byteOffset": 0,
+                        "type": "VEC4",
+                        "componentType": GlConstants.UNSIGNED_SHORT,
+                        "count": 3,
+                    }
+                )
+                weights_accessors_index = len(json_dict["accessors"])
+                json_dict["accessors"].append(
+                    {
+                        "bufferView": weights_buffer_view_index,
+                        "byteOffset": 0,
+                        "type": "VEC4",
+                        "componentType": GlConstants.FLOAT,
+                        "count": 3,
+                    }
+                )
+
+                primitives = [
+                    {
+                        "attributes": {
+                            "POSITION": position_accessors_index,
+                            "JOINTS_0": joints_accessors_index,
+                            "WEIGHTS_0": weights_accessors_index,
+                        }
+                    }
+                ]
+
+                if not isinstance(json_dict.get("meshes"), list):
+                    json_dict["meshes"] = []
+                skin_mesh_index = len(json_dict["meshes"])
+                json_dict["meshes"].append(
+                    {"name": self.temp_object_name(), "primitives": primitives}
+                )
+
+                if not isinstance(json_dict.get("skins"), list):
+                    json_dict["skins"] = []
+                skin_index = len(json_dict["skins"])
+                json_dict["skins"].append({"joints": list(retain_node_indices)})
+
+                if not isinstance(json_dict.get("nodes"), list):
+                    json_dict["nodes"] = []
+                skin_node_index = len(json_dict["nodes"])
+                json_dict["nodes"].append(
+                    {
+                        "name": self.temp_object_name(),
+                        "mesh": skin_mesh_index,
+                        "skin": skin_index,
+                    }
+                )
+
+                scene["nodes"].append(skin_node_index)
+
+        with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
+            indexed_vrm_file.write(glb_factory.pack_glb(json_dict, body_binary))
+            indexed_vrm_file.flush()
+
+            if bpy.app.version < (2, 83):
+                bpy.ops.import_scene.gltf(
+                    filepath=indexed_vrm_file.name,
+                    import_pack_images=True,
+                )
+            else:
+                bpy.ops.import_scene.gltf(
+                    filepath=indexed_vrm_file.name,
+                    import_pack_images=True,
+                    bone_heuristic="FORTUNE",
+                )
+
+        human_bones = json_get(
+            json_dict, ["extensions", "VRM", "humanoid", "humanBones"], []
+        )
+
+        hips_bone_node_index: Optional[int] = None
+        if isinstance(human_bones, list):
+            for human_bone in human_bones:
+                if (
+                    isinstance(human_bone, dict)
+                    and human_bone.get("bone") == "hips"
+                    and isinstance(human_bone.get("node"), int)
+                ):
+                    hips_bone_node_index = human_bone["node"]
+                    break
+
+        extras_node_index_key = self.import_id + "Nodes"
+        if hips_bone_node_index is not None:
+            for obj in bpy.context.selectable_objects:
+                data = obj.data
+                if not isinstance(data, bpy.types.Armature):
+                    continue
+                for bone in data.bones:
+                    bone_node_index = bone.get(extras_node_index_key)
+                    if not isinstance(bone_node_index, int):
+                        continue
+                    if 0 <= bone_node_index < len(self.vrm_pydata.json["nodes"]):
+                        node = self.vrm_pydata.json["nodes"][bone_node_index]
+                        node["name"] = bone.name
+                    del bone[extras_node_index_key]
+                    self.bones[bone_node_index] = bone
+                    if (
+                        self.armature is not None
+                        or bone_node_index != hips_bone_node_index
+                    ):
+                        continue
+                    # VRM 0.0 only
+                    if obj.rotation_mode == "QUATERNION":
+                        obj.rotation_quaternion.rotate(
+                            mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
+                        )
+                        obj.select_set(True)
+                        previous_active = bpy.context.view_layer.objects.active
+                        try:
+                            bpy.context.view_layer.objects.active = obj
+                            bpy.ops.object.transform_apply(rotation=True)
+                        finally:
+                            bpy.context.view_layer.objects.active = previous_active
+                    self.armature = obj
+
+        armature = self.armature
+        if armature is None:
+            raise Exception("Failed to read VRM")
+
+        extras_mesh_index_key = self.import_id + "Meshes"
+        for obj in bpy.context.selectable_objects:
+            data = obj.data
+            if not isinstance(data, bpy.types.Mesh):
+                continue
+            mesh_index = obj.data.get(extras_mesh_index_key)
+            if not isinstance(mesh_index, int):
+                continue
+            del obj.data[extras_mesh_index_key]
+            self.meshes[mesh_index] = obj
+
+        extras_material_index_key = self.import_id + "Materials"
+        for material in bpy.data.materials:
+            material_index = material.get(extras_material_index_key)
+            if not isinstance(material_index, int):
+                continue
+            del material[extras_material_index_key]
+            self.gltf_materials[material_index] = material
+
+        for image in bpy.data.images:
+            if not image.name.startswith(image_name_prefix):
+                continue
+            image_index = int(
+                "".join(image.name.split(image_name_prefix)[1:]).split("}")[0]
+            )
+            image.name = "".join(image.name.split("}")[1:])
+            self.images[image_index] = image
+
+        if bpy.context.object is not None and bpy.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in bpy.data.objects:
+            if self.is_temp_object_name(obj.name):
+                obj.select_set(True)
+                bpy.ops.object.delete()
+
+        for material in bpy.data.materials:
+            if self.is_temp_object_name(material.name) and material.users == 0:
+                print(material.name)
+                bpy.data.materials.remove(material)
+
+    def temp_object_name(self) -> str:
+        self.temp_object_name_count += 1
+        return f"{self.import_id}Temp_{self.temp_object_name_count}_"
+
+    def is_temp_object_name(self, name: str) -> bool:
+        return name.startswith(f"{self.import_id}Temp_")
 
     def connect_bones(self) -> None:
         armature = self.armature
@@ -172,16 +633,16 @@ class BlendModel:
         # image_path_to Texture
 
     def texture_load(self) -> None:
-        self.textures = []
-        for image_props in self.vrm_pydata.image_properties:
+        for (image_index, image_props) in enumerate(self.vrm_pydata.image_properties):
             img = bpy.data.images.load(image_props.filepath)
             if not self.extract_textures_into_folder:
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.82-release/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L100
                 img.pack()
-            tex = bpy.data.textures.new(name=image_props.name, type="IMAGE")
-            tex.image = img
-            self.textures.append(tex)
+            self.images[image_index] = img
 
+    def use_fake_user_for_thumbnail(self) -> None:
+        # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtextureのインデックスになっている
+        # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
         json_texture_index = json_get(
             self.vrm_pydata.json, ["extensions", "VRM", "meta", "texture"], -1
         )
@@ -194,8 +655,9 @@ class BlendModel:
             "textures" in self.vrm_pydata.json
             and len(json_textures) > json_texture_index
         ):
-            texture_index = json_textures[json_texture_index]["source"]
-            self.textures[texture_index].image.use_fake_user = True
+            image_index = json_textures[json_texture_index].get("source")
+            if image_index in self.images:
+                self.images[image_index].use_fake_user = True
 
     def make_armature(self) -> None:
         # build bones as armature
@@ -320,27 +782,82 @@ class BlendModel:
         self.context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="OBJECT")
 
+    def extract_textures(self) -> None:
+        dir_path = os.path.abspath(self.vrm_pydata.filepath) + ".textures"
+        if self.make_new_texture_folder:
+            for i in range(100001):
+                checking_dir_path = dir_path if i == 0 else f"{dir_path}.{i}"
+                if not os.path.exists(checking_dir_path):
+                    os.mkdir(checking_dir_path)
+                    dir_path = checking_dir_path
+                    break
+
+        for image_index, image in self.images.items():
+            image_name = image.name
+            image_type = image.file_format.lower()
+            if image_name == "":
+                image_name = "texture_" + str(image_index)
+                print(f"no name image is named {image_name}")
+            elif len(image_name) >= 50:
+                new_image_name = "texture_too_long_name_" + str(image_index)
+                print(f"too long name image: {image_name} is named {new_image_name}")
+                image_name = new_image_name
+
+            image_name = remove_unsafe_path_chars(image_name)
+            image_path = os.path.join(dir_path, image_name)
+            if not image_name.lower().endswith("." + image_type.lower()):
+                image_path += "." + image_type
+            if not os.path.exists(image_path):
+                image.unpack(method="WRITE_ORIGINAL")
+                shutil.copyfile(image.filepath_from_user(), image_path)
+                image.filepath = image_path
+                image.reload()
+            else:
+                written_flag = False
+                for i in range(100000):
+                    root, ext = os.path.splitext(image_name)
+                    second_image_name = root + "_" + str(i) + ext
+                    image_path = os.path.join(dir_path, second_image_name)
+                    if not os.path.exists(image_path):
+                        image.unpack(method="WRITE_ORIGINAL")
+                        shutil.copyfile(image.filepath_from_user, image_path)
+                        image.filepath = image_path
+                        image.reload()
+                        written_flag = True
+                        break
+                if not written_flag:
+                    print(
+                        "There are more than 100000 images with the same name in the folder."
+                        + f" Failed to write file: {image_name}"
+                    )
+
     # region material
     def make_material(self) -> None:
         # 適当なので要調整
         for index, mat in enumerate(self.vrm_pydata.materials):
             b_mat = bpy.data.materials.new(mat.name)
-            if self.use_simple_principled_material and isinstance(
-                mat, vrm_types.MaterialGltf
-            ):
-                self.build_principle_from_gltf_mat(b_mat, mat)
+            b_mat["shader_name"] = mat.shader_name
+            if isinstance(mat, vrm_types.MaterialGltf):
+                self.build_material_from_gltf(b_mat, mat)
+            elif isinstance(mat, vrm_types.MaterialMtoon):
+                self.build_material_from_mtoon(b_mat, mat)
+            elif isinstance(mat, vrm_types.MaterialTransparentZWrite):
+                self.build_material_from_transparent_z_write(b_mat, mat)
             else:
-                b_mat["shader_name"] = mat.shader_name
-                if isinstance(mat, vrm_types.MaterialGltf):
-                    self.build_material_from_gltf(b_mat, mat)
-                elif isinstance(mat, vrm_types.MaterialMtoon):
-                    self.build_material_from_mtoon(b_mat, mat)
-                elif isinstance(mat, vrm_types.MaterialTransparentZWrite):
-                    self.build_material_from_transparent_z_write(b_mat, mat)
-                else:
-                    print(f"unknown material {mat.name}")
+                print(f"unknown material {mat.name}")
             self.node_placer(b_mat.node_tree.nodes["Material Output"])
-            self.materials[index] = b_mat
+            self.vrm_materials[index] = b_mat
+
+        for mesh in self.meshes.values():
+            for material_index, material in enumerate(mesh.data.materials):
+                for vrm_material_index, vrm_material in self.vrm_materials.items():
+                    if material != self.gltf_materials[vrm_material_index]:
+                        continue
+                    material_name = material.name
+                    material.name = "glTF_VRM_overridden_" + material_name
+                    vrm_material.name = material_name
+                    mesh.data.materials[material_index] = vrm_material
+                    break
 
     # region material_util func
     def set_material_transparent(
@@ -407,17 +924,16 @@ class BlendModel:
         color_socket_to_connect: Optional[bpy.types.NodeSocketColor] = None,
         alpha_socket_to_connect: Optional[bpy.types.NodeSocketFloat] = None,
     ) -> bpy.types.ShaderNodeTexImage:
-        textures = self.textures
-        if textures is None:
-            raise Exception("textures is None")
         tex = self.vrm_pydata.json["textures"][tex_index]
+        image_index = tex["source"]
         sampler = (
             self.vrm_pydata.json["samplers"][tex["sampler"]]
             if "samplers" in self.vrm_pydata.json
             else [{"wrapS": GlConstants.REPEAT, "magFilter": GlConstants.LINEAR}]
         )
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
-        image_node.image = textures[tex["source"]].image
+        if image_index in self.images:
+            image_node.image = self.images[image_index]
         if color_socket_to_connect is not None:
             image_node.label = color_socket_to_connect.name
         elif alpha_socket_to_connect is not None:
@@ -664,15 +1180,15 @@ class BlendModel:
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_index is None:
                 continue
-            textures = self.textures
-            if textures is None:
-                continue
-            if tex_index < 0 or len(textures) <= tex_index:
+            image_index = self.vrm_pydata.json["textures"][tex_index]["source"]
+            if image_index not in self.images:
                 continue
             if tex_name not in tex_dic.keys():
                 if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
-                b_mat["unknown_texture"].update({tex_name: textures[tex_index].name})
+                b_mat["unknown_texture"].update(
+                    {tex_name: self.vrm_pydata.json["textures"][tex_index]["name"]}
+                )
                 print(f"unknown texture {tex_name}")
             elif tex_name == "_MainTex":
                 main_tex_node = self.connect_texture_node(
@@ -957,33 +1473,32 @@ class BlendModel:
             # endregion uv
 
             # region Normal #TODO
-            if self.import_normal:
-                bpy.ops.object.mode_set(mode="OBJECT")
-                bpy.ops.object.select_all(action="DESELECT")
-                self.context.view_layer.objects.active = obj
-                obj.select_set(True)
-                bpy.ops.object.shade_smooth()  # this is need
-                b_mesh.create_normals_split()
-                # bpy.ops.mesh.customdata_custom_splitnormals_add()
-                for prim in pymesh:
-                    if prim.NORMAL is None:
-                        continue
-                    normalized_normal = prim.NORMAL
-                    if (
-                        prim.vert_normal_normalized is None
-                        or not prim.vert_normal_normalized
-                    ):
-                        normalized_normal = [
-                            Vector(n)
-                            if abs(Vector(n).magnitude - 1.0) < sys.float_info.epsilon
-                            else Vector(n).normalized()
-                            for n in prim.NORMAL
-                        ]
-                        prim.vert_normal_normalized = True
-                        prim.NORMAL = normalized_normal
-                    b_mesh.normals_split_custom_set_from_vertices(
-                        list(map(self.axis_glb_to_blender, normalized_normal))
-                    )
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+            self.context.view_layer.objects.active = obj
+            obj.select_set(True)
+            bpy.ops.object.shade_smooth()  # this is need
+            b_mesh.create_normals_split()
+            # bpy.ops.mesh.customdata_custom_splitnormals_add()
+            for prim in pymesh:
+                if prim.NORMAL is None:
+                    continue
+                normalized_normal = prim.NORMAL
+                if (
+                    prim.vert_normal_normalized is None
+                    or not prim.vert_normal_normalized
+                ):
+                    normalized_normal = [
+                        Vector(n)
+                        if abs(Vector(n).magnitude - 1.0) < sys.float_info.epsilon
+                        else Vector(n).normalized()
+                        for n in prim.NORMAL
+                    ]
+                    prim.vert_normal_normalized = True
+                    prim.NORMAL = normalized_normal
+                b_mesh.normals_split_custom_set_from_vertices(
+                    list(map(self.axis_glb_to_blender, normalized_normal))
+                )
             b_mesh.use_auto_smooth = True
             # endregion Normal
 
@@ -992,11 +1507,17 @@ class BlendModel:
             for prim in pymesh:
                 if prim.material_index is None:
                     continue
-                if self.materials[prim.material_index].name not in obj.data.materials:
-                    obj.data.materials.append(self.materials[prim.material_index])
+                if (
+                    self.vrm_materials[prim.material_index].name
+                    not in obj.data.materials
+                ):
+                    obj.data.materials.append(self.vrm_materials[prim.material_index])
                 mat_index = 0
                 for i, mat in enumerate(obj.material_slots):
-                    if mat.material.name == self.materials[prim.material_index].name:
+                    if (
+                        mat.material.name
+                        == self.vrm_materials[prim.material_index].name
+                    ):
                         mat_index = i
                 tris = len(prim.face_indices)
                 for n in range(tris):
@@ -1098,16 +1619,6 @@ class BlendModel:
                         keyblock.data[i].co = co
             # endregion shape_key
 
-            # region vertices_merging
-            if self.remove_doubles:
-                bpy.ops.object.mode_set(mode="OBJECT")
-                bpy.ops.object.select_all(action="DESELECT")
-                self.context.view_layer.objects.active = obj
-                obj.select_set(True)
-                bpy.ops.object.mode_set(mode="EDIT")
-                bpy.ops.mesh.remove_doubles(use_unselected=True)
-            # endregion vertices_merging
-
             # progress update
             mesh_progress += mesh_progress_unit
             wm.progress_update(progress + mesh_progress)
@@ -1149,12 +1660,9 @@ class BlendModel:
                     # https://github.com/vrm-c/UniVRM/issues/91#issuecomment-454284964
                     and 0 <= metainfo < len(self.vrm_pydata.json["textures"])
                 ):
-                    texture_index = self.vrm_pydata.json["textures"][metainfo]["source"]
-                    if not isinstance(texture_index, int):
-                        continue
-                    textures = self.textures
-                    if textures is not None and 0 <= texture_index < len(textures):
-                        armature[metatag] = textures[texture_index].image.name
+                    image_index = self.vrm_pydata.json["textures"][metainfo]["source"]
+                    if image_index in self.images:
+                        armature[metatag] = self.images[image_index].name
             else:
                 armature[metatag] = metainfo
 
@@ -1336,7 +1844,7 @@ class BlendModel:
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
         for collider_group in collider_groups_json:
-            collider_base_node = nodes_json[collider_group["node"]]
+            collider_base_node = self.vrm_pydata.json["nodes"][collider_group["node"]]
             node_name = collider_base_node["name"]
             for i, collider in enumerate(collider_group["colliders"]):
                 if node_name not in armature.data.bones:

@@ -25,6 +25,7 @@ askopenfilename
 askyesno
 atan2
 backface
+base64
 bgl
 bindcode
 blendfy
@@ -42,6 +43,7 @@ charnum
 collidergroup
 colorspace
 const
+copyfile
 cullmode
 customdata
 datachunk
@@ -88,6 +90,8 @@ glb
 glbs
 glsl
 gltf
+gltf2
+gltf2AddonDisabledWarning
 hb
 hpos
 hrad

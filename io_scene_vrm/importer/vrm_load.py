@@ -123,8 +123,8 @@ def read_vrm(
     model_path: str,
     extract_textures_into_folder: bool,
     make_new_texture_folder: bool,
-    use_simple_principled_material: bool,
     license_check: bool,
+    legacy_importer: bool,
 ) -> vrm_types.VrmPydata:
     # datachunkは普通一つしかない
     with open(model_path, "rb") as f:
@@ -143,16 +143,20 @@ def read_vrm(
     if license_check:
         validate_license(vrm_pydata)
 
-    texture_rip(
-        vrm_pydata, body_binary, extract_textures_into_folder, make_new_texture_folder
-    )
-
-    vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json, body_binary)
-
-    mesh_read(vrm_pydata)
-    material_read(vrm_pydata, use_simple_principled_material)
-    skin_read(vrm_pydata)
-    node_read(vrm_pydata)
+    if legacy_importer:
+        texture_rip(
+            vrm_pydata,
+            body_binary,
+            extract_textures_into_folder,
+            make_new_texture_folder,
+        )
+        vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json, body_binary)
+        mesh_read(vrm_pydata)
+        material_read(vrm_pydata)
+        skin_read(vrm_pydata)
+        node_read(vrm_pydata)
+    else:
+        material_read(vrm_pydata)
 
     return vrm_pydata
 
@@ -517,9 +521,7 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     # ここからマテリアル
 
 
-def material_read(
-    vrm_pydata: vrm_types.VrmPydata, use_simple_principled_material: bool
-) -> None:
+def material_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     json_materials = vrm_pydata.json.get("materials", [])
     vrm_extension_material_properties = json_get(
         vrm_pydata.json,
@@ -530,9 +532,7 @@ def material_read(
         return
 
     for mat, ext_mat in zip(json_materials, vrm_extension_material_properties):
-        material = vrm2pydata_factory.material(
-            mat, ext_mat, use_simple_principled_material
-        )
+        material = vrm2pydata_factory.material(mat, ext_mat)
         if material is not None:
             vrm_pydata.materials.append(material)
 
@@ -649,6 +649,6 @@ if __name__ == "__main__":
         sys.argv[1],
         extract_textures_into_folder=True,
         make_new_texture_folder=True,
-        use_simple_principled_material=False,
         license_check=True,
+        legacy_importer=True,
     )

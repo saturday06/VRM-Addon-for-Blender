@@ -30,11 +30,6 @@ bpy.ops.import_scene.vrm(
     filepath=in_path,
     extract_textures_into_folder=extract_textures,
     make_new_texture_folder=extract_textures,
-    # Same as __init__.py menu_import(self, context) for now
-    is_put_spring_bone_info=True,
-    import_normal=True,
-    remove_doubles=False,
-    set_bone_roll=True,
 )
 # bpy.ops.object.select_all(action="SELECT")
 bpy.ops.vrm.model_validate()

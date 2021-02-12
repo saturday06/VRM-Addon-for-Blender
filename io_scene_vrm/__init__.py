@@ -66,25 +66,11 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     )
 
     extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Extract texture images into the folder"  # noqa: F722
+        default=False, name="Extract texture images into the folder"  # noqa: F722
     )
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Don't overwrite existing texture folder (limit:100,000)"  # noqa: F722
-    )
-    is_put_spring_bone_info: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Put Collider Empty"  # noqa: F722
-    )
-    import_normal: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Import Normal"  # noqa: F722
-    )
-    remove_doubles: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Remove doubles"  # noqa: F722
-    )
-    set_bone_roll: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Set bone roll"  # noqa: F722
-    )
-    use_simple_principled_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Use simple principled material"  # noqa: F722
+        default=True,
+        name="Don't overwrite existing texture folder (limit:100,000)",  # noqa: F722
     )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
@@ -97,8 +83,8 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                     self.filepath,
                     self.extract_textures_into_folder,
                     self.make_new_texture_folder,
-                    self.use_simple_principled_material,
                     license_check=True,
+                    legacy_importer=use_legacy_importer(),
                 ),
             )
         except vrm_load.LicenseConfirmationRequired as e:
@@ -121,13 +107,18 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                 filepath=self.filepath,
                 extract_textures_into_folder=self.extract_textures_into_folder,
                 make_new_texture_folder=self.make_new_texture_folder,
-                is_put_spring_bone_info=self.is_put_spring_bone_info,
-                import_normal=self.import_normal,
-                remove_doubles=self.remove_doubles,
-                set_bone_roll=self.set_bone_roll,
-                use_simple_principled_material=self.use_simple_principled_material,
             ),
         )
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        if not use_legacy_importer() and "gltf" not in dir(bpy.ops.import_scene):
+            return cast(
+                Set[str],
+                bpy.ops.wm.gltf2_addon_disabled_warning(
+                    "INVOKE_DEFAULT",
+                ),
+            )
+        return cast(Set[str], ImportHelper.invoke(self, context, event))
 
 
 def create_blend_model(
@@ -141,13 +132,9 @@ def create_blend_model(
         blend_model.BlendModel(
             context,
             vrm_pydata,
-            addon.filepath,
             addon.extract_textures_into_folder,
-            addon.is_put_spring_bone_info,
-            addon.import_normal,
-            addon.remove_doubles,
-            addon.use_simple_principled_material,
-            addon.set_bone_roll,
+            addon.make_new_texture_folder,
+            legacy_importer=use_legacy_importer(),
         )
     finally:
         if has_ui_localization and ui_localization:
@@ -156,16 +143,14 @@ def create_blend_model(
     return {"FINISHED"}
 
 
+def use_legacy_importer() -> bool:
+    return bool(bpy.app.version < (2, 83))
+
+
 def menu_import(
     import_op: bpy.types.Operator, context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
-    op = import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
-    op.extract_textures_into_folder = False
-    op.make_new_texture_folder = True
-    op.is_put_spring_bone_info = True
-    op.import_normal = True
-    op.remove_doubles = False
-    op.set_bone_roll = True
+    import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
 
 
 def export_vrm_update_addon_preferences(
@@ -420,6 +405,25 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
         # endregion draw_main
 
 
+class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_label = "glTF 2.0 Addon is disabled"
+    bl_idname = "wm.gltf2_addon_disabled_warning"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        return cast(
+            Set[str], context.window_manager.invoke_props_dialog(self, width=500)
+        )
+
+    def draw(self, context: bpy.types.Context) -> None:
+        self.layout.label(
+            text='Official add-on "glTF 2.0 format" is required. Please enable it.'
+        )
+
+
 class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_label = "License confirmation"
     bl_idname = "wm.vrm_license_warning"
@@ -432,11 +436,6 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
 
     extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
     make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    is_put_spring_bone_info: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    import_normal: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    remove_doubles: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    set_bone_roll: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    use_simple_principled_material: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.import_anyway:
@@ -448,8 +447,8 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
                 self.filepath,
                 self.extract_textures_into_folder,
                 self.make_new_texture_folder,
-                self.use_simple_principled_material,
                 license_check=False,
+                legacy_importer=use_legacy_importer(),
             ),
         )
 
@@ -501,6 +500,7 @@ classes = [
     VrmAddonPreferences,
     LicenseConfirmation,
     WM_OT_licenseConfirmation,
+    WM_OT_gltf2AddonDisabledWarning,
     vrm_helper.Bones_rename,
     vrm_helper.Add_VRM_extensions_to_armature,
     vrm_helper.Add_VRM_require_humanbone_custom_property,
@@ -529,6 +529,10 @@ translation_dictionary = {
         ("*", "VRM Export"): "VRMエクスポート",
         ("*", "Validate VRM model"): "VRMモデルのチェック",
         ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
+        (
+            "*",
+            'Official add-on "glTF 2.0 format" is required. Please enable it.',
+        ): "公式アドオン「gltf 2.0 format」が必要です。有効化してください。",
     }
 }
 
