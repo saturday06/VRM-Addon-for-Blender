@@ -1813,6 +1813,10 @@ class GlbObj:
     def finalize(self) -> None:
         bin_json, self.bin = self.glb_bin_collector.pack_all()
         self.json_dic.update(bin_json)
+        if not self.json_dic["meshes"]:
+            del self.json_dic["meshes"]
+        if not self.json_dic["materials"]:
+            del self.json_dic["materials"]
         magic = b"glTF" + struct.pack("<I", 2)
         json_str = json.dumps(self.json_dic).encode("utf-8")
         if len(json_str) % 4 != 0:

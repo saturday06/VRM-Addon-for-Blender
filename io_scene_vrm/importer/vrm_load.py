@@ -435,9 +435,9 @@ def decode_bin(json_data: Dict[str, Any], binary: bytes) -> List[Any]:
 
 def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     # メッシュをパースする
-    for n, mesh in enumerate(vrm_pydata.json["meshes"]):
+    for n, mesh in enumerate(vrm_pydata.json.get("meshes", [])):
         primitives = []
-        for j, primitive in enumerate(mesh["primitives"]):
+        for j, primitive in enumerate(mesh.get("primitives", [])):
             vrm_mesh = vrm_types.Mesh(object_id=n)
             if j == 0:  # mesh annotationとの兼ね合い
                 vrm_mesh.name = mesh["name"]
@@ -445,7 +445,7 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
                 vrm_mesh.name = mesh["name"] + str(j)
 
             # region 頂点index
-            if primitive["mode"] != GlConstants.TRIANGLES:
+            if primitive.get("mode", 4) != GlConstants.TRIANGLES:
                 # TODO その他メッシュタイプ対応
                 raise Exception(
                     "Unsupported polygon type(:{}) Exception".format(primitive["mode"])
@@ -457,7 +457,7 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
             # endregion 頂点index
 
             # ここから頂点属性
-            vertex_attributes = primitive["attributes"]
+            vertex_attributes = primitive.get("attributes", {})
             # 頂点属性は実装によっては存在しない属性(例えばJOINTSやWEIGHTSがなかったりもする)もあるし、UVや頂点カラー0->Nで増やせる(スキニングは1要素(ボーン4本)限定
             for attr in vertex_attributes.keys():
                 vrm_mesh.__setattr__(
@@ -490,7 +490,7 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
             vrm_mesh.material_index = primitive["material"]
 
             # 変換時のキャッシュ対応のためのデータ
-            vrm_mesh.POSITION_accessor = primitive["attributes"]["POSITION"]
+            vrm_mesh.POSITION_accessor = primitive.get("attributes", {}).get("POSITION")
 
             # ここからモーフターゲット vrmのtargetは相対位置 normalは無視する
             if "targets" in primitive:
