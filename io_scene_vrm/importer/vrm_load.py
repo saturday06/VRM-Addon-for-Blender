@@ -527,8 +527,6 @@ def material_read(
     if not isinstance(vrm_extension_material_properties, list):
         return
 
-    if "textures" in vrm_pydata.json:
-        textures = vrm_pydata.json["textures"]  # noqa: F841
     for mat, ext_mat in zip(json_materials, vrm_extension_material_properties):
         material = vrm2pydata_factory.material(
             mat, ext_mat, use_simple_principled_material
