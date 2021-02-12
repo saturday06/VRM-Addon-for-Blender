@@ -518,19 +518,18 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
 def material_read(
     vrm_pydata: vrm_types.VrmPydata, use_simple_principled_material: bool
 ) -> None:
+    json_materials = vrm_pydata.json.get("materials", [])
     vrm_extension_material_properties = json_get(
         vrm_pydata.json,
         ["extensions", "VRM", "materialProperties"],
-        default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(vrm_pydata.json["materials"]),
+        default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(json_materials),
     )
     if not isinstance(vrm_extension_material_properties, list):
         return
 
     if "textures" in vrm_pydata.json:
         textures = vrm_pydata.json["textures"]  # noqa: F841
-    for mat, ext_mat in zip(
-        vrm_pydata.json["materials"], vrm_extension_material_properties
-    ):
+    for mat, ext_mat in zip(json_materials, vrm_extension_material_properties):
         material = vrm2pydata_factory.material(
             mat, ext_mat, use_simple_principled_material
         )
