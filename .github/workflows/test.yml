@@ -26,6 +26,12 @@ jobs:
         run: |
           Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
           & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\unittest_discover.py
+      - name: Archive failed io test result
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: VRMs
+          path: ./tests/vrm/temp
 
   test-macos:
     runs-on: macos-latest
@@ -52,6 +58,12 @@ jobs:
           cp -fr /Volumes/Blender/Blender.app /Applications
           hdiutil detach $(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/unittest_discover.py
+      - name: Archive failed io test result
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: VRMs
+          path: ./tests/vrm/temp
 
   lint:
     runs-on: ubuntu-20.04
