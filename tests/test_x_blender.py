@@ -43,6 +43,8 @@ class TestBlender(TestCase):
         self.test_out3_vrm_dir = os.path.join(test_vrm_dir, "out3")
         os.makedirs(self.test_temp_vrm_dir, exist_ok=True)
         os.makedirs(self.test_out_vrm_dir, exist_ok=True)
+        os.makedirs(self.test_out2_vrm_dir, exist_ok=True)
+        os.makedirs(self.test_out3_vrm_dir, exist_ok=True)
 
     def process_output_to_str(self, process_output: bytes) -> str:
         output = None
