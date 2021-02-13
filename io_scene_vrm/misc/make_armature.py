@@ -424,9 +424,9 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         mats = [Matrix.Translation(mat) for mat in mats]
         for j in range(3):
             for n, angle in enumerate([-45, 45]):
-                thumbs[j][n].transform(mats[n].inverted())
+                thumbs[j][n].transform(mats[n].inverted(), scale=False, roll=False)
                 thumbs[j][n].transform(Matrix.Rotation(radians(angle), 4, "Z"))
-                thumbs[j][n].transform(mats[n])
+                thumbs[j][n].transform(mats[n], scale=False, roll=False)
                 thumbs[j][n].roll = [0, radians(180)][n]
 
         index_fingers = fingers(

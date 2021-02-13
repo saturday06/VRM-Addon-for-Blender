@@ -139,9 +139,6 @@ class TestBlender(TestCase):
         )
 
     def test_basic_armature(self) -> None:
-        if platform.system() == "Linux":
-            print("Linux PENDING")
-            return
         self.run_script(
             "blender_basic_armature.py",
             os.path.join(self.test_in_vrm_dir, "basic_armature.vrm"),
