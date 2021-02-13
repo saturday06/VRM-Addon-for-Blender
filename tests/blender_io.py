@@ -56,9 +56,15 @@ if update_vrm_dir and not vrm_diff(
 ):
     sys.exit(0)
 
-diffs = vrm_diff(
-    actual_out_bytes, pathlib.Path(expected_out_path).read_bytes(), float_tolerance
-)
+try:
+    diffs = vrm_diff(
+        actual_out_bytes, pathlib.Path(expected_out_path).read_bytes(), float_tolerance
+    )
+except FileNotFoundError:
+    if update_vrm_dir:
+        shutil.copy(actual_out_path, expected_out_path)
+    raise
+
 diffs_str = "\n".join(diffs[:50])
 
 try:
