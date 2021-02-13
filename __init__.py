@@ -44,7 +44,7 @@ if "bl_info" in locals():
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (1, 3, 1),
+    "version": (1, 3, 2),
     "blender": (2, 82, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
