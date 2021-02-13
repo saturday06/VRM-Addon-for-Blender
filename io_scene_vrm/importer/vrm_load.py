@@ -7,6 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 import contextlib
 import json
+import math
 import os
 import re
 import sys
@@ -560,6 +561,90 @@ def node_read(vrm_pydata: vrm_types.VrmPydata) -> None:
                 vrm_pydata.origin_nodes_dict[i].append(node["skin"])
             else:
                 print(node["name"] + "is not have skin")
+
+
+def create_vrm_dict(data: bytes) -> Dict[str, Any]:
+    vrm_json, binary_chunk = parse_glb(data)
+    vrm_json["accessors_decoded"] = decode_bin(vrm_json, binary_chunk)
+    return vrm_json
+
+
+def vrm_dict_diff(
+    left: Any, right: Any, path: str, float_tolerance: float
+) -> List[str]:
+    if isinstance(left, list):
+        if not isinstance(right, list):
+            return [f"{path}: left is list but right is {type(right)}"]
+        if len(left) != len(right):
+            return [
+                f"{path}: left length is {len(left)} but right length is {len(right)}"
+            ]
+        diffs = []
+        for i, _ in enumerate(left):
+            diffs.extend(
+                vrm_dict_diff(left[i], right[i], f"{path}[{i}]", float_tolerance)
+            )
+        return diffs
+
+    if isinstance(left, dict):
+        if not isinstance(right, dict):
+            return [f"{path}: left is dict but right is {type(right)}"]
+        diffs = []
+        for key in sorted(set(list(left.keys()) + list(right.keys()))):
+            if key not in left:
+                diffs.append(f"{path}: {key} not in left")
+                continue
+            if key not in right:
+                diffs.append(f"{path}: {key} not in right")
+                continue
+            diffs.extend(
+                vrm_dict_diff(
+                    left[key], right[key], f'{path}["{key}"]', float_tolerance
+                )
+            )
+        return diffs
+
+    if isinstance(left, int):
+        if not isinstance(right, int):
+            return [f"{path}: left is int but right is {type(right)}"]
+        if left != right:
+            return [f"{path}: left is {left} but right is {right}"]
+        return []
+
+    if isinstance(left, bool):
+        if not isinstance(right, bool):
+            return [f"{path}: left is bool but right is {type(right)}"]
+        if left != right:
+            return [f"{path}: left is {left} but right is {right}"]
+        return []
+
+    if isinstance(left, str):
+        if not isinstance(right, str):
+            return [f"{path}: left is str but right is {type(right)}"]
+        if left != right:
+            return [f'{path}: left is "{left}" but right is "{right}"']
+        return []
+
+    if left is None and right is not None:
+        return [f"{path}: left is None but right is {type(right)}"]
+
+    if isinstance(left, float):
+        if not isinstance(right, float):
+            return [f"{path}: left is float but right is {type(right)}"]
+        error = math.fabs(left - right)
+        if error > float_tolerance:
+            return [
+                f"{path}: left is {left:20.17f} but right is {right:20.17f}, error={error:20.17f}"
+            ]
+        return []
+
+    raise Exception(f"{path}: unexpected type left={type(left)} right={type(right)}")
+
+
+def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> List[str]:
+    return vrm_dict_diff(
+        create_vrm_dict(before), create_vrm_dict(after), "", float_tolerance
+    )
 
 
 if __name__ == "__main__":

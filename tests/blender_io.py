@@ -1,9 +1,17 @@
 import os
 import pathlib
+import platform
 import shutil
 import sys
 
 import bpy
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+# pylint: disable=wrong-import-position;
+from io_scene_vrm.importer.vrm_load import vrm_diff  # noqa: E402
+
+# pylint: enable=wrong-import-position;
 
 os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
@@ -33,40 +41,33 @@ bpy.ops.vrm.model_validate()
 
 actual_out_path = os.path.join(temp_dir_path, os.path.basename(in_path))
 bpy.ops.export_scene.vrm(filepath=actual_out_path)
-actual_size = os.path.getsize(actual_out_path)
-actual_bytes = pathlib.Path(actual_out_path).read_bytes()
+actual_out_bytes = pathlib.Path(actual_out_path).read_bytes()
 
-if (
-    update_vrm_dir
-    and actual_size == os.path.getsize(in_path)
-    and actual_bytes == pathlib.Path(in_path).read_bytes()
+system = platform.system()
+if system == "Darwin":
+    float_tolerance = 0.0005
+elif system == "Linux":
+    float_tolerance = 0.0006
+else:
+    float_tolerance = sys.float_info.epsilon
+
+if update_vrm_dir and not vrm_diff(
+    actual_out_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
 ):
     sys.exit(0)
 
+diffs = vrm_diff(
+    actual_out_bytes, pathlib.Path(expected_out_path).read_bytes(), float_tolerance
+)
+diffs_str = "\n".join(diffs[:50])
+
 try:
-    expected_size = os.path.getsize(expected_out_path)
     assert (
-        expected_size == actual_size
-    ), f"""Unexpected VRM Output Size
-  Extract textures: {extract_textures}
-  Input: {in_path}
-  Expected Output: {expected_out_path}
-  Expected Size: {expected_size}
-  Actual Output: {actual_out_path}
-  Actual Size: {actual_size}"""
-    if bpy.app.build_platform != b"Darwin":  # TODO: normals
-        expected_bytes = pathlib.Path(expected_out_path).read_bytes()
-        assert (  # pylint: disable=W0199
-            expected_bytes == actual_bytes
-        ), f"""Unexpected VRM Binary
-  Extract textures: {extract_textures}
-  Input: {in_path}
-  Expected Output: {expected_out_path}
-  Actual Output: {actual_out_path}"""
-except FileNotFoundError:
-    if update_vrm_dir:
-        shutil.copy(actual_out_path, expected_out_path)
-    raise
+        len(diffs) == 0
+    ), f"""Exceeded the VRM diff threshold
+left ={actual_out_path}
+right={expected_out_path}
+{diffs_str}"""
 except AssertionError:
     if update_vrm_dir:
         shutil.copy(actual_out_path, expected_out_path)
