@@ -1,10 +1,8 @@
 import json
-import sys
 from math import radians
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import bpy
-import numpy
 from mathutils import Matrix
 
 from ..vrm_types import Vrm0
@@ -706,11 +704,8 @@ def connect_parent_tail_and_child_head_if_same_position(
     for bone in armature.edit_bones:
         # 親ボーンがある場合かつ、ボーンのヘッドと親ボーンのテールが一致していたら
         if (
-            bone.parent
-            and (
-                numpy.abs(numpy.array(bone.head) - numpy.array(bone.parent.tail))
-                < sys.float_info.epsilon
-            ).all()
+            bone.parent is not None
+            and (bone.head - bone.parent.tail).length < 0.000001  # 1μm
         ):
             # ボーンの関係の接続を有効に
             bone.use_connect = True
