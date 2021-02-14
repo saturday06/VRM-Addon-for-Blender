@@ -49,7 +49,7 @@ if system == "Darwin":
 elif system == "Linux":
     float_tolerance = 0.0006
 else:
-    float_tolerance = sys.float_info.epsilon
+    float_tolerance = 0.000001
 
 if update_vrm_dir and not vrm_diff(
     actual_out_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance

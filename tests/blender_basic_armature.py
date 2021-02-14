@@ -30,7 +30,7 @@ bpy.ops.export_scene.vrm(filepath=actual_path)
 diffs = vrm_diff(
     pathlib.Path(actual_path).read_bytes(),
     pathlib.Path(expected_path).read_bytes(),
-    sys.float_info.epsilon,
+    0.000001,
 )
 diffs_str = "\n".join(diffs)
 
