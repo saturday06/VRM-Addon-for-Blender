@@ -74,6 +74,8 @@ class BlendModel:
             i = prog(i)
             self.make_armature()
             i = prog(i)
+            self.connect_bones()
+            i = prog(i)
             self.make_material()
             i = prog(i)
             self.make_primitive_mesh_objects(wm, i)
@@ -88,8 +90,6 @@ class BlendModel:
                 self.set_bone_roll()
             if self.is_put_spring_bone_info:
                 self.put_spring_bone_info()
-            i = prog(i)
-            self.connect_bones()
             i = prog(i)
             self.finishing(affected_object)
         finally:
