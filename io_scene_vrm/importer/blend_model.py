@@ -1346,11 +1346,18 @@ class BlendModel:
                     offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
                 ]  # TODO: Y軸反転はUniVRMのシリアライズに合わせてる
 
-                obj.matrix_world = (
-                    armature.matrix_world
-                    @ Matrix.Translation(offset)
-                    @ armature.data.bones[node_name].matrix_local
+                # boneのtail側にparentされるので、根元からのpositionに動かしなおす
+                obj.matrix_world = Matrix.Translation(
+                    [
+                        armature.matrix_world.to_translation()[i]
+                        + armature.data.bones[node_name].matrix_local.to_translation()[
+                            i
+                        ]
+                        + offset[i]
+                        for i in range(3)
+                    ]
                 )
+
                 obj.empty_display_size = collider["radius"]
                 obj.empty_display_type = "SPHERE"
                 coll.objects.link(obj)
