@@ -604,13 +604,6 @@ def vrm_dict_diff(
             )
         return diffs
 
-    if isinstance(left, int):
-        if not isinstance(right, int):
-            return [f"{path}: left is int but right is {type(right)}"]
-        if left != right:
-            return [f"{path}: left is {left} but right is {right}"]
-        return []
-
     if isinstance(left, bool):
         if not isinstance(right, bool):
             return [f"{path}: left is bool but right is {type(right)}"]
@@ -628,13 +621,16 @@ def vrm_dict_diff(
     if left is None and right is not None:
         return [f"{path}: left is None but right is {type(right)}"]
 
-    if isinstance(left, float):
-        if not isinstance(right, float):
-            return [f"{path}: left is float but right is {type(right)}"]
-        error = math.fabs(left - right)
+    if isinstance(left, int) and isinstance(right, int):
+        if left != right:
+            return [f"{path}: left is {left} but right is {right}"]
+        return []
+
+    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+        error = math.fabs(float(left) - float(right))
         if error > float_tolerance:
             return [
-                f"{path}: left is {left:20.17f} but right is {right:20.17f}, error={error:20.17f}"
+                f"{path}: left is {float(left):20.17f} but right is {float(right):20.17f}, error={error:20.17f}"
             ]
         return []
 
