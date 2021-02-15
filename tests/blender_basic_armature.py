@@ -27,16 +27,17 @@ bpy.ops.vrm.model_validate()
 actual_path = os.path.join(temp_dir_path, "basic_armature.vrm")
 bpy.ops.export_scene.vrm(filepath=actual_path)
 
+float_tolerance = 0.000001
 diffs = vrm_diff(
     pathlib.Path(actual_path).read_bytes(),
     pathlib.Path(expected_path).read_bytes(),
-    0.000001,
+    float_tolerance,
 )
 diffs_str = "\n".join(diffs)
 
 assert (
     len(diffs) == 0
-), f"""Exceeded the VRM diff threshold for basic armature operator
+), f"""Exceeded the VRM diff threshold::{float_tolerance:19.17f} for basic armature operator
 left ={actual_path}
 right={expected_path}
 {diffs_str}"""

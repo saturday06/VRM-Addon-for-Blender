@@ -70,7 +70,7 @@ diffs_str = "\n".join(diffs[:50])
 try:
     assert (
         len(diffs) == 0
-    ), f"""Exceeded the VRM diff threshold
+    ), f"""Exceeded the VRM diff threshold:{float_tolerance:19.17f}
 left ={actual_out_path}
 right={expected_out_path}
 {diffs_str}"""

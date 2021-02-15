@@ -565,7 +565,7 @@ def node_read(vrm_pydata: vrm_types.VrmPydata) -> None:
 
 def create_vrm_dict(data: bytes) -> Dict[str, Any]:
     vrm_json, binary_chunk = parse_glb(data)
-    vrm_json["accessors_decoded"] = decode_bin(vrm_json, binary_chunk)
+    vrm_json["~accessors_decoded"] = decode_bin(vrm_json, binary_chunk)
     return vrm_json
 
 
@@ -630,7 +630,7 @@ def vrm_dict_diff(
         error = math.fabs(float(left) - float(right))
         if error > float_tolerance:
             return [
-                f"{path}: left is {float(left):20.17f} but right is {float(right):20.17f}, error={error:20.17f}"
+                f"{path}: left is {float(left):20.17f} but right is {float(right):20.17f}, error={error:19.17f}"
             ]
         return []
 
