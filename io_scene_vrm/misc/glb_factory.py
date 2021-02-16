@@ -1725,12 +1725,16 @@ class GlbObj:
         empty_dic: Dict[int, Any] = {
             node_name_id_dic[ch.parent_bone]: []
             for ch in self.armature.children
-            if ch.type == "EMPTY" and ch.parent_bone in node_name_id_dic
+            if ch.type == "EMPTY"
+            and ch.empty_display_type == "SPHERE"
+            and ch.parent_bone in node_name_id_dic
         }
         for child_empty in [
             ch
             for ch in self.armature.children
-            if ch.type == "EMPTY" and ch.parent_bone in node_name_id_dic
+            if ch.type == "EMPTY"
+            and ch.empty_display_type == "SPHERE"
+            and ch.parent_bone in node_name_id_dic
         ]:
             empty_dic[node_name_id_dic[child_empty.parent_bone]].append(child_empty)
         for node_id, empty_objs in empty_dic.items():
