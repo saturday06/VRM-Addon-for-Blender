@@ -1,6 +1,9 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   test-windows:
