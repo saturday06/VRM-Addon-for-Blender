@@ -792,7 +792,7 @@ def node_material_input_check(
     messages: List[str],
     used_images: List[bpy.types.Image],
 ) -> None:
-    # Support models that were loaded by earlier versions(1_13_1 or earlier), which had this typo
+    # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
     #
     # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".  # noqa: SC100
     # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dic, can be "NormalmapTexture".

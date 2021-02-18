@@ -124,7 +124,7 @@ class GlbObj:
                     shader_vals
                 ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
 
-                    # Support models that were loaded by earlier versions(1_13_1 or earlier), which had this typo
+                    # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
                     #
                     # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".  # noqa: SC100
                     # But 'shader_vals' which comes from MaterialMtoon.texture_kind_exchange_dic is "NormalmapTexture".
