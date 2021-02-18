@@ -673,9 +673,10 @@ class GlbObj:
                         ),
                     )
                 elif (
-                    texture_prop == "NormalmapTexture"
-                    or texture_prop == "NomalmapTexture"
-                ):  # Support older version that had typo
+                    # Support older version that had typo
+                    texture_prop
+                    in ["NormalmapTexture", "NomalmapTexture"]
+                ):
                     use_normalmap = True
                     normal_texture = tex
                 elif texture_prop == "Emission_Texture":

@@ -160,8 +160,10 @@ class MtoonGlsl:
                 if k == "SphereAddTexture":
                     self.texture_dic[k] = self.get_texture(k, "black")
                 elif (
-                    k == "NormalmapTexture" or k == "NomalmapTexture"
-                ):  # Support old version that had typo
+                    # Support old version that had typo
+                    k
+                    in ["NormalmapTexture", "NomalmapTexture"]
+                ):
                     self.texture_dic[k] = self.get_texture(k, "normal")
                 else:
                     self.texture_dic[k] = self.get_texture(k)
