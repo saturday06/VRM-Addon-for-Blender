@@ -127,7 +127,7 @@ class GlbObj:
                     # Support models that were loaded by earlier versions(1_13_1 or earlier), which had this typo
                     #
                     # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".  # noqa: SC100
-                    # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dic, can be "NormalmapTexture".
+                    # But 'shader_vals' which comes from MaterialMtoon.texture_kind_exchange_dic is "NormalmapTexture".
                     # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
                     # So change it to "NomalmapTexture" which is typo but points to the same thing  # noqa: SC100
                     # in those models.
