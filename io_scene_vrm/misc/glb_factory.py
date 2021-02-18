@@ -132,7 +132,7 @@ class GlbObj:
                     # So change it to "NomalmapTexture" which is typo but points to the same thing in those models.
                     if (
                         shader_vals == "NormalmapTexture"
-                        and not "NormalmapTexture" in node.inputs.keys()
+                        and "NormalmapTexture" not in node.inputs.keys()
                         and "NomalmapTexture" in node.inputs.keys()
                     ):
                         shader_vals = "NomalmapTexture"

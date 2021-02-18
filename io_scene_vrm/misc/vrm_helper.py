@@ -800,7 +800,7 @@ def node_material_input_check(
     # So change it to "NomalmapTexture" which is typo but points to the same thing in those models.
     if (
         shader_val == "NormalmapTexture"
-        and not "NormalmapTexture" in node.inputs.keys()
+        and "NormalmapTexture" not in node.inputs.keys()
     ):
         shader_val = "NomalmapTexture"
 
