@@ -798,7 +798,10 @@ def node_material_input_check(
     # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dic, can be "NormalmapTexture".
     # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
     # So change it to "NomalmapTexture" which is typo but points to the same thing in those models.
-    if shader_val == "NormalmapTexture" and not "NormalmapTexture" in node.inputs.keys():
+    if (
+        shader_val == "NormalmapTexture"
+        and not "NormalmapTexture" in node.inputs.keys()
+    ):
         shader_val = "NomalmapTexture"
 
     if node.inputs[shader_val].links:

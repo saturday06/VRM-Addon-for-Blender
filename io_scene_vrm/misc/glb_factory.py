@@ -130,9 +130,11 @@ class GlbObj:
                     # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dic, can be "NormalmapTexture".
                     # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
                     # So change it to "NomalmapTexture" which is typo but points to the same thing in those models.
-                    if shader_vals == "NormalmapTexture"\
-                            and not "NormalmapTexture" in node.inputs.keys()\
-                            and "NomalmapTexture" in node.inputs.keys():
+                    if (
+                        shader_vals == "NormalmapTexture"
+                        and not "NormalmapTexture" in node.inputs.keys()
+                        and "NomalmapTexture" in node.inputs.keys()
+                    ):
                         shader_vals = "NomalmapTexture"
 
                     if shader_vals == "ReceiveShadow_Texture":
@@ -670,7 +672,10 @@ class GlbObj:
                             mtoon_vector_dic[texture_key][3],
                         ),
                     )
-                elif texture_prop == "NormalmapTexture" or texture_prop == "NomalmapTexture": # Support older version that had typo
+                elif (
+                    texture_prop == "NormalmapTexture"
+                    or texture_prop == "NomalmapTexture"
+                ):  # Support older version that had typo
                     use_normalmap = True
                     normal_texture = tex
                 elif texture_prop == "Emission_Texture":
