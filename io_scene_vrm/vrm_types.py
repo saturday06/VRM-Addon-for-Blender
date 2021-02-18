@@ -354,7 +354,7 @@ class MaterialMtoon(Material):
     texture_kind_exchange_dic: Dict[str, str] = {
         "_MainTex": "MainTexture",
         "_ShadeTexture": "ShadeTexture",
-        "_BumpMap": "NomalmapTexture",
+        "_BumpMap": "NormalmapTexture",
         "_ReceiveShadowTexture": "ReceiveShadow_Texture",
         "_ShadingGradeTexture": "ShadingGradeTexture",
         "_EmissionMap": "Emission_Texture",

@@ -792,6 +792,15 @@ def node_material_input_check(
     messages: List[str],
     used_images: List[bpy.types.Image],
 ) -> None:
+    # Support models that were loaded by earlier versions(1_13_1 or earlier), which had this typo
+    #
+    # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".
+    # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dic, can be "NormalmapTexture".
+    # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
+    # So change it to "NomalmapTexture" which is typo but points to the same thing in those models.
+    if shader_val == "NormalmapTexture" and not "NormalmapTexture" in node.inputs.keys():
+        shader_val = "NomalmapTexture"
+
     if node.inputs[shader_val].links:
         n = node.inputs[shader_val].links[0].from_node
         if n.type != expect_node_type:

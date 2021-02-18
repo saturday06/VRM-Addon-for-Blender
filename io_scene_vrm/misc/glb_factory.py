@@ -123,6 +123,18 @@ class GlbObj:
                 for (
                     shader_vals
                 ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
+
+                    # Support models that were loaded by earlier versions(1_13_1 or earlier), which had this typo
+                    #
+                    # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".
+                    # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dic, can be "NormalmapTexture".
+                    # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
+                    # So change it to "NomalmapTexture" which is typo but points to the same thing in those models.
+                    if shader_vals == "NormalmapTexture"\
+                            and not "NormalmapTexture" in node.inputs.keys()\
+                            and "NomalmapTexture" in node.inputs.keys():
+                        shader_vals = "NomalmapTexture"
+
                     if shader_vals == "ReceiveShadow_Texture":
                         if node.inputs[shader_vals + "_alpha"].links:
                             n = node.inputs[shader_vals + "_alpha"].links[0].from_node
@@ -658,7 +670,7 @@ class GlbObj:
                             mtoon_vector_dic[texture_key][3],
                         ),
                     )
-                elif texture_prop == "NomalmapTexture":
+                elif texture_prop == "NormalmapTexture" or texture_prop == "NomalmapTexture": # Support older version that had typo
                     use_normalmap = True
                     normal_texture = tex
                 elif texture_prop == "Emission_Texture":
