@@ -114,11 +114,14 @@ jobs:
                 file "$f"
                 ;;
               us-ascii | utf-8)
-                if [ "scripts/stubgen.bat" = "$f" ]; then
-                  nkf -w -Lw -Z1 --in-place "$f"
-                else
-                  nkf -w -Lu -Z1 --in-place "$f"
-                fi
+                case "$f" in
+                  *.bat)
+                    nkf -w -Lw -Z1 --in-place "$f"
+                    ;;
+                  *)
+                    nkf -w -Lu -Z1 --in-place "$f"
+                    ;;
+                esac
                 ;;
               *)
                 echo "$f is not ascii nor utf-8 but $encoding."
