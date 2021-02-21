@@ -1339,6 +1339,8 @@ class BlendModel:
             collider_base_node = nodes_json[collider_group["node"]]
             node_name = collider_base_node["name"]
             for i, collider in enumerate(collider_group["colliders"]):
+                if node_name not in armature.data.bones:
+                    continue
                 collider_name = f"{node_name}_collider_{i}"
                 obj = bpy.data.objects.new(name=collider_name, object_data=None)
                 obj.parent = self.armature
