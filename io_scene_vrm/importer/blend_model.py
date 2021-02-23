@@ -684,7 +684,7 @@ class BlendModel:
                 connect_uv_map_to_texture(main_tex_node)
             elif tex_name == "_BumpMap":
                 # If .blend file already has VRM that is imported by older version,
-                # 'sg' has old 'MToon_unversioned', which has 'inputs["NomalmapTexture"]'.
+                # 'sg' has old 'MToon_unversioned', which has 'inputs["NomalmapTexture"]'. # noqa: SC100
                 # But 'tex_dic' holds name that is corrected, and it causes KeyError to reference 'sg' with it
                 color_socket_name = "NomalmapTexture"
                 if tex_dic[tex_name] in sg.inputs.keys():
