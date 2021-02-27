@@ -275,6 +275,57 @@ def validate_license(vrm_pydata: vrm_types.VrmPydata) -> None:
         raise LicenseConfirmationRequired(confirmations)
 
 
+def remove_unsafe_path_chars(filename: str) -> str:
+    unsafe_chars = {
+        0: "\x00",
+        1: "\x01",
+        2: "\x02",
+        3: "\x03",
+        4: "\x04",
+        5: "\x05",
+        6: "\x06",
+        7: "\x07",
+        8: "\x08",
+        9: "\t",
+        10: "\n",
+        11: "\x0b",
+        12: "\x0c",
+        13: "\r",
+        14: "\x0e",
+        15: "\x0f",
+        16: "\x10",
+        17: "\x11",
+        18: "\x12",
+        19: "\x13",
+        20: "\x14",
+        21: "\x15",
+        22: "\x16",
+        23: "\x17",
+        24: "\x18",
+        25: "\x19",
+        26: "\x1a",
+        27: "\x1b",
+        28: "\x1c",
+        29: "\x1d",
+        30: "\x1e",
+        31: "\x1f",
+        34: '"',
+        42: "*",
+        47: "/",
+        58: ":",
+        60: "<",
+        62: ">",
+        63: "?",
+        92: "\\",
+        124: "|",
+    }  # 32:space #33:!
+    remove_table = str.maketrans(
+        "", "", "".join([chr(charnum) for charnum in unsafe_chars])
+    )
+    safe_filename = filename.translate(remove_table)
+    return safe_filename
+
+
 def texture_rip(
     vrm_pydata: vrm_types.VrmPydata,
     body_binary: bytes,
@@ -298,56 +349,6 @@ def texture_rip(
     else:
         dir_path = tempfile.mkdtemp()  # TODO: cleanup
 
-    def invalid_chars_remover(filename: str) -> str:
-        unsafe_chars = {
-            0: "\x00",
-            1: "\x01",
-            2: "\x02",
-            3: "\x03",
-            4: "\x04",
-            5: "\x05",
-            6: "\x06",
-            7: "\x07",
-            8: "\x08",
-            9: "\t",
-            10: "\n",
-            11: "\x0b",
-            12: "\x0c",
-            13: "\r",
-            14: "\x0e",
-            15: "\x0f",
-            16: "\x10",
-            17: "\x11",
-            18: "\x12",
-            19: "\x13",
-            20: "\x14",
-            21: "\x15",
-            22: "\x16",
-            23: "\x17",
-            24: "\x18",
-            25: "\x19",
-            26: "\x1a",
-            27: "\x1b",
-            28: "\x1c",
-            29: "\x1d",
-            30: "\x1e",
-            31: "\x1f",
-            34: '"',
-            42: "*",
-            47: "/",
-            58: ":",
-            60: "<",
-            62: ">",
-            63: "?",
-            92: "\\",
-            124: "|",
-        }  # 32:space #33:!
-        remove_table = str.maketrans(
-            "", "", "".join([chr(charnum) for charnum in unsafe_chars])
-        )
-        safe_filename = filename.translate(remove_table)
-        return safe_filename
-
     for image_id, image_prop in enumerate(vrm_pydata.json["images"]):
         if "extra" in image_prop:
             image_name = image_prop["extra"]["name"]
@@ -369,7 +370,7 @@ def texture_rip(
             )
             image_name = "tex_2longname_" + str(image_id)
 
-        image_name = invalid_chars_remover(image_name)
+        image_name = remove_unsafe_path_chars(image_name)
         image_path = os.path.join(dir_path, image_name)
         if os.path.splitext(image_name)[1].lower() != ("." + image_type).lower():
             image_path += "." + image_type
