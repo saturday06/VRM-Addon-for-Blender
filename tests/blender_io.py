@@ -51,9 +51,20 @@ elif system == "Linux":
 else:
     float_tolerance = 0.000001
 
-if update_vrm_dir and not vrm_diff(
-    actual_out_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
+if (
+    update_vrm_dir
+    and in_path != expected_out_path
+    and not vrm_diff(
+        actual_out_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
+    )
 ):
+    if os.path.exists(expected_out_path):
+        raise Exception(
+            f"""The input and the output are same. The output file is unnecessary.
+input ={in_path}
+output={expected_out_path}
+"""
+        )
     sys.exit(0)
 
 try:

@@ -36,15 +36,34 @@ class TestBlender(TestCase):
             "BLENDER_VRM_TEST_VRM_DIR",
             os.path.join(self.repository_root_dir, "tests", "vrm"),
         )
-        self.test_temp_vrm_dir = os.path.join(test_vrm_dir, "temp")
+
+        command = [self.find_blender_command(), "--version"]
+        completed_process = subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+        )
+        stdout_str = self.process_output_to_str(completed_process.stdout)
+        stderr_str = self.process_output_to_str(completed_process.stderr)
+        output = (
+            "\n  ".join(command)
+            + "\n===== stdout =====\n"
+            + stdout_str
+            + "===== stderr =====\n"
+            + stderr_str
+            + "=================="
+        )
+        if completed_process.returncode != 0:
+            raise Exception("Failed to execute command:\n" + output)
+        major_minor = ".".join(stdout_str.splitlines()[0].split(" ")[1].split(".")[:2])
+
+        self.test_temp_vrm_dir = os.path.join(test_vrm_dir, major_minor, "temp")
         self.test_in_vrm_dir = os.path.join(test_vrm_dir, "in")
-        self.test_out_vrm_dir = os.path.join(test_vrm_dir, "out")
-        self.test_out2_vrm_dir = os.path.join(test_vrm_dir, "out2")
-        self.test_out3_vrm_dir = os.path.join(test_vrm_dir, "out3")
+        self.test_out_vrm_dir = os.path.join(test_vrm_dir, major_minor, "out")
+        self.test_out2_vrm_dir = os.path.join(test_vrm_dir, major_minor, "out2")
         os.makedirs(self.test_temp_vrm_dir, exist_ok=True)
         os.makedirs(self.test_out_vrm_dir, exist_ok=True)
         os.makedirs(self.test_out2_vrm_dir, exist_ok=True)
-        os.makedirs(self.test_out3_vrm_dir, exist_ok=True)
 
     def process_output_to_str(self, process_output: bytes) -> str:
         output = None
@@ -156,6 +175,19 @@ class TestBlender(TestCase):
             if v.endswith(".vrm")
         ]:
             with self.subTest((vrm, extract_textures)):
+                if (
+                    not os.path.exists(os.path.join(self.test_out_vrm_dir, vrm))
+                    and not update_vrm_dir
+                ):
+                    self.run_script(
+                        "blender_io.py",
+                        os.path.join(self.test_in_vrm_dir, vrm),
+                        os.path.join(self.test_in_vrm_dir, vrm),
+                        self.test_temp_vrm_dir,
+                        extract_textures,
+                    )
+                    continue
+
                 self.run_script(
                     "blender_io.py",
                     os.path.join(self.test_in_vrm_dir, vrm),
@@ -163,6 +195,11 @@ class TestBlender(TestCase):
                     self.test_temp_vrm_dir,
                     extract_textures,
                 )
+
+                if update_vrm_dir and not os.path.exists(
+                    os.path.join(self.test_out_vrm_dir, vrm)
+                ):
+                    continue
 
                 if (
                     not os.path.exists(os.path.join(self.test_out2_vrm_dir, vrm))
@@ -181,26 +218,6 @@ class TestBlender(TestCase):
                     "blender_io.py",
                     os.path.join(self.test_out_vrm_dir, vrm),
                     os.path.join(self.test_out2_vrm_dir, vrm),
-                    self.test_temp_vrm_dir,
-                    extract_textures,
-                )
-
-                if update_vrm_dir and not os.path.exists(
-                    os.path.join(self.test_out2_vrm_dir, vrm)
-                ):
-                    continue
-
-                test_last_vrm_dir = self.test_out2_vrm_dir
-                if (
-                    os.path.exists(os.path.join(self.test_out3_vrm_dir, vrm))
-                    or update_vrm_dir
-                ):
-                    test_last_vrm_dir = self.test_out3_vrm_dir
-
-                self.run_script(
-                    "blender_io.py",
-                    os.path.join(self.test_out2_vrm_dir, vrm),
-                    os.path.join(test_last_vrm_dir, vrm),
                     self.test_temp_vrm_dir,
                     extract_textures,
                 )
