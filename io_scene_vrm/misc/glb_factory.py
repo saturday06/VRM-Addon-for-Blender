@@ -643,7 +643,7 @@ class GlbObj:
                         uv_offset_scaling_node is not None
                         and uv_offset_scaling_node.type == "MAPPING'"
                     ):
-                        if bpy.app.version[1] == 80:
+                        if bpy.app.version <= (2, 80):
                             mtoon_vector_dic[texture_key] = [
                                 uv_offset_scaling_node.translation[0],
                                 uv_offset_scaling_node.translation[1],
