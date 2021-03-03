@@ -57,7 +57,17 @@ bl_info = {
 
 
 def register() -> None:
-    # Lazy import to minimize initialization before reload_package()
+    import bpy
+
+    if bpy.app.version < (2, 80):
+        raise Exception(
+            "This add-on doesn't support Blender version less than 2.80 "
+            + "and 2.82 or greater is recommended "
+            + "but the current version is "
+            + ".".join(map(str, bpy.app.version))
+        )
+
+    # Lazy import to minimize initialization before blender version checking and reload_package().
     # 'import io_scene_vrm' causes an error in blender and vscode mypy integration.
     # pylint: disable=no-name-in-module
     from . import io_scene_vrm  # type: ignore[attr-defined]
@@ -66,7 +76,12 @@ def register() -> None:
 
 
 def unregister() -> None:
-    # Lazy import to minimize initialization before reload_package()
+    import bpy
+
+    if bpy.app.version < (2, 80):
+        return
+
+    # Lazy import to minimize initialization before blender version checking and reload_package().
     # 'import io_scene_vrm' causes an error in blender and vscode mypy integration.
     # pylint: disable=no-name-in-module
     from . import io_scene_vrm  # type: ignore[attr-defined]
