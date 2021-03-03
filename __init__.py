@@ -58,7 +58,7 @@ bl_info = {
 
 def register() -> None:
     # Lazy import to minimize initialization before reload_package()
-    # 'import io_scene_vrm' causes error in blender and vscode mypy integration
+    # 'import io_scene_vrm' causes an error in blender and vscode mypy integration.
     # pylint: disable=no-name-in-module
     from . import io_scene_vrm  # type: ignore[attr-defined]
 
@@ -67,7 +67,7 @@ def register() -> None:
 
 def unregister() -> None:
     # Lazy import to minimize initialization before reload_package()
-    # 'import io_scene_vrm' causes error in blender and vscode mypy integration
+    # 'import io_scene_vrm' causes an error in blender and vscode mypy integration.
     # pylint: disable=no-name-in-module
     from . import io_scene_vrm  # type: ignore[attr-defined]
 
