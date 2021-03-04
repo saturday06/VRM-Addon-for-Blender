@@ -133,8 +133,8 @@ class GlbObj:
                     # in those models.
                     if (
                         shader_vals == "NormalmapTexture"
-                        and "NormalmapTexture" not in node.inputs.keys()
-                        and "NomalmapTexture" in node.inputs.keys()
+                        and "NormalmapTexture" not in node.inputs
+                        and "NomalmapTexture" in node.inputs
                     ):
                         shader_vals = "NomalmapTexture"
 
@@ -225,7 +225,7 @@ class GlbObj:
         human_bone_node_names = []
         for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
             if (
-                human_bone in self.armature.data.keys()
+                human_bone in self.armature.data
                 and self.armature.data[human_bone]
                 and self.armature.data[human_bone]
                 in [bone.name for bone in self.armature.data.bones]
@@ -1100,7 +1100,7 @@ class GlbObj:
                 )[0]
                 base_pos = [0, 0, 0]
                 if parent_node:
-                    if "children" in parent_node.keys():
+                    if "children" in parent_node:
                         parent_node["children"].append(mesh_node_id)
                     else:
                         parent_node["children"] = [mesh_node_id]
@@ -1565,13 +1565,11 @@ class GlbObj:
             vrm_metas = vrm_types.Vrm1.METAS
 
         for k, v in required_vrm_metas.items():
-            vrm_meta_dic[k] = self.armature[k] if k in self.armature.keys() else v
+            vrm_meta_dic[k] = self.armature[k] if k in self.armature else v
         for key in vrm_metas:
-            vrm_meta_dic[key] = (
-                self.armature[key] if key in self.armature.keys() else ""
-            )
+            vrm_meta_dic[key] = self.armature[key] if key in self.armature else ""
 
-        if "texture" in self.armature.keys():
+        if "texture" in self.armature:
             thumbnail_index_list = [
                 i
                 for i, img in enumerate(self.glb_bin_collector.image_bins)
@@ -1605,7 +1603,7 @@ class GlbObj:
                 vrm_types.HumanBones.requires + vrm_types.HumanBones.defines
             ):
                 if (
-                    humanbone in self.armature.data.keys()
+                    humanbone in self.armature.data
                     and self.armature.data[humanbone]
                     and self.armature.data[humanbone] in node_name_id_dic
                 ):
@@ -1632,7 +1630,7 @@ class GlbObj:
                 vrm_types.HumanBones.requires + vrm_types.HumanBones.defines
             ):
                 if (
-                    humanbone in self.armature.data.keys()
+                    humanbone in self.armature.data
                     and self.armature.data[humanbone]
                     and self.armature.data[humanbone] in node_name_id_dic
                 ):
@@ -1650,15 +1648,12 @@ class GlbObj:
             "firstPerson_params", vrm_types.Vrm0.FIRST_PERSON_DEFAULT_PARAMS
         )
         vrm_extension_dic["firstPerson"] = vrm_fp_dic
-        if (
-            "firstPersonBone" in vrm_fp_dic.keys()
-            and vrm_fp_dic["firstPersonBone"] != -1
-        ):
+        if "firstPersonBone" in vrm_fp_dic and vrm_fp_dic["firstPersonBone"] != -1:
             node_name = vrm_fp_dic["firstPersonBone"]
             if node_name not in node_name_id_dic:
                 node_name = self.armature.data["head"]
             vrm_fp_dic["firstPersonBone"] = node_name_id_dic[node_name]
-        if "meshAnnotations" in vrm_fp_dic.keys():
+        if "meshAnnotations" in vrm_fp_dic:
             for mesh_annotation in vrm_fp_dic["meshAnnotations"]:
                 matched_mesh_indices = [
                     i

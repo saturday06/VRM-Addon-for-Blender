@@ -1203,7 +1203,7 @@ class BlendModel:
                 # 'sg' has old 'MToon_unversioned', which has 'inputs["NomalmapTexture"]'. # noqa: SC100
                 # But 'tex_dic' holds name that is corrected, and it causes KeyError to reference 'sg' with it
                 color_socket_name = "NomalmapTexture"
-                if tex_dic[tex_name] in sg.inputs.keys():
+                if tex_dic[tex_name] in sg.inputs:
                     color_socket_name = tex_dic[tex_name]
 
                 normalmap_node = self.connect_texture_node(
@@ -1571,7 +1571,7 @@ class BlendModel:
                 if (
                     prim.POSITION_accessor,
                     morph_target_index,
-                ) in morph_cache_dict.keys():
+                ) in morph_cache_dict:
                     return morph_cache_dict[
                         (prim.POSITION_accessor, morph_target_index)
                     ]
@@ -1693,7 +1693,7 @@ class BlendModel:
             firstperson_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][
                 firstperson_params["firstPersonBone"]
             ]["name"]
-        if "meshAnnotations" in firstperson_params.keys():
+        if "meshAnnotations" in firstperson_params:
             # TODO VRM1.0 is using node index that has mesh
             for mesh_annotation in firstperson_params["meshAnnotations"]:
                 mesh_annotation["mesh"] = self.vrm_pydata.json["meshes"][

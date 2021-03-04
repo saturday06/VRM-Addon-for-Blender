@@ -596,7 +596,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                             + "代わりにfirstPersonBoneとしてVRMヒューマンボーン「head」を自動で設定します。",
                         )
                     )
-                if "meshAnnotations" in firstperson_params.keys():
+                if "meshAnnotations" in firstperson_params:
                     if isinstance(firstperson_params["meshAnnotations"], list):
                         for mesh_annotation in firstperson_params["meshAnnotations"]:
                             if mesh_annotation["mesh"] not in mesh_obj_names:

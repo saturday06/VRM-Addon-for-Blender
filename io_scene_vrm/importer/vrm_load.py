@@ -546,7 +546,7 @@ def material_read(vrm_pydata: vrm_types.VrmPydata) -> None:
 def skin_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     for skin in vrm_pydata.json.get("skins", []):
         vrm_pydata.skins_joints_list.append(skin["joints"])
-        if "skeleton" in skin.keys():
+        if "skeleton" in skin:
             vrm_pydata.skins_root_node_list.append(skin["skeleton"])
 
     # node(ボーン)をパースする->親からの相対位置で記録されている
@@ -556,9 +556,9 @@ def node_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     for i, node in enumerate(vrm_pydata.json["nodes"]):
         vrm_pydata.nodes_dict[i] = vrm2pydata_factory.bone(node)
         # TODO こっからorigin_bone
-        if "mesh" in node.keys():
+        if "mesh" in node:
             vrm_pydata.origin_nodes_dict[i] = [vrm_pydata.nodes_dict[i], node["mesh"]]
-            if "skin" in node.keys():
+            if "skin" in node:
                 vrm_pydata.origin_nodes_dict[i].append(node["skin"])
             else:
                 print(node["name"] + "is not have skin")
