@@ -1660,12 +1660,11 @@ class BlendModel:
                 raise Exception(
                     f'json extensions.VRM.humanoid.humanBones[{i}]["node"] is not int but {node_index}'
                 )
-            armature.data.bones[self.vrm_pydata.json["nodes"][node_index]["name"]][
-                "humanBone"
-            ] = node_index
-            armature.data[humanbone["bone"]] = armature.data.bones[
-                self.vrm_pydata.json["nodes"][node_index]["name"]
-            ].name
+            node_name = self.vrm_pydata.json["nodes"][node_index]["name"]
+            if node_name not in armature.data.bones:
+                continue
+            armature.data.bones[node_name]["humanBone"] = node_index
+            armature.data[humanbone["bone"]] = armature.data.bones[node_name].name
 
         vrm_meta = vrm0_extension.get("meta", {})
         if not isinstance(vrm_meta, dict):
@@ -1854,7 +1853,10 @@ class BlendModel:
         nodes_json = self.vrm_pydata.json["nodes"]
         for bone_group in spring_rootbone_groups_json:
             for bone_id in bone_group["bones"]:
-                bone = armature.data.bones[nodes_json[bone_id]["name"]]
+                node_name = nodes_json[bone_id]["name"]
+                if node_name not in armature.data.bones:
+                    continue
+                bone = armature.data.bones[node_name]
                 for key, val in bone_group.items():
                     if key == "bones":
                         continue
