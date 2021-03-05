@@ -60,6 +60,8 @@ class BlendModel:
         self.vrm_materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
+        self.vrm0_extension: Optional[Dict[str, Any]] = None
+        self.vrm1_draft_extension: Optional[Dict[str, Any]] = None
         self.vrm_model_build()
 
     def vrm_model_build(self) -> None:
@@ -73,6 +75,8 @@ class BlendModel:
         try:
             i = 1
             affected_object = self.scene_init()
+            i = prog(i)
+            self.parse_vrm_extension()
             i = prog(i)
             if self.legacy_importer:
                 self.texture_load()
@@ -114,6 +118,22 @@ class BlendModel:
     @staticmethod
     def axis_glb_to_blender(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
+
+    def parse_vrm_extension(self) -> None:
+        json_dict = self.vrm_pydata.json
+        vrm1_draft = json_get(json_dict, ["extensions", "VRMC_vrm-1.0_draft"])
+        if not isinstance(vrm1_draft, dict):
+            vrm1_draft = json_get(json_dict, ["extensions", "VRMC_vrm-1.0"])
+            if not isinstance(vrm1_draft, dict):
+                vrm1_draft = None
+        if vrm1_draft is not None:
+            self.vrm1_draft_extension = vrm1_draft
+            return
+
+        vrm0 = json_get(json_dict, ["extensions", "VRM"])
+        if not isinstance(vrm0, dict):
+            vrm0 = None
+        self.vrm0_extension = vrm0
 
     def summon(self) -> None:
         with open(self.vrm_pydata.filepath, "rb") as f:
@@ -451,26 +471,34 @@ class BlendModel:
             indexed_vrm_file.write(glb_factory.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
 
-
-        human_bones = json_get(
-            json_dict, ["extensions", "VRM", "humanoid", "humanBones"], []
-        )
             bpy.ops.import_scene.gltf(
                 filepath=indexed_vrm_file.name,
                 import_pack_images=True,
                 bone_heuristic="FORTUNE",
             )
 
+        spec_version: Optional[str] = None
         hips_bone_node_index: Optional[int] = None
-        if isinstance(human_bones, list):
-            for human_bone in human_bones:
-                if (
-                    isinstance(human_bone, dict)
-                    and human_bone.get("bone") == "hips"
-                    and isinstance(human_bone.get("node"), int)
-                ):
-                    hips_bone_node_index = human_bone["node"]
-                    break
+
+        if self.vrm1_draft_extension is not None:
+            spec_version = "1.0_draft"
+            hips_index = json_get(
+                self.vrm1_draft_extension, ["humanoid", "humanBones", "hips", "node"]
+            )
+            if isinstance(hips_index, int):
+                hips_bone_node_index = hips_index
+        elif self.vrm0_extension is not None:
+            spec_version = "0.0"
+            human_bones = json_get(self.vrm0_extension, ["humanoid", "humanBones"], [])
+            if isinstance(human_bones, list):
+                for human_bone in human_bones:
+                    if (
+                        isinstance(human_bone, dict)
+                        and human_bone.get("bone") == "hips"
+                        and isinstance(human_bone.get("node"), int)
+                    ):
+                        hips_bone_node_index = human_bone["node"]
+                        break
 
         extras_node_index_key = self.import_id + "Nodes"
         if hips_bone_node_index is not None:
@@ -492,8 +520,7 @@ class BlendModel:
                         or bone_node_index != hips_bone_node_index
                     ):
                         continue
-                    # VRM 0.0 only
-                    if obj.rotation_mode == "QUATERNION":
+                    if spec_version == "0.0" and obj.rotation_mode == "QUATERNION":
                         obj.rotation_quaternion.rotate(
                             mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
                         )
@@ -570,10 +597,9 @@ class BlendModel:
             bpy.context.view_layer.objects.active = self.armature  # アーマチャーをアクティブに
             bpy.ops.object.mode_set(mode="EDIT")  # エディットモードに入る
             disconnected_bone_names = []  # 結合されてないボーンのリスト
-            if str(
-                json_get(
-                    self.vrm_pydata.json, ["extensions", "VRM", "exporterVersion"], ""
-                )
+            vrm0_extension = self.vrm0_extension
+            if vrm0_extension is not None and str(
+                vrm0_extension.get("exporterVersion")
             ).startswith("VRoidStudio-"):
                 disconnected_bone_names = [
                     "J_Bip_R_Hand",
@@ -637,9 +663,7 @@ class BlendModel:
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtextureのインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
-        json_texture_index = json_get(
-            self.vrm_pydata.json, ["extensions", "VRM", "meta", "texture"], -1
-        )
+        json_texture_index = json_get(self.vrm0_extension, ["meta", "texture"], -1)
         if not isinstance(json_texture_index, int):
             raise Exception('json["extensions"]["VRM"]["meta"]["texture"] is not int')
         json_textures = self.vrm_pydata.json.get("textures", [])
@@ -1622,10 +1646,10 @@ class BlendModel:
         armature = self.armature
         if armature is None:
             raise Exception("armature is None")
-        vrm_extensions = json_get(self.vrm_pydata.json, ["extensions", "VRM"], {})
-        if not isinstance(vrm_extensions, dict):
-            raise Exception("json extensions.VRM is not dict")
-        humanbones_relations = json_get(vrm_extensions, ["humanoid", "humanBones"], [])
+        vrm0_extension = self.vrm0_extension
+        if vrm0_extension is None:
+            return
+        humanbones_relations = json_get(vrm0_extension, ["humanoid", "humanBones"], [])
         if not isinstance(humanbones_relations, list):
             raise Exception("extensions.VRM.humanoid.humanBones is not list")
         for (i, humanbone) in enumerate(humanbones_relations):
@@ -1643,7 +1667,7 @@ class BlendModel:
                 self.vrm_pydata.json["nodes"][node_index]["name"]
             ].name
 
-        vrm_meta = json_get(vrm_extensions, ["meta"], {})
+        vrm_meta = vrm0_extension.get("meta", {})
         if not isinstance(vrm_meta, dict):
             raise Exception("json extensions.VRM.meta is not dict")
         for metatag, metainfo in vrm_meta.items():
@@ -1661,8 +1685,10 @@ class BlendModel:
                 armature[metatag] = metainfo
 
     def json_dump(self) -> None:
-        vrm_ext_dic = json_get(self.vrm_pydata.json, ["extensions", "VRM"])
-        if not isinstance(vrm_ext_dic, dict):
+        if self.vrm1_draft_extension is not None:
+            return
+        vrm0_extension = self.vrm0_extension
+        if not isinstance(vrm0_extension, dict):
             raise Exception("json extensions VRM is not dict")
         textblock = bpy.data.texts.new(name="raw.json")
         textblock.write(json.dumps(self.vrm_pydata.json, indent=4))
@@ -1676,12 +1702,12 @@ class BlendModel:
             armature[f"{block_name}"] = text_block.name
 
         # region humanoid_parameter
-        humanoid_params = copy.deepcopy(vrm_ext_dic["humanoid"])
+        humanoid_params = copy.deepcopy(vrm0_extension["humanoid"])
         del humanoid_params["humanBones"]
         write_textblock_and_assign_to_armature("humanoid_params", humanoid_params)
         # endregion humanoid_parameter
         # region first_person
-        firstperson_params = copy.deepcopy(vrm_ext_dic["firstPerson"])
+        firstperson_params = copy.deepcopy(vrm0_extension["firstPerson"])
         fp_bone = json_get(firstperson_params, ["firstPersonBone"], -1)
         if fp_bone != -1:
             firstperson_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][
@@ -1699,7 +1725,7 @@ class BlendModel:
 
         # region blendshape_master
         blendshape_groups = copy.deepcopy(
-            vrm_ext_dic["blendShapeMaster"]["blendShapeGroups"]
+            vrm0_extension["blendShapeMaster"]["blendShapeGroups"]
         )
         # meshをidから名前に
         # weightを0-100から0-1に
@@ -1727,9 +1753,9 @@ class BlendModel:
 
         # region springbone
         spring_bonegroup_list = copy.deepcopy(
-            vrm_ext_dic["secondaryAnimation"]["boneGroups"]
+            vrm0_extension["secondaryAnimation"]["boneGroups"]
         )
-        collider_groups_list = vrm_ext_dic["secondaryAnimation"]["colliderGroups"]
+        collider_groups_list = vrm0_extension["secondaryAnimation"]["colliderGroups"]
         # node_idを管理するのは面倒なので、名前に置き換える
         # collider_groupも同じく
         for bone_group in spring_bonegroup_list:
@@ -1815,13 +1841,14 @@ class BlendModel:
         armature = self.armature
         if armature is None:
             raise Exception("armature is None")
+        vrm0_extension = self.vrm0_extension
+        if vrm0_extension is None:
+            return
 
-        if "secondaryAnimation" not in self.vrm_pydata.json["extensions"]["VRM"]:
+        secondary_animation_json = vrm0_extension.get("secondaryAnimation")
+        if secondary_animation_json is None:
             print("no secondary animation object")
             return
-        secondary_animation_json = self.vrm_pydata.json["extensions"]["VRM"][
-            "secondaryAnimation"
-        ]
         spring_rootbone_groups_json = secondary_animation_json["boneGroups"]
         collider_groups_json = secondary_animation_json["colliderGroups"]
         nodes_json = self.vrm_pydata.json["nodes"]
