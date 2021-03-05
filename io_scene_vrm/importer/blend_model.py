@@ -451,21 +451,15 @@ class BlendModel:
             indexed_vrm_file.write(glb_factory.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
 
-            if bpy.app.version < (2, 83):
-                bpy.ops.import_scene.gltf(
-                    filepath=indexed_vrm_file.name,
-                    import_pack_images=True,
-                )
-            else:
-                bpy.ops.import_scene.gltf(
-                    filepath=indexed_vrm_file.name,
-                    import_pack_images=True,
-                    bone_heuristic="FORTUNE",
-                )
 
         human_bones = json_get(
             json_dict, ["extensions", "VRM", "humanoid", "humanBones"], []
         )
+            bpy.ops.import_scene.gltf(
+                filepath=indexed_vrm_file.name,
+                import_pack_images=True,
+                bone_heuristic="FORTUNE",
+            )
 
         hips_bone_node_index: Optional[int] = None
         if isinstance(human_bones, list):
