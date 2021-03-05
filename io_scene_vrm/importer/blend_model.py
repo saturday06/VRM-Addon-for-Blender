@@ -512,10 +512,6 @@ class BlendModel:
                             bpy.context.view_layer.objects.active = previous_active
                     self.armature = obj
 
-        armature = self.armature
-        if armature is None:
-            raise Exception("Failed to read VRM")
-
         extras_mesh_index_key = self.import_id + "Meshes"
         for obj in bpy.context.selectable_objects:
             data = obj.data
@@ -556,6 +552,10 @@ class BlendModel:
             if self.is_temp_object_name(material.name) and material.users == 0:
                 print(material.name)
                 bpy.data.materials.remove(material)
+
+        armature = self.armature
+        if armature is None:
+            raise Exception("Failed to read VRM Humanoid")
 
     def temp_object_name(self) -> str:
         self.temp_object_name_count += 1
