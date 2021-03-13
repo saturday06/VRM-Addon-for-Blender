@@ -1,4 +1,5 @@
 * -text
+*.bat text eol=crlf
 *.glsl text eol=lf
 *.ini text eol=lf
 *.md text eol=lf
