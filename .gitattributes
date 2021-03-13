@@ -5,4 +5,5 @@
 *.md text eol=lf
 *.py text eol=lf
 *.yml text eol=lf
+.* text eol=lf
 poetry.lock text eol=lf
