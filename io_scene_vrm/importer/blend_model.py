@@ -148,6 +148,12 @@ class BlendModel:
                 if "extras" not in value:
                     value["extras"] = {}
                 value["extras"].update({self.import_id + key.capitalize(): index})
+                if (
+                    key == "nodes"
+                    and "mesh" in value
+                    and isinstance(value["mesh"], int)
+                ):
+                    value["extras"].update({self.import_id + "Meshes": index})
 
         image_name_prefix = "{" + self.import_id + "-"
         if isinstance(json_dict.get("images"), list):
@@ -540,9 +546,14 @@ class BlendModel:
                 continue
             mesh_index = obj.data.get(extras_mesh_index_key)
             if not isinstance(mesh_index, int):
-                continue
-            del obj.data[extras_mesh_index_key]
-            self.meshes[mesh_index] = obj
+                mesh_index = obj.get(extras_mesh_index_key)
+                if not isinstance(mesh_index, int):
+                    continue
+                del obj[extras_mesh_index_key]
+                self.meshes[mesh_index] = obj
+            else:
+                del obj.data[extras_mesh_index_key]
+                self.meshes[mesh_index] = obj
 
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
