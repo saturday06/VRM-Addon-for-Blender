@@ -34,3 +34,4 @@
 .vscode/.ropeproject/config.py
 .vscode/.ropeproject/objectdb
 .vscode/tasks.json
+/tests/vrm/*/temp/

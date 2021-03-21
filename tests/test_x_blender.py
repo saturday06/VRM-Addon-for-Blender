@@ -57,6 +57,7 @@ class TestBlender(TestCase):
             raise Exception("Failed to execute command:\n" + output)
         major_minor = ".".join(stdout_str.splitlines()[0].split(" ")[1].split(".")[:2])
 
+        self.test_blend_dir = os.path.join(os.path.dirname(test_vrm_dir), "blend")
         self.test_temp_vrm_dir = os.path.join(test_vrm_dir, major_minor, "temp")
         self.test_in_vrm_dir = os.path.join(test_vrm_dir, "in")
         self.test_out_vrm_dir = os.path.join(test_vrm_dir, major_minor, "out")
@@ -166,7 +167,21 @@ class TestBlender(TestCase):
             self.test_temp_vrm_dir,
         )
 
-    def test_io(self) -> None:
+    def test_blend_io(self) -> None:
+        for blend in os.listdir(self.test_blend_dir):
+            if not blend.endswith(".blend"):
+                continue
+            vrm = os.path.splitext(blend)[0] + ".vrm"
+            with self.subTest(blend):
+                self.run_script(
+                    "blender_io.py",
+                    os.path.join(self.test_blend_dir, blend),
+                    os.path.join(self.test_out_vrm_dir, vrm),
+                    self.test_temp_vrm_dir,
+                    "false",
+                )
+
+    def test_vrm_io(self) -> None:
         update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
         for (vrm, extract_textures) in [
             (v, e)

@@ -26,11 +26,15 @@ bpy.ops.object.delete()
 while bpy.data.collections:
     bpy.data.collections.remove(bpy.data.collections[0])
 
-bpy.ops.import_scene.vrm(
-    filepath=in_path,
-    extract_textures_into_folder=extract_textures,
-    make_new_texture_folder=extract_textures,
-)
+if in_path.endswith(".vrm"):
+    bpy.ops.import_scene.vrm(
+        filepath=in_path,
+        extract_textures_into_folder=extract_textures,
+        make_new_texture_folder=extract_textures,
+    )
+elif in_path.endswith(".blend"):
+    bpy.ops.wm.open_mainfile(filepath=in_path)
+
 # bpy.ops.object.select_all(action="SELECT")
 bpy.ops.vrm.model_validate()
 
@@ -48,6 +52,7 @@ else:
 
 if (
     update_vrm_dir
+    and in_path.endswith(".vrm")
     and in_path != expected_out_path
     and not vrm_diff(
         actual_out_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
