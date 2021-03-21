@@ -373,29 +373,32 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                             )
                         )
                         vertex_error_count = vertex_error_count + 1
-        for mat in used_materials:
-            for node in mat.node_tree.nodes:
-                if node.type == "OUTPUT_MATERIAL" and (
-                    not node.inputs["Surface"].links
-                    or node.inputs["Surface"].links[0].from_node.type != "GROUP"
-                    or node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
-                    is None
-                ):
-                    groups = [
-                        "GLTF",
-                        "MToon_unversioned",
-                        "TRANSPARENT_ZWRITE",
-                    ]
-                    groups_en_str = "/".join(groups)
-                    groups_ja_str = "".join(f"「{group}」" for group in groups)
-                    warning_messages.append(
-                        lang_support(
-                            f'"{mat.name}" needs to connect {groups_en_str} to "Surface" directly. '
-                            + "Empty material will be exported.",
-                            f"マテリアル「{mat.name}」には{groups_ja_str}のいずれかを直接「サーフェス」に指定してください。"
-                            + "空のマテリアルを出力します。",
+        if bpy.app.version < (2, 83):
+            for mat in used_materials:
+                for node in mat.node_tree.nodes:
+                    if node.type == "OUTPUT_MATERIAL" and (
+                        not node.inputs["Surface"].links
+                        or node.inputs["Surface"].links[0].from_node.type != "GROUP"
+                        or node.inputs["Surface"]
+                        .links[0]
+                        .from_node.node_tree.get("SHADER")
+                        is None
+                    ):
+                        groups = [
+                            "GLTF",
+                            "MToon_unversioned",
+                            "TRANSPARENT_ZWRITE",
+                        ]
+                        groups_en_str = "/".join(groups)
+                        groups_ja_str = "".join(f"「{group}」" for group in groups)
+                        warning_messages.append(
+                            lang_support(
+                                f'"{mat.name}" needs to connect {groups_en_str} to "Surface" directly. '
+                                + "Empty material will be exported.",
+                                f"マテリアル「{mat.name}」には{groups_ja_str}のいずれかを直接「サーフェス」に指定してください。"
+                                + "空のマテリアルを出力します。",
+                            )
                         )
-                    )
 
         for node, material in shader_nodes_and_materials(used_materials):
             # MToon

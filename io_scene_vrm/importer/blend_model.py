@@ -882,6 +882,11 @@ class BlendModel:
                 for vrm_material_index, vrm_material in self.vrm_materials.items():
                     if material != self.gltf_materials[vrm_material_index]:
                         continue
+                    if (
+                        bpy.app.version >= (2, 83)
+                        and vrm_material["shader_name"] == "GLTF"
+                    ):
+                        continue
                     material_name = material.name
                     material.name = "glTF_VRM_overridden_" + material_name
                     vrm_material.name = material_name

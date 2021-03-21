@@ -175,6 +175,7 @@ pydata
 pylint
 pymat
 pymesh
+pyright
 pythonver
 quaternion
 raytrace
@@ -188,6 +189,7 @@ rfu
 rgb
 rgba
 rl
+roid
 rootbone
 runtime
 selectable

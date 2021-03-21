@@ -84,7 +84,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                     self.extract_textures_into_folder,
                     self.make_new_texture_folder,
                     license_check=True,
-                    legacy_importer=use_legacy_importer(),
+                    legacy_importer=use_legacy_importer_exporter(),
                 ),
             )
         except vrm_load.LicenseConfirmationRequired as e:
@@ -111,7 +111,9 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
         )
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        if not use_legacy_importer() and "gltf" not in dir(bpy.ops.import_scene):
+        if not use_legacy_importer_exporter() and "gltf" not in dir(
+            bpy.ops.import_scene
+        ):
             return cast(
                 Set[str],
                 bpy.ops.wm.gltf2_addon_disabled_warning(
@@ -134,7 +136,7 @@ def create_blend_model(
             vrm_pydata,
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
-            legacy_importer=use_legacy_importer(),
+            legacy_importer=use_legacy_importer_exporter(),
         )
     finally:
         if has_ui_localization and ui_localization:
@@ -143,7 +145,7 @@ def create_blend_model(
     return {"FINISHED"}
 
 
-def use_legacy_importer() -> bool:
+def use_legacy_importer_exporter() -> bool:
     return bool(bpy.app.version < (2, 83))
 
 
@@ -214,6 +216,15 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
         if preferences:
             self.export_invisibles = bool(preferences.export_invisibles)
             self.export_only_selections = bool(preferences.export_only_selections)
+        if not use_legacy_importer_exporter() and "gltf" not in dir(
+            bpy.ops.export_scene
+        ):
+            return cast(
+                Set[str],
+                bpy.ops.wm.gltf2_addon_disabled_warning(
+                    "INVOKE_DEFAULT",
+                ),
+            )
         return cast(Set[str], ExportHelper.invoke(self, context, event))
 
     def draw(self, context: bpy.types.Context) -> None:
@@ -406,7 +417,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
 
 
 class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_label = "glTF 2.0 Addon is disabled"
+    bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.gltf2_addon_disabled_warning"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -448,7 +459,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
                 self.extract_textures_into_folder,
                 self.make_new_texture_folder,
                 license_check=False,
-                legacy_importer=use_legacy_importer(),
+                legacy_importer=use_legacy_importer_exporter(),
             ),
         )
 
@@ -532,7 +543,7 @@ translation_dictionary = {
         (
             "*",
             'Official add-on "glTF 2.0 format" is required. Please enable it.',
-        ): "公式アドオン「gltf 2.0 format」が必要です。有効化してください。",
+        ): "公式アドオン「glTF 2.0 format」が必要です。有効化してください。",
     }
 }
 

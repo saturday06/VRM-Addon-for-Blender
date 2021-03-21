@@ -5,9 +5,11 @@ https://opensource.org/licenses/mit-license.php
 
 """
 import contextlib
+import datetime
 import json
 import os
 import struct
+import traceback
 from collections import OrderedDict
 from math import floor
 from sys import float_info
@@ -307,53 +309,47 @@ class GlbObj:
     def material_to_dic(self) -> None:
         glb_material_list = []
         vrm_material_props_list = []
+        gltf2_io_texture_images: List[Tuple[str, bytes, int]] = []
 
         image_id_dic = {
             image.name: image.image_id for image in self.glb_bin_collector.image_bins
         }
-        sampler_dic: Dict[Tuple[int, int], int] = OrderedDict()
+        sampler_dic: Dict[Tuple[int, int, int, int], int] = OrderedDict()
         texture_dic: Dict[Tuple[int, int], int] = OrderedDict()
-        sampler_count = 0
-        texture_count = 0
 
         # region texture func
 
         def add_texture(image_name: str, wrap_type: int, filter_type: int) -> int:
-            nonlocal sampler_count
-            nonlocal texture_count
-            if (wrap_type, filter_type) not in sampler_dic.keys():
-                sampler_dic.update({(wrap_type, filter_type): sampler_count})
-                sampler_count += 1
+            sampler_dic_key = (wrap_type, wrap_type, filter_type, filter_type)
+            if sampler_dic_key not in sampler_dic.keys():
+                sampler_dic.update({sampler_dic_key: len(sampler_dic)})
             if (
                 image_id_dic[image_name],
-                sampler_dic[(wrap_type, filter_type)],
+                sampler_dic[sampler_dic_key],
             ) not in texture_dic.keys():
                 texture_dic.update(
                     {
                         (
                             image_id_dic[image_name],
-                            sampler_dic[(wrap_type, filter_type)],
-                        ): texture_count
+                            sampler_dic[sampler_dic_key],
+                        ): len(texture_dic)
                     }
                 )
-                texture_count += 1
-            return texture_dic[
-                (image_id_dic[image_name], sampler_dic[(wrap_type, filter_type)])
-            ]
+            return texture_dic[(image_id_dic[image_name], sampler_dic[sampler_dic_key])]
 
         def apply_texture_and_sampler_to_dic() -> None:
-            if sampler_count > 0:
+            if sampler_dic:
                 sampler_list = self.json_dic["samplers"] = []
                 for sampler in sampler_dic.keys():
                     sampler_list.append(
                         {
-                            "magFilter": sampler[1],
-                            "minFilter": sampler[1],
                             "wrapS": sampler[0],
-                            "wrapT": sampler[0],
+                            "wrapT": sampler[1],
+                            "magFilter": sampler[2],
+                            "minFilter": sampler[3],
                         }
                     )
-            if texture_count > 0:
+            if texture_dic:
                 textures = []
                 for tex in texture_dic:
                     texture = {"sampler": tex[1], "source": tex[0]}
@@ -948,6 +944,215 @@ class GlbObj:
 
             return zw_dic, pbr_dic
 
+        def add_gltf2_io_texture(
+            gltf2_io_texture_info: Any,
+        ) -> Dict[str, Union[int, float]]:
+            image = gltf2_io_texture_info.index.source
+            found = False
+            for (name, data, index) in gltf2_io_texture_images:
+                if name != image.name or data != image.buffer_view.data:
+                    continue
+                image_index = index
+                image_name = {value: key for key, value in image_id_dic.items()}[
+                    image_index
+                ]
+                found = True
+                break
+            if not found:
+                image_index = self.glb_bin_collector.get_new_image_id()
+                gltf2_io_texture_images.append(
+                    (image.name, image.buffer_view.data, image_index)
+                )
+                image_name = image.name
+                for count in range(100000):
+                    image_name = image.name
+                    if count:
+                        image_name += "." + str(count)
+                    if image_name not in image_id_dic:
+                        break
+                image_id_dic[image_name] = image_index
+                ImageBin(
+                    image.buffer_view.data,
+                    image_name,
+                    image.mime_type,
+                    self.glb_bin_collector,
+                )
+
+            sampler = gltf2_io_texture_info.index.sampler
+            if sampler is None:
+                sampler_dic_key = (
+                    GlConstants.REPEAT,
+                    GlConstants.REPEAT,
+                    GlConstants.LINEAR,
+                    GlConstants.LINEAR,
+                )
+            else:
+                sampler_dic_key = (
+                    sampler.wrap_s or GlConstants.REPEAT,
+                    sampler.wrap_t or GlConstants.REPEAT,
+                    sampler.mag_filter or GlConstants.LINEAR,
+                    sampler.min_filter or GlConstants.LINEAR,
+                )
+
+                # VRoid Hub may not support a mipmap
+                if sampler_dic_key[3] in [
+                    GlConstants.NEAREST_MIPMAP_LINEAR,
+                    GlConstants.NEAREST_MIPMAP_NEAREST,
+                ]:
+                    sampler_dic_key = sampler_dic_key[0:3] + (GlConstants.NEAREST,)
+                elif sampler_dic_key[3] in [
+                    GlConstants.LINEAR_MIPMAP_NEAREST,
+                    GlConstants.LINEAR_MIPMAP_LINEAR,
+                ]:
+                    sampler_dic_key = sampler_dic_key[0:3] + (GlConstants.LINEAR,)
+
+            if sampler_dic_key not in sampler_dic.keys():
+                sampler_dic.update({sampler_dic_key: len(sampler_dic)})
+            if (image_index, sampler_dic[sampler_dic_key]) not in texture_dic.keys():
+                texture_dic.update(
+                    {(image_index, sampler_dic[sampler_dic_key]): len(texture_dic)}
+                )
+            texture_info: Dict[str, Union[int, float]] = {
+                "index": texture_dic[(image_index, sampler_dic[sampler_dic_key])],
+                "texCoord": 0,  # TODO
+            }
+            if hasattr(gltf2_io_texture_info, "scale") and isinstance(
+                gltf2_io_texture_info.scale, (int, float)
+            ):
+                texture_info["scale"] = gltf2_io_texture_info.scale
+            if hasattr(gltf2_io_texture_info, "strength") and isinstance(
+                gltf2_io_texture_info.strength, (int, float)
+            ):
+                texture_info["strength"] = gltf2_io_texture_info.strength
+            return texture_info
+
+        def make_non_vrm_mat_dic(
+            b_mat: bpy.types.Material,
+        ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+            vrm_dic = {
+                "name": b_mat.name,
+                "shader": "VRM_USE_GLTFSHADER",
+                "keywordMap": {},
+                "tagMap": {},
+                "floatProperties": {},
+                "vectorProperties": {},
+                "textureProperties": {},
+            }
+            fallback = (vrm_dic, {"name": b_mat.name})
+
+            pbr_dic: Dict[str, Any] = {}
+            pbr_dic["name"] = b_mat.name
+
+            if bpy.app.version < (2, 83):
+                return fallback
+
+            try:
+                from io_scene_gltf2.blender.exp.gltf2_blender_gather_materials import (
+                    gather_material,
+                )  # pyright: reportMissingImports=false
+            except ImportError as e:
+                print(f"Failed to import glTF 2.0 Add-on: {e}")
+                return fallback
+
+            gltf2_io_material: Optional[Any] = None
+            export_settings: Dict[str, Any] = {
+                "timestamp": datetime.datetime.now(),
+                "gltf_materials": True,
+                "gltf_format": "GLB",
+                "gltf_image_format": "AUTO",
+                "gltf_extras": True,
+                "gltf_user_extensions": [],
+                "gltf_binary": bytearray(),
+            }
+            try:
+                if bpy.app.version >= (2, 91):
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/abd8380e19dbe5e5fb9042513ad6b744032bc9bc/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
+                    gltf2_io_material = gather_material(b_mat, export_settings)
+                else:
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/ac3471cae42b34fc69fda75fa404117272fa9560/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
+                    gltf2_io_material = gather_material(
+                        b_mat, not b_mat.use_backface_culling, export_settings
+                    )
+
+                if gltf2_io_material.alpha_cutoff is not None:
+                    pbr_dic["alphaCutoff"] = gltf2_io_material.alpha_cutoff
+                if gltf2_io_material.alpha_mode is not None:
+                    pbr_dic["alphaMode"] = gltf2_io_material.alpha_mode
+                if gltf2_io_material.double_sided is not None:
+                    pbr_dic["doubleSided"] = gltf2_io_material.double_sided
+                if gltf2_io_material.emissive_factor is not None:
+                    pbr_dic["emissiveFactor"] = gltf2_io_material.emissive_factor
+                if gltf2_io_material.emissive_texture is not None:
+                    pbr_dic["emissiveTexture"] = add_gltf2_io_texture(
+                        gltf2_io_material.emissive_texture
+                    )
+                if gltf2_io_material.extensions is not None:
+                    pbr_dic["extensions"] = gltf2_io_material.extensions
+                if gltf2_io_material.normal_texture is not None:
+                    pbr_dic["normalTexture"] = add_gltf2_io_texture(
+                        gltf2_io_material.normal_texture
+                    )
+                if gltf2_io_material.occlusion_texture is not None:
+                    pbr_dic["occlusionTexture"] = add_gltf2_io_texture(
+                        gltf2_io_material.occlusion_texture
+                    )
+                if gltf2_io_material.pbr_metallic_roughness is not None:
+                    pbr_metallic_roughness = {}
+                    if (
+                        gltf2_io_material.pbr_metallic_roughness.base_color_factor
+                        is not None
+                    ):
+                        pbr_metallic_roughness[
+                            "baseColorFactor"
+                        ] = gltf2_io_material.pbr_metallic_roughness.base_color_factor
+                    if (
+                        gltf2_io_material.pbr_metallic_roughness.base_color_texture
+                        is not None
+                    ):
+                        pbr_metallic_roughness[
+                            "baseColorTexture"
+                        ] = add_gltf2_io_texture(
+                            gltf2_io_material.pbr_metallic_roughness.base_color_texture
+                        )
+                    if (
+                        gltf2_io_material.pbr_metallic_roughness.metallic_factor
+                        is not None
+                    ):
+                        pbr_metallic_roughness[
+                            "metallicFactor"
+                        ] = gltf2_io_material.pbr_metallic_roughness.metallic_factor
+                    if (
+                        gltf2_io_material.pbr_metallic_roughness.metallic_roughness_texture
+                        is not None
+                    ):
+                        pbr_metallic_roughness[
+                            "metallicRoughnessTexture"
+                        ] = add_gltf2_io_texture(
+                            gltf2_io_material.pbr_metallic_roughness.metallic_roughness_texture
+                        )
+                    if (
+                        gltf2_io_material.pbr_metallic_roughness.roughness_factor
+                        is not None
+                    ):
+                        pbr_metallic_roughness[
+                            "roughnessFactor"
+                        ] = gltf2_io_material.pbr_metallic_roughness.roughness_factor
+                    pbr_dic["pbrMetallicRoughness"] = pbr_metallic_roughness
+            except KeyError as e:
+                traceback.print_exc()
+                print(f"glTF Material KeyError: {e}")
+                return fallback
+            except TypeError as e:
+                traceback.print_exc()
+                print(f"glTF Material TypeError: {e}")
+                return fallback
+            except Exception as e:
+                traceback.print_exc()
+                print(f"glTF Material Exception: {e}")
+                return fallback
+
+            return vrm_dic, pbr_dic
+
         # endregion function separate by shader
 
         used_materials = []
@@ -987,23 +1192,7 @@ class GlbObj:
                         )
                         break
             else:
-                print(
-                    "VRM doesn't support \""
-                    + str(b_mat.get("vrm_shader"))
-                    + '" shader.'
-                )
-                pbr_dic["name"] = b_mat.name
-                material_properties_dic.update(
-                    {
-                        "name": b_mat.name,
-                        "shader": "VRM_USE_GLTFSHADER",
-                        "keywordMap": {},
-                        "tagMap": {},
-                        "floatProperties": {},
-                        "vectorProperties": {},
-                        "textureProperties": {},
-                    }
-                )
+                material_properties_dic, pbr_dic = make_non_vrm_mat_dic(b_mat)
 
             glb_material_list.append(pbr_dic)
             vrm_material_props_list.append(material_properties_dic)
