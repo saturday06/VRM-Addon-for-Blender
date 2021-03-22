@@ -864,10 +864,11 @@ class BlendModel:
     def make_material(self) -> None:
         # 適当なので要調整
         for index, mat in enumerate(self.vrm_pydata.materials):
-            if bpy.app.version >= (2, 83) and mat.shader_name not in [
-                "VRM/MToon",
-                "VRM/UnlitTransparentZWrite",
-            ]:
+            if (
+                bpy.app.version >= (2, 83)
+                and isinstance(mat, vrm_types.MaterialGltf)
+                and not mat.vrm_addon_for_blender_legacy_gltf_material
+            ):
                 continue
             b_mat = bpy.data.materials.new(mat.name)
             b_mat["shader_name"] = mat.shader_name

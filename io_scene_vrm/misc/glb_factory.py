@@ -869,6 +869,7 @@ class GlbObj:
             gltf_dic["floatProperties"] = {}
             gltf_dic["vectorProperties"] = {}
             gltf_dic["textureProperties"] = {}
+            gltf_dic["extras"] = {"VRM_Addon_for_Blender_legacy_gltf_material": {}}
 
             if b_mat.blend_method == "OPAQUE":
                 transparent_method = "OPAQUE"

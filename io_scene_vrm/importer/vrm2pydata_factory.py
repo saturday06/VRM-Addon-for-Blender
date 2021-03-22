@@ -92,6 +92,11 @@ def material(
                 gltf.alpha_mode = "OPAQUE"
         if "extensions" in mat and "KHR_materials_unlit" in mat["extensions"]:
             gltf.shadeless = 1  # 0 is shade ,1 is shadeless
+
+        if isinstance(ext_mat.get("extras"), dict) and isinstance(
+            ext_mat["extras"].get("VRM_Addon_for_Blender_legacy_gltf_material"), dict
+        ):
+            gltf.vrm_addon_for_blender_legacy_gltf_material = True
         return gltf
 
     # "MToon or Transparent_Zwrite"

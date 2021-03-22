@@ -289,6 +289,8 @@ class MaterialGltf(Material):
         self.alpha_mode = "OPAQUE"
         self.shadeless = 0  # 0 is shade ,1 is shadeless
 
+        self.vrm_addon_for_blender_legacy_gltf_material = False
+
 
 class MaterialTransparentZWrite(Material):
     float_props = [
