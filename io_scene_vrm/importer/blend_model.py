@@ -155,7 +155,7 @@ class BlendModel:
                 ):
                     value["extras"].update({self.import_id + "Meshes": index})
 
-        image_name_prefix = "{" + self.import_id + "-"
+        image_name_prefix = self.import_id + "Image"
         if isinstance(json_dict.get("images"), list):
             for image_index, image in enumerate(json_dict["images"]):
                 if not isinstance(image, dict):
@@ -163,7 +163,7 @@ class BlendModel:
                 if not isinstance(image.get("name"), str) or not image["name"]:
                     image["name"] = f"Image{image_index}"
                 image["name"] = (
-                    image_name_prefix + str(image_index) + "}" + image["name"]
+                    image_name_prefix + str(image_index) + "_" + image["name"]
                 )
 
         if isinstance(json_dict.get("meshes"), list):
@@ -567,9 +567,9 @@ class BlendModel:
             if not image.name.startswith(image_name_prefix):
                 continue
             image_index = int(
-                "".join(image.name.split(image_name_prefix)[1:]).split("}")[0]
+                "".join(image.name.split(image_name_prefix)[1:]).split("_")[0]
             )
-            image.name = "".join(image.name.split("}")[1:])
+            image.name = "_".join(image.name.split("_")[1:])
             self.images[image_index] = image
 
         if bpy.context.object is not None and bpy.context.object.mode == "EDIT":
