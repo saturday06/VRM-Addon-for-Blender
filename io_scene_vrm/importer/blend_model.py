@@ -883,14 +883,24 @@ class BlendModel:
             self.node_placer(b_mat.node_tree.nodes["Material Output"])
             self.vrm_materials[index] = b_mat
 
+        gltf_material_original_names = {
+            vrm_material_index: self.gltf_materials[vrm_material_index].name
+            for vrm_material_index in self.vrm_materials
+            if vrm_material_index in self.gltf_materials
+        }
         for mesh in self.meshes.values():
             for material_index, material in enumerate(mesh.data.materials):
                 for vrm_material_index, vrm_material in self.vrm_materials.items():
-                    if material != self.gltf_materials[vrm_material_index]:
+                    material_original_name = gltf_material_original_names.get(
+                        vrm_material_index
+                    )
+                    if (
+                        material_original_name is None
+                        or material != self.gltf_materials.get(vrm_material_index)
+                    ):
                         continue
-                    material_name = material.name
-                    material.name = "glTF_VRM_overridden_" + material_name
-                    vrm_material.name = material_name
+                    material.name = "glTF_VRM_overridden_" + material_original_name
+                    vrm_material.name = material_original_name
                     mesh.data.materials[material_index] = vrm_material
                     break
 
