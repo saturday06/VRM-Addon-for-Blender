@@ -563,7 +563,7 @@ class BlendModel:
             del material[extras_material_index_key]
             self.gltf_materials[material_index] = material
 
-        for image in bpy.data.images:
+        for image in list(bpy.data.images):
             if not image.name.startswith(image_name_prefix):
                 continue
             image_index = int(
@@ -575,12 +575,12 @@ class BlendModel:
         if bpy.context.object is not None and bpy.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
-        for obj in bpy.data.objects:
+        for obj in list(bpy.data.objects):
             if self.is_temp_object_name(obj.name):
                 obj.select_set(True)
                 bpy.ops.object.delete()
 
-        for material in bpy.data.materials:
+        for material in list(bpy.data.materials):
             if self.is_temp_object_name(material.name) and material.users == 0:
                 print(material.name)
                 bpy.data.materials.remove(material)
