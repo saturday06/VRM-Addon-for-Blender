@@ -4,6 +4,7 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
+import collections
 import contextlib
 import datetime
 import json
@@ -1086,8 +1087,14 @@ class GlbObj:
                     pbr_dic["emissiveTexture"] = add_gltf2_io_texture(
                         gltf2_io_material.emissive_texture
                     )
-                if gltf2_io_material.extensions is not None:
-                    pbr_dic["extensions"] = gltf2_io_material.extensions
+                if isinstance(gltf2_io_material.extensions, dict):
+                    pbr_dic["extensions"] = {}
+                    # https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_unli
+                    if (
+                        gltf2_io_material.extensions.get("KHR_materials_unlit")
+                        is not None
+                    ):
+                        pbr_dic["extensions"].update({"KHR_materials_unlit": {}})
                 if gltf2_io_material.normal_texture is not None:
                     pbr_dic["normalTexture"] = add_gltf2_io_texture(
                         gltf2_io_material.normal_texture
