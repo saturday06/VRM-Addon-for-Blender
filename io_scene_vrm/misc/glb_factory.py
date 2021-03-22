@@ -1075,13 +1075,13 @@ class GlbObj:
                         b_mat, not b_mat.use_backface_culling, export_settings
                     )
 
-                if gltf2_io_material.alpha_cutoff is not None:
+                if isinstance(gltf2_io_material.alpha_cutoff, (int, float)):
                     pbr_dic["alphaCutoff"] = gltf2_io_material.alpha_cutoff
-                if gltf2_io_material.alpha_mode is not None:
+                if isinstance(gltf2_io_material.alpha_mode, str):
                     pbr_dic["alphaMode"] = gltf2_io_material.alpha_mode
-                if gltf2_io_material.double_sided is not None:
+                if isinstance(gltf2_io_material.double_sided, bool):
                     pbr_dic["doubleSided"] = gltf2_io_material.double_sided
-                if gltf2_io_material.emissive_factor is not None:
+                if isinstance(gltf2_io_material.emissive_factor, collections.Sequence):
                     pbr_dic["emissiveFactor"] = gltf2_io_material.emissive_factor
                 if gltf2_io_material.emissive_texture is not None:
                     pbr_dic["emissiveTexture"] = add_gltf2_io_texture(
@@ -1104,10 +1104,10 @@ class GlbObj:
                         gltf2_io_material.occlusion_texture
                     )
                 if gltf2_io_material.pbr_metallic_roughness is not None:
-                    pbr_metallic_roughness = {}
-                    if (
-                        gltf2_io_material.pbr_metallic_roughness.base_color_factor
-                        is not None
+                    pbr_metallic_roughness: Dict[str, Any] = {}
+                    if isinstance(
+                        gltf2_io_material.pbr_metallic_roughness.base_color_factor,
+                        collections.Sequence,
                     ):
                         pbr_metallic_roughness[
                             "baseColorFactor"
@@ -1121,9 +1121,9 @@ class GlbObj:
                         ] = add_gltf2_io_texture(
                             gltf2_io_material.pbr_metallic_roughness.base_color_texture
                         )
-                    if (
-                        gltf2_io_material.pbr_metallic_roughness.metallic_factor
-                        is not None
+                    if isinstance(
+                        gltf2_io_material.pbr_metallic_roughness.metallic_factor,
+                        (int, float),
                     ):
                         pbr_metallic_roughness[
                             "metallicFactor"
@@ -1137,9 +1137,9 @@ class GlbObj:
                         ] = add_gltf2_io_texture(
                             gltf2_io_material.pbr_metallic_roughness.metallic_roughness_texture
                         )
-                    if (
-                        gltf2_io_material.pbr_metallic_roughness.roughness_factor
-                        is not None
+                    if isinstance(
+                        gltf2_io_material.pbr_metallic_roughness.roughness_factor,
+                        (int, float),
                     ):
                         pbr_metallic_roughness[
                             "roughnessFactor"
