@@ -58,7 +58,7 @@ def material(
                 texture_index = pbrmat["metallicRoughnessTexture"].get("index")
                 gltf.metallic_roughness_texture_index = texture_index
                 gltf.metallic_roughness_texture_texcoord = pbrmat[
-                    "baseColorTexture"
+                    "metallicRoughnessTexture"
                 ].get("texCoord")
 
         if "normalTexture" in mat:
