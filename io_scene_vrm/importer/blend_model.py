@@ -1760,7 +1760,7 @@ class BlendModel:
         # materialValuesはそのままで行けるハズ・・・
         legacy_vrm0 = False
         for blendshape_group in blendshape_groups:
-            for bind_dic in blendshape_group["binds"]:
+            for bind_dic in blendshape_group.get("binds", []):
                 try:
                     bind_dic["index"] = self.vrm_pydata.json["meshes"][
                         bind_dic["mesh"]

@@ -1890,7 +1890,7 @@ class GlbObj:
             return max_val
 
         for blend_shape_group in blend_shape_groups:
-            binds = list(blend_shape_group["binds"])
+            binds = list(blend_shape_group.get("binds", []))
             for bind in binds:
                 # TODO VRM1.0 is using node index that has mesh
                 matched_mesh_indices = [

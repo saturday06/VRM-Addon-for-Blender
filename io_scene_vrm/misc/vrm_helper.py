@@ -643,7 +643,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 blendshape_groups = []
             # TODO material value and material existence
             for blendshape_group in blendshape_groups:
-                for bind_dic in blendshape_group["binds"]:
+                for bind_dic in blendshape_group.get("binds", []):
                     if bind_dic["mesh"] not in mesh_obj_names:
                         warning_messages.append(
                             lang_support(
