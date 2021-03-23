@@ -247,10 +247,9 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             if obj.name not in node_names:
                 node_names.append(obj.name)
             if (
-                obj.type != "EMPTY"
+                obj.type == "MESH"
                 and obj.parent is not None
                 and obj.parent.type != "ARMATURE"
-                and obj.type == "MESH"
                 and obj.location != Vector([0.0, 0.0, 0.0])
             ):  # mesh and armature origin is on [0,0,0]
                 messages.append(
@@ -576,7 +575,9 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     json_as_dict = None
                 return make_json_return_value(json_as_dict)
 
-            mesh_obj_names = [obj.name for obj in export_objects if obj.type == "MESH"]
+            mesh_name_to_mesh = {
+                obj.data.name: obj.data for obj in export_objects if obj.type == "MESH"
+            }
             # region humanoid_parameter
             text_block_name_to_json("humanoid_params")
             # endregion humanoid_parameter
@@ -602,7 +603,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 if "meshAnnotations" in firstperson_params:
                     if isinstance(firstperson_params["meshAnnotations"], list):
                         for mesh_annotation in firstperson_params["meshAnnotations"]:
-                            if mesh_annotation["mesh"] not in mesh_obj_names:
+                            if mesh_annotation["mesh"] not in mesh_name_to_mesh:
                                 warning_messages.append(
                                     lang_support(
                                         f"mesh \"{mesh_annotation['mesh']}\" is not found. "
@@ -644,7 +645,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             # TODO material value and material existence
             for blendshape_group in blendshape_groups:
                 for bind_dic in blendshape_group.get("binds", []):
-                    if bind_dic["mesh"] not in mesh_obj_names:
+                    if bind_dic["mesh"] not in mesh_name_to_mesh:
                         warning_messages.append(
                             lang_support(
                                 f"mesh \"{bind_dic['mesh']}\" is not found. "
@@ -654,7 +655,8 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                             )
                         )
                     else:
-                        if bpy.data.objects[bind_dic["mesh"]].data.shape_keys is None:
+                        shape_keys = mesh_name_to_mesh[bind_dic["mesh"]].shape_keys
+                        if shape_keys is None:
                             warning_messages.append(
                                 lang_support(
                                     f"mesh \"{bind_dic['mesh']}\" doesn't have shapekey. "
@@ -666,12 +668,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                                 )
                             )
                         else:
-                            if (
-                                bind_dic["index"]
-                                not in bpy.data.objects[
-                                    bind_dic["mesh"]
-                                ].data.shape_keys.key_blocks
-                            ):
+                            if bind_dic["index"] not in shape_keys.key_blocks:
                                 warning_messages.append(
                                     lang_support(
                                         f"mesh \"{bind_dic['mesh']}\" doesn't have \"{bind_dic['index']}\" shapekey. "

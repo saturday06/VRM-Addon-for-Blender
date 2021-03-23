@@ -42,7 +42,7 @@ class BlendModel:
         make_new_texture_folder: bool,
         legacy_importer: bool,
     ) -> None:
-        self.meshes: Dict[int, bpy.types.Mesh] = {}
+        self.meshes: Dict[int, bpy.types.Object] = {}
         self.extract_textures_into_folder = extract_textures_into_folder
         self.make_new_texture_folder = make_new_texture_folder
         self.legacy_importer = legacy_importer
@@ -1769,7 +1769,7 @@ class BlendModel:
                     legacy_vrm0 = True
                     break
                 if 0 <= bind_dic["mesh"] < len(self.meshes):
-                    bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].name
+                    bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].data.name
                 else:
                     bind_dic["mesh"] = None
                 bind_dic["weight"] = bind_dic["weight"] / 100

@@ -1714,7 +1714,7 @@ class GlbObj:
                     }
                 primitive_list.append(primitive)
             self.json_dic["meshes"].append(
-                OrderedDict({"name": mesh.name, "primitives": primitive_list})
+                OrderedDict({"name": mesh.data.name, "primitives": primitive_list})
             )
             bm.free()
             # endregion hell
