@@ -153,7 +153,7 @@ class BlendModel:
                     and "mesh" in value
                     and isinstance(value["mesh"], int)
                 ):
-                    value["extras"].update({self.import_id + "Meshes": index})
+                    value["extras"].update({self.import_id + "Meshes": value["mesh"]})
 
         image_name_prefix = self.import_id + "Image"
         if isinstance(json_dict.get("images"), list):
