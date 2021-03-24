@@ -102,8 +102,9 @@ class BlendModel:
             self.attach_vrm_attributes()
             i = prog(i)
             self.cleaning_data()
-            i = prog(i)
-            self.set_bone_roll()
+            if self.legacy_importer:
+                i = prog(i)
+                self.set_bone_roll()
             i = prog(i)
             self.put_spring_bone_info()
             i = prog(i)
