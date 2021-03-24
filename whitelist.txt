@@ -70,6 +70,7 @@ f00
 fabs
 filedialog
 filedir
+fileno
 filepath
 filetype
 filetypes

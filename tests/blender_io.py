@@ -13,6 +13,12 @@ from io_scene_vrm.importer.vrm_load import vrm_diff  # noqa: E402
 
 # pylint: enable=wrong-import-position;
 
+
+def fix_stderr_encoding() -> None:
+    if platform.system() == "Windows":
+        sys.stderr.reconfigure(encoding="ansi")  # type: ignore
+
+
 os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
 
@@ -59,6 +65,7 @@ if (
     )
 ):
     if os.path.exists(expected_out_path):
+        fix_stderr_encoding()
         raise Exception(
             f"""The input and the output are same. The output file is unnecessary.
 input ={in_path}
@@ -74,6 +81,7 @@ try:
 except FileNotFoundError:
     if update_vrm_dir:
         shutil.copy(actual_out_path, expected_out_path)
+    fix_stderr_encoding()
     raise
 
 diffs_str = "\n".join(diffs[:50])
@@ -88,4 +96,5 @@ right={expected_out_path}
 except AssertionError:
     if update_vrm_dir:
         shutil.copy(actual_out_path, expected_out_path)
+    fix_stderr_encoding()
     raise
