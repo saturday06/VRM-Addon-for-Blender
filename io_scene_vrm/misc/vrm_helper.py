@@ -252,7 +252,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 and obj.parent.type != "ARMATURE"
                 and obj.location != Vector([0.0, 0.0, 0.0])
             ):  # mesh and armature origin is on [0,0,0]
-                messages.append(
+                warning_messages.append(
                     lang_support(
                         f'There are not an object on the origin "{obj.name}"',
                         f"「{obj.name}」が原点座標にありません",
