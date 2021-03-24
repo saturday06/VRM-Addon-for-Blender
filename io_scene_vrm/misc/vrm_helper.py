@@ -237,15 +237,16 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         export_objects = find_export_objects(export_invisibles, export_only_selections)
 
         for obj in export_objects:
-            if obj.name in node_names and obj.type != "EMPTY":
-                messages.append(
-                    lang_support(
-                        f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
-                        f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
+            if obj.type not in ["ARMATURE", "EMPTY"]:
+                if obj.name in node_names:
+                    messages.append(
+                        lang_support(
+                            f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
+                            f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
+                        )
                     )
-                )
-            if obj.name not in node_names:
-                node_names.append(obj.name)
+                if obj.name not in node_names:
+                    node_names.append(obj.name)
             if (
                 obj.type == "MESH"
                 and obj.parent is not None
