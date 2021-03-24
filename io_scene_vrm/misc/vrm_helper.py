@@ -834,6 +834,7 @@ def shader_nodes_and_materials(
     return [
         (node.inputs["Surface"].links[0].from_node, mat)
         for mat in used_materials
+        if mat.node_tree is not None
         for node in mat.node_tree.nodes
         if node.type == "OUTPUT_MATERIAL"
         and node.inputs["Surface"].links
