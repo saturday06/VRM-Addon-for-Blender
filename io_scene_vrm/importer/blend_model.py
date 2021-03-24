@@ -1734,20 +1734,28 @@ class BlendModel:
         write_textblock_and_assign_to_armature("humanoid_params", humanoid_params)
         # endregion humanoid_parameter
         # region first_person
-        firstperson_params = copy.deepcopy(vrm0_extension["firstPerson"])
-        fp_bone = json_get(firstperson_params, ["firstPersonBone"], -1)
-        if fp_bone != -1:
-            firstperson_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][
-                firstperson_params["firstPersonBone"]
+        first_person_params = copy.deepcopy(vrm0_extension["firstPerson"])
+        first_person_bone = json_get(first_person_params, ["firstPersonBone"], -1)
+        if isinstance(first_person_bone, int) and 0 <= first_person_bone < len(
+            self.vrm_pydata.json["nodes"]
+        ):
+            first_person_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][
+                first_person_bone
             ]["name"]
-        if "meshAnnotations" in firstperson_params:
+        if isinstance(first_person_params.get("meshAnnotations"), list):
             # TODO VRM1.0 is using node index that has mesh
-            for mesh_annotation in firstperson_params["meshAnnotations"]:
-                mesh_annotation["mesh"] = self.vrm_pydata.json["meshes"][
-                    mesh_annotation["mesh"]
-                ]["name"]
+            for mesh_annotation in first_person_params["meshAnnotations"]:
+                mesh = mesh_annotation["mesh"]
+                if isinstance(mesh, int) and 0 <= mesh < len(
+                    self.vrm_pydata.json["meshes"]
+                ):
+                    mesh_annotation["mesh"] = self.vrm_pydata.json["meshes"][mesh][
+                        "name"
+                    ]
 
-        write_textblock_and_assign_to_armature("firstPerson_params", firstperson_params)
+        write_textblock_and_assign_to_armature(
+            "firstPerson_params", first_person_params
+        )
         # endregion first_person
 
         # region blendshape_master
