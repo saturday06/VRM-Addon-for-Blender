@@ -7,9 +7,23 @@ https://opensource.org/licenses/mit-license.php
 
 #
 #
-# Please don't import anything before "bl_info" assignment and reload_package().
+# Please don't import anything in global scope to detect script reloading and minimize initialization.
 #
 #
+
+bl_info = {
+    "name": "VRM format",
+    "author": "saturday06, iCyP",
+    "version": (1, 7, 0),
+    "blender": (2, 82, 0),
+    "location": "File > Import-Export",
+    "description": "Import-Edit-Export VRM",
+    "warning": "",
+    "support": "COMMUNITY",
+    "wiki_url": "",
+    "tracker_url": "https://github.com/saturday06/VRM_Addon_for_Blender/issues",
+    "category": "Import-Export",
+}
 
 
 # Script reloading (if the user calls 'Reload Scripts' from Blender)
@@ -36,24 +50,8 @@ def reload_package(module_dict_main: dict) -> None:  # type: ignore[type-arg]
     reload_package_recursive(Path(__file__).parent, module_dict_main)
 
 
-# Place it before "bl_info" to detect script reloading.
-if "bl_info" in locals():
+if "bpy" in locals():
     reload_package(locals())
-
-# Place it after "if "bl_info" in locals():" to detect script reloading.
-bl_info = {
-    "name": "VRM format",
-    "author": "saturday06, iCyP",
-    "version": (1, 7, 0),
-    "blender": (2, 82, 0),
-    "location": "File > Import-Export",
-    "description": "Import-Edit-Export VRM",
-    "warning": "",
-    "support": "COMMUNITY",
-    "wiki_url": "",
-    "tracker_url": "https://github.com/saturday06/VRM_Addon_for_Blender/issues",
-    "category": "Import-Export",
-}
 
 
 def register() -> None:
