@@ -46,7 +46,7 @@ class BlendModel:
         self.extract_textures_into_folder = extract_textures_into_folder
         self.make_new_texture_folder = make_new_texture_folder
         self.legacy_importer = legacy_importer
-        self.import_id = "BlenderVrmAddon" + (
+        self.import_id = "BlenderVrmAddonImport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
         self.temp_object_name_count = 0

@@ -967,7 +967,7 @@ class GlbObj:
                     (image.name, image.buffer_view.data, image_index)
                 )
                 image_base_name = re.sub(
-                    r"^BlenderVrmAddon[0-9]+Image[0-9]+_", "", image.name
+                    r"^BlenderVrmAddonImport[0-9]+Image[0-9]+_", "", image.name
                 )
                 for count in range(100000):
                     image_name = image_base_name
