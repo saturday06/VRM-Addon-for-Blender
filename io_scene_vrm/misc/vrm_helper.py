@@ -326,7 +326,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
         # endregion export object seeking
         if armature_count == 0:
-            messages.append(
+            warning_messages.append(
                 lang_support("Please add ARMATURE to selections", "アーマチュアを選択範囲に含めてください")
             )
 

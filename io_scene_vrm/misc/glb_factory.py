@@ -10,6 +10,8 @@ import datetime
 import json
 import os
 import re
+import secrets
+import string
 import struct
 import traceback
 from collections import OrderedDict
@@ -63,9 +65,25 @@ class GlbObj:
         self.json_dic: Dict[str, Any] = OrderedDict()
         self.bin = b""
         self.glb_bin_collector = GlbBinCollection()
-        self.armature = [obj for obj in self.export_objects if obj.type == "ARMATURE"][
-            0
-        ]
+        self.use_dummy_armature = False
+        self.export_id = "BlenderVrmAddonExport" + (
+            "".join(secrets.choice(string.digits) for _ in range(10))
+        )
+        armatures = [obj for obj in self.export_objects if obj.type == "ARMATURE"]
+        if armatures:
+            self.armature = armatures[0]
+        else:
+            dummy_armature_key = self.export_id + "DummyArmatureKey"
+            bpy.ops.icyp.make_basic_armature(
+                "EXEC_DEFAULT", custom_property_name=dummy_armature_key
+            )
+            for obj in bpy.context.selectable_objects:
+                if obj.type == "ARMATURE" and dummy_armature_key in obj:
+                    self.export_objects.append(obj)
+                    self.armature = obj
+            if not self.armature:
+                raise Exception("Failed to generate default armature")
+            self.use_dummy_armature = True
         self.result: Optional[bytes] = None
 
     def convert_bpy2glb(self, vrm_version: str) -> Optional[bytes]:
@@ -2039,6 +2057,8 @@ class GlbObj:
         if not self.json_dic["materials"]:
             del self.json_dic["materials"]
         self.result = pack_glb(self.json_dic, self.bin)
+        if self.use_dummy_armature:
+            bpy.data.objects.remove(self.armature, do_unlink=True)
 
 
 def pack_glb(json_dict: Dict[str, Any], binary_chunk: bytes) -> bytes:

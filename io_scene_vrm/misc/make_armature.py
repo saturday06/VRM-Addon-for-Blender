@@ -94,12 +94,22 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N
     leg_size: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.26, min=0.05, step=0.005
     )
+    custom_property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
 
     armature_obj = None
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
+        if (
+            context.view_layer.objects.active is not None
+            and context.view_layer.objects.active.mode != "OBJECT"
+        ):
+            bpy.ops.object.mode_set(mode="OBJECT")
         self.armature_obj, compare_dict = self.make_armature(context)
         self.setup_as_vrm(self.armature_obj, compare_dict)
+        if self.custom_property_name:
+            self.armature_obj[self.custom_property_name] = True
         if self.WIP_with_template_mesh:
             IcypTemplateMeshMaker(self)
         return {"FINISHED"}
