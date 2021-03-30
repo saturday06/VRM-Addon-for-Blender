@@ -1906,8 +1906,7 @@ class BlendModel:
                         continue
                     bone[key] = val
 
-        coll = bpy.data.collections.new("Colliders")
-        self.context.scene.collection.children.link(coll)
+        collider_objs = []
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
         for collider_group in collider_groups_json:
@@ -1944,7 +1943,12 @@ class BlendModel:
 
                 obj.empty_display_size = collider["radius"]
                 obj.empty_display_type = "SPHERE"
-                coll.objects.link(obj)
+                collider_objs.append(obj)
+        if collider_objs:
+            coll = bpy.data.collections.new("Colliders")
+            self.context.scene.collection.children.link(coll)
+            for collider_obj in collider_objs:
+                coll.objects.link(collider_obj)
 
     def make_pole_target(
         self, rl: str, upper_leg_name: str, lower_leg_name: str, foot_name: str
