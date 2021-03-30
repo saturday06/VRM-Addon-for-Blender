@@ -1502,8 +1502,11 @@ class GlbObj:
                     if is_skin_mesh:
                         weight_and_joint_list: List[Tuple[float, int]] = []
                         for v_group in mesh_data.vertices[loop.vert.index].groups:
+                            v_group_name = v_group_name_dic.get(v_group.group)
+                            if v_group_name is None:
+                                continue
                             joint_id = self.joint_id_from_node_name_solver(
-                                v_group_name_dic[v_group.group], node_id_dic
+                                v_group_name, node_id_dic
                             )
                             # 存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
                             if joint_id == -1:
