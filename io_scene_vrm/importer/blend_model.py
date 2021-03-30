@@ -1385,6 +1385,11 @@ class BlendModel:
                     obj.parent_bone = armature.data.bones[
                         self.vrm_pydata.nodes_dict[parent_node_id].name
                     ].name
+                if (
+                    obj.parent_bone is None
+                    or obj.parent_bone not in armature.data.bones
+                ):
+                    continue
                 # boneのtail側にparentされるので、根元からmesh nodeのpositionに動かしなおす
                 obj.matrix_world = Matrix.Translation(
                     [
