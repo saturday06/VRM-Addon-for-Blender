@@ -13,6 +13,7 @@ import re
 import sys
 import tempfile
 from collections import OrderedDict
+from itertools import repeat
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
@@ -324,7 +325,8 @@ def remove_unsafe_path_chars(filename: str) -> str:
         124: "|",
     }  # 32:space #33:!
     remove_table = str.maketrans(
-        "", "", "".join([chr(charnum) for charnum in unsafe_chars])
+        "".join([chr(charnum) for charnum in unsafe_chars]),
+        "".join(repeat("_", len(unsafe_chars))),
     )
     safe_filename = filename.translate(remove_table)
     return safe_filename
