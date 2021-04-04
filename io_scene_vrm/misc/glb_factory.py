@@ -69,6 +69,7 @@ class GlbObj:
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
+        self.mesh_name_to_index: Dict[str, int] = {}
         armatures = [obj for obj in self.export_objects if obj.type == "ARMATURE"]
         if armatures:
             self.armature = armatures[0]
@@ -1740,6 +1741,9 @@ class GlbObj:
                         "targetNames": list(shape_pos_bin_dic.keys())
                     }
                 primitive_list.append(primitive)
+            if mesh.name not in self.mesh_name_to_index:
+                self.mesh_name_to_index[mesh.name] = len(self.json_dic["meshes"])
+            self.mesh_name_to_index[mesh.data.name] = len(self.json_dic["meshes"])
             self.json_dic["meshes"].append(
                 OrderedDict({"name": mesh.data.name, "primitives": primitive_list})
             )
@@ -1920,15 +1924,11 @@ class GlbObj:
             binds = list(blend_shape_group.get("binds", []))
             for bind in binds:
                 # TODO VRM1.0 is using node index that has mesh
-                matched_mesh_indices = [
-                    i
-                    for i, mesh in enumerate(self.json_dic["meshes"])
-                    if mesh["name"] == bind["mesh"]
-                ]
-                if not matched_mesh_indices:
+                mesh_index = self.mesh_name_to_index.get(bind["mesh"])
+                if mesh_index is None:
                     blend_shape_group["binds"].remove(bind)
                     continue
-                bind["mesh"] = matched_mesh_indices[0]
+                bind["mesh"] = mesh_index
                 target_names = json_list_get(
                     self.json_dic,
                     ["meshes", bind["mesh"], "primitives", 0, "extras", "targetNames"],

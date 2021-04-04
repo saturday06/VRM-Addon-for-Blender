@@ -577,7 +577,12 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 return make_json_return_value(json_as_dict)
 
             mesh_name_to_mesh = {
-                obj.data.name: obj.data for obj in export_objects if obj.type == "MESH"
+                **{obj.name: obj.data for obj in export_objects if obj.type == "MESH"},
+                **{
+                    obj.data.name: obj.data
+                    for obj in export_objects
+                    if obj.type == "MESH"
+                },
             }
             # region humanoid_parameter
             text_block_name_to_json("humanoid_params")
