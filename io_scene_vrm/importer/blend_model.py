@@ -7,6 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 
 import base64
+import contextlib
 import copy
 import itertools
 import json
@@ -570,7 +571,27 @@ class BlendModel:
             image_index = int(
                 "".join(image.name.split(image_name_prefix)[1:]).split("_")[0]
             )
-            image.name = "_".join(image.name.split("_")[1:])
+            if 0 <= image_index < len(json_dict["images"]):
+                # image.nameはインポート時に勝手に縮められてしまうことがあるので、jsonの値から復元する
+                indexed_image_name = json_dict["images"][image_index].get("name")
+                if indexed_image_name:
+                    image.name = "_".join(indexed_image_name.split("_")[1:])
+                else:
+                    image.name = f"Image{image_index}"
+            else:
+                image.name = "_".join(image.name.split("_")[1:])
+
+            image.unpack(method="WRITE_ORIGINAL")
+            image_path = os.path.join(
+                os.path.dirname(image.filepath_from_user()),
+                remove_unsafe_path_chars(image.name)
+                + os.path.splitext(bpy.path.basename(image.filepath_from_user()))[1],
+            )
+            with contextlib.suppress(IOError, shutil.SameFileError):
+                shutil.copyfile(image.filepath_from_user(), image_path)
+                image.filepath = image_path
+                image.reload()
+                image.pack()
             self.images[image_index] = image
 
         if bpy.context.object is not None and bpy.context.object.mode == "EDIT":
@@ -839,9 +860,10 @@ class BlendModel:
                 image_path += "." + image_type
             if not os.path.exists(image_path):
                 image.unpack(method="WRITE_ORIGINAL")
-                shutil.copyfile(image.filepath_from_user(), image_path)
-                image.filepath = image_path
-                image.reload()
+                with contextlib.suppress(IOError, shutil.SameFileError):
+                    shutil.copyfile(image.filepath_from_user(), image_path)
+                    image.filepath = image_path
+                    image.reload()
             else:
                 written_flag = False
                 for i in range(100000):
@@ -850,7 +872,7 @@ class BlendModel:
                     image_path = os.path.join(dir_path, second_image_name)
                     if not os.path.exists(image_path):
                         image.unpack(method="WRITE_ORIGINAL")
-                        shutil.copyfile(image.filepath_from_user, image_path)
+                        shutil.copyfile(image.filepath_from_user(), image_path)
                         image.filepath = image_path
                         image.reload()
                         written_flag = True
