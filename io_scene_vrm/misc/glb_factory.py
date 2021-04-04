@@ -477,6 +477,12 @@ class GlbObj:
             shader_node: bpy.types.Node, input_socket_name: str
         ) -> Optional[Tuple[str, int, int]]:
             if (
+                input_socket_name == "NormalmapTexture"
+                and "NormalmapTexture" not in shader_node.inputs
+                and "NomalmapTexture" in shader_node.inputs
+            ):
+                input_socket_name = "NomalmapTexture"
+            if (
                 not shader_node.inputs.get(input_socket_name)
                 or not shader_node.inputs.get(input_socket_name).links
             ):
