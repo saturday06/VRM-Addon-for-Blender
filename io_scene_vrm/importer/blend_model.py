@@ -34,6 +34,10 @@ from ..vrm_types import nested_json_value_getter as json_get
 from .vrm_load import parse_glb, remove_unsafe_path_chars
 
 
+class RetryUsingLegacyImporter(Exception):
+    pass
+
+
 class BlendModel:
     def __init__(
         self,
@@ -478,12 +482,14 @@ class BlendModel:
         with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
             indexed_vrm_file.write(glb_factory.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
-
-            bpy.ops.import_scene.gltf(
-                filepath=indexed_vrm_file.name,
-                import_pack_images=True,
-                bone_heuristic="FORTUNE",
-            )
+            try:
+                bpy.ops.import_scene.gltf(
+                    filepath=indexed_vrm_file.name,
+                    import_pack_images=True,
+                    bone_heuristic="FORTUNE",
+                )
+            except RuntimeError as e:
+                raise RetryUsingLegacyImporter() from e
 
         spec_version: Optional[str] = None
         hips_bone_node_index: Optional[int] = None

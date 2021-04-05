@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+import contextlib
 import os
 import traceback
 from typing import Any, Set, cast
@@ -79,13 +80,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
             return create_blend_model(
                 self,
                 context,
-                vrm_load.read_vrm(
-                    self.filepath,
-                    self.extract_textures_into_folder,
-                    self.make_new_texture_folder,
-                    license_check=True,
-                    legacy_importer=use_legacy_importer_exporter(),
-                ),
+                license_check=True,
             )
         except vrm_load.LicenseConfirmationRequired as e:
             license_error = e  # Prevent traceback dump on another exception
@@ -124,19 +119,47 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
 
 
 def create_blend_model(
-    addon: Any, context: bpy.types.Context, vrm_pydata: vrm_types.VrmPydata
+    addon: Any,
+    context: bpy.types.Context,
+    license_check: bool,
 ) -> Set[str]:
+    legacy_importer = use_legacy_importer_exporter()
     has_ui_localization = bpy.app.version < (2, 83)
     ui_localization = False
     if has_ui_localization:
         ui_localization = bpy.context.preferences.view.use_international_fonts
     try:
+        if not legacy_importer:
+            with contextlib.suppress(blend_model.RetryUsingLegacyImporter):
+                vrm_pydata = vrm_load.read_vrm(
+                    addon.filepath,
+                    addon.extract_textures_into_folder,
+                    addon.make_new_texture_folder,
+                    license_check=license_check,
+                    legacy_importer=legacy_importer,
+                )
+                blend_model.BlendModel(
+                    context,
+                    vrm_pydata,
+                    addon.extract_textures_into_folder,
+                    addon.make_new_texture_folder,
+                    legacy_importer=legacy_importer,
+                )
+                return {"FINISHED"}
+
+        vrm_pydata = vrm_load.read_vrm(
+            addon.filepath,
+            addon.extract_textures_into_folder,
+            addon.make_new_texture_folder,
+            license_check=license_check,
+            legacy_importer=True,
+        )
         blend_model.BlendModel(
             context,
             vrm_pydata,
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
-            legacy_importer=use_legacy_importer_exporter(),
+            legacy_importer=True,
         )
     finally:
         if has_ui_localization and ui_localization:
@@ -454,13 +477,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
         return create_blend_model(
             self,
             context,
-            vrm_load.read_vrm(
-                self.filepath,
-                self.extract_textures_into_folder,
-                self.make_new_texture_folder,
-                license_check=False,
-                legacy_importer=use_legacy_importer_exporter(),
-            ),
+            license_check=False,
         )
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
