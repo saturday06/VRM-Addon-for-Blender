@@ -407,14 +407,13 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     texture_val
                 ) in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
                     if texture_val == "ReceiveShadow_Texture":
-                        continue
+                        texture_val += "_alpha"
                     node_material_input_check(
                         node, material, "TEX_IMAGE", texture_val, messages, used_images
                     )
-                for float_val in [
-                    *list(vrm_types.MaterialMtoon.float_props_exchange_dic.values()),
-                    "ReceiveShadow_Texture_alpha",
-                ]:
+                for (
+                    float_val
+                ) in vrm_types.MaterialMtoon.float_props_exchange_dic.values():
                     if float_val is None:
                         continue
                     node_material_input_check(
