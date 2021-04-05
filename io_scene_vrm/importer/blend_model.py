@@ -482,14 +482,61 @@ class BlendModel:
         with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
             indexed_vrm_file.write(glb_factory.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
+            gltf_import_success = False
             try:
                 bpy.ops.import_scene.gltf(
                     filepath=indexed_vrm_file.name,
                     import_pack_images=True,
                     bone_heuristic="FORTUNE",
                 )
+                gltf_import_success = True
             except RuntimeError as e:
                 raise RetryUsingLegacyImporter() from e
+            finally:
+                if not gltf_import_success:
+                    if (
+                        self.context.view_layer.objects.active is not None
+                        and self.context.view_layer.objects.active.mode != "OBJECT"
+                    ):
+                        bpy.ops.object.mode_set(mode="OBJECT")
+                    meshes_key = self.import_id + "Meshes"
+                    nodes_key = self.import_id + "Nodes"
+                    remove_objs = []
+                    for obj in list(self.context.scene.collection.objects):
+                        if isinstance(obj.data, bpy.types.Armature):
+                            for bone in obj.data.bones:
+                                if nodes_key in bone:
+                                    remove_objs.append(obj)
+                                    break
+                            continue
+
+                        if isinstance(obj.data, bpy.types.Mesh) and (
+                            nodes_key in obj.data
+                            or meshes_key in obj.data
+                            or self.is_temp_object_name(obj.data.name)
+                        ):
+                            remove_objs.append(obj)
+                            continue
+
+                        if (
+                            nodes_key in obj
+                            or meshes_key in obj
+                            or self.is_temp_object_name(obj.name)
+                        ):
+                            remove_objs.append(obj)
+
+                    bpy.ops.object.select_all(action="DESELECT")
+                    for obj in remove_objs:
+                        obj.select_set(True)
+                    bpy.ops.object.delete()
+
+                    retry = True
+                    while retry:
+                        retry = False
+                        for obj in bpy.data.objects:
+                            if obj in remove_objs and not obj.users:
+                                retry = True
+                                bpy.data.objects.remove(obj, do_unlink=True)
 
         spec_version: Optional[str] = None
         hips_bone_node_index: Optional[int] = None
