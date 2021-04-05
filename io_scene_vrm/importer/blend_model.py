@@ -849,7 +849,7 @@ class BlendModel:
             if image_name == "":
                 image_name = "texture_" + str(image_index)
                 print(f"no name image is named {image_name}")
-            elif len(image_name) >= 50:
+            elif len(image_name) >= 100:
                 new_image_name = "texture_too_long_name_" + str(image_index)
                 print(f"too long name image: {image_name} is named {new_image_name}")
                 image_name = new_image_name
