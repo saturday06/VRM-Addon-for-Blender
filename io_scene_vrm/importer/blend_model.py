@@ -147,7 +147,7 @@ class BlendModel:
             for index, value in enumerate(json_dict[key]):
                 if not isinstance(value, dict):
                     continue
-                if "extras" not in value:
+                if "extras" not in value or not isinstance(value["extras"], dict):
                     value["extras"] = {}
                 value["extras"].update({self.import_id + key.capitalize(): index})
                 if (
@@ -1578,7 +1578,10 @@ class BlendModel:
             # region material適用
             face_length = 0
             for prim in pymesh:
-                if prim.material_index is None:
+                if (
+                    prim.material_index is None
+                    or prim.material_index not in self.vrm_materials
+                ):
                     continue
                 if (
                     self.vrm_materials[prim.material_index].name

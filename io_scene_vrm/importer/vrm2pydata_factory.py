@@ -44,7 +44,9 @@ def material(
         gltf.shader_name = "gltf"
         if "pbrMetallicRoughness" in mat:
             pbrmat = mat["pbrMetallicRoughness"]
-            if "baseColorTexture" in pbrmat:
+            if "baseColorTexture" in pbrmat and isinstance(
+                pbrmat["baseColorTexture"], dict
+            ):
                 texture_index = pbrmat["baseColorTexture"].get("index")
                 gltf.color_texture_index = texture_index
                 gltf.color_texcoord_index = pbrmat["baseColorTexture"].get("texCoord")
@@ -54,22 +56,24 @@ def material(
                 gltf.metallic_factor = pbrmat["metallicFactor"]
             if "roughnessFactor" in pbrmat:
                 gltf.roughness_factor = pbrmat["roughnessFactor"]
-            if "metallicRoughnessTexture" in pbrmat:
+            if "metallicRoughnessTexture" in pbrmat and isinstance(
+                pbrmat["metallicRoughnessTexture"], dict
+            ):
                 texture_index = pbrmat["metallicRoughnessTexture"].get("index")
                 gltf.metallic_roughness_texture_index = texture_index
                 gltf.metallic_roughness_texture_texcoord = pbrmat[
                     "metallicRoughnessTexture"
                 ].get("texCoord")
 
-        if "normalTexture" in mat:
+        if "normalTexture" in mat and isinstance(mat["normalTexture"], dict):
             gltf.normal_texture_index = mat["normalTexture"].get("index")
             gltf.normal_texture_texcoord_index = mat["normalTexture"].get("texCoord")
-        if "emissiveTexture" in mat:
+        if "emissiveTexture" in mat and isinstance(mat["emissiveTexture"], dict):
             gltf.emissive_texture_index = mat["emissiveTexture"].get("index")
             gltf.emissive_texture_texcoord_index = mat["emissiveTexture"].get(
                 "texCoord"
             )
-        if "occlusionTexture" in mat:
+        if "occlusionTexture" in mat and isinstance(mat["occlusionTexture"], dict):
             gltf.occlusion_texture_index = mat["occlusionTexture"].get("index")
             gltf.occlusion_texture_texcoord_index = mat["occlusionTexture"].get(
                 "texCoord"
