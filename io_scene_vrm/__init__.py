@@ -319,71 +319,284 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
     bl_category = "VRM"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
-        return True
+    def poll(cls, context):
+        return context.active_object
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        mode = context.mode
+        layout = self.layout
+        object_type = active_object.type
+        data = active_object.data
+
         # region helper
         def armature_ui() -> None:
-            self.layout.separator()
-            armature_box = self.layout.row(align=False).box()
+            layout.separator()
+            armature_box = layout.row(align=False).box()
             armature_box.label(text="Armature Help")
             armature_box.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
-            self.layout.separator()
+            layout.separator()
 
             requires_box = armature_box.box()
             requires_row = requires_box.row()
             requires_row.label(text="VRM Required Bones")
+            """
             for req in vrm_types.HumanBones.requires:
-                if req in context.active_object.data:
+                icon = 'NONE'
+                icon = 'ANCHOR_CENTER' if req in vrm_types.HumanBones.center_req else icon
+                icon = 'ANCHOR_LEFT' if req in vrm_types.HumanBones.left_leg_req else icon
+                icon = 'ANCHOR_LEFT' if req in vrm_types.HumanBones.left_arm_req else icon
+                icon = 'ANCHOR_RIGHT' if req in vrm_types.HumanBones.right_leg_req else icon
+                icon = 'ANCHOR_RIGHT' if req in vrm_types.HumanBones.right_arm_req else icon
+                if req in data:
                     requires_box.prop_search(
-                        context.active_object.data,
+                        data,
                         f'["{req}"]',
-                        context.active_object.data,
+                        data,
                         "bones",
                         text=req,
+                        icon=icon
                     )
                 else:
                     requires_box.operator(
                         vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
                         text=f"Add {req} property",
+                        icon='ADD'
+                    )
+            """
+            for req in vrm_types.HumanBones.center_req:
+                icon = 'USER'
+                if req in data:
+                    requires_box.prop_search(
+                        data,
+                        f'["{req}"]',
+                        data,
+                        "bones",
+                        text=req,
+                        icon=icon
+                    )
+                else:
+                    requires_box.operator(
+                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+                        text=f"Add {req} property",
+                        icon='ADD'
+                    )
+            row = requires_box.row()
+            column = row.column()
+            for req in vrm_types.HumanBones.right_arm_req:
+                icon = 'VIEW_PAN'
+                if req in data:
+                    column.prop_search(
+                        data,
+                        f'["{req}"]',
+                        data,
+                        "bones",
+                        text=req,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+                        text=f"Add {req} property",
+                        icon='ADD'
+                    )
+            column = row.column()
+            for req in vrm_types.HumanBones.left_arm_req:
+                icon = 'VIEW_PAN'
+                if req in data:
+                    column.prop_search(
+                        data,
+                        f'["{req}"]',
+                        data,
+                        "bones",
+                        text=req,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+                        text=f"Add {req} property",
+                        icon='ADD'
+                    )
+            row = requires_box.row()
+            column = row.column()
+            for req in vrm_types.HumanBones.right_leg_req:
+                icon = 'HANDLE_AUTO'
+                if req in data:
+                    column.prop_search(
+                        data,
+                        f'["{req}"]',
+                        data,
+                        "bones",
+                        text=req,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+                        text=f"Add {req} property",
+                        icon='ADD'
+                    )            
+            column = row.column()
+            for req in vrm_types.HumanBones.left_leg_req:
+                icon = 'HANDLE_AUTO'
+                if req in data:
+                    column.prop_search(
+                        data,
+                        f'["{req}"]',
+                        data,
+                        "bones",
+                        text=req,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+                        text=f"Add {req} property",
+                        icon='ADD'
                     )
             defines_box = armature_box.box()
             defines_box.label(text="VRM Optional Bones")
-            for defs in vrm_types.HumanBones.defines:
-                if defs in context.active_object.data:
+            for defs in ["leftEye"]:
+                icon = 'HIDE_OFF'
+                if defs in data:
                     defines_box.prop_search(
-                        context.active_object.data,
+                        data,
                         f'["{defs}"]',
-                        context.active_object.data,
+                        data,
                         "bones",
                         text=defs,
+                        icon=icon
                     )
                 else:
                     defines_box.operator(
                         vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
                         text=f"Add {defs} property",
+                        icon='ADD'
+                    )
+            for defs in ["rightEye"]:
+                icon = 'HIDE_OFF'
+                if defs in data:
+                    defines_box.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    defines_box.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
+                    )            
+            for defs in vrm_types.HumanBones.center_def:
+                icon = 'USER'
+                if defs in data:
+                    defines_box.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    defines_box.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
+                    )
+            row = defines_box.row()
+            column = row.column()
+            for defs in vrm_types.HumanBones.left_arm_def:
+                icon = 'VIEW_PAN'
+                if defs in data:
+                    column.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
+                    )
+            column = row.column()
+            for defs in vrm_types.HumanBones.right_arm_def:
+                icon = 'VIEW_PAN'
+                if defs in data:
+                    column.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
+                    )
+            row = defines_box.row()
+            column = row.column()
+            for defs in vrm_types.HumanBones.left_leg_def:
+                icon = 'HANDLE_AUTO'
+                if defs in data:
+                    column.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
+                    )
+            column = row.column()
+            for defs in vrm_types.HumanBones.right_leg_def:
+                icon = 'HANDLE_AUTO'
+                if defs in data:
+                    column.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
                     )
 
-            armature_box.label(icon="ERROR", text="EXPERIMENTAL!!!")
+            armature_box.label(icon="EXPERIMENTAL", text="EXPERIMENTAL!!!")
             armature_box.operator(vrm_helper.Bones_rename.bl_idname)
-
         # endregion helper
 
         # region draw_main
-        if (
-            context.mode != "POSE"
-            or context.active_object is None
-            or context.active_object.type != "ARMATURE"
-        ):
-            self.layout.label(text="If you select armature in object mode")
-            self.layout.label(text="armature renamer is shown")
-        if context.mode != "EDIT_MESH":
-            self.layout.label(text="If you in MESH EDIT")
-            self.layout.label(text="symmetry button is shown")
-            self.layout.label(text="*Symmetry is in default blender function")
-        if context.mode == "OBJECT":
-            object_mode_box = self.layout.box()
+        if mode != "POSE" or object_type != "ARMATURE":
+            layout.label(text="If you select armature in object mode")
+            layout.label(text="armature renamer is shown")
+        if mode != "EDIT_MESH":
+            layout.label(text="If you in MESH EDIT")
+            layout.label(text="symmetry button is shown")
+            layout.label(text="*Symmetry is in default blender function")
+        if mode == "OBJECT":
+            object_mode_box = layout.box()
             preferences = get_preferences(context)
             if preferences:
                 object_mode_box.prop(
@@ -418,23 +631,17 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                 object_mode_box.operator(
                     glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname
                 )
-            if context.active_object is not None:
-                if context.active_object.type == "ARMATURE":
-                    armature_ui()
-                if context.active_object.type == "MESH":
-                    self.layout.label(icon="ERROR", text="EXPERIMENTAL!!!")
-                    self.layout.operator(
-                        vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname
-                    )
+            if object_type == "ARMATURE":
+                armature_ui()
+            if object_type == "MESH":
+                layout.label(icon="EXPERIMENTAL", text="EXPERIMENTAL!!!")
+                layout.operator(
+                    vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname
+                )
+        if mode == "EDIT_MESH":
+            layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
 
-        if context.mode == "EDIT_MESH":
-            self.layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
-
-        if (
-            context.mode == "POSE"
-            and context.active_object is not None  # Noneになることは有り得ないかもしれない
-            and context.active_object.type == "ARMATURE"
-        ):
+        if mode == "POSE" and object_type == "ARMATURE":
             armature_ui()
         # endregion draw_main
 
