@@ -587,8 +587,8 @@ def unregister() -> None:
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
-    bpy.types.TOPBAR_MT_file_import.remove(menu_export)
-    bpy.types.TOPBAR_MT_file_export.remove(menu_import)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_export)
     errors = []
     for cls in classes:
         try:
