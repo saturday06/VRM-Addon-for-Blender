@@ -436,7 +436,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                         vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
                         text=f"Add {req} property",
                         icon='ADD'
-                    )            
+                    )
             column = row.column()
             for req in vrm_types.HumanBones.left_leg_req:
                 icon = 'HANDLE_AUTO'
