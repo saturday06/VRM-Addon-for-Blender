@@ -7,6 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 
 import base64
+import collections
 import contextlib
 import copy
 import itertools
@@ -1186,9 +1187,10 @@ class BlendModel:
                 pymat.metallic_roughness_texture_index,
                 sg.inputs["metallic_roughness_texture"],
             )
-        self.connect_rgb_node(
-            b_mat, [*pymat.emissive_factor, 1], sg.inputs["emissive_color"]
-        )
+        if isinstance(pymat.emissive_factor, collections.Iterable):
+            self.connect_rgb_node(
+                b_mat, [*pymat.emissive_factor, 1], sg.inputs["emissive_color"]
+            )
         if pymat.emissive_texture_index is not None:
             self.connect_texture_node(
                 b_mat, pymat.emissive_texture_index, sg.inputs["emissive_texture"]
