@@ -7,7 +7,6 @@ https://opensource.org/licenses/mit-license.php
 
 import contextlib
 import os
-import traceback
 from typing import Any, Set, cast
 
 import bpy
@@ -699,13 +698,5 @@ def unregister() -> None:
     # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
     bpy.types.TOPBAR_MT_file_import.remove(menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
-    errors = []
     for cls in classes:
-        try:
-            bpy.utils.unregister_class(cls)
-        except RuntimeError:
-            errors.append(
-                traceback.format_exc() + f"\nbpy.utils.unregister_class({cls}):"
-            )
-    if errors:
-        raise RuntimeError("\n".join(errors))
+        bpy.utils.unregister_class(cls)
