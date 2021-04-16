@@ -559,13 +559,6 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
         # endregion helper
 
         # region draw_main
-        if mode != "POSE" or object_type != "ARMATURE":
-            layout.label(text="If you select armature in object mode")
-            layout.label(text="armature renamer is shown")
-        if mode != "EDIT_MESH":
-            layout.label(text="If you in MESH EDIT")
-            layout.label(text="symmetry button is shown")
-            layout.label(text="*Symmetry is in default blender function")
         if mode == "OBJECT":
             object_mode_box = layout.box()
             preferences = get_preferences(context)
