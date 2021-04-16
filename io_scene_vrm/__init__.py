@@ -340,30 +340,6 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
             requires_box = armature_box.box()
             requires_row = requires_box.row()
             requires_row.label(text="VRM Required Bones")
-            """
-            for req in vrm_types.HumanBones.requires:
-                icon = 'NONE'
-                icon = 'ANCHOR_CENTER' if req in vrm_types.HumanBones.center_req else icon
-                icon = 'ANCHOR_LEFT' if req in vrm_types.HumanBones.left_leg_req else icon
-                icon = 'ANCHOR_LEFT' if req in vrm_types.HumanBones.left_arm_req else icon
-                icon = 'ANCHOR_RIGHT' if req in vrm_types.HumanBones.right_leg_req else icon
-                icon = 'ANCHOR_RIGHT' if req in vrm_types.HumanBones.right_arm_req else icon
-                if req in data:
-                    requires_box.prop_search(
-                        data,
-                        f'["{req}"]',
-                        data,
-                        "bones",
-                        text=req,
-                        icon=icon
-                    )
-                else:
-                    requires_box.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon='ADD'
-                    )
-            """
             for req in vrm_types.HumanBones.center_req:
                 icon = 'USER'
                 if req in data:
