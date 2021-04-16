@@ -319,7 +319,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
     bl_category = "VRM"
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         return context.active_object
 
     def draw(self, context: bpy.types.Context) -> None:
