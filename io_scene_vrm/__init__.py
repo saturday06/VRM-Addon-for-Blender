@@ -436,7 +436,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                         vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
                         text=f"Add {req} property",
                         icon='ADD'
-                    )            
+                    )
             column = row.column()
             for req in vrm_types.HumanBones.left_leg_req:
                 icon = 'HANDLE_AUTO'
@@ -457,27 +457,11 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                     )
             defines_box = armature_box.box()
             defines_box.label(text="VRM Optional Bones")
-            for defs in ["leftEye"]:
-                icon = 'HIDE_OFF'
-                if defs in data:
-                    defines_box.prop_search(
-                        data,
-                        f'["{defs}"]',
-                        data,
-                        "bones",
-                        text=defs,
-                        icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon='ADD'
-                    )
+            row = defines_box.row()
             for defs in ["rightEye"]:
                 icon = 'HIDE_OFF'
                 if defs in data:
-                    defines_box.prop_search(
+                    row.prop_search(
                         data,
                         f'["{defs}"]',
                         data,
@@ -486,11 +470,28 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                         icon=icon
                     )
                 else:
-                    defines_box.operator(
+                    row.operator(
                         vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
                         text=f"Add {defs} property",
                         icon='ADD'
-                    )            
+                    )
+            for defs in ["leftEye"]:
+                icon = 'HIDE_OFF'
+                if defs in data:
+                    row.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    row.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
+                    )
             for defs in vrm_types.HumanBones.center_def:
                 icon = 'USER'
                 if defs in data:
@@ -510,7 +511,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                     )
             row = defines_box.row()
             column = row.column()
-            for defs in vrm_types.HumanBones.left_arm_def:
+            for defs in vrm_types.HumanBones.right_arm_def:
                 icon = 'VIEW_PAN'
                 if defs in data:
                     column.prop_search(
@@ -528,7 +529,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                         icon='ADD'
                     )
             column = row.column()
-            for defs in vrm_types.HumanBones.right_arm_def:
+            for defs in vrm_types.HumanBones.left_arm_def:
                 icon = 'VIEW_PAN'
                 if defs in data:
                     column.prop_search(
@@ -547,24 +548,6 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                     )
             row = defines_box.row()
             column = row.column()
-            for defs in vrm_types.HumanBones.left_leg_def:
-                icon = 'HANDLE_AUTO'
-                if defs in data:
-                    column.prop_search(
-                        data,
-                        f'["{defs}"]',
-                        data,
-                        "bones",
-                        text=defs,
-                        icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon='ADD'
-                    )
-            column = row.column()
             for defs in vrm_types.HumanBones.right_leg_def:
                 icon = 'HANDLE_AUTO'
                 if defs in data:
@@ -582,7 +565,24 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                         text=f"Add {defs} property",
                         icon='ADD'
                     )
-
+            column = row.column()
+            for defs in vrm_types.HumanBones.left_leg_def:
+                icon = 'HANDLE_AUTO'
+                if defs in data:
+                    column.prop_search(
+                        data,
+                        f'["{defs}"]',
+                        data,
+                        "bones",
+                        text=defs,
+                        icon=icon
+                    )
+                else:
+                    column.operator(
+                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                        text=f"Add {defs} property",
+                        icon='ADD'
+                    )
             armature_box.label(icon="EXPERIMENTAL", text="EXPERIMENTAL!!!")
             armature_box.operator(vrm_helper.Bones_rename.bl_idname)
         # endregion helper
