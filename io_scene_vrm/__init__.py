@@ -326,226 +326,185 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
         mode = context.mode
         layout = self.layout
         object_type = active_object.type
-        data = active_object.data
-
-        # region helper
-        def armature_ui() -> None:
-            layout.separator()
-            armature_box = layout.row(align=False).box()
-            armature_box.label(text="Armature Help")
-            armature_box.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
-            layout.separator()
-
-            requires_box = armature_box.box()
-            requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
-            for req in vrm_types.HumanBones.center_req[::-1]:
-                icon = "USER"
-                if req in data:
-                    requires_box.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    requires_box.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            row = requires_box.row()
-            column = row.column()
-            for req in vrm_types.HumanBones.right_arm_req:
-                icon = "VIEW_PAN"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            column = row.column()
-            for req in vrm_types.HumanBones.left_arm_req:
-                icon = "VIEW_PAN"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            row = requires_box.row()
-            column = row.column()
-            for req in vrm_types.HumanBones.right_leg_req:
-                icon = "HANDLE_AUTO"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            column = row.column()
-            for req in vrm_types.HumanBones.left_leg_req:
-                icon = "HANDLE_AUTO"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            defines_box = armature_box.box()
-            defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")
-            row = defines_box.row()
-            for defs in ["rightEye"]:
-                icon = "HIDE_OFF"
-                if defs in data:
-                    row.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    row.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in ["leftEye"]:
-                icon = "HIDE_OFF"
-                if defs in data:
-                    row.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    row.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in vrm_types.HumanBones.center_def[::-1]:
-                icon = "USER"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            defines_box.separator()
-            for defs in vrm_types.HumanBones.right_arm_def:
-                icon = "VIEW_PAN"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in vrm_types.HumanBones.right_leg_def:
-                icon = "HANDLE_AUTO"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            defines_box.separator()
-            for defs in vrm_types.HumanBones.left_arm_def:
-                icon = "VIEW_PAN"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in vrm_types.HumanBones.left_leg_def:
-                icon = "HANDLE_AUTO"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            armature_box.label(icon="EXPERIMENTAL", text="EXPERIMENTAL!!!")
-            armature_box.operator(vrm_helper.Bones_rename.bl_idname)
-
-        # endregion helper
 
         # region draw_main
         if mode == "OBJECT":
-            object_mode_box = layout.box()
+            # object_mode_box = layout.box()
             preferences = get_preferences(context)
             if preferences:
-                object_mode_box.prop(
+                layout.prop(
                     preferences,
                     "export_invisibles",
                     text=vrm_helper.lang_support(
                         "Export invisible objects", "非表示オブジェクトを含める"
                     ),
                 )
-                object_mode_box.prop(
+                layout.prop(
                     preferences,
                     "export_only_selections",
                     text=vrm_helper.lang_support(
                         "Export only selections", "選択されたオブジェクトのみ"
                     ),
                 )
-            vrm_validator_prop = object_mode_box.operator(
+            vrm_validator_prop = layout.operator(
                 vrm_helper.WM_OT_vrmValidator.bl_idname,
                 text=vrm_helper.lang_support("Validate VRM model", "VRMモデルのチェック"),
+                icon='VIEWZOOM'
             )
             vrm_validator_prop.show_successful_message = True
             # vrm_validator_prop.errors = []  # これはできない
-            object_mode_box.label(text="MToon preview")
+            layout.separator()
+            layout.label(text="MToon preview")
             if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
-                object_mode_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
+                layout.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname,
+                                icon='SHADING_RENDERED')
             else:
-                object_mode_box.box().label(
+                layout.box().label(
                     icon="INFO",
                     text=vrm_helper.lang_support("A light is required", "ライトが必要です"),
                 )
             if GlslDrawObj.draw_objs:
-                object_mode_box.operator(
-                    glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname
+                layout.operator(
+                    glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname,
+                    icon='SHADING_RENDERED'
                 )
-            if object_type == "ARMATURE":
-                armature_ui()
             if object_type == "MESH":
-                layout.label(icon="EXPERIMENTAL", text="EXPERIMENTAL!!!")
-                layout.operator(vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname)
+                layout.separator()
+                layout.operator(vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname,
+                                icon="EXPERIMENTAL")
         if mode == "EDIT_MESH":
-            layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
-
-        if mode == "POSE" and object_type == "ARMATURE":
-            armature_ui()
+            layout.operator(bpy.ops.mesh.symmetry_snap.idname_py(),
+                            icon='MOD_MIRROR')
         # endregion draw_main
+
+
+class VRM_IMPORTER_PT_amature_controller(bpy.types.Panel):
+    bl_idname = "VRM_IMPORTER_PT_amature_controller"
+    bl_label = "VRM Amature Helper"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "VRM"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return bool(context.active_object) and context.active_object.type == "ARMATURE"
+
+    def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        layout = self.layout
+        data = active_object.data
+
+        def show_ui(parent, bone, icon):
+            parent.prop_search(
+                data, f'["{bone}"]', data, "bones", text=bone, icon=icon
+            )
+
+        def show_add_require(parent, bone):
+            parent.operator(
+                vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+                text=f"Add {bone} property",
+                icon="ADD",
+            )
+
+        def show_add_defined(parent, bone):
+            parent.operator(
+                vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+                text=f"Add {bone} property",
+                icon="ADD",
+            )
+
+        armature_box = layout
+        armature_box.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
+        layout.separator()
+
+        requires_box = armature_box.box()
+        requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
+        for req in vrm_types.HumanBones.center_req[::-1]:
+            icon = "USER"
+            if req in data:
+                show_ui(requires_box, req, icon)
+            else:
+                show_add_require(requires_box, req)
+        row = requires_box.row()
+        column = row.column()
+        for req in vrm_types.HumanBones.right_arm_req:
+            icon = "VIEW_PAN"
+            if req in data:
+                show_ui(column, req, icon)
+            else:
+                show_add_require(column, req)
+        column = row.column()
+        for req in vrm_types.HumanBones.left_arm_req:
+            icon = "VIEW_PAN"
+            if req in data:
+                show_ui(column, req, icon)
+            else:
+                show_add_require(column, req)
+        row = requires_box.row()
+        column = row.column()
+        for req in vrm_types.HumanBones.right_leg_req:
+            icon = "HANDLE_AUTO"
+            if req in data:
+                show_ui(column, req, icon)
+            else:
+                show_add_require(column, req)
+        column = row.column()
+        for req in vrm_types.HumanBones.left_leg_req:
+            icon = "HANDLE_AUTO"
+            if req in data:
+                show_ui(column, req, icon)
+            else:
+                show_add_require(column, req)
+        defines_box = armature_box.box()
+        defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")
+        row = defines_box.row()
+        for defs in ["rightEye"]:
+            icon = "HIDE_OFF"
+            if defs in data:
+                show_ui(row, defs, icon)
+            else:
+                show_add_defined(row, defs)
+        for defs in ["leftEye"]:
+            icon = "HIDE_OFF"
+            if defs in data:
+                show_ui(row, defs, icon)
+            else:
+                show_add_defined(row, defs)
+        for defs in vrm_types.HumanBones.center_def[::-1]:
+            icon = "USER"
+            if defs in data:
+                show_ui(defines_box, defs, icon)
+            else:
+                show_add_defined(defines_box, defs)
+        defines_box.separator()
+        for defs in vrm_types.HumanBones.right_arm_def:
+            icon = "VIEW_PAN"
+            if defs in data:
+                show_ui(defines_box, defs, icon)
+            else:
+                show_add_defined(defines_box, defs)
+        for defs in vrm_types.HumanBones.right_leg_def:
+            icon = "HANDLE_AUTO"
+            if defs in data:
+                show_ui(defines_box, defs, icon)
+            else:
+                show_add_defined(defines_box, defs)
+        defines_box.separator()
+        for defs in vrm_types.HumanBones.left_arm_def:
+            icon = "VIEW_PAN"
+            if defs in data:
+                show_ui(defines_box, defs, icon)
+            else:
+                show_add_defined(defines_box, defs)
+        for defs in vrm_types.HumanBones.left_leg_def:
+            icon = "HANDLE_AUTO"
+            if defs in data:
+                show_ui(defines_box, defs, icon)
+            else:
+                show_add_defined(defines_box, defs)
+        armature_box.separator()
+        armature_box.operator(vrm_helper.Bones_rename.bl_idname,
+                              icon="EXPERIMENTAL")
 
 
 class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -628,12 +587,21 @@ class VRM_IMPORTER_PT_vrm_humanoid_params(bpy.types.Panel):
     bl_context = "object"
     bl_options = {'DEFAULT_CLOSED'}
 
+    @classmethod
+    def poll(cls, context):
+        exist = context.object is not None
+        armature = context.object.type == "ARMATURE"
+        return exist and armature
+
     def draw_header(self, context):
         layout = self.layout
-        layout.label(text='testing', icon="ARMATURE_DATA")
+        layout.label(icon="ARMATURE_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
+        testing = layout.box()
+        testing.label(text='Testing',
+                      icon='EXPERIMENTAL')
         active_object = context.active_object
         layout.label(text='Arm', icon="VIEW_PAN")
         layout.prop(
@@ -680,17 +648,22 @@ class VRM_IMPORTER_PT_vrm_firstPerson_params(bpy.types.Panel):
     bl_context = "object"
     bl_options = {'DEFAULT_CLOSED'}
 
+    @classmethod
+    def poll(cls, context):
+        exist = context.object is not None
+        armature = context.object.type == "ARMATURE"
+        return exist and armature
+
     def draw_header(self, context):
         layout = self.layout
-        layout.label(text='testing', icon="HIDE_OFF")
+        layout.label(icon="HIDE_OFF")
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
+        testing = layout.box()
+        testing.label(text='Testing',
+                      icon='EXPERIMENTAL')
         active_object = context.active_object
-        layout.prop(
-            active_object.vrm_props.firstPerson_params,
-            "lookAtTypeName"
-        )
         layout.prop(
             active_object.vrm_props.firstPerson_params,
             "firstPersonBone",
@@ -703,10 +676,14 @@ class VRM_IMPORTER_PT_vrm_firstPerson_params(bpy.types.Panel):
         )
         layout.prop(
             active_object.vrm_props.firstPerson_params,
-            "meshAnnotations"
+            "lookAtTypeName"
         )
+        # layout.prop(
+        #     active_object.vrm_props.firstPerson_params,
+        #     "meshAnnotations"
+        # )
         box = layout.box()
-        box.label(text='Horizontal Inner',
+        box.label(text='Look At Horizontal Inner',
                   icon='FULLSCREEN_EXIT')
         box.prop(
             active_object.vrm_props.firstPerson_params.lookAtHorizontalInner,
@@ -721,7 +698,7 @@ class VRM_IMPORTER_PT_vrm_firstPerson_params(bpy.types.Panel):
             "yRange"
         )
         box = layout.box()
-        box.label(text='Horizontal Outer',
+        box.label(text='Look At Horizontal Outer',
                   icon='FULLSCREEN_ENTER')
         box.prop(
             active_object.vrm_props.firstPerson_params.lookAtHorizontalOuter,
@@ -775,12 +752,21 @@ class VRM_IMPORTER_PT_vrm_blendshape_group(bpy.types.Panel):
     bl_context = "object"
     bl_options = {'DEFAULT_CLOSED'}
 
+    @classmethod
+    def poll(cls, context):
+        exist = context.object is not None
+        armature = context.object.type == "ARMATURE"
+        return exist and armature
+
     def draw_header(self, context):
         layout = self.layout
-        layout.label(text='testing', icon="SHAPEKEY_DATA")
+        layout.label(icon="SHAPEKEY_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
+        testing = layout.box()
+        testing.label(text='Testing',
+                      icon='EXPERIMENTAL')
         active_object = context.active_object
         layout.prop(
             active_object.vrm_props,
@@ -796,12 +782,21 @@ class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):
     bl_context = "object"
     bl_options = {'DEFAULT_CLOSED'}
 
+    @classmethod
+    def poll(cls, context):
+        exist = context.object is not None
+        armature = context.object.type == "ARMATURE"
+        return exist and armature
+
     def draw_header(self, context):
         layout = self.layout
-        layout.label(text='testing', icon="RIGID_BODY_CONSTRAINT")
+        layout.label(icon="RIGID_BODY_CONSTRAINT")
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
+        testing = layout.box()
+        testing.label(text='Testing',
+                      icon='EXPERIMENTAL')
         active_object = context.active_object
         layout.prop(
             active_object.vrm_props,
@@ -817,12 +812,21 @@ class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
     bl_context = "object"
     bl_options = {'DEFAULT_CLOSED'}
 
+    @classmethod
+    def poll(cls, context):
+        exist = context.object is not None
+        armature = context.object.type == "ARMATURE"
+        return exist and armature
+
     def draw_header(self, context):
         layout = self.layout
-        layout.label(text='testing', icon="FILE_BLEND")
+        layout.label(icon="FILE_BLEND")
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
+        testing = layout.box()
+        testing.label(text='Testing',
+                      icon='EXPERIMENTAL')
         active_object = context.active_object
         layout.prop(
             active_object.vrm_props.metas,
@@ -882,11 +886,12 @@ class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
             "otherPermissionUrl",
             icon='URL'
         )
-        layout.prop(
-            active_object.vrm_props.metas,
-            "otherLicenseUrl",
-            icon='URL'
-        )
+        if active_object.vrm_props.required_metas.licenseName == REQUIRED_METAS.LICENSENAME_OTHER:
+            layout.prop(
+                active_object.vrm_props.metas,
+                "otherLicenseUrl",
+                icon='URL'
+            )
 
 
 class HUMANOID_PARAMS(bpy.types.PropertyGroup):
@@ -938,21 +943,230 @@ class SPRING_BONE(bpy.types.PropertyGroup):
 
 
 class METAS(bpy.types.PropertyGroup):
-    version: bpy.props.StringProperty(name='Version')
-    author: bpy.props.StringProperty(name='Author')
-    contactInformation: bpy.props.StringProperty(name='ContactInformation')
-    reference: bpy.props.StringProperty(name='Reference')
-    title: bpy.props.StringProperty(name='Title')
-    otherPermissionUrl: bpy.props.StringProperty(name='Other Permission Url')
-    otherLicenseUrl: bpy.props.StringProperty(name='Other License Url')
+    def get_version(self):
+        key = "version"
+        return self.id_data[key] if key in self.id_data else ""
+
+    def set_version(self, value):
+        key = "version"
+        if key in self.id_data:
+            self.id_data[key] = value
+
+    def get_author(self):
+        key = "author"
+        return self.id_data[key] if key in self.id_data else ""
+
+    def set_author(self, value):
+        key = "author"
+        if key in self.id_data:
+            self.id_data[key] = value
+
+    def get_contactInformation(self):
+        key = "contactInformation"
+        return self.id_data[key] if key in self.id_data else ""
+
+    def set_contactInformation(self, value):
+        key = "contactInformation"
+        if key in self.id_data:
+            self.id_data[key] = value
+
+    def get_reference(self):
+        key = "reference"
+        return self.id_data[key] if key in self.id_data else ""
+
+    def set_reference(self, value):
+        key = "reference"
+        if key in self.id_data:
+            self.id_data[key] = value
+
+    def get_title(self):
+        key = "title"
+        return self.id_data[key] if key in self.id_data else ""
+
+    def set_title(self, value):
+        key = "title"
+        if key in self.id_data:
+            self.id_data[key] = value
+
+    def get_otherPermissionUrl(self):
+        key = "otherPermissionUrl"
+        return self.id_data[key] if key in self.id_data else ""
+
+    def set_otherPermissionUrl(self, value):
+        key = "otherPermissionUrl"
+        if key in self.id_data:
+            self.id_data[key] = value
+
+    def get_otherLicenseUrl(self):
+        key = "otherLicenseUrl"
+        return self.id_data[key] if key in self.id_data else ""
+
+    def set_otherLicenseUrl(self, value):
+        key = "otherLicenseUrl"
+        if key in self.id_data:
+            self.id_data[key] = value
+
+    version: bpy.props.StringProperty(name='Version',
+                                      get=get_version,
+                                      set=set_version)
+    author: bpy.props.StringProperty(name='Author',
+                                     get=get_author,
+                                     set=set_author)
+    contactInformation: bpy.props.StringProperty(name='ContactInformation',
+                                                 get=get_contactInformation,
+                                                 set=set_contactInformation)
+    reference: bpy.props.StringProperty(name='Reference',
+                                        get=get_reference,
+                                        set=set_reference)
+    title: bpy.props.StringProperty(name='Title',
+                                    get=get_title,
+                                    set=set_title)
+    otherPermissionUrl: bpy.props.StringProperty(name='Other Permission Url',
+                                                 get=get_otherPermissionUrl,
+                                                 set=set_otherPermissionUrl)
+    otherLicenseUrl: bpy.props.StringProperty(name='Other License Url',
+                                              get=get_otherLicenseUrl,
+                                              set=set_otherLicenseUrl)
 
 
 class REQUIRED_METAS(bpy.types.PropertyGroup):
-    allowedUserName: bpy.props.StringProperty(name='allowedUser')
-    violentUssageName: bpy.props.StringProperty(name='Violent Ussage')
-    sexualUssageName: bpy.props.StringProperty(name='Sexual Ussage')
-    commercialUssageName: bpy.props.StringProperty(name='Commercial Ussage')
-    licenseName: bpy.props.StringProperty(name='License')
+    INDEX_ID = 0
+    INDEX_NUMBER = 3
+    LICENSENAME_OTHER = "Other"
+    allowedUserName_items = [
+        ("OnlyAuthor", "OnlyAuthor", "", 0),
+        ("ExplicitlyLicensedPerson", "ExplicitlyLicensedPerson", "", 1),
+        ("Everyone", "Everyone", "", 2)
+    ]
+    violentUssageName_items = [
+        ("Disallow", "Disallow", "", 0),
+        ("Allow", "Allow", "", 1)
+    ]
+    sexualUssageName_items = [
+        ("Disallow", "Disallow", "", 0),
+        ("Allow", "Allow", "", 1)
+    ]
+    commercialUssageName_items = [
+        ("Disallow", "Disallow", "", 0),
+        ("Allow", "Allow", "", 1)
+    ]
+    licenseName_items = [
+        ("Redistribution_Prohibited", "Redistribution_Prohibited", "", 0),
+        ("CC0", "CC0", "", 1),
+        ("CC_BY", "CC_BY", "", 2),
+        ("CC_BY_NC", "CC_BY_NC", "", 3),
+        ("CC_BY_SA", "CC_BY_SA", "", 4),
+        ("CC_BY_NC_SA", "CC_BY_NC_SA", "", 5),
+        ("CC_BY_ND", "CC_BY_ND", "", 6),
+        ("CC_BY_NC_ND", "CC_BY_NC_ND", "", 7),
+        (LICENSENAME_OTHER, LICENSENAME_OTHER, "", 8),
+    ]
+
+    def get_allowedUserName(self):
+        key = "allowedUserName"
+        if key in self.id_data:
+            v = self.id_data[key]
+            ret = 0
+            for item in self.allowedUserName_items:
+                if item[self.INDEX_ID] == v:
+                    ret = item[self.INDEX_NUMBER]
+            return ret
+        else:
+            return 0
+
+    def set_allowedUserName(self, value):
+        key = "allowedUserName"
+        if key in self.id_data:
+            self.id_data[key] = self.allowedUserName_items[value][self.INDEX_ID]
+
+    def get_violentUssageName(self):
+        key = "violentUssageName"
+        if key in self.id_data:
+            v = self.id_data[key]
+            ret = 0
+            for item in self.violentUssageName_items:
+                if item[self.INDEX_ID] == v:
+                    ret = item[self.INDEX_NUMBER]
+            return ret
+        else:
+            return 0
+
+    def set_violentUssageName(self, value):
+        key = "violentUssageName"
+        if key in self.id_data:
+            self.id_data[key] = self.violentUssageName_items[value][self.INDEX_ID]
+
+    def get_sexualUssageName(self):
+        key = "sexualUssageName"
+        if key in self.id_data:
+            v = self.id_data[key]
+            ret = 0
+            for item in self.sexualUssageName_items:
+                if item[self.INDEX_ID] == v:
+                    ret = item[self.INDEX_NUMBER]
+            return ret
+        else:
+            return 0
+
+    def set_sexualUssageName(self, value):
+        key = "sexualUssageName"
+        if key in self.id_data:
+            self.id_data[key] = self.sexualUssageName_items[value][self.INDEX_ID]
+
+    def get_commercialUssageName(self):
+        key = "commercialUssageName"
+        if key in self.id_data:
+            v = self.id_data[key]
+            ret = 0
+            for item in self.commercialUssageName_items:
+                if item[self.INDEX_ID] == v:
+                    ret = item[self.INDEX_NUMBER]
+            return ret
+        else:
+            return 0
+
+    def set_commercialUssageName(self, value):
+        key = "commercialUssageName"
+        if key in self.id_data:
+            self.id_data[key] = self.commercialUssageName_items[value][self.INDEX_ID]
+
+    def get_licenseName(self):
+        key = "licenseName"
+        if key in self.id_data:
+            v = self.id_data[key]
+            ret = 0
+            for item in self.licenseName_items:
+                if item[self.INDEX_ID] == v:
+                    ret = item[self.INDEX_NUMBER]
+            return ret
+        else:
+            return 0
+
+    def set_licenseName(self, value):
+        key = "licenseName"
+        if key in self.id_data:
+            self.id_data[key] = self.licenseName_items[value][self.INDEX_ID]
+
+    allowedUserName: bpy.props.EnumProperty(items=allowedUserName_items,
+                                            get=get_allowedUserName,
+                                            set=set_allowedUserName,
+                                            name='Allowed User')
+    violentUssageName: bpy.props.EnumProperty(items=violentUssageName_items,
+                                              get=get_violentUssageName,
+                                              set=set_violentUssageName,
+                                              name='Violent Ussage')
+    sexualUssageName: bpy.props.EnumProperty(items=sexualUssageName_items,
+                                             get=get_sexualUssageName,
+                                             set=set_sexualUssageName,
+                                             name='Sexual Ussage')
+    commercialUssageName: bpy.props.EnumProperty(items=commercialUssageName_items,
+                                                 get=get_commercialUssageName,
+                                                 set=set_commercialUssageName,
+                                                 name='Commercial Ussage')
+    licenseName: bpy.props.EnumProperty(items=licenseName_items,
+                                        get=get_licenseName,
+                                        set=set_licenseName,
+                                        name='License')
 
 
 class VRMProps(bpy.types.PropertyGroup):
@@ -999,6 +1213,7 @@ classes = [
     # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     # blend_model.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
+    VRM_IMPORTER_PT_amature_controller,
     HUMANOID_PARAMS,
     LOOKAT_CURVE,
     FIRSTPERSON_PARAMS,
@@ -1044,7 +1259,7 @@ def register(init_version: Any) -> None:
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
-    bpy.app.translations.register(addon_package_name, translation_dictionary)    
+    bpy.app.translations.register(addon_package_name, translation_dictionary)
     bpy.types.Object.vrm_props = \
         bpy.props.PointerProperty(type=VRMProps)
 
