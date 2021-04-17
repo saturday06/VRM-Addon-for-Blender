@@ -355,19 +355,21 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
             # vrm_validator_prop.errors = []  # これはできない
             layout.separator()
             layout.label(text="MToon preview")
-            if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
-                layout.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname,
-                                icon='SHADING_RENDERED')
-            else:
-                layout.box().label(
-                    icon="INFO",
-                    text=vrm_helper.lang_support("A light is required", "ライトが必要です"),
-                )
+
             if GlslDrawObj.draw_objs:
                 layout.operator(
                     glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname,
-                    icon='SHADING_RENDERED'
-                )
+                    icon='SHADING_RENDERED',
+                    depress=True)
+            else:
+                if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
+                    layout.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname,
+                                    icon='SHADING_RENDERED',
+                                    depress=False)
+                else:
+                    layout.box().label(
+                        icon="INFO",
+                        text=vrm_helper.lang_support("A light is required", "ライトが必要です"))
             if object_type == "MESH":
                 layout.separator()
                 layout.operator(vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname,
