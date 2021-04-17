@@ -620,6 +620,350 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
         )
 
 
+class VRM_IMPORTER_PT_vrm_humanoid_params(bpy.types.Panel):
+    bl_idname = "VRM_IMPORTER_PT_vrm_humanoid_params"
+    bl_label = "VRM Humanoid Params"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "object"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text='testing', icon="ARMATURE_DATA")
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+        active_object = context.active_object
+        layout.label(text='Arm', icon="VIEW_PAN")
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "armStretch",
+        )
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "upperArmTwist"
+        )
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "lowerArmTwist"
+        )
+        layout.separator()
+        layout.label(text='Leg', icon="HANDLE_AUTO")
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "legStretch"
+        )
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "upperLegTwist"
+        )
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "lowerLegTwist"
+        )
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "feetSpacing"
+        )
+        layout.prop(
+            active_object.vrm_props.humanoid_params,
+            "hasTranslationDoF"
+        )
+
+
+class VRM_IMPORTER_PT_vrm_firstPerson_params(bpy.types.Panel):
+    bl_idname = "VRM_IMPORTER_PT_vrm_firstPerson_params"
+    bl_label = "VRM FirstPerson Params"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "object"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text='testing', icon="HIDE_OFF")
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+        active_object = context.active_object
+        layout.prop(
+            active_object.vrm_props.firstPerson_params,
+            "lookAtTypeName"
+        )
+        layout.prop(
+            active_object.vrm_props.firstPerson_params,
+            "firstPersonBone",
+            icon='BONE_DATA'
+        )
+        layout.prop(
+            active_object.vrm_props.firstPerson_params,
+            "firstPersonBoneOffset",
+            icon='BONE_DATA'
+        )
+        layout.prop(
+            active_object.vrm_props.firstPerson_params,
+            "meshAnnotations"
+        )
+        box = layout.box()
+        box.label(text='Horizontal Inner',
+                  icon='FULLSCREEN_EXIT')
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtHorizontalInner,
+            "curve"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtHorizontalInner,
+            "xRange"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtHorizontalInner,
+            "yRange"
+        )
+        box = layout.box()
+        box.label(text='Horizontal Outer',
+                  icon='FULLSCREEN_ENTER')
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtHorizontalOuter,
+            "curve"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtHorizontalOuter,
+            "xRange"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtHorizontalOuter,
+            "yRange"
+        )
+        box = layout.box()
+        box.label(text='Look At Vertical Down',
+                  icon='TRIA_UP')
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtVerticalDown,
+            "curve"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtVerticalDown,
+            "xRange"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtVerticalDown,
+            "yRange"
+        )
+        box = layout.box()
+        box.label(text='Look At Vertical Up',
+                  icon='TRIA_UP')
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtVerticalUp,
+            "curve"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtVerticalUp,
+            "xRange"
+        )
+        box.prop(
+            active_object.vrm_props.firstPerson_params.lookAtVerticalUp,
+            "yRange"
+        )
+
+
+class VRM_IMPORTER_PT_vrm_blendshape_group(bpy.types.Panel):
+    bl_idname = "VRM_IMPORTER_PT_vrm_blendshape_group"
+    bl_label = "VRM Blendshape Group"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "object"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text='testing', icon="SHAPEKEY_DATA")
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+        active_object = context.active_object
+        layout.prop(
+            active_object.vrm_props,
+            "blendshape_group"
+        )
+
+
+class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):
+    bl_idname = "VRM_IMPORTER_PT_vrm_spring_bone"
+    bl_label = "VRM Spring Bone"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "object"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text='testing', icon="RIGID_BODY_CONSTRAINT")
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+        active_object = context.active_object
+        layout.prop(
+            active_object.vrm_props,
+            "spring_bone",
+        )
+
+
+class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
+    bl_idname = "VRM_IMPORTER_PT_vrm_metas"
+    bl_label = "VRM Metas"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "object"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text='testing', icon="FILE_BLEND")
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+        active_object = context.active_object
+        layout.prop(
+            active_object.vrm_props.metas,
+            "author",
+            icon='USER'
+        )
+        layout.prop(
+            active_object.vrm_props.metas,
+            "contactInformation",
+            icon='URL'
+        )
+        layout.separator()
+        layout.prop(
+            active_object.vrm_props.metas,
+            "title",
+            icon='FILE_BLEND'
+        )
+        layout.prop(
+            active_object.vrm_props.metas,
+            "version",
+            icon='LINENUMBERS_ON'
+        )
+        layout.prop(
+            active_object.vrm_props.metas,
+            "reference",
+            icon='URL'
+        )
+        layout.separator()
+        box = layout.box()
+        box.prop(
+            active_object.vrm_props.required_metas,
+            "allowedUserName",
+            icon='MATCLOTH'
+        )
+        box.prop(
+            active_object.vrm_props.required_metas,
+            "violentUssageName",
+            icon='ORPHAN_DATA'
+        )
+        box.prop(
+            active_object.vrm_props.required_metas,
+            "sexualUssageName",
+            icon='HEART'
+        )
+        box.prop(
+            active_object.vrm_props.required_metas,
+            "commercialUssageName",
+            icon='SOLO_OFF'
+        )
+        box.prop(
+            active_object.vrm_props.required_metas,
+            "licenseName",
+            icon='COMMUNITY'
+        )
+        layout.prop(
+            active_object.vrm_props.metas,
+            "otherPermissionUrl",
+            icon='URL'
+        )
+        layout.prop(
+            active_object.vrm_props.metas,
+            "otherLicenseUrl",
+            icon='URL'
+        )
+
+
+class HUMANOID_PARAMS(bpy.types.PropertyGroup):
+    armStretch: bpy.props.FloatProperty(name='Arm Stretch')
+    legStretch: bpy.props.FloatProperty(name='Leg Stretch')
+    upperArmTwist: bpy.props.FloatProperty(name='Upper Arm Twist')
+    lowerArmTwist: bpy.props.FloatProperty(name='Lower Arm Twist')
+    upperLegTwist: bpy.props.FloatProperty(name='Upper Leg Twist')
+    lowerLegTwist: bpy.props.FloatProperty(name='Lower Leg Twist')
+    feetSpacing: bpy.props.IntProperty(name='Feet Spacing')
+    hasTranslationDoF: bpy.props.BoolProperty(name='Has Translation DoF')
+
+
+class LOOKAT_CURVE(bpy.types.PropertyGroup):
+    curve: bpy.props.FloatVectorProperty(size=8, name='Curve')
+    xRange: bpy.props.IntProperty(name='X Range')
+    yRange: bpy.props.IntProperty(name='Y Range')
+
+
+class FIRSTPERSON_PARAMS(bpy.types.PropertyGroup):
+    firstPersonBone: bpy.props.StringProperty(name='First Person Bone')
+    firstPersonBoneOffset: bpy.props.FloatVectorProperty(size=3, name='first Person Bone Offset')
+    meshAnnotations = None  # Dummy
+    lookAtTypeName: bpy.props.StringProperty(name='Look At Type Name')
+    lookAtHorizontalInner: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Horizontal Inner')
+    lookAtHorizontalOuter: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Horizontal Outer')
+    lookAtVerticalDown: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Vertical Down')
+    lookAtVerticalUp: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='lookAt Vertical Up')
+
+
+class BLENDSHAPE_GROUP(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(name='Name')
+    presetName: bpy.props.StringProperty(name='Preset Name')
+    binds = None  # Dummy
+    materialValues = None  # Dummy
+    isBinary: bpy.props.BoolProperty(name='Is Binary')
+
+
+class SPRING_BONE(bpy.types.PropertyGroup):
+    comment: bpy.props.StringProperty(name='Comment')
+    stiffiness: bpy.props.IntProperty(name='stiffiness')
+    gravityPower: bpy.props.IntProperty(name='Gravity Power')
+    gravityDir: bpy.props.FloatVectorProperty(size=3, name='Gravity Dir')
+    dragForce: bpy.props.FloatProperty(name='DragForce')
+    center: bpy.props.IntProperty(name='Center')
+    hitRadius: bpy.props.FloatProperty(name='Hit Radius')
+    bones = None  # Dummy
+    colliderGroups = None  # Dummy
+
+
+class METAS(bpy.types.PropertyGroup):
+    version: bpy.props.StringProperty(name='Version')
+    author: bpy.props.StringProperty(name='Author')
+    contactInformation: bpy.props.StringProperty(name='ContactInformation')
+    reference: bpy.props.StringProperty(name='Reference')
+    title: bpy.props.StringProperty(name='Title')
+    otherPermissionUrl: bpy.props.StringProperty(name='Other Permission Url')
+    otherLicenseUrl: bpy.props.StringProperty(name='Other License Url')
+
+
+class REQUIRED_METAS(bpy.types.PropertyGroup):
+    allowedUserName: bpy.props.StringProperty(name='allowedUser')
+    violentUssageName: bpy.props.StringProperty(name='Violent Ussage')
+    sexualUssageName: bpy.props.StringProperty(name='Sexual Ussage')
+    commercialUssageName: bpy.props.StringProperty(name='Commercial Ussage')
+    licenseName: bpy.props.StringProperty(name='License')
+
+
+class VRMProps(bpy.types.PropertyGroup):
+    humanoid_params: bpy.props.PointerProperty(name="Humanoid Params", type=HUMANOID_PARAMS)
+    firstPerson_params: bpy.props.PointerProperty(name="FirstPerson Params", type=FIRSTPERSON_PARAMS)
+    blendshape_group: bpy.props.CollectionProperty(name="Blendshape Group", type=BLENDSHAPE_GROUP)
+    spring_bone: bpy.props.CollectionProperty(name="Spring Bone", type=SPRING_BONE)
+    metas: bpy.props.PointerProperty(name="Metas", type=METAS)
+    required_metas: bpy.props.PointerProperty(name="Required Metas", type=REQUIRED_METAS)
+
+
 if persistent:  # for fake-bpy-modules
 
     @persistent  # type: ignore[misc]
@@ -655,6 +999,19 @@ classes = [
     # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     # blend_model.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
+    HUMANOID_PARAMS,
+    LOOKAT_CURVE,
+    FIRSTPERSON_PARAMS,
+    BLENDSHAPE_GROUP,
+    SPRING_BONE,
+    METAS,
+    REQUIRED_METAS,
+    VRMProps,
+    VRM_IMPORTER_PT_vrm_humanoid_params,
+    VRM_IMPORTER_PT_vrm_firstPerson_params,
+    VRM_IMPORTER_PT_vrm_blendshape_group,
+    VRM_IMPORTER_PT_vrm_spring_bone,
+    VRM_IMPORTER_PT_vrm_metas
 ]
 
 translation_dictionary = {
@@ -687,11 +1044,14 @@ def register(init_version: Any) -> None:
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
-    bpy.app.translations.register(addon_package_name, translation_dictionary)
+    bpy.app.translations.register(addon_package_name, translation_dictionary)    
+    bpy.types.Object.vrm_props = \
+        bpy.props.PointerProperty(type=VRMProps)
 
 
 # アドオン無効化時の処理
 def unregister() -> None:
+    del bpy.types.Object.vrm_props
     bpy.app.translations.unregister(addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
