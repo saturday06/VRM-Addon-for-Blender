@@ -24,27 +24,12 @@ from .editor.glsl_drawer import GlslDrawObj
 from .exporter import validation, version
 from .exporter.glb_obj import GlbObj
 from .exporter.validation import lang_support
-from .preferences import get_preferences, use_legacy_importer_exporter
-
-addon_package_name = ".".join(__name__.split(".")[:-1])
-
-
-class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
-    bl_idname = addon_package_name
-
-    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export invisible objects",  # noqa: F722
-        default=False,
-    )
-    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export only selections",  # noqa: F722
-        default=False,
-    )
-
-    def draw(self, context: bpy.types.Context) -> None:
-        layout = self.layout
-        layout.prop(self, "export_invisibles")
-        layout.prop(self, "export_only_selections")
+from .preferences import (
+    VrmAddonPreferences,
+    addon_package_name,
+    get_preferences,
+    use_legacy_importer_exporter,
+)
 
 
 def export_vrm_update_addon_preferences(
