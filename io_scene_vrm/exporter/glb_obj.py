@@ -28,8 +28,8 @@ from mathutils import Matrix
 from .. import deep, vrm_types
 from ..editor import search
 from ..gl_constants import GlConstants
+from ..version import version
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
-from .version import version
 
 
 class GlbObj:

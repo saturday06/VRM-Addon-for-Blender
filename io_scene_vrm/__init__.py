@@ -11,9 +11,9 @@ from typing import Any, Set, cast
 import bpy
 from bpy.app.handlers import persistent
 
-from . import editor, exporter, importer
+from . import editor, exporter, importer, version
 from .editor import glsl_drawer, make_armature, vrm_helper
-from .exporter import validation, version
+from .exporter import validation
 from .lang import translation_dictionary
 from .preferences import VrmAddonPreferences, addon_package_name
 
