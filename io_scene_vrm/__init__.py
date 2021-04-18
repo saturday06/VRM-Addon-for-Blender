@@ -26,7 +26,7 @@ from .misc import (
     vrm_helper,
 )
 from .misc.glsl_drawer import GlslDrawObj
-from .misc.preferences import get_preferences
+from .preferences import get_preferences
 
 addon_package_name = ".".join(__name__.split(".")[:-1])
 

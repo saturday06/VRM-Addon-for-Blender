@@ -10,7 +10,7 @@ from gpu_extras.batch import batch_for_shader
 from mathutils import Matrix, Vector
 
 from .. import vrm_types
-from .preferences import get_preferences
+from ..preferences import get_preferences
 from .vrm_helper import find_export_objects
 
 

@@ -16,9 +16,9 @@ import bpy
 from mathutils import Vector
 
 from .. import deep, vrm_types
+from ..preferences import get_preferences
 from ..vrm_types import Gltf
 from .make_armature import ICYP_OT_MAKE_ARMATURE
-from .preferences import get_preferences
 
 
 class Bones_rename(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
