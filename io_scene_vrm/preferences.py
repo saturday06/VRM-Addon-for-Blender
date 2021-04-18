@@ -3,6 +3,10 @@ from typing import Optional
 import bpy
 
 
+def use_legacy_importer_exporter() -> bool:
+    return bool(bpy.app.version < (2, 83))
+
+
 def get_preferences(context: bpy.types.Context) -> Optional[bpy.types.AddonPreferences]:
     addon_name = ".".join(__name__.split(".")[:-2])
     addon = context.preferences.addons.get(addon_name)

@@ -5,17 +5,14 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-import contextlib
 import os
 from typing import Any, Set, cast
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy_extras.io_utils import ExportHelper, ImportHelper
+from bpy_extras.io_utils import ExportHelper
 
-from . import vrm_types
-from .importer import blend_model
-from .importer.py_model import LicenseConfirmationRequired, PyModel
+from . import importer, vrm_types
 from .misc import (
     detail_mesh_maker,
     glb_factory,
@@ -26,7 +23,7 @@ from .misc import (
     vrm_helper,
 )
 from .misc.glsl_drawer import GlslDrawObj
-from .preferences import get_preferences
+from .preferences import get_preferences, use_legacy_importer_exporter
 
 addon_package_name = ".".join(__name__.split(".")[:-1])
 
@@ -47,135 +44,6 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
         layout = self.layout
         layout.prop(self, "export_invisibles")
         layout.prop(self, "export_only_selections")
-
-
-class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
-    message: bpy.props.StringProperty()  # type: ignore[valid-type]
-    url: bpy.props.StringProperty()  # type: ignore[valid-type]
-    json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
-
-
-class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
-    bl_idname = "import_scene.vrm"
-    bl_label = "Import VRM"
-    bl_description = "Import VRM"
-    bl_options = {"REGISTER", "UNDO"}
-
-    filename_ext = ".vrm"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
-    )
-
-    extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        default=False, name="Extract texture images into the folder"  # noqa: F722
-    )
-    make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        default=True,
-        name="Don't overwrite existing texture folder (limit:100,000)",  # noqa: F722
-    )
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        license_error = None
-        try:
-            return create_blend_model(
-                self,
-                context,
-                license_check=True,
-            )
-        except LicenseConfirmationRequired as e:
-            license_error = e  # Prevent traceback dump on another exception
-
-        print(license_error.description())
-
-        execution_context = "INVOKE_DEFAULT"
-        import_anyway = False
-        if os.environ.get("BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION") == "true":
-            execution_context = "EXEC_DEFAULT"
-            import_anyway = True
-
-        return cast(
-            Set[str],
-            bpy.ops.wm.vrm_license_warning(
-                execution_context,
-                import_anyway=import_anyway,
-                license_confirmations=license_error.license_confirmations(),
-                filepath=self.filepath,
-                extract_textures_into_folder=self.extract_textures_into_folder,
-                make_new_texture_folder=self.make_new_texture_folder,
-            ),
-        )
-
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        if not use_legacy_importer_exporter() and "gltf" not in dir(
-            bpy.ops.import_scene
-        ):
-            return cast(
-                Set[str],
-                bpy.ops.wm.gltf2_addon_disabled_warning(
-                    "INVOKE_DEFAULT",
-                ),
-            )
-        return cast(Set[str], ImportHelper.invoke(self, context, event))
-
-
-def create_blend_model(
-    addon: Any,
-    context: bpy.types.Context,
-    license_check: bool,
-) -> Set[str]:
-    legacy_importer = use_legacy_importer_exporter()
-    has_ui_localization = bpy.app.version < (2, 83)
-    ui_localization = False
-    if has_ui_localization:
-        ui_localization = bpy.context.preferences.view.use_international_fonts
-    try:
-        if not legacy_importer:
-            with contextlib.suppress(blend_model.RetryUsingLegacyImporter):
-                py_model = PyModel(
-                    addon.filepath,
-                    addon.extract_textures_into_folder,
-                    addon.make_new_texture_folder,
-                    license_check=license_check,
-                    legacy_importer=legacy_importer,
-                )
-                blend_model.BlendModel(
-                    context,
-                    py_model,
-                    addon.extract_textures_into_folder,
-                    addon.make_new_texture_folder,
-                    legacy_importer=legacy_importer,
-                )
-                return {"FINISHED"}
-
-        py_model = PyModel(
-            addon.filepath,
-            addon.extract_textures_into_folder,
-            addon.make_new_texture_folder,
-            license_check=license_check,
-            legacy_importer=True,
-        )
-        blend_model.BlendModel(
-            context,
-            py_model,
-            addon.extract_textures_into_folder,
-            addon.make_new_texture_folder,
-            legacy_importer=True,
-        )
-    finally:
-        if has_ui_localization and ui_localization:
-            bpy.context.preferences.view.use_international_fonts = ui_localization
-
-    return {"FINISHED"}
-
-
-def use_legacy_importer_exporter() -> bool:
-    return bool(bpy.app.version < (2, 83))
-
-
-def menu_import(
-    import_op: bpy.types.Operator, context: bpy.types.Context
-) -> None:  # Same as test/blender_io.py for now
-    import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
 
 
 def export_vrm_update_addon_preferences(
@@ -568,59 +436,6 @@ class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc]
         )
 
 
-class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_label = "License confirmation"
-    bl_idname = "wm.vrm_license_warning"
-    bl_options = {"REGISTER", "UNDO"}
-
-    filepath: bpy.props.StringProperty()  # type: ignore[valid-type]
-
-    license_confirmations: bpy.props.CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
-    import_anyway: bpy.props.BoolProperty()  # type: ignore[valid-type]
-
-    extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        if not self.import_anyway:
-            return {"CANCELLED"}
-        return create_blend_model(
-            self,
-            context,
-            license_check=False,
-        )
-
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=600)
-        )
-
-    def draw(self, context: bpy.types.Context) -> None:
-        layout = self.layout
-        layout.label(text=self.filepath)
-        for license_confirmation in self.license_confirmations:
-            for line in license_confirmation.message.split("\n"):
-                layout.label(text=line)
-            if license_confirmation.json_key:
-                layout.label(
-                    text=vrm_helper.lang_support(
-                        "For more information please check following URL.",
-                        "詳しくは下記のURLを確認してください。",
-                    )
-                )
-                layout.prop(
-                    license_confirmation,
-                    "url",
-                    text=license_confirmation.json_key,
-                    translate=False,
-                )
-        layout.prop(
-            self,
-            "import_anyway",
-            text=vrm_helper.lang_support("Import anyway", "インポートします"),
-        )
-
-
 if persistent:  # for fake-bpy-modules
 
     @persistent  # type: ignore[misc]
@@ -636,8 +451,8 @@ if persistent:  # for fake-bpy-modules
 
 classes = [
     VrmAddonPreferences,
-    LicenseConfirmation,
-    WM_OT_licenseConfirmation,
+    importer.LicenseConfirmation,
+    importer.WM_OT_licenseConfirmation,
     WM_OT_gltf2AddonDisabledWarning,
     vrm_helper.Bones_rename,
     vrm_helper.Add_VRM_extensions_to_armature,
@@ -646,7 +461,7 @@ classes = [
     vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
     vrm_helper.VrmValidationError,
     vrm_helper.WM_OT_vrmValidator,
-    ImportVRM,
+    importer.ImportVRM,
     ExportVRM,
     VRM_IMPORTER_PT_export_error_messages,
     VRM_IMPORTER_PT_controller,
@@ -683,7 +498,7 @@ def register(init_version: Any) -> None:
 
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.TOPBAR_MT_file_import.append(menu_import)
+    bpy.types.TOPBAR_MT_file_import.append(importer.menu_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_export)
     bpy.types.VIEW3D_MT_armature_add.append(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
@@ -697,7 +512,7 @@ def unregister() -> None:
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
-    bpy.types.TOPBAR_MT_file_import.remove(menu_import)
+    bpy.types.TOPBAR_MT_file_import.remove(importer.menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_export)
     for cls in classes:
         bpy.utils.unregister_class(cls)
