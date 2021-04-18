@@ -23,9 +23,8 @@ import bmesh
 import bpy
 from mathutils import Matrix
 
-from .. import vrm_types
+from .. import deep, vrm_types
 from ..gl_constants import GlConstants
-from ..vrm_types import nested_json_list_getter as json_list_get
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 from .version import version
 from .vrm_helper import find_export_objects, shader_nodes_and_materials
@@ -1929,7 +1928,7 @@ class GlbObj:
                     blend_shape_group["binds"].remove(bind)
                     continue
                 bind["mesh"] = mesh_index
-                target_names = json_list_get(
+                target_names = deep.get_list(
                     self.json_dic,
                     ["meshes", bind["mesh"], "primitives", 0, "extras", "targetNames"],
                     [],

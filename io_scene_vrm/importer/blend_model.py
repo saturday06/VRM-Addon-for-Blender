@@ -28,10 +28,9 @@ import mathutils
 import numpy
 from mathutils import Matrix, Vector
 
-from .. import vrm_types
+from .. import deep, vrm_types
 from ..gl_constants import GlConstants
 from ..misc import glb_factory, make_armature, vrm_helper
-from ..vrm_types import nested_json_value_getter as json_get
 from .py_model import (
     PyMaterial,
     PyMaterialGltf,
@@ -137,16 +136,16 @@ class BlendModel:
 
     def parse_vrm_extension(self) -> None:
         json_dict = self.py_model.json
-        vrm1_draft = json_get(json_dict, ["extensions", "VRMC_vrm-1.0_draft"])
+        vrm1_draft = deep.get(json_dict, ["extensions", "VRMC_vrm-1.0_draft"])
         if not isinstance(vrm1_draft, dict):
-            vrm1_draft = json_get(json_dict, ["extensions", "VRMC_vrm-1.0"])
+            vrm1_draft = deep.get(json_dict, ["extensions", "VRMC_vrm-1.0"])
             if not isinstance(vrm1_draft, dict):
                 vrm1_draft = None
         if vrm1_draft is not None:
             self.vrm1_draft_extension = vrm1_draft
             return
 
-        vrm0 = json_get(json_dict, ["extensions", "VRM"])
+        vrm0 = deep.get(json_dict, ["extensions", "VRM"])
         if not isinstance(vrm0, dict):
             vrm0 = None
         self.vrm0_extension = vrm0
@@ -525,14 +524,14 @@ class BlendModel:
 
         if self.vrm1_draft_extension is not None:
             spec_version = "1.0_draft"
-            hips_index = json_get(
+            hips_index = deep.get(
                 self.vrm1_draft_extension, ["humanoid", "humanBones", "hips", "node"]
             )
             if isinstance(hips_index, int):
                 hips_bone_node_index = hips_index
         elif self.vrm0_extension is not None:
             spec_version = "0.0"
-            human_bones = json_get(self.vrm0_extension, ["humanoid", "humanBones"], [])
+            human_bones = deep.get(self.vrm0_extension, ["humanoid", "humanBones"], [])
             if isinstance(human_bones, list):
                 for human_bone in human_bones:
                     if (
@@ -776,7 +775,7 @@ class BlendModel:
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtextureのインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
-        json_texture_index = json_get(self.vrm0_extension, ["meta", "texture"], -1)
+        json_texture_index = deep.get(self.vrm0_extension, ["meta", "texture"], -1)
         if not isinstance(json_texture_index, int):
             raise Exception('json["extensions"]["VRM"]["meta"]["texture"] is not int')
         json_textures = self.py_model.json.get("textures", [])
@@ -1787,7 +1786,7 @@ class BlendModel:
         vrm0_extension = self.vrm0_extension
         if vrm0_extension is None:
             return
-        humanbones_relations = json_get(vrm0_extension, ["humanoid", "humanBones"], [])
+        humanbones_relations = deep.get(vrm0_extension, ["humanoid", "humanBones"], [])
         if not isinstance(humanbones_relations, list):
             raise Exception("extensions.VRM.humanoid.humanBones is not list")
         for (i, humanbone) in enumerate(humanbones_relations):
@@ -1845,7 +1844,7 @@ class BlendModel:
         # endregion humanoid_parameter
         # region first_person
         first_person_params = copy.deepcopy(vrm0_extension["firstPerson"])
-        first_person_bone = json_get(first_person_params, ["firstPersonBone"], -1)
+        first_person_bone = deep.get(first_person_params, ["firstPersonBone"], -1)
         if isinstance(first_person_bone, int) and 0 <= first_person_bone < len(
             self.py_model.json["nodes"]
         ):

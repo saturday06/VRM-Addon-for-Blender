@@ -20,10 +20,9 @@ from urllib.parse import ParseResult, parse_qsl, urlparse
 import bpy
 import numpy
 
-from .. import vrm_types
+from .. import deep, vrm_types
 from ..gl_constants import GlConstants
 from ..misc import vrm_helper
-from ..vrm_types import nested_json_value_getter as json_get
 from .binary_reader import BinaryReader
 
 
@@ -494,7 +493,7 @@ def validate_license(py_model: PyModel) -> None:
     # 既知の改変不可ライセンスを撥ねる
     # CC_NDなど
     license_name = str(
-        json_get(py_model.json, ["extensions", "VRM", "meta", "licenseName"], "")
+        deep.get(py_model.json, ["extensions", "VRM", "meta", "licenseName"], "")
     )
     if re.match("CC(.*)ND(.*)", license_name):
         confirmations.append(
@@ -508,7 +507,7 @@ def validate_license(py_model: PyModel) -> None:
 
     validate_license_url(
         str(
-            json_get(
+            deep.get(
                 py_model.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], ""
             )
         ),
@@ -518,7 +517,7 @@ def validate_license(py_model: PyModel) -> None:
 
     if license_name == "Other":
         other_license_url_str = str(
-            json_get(
+            deep.get(
                 py_model.json, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""
             )
         )
@@ -733,7 +732,7 @@ def mesh_read(py_model: PyModel) -> None:
 
             # region TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
             legacy_uv_flag = False  # f***
-            gen = str(json_get(py_model.json, ["assets", "generator"], ""))
+            gen = str(deep.get(py_model.json, ["assets", "generator"], ""))
             if re.match("UniGLTF", gen):
                 with contextlib.suppress(ValueError):
                     if float("".join(gen[-4:])) < 1.16:
@@ -785,7 +784,7 @@ def mesh_read(py_model: PyModel) -> None:
 
 def material_read(py_model: PyModel) -> None:
     json_materials = py_model.json.get("materials", [])
-    vrm_extension_material_properties = json_get(
+    vrm_extension_material_properties = deep.get(
         py_model.json,
         ["extensions", "VRM", "materialProperties"],
         default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(json_materials),

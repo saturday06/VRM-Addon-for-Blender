@@ -15,9 +15,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
 import bpy
 from mathutils import Vector
 
-from .. import vrm_types
-from ..vrm_types import Gltf, make_json_return_value
-from ..vrm_types import nested_json_value_getter as json_get
+from .. import deep, vrm_types
+from ..vrm_types import Gltf
 from .make_armature import ICYP_OT_MAKE_ARMATURE
 from .preferences import get_preferences
 
@@ -573,7 +572,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         )
                     )
                     json_as_dict = None
-                return make_json_return_value(json_as_dict)
+                return deep.make_return_value(json_as_dict)
 
             mesh_name_to_mesh = {
                 **{obj.name: obj.data for obj in export_objects if obj.type == "MESH"},
@@ -590,7 +589,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             first_person_params_name = "firstPerson_params"
             firstperson_params = text_block_name_to_json(first_person_params_name)
             if isinstance(firstperson_params, dict):
-                fp_bone = json_get(firstperson_params, ["firstPersonBone"], -1)
+                fp_bone = deep.get(firstperson_params, ["firstPersonBone"], -1)
                 if (
                     fp_bone != -1
                     and firstperson_params["firstPersonBone"] not in armature.data.bones

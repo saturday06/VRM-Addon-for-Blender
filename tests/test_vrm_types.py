@@ -22,11 +22,3 @@ class TestVrmTypes(TestCase):
                 self.assertEqual(
                     expected, actual, f"Expected: {expected}, Actual: {actual}"
                 )
-
-    def test_nested_json_value_getter(self) -> None:
-        self.assertEqual(
-            123,
-            vrm_types.nested_json_value_getter(
-                {"foo": [{"bar": 123}]}, ["foo", 0, "bar"]
-            ),
-        )
