@@ -5,9 +5,7 @@ import bpy
 
 
 def add_shaders(self: Any) -> None:
-    filedir = os.path.join(
-        os.path.dirname(__file__), "resources", "material_node_groups.blend"
-    )
+    filedir = os.path.join(os.path.dirname(__file__), "material_node_groups.blend")
     with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
         for nt in data_from.node_groups:
             if nt not in bpy.data.node_groups:
@@ -19,7 +17,6 @@ def shader_node_group_import(shader_node_group_name: str) -> None:
         return
     filedir = os.path.join(
         os.path.dirname(__file__),
-        "resources",
         "material_node_groups.blend",
         "NodeTree",
     )
