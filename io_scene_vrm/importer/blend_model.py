@@ -28,9 +28,8 @@ import mathutils
 import numpy
 from mathutils import Matrix, Vector
 
-from .. import deep, vrm_types
+from .. import deep, editor, exporter, vrm_types
 from ..gl_constants import GlConstants
-from ..misc import glb_factory, make_armature, vrm_helper
 from .py_model import (
     PyMaterial,
     PyMaterialGltf,
@@ -490,7 +489,7 @@ class BlendModel:
 
         full_vrm_import_success = False
         with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-            indexed_vrm_file.write(glb_factory.pack_glb(json_dict, body_binary))
+            indexed_vrm_file.write(exporter.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
             try:
                 bpy.ops.import_scene.gltf(
@@ -507,7 +506,7 @@ class BlendModel:
             if "animations" in json_dict:
                 del json_dict["animations"]
             with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-                indexed_vrm_file.write(glb_factory.pack_glb(json_dict, body_binary))
+                indexed_vrm_file.write(exporter.pack_glb(json_dict, body_binary))
                 indexed_vrm_file.flush()
                 try:
                     bpy.ops.import_scene.gltf(
@@ -733,7 +732,7 @@ class BlendModel:
                         # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
                         disconnected_bone.parent.tail = disconnected_bone.head
 
-            make_armature.connect_parent_tail_and_child_head_if_same_position(
+            editor.make_armature.connect_parent_tail_and_child_head_if_same_position(
                 armature.data
             )
             bpy.ops.object.mode_set(mode="OBJECT")
@@ -2127,7 +2126,7 @@ class BlendModel:
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
-        vrm_helper.Bones_rename(bpy.context)
+        editor.vrm_helper.Bones_rename(bpy.context)
 
 
 # DeprecationWarning

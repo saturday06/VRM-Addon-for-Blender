@@ -1,173 +1,18 @@
-"""
-Copyright (c) 2018 iCyP
-Released under the MIT license
-https://opensource.org/licenses/mit-license.php
-
-"""
 import contextlib
 import json
 import os
-import re
 from collections import OrderedDict
 from sys import float_info
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Set, Union, cast
 
 import bpy
 from mathutils import Vector
 
 from .. import deep, vrm_types
+from ..editor import find_export_objects
 from ..preferences import get_preferences
 from ..vrm_types import Gltf
-from .make_armature import ICYP_OT_MAKE_ARMATURE
-
-
-class Bones_rename(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.bones_rename"
-    bl_label = "Rename VRoid_bones"
-    bl_description = "Rename VRoid_bones as Blender type"
-    bl_options = {"REGISTER", "UNDO"}
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        def reprstr(bone_name: str) -> str:
-            ml = re.match("(.*)_" + "L" + "_(.*)", bone_name)
-            mr = re.match("(.*)_" + "R" + "_(.*)", bone_name)
-            if ml or mr:
-                tmp = ""
-                ma = ml if ml else mr
-                if ma is None:
-                    raise Exception(f"{bone_name} is not vroid bone name")
-                for y in ma.groups():
-                    tmp += y + "_"
-                tmp += "R" if mr else "L"
-                return tmp
-            return bone_name
-
-        for x in bpy.context.active_object.data.bones:
-            x.name = reprstr(x.name)
-        if "spring_bone" in bpy.context.active_object:
-            textblock = bpy.data.texts[bpy.context.active_object["spring_bone"]]
-            j = json.loads("".join([line.body for line in textblock.lines]))
-            for jdic in j:
-                for i, bones in enumerate(jdic["bones"]):
-                    jdic["bones"][i] = reprstr(bones)
-                for i, collider in enumerate(jdic["colliderGroups"]):
-                    jdic["colliderGroups"][i] = reprstr(collider)
-            textblock.from_string(json.dumps(j, indent=4))
-        for bonename in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
-            if bonename in bpy.context.active_object.data:
-                bpy.context.active_object.data[bonename] = reprstr(
-                    bpy.context.active_object.data[bonename]
-                )
-        return {"FINISHED"}
-
-
-class Add_VRM_extensions_to_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.add_vrm_extensions"
-    bl_label = "Add vrm attributes"
-    bl_description = "Add vrm extensions & metas to armature"
-    bl_options = {"REGISTER", "UNDO"}
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        ICYP_OT_MAKE_ARMATURE.make_extension_setting_and_metas(context.active_object)
-        return {"FINISHED"}
-
-
-class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.add_vrm_req_humanbone_prop"
-    bl_label = "Add vrm humanbone_prop"
-    bl_description = ""
-    bl_options = {"REGISTER", "UNDO"}
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        arm = bpy.data.armatures[bpy.context.active_object.data.name]
-        for req in vrm_types.HumanBones.requires:
-            if req not in arm:
-                arm[req] = ""
-        return {"FINISHED"}
-
-
-class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.add_vrm_def_humanbone_prop"
-    bl_label = "Add vrm humanbone_prop"
-    bl_description = ""
-    bl_options = {"REGISTER", "UNDO"}
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        arm = bpy.data.armatures[bpy.context.active_object.data.name]
-        for d in vrm_types.HumanBones.defines:
-            if d not in arm:
-                arm[d] = ""
-        return {"FINISHED"}
-
-
-class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.lipsync_vrm"
-    bl_label = "Make lipsync4VRC"
-    bl_description = "Make lipsync from VRoid to VRC by json"
-    bl_options = {"REGISTER", "UNDO"}
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        recipe_uri = os.path.join(
-            os.path.dirname(__file__), "vroid2vrc_lipsync_recipe.json"
-        )
-        recipe = None
-        with open(recipe_uri, "rt") as raw_recipe:
-            recipe = json.loads(raw_recipe.read(), object_pairs_hook=OrderedDict)
-        for shapekey_name, based_values in recipe["shapekeys"].items():
-            for k in bpy.context.active_object.data.shape_keys.key_blocks:
-                k.value = 0.0
-            for based_shapekey_name, based_val in based_values.items():
-                # if M_F00_000+_00
-                if (
-                    based_shapekey_name
-                    not in bpy.context.active_object.data.shape_keys.key_blocks
-                ):
-                    based_shapekey_name = based_shapekey_name.replace(
-                        "M_F00_000", "M_F00_000_00"
-                    )  # Vroid064から命名が変わった
-                bpy.context.active_object.data.shape_keys.key_blocks[
-                    based_shapekey_name
-                ].value = based_val
-            bpy.ops.object.shape_key_add(from_mix=True)
-            bpy.context.active_object.data.shape_keys.key_blocks[
-                -1
-            ].name = shapekey_name
-        for k in bpy.context.active_object.data.shape_keys.key_blocks:
-            k.value = 0.0
-        return {"FINISHED"}
-
-
-def find_export_objects(
-    export_invisibles: bool, export_only_selections: bool
-) -> List[bpy.types.Object]:
-    print("Searching for VRM export objects:")
-
-    objects = []
-    if export_only_selections:
-        print("  Selected objects:")
-        objects = list(bpy.context.selected_objects)
-    elif export_invisibles:
-        print("  Select all objects:")
-        objects = list(bpy.data.objects)
-    else:
-        print("  Select all selectable objects:")
-        objects = list(bpy.context.selectable_objects)
-
-    exclusion_types = ["LIGHT", "CAMERA"]
-    export_objects = []
-    for obj in objects:
-        if obj.type in exclusion_types:
-            print(f"  EXCLUDE: {obj.name}")
-            continue
-        if not export_invisibles and not obj.visible_get():
-            print(f"  EXCLUDE: {obj.name}")
-            continue
-        export_objects.append(obj)
-
-    for export_object in export_objects:
-        print(f"  -> {export_object.name}")
-
-    return export_objects
+from . import shader_nodes_and_materials
 
 
 class VrmValidationError(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -830,19 +675,3 @@ def node_material_input_check(
                             f"マテリアル「{material.name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
                         )
                     )
-
-
-def shader_nodes_and_materials(
-    used_materials: List[bpy.types.Material],
-) -> List[Tuple[bpy.types.Node, bpy.types.Material]]:
-    return [
-        (node.inputs["Surface"].links[0].from_node, mat)
-        for mat in used_materials
-        if mat.node_tree is not None
-        for node in mat.node_tree.nodes
-        if node.type == "OUTPUT_MATERIAL"
-        and node.inputs["Surface"].links
-        and node.inputs["Surface"].links[0].from_node.type == "GROUP"
-        and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
-        is not None
-    ]

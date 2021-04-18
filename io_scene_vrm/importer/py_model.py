@@ -21,8 +21,8 @@ import bpy
 import numpy
 
 from .. import deep, vrm_types
+from ..exporter.validation import lang_support
 from ..gl_constants import GlConstants
-from ..misc import vrm_helper
 from .binary_reader import BinaryReader
 
 
@@ -199,7 +199,7 @@ class LicenseConfirmationRequiredProp:
     ) -> None:
         self.url = url
         self.json_key = json_key
-        self.message = vrm_helper.lang_support(message_en, message_ja)
+        self.message = lang_support(message_en, message_ja)
 
     def description(self) -> str:
         return f"""class=LicenseConfirmationRequired

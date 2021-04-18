@@ -5,7 +5,7 @@ from typing import Any, Set, cast
 import bpy
 from bpy_extras.io_utils import ImportHelper
 
-from ..misc import vrm_helper
+from ..exporter.validation import lang_support
 from ..preferences import use_legacy_importer_exporter
 from . import blend_model, py_model
 from .py_model import PyModel
@@ -171,7 +171,7 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
                 layout.label(text=line)
             if license_confirmation.json_key:
                 layout.label(
-                    text=vrm_helper.lang_support(
+                    text=lang_support(
                         "For more information please check following URL.",
                         "詳しくは下記のURLを確認してください。",
                     )
@@ -185,5 +185,5 @@ class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noq
         layout.prop(
             self,
             "import_anyway",
-            text=vrm_helper.lang_support("Import anyway", "インポートします"),
+            text=lang_support("Import anyway", "インポートします"),
         )

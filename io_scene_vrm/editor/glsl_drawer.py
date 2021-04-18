@@ -11,7 +11,7 @@ from mathutils import Matrix, Vector
 
 from .. import vrm_types
 from ..preferences import get_preferences
-from .vrm_helper import find_export_objects
+from . import find_export_objects
 
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801

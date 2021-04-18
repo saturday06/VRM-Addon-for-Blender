@@ -13,16 +13,17 @@ from bpy.app.handlers import persistent
 from bpy_extras.io_utils import ExportHelper
 
 from . import importer, vrm_types
-from .misc import (
+from .editor import (
     detail_mesh_maker,
-    glb_factory,
     glsl_drawer,
     make_armature,
     mesh_from_bone_envelopes,
-    version,
     vrm_helper,
 )
-from .misc.glsl_drawer import GlslDrawObj
+from .editor.glsl_drawer import GlslDrawObj
+from .exporter import validation, version
+from .exporter.glb_obj import GlbObj
+from .exporter.validation import lang_support
 from .preferences import get_preferences, use_legacy_importer_exporter
 
 addon_package_name = ".".join(__name__.split(".")[:-1])
@@ -81,7 +82,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
         update=export_vrm_update_addon_preferences,
     )
 
-    errors: bpy.props.CollectionProperty(type=vrm_helper.VrmValidationError)  # type: ignore[valid-type]
+    errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.filepath:
@@ -89,10 +90,10 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
         filepath: str = self.filepath
 
         try:
-            glb_obj = glb_factory.GlbObj(
+            glb_obj = GlbObj(
                 bool(self.export_invisibles), bool(self.export_only_selections)
             )
-        except glb_factory.GlbObj.ValidationError:
+        except GlbObj.ValidationError:
             return {"CANCELLED"}
         # vrm_bin =  glb_obj().convert_bpy2glb(self.vrm_version)
         vrm_bin = glb_obj.convert_bpy2glb("0.0")
@@ -145,7 +146,7 @@ class VRM_IMPORTER_PT_export_error_messages(bpy.types.Panel):  # type: ignore[mi
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
 
-        vrm_helper.WM_OT_vrmValidator.detect_errors_and_warnings(
+        validation.WM_OT_vrmValidator.detect_errors_and_warnings(
             context, operator.errors, False, layout
         )
 
@@ -375,20 +376,16 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                 object_mode_box.prop(
                     preferences,
                     "export_invisibles",
-                    text=vrm_helper.lang_support(
-                        "Export invisible objects", "非表示オブジェクトを含める"
-                    ),
+                    text=lang_support("Export invisible objects", "非表示オブジェクトを含める"),
                 )
                 object_mode_box.prop(
                     preferences,
                     "export_only_selections",
-                    text=vrm_helper.lang_support(
-                        "Export only selections", "選択されたオブジェクトのみ"
-                    ),
+                    text=lang_support("Export only selections", "選択されたオブジェクトのみ"),
                 )
             vrm_validator_prop = object_mode_box.operator(
-                vrm_helper.WM_OT_vrmValidator.bl_idname,
-                text=vrm_helper.lang_support("Validate VRM model", "VRMモデルのチェック"),
+                validation.WM_OT_vrmValidator.bl_idname,
+                text=lang_support("Validate VRM model", "VRMモデルのチェック"),
             )
             vrm_validator_prop.show_successful_message = True
             # vrm_validator_prop.errors = []  # これはできない
@@ -398,7 +395,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
             else:
                 object_mode_box.box().label(
                     icon="INFO",
-                    text=vrm_helper.lang_support("A light is required", "ライトが必要です"),
+                    text=lang_support("A light is required", "ライトが必要です"),
                 )
             if GlslDrawObj.draw_objs:
                 object_mode_box.operator(
@@ -459,8 +456,8 @@ classes = [
     vrm_helper.Add_VRM_require_humanbone_custom_property,
     vrm_helper.Add_VRM_defined_humanbone_custom_property,
     vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
-    vrm_helper.VrmValidationError,
-    vrm_helper.WM_OT_vrmValidator,
+    validation.VrmValidationError,
+    validation.WM_OT_vrmValidator,
     importer.ImportVRM,
     ExportVRM,
     VRM_IMPORTER_PT_export_error_messages,

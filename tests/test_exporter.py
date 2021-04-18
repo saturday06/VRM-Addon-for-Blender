@@ -2,10 +2,10 @@ import sys
 from typing import Sequence, cast
 from unittest import TestCase
 
-from io_scene_vrm import vrm_types
+from io_scene_vrm import exporter
 
 
-class TestVrmTypes(TestCase):
+class TestExporter(TestCase):
     def test_normalize_weights_compatible_with_gl_float(self) -> None:
         for arg, expected in [
             ([1, 0, 0, 0], [1, 0, 0, 0]),
@@ -16,7 +16,7 @@ class TestVrmTypes(TestCase):
             ([0, sys.float_info.epsilon, 0, sys.float_info.epsilon], [0, 0.5, 0, 0.5]),
         ]:
             with self.subTest(arg):
-                actual = vrm_types.normalize_weights_compatible_with_gl_float(
+                actual = exporter.normalize_weights_compatible_with_gl_float(
                     cast(Sequence[float], arg)
                 )
                 self.assertEqual(

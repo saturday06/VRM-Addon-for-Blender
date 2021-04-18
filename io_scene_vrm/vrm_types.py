@@ -5,10 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-import math
-import struct
-from sys import float_info
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 class Gltf:
@@ -285,29 +282,6 @@ class MaterialMtoon:
         "MTOON_DEBUG_LITSHADERATE",
     ]
     tagmap_list = ["RenderType"]
-
-
-def normalize_weights_compatible_with_gl_float(
-    weights: Sequence[float],
-) -> Sequence[float]:
-    if abs(sum(weights) - 1.0) < float_info.epsilon:
-        return weights
-
-    def to_gl_float(array4: Sequence[float]) -> Sequence[float]:
-        return list(struct.unpack("<ffff", struct.pack("<ffff", *array4)))
-
-    # Simulate export and import
-    weights = to_gl_float(weights)
-    for _ in range(10):
-        next_weights = to_gl_float([weights[i] / sum(weights) for i in range(4)])
-        error = abs(1 - math.fsum(weights))
-        next_error = abs(1 - math.fsum(next_weights))
-        if error >= float_info.epsilon and error > next_error:
-            weights = next_weights
-        else:
-            break
-
-    return weights
 
 
 if __name__ == "__main__":
