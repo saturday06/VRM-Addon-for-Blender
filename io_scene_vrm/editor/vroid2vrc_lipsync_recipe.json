@@ -1,0 +1,24 @@
+{
+    "licence": "author:  https://creativecommons.org/licenses/by/4.0/",
+    "shapekeys": {
+        "vrc.blink_left": {"Face.M_F00_000_Fcl_EYE_Close_L": 1.0},
+        "vrc.blink_right": {"Face.M_F00_000_Fcl_EYE_Close_R": 1.0},
+        "vrc.lowerlid_left": {},
+        "vrc.lowerlid_right": {},
+        "vrc.v_aa": {"Face.M_F00_000_Fcl_MTH_A": 1.0},
+        "vrc.v_ch": {"Face.M_F00_000_Fcl_MTH_I": 0.6},
+        "vrc.v_dd": {"Face.M_F00_000_Fcl_MTH_E": 0.7},
+        "vrc.v_e": {"Face.M_F00_000_Fcl_MTH_E": 1.0},
+        "vrc.v_ff": {"Face.M_F00_000_Fcl_MTH_A": 0.2},
+        "vrc.v_ih": {"Face.M_F00_000_Fcl_MTH_A": 1.0},
+        "vrc.v_kk": {"Face.M_F00_000_Fcl_MTH_A": 1.0},
+        "vrc.v_nn": {"Face.M_F00_000_Fcl_MTH_E": 0.7},
+        "vrc.v_oh": {"Face.M_F00_000_Fcl_MTH_O": 1.0},
+        "vrc.v_ou": {"Face.M_F00_000_Fcl_MTH_U": 0.8},
+        "vrc.v_pp": {"Face.M_F00_000_Fcl_MTH_Angry": 1.0},
+        "vrc.v_rr": {"Face.M_F00_000_Fcl_MTH_A": 0.2},
+        "vrc.v_sil": {},
+        "vrc.v_ss": {"Face.M_F00_000_Fcl_MTH_I": 0.8},
+        "vrc.v_th": {"Face.M_F00_000_Fcl_MTH_A": 1.0}
+    }
+}
