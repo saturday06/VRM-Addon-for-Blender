@@ -5,13 +5,12 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-import os
 from typing import Any, Set, cast
 
 import bpy
 from bpy.app.handlers import persistent
 
-from . import editor, exporter, importer, version
+from . import editor, exporter, importer, shader, version
 from .editor import glsl_drawer, make_armature, vrm_helper
 from .exporter import validation
 from .lang import translation_dictionary
@@ -41,13 +40,7 @@ if persistent:  # for fake-bpy-modules
 
     @persistent  # type: ignore[misc]
     def add_shaders(self: Any) -> None:
-        filedir = os.path.join(
-            os.path.dirname(__file__), "resources", "material_node_groups.blend"
-        )
-        with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
-            for nt in data_from.node_groups:
-                if nt not in bpy.data.node_groups:
-                    data_to.node_groups.append(nt)
+        shader.add_shaders(self)
 
 
 classes = [

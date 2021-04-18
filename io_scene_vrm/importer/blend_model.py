@@ -30,6 +30,7 @@ from mathutils import Matrix, Vector
 
 from .. import deep, editor, exporter, vrm_types
 from ..gl_constants import GlConstants
+from ..shader import shader_node_group_import
 from .py_model import (
     PyMaterial,
     PyMaterialGltf,
@@ -2147,20 +2148,3 @@ class ICYP_OT_select_helper(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         bpy.ops.object.mode_set(mode="EDIT")
         bpy.types.Scene.icyp_select_helper_select_list = list()
         return {"FINISHED"}
-
-
-def shader_node_group_import(shader_node_group_name: str) -> None:
-    if shader_node_group_name in bpy.data.node_groups:
-        return
-    filedir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "resources",
-        "material_node_groups.blend",
-        "NodeTree",
-    )
-    filepath = os.path.join(filedir, shader_node_group_name)
-    bpy.ops.wm.append(
-        filepath=filepath,
-        filename=shader_node_group_name,
-        directory=filedir,
-    )

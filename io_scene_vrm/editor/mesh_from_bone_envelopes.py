@@ -4,7 +4,7 @@ from typing import Set
 import bpy
 from mathutils import Vector
 
-from ..importer.blend_model import shader_node_group_import
+from ..shader import shader_node_group_import
 
 
 class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
