@@ -7,8 +7,8 @@ from bpy_extras.io_utils import ImportHelper
 
 from .. import lang
 from ..preferences import use_legacy_importer_exporter
-from . import blend_model, py_model
-from .py_model import PyModel
+from . import blend_model
+from .py_model import LicenseConfirmationRequired, PyModel
 
 
 class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -44,7 +44,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                 context,
                 license_check=True,
             )
-        except py_model.LicenseConfirmationRequired as e:
+        except LicenseConfirmationRequired as e:
             license_error = e  # Prevent traceback dump on another exception
 
         print(license_error.description())
