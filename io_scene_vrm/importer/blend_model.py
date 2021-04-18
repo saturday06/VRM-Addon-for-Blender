@@ -32,7 +32,16 @@ from .. import vrm_types
 from ..gl_constants import GlConstants
 from ..misc import glb_factory, make_armature, vrm_helper
 from ..vrm_types import nested_json_value_getter as json_get
-from .vrm_load import parse_glb, remove_unsafe_path_chars
+from .py_model import (
+    PyMaterial,
+    PyMaterialGltf,
+    PyMaterialMtoon,
+    PyMaterialTransparentZWrite,
+    PyMesh,
+    PyModel,
+    parse_glb,
+    remove_unsafe_path_chars,
+)
 
 
 class RetryUsingLegacyImporter(Exception):
@@ -43,7 +52,7 @@ class BlendModel:
     def __init__(
         self,
         context: bpy.types.Context,
-        vrm_pydata: vrm_types.VrmPydata,
+        py_model: PyModel,
         extract_textures_into_folder: bool,
         make_new_texture_folder: bool,
         legacy_importer: bool,
@@ -58,7 +67,7 @@ class BlendModel:
         self.temp_object_name_count = 0
 
         self.context = context
-        self.vrm_pydata = vrm_pydata
+        self.py_model = py_model
         self.images: Dict[int, bpy.types.Image] = {}
         self.armature: Optional[bpy.types.Object] = None
         self.bones: Dict[int, bpy.types.Bone] = {}
@@ -127,7 +136,7 @@ class BlendModel:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
     def parse_vrm_extension(self) -> None:
-        json_dict = self.vrm_pydata.json
+        json_dict = self.py_model.json
         vrm1_draft = json_get(json_dict, ["extensions", "VRMC_vrm-1.0_draft"])
         if not isinstance(vrm1_draft, dict):
             vrm1_draft = json_get(json_dict, ["extensions", "VRMC_vrm-1.0"])
@@ -143,7 +152,7 @@ class BlendModel:
         self.vrm0_extension = vrm0
 
     def summon(self) -> None:
-        with open(self.vrm_pydata.filepath, "rb") as f:
+        with open(self.py_model.filepath, "rb") as f:
             json_dict, body_binary = parse_glb(f.read())
 
         for key in ["nodes", "materials", "meshes"]:
@@ -544,8 +553,8 @@ class BlendModel:
                     bone_node_index = bone.get(extras_node_index_key)
                     if not isinstance(bone_node_index, int):
                         continue
-                    if 0 <= bone_node_index < len(self.vrm_pydata.json["nodes"]):
-                        node = self.vrm_pydata.json["nodes"][bone_node_index]
+                    if 0 <= bone_node_index < len(self.py_model.json["nodes"]):
+                        node = self.py_model.json["nodes"][bone_node_index]
                         node["name"] = bone.name
                     del bone[extras_node_index_key]
                     self.bones[bone_node_index] = bone
@@ -757,7 +766,7 @@ class BlendModel:
         # image_path_to Texture
 
     def texture_load(self) -> None:
-        for (image_index, image_props) in enumerate(self.vrm_pydata.image_properties):
+        for (image_index, image_props) in enumerate(self.py_model.image_properties):
             img = bpy.data.images.load(image_props.filepath)
             if not self.extract_textures_into_folder:
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.82-release/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L100
@@ -770,12 +779,11 @@ class BlendModel:
         json_texture_index = json_get(self.vrm0_extension, ["meta", "texture"], -1)
         if not isinstance(json_texture_index, int):
             raise Exception('json["extensions"]["VRM"]["meta"]["texture"] is not int')
-        json_textures = self.vrm_pydata.json.get("textures", [])
+        json_textures = self.py_model.json.get("textures", [])
         if not isinstance(json_textures, list):
             raise Exception('json["textures"] is not list')
         if json_texture_index not in (-1, None) and (
-            "textures" in self.vrm_pydata.json
-            and len(json_textures) > json_texture_index
+            "textures" in self.py_model.json and len(json_textures) > json_texture_index
         ):
             image_index = json_textures[json_texture_index].get("source")
             if image_index in self.images:
@@ -796,7 +804,7 @@ class BlendModel:
             if node_id == -1:  # 自身がrootのrootの時
                 return
 
-            py_bone = self.vrm_pydata.nodes_dict[node_id]
+            py_bone = self.py_model.nodes_dict[node_id]
             if py_bone.blend_bone:  # すでに割り当て済みのボーンが出てきたとき、その親の位置に動かす
                 if parent_node_id == -1 or py_bone.blend_bone.parent is not None:
                     return
@@ -851,7 +859,7 @@ class BlendModel:
                 mean_relate_pos = numpy.array([0.0, 0.0, 0.0], dtype=numpy.float)
                 for child_id in py_bone.children:
                     mean_relate_pos += self.axis_glb_to_blender(
-                        self.vrm_pydata.nodes_dict[child_id].position
+                        self.py_model.nodes_dict[child_id].position
                     )
                 children_len = len(py_bone.children)
                 if children_len > 0:
@@ -873,13 +881,13 @@ class BlendModel:
                     bone_nodes.append((x, node_id))
 
         # endregion bone recursive func
-        root_node_set = list(dict.fromkeys(self.vrm_pydata.skins_root_node_list))
+        root_node_set = list(dict.fromkeys(self.py_model.skins_root_node_list))
         root_nodes = (
             root_node_set
             if root_node_set
             else [
                 node
-                for scene in self.vrm_pydata.json["scenes"]
+                for scene in self.py_model.json["scenes"]
                 for node in scene["nodes"]
             ]
         )
@@ -888,13 +896,13 @@ class BlendModel:
         def find_connected_node_ids(parent_node_ids: Sequence[int]) -> Set[int]:
             node_ids = set(parent_node_ids)
             for parent_node_id in parent_node_ids:
-                py_bone = self.vrm_pydata.nodes_dict[parent_node_id]
+                py_bone = self.py_model.nodes_dict[parent_node_id]
                 if py_bone.children is not None:
                     node_ids |= find_connected_node_ids(py_bone.children)
             return node_ids
 
         for node_id in sorted(find_connected_node_ids(root_nodes)):
-            bone_name = self.vrm_pydata.nodes_dict[node_id].name
+            bone_name = self.py_model.nodes_dict[node_id].name
             armature_edit_bones[node_id] = self.armature.data.edit_bones.new(bone_name)
 
         bone_nodes = [(root_node, -1) for root_node in root_nodes]
@@ -905,7 +913,7 @@ class BlendModel:
         bpy.ops.object.mode_set(mode="OBJECT")
 
     def extract_textures(self) -> None:
-        dir_path = os.path.abspath(self.vrm_pydata.filepath) + ".textures"
+        dir_path = os.path.abspath(self.py_model.filepath) + ".textures"
         if self.make_new_texture_folder:
             for i in range(100001):
                 checking_dir_path = dir_path if i == 0 else f"{dir_path}.{i}"
@@ -957,20 +965,20 @@ class BlendModel:
     # region material
     def make_material(self) -> None:
         # 適当なので要調整
-        for index, mat in enumerate(self.vrm_pydata.materials):
+        for index, mat in enumerate(self.py_model.materials):
             if (
                 bpy.app.version >= (2, 83)
-                and isinstance(mat, vrm_types.MaterialGltf)
+                and isinstance(mat, PyMaterialGltf)
                 and not mat.vrm_addon_for_blender_legacy_gltf_material
             ):
                 continue
             b_mat = bpy.data.materials.new(mat.name)
             b_mat["shader_name"] = mat.shader_name
-            if isinstance(mat, vrm_types.MaterialGltf):
+            if isinstance(mat, PyMaterialGltf):
                 self.build_material_from_gltf(b_mat, mat)
-            elif isinstance(mat, vrm_types.MaterialMtoon):
+            elif isinstance(mat, PyMaterialMtoon):
                 self.build_material_from_mtoon(b_mat, mat)
-            elif isinstance(mat, vrm_types.MaterialTransparentZWrite):
+            elif isinstance(mat, PyMaterialTransparentZWrite):
                 self.build_material_from_transparent_z_write(b_mat, mat)
             else:
                 print(f"unknown material {mat.name}")
@@ -1002,14 +1010,14 @@ class BlendModel:
     def set_material_transparent(
         self,
         b_mat: bpy.types.Material,
-        pymat: vrm_types.Material,
+        pymat: PyMaterial,
         transparent_mode: str,
     ) -> None:
         if transparent_mode == "OPAQUE":
             pass
         elif transparent_mode == "CUTOUT":
             b_mat.blend_method = "CLIP"
-            if isinstance(pymat, vrm_types.MaterialMtoon):  # TODO: TransparentZWrite?
+            if isinstance(pymat, PyMaterialMtoon):  # TODO: TransparentZWrite?
                 b_mat.alpha_threshold = pymat.float_props_dic.get("_Cutoff", 0.5)
             else:
                 b_mat.alpha_threshold = getattr(pymat, "alphaCutoff", 0.5)
@@ -1063,11 +1071,11 @@ class BlendModel:
         color_socket_to_connect: Optional[bpy.types.NodeSocketColor] = None,
         alpha_socket_to_connect: Optional[bpy.types.NodeSocketFloat] = None,
     ) -> bpy.types.ShaderNodeTexImage:
-        tex = self.vrm_pydata.json["textures"][tex_index]
+        tex = self.py_model.json["textures"][tex_index]
         image_index = tex["source"]
         sampler = (
-            self.vrm_pydata.json["samplers"][tex["sampler"]]
-            if "samplers" in self.vrm_pydata.json
+            self.py_model.json["samplers"][tex["sampler"]]
+            if "samplers" in self.py_model.json
             else [{"wrapS": GlConstants.REPEAT, "magFilter": GlConstants.LINEAR}]
         )
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
@@ -1141,7 +1149,7 @@ class BlendModel:
     # endregion material_util func
 
     def build_principle_from_gltf_mat(
-        self, b_mat: bpy.types.Material, pymat: vrm_types.MaterialGltf
+        self, b_mat: bpy.types.Material, pymat: PyMaterialGltf
     ) -> None:
         self.material_init(b_mat)
         principled_node = b_mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
@@ -1180,7 +1188,7 @@ class BlendModel:
         b_mat.use_backface_culling = not pymat.double_sided
 
     def build_material_from_gltf(
-        self, b_mat: bpy.types.Material, pymat: vrm_types.MaterialGltf
+        self, b_mat: bpy.types.Material, pymat: PyMaterialGltf
     ) -> None:
         self.material_init(b_mat)
         gltf_node_name = "GLTF"
@@ -1233,7 +1241,7 @@ class BlendModel:
         b_mat.use_backface_culling = not pymat.double_sided
 
     def build_material_from_mtoon(
-        self, b_mat: bpy.types.Material, pymat: vrm_types.MaterialMtoon
+        self, b_mat: bpy.types.Material, pymat: PyMaterialMtoon
     ) -> None:
         self.material_init(b_mat)
 
@@ -1320,14 +1328,14 @@ class BlendModel:
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_index is None:
                 continue
-            image_index = self.vrm_pydata.json["textures"][tex_index]["source"]
+            image_index = self.py_model.json["textures"][tex_index]["source"]
             if image_index not in self.images:
                 continue
             if tex_name not in tex_dic.keys():
                 if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
                 b_mat["unknown_texture"].update(
-                    {tex_name: self.vrm_pydata.json["textures"][tex_index]["name"]}
+                    {tex_name: self.py_model.json["textures"][tex_index]["name"]}
                 )
                 print(f"unknown texture {tex_name}")
             elif tex_name == "_MainTex":
@@ -1402,7 +1410,7 @@ class BlendModel:
         self.set_material_transparent(b_mat, pymat, transparent_mode)
 
     def build_material_from_transparent_z_write(
-        self, b_mat: bpy.types.Material, pymat: vrm_types.MaterialTransparentZWrite
+        self, b_mat: bpy.types.Material, pymat: PyMaterialTransparentZWrite
     ) -> None:
         self.material_init(b_mat)
 
@@ -1437,15 +1445,15 @@ class BlendModel:
         if armature is None:
             raise Exception("armature is None")
         self.primitive_obj_dict = {
-            pymesh[0].object_id: [] for pymesh in self.vrm_pydata.meshes
+            pymesh[0].object_id: [] for pymesh in self.py_model.meshes
         }
         morph_cache_dict: Dict[
             Tuple[int, int], List[List[float]]
         ] = {}  # key:tuple(POSITION,targets.POSITION),value:points_data
         # mesh_obj_build
         mesh_progress = 0.0
-        mesh_progress_unit = 1 / max(1, len(self.vrm_pydata.meshes))
-        for pymesh in self.vrm_pydata.meshes:
+        mesh_progress_unit = 1 / max(1, len(self.py_model.meshes))
+        for pymesh in self.py_model.meshes:
             b_mesh = bpy.data.meshes.new(pymesh[0].name)
             face_index = [tri for prim in pymesh for tri in prim.face_indices]
             if pymesh[0].POSITION is None:
@@ -1459,7 +1467,7 @@ class BlendModel:
             # region obj setting
             # origin 0:Vtype_Node 1:mesh 2:skin
             origin = None
-            for key_is_node_id, node in self.vrm_pydata.origin_nodes_dict.items():
+            for key_is_node_id, node in self.py_model.origin_nodes_dict.items():
                 if node[1] != pymesh[0].object_id:
                     continue
                 # origin boneの場所に移動
@@ -1469,7 +1477,7 @@ class BlendModel:
                     continue
                 # len=2 ≒ skinがない場合
                 parent_node_id = None
-                for node_id, py_node in self.vrm_pydata.nodes_dict.items():
+                for node_id, py_node in self.py_model.nodes_dict.items():
                     if py_node.children is None:
                         continue
                     if key_is_node_id in py_node.children:
@@ -1477,7 +1485,7 @@ class BlendModel:
                 obj.parent_type = "BONE"
                 if parent_node_id is not None:
                     obj.parent_bone = armature.data.bones[
-                        self.vrm_pydata.nodes_dict[parent_node_id].name
+                        self.py_model.nodes_dict[parent_node_id].name
                     ].name
                 if (
                     obj.parent_bone is None
@@ -1502,14 +1510,14 @@ class BlendModel:
             # region  vertex groupの作成
             if origin is not None:
                 # TODO bone名の不具合などでリネームが発生してるとうまくいかない
-                nodes_index_list = self.vrm_pydata.skins_joints_list[origin[2]]
+                nodes_index_list = self.py_model.skins_joints_list[origin[2]]
                 # TODO bone名の不具合などでリネームが発生してるとうまくいかない
                 # VertexGroupに頂点属性から一個ずつウェイトを入れる用の辞書作り
                 for prim in pymesh:
                     if prim.JOINTS_0 is not None and prim.WEIGHTS_0 is not None:
                         # 使うkey(bone名)のvalueを空のリストで初期化(中身まで全部内包表記で?キモすぎるからしない。
                         vg_dict: Dict[str, List[Tuple[int, float]]] = {
-                            self.vrm_pydata.nodes_dict[
+                            self.py_model.nodes_dict[
                                 nodes_index_list[joint_id]
                             ].name: list()
                             for joint_id in [
@@ -1539,7 +1547,7 @@ class BlendModel:
                                     sort_nodes_index_list,
                                     sort_vg_dict,
                                 ) = sort_data
-                                name = self.vrm_pydata.nodes_dict[
+                                name = self.py_model.nodes_dict[
                                     sort_nodes_index_list[sort_joint_id]
                                 ].name
                                 keys = list(sort_vg_dict.keys())
@@ -1573,9 +1581,9 @@ class BlendModel:
                             for joint_id, weight in normalized_joint_dic.items():
                                 node_id = nodes_index_list[joint_id]
                                 # TODO bone名の不具合などでリネームが発生してるとうまくいかない
-                                vg_dict[
-                                    self.vrm_pydata.nodes_dict[node_id].name
-                                ].append((v_index, weight))
+                                vg_dict[self.py_model.nodes_dict[node_id].name].append(
+                                    (v_index, weight)
+                                )
                         vg_list = []  # VertexGroupのリスト
                         for vg_key in vg_dict.keys():
                             if vg_key not in obj.vertex_groups:
@@ -1706,7 +1714,7 @@ class BlendModel:
             def absolutize_morph_positions(
                 base_points: List[List[float]],
                 morph_target_pos_and_index: List[Any],
-                prim: vrm_types.Mesh,
+                prim: PyMesh,
             ) -> List[List[float]]:
                 shape_key_positions = []
                 morph_target_pos = morph_target_pos_and_index[0]
@@ -1790,7 +1798,7 @@ class BlendModel:
                 raise Exception(
                     f'json extensions.VRM.humanoid.humanBones[{i}]["node"] is not int but {node_index}'
                 )
-            node_name = self.vrm_pydata.json["nodes"][node_index]["name"]
+            node_name = self.py_model.json["nodes"][node_index]["name"]
             if node_name not in armature.data.bones:
                 continue
             armature.data.bones[node_name]["humanBone"] = node_index
@@ -1802,12 +1810,12 @@ class BlendModel:
         for metatag, metainfo in vrm_meta.items():
             if metatag == "texture":
                 if (
-                    "textures" in self.vrm_pydata.json
+                    "textures" in self.py_model.json
                     # extensions.VRM.meta.texture could be -1
                     # https://github.com/vrm-c/UniVRM/issues/91#issuecomment-454284964
-                    and 0 <= metainfo < len(self.vrm_pydata.json["textures"])
+                    and 0 <= metainfo < len(self.py_model.json["textures"])
                 ):
-                    image_index = self.vrm_pydata.json["textures"][metainfo]["source"]
+                    image_index = self.py_model.json["textures"][metainfo]["source"]
                     if image_index in self.images:
                         armature[metatag] = self.images[image_index].name
             else:
@@ -1820,7 +1828,7 @@ class BlendModel:
         if not isinstance(vrm0_extension, dict):
             raise Exception("json extensions VRM is not dict")
         textblock = bpy.data.texts.new(name="raw.json")
-        textblock.write(json.dumps(self.vrm_pydata.json, indent=4))
+        textblock.write(json.dumps(self.py_model.json, indent=4))
 
         def write_textblock_and_assign_to_armature(block_name: str, value: str) -> None:
             text_block = bpy.data.texts.new(name=f"{block_name}.json")
@@ -1839,9 +1847,9 @@ class BlendModel:
         first_person_params = copy.deepcopy(vrm0_extension["firstPerson"])
         first_person_bone = json_get(first_person_params, ["firstPersonBone"], -1)
         if isinstance(first_person_bone, int) and 0 <= first_person_bone < len(
-            self.vrm_pydata.json["nodes"]
+            self.py_model.json["nodes"]
         ):
-            first_person_params["firstPersonBone"] = self.vrm_pydata.json["nodes"][
+            first_person_params["firstPersonBone"] = self.py_model.json["nodes"][
                 first_person_bone
             ]["name"]
         if isinstance(first_person_params.get("meshAnnotations"), list):
@@ -1849,11 +1857,9 @@ class BlendModel:
             for mesh_annotation in first_person_params["meshAnnotations"]:
                 mesh = mesh_annotation["mesh"]
                 if isinstance(mesh, int) and 0 <= mesh < len(
-                    self.vrm_pydata.json["meshes"]
+                    self.py_model.json["meshes"]
                 ):
-                    mesh_annotation["mesh"] = self.vrm_pydata.json["meshes"][mesh][
-                        "name"
-                    ]
+                    mesh_annotation["mesh"] = self.py_model.json["meshes"][mesh]["name"]
 
         write_textblock_and_assign_to_armature(
             "firstPerson_params", first_person_params
@@ -1873,9 +1879,9 @@ class BlendModel:
         for blendshape_group in blendshape_groups:
             for bind_dic in blendshape_group.get("binds", []):
                 try:
-                    bind_dic["index"] = self.vrm_pydata.json["meshes"][
-                        bind_dic["mesh"]
-                    ]["primitives"][0]["extras"]["targetNames"][bind_dic["index"]]
+                    bind_dic["index"] = self.py_model.json["meshes"][bind_dic["mesh"]][
+                        "primitives"
+                    ][0]["extras"]["targetNames"][bind_dic["index"]]
                 except KeyError:
                     legacy_vrm0 = True
                     break
@@ -1901,17 +1907,17 @@ class BlendModel:
         for bone_group in spring_bonegroup_list:
             center_node_id = bone_group.get("center")
             if isinstance(center_node_id, int) and 0 <= center_node_id < len(
-                self.vrm_pydata.json["nodes"]
+                self.py_model.json["nodes"]
             ):
-                bone_group["center"] = self.vrm_pydata.json["nodes"][center_node_id][
+                bone_group["center"] = self.py_model.json["nodes"][center_node_id][
                     "name"
                 ]
             bone_group["bones"] = [
-                self.vrm_pydata.json["nodes"][node_id]["name"]
+                self.py_model.json["nodes"][node_id]["name"]
                 for node_id in bone_group["bones"]
             ]
             bone_group["colliderGroups"] = [
-                self.vrm_pydata.json["nodes"][
+                self.py_model.json["nodes"][
                     collider_groups_list[collider_gp_id]["node"]
                 ]["name"]
                 for collider_gp_id in bone_group["colliderGroups"]
@@ -1991,7 +1997,7 @@ class BlendModel:
             return
         spring_rootbone_groups_json = secondary_animation_json["boneGroups"]
         collider_groups_json = secondary_animation_json["colliderGroups"]
-        nodes_json = self.vrm_pydata.json["nodes"]
+        nodes_json = self.py_model.json["nodes"]
         for bone_group in spring_rootbone_groups_json:
             for bone_id in bone_group["bones"]:
                 node_name = nodes_json[bone_id]["name"]
@@ -2007,7 +2013,7 @@ class BlendModel:
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
         for collider_group in collider_groups_json:
-            collider_base_node = self.vrm_pydata.json["nodes"][collider_group["node"]]
+            collider_base_node = self.py_model.json["nodes"][collider_group["node"]]
             node_name = collider_base_node["name"]
             for i, collider in enumerate(collider_group["colliders"]):
                 if node_name not in armature.data.bones:

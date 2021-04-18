@@ -18,7 +18,7 @@ from os.path import dirname
 sys.path.insert(0, dirname(dirname(__file__)))
 
 # pylint: disable=wrong-import-position;
-from io_scene_vrm.importer.vrm_load import parse_glb  # noqa: E402
+from io_scene_vrm.importer.py_model import parse_glb  # noqa: E402
 
 # pylint: enable=wrong-import-position;
 

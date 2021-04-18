@@ -14,7 +14,8 @@ from bpy.app.handlers import persistent
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from . import vrm_types
-from .importer import blend_model, vrm_load
+from .importer import blend_model
+from .importer.py_model import LicenseConfirmationRequired, PyModel
 from .misc import (
     detail_mesh_maker,
     glb_factory,
@@ -81,7 +82,7 @@ class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
                 context,
                 license_check=True,
             )
-        except vrm_load.LicenseConfirmationRequired as e:
+        except LicenseConfirmationRequired as e:
             license_error = e  # Prevent traceback dump on another exception
 
         print(license_error.description())
@@ -130,7 +131,7 @@ def create_blend_model(
     try:
         if not legacy_importer:
             with contextlib.suppress(blend_model.RetryUsingLegacyImporter):
-                vrm_pydata = vrm_load.read_vrm(
+                py_model = PyModel(
                     addon.filepath,
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
@@ -139,14 +140,14 @@ def create_blend_model(
                 )
                 blend_model.BlendModel(
                     context,
-                    vrm_pydata,
+                    py_model,
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
                     legacy_importer=legacy_importer,
                 )
                 return {"FINISHED"}
 
-        vrm_pydata = vrm_load.read_vrm(
+        py_model = PyModel(
             addon.filepath,
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
@@ -155,7 +156,7 @@ def create_blend_model(
         )
         blend_model.BlendModel(
             context,
-            vrm_pydata,
+            py_model,
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
             legacy_importer=True,

@@ -10,8 +10,6 @@ import struct
 from sys import float_info
 from typing import Any, Dict, List, Optional, Sequence, Union, cast
 
-import bpy
-
 
 class Gltf:
     TEXTURE_INPUT_NAMES = [
@@ -71,56 +69,6 @@ class Vrm0:
 class Vrm1:
     METAS: List[str] = []
     REQUIRED_METAS: Dict[str, str] = {}
-
-
-class VrmPydata:
-    def __init__(self, filepath: str, json: Dict[str, Any]) -> None:
-        self.filepath = filepath
-        self.json = json
-        self.decoded_binary: List[Any] = []
-        self.image_properties: List[ImageProps] = []
-        self.meshes: List[List[Mesh]] = []
-        self.materials: List[Material] = []
-        self.nodes_dict: Dict[int, Node] = {}
-        self.origin_nodes_dict: Dict[int, List[Any]] = {}
-        self.skins_joints_list: List[List[int]] = []
-        self.skins_root_node_list: List[int] = []
-
-
-class Mesh:
-    def __init__(self, object_id: int) -> None:
-        self.name = ""
-        self.face_indices: Any = []  # ndarray
-        self.skin_id: Optional[int] = None
-        self.object_id = object_id
-        self.material_index: Optional[int] = None
-        self.POSITION_accessor: Optional[int] = None
-        self.POSITION: Optional[List[List[float]]] = None
-        self.JOINTS_0: Optional[List[List[int]]] = None
-        self.WEIGHTS_0: Optional[List[List[float]]] = None
-        self.NORMAL: Optional[List[List[float]]] = None
-        self.vert_normal_normalized: Optional[bool] = None
-        self.morph_target_point_list_and_accessor_index_dict: Optional[
-            Dict[str, List[Any]]
-        ] = None
-
-
-class Node:
-    def __init__(
-        self,
-        name: str,
-        position: Sequence[float],
-        rotation: Sequence[float],
-        scale: Sequence[float],
-    ) -> None:
-        self.name = name
-        self.position = position
-        self.rotation = rotation
-        self.scale = scale
-        self.children: Optional[List[int]] = None
-        self.blend_bone: Optional[bpy.types.Bone] = None
-        self.mesh_id: Optional[int] = None
-        self.skin_id: Optional[int] = None
 
 
 class HumanBones:
@@ -251,48 +199,7 @@ class HumanBones:
     }
 
 
-class ImageProps:
-    def __init__(self, name: str, filepath: str, filetype: str) -> None:
-        self.name = name
-        self.filepath = filepath
-        self.filetype = filetype
-
-
-class Material:
-    def __init__(self) -> None:
-        self.name = ""
-        self.shader_name = ""
-
-
-class MaterialGltf(Material):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.base_color: List[float] = [1, 1, 1, 1]
-        self.metallic_factor: float = 1
-        self.roughness_factor: float = 1
-        self.emissive_factor: List[float] = [0, 0, 0]
-
-        self.color_texture_index: Optional[int] = None
-        self.color_texcoord_index: Optional[int] = None
-        self.metallic_roughness_texture_index: Optional[int] = None
-        self.metallic_roughness_texture_texcoord: Optional[int] = None
-        self.normal_texture_index: Optional[int] = None
-        self.normal_texture_texcoord_index: Optional[int] = None
-        self.emissive_texture_index: Optional[int] = None
-        self.emissive_texture_texcoord_index: Optional[int] = None
-        self.occlusion_texture_index: Optional[int] = None
-        self.occlusion_texture_texcoord_index: Optional[int] = None
-        self.alphaCutoff: Optional[float] = None
-
-        self.double_sided = False
-        self.alpha_mode = "OPAQUE"
-        self.shadeless = 0  # 0 is shade ,1 is shadeless
-
-        self.vrm_addon_for_blender_legacy_gltf_material = False
-
-
-class MaterialTransparentZWrite(Material):
+class MaterialTransparentZWrite:
     float_props = [
         "_MainTex",
         "_Cutoff",
@@ -306,20 +213,8 @@ class MaterialTransparentZWrite(Material):
     texture_index_list = ["_MainTex"]
     vector_props = ["_Color"]
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.float_props_dic: Dict[str, Optional[float]] = {
-            prop: None for prop in self.float_props
-        }
-        self.vector_props_dic: Dict[str, Optional[List[float]]] = {
-            prop: None for prop in self.vector_props
-        }
-        self.texture_index_dic: Dict[str, Optional[int]] = {
-            tex: None for tex in self.texture_index_list
-        }
 
-
-class MaterialMtoon(Material):
+class MaterialMtoon:
     # {key = MToonProp, val = ShaderNodeGroup_member_name}
     version = 32
     float_props_exchange_dic: Dict[str, Optional[str]] = {
@@ -390,20 +285,6 @@ class MaterialMtoon(Material):
         "MTOON_DEBUG_LITSHADERATE",
     ]
     tagmap_list = ["RenderType"]
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.float_props_dic: Dict[str, Optional[float]] = {
-            prop: None for prop in self.float_props_exchange_dic
-        }
-        self.vector_props_dic: Dict[str, Optional[Sequence[float]]] = {
-            prop: None for prop in self.vector_props_exchange_dic
-        }
-        self.texture_index_dic: Dict[str, Optional[int]] = {
-            prop: None for prop in self.texture_kind_exchange_dic
-        }
-        self.keyword_dic: Dict[str, bool] = {kw: False for kw in self.keyword_list}
-        self.tag_dic: Dict[str, Optional[str]] = {tag: None for tag in self.tagmap_list}
 
 
 def make_json_return_value(

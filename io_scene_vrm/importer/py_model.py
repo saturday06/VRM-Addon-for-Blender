@@ -14,17 +14,180 @@ import sys
 import tempfile
 from collections import OrderedDict
 from itertools import repeat
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
+import bpy
 import numpy
 
 from .. import vrm_types
 from ..gl_constants import GlConstants
 from ..misc import vrm_helper
 from ..vrm_types import nested_json_value_getter as json_get
-from . import vrm2pydata_factory
 from .binary_reader import BinaryReader
+
+
+class PyModel:
+    def __init__(
+        self,
+        model_path: str,
+        extract_textures_into_folder: bool,
+        make_new_texture_folder: bool,
+        license_check: bool,
+        legacy_importer: bool,
+    ) -> None:
+        self.filepath = model_path
+        self.decoded_binary: List[Any] = []
+        self.image_properties: List[ImageProps] = []
+        self.meshes: List[List[PyMesh]] = []
+        self.materials: List[PyMaterial] = []
+        self.nodes_dict: Dict[int, PyNode] = {}
+        self.origin_nodes_dict: Dict[int, List[Any]] = {}
+        self.skins_joints_list: List[List[int]] = []
+        self.skins_root_node_list: List[int] = []
+
+        # datachunkは普通一つしかない
+        with open(model_path, "rb") as f:
+            json_dict, body_binary = parse_glb(f.read())
+            self.json = json_dict
+
+        # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
+        if (
+            "extensionsRequired" in self.json
+            and "KHR_DRACO_MESH_COMPRESSION" in self.json["extensionsRequired"]
+        ):
+            raise Exception(
+                "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
+            )
+
+        if license_check:
+            validate_license(self)
+
+        if legacy_importer:
+            texture_rip(
+                self,
+                body_binary,
+                extract_textures_into_folder,
+                make_new_texture_folder,
+            )
+            self.decoded_binary = decode_bin(self.json, body_binary)
+            mesh_read(self)
+            material_read(self)
+            skin_read(self)
+            node_read(self)
+        else:
+            material_read(self)
+
+
+class PyMesh:
+    def __init__(self, object_id: int) -> None:
+        self.name = ""
+        self.face_indices: Any = []  # ndarray
+        self.skin_id: Optional[int] = None
+        self.object_id = object_id
+        self.material_index: Optional[int] = None
+        self.POSITION_accessor: Optional[int] = None
+        self.POSITION: Optional[List[List[float]]] = None
+        self.JOINTS_0: Optional[List[List[int]]] = None
+        self.WEIGHTS_0: Optional[List[List[float]]] = None
+        self.NORMAL: Optional[List[List[float]]] = None
+        self.vert_normal_normalized: Optional[bool] = None
+        self.morph_target_point_list_and_accessor_index_dict: Optional[
+            Dict[str, List[Any]]
+        ] = None
+
+
+class PyNode:
+    def __init__(
+        self,
+        name: str,
+        position: Sequence[float],
+        rotation: Sequence[float],
+        scale: Sequence[float],
+    ) -> None:
+        self.name = name
+        self.position = position
+        self.rotation = rotation
+        self.scale = scale
+        self.children: Optional[List[int]] = None
+        self.blend_bone: Optional[bpy.types.Bone] = None
+        self.mesh_id: Optional[int] = None
+        self.skin_id: Optional[int] = None
+
+
+class PyMaterial:
+    def __init__(self) -> None:
+        self.name = ""
+        self.shader_name = ""
+
+
+class PyMaterialGltf(PyMaterial):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.base_color: List[float] = [1, 1, 1, 1]
+        self.metallic_factor: float = 1
+        self.roughness_factor: float = 1
+        self.emissive_factor: List[float] = [0, 0, 0]
+
+        self.color_texture_index: Optional[int] = None
+        self.color_texcoord_index: Optional[int] = None
+        self.metallic_roughness_texture_index: Optional[int] = None
+        self.metallic_roughness_texture_texcoord: Optional[int] = None
+        self.normal_texture_index: Optional[int] = None
+        self.normal_texture_texcoord_index: Optional[int] = None
+        self.emissive_texture_index: Optional[int] = None
+        self.emissive_texture_texcoord_index: Optional[int] = None
+        self.occlusion_texture_index: Optional[int] = None
+        self.occlusion_texture_texcoord_index: Optional[int] = None
+        self.alphaCutoff: Optional[float] = None
+
+        self.double_sided = False
+        self.alpha_mode = "OPAQUE"
+        self.shadeless = 0  # 0 is shade ,1 is shadeless
+
+        self.vrm_addon_for_blender_legacy_gltf_material = False
+
+
+class PyMaterialTransparentZWrite(PyMaterial):
+    def __init__(self) -> None:
+        super().__init__()
+        self.float_props_dic: Dict[str, Optional[float]] = {
+            prop: None for prop in vrm_types.MaterialTransparentZWrite.float_props
+        }
+        self.vector_props_dic: Dict[str, Optional[List[float]]] = {
+            prop: None for prop in vrm_types.MaterialTransparentZWrite.vector_props
+        }
+        self.texture_index_dic: Dict[str, Optional[int]] = {
+            tex: None for tex in vrm_types.MaterialTransparentZWrite.texture_index_list
+        }
+
+
+class PyMaterialMtoon(PyMaterial):
+    def __init__(self) -> None:
+        super().__init__()
+        self.float_props_dic: Dict[str, Optional[float]] = {
+            prop: None for prop in vrm_types.MaterialMtoon.float_props_exchange_dic
+        }
+        self.vector_props_dic: Dict[str, Optional[Sequence[float]]] = {
+            prop: None for prop in vrm_types.MaterialMtoon.vector_props_exchange_dic
+        }
+        self.texture_index_dic: Dict[str, Optional[int]] = {
+            prop: None for prop in vrm_types.MaterialMtoon.texture_kind_exchange_dic
+        }
+        self.keyword_dic: Dict[str, bool] = {
+            kw: False for kw in vrm_types.MaterialMtoon.keyword_list
+        }
+        self.tag_dic: Dict[str, Optional[str]] = {
+            tag: None for tag in vrm_types.MaterialMtoon.tagmap_list
+        }
+
+
+class ImageProps:
+    def __init__(self, name: str, filepath: str, filetype: str) -> None:
+        self.name = name
+        self.filepath = filepath
+        self.filetype = filetype
 
 
 class LicenseConfirmationRequiredProp:
@@ -119,47 +282,144 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     return json_obj, body if body else bytes()
 
 
-# あくまでvrm(の特にバイナリ)をpythonデータ化するだけで、blender型に変形はここではしない
-def read_vrm(
-    model_path: str,
-    extract_textures_into_folder: bool,
-    make_new_texture_folder: bool,
-    license_check: bool,
-    legacy_importer: bool,
-) -> vrm_types.VrmPydata:
-    # datachunkは普通一つしかない
-    with open(model_path, "rb") as f:
-        json_dict, body_binary = parse_glb(f.read())
-        vrm_pydata = vrm_types.VrmPydata(model_path, json_dict)
-
-    # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
-    if (
-        "extensionsRequired" in vrm_pydata.json
-        and "KHR_DRACO_MESH_COMPRESSION" in vrm_pydata.json["extensionsRequired"]
-    ):
-        raise Exception(
-            "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
-        )
-
-    if license_check:
-        validate_license(vrm_pydata)
-
-    if legacy_importer:
-        texture_rip(
-            vrm_pydata,
-            body_binary,
-            extract_textures_into_folder,
-            make_new_texture_folder,
-        )
-        vrm_pydata.decoded_binary = decode_bin(vrm_pydata.json, body_binary)
-        mesh_read(vrm_pydata)
-        material_read(vrm_pydata)
-        skin_read(vrm_pydata)
-        node_read(vrm_pydata)
+def create_py_bone(node: Dict[str, Any]) -> PyNode:
+    v_node = PyNode(
+        name=node.get("name", "tmp"),
+        position=node.get("translation", [0, 0, 0]),
+        rotation=node.get("rotation", (0, 0, 0, 1)),
+        scale=node.get("scale", (1, 1, 1)),
+    )
+    if "children" in node:
+        children = node["children"]
+        if isinstance(children, int):
+            v_node.children = [children]
+        else:
+            v_node.children = children
     else:
-        material_read(vrm_pydata)
+        v_node.children = None
+    if "mesh" in node:
+        v_node.mesh_id = node["mesh"]
+    if "skin" in node:
+        v_node.skin_id = node["skin"]
+    return v_node
 
-    return vrm_pydata
+
+def create_py_material(
+    mat: Dict[str, Any], ext_mat: Dict[str, Any]
+) -> Optional[PyMaterial]:
+    shader = ext_mat.get("shader")
+
+    # standard, or VRM unsupported shader(no saved)
+    if shader not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]:
+        gltf = PyMaterialGltf()
+        gltf.name = mat.get("name", "")
+        gltf.shader_name = "gltf"
+        if "pbrMetallicRoughness" in mat:
+            pbrmat = mat["pbrMetallicRoughness"]
+            if "baseColorTexture" in pbrmat and isinstance(
+                pbrmat["baseColorTexture"], dict
+            ):
+                texture_index = pbrmat["baseColorTexture"].get("index")
+                gltf.color_texture_index = texture_index
+                gltf.color_texcoord_index = pbrmat["baseColorTexture"].get("texCoord")
+            if "baseColorFactor" in pbrmat:
+                gltf.base_color = pbrmat["baseColorFactor"]
+            if "metallicFactor" in pbrmat:
+                gltf.metallic_factor = pbrmat["metallicFactor"]
+            if "roughnessFactor" in pbrmat:
+                gltf.roughness_factor = pbrmat["roughnessFactor"]
+            if "metallicRoughnessTexture" in pbrmat and isinstance(
+                pbrmat["metallicRoughnessTexture"], dict
+            ):
+                texture_index = pbrmat["metallicRoughnessTexture"].get("index")
+                gltf.metallic_roughness_texture_index = texture_index
+                gltf.metallic_roughness_texture_texcoord = pbrmat[
+                    "metallicRoughnessTexture"
+                ].get("texCoord")
+
+        if "normalTexture" in mat and isinstance(mat["normalTexture"], dict):
+            gltf.normal_texture_index = mat["normalTexture"].get("index")
+            gltf.normal_texture_texcoord_index = mat["normalTexture"].get("texCoord")
+        if "emissiveTexture" in mat and isinstance(mat["emissiveTexture"], dict):
+            gltf.emissive_texture_index = mat["emissiveTexture"].get("index")
+            gltf.emissive_texture_texcoord_index = mat["emissiveTexture"].get(
+                "texCoord"
+            )
+        if "occlusionTexture" in mat and isinstance(mat["occlusionTexture"], dict):
+            gltf.occlusion_texture_index = mat["occlusionTexture"].get("index")
+            gltf.occlusion_texture_texcoord_index = mat["occlusionTexture"].get(
+                "texCoord"
+            )
+        if "emissiveFactor" in mat:
+            gltf.emissive_factor = mat["emissiveFactor"]
+
+        if "doubleSided" in mat:
+            gltf.double_sided = mat["doubleSided"]
+        if "alphaMode" in mat:
+            if mat["alphaMode"] == "MASK":
+                gltf.alpha_mode = "MASK"
+                if mat.get("alphaCutoff"):
+                    gltf.alphaCutoff = mat.get("alphaCutoff")
+                else:
+                    gltf.alphaCutoff = 0.5
+            elif mat["alphaMode"] == "BLEND":
+                gltf.alpha_mode = "Z_TRANSPARENCY"
+            elif mat["alphaMode"] == "OPAQUE":
+                gltf.alpha_mode = "OPAQUE"
+        if "extensions" in mat and "KHR_materials_unlit" in mat["extensions"]:
+            gltf.shadeless = 1  # 0 is shade ,1 is shadeless
+
+        if isinstance(ext_mat.get("extras"), dict) and isinstance(
+            ext_mat["extras"].get("VRM_Addon_for_Blender_legacy_gltf_material"), dict
+        ):
+            gltf.vrm_addon_for_blender_legacy_gltf_material = True
+        return gltf
+
+    # "MToon or Transparent_Zwrite"
+    if shader == "VRM/MToon":
+        mtoon = PyMaterialMtoon()
+        mtoon.name = ext_mat.get("name", "")
+        mtoon.shader_name = ext_mat.get("shader", "")
+        # region check unknown props exist
+        subset = {
+            "float": ext_mat.get("floatProperties", {}).keys()
+            - mtoon.float_props_dic.keys(),
+            "vector": ext_mat.get("vectorProperties", {}).keys()
+            - mtoon.vector_props_dic.keys(),
+            "texture": ext_mat.get("textureProperties", {}).keys()
+            - mtoon.texture_index_dic.keys(),
+            "keyword": ext_mat.get("keywordMap", {}).keys() - mtoon.keyword_dic.keys(),
+        }
+        for k, _subset in subset.items():
+            if _subset:
+                print(
+                    "unknown {} properties {} in {}".format(
+                        k, _subset, ext_mat.get("name")
+                    )
+                )
+        # endregion check unknown props exit
+
+        mtoon.float_props_dic.update(ext_mat.get("floatProperties", {}))
+        mtoon.vector_props_dic.update(ext_mat.get("vectorProperties", {}))
+        mtoon.texture_index_dic.update(ext_mat.get("textureProperties", {}))
+        mtoon.keyword_dic.update(ext_mat.get("keywordMap", {}))
+        mtoon.tag_dic.update(ext_mat.get("tagMap", {}))
+        return mtoon
+
+    if shader == "VRM/UnlitTransparentZWrite":
+        transparent_z_write = PyMaterialTransparentZWrite()
+        transparent_z_write.name = ext_mat.get("name", "")
+        transparent_z_write.shader_name = ext_mat.get("shader", "")
+        transparent_z_write.float_props_dic = ext_mat.get("floatProperties", {})
+        transparent_z_write.vector_props_dic = ext_mat.get("vectorProperties", {})
+        transparent_z_write.texture_index_dic = ext_mat.get("textureProperties", {})
+        return transparent_z_write
+
+    # ここには入らないはず
+    print(
+        f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}"
+    )
+    return None
 
 
 def validate_license_url(
@@ -228,13 +488,13 @@ def validate_uni_virtual_license_url(
     return True
 
 
-def validate_license(vrm_pydata: vrm_types.VrmPydata) -> None:
+def validate_license(py_model: PyModel) -> None:
     confirmations: List[LicenseConfirmationRequiredProp] = []
 
     # 既知の改変不可ライセンスを撥ねる
     # CC_NDなど
     license_name = str(
-        json_get(vrm_pydata.json, ["extensions", "VRM", "meta", "licenseName"], "")
+        json_get(py_model.json, ["extensions", "VRM", "meta", "licenseName"], "")
     )
     if re.match("CC(.*)ND(.*)", license_name):
         confirmations.append(
@@ -249,7 +509,7 @@ def validate_license(vrm_pydata: vrm_types.VrmPydata) -> None:
     validate_license_url(
         str(
             json_get(
-                vrm_pydata.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], ""
+                py_model.json, ["extensions", "VRM", "meta", "otherPermissionUrl"], ""
             )
         ),
         "otherPermissionUrl",
@@ -259,7 +519,7 @@ def validate_license(vrm_pydata: vrm_types.VrmPydata) -> None:
     if license_name == "Other":
         other_license_url_str = str(
             json_get(
-                vrm_pydata.json, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""
+                py_model.json, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""
             )
         )
         if not other_license_url_str:
@@ -333,18 +593,18 @@ def remove_unsafe_path_chars(filename: str) -> str:
 
 
 def texture_rip(
-    vrm_pydata: vrm_types.VrmPydata,
+    py_model: PyModel,
     body_binary: bytes,
     extract_textures_into_folder: bool,
     make_new_texture_folder: bool,
 ) -> None:
-    buffer_views = vrm_pydata.json["bufferViews"]
+    buffer_views = py_model.json["bufferViews"]
     binary_reader = BinaryReader(body_binary)
-    if "images" not in vrm_pydata.json:
+    if "images" not in py_model.json:
         return
 
     if extract_textures_into_folder:
-        dir_path = os.path.abspath(vrm_pydata.filepath) + ".textures"
+        dir_path = os.path.abspath(py_model.filepath) + ".textures"
         if make_new_texture_folder:
             for i in range(100001):
                 checking_dir_path = dir_path if i == 0 else f"{dir_path}.{i}"
@@ -355,7 +615,7 @@ def texture_rip(
     else:
         dir_path = tempfile.mkdtemp()  # TODO: cleanup
 
-    for image_id, image_prop in enumerate(vrm_pydata.json["images"]):
+    for image_id, image_prop in enumerate(py_model.json["images"]):
         if "extra" in image_prop:
             image_name = image_prop["extra"]["name"]
         else:
@@ -384,7 +644,7 @@ def texture_rip(
             with open(image_path, "wb") as image_writer:
                 image_writer.write(image_binary)
         elif image_name in [
-            img.name for img in vrm_pydata.image_properties
+            img.name for img in py_model.image_properties
         ]:  # ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
             written_flag = False
             for i in range(100000):
@@ -405,8 +665,8 @@ def texture_rip(
                 )
         else:
             print(image_name + " Image already exists. Was not overwritten.")
-        image_property = vrm_types.ImageProps(image_name, image_path, image_type)
-        vrm_pydata.image_properties.append(image_property)
+        image_property = ImageProps(image_name, image_path, image_type)
+        py_model.image_properties.append(image_property)
 
 
 #  "accessorの順に" データを読み込んでリストにしたものを返す
@@ -440,12 +700,12 @@ def decode_bin(json_data: Dict[str, Any], binary: bytes) -> List[Any]:
     return decoded_binary
 
 
-def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
+def mesh_read(py_model: PyModel) -> None:
     # メッシュをパースする
-    for n, mesh in enumerate(vrm_pydata.json.get("meshes", [])):
+    for n, mesh in enumerate(py_model.json.get("meshes", [])):
         primitives = []
         for j, primitive in enumerate(mesh.get("primitives", [])):
-            vrm_mesh = vrm_types.Mesh(object_id=n)
+            vrm_mesh = PyMesh(object_id=n)
             if j == 0:  # mesh annotationとの兼ね合い
                 vrm_mesh.name = mesh["name"]
             else:
@@ -457,7 +717,7 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
                 raise Exception(
                     "Unsupported polygon type(:{}) Exception".format(primitive["mode"])
                 )
-            face_indices = vrm_pydata.decoded_binary[primitive["indices"]]
+            face_indices = py_model.decoded_binary[primitive["indices"]]
             # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
             # ATTENTION これだけndarray
             vrm_mesh.face_indices = numpy.reshape(face_indices, (-1, 3))
@@ -468,12 +728,12 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
             # 頂点属性は実装によっては存在しない属性(例えばJOINTSやWEIGHTSがなかったりもする)もあるし、UVや頂点カラー0->Nで増やせる(スキニングは1要素(ボーン4本)限定
             for attr in vertex_attributes.keys():
                 vrm_mesh.__setattr__(
-                    attr, vrm_pydata.decoded_binary[vertex_attributes[attr]]
+                    attr, py_model.decoded_binary[vertex_attributes[attr]]
                 )
 
             # region TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
             legacy_uv_flag = False  # f***
-            gen = str(json_get(vrm_pydata.json, ["assets", "generator"], ""))
+            gen = str(json_get(py_model.json, ["assets", "generator"], ""))
             if re.match("UniGLTF", gen):
                 with contextlib.suppress(ValueError):
                     if float("".join(gen[-4:])) < 1.16:
@@ -503,7 +763,7 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
             if "targets" in primitive:
                 morph_target_point_list_and_accessor_index_dict = OrderedDict()
                 for i, morph_target in enumerate(primitive["targets"]):
-                    pos_array = vrm_pydata.decoded_binary[morph_target["POSITION"]]
+                    pos_array = py_model.decoded_binary[morph_target["POSITION"]]
                     if "extra" in morph_target:  # for old AliciaSolid
                         # accessorのindexを持つのは変換時のキャッシュ対応のため
                         morph_name = str(primitive["targets"][i]["extra"]["name"])
@@ -518,15 +778,15 @@ def mesh_read(vrm_pydata: vrm_types.VrmPydata) -> None:
                     morph_target_point_list_and_accessor_index_dict
                 )
             primitives.append(vrm_mesh)
-        vrm_pydata.meshes.append(primitives)
+        py_model.meshes.append(primitives)
 
     # ここからマテリアル
 
 
-def material_read(vrm_pydata: vrm_types.VrmPydata) -> None:
-    json_materials = vrm_pydata.json.get("materials", [])
+def material_read(py_model: PyModel) -> None:
+    json_materials = py_model.json.get("materials", [])
     vrm_extension_material_properties = json_get(
-        vrm_pydata.json,
+        py_model.json,
         ["extensions", "VRM", "materialProperties"],
         default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(json_materials),
     )
@@ -534,9 +794,9 @@ def material_read(vrm_pydata: vrm_types.VrmPydata) -> None:
         return
 
     for mat, ext_mat in zip(json_materials, vrm_extension_material_properties):
-        material = vrm2pydata_factory.material(mat, ext_mat)
+        material = create_py_material(mat, ext_mat)
         if material is not None:
-            vrm_pydata.materials.append(material)
+            py_model.materials.append(material)
 
     # skinをパース ->バイナリの中身はskinning実装の横着用
     # skinのjointsの(nodesの)indexをvertsのjoints_0は指定してる
@@ -545,23 +805,23 @@ def material_read(vrm_pydata: vrm_types.VrmPydata) -> None:
     # joints:JOINTS_0の指定node番号のindex
 
 
-def skin_read(vrm_pydata: vrm_types.VrmPydata) -> None:
-    for skin in vrm_pydata.json.get("skins", []):
-        vrm_pydata.skins_joints_list.append(skin["joints"])
+def skin_read(py_model: PyModel) -> None:
+    for skin in py_model.json.get("skins", []):
+        py_model.skins_joints_list.append(skin["joints"])
         if "skeleton" in skin:
-            vrm_pydata.skins_root_node_list.append(skin["skeleton"])
+            py_model.skins_root_node_list.append(skin["skeleton"])
 
     # node(ボーン)をパースする->親からの相対位置で記録されている
 
 
-def node_read(vrm_pydata: vrm_types.VrmPydata) -> None:
-    for i, node in enumerate(vrm_pydata.json["nodes"]):
-        vrm_pydata.nodes_dict[i] = vrm2pydata_factory.bone(node)
+def node_read(py_model: PyModel) -> None:
+    for i, node in enumerate(py_model.json["nodes"]):
+        py_model.nodes_dict[i] = create_py_bone(node)
         # TODO こっからorigin_bone
         if "mesh" in node:
-            vrm_pydata.origin_nodes_dict[i] = [vrm_pydata.nodes_dict[i], node["mesh"]]
+            py_model.origin_nodes_dict[i] = [py_model.nodes_dict[i], node["mesh"]]
             if "skin" in node:
-                vrm_pydata.origin_nodes_dict[i].append(node["skin"])
+                py_model.origin_nodes_dict[i].append(node["skin"])
             else:
                 print(node["name"] + "is not have skin")
 
@@ -647,7 +907,7 @@ def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> List[str]:
 
 
 if __name__ == "__main__":
-    read_vrm(
+    PyModel(
         sys.argv[1],
         extract_textures_into_folder=True,
         make_new_texture_folder=True,
