@@ -10,393 +10,12 @@ from typing import Any, Set, cast
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy_extras.io_utils import ExportHelper
 
-from . import importer, vrm_types
-from .editor import (
-    detail_mesh_maker,
-    glsl_drawer,
-    make_armature,
-    mesh_from_bone_envelopes,
-    vrm_helper,
-)
-from .editor.glsl_drawer import GlslDrawObj
+from . import editor, exporter, importer
+from .editor import glsl_drawer, make_armature, vrm_helper
 from .exporter import validation, version
-from .exporter.glb_obj import GlbObj
-from .exporter.validation import lang_support
-from .preferences import (
-    VrmAddonPreferences,
-    addon_package_name,
-    get_preferences,
-    use_legacy_importer_exporter,
-)
-
-
-def export_vrm_update_addon_preferences(
-    export_op: bpy.types.Operator, context: bpy.types.Context
-) -> None:
-    preferences = get_preferences(context)
-    if not preferences:
-        return
-    if bool(preferences.export_invisibles) != bool(export_op.export_invisibles):
-        preferences.export_invisibles = export_op.export_invisibles
-    if bool(preferences.export_only_selections) != bool(
-        export_op.export_only_selections
-    ):
-        preferences.export_only_selections = export_op.export_only_selections
-
-
-class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
-    bl_idname = "export_scene.vrm"
-    bl_label = "Export VRM"
-    bl_description = "Export VRM"
-    bl_options = {"REGISTER", "UNDO"}
-
-    filename_ext = ".vrm"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
-    )
-
-    # vrm_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
-    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export invisible objects",  # noqa: F722
-        update=export_vrm_update_addon_preferences,
-    )
-    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export only selections",  # noqa: F722
-        update=export_vrm_update_addon_preferences,
-    )
-
-    errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
-
-    def execute(self, context: bpy.types.Context) -> Set[str]:
-        if not self.filepath:
-            return {"CANCELLED"}
-        filepath: str = self.filepath
-
-        try:
-            glb_obj = GlbObj(
-                bool(self.export_invisibles), bool(self.export_only_selections)
-            )
-        except GlbObj.ValidationError:
-            return {"CANCELLED"}
-        # vrm_bin =  glb_obj().convert_bpy2glb(self.vrm_version)
-        vrm_bin = glb_obj.convert_bpy2glb("0.0")
-        if vrm_bin is None:
-            return {"CANCELLED"}
-        with open(filepath, "wb") as f:
-            f.write(vrm_bin)
-        return {"FINISHED"}
-
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        preferences = get_preferences(context)
-        if preferences:
-            self.export_invisibles = bool(preferences.export_invisibles)
-            self.export_only_selections = bool(preferences.export_only_selections)
-        if not use_legacy_importer_exporter() and "gltf" not in dir(
-            bpy.ops.export_scene
-        ):
-            return cast(
-                Set[str],
-                bpy.ops.wm.gltf2_addon_disabled_warning(
-                    "INVOKE_DEFAULT",
-                ),
-            )
-        return cast(Set[str], ExportHelper.invoke(self, context, event))
-
-    def draw(self, context: bpy.types.Context) -> None:
-        pass  # Is needed to get panels available
-
-
-class VRM_IMPORTER_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
-    bl_space_type = "FILE_BROWSER"
-    bl_region_type = "TOOL_PROPS"
-    bl_parent_id = "FILE_PT_operator"
-    bl_label = ""
-    bl_options = {"HIDE_HEADER"}
-
-    @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
-        return (
-            str(context.space_data.active_operator.bl_idname) == "EXPORT_SCENE_OT_vrm"
-        )
-
-    def draw(self, context: bpy.types.Context) -> None:
-        layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
-
-        operator = context.space_data.active_operator
-
-        layout.prop(operator, "export_invisibles")
-        layout.prop(operator, "export_only_selections")
-
-        validation.WM_OT_vrmValidator.detect_errors_and_warnings(
-            context, operator.errors, False, layout
-        )
-
-
-def menu_export(export_op: bpy.types.Operator, context: bpy.types.Context) -> None:
-    export_op.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
-
-
-def add_armature(
-    add_armature_op: bpy.types.Operator, context: bpy.types.Context
-) -> None:
-    add_armature_op.layout.operator(
-        make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname,
-        text="VRM Humanoid",
-        icon="OUTLINER_OB_ARMATURE",
-    )
-
-
-def make_mesh(make_mesh_op: bpy.types.Operator, context: bpy.types.Context) -> None:
-    make_mesh_op.layout.separator()
-    make_mesh_op.layout.operator(
-        mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname,
-        text="Mesh from selected armature",
-        icon="PLUGIN",
-    )
-    make_mesh_op.layout.operator(
-        detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,
-        text="(WIP)Face mesh from selected armature and bound mesh",
-        icon="PLUGIN",
-    )
-
-
-class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
-    bl_idname = "ICYP_PT_ui_controller"
-    bl_label = "VRM Helper"
-    # どこに置くかの定義
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "VRM"
-
-    @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(context.active_object)
-
-    def draw(self, context: bpy.types.Context) -> None:
-        active_object = context.active_object
-        mode = context.mode
-        layout = self.layout
-        object_type = active_object.type
-        data = active_object.data
-
-        # region helper
-        def armature_ui() -> None:
-            layout.separator()
-            armature_box = layout.row(align=False).box()
-            armature_box.label(text="Armature Help")
-            armature_box.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
-            layout.separator()
-
-            requires_box = armature_box.box()
-            requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
-            for req in vrm_types.HumanBones.center_req[::-1]:
-                icon = "USER"
-                if req in data:
-                    requires_box.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    requires_box.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            row = requires_box.row()
-            column = row.column()
-            for req in vrm_types.HumanBones.right_arm_req:
-                icon = "VIEW_PAN"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            column = row.column()
-            for req in vrm_types.HumanBones.left_arm_req:
-                icon = "VIEW_PAN"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            row = requires_box.row()
-            column = row.column()
-            for req in vrm_types.HumanBones.right_leg_req:
-                icon = "HANDLE_AUTO"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            column = row.column()
-            for req in vrm_types.HumanBones.left_leg_req:
-                icon = "HANDLE_AUTO"
-                if req in data:
-                    column.prop_search(
-                        data, f'["{req}"]', data, "bones", text=req, icon=icon
-                    )
-                else:
-                    column.operator(
-                        vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
-                        text=f"Add {req} property",
-                        icon="ADD",
-                    )
-            defines_box = armature_box.box()
-            defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")
-            row = defines_box.row()
-            for defs in ["rightEye"]:
-                icon = "HIDE_OFF"
-                if defs in data:
-                    row.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    row.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in ["leftEye"]:
-                icon = "HIDE_OFF"
-                if defs in data:
-                    row.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    row.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in vrm_types.HumanBones.center_def[::-1]:
-                icon = "USER"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            defines_box.separator()
-            for defs in vrm_types.HumanBones.right_arm_def:
-                icon = "VIEW_PAN"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in vrm_types.HumanBones.right_leg_def:
-                icon = "HANDLE_AUTO"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            defines_box.separator()
-            for defs in vrm_types.HumanBones.left_arm_def:
-                icon = "VIEW_PAN"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            for defs in vrm_types.HumanBones.left_leg_def:
-                icon = "HANDLE_AUTO"
-                if defs in data:
-                    defines_box.prop_search(
-                        data, f'["{defs}"]', data, "bones", text=defs, icon=icon
-                    )
-                else:
-                    defines_box.operator(
-                        vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
-                        text=f"Add {defs} property",
-                        icon="ADD",
-                    )
-            armature_box.label(icon="EXPERIMENTAL", text="EXPERIMENTAL!!!")
-            armature_box.operator(vrm_helper.Bones_rename.bl_idname)
-
-        # endregion helper
-
-        # region draw_main
-        if mode == "OBJECT":
-            object_mode_box = layout.box()
-            preferences = get_preferences(context)
-            if preferences:
-                object_mode_box.prop(
-                    preferences,
-                    "export_invisibles",
-                    text=lang_support("Export invisible objects", "非表示オブジェクトを含める"),
-                )
-                object_mode_box.prop(
-                    preferences,
-                    "export_only_selections",
-                    text=lang_support("Export only selections", "選択されたオブジェクトのみ"),
-                )
-            vrm_validator_prop = object_mode_box.operator(
-                validation.WM_OT_vrmValidator.bl_idname,
-                text=lang_support("Validate VRM model", "VRMモデルのチェック"),
-            )
-            vrm_validator_prop.show_successful_message = True
-            # vrm_validator_prop.errors = []  # これはできない
-            object_mode_box.label(text="MToon preview")
-            if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
-                object_mode_box.operator(glsl_drawer.ICYP_OT_Draw_Model.bl_idname)
-            else:
-                object_mode_box.box().label(
-                    icon="INFO",
-                    text=lang_support("A light is required", "ライトが必要です"),
-                )
-            if GlslDrawObj.draw_objs:
-                object_mode_box.operator(
-                    glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname
-                )
-            if object_type == "ARMATURE":
-                armature_ui()
-            if object_type == "MESH":
-                layout.label(icon="EXPERIMENTAL", text="EXPERIMENTAL!!!")
-                layout.operator(vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname)
-        if mode == "EDIT_MESH":
-            layout.operator(bpy.ops.mesh.symmetry_snap.idname_py())
-
-        if mode == "POSE" and object_type == "ARMATURE":
-            armature_ui()
-        # endregion draw_main
+from .lang import translation_dictionary
+from .preferences import VrmAddonPreferences, addon_package_name
 
 
 class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -444,9 +63,9 @@ classes = [
     validation.VrmValidationError,
     validation.WM_OT_vrmValidator,
     importer.ImportVRM,
-    ExportVRM,
-    VRM_IMPORTER_PT_export_error_messages,
-    VRM_IMPORTER_PT_controller,
+    exporter.ExportVRM,
+    exporter.VRM_IMPORTER_PT_export_error_messages,
+    editor.VRM_IMPORTER_PT_controller,
     make_armature.ICYP_OT_MAKE_ARMATURE,
     glsl_drawer.ICYP_OT_Draw_Model,
     glsl_drawer.ICYP_OT_Remove_Draw_Model,
@@ -454,22 +73,6 @@ classes = [
     # blend_model.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
 ]
-
-translation_dictionary = {
-    "ja_JP": {
-        ("*", "Export invisible objects"): "非表示のオブジェクトも含める",
-        ("*", "Export only selections"): "選択されたオブジェクトのみ",
-        ("*", "MToon preview"): "MToonのプレビュー",
-        ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
-        ("*", "VRM Export"): "VRMエクスポート",
-        ("*", "Validate VRM model"): "VRMモデルのチェック",
-        ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
-        (
-            "*",
-            'Official add-on "glTF 2.0 format" is required. Please enable it.',
-        ): "公式アドオン「glTF 2.0 format」が必要です。有効化してください。",
-    }
-}
 
 
 # アドオン有効化時の処理
@@ -481,9 +84,9 @@ def register(init_version: Any) -> None:
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(importer.menu_import)
-    bpy.types.TOPBAR_MT_file_export.append(menu_export)
-    bpy.types.VIEW3D_MT_armature_add.append(add_armature)
-    # bpy.types.VIEW3D_MT_mesh_add.append(make_mesh)
+    bpy.types.TOPBAR_MT_file_export.append(exporter.menu_export)
+    bpy.types.VIEW3D_MT_armature_add.append(editor.add_armature)
+    # bpy.types.VIEW3D_MT_mesh_add.append(editor.make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
     bpy.app.translations.register(addon_package_name, translation_dictionary)
 
@@ -492,9 +95,9 @@ def register(init_version: Any) -> None:
 def unregister() -> None:
     bpy.app.translations.unregister(addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
-    bpy.types.VIEW3D_MT_armature_add.remove(add_armature)
-    # bpy.types.VIEW3D_MT_mesh_add.remove(make_mesh)
+    bpy.types.VIEW3D_MT_armature_add.remove(editor.add_armature)
+    # bpy.types.VIEW3D_MT_mesh_add.remove(editor.make_mesh)
     bpy.types.TOPBAR_MT_file_import.remove(importer.menu_import)
-    bpy.types.TOPBAR_MT_file_export.remove(menu_export)
+    bpy.types.TOPBAR_MT_file_export.remove(exporter.menu_export)
     for cls in classes:
         bpy.utils.unregister_class(cls)

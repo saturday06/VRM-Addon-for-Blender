@@ -16,7 +16,7 @@ class TestExporter(TestCase):
             ([0, sys.float_info.epsilon, 0, sys.float_info.epsilon], [0, 0.5, 0, 0.5]),
         ]:
             with self.subTest(arg):
-                actual = exporter.normalize_weights_compatible_with_gl_float(
+                actual = exporter.glb_obj.normalize_weights_compatible_with_gl_float(
                     cast(Sequence[float], arg)
                 )
                 self.assertEqual(

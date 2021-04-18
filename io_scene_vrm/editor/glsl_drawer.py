@@ -11,7 +11,7 @@ from mathutils import Matrix, Vector
 
 from .. import vrm_types
 from ..preferences import get_preferences
-from . import find_export_objects
+from . import search
 
 
 class ICYP_OT_Draw_Model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -619,7 +619,7 @@ class GlslDrawObj:
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [
             obj
-            for obj in find_export_objects(invisibles, only_selections)
+            for obj in search.export_objects(invisibles, only_selections)
             if obj.type == "MESH"
         ]
         if GlslDrawObj.myinstance is None or GlslDrawObj.draw_func is None:

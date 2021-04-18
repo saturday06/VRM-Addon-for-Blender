@@ -489,7 +489,7 @@ class BlendModel:
 
         full_vrm_import_success = False
         with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-            indexed_vrm_file.write(exporter.pack_glb(json_dict, body_binary))
+            indexed_vrm_file.write(exporter.glb_obj.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
             try:
                 bpy.ops.import_scene.gltf(
@@ -506,7 +506,9 @@ class BlendModel:
             if "animations" in json_dict:
                 del json_dict["animations"]
             with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-                indexed_vrm_file.write(exporter.pack_glb(json_dict, body_binary))
+                indexed_vrm_file.write(
+                    exporter.glb_obj.pack_glb(json_dict, body_binary)
+                )
                 indexed_vrm_file.flush()
                 try:
                     bpy.ops.import_scene.gltf(

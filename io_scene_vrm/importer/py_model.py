@@ -20,8 +20,7 @@ from urllib.parse import ParseResult, parse_qsl, urlparse
 import bpy
 import numpy
 
-from .. import deep, vrm_types
-from ..exporter.validation import lang_support
+from .. import deep, lang, vrm_types
 from ..gl_constants import GlConstants
 from .binary_reader import BinaryReader
 
@@ -199,7 +198,7 @@ class LicenseConfirmationRequiredProp:
     ) -> None:
         self.url = url
         self.json_key = json_key
-        self.message = lang_support(message_en, message_ja)
+        self.message = lang.support(message_en, message_ja)
 
     def description(self) -> str:
         return f"""class=LicenseConfirmationRequired

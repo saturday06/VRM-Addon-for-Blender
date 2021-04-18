@@ -4,10 +4,12 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
+
 import collections
 import contextlib
 import datetime
 import json
+import math
 import os
 import re
 import secrets
@@ -24,13 +26,8 @@ import bpy
 from mathutils import Matrix
 
 from .. import deep, vrm_types
-from ..editor import find_export_objects
+from ..editor import search
 from ..gl_constants import GlConstants
-from . import (
-    normalize_weights_compatible_with_gl_float,
-    pack_glb,
-    shader_nodes_and_materials,
-)
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 from .version import version
 
@@ -62,7 +59,7 @@ class GlbObj:
         ) != {"FINISHED"}:
             raise self.ValidationError()
 
-        self.export_objects = find_export_objects(
+        self.export_objects = search.export_objects(
             export_invisibles, export_only_selections
         )
         self.vrm_version: Optional[str] = None
@@ -144,7 +141,7 @@ class GlbObj:
                     used_materials.append(mat)
 
         # image fetching
-        for node, mat in shader_nodes_and_materials(used_materials):
+        for node, mat in search.shader_nodes_and_materials(used_materials):
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 mat["vrm_shader"] = "MToon_unversioned"
                 for (
@@ -2067,3 +2064,50 @@ class GlbObj:
         self.result = pack_glb(self.json_dic, self.bin)
         if self.use_dummy_armature:
             bpy.data.objects.remove(self.armature, do_unlink=True)
+
+
+def normalize_weights_compatible_with_gl_float(
+    weights: Sequence[float],
+) -> Sequence[float]:
+    if abs(sum(weights) - 1.0) < float_info.epsilon:
+        return weights
+
+    def to_gl_float(array4: Sequence[float]) -> Sequence[float]:
+        return list(struct.unpack("<ffff", struct.pack("<ffff", *array4)))
+
+    # Simulate export and import
+    weights = to_gl_float(weights)
+    for _ in range(10):
+        next_weights = to_gl_float([weights[i] / sum(weights) for i in range(4)])
+        error = abs(1 - math.fsum(weights))
+        next_error = abs(1 - math.fsum(next_weights))
+        if error >= float_info.epsilon and error > next_error:
+            weights = next_weights
+        else:
+            break
+
+    return weights
+
+
+def pack_glb(json_dict: Dict[str, Any], binary_chunk: bytes) -> bytes:
+    magic = b"glTF" + struct.pack("<I", 2)
+    json_str = json.dumps(json_dict).encode("utf-8")
+    if len(json_str) % 4 != 0:
+        json_str += b"\x20" * (4 - len(json_str) % 4)
+    json_size = struct.pack("<I", len(json_str))
+    if len(binary_chunk) % 4 != 0:
+        binary_chunk += b"\x00" * (4 - len(binary_chunk) % 4)
+    bin_size = struct.pack("<I", len(binary_chunk))
+    total_size = struct.pack(
+        "<I", len(json_str) + len(binary_chunk) + 28
+    )  # include header size
+    return (
+        magic
+        + total_size
+        + json_size
+        + b"JSON"
+        + json_str
+        + bin_size
+        + b"BIN\x00"
+        + binary_chunk
+    )

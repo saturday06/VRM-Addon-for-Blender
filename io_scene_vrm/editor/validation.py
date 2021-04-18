@@ -8,11 +8,10 @@ from typing import Any, Dict, List, Optional, Set, Union, cast
 import bpy
 from mathutils import Vector
 
-from .. import deep, vrm_types
-from ..editor import find_export_objects
+from .. import deep, lang, vrm_types
 from ..preferences import get_preferences
 from ..vrm_types import Gltf
-from . import shader_nodes_and_materials
+from . import search
 
 
 class VrmValidationError(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -78,13 +77,15 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         if preferences:
             export_invisibles = bool(preferences.export_invisibles)
             export_only_selections = bool(preferences.export_only_selections)
-        export_objects = find_export_objects(export_invisibles, export_only_selections)
+        export_objects = search.export_objects(
+            export_invisibles, export_only_selections
+        )
 
         for obj in export_objects:
             if obj.type not in ["ARMATURE", "EMPTY"]:
                 if obj.name in node_names:
                     messages.append(
-                        lang_support(
+                        lang.support(
                             f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
                             f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
                         )
@@ -98,7 +99,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 and obj.location != Vector([0.0, 0.0, 0.0])
             ):  # mesh and armature origin is on [0,0,0]
                 warning_messages.append(
-                    lang_support(
+                    lang.support(
                         f'There are not an object on the origin "{obj.name}"',
                         f"「{obj.name}」が原点座標にありません",
                     )
@@ -108,7 +109,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 armature_count += 1
                 if armature_count >= 2:  # only one armature
                     messages.append(
-                        lang_support(
+                        lang.support(
                             "Only one armature is required for VRM export. Multiple armatures found.",
                             "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
                         )
@@ -116,7 +117,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 for bone in obj.data.bones:
                     if bone.name in node_names:  # nodes name is unique
                         messages.append(
-                            lang_support(
+                            lang.support(
                                 f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
                                 f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
                             )
@@ -130,7 +131,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     ] in [bone.name for bone in armature.data.bones]:
                         continue
                     messages.append(
-                        lang_support(
+                        lang.support(
                             f'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found. '
                             + 'Fix armature "object" custom property.',
                             f"必須VRMヒューマンボーン「{humanoid_name}」の属性を持つボーンがありません。"
@@ -147,7 +148,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     ]:
                         continue
                     warning_messages.append(
-                        lang_support(
+                        lang.support(
                             f'Bone name "{node_name}" as VRM HumanBone "{humanoid_name}" is not found. '
                             + 'Fix armature "object" custom property.',
                             f"ボーン名「{node_name}」のVRMヒューマンボーン属性「{humanoid_name}」がありません。"
@@ -159,7 +160,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 for poly in obj.data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle
                         warning_messages.append(
-                            lang_support(
+                            lang.support(
                                 f'Faces must be Triangle, but not face in "{obj.name}" or '
                                 + "it will be triangulated automatically.",
                                 f"「{obj.name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
@@ -171,7 +172,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         # endregion export object seeking
         if armature_count == 0:
             warning_messages.append(
-                lang_support("Please add ARMATURE to selections", "アーマチュアを選択範囲に含めてください")
+                lang.support("Please add ARMATURE to selections", "アーマチュアを選択範囲に含めてください")
             )
 
         used_images: List[bpy.types.Image] = []
@@ -191,7 +192,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     if vertex_error_count > 5:
                         continue
                     warning_messages.append(
-                        lang_support(
+                        lang.support(
                             f'vertex id "{v.index}" is no weight in "{mesh.name}". '
                             + 'Add weight to VRM HumanBone "hips" automatically.',
                             f"「{mesh.name}」の頂点id「{v.index}」にウェイトが乗っていません。"
@@ -209,7 +210,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                             weight_count += 1
                     if weight_count > 4 and vertex_error_count < 5:
                         warning_messages.append(
-                            lang_support(
+                            lang.support(
                                 f'vertex id "{v.index}" has too many(over 4) weight in "{mesh.name}". '
                                 + "It will be truncated to 4 descending order by its weight.",
                                 f"「{mesh.name}」の頂点id「{v.index}」に影響を与えるボーンが5以上あります。"
@@ -236,7 +237,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         groups_en_str = "/".join(groups)
                         groups_ja_str = "".join(f"「{group}」" for group in groups)
                         warning_messages.append(
-                            lang_support(
+                            lang.support(
                                 f'"{mat.name}" needs to connect {groups_en_str} to "Surface" directly. '
                                 + "Empty material will be exported.",
                                 f"マテリアル「{mat.name}」には{groups_ja_str}のいずれかを直接「サーフェス」に指定してください。"
@@ -244,7 +245,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                             )
                         )
 
-        for node, material in shader_nodes_and_materials(used_materials):
+        for node, material in search.shader_nodes_and_materials(used_materials):
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 for (
@@ -300,7 +301,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         used_images.append(image)
                 else:
                     messages.append(
-                        lang_support(
+                        lang.support(
                             f"thumbnail_image is missing. Please load \"{armature['texture']}\"",
                             f"VRM用サムネイル画像がBlenderにロードされていません。「{armature['texture']}」を読み込んでください。",
                         )
@@ -308,7 +309,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
 
         except Exception:
             messages.append(
-                lang_support(
+                lang.support(
                     f"thumbnail_image is missing. Please load \"{armature['texture']}\"",
                     f"VRM用サムネイル画像がBlenderにロードされていません。「{armature['texture']}」を読み込んでください。",
                 )
@@ -317,7 +318,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         for image in used_images:
             if image.is_dirty or (image.packed_file is None and not image.filepath):
                 messages.append(
-                    lang_support(
+                    lang.support(
                         f'Image "{image.name}" is not saved. Please save.',
                         f"画像「{image.name}」のBlender上での変更を保存してください。",
                     )
@@ -327,7 +328,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 image.filepath_from_user()
             ):
                 messages.append(
-                    lang_support(
+                    lang.support(
                         f'"{image.name}" is not found in file path "{image.filepath_from_user()}". '
                         + "Please load file of it in Blender.",
                         f'「{image.name}」の画像ファイルが指定ファイルパス「"{image.filepath_from_user()}"」'
@@ -337,7 +338,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 continue
             if image.file_format.lower() not in ["png", "jpeg"]:
                 messages.append(
-                    lang_support(
+                    lang.support(
                         f'glTF only supports PNG and JPEG textures but "{image.name}" is "{image.file_format}"',
                         f"glTFはPNGとJPEGのみの対応ですが「{image.name}」は「{image.file_format}」です。",
                     )
@@ -369,7 +370,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
             for k, v in enum_vrm_metas.items():
                 if armature.get(k) is not None and armature.get(k) not in v:
                     messages.append(
-                        lang_support(
+                        lang.support(
                             f'"{k}" value must be in "{v}". Value is "{armature.get(k)}"',
                             f"VRM権利情報の「{k}」は「{v}」のいずれかでないといけません。現在の設定値は「{armature.get(k)}」です。",
                         )
@@ -384,7 +385,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     return None
                 if textblock_name not in armature:
                     warning_messages.append(
-                        lang_support(
+                        lang.support(
                             f'textblock name "{textblock_name}" isn\'t put on armature custom property.',
                             f"「{textblock_name}」のテキストブロックの指定がアーマチュアのカスタムプロパティにありません。",
                         )
@@ -396,7 +397,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     text_found = text_key in bpy.data.texts
                 if not text_found:
                     warning_messages.append(
-                        lang_support(
+                        lang.support(
                             f'textblock name "{textblock_name}" doesn\'t exist.',
                             f"「{textblock_name}」のテキストがエディタ上にありません。",
                         )
@@ -409,7 +410,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     )
                 except json.JSONDecodeError as e:
                     warning_messages.append(
-                        lang_support(
+                        lang.support(
                             f'Cannot load textblock of "{textblock_name}" as Json at line {e.lineno}. '
                             + "please check json grammar.",
                             f"「{textblock_name}」のJsonとしての読み込みに失敗しました。{e.lineno}行目付近にエラーがあります。"
@@ -440,7 +441,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     and firstperson_params["firstPersonBone"] not in armature.data.bones
                 ):
                     warning_messages.append(
-                        lang_support(
+                        lang.support(
                             f"firstPersonBone \"{firstperson_params['firstPersonBone']}\" is not found. "
                             + f'Please fix in textblock "{first_person_params_name}". '
                             + 'Set VRM HumanBone "head" instead automatically.',
@@ -454,7 +455,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         for mesh_annotation in firstperson_params["meshAnnotations"]:
                             if mesh_annotation["mesh"] not in mesh_name_to_mesh:
                                 warning_messages.append(
-                                    lang_support(
+                                    lang.support(
                                         f"mesh \"{mesh_annotation['mesh']}\" is not found. "
                                         + f'Please fix setting in textblock "{first_person_params_name}"',
                                         f"「{mesh_annotation['mesh']}」というメッシュオブジェクトが見つかりません。"
@@ -463,7 +464,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                                 )
                     else:
                         warning_messages.append(
-                            lang_support(
+                            lang.support(
                                 f'meshAnnotations in textblock "{first_person_params_name}" must be list.',
                                 f"テキストエディタの「{first_person_params_name}」のmeshAnnotationsはリスト要素でないといけません。",
                             )
@@ -475,7 +476,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                     "BlendShape",
                 ]:
                     messages.append(
-                        lang_support(
+                        lang.support(
                             'lookAtTypeName is "Bone" or "BlendShape". '
                             + f"Current \"{firstperson_params['lookAtTypeName']}\". "
                             + f'Please fix setting in textblock "{first_person_params_name}"',
@@ -496,7 +497,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 for bind_dic in blendshape_group.get("binds", []):
                     if bind_dic["mesh"] not in mesh_name_to_mesh:
                         warning_messages.append(
-                            lang_support(
+                            lang.support(
                                 f"mesh \"{bind_dic['mesh']}\" is not found. "
                                 + f'Please fix setting in textblock "{blendshape_group_name}"',
                                 f"メッシュ「{bind_dic['mesh']}」が見つかりません。"
@@ -507,7 +508,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         shape_keys = mesh_name_to_mesh[bind_dic["mesh"]].shape_keys
                         if shape_keys is None:
                             warning_messages.append(
-                                lang_support(
+                                lang.support(
                                     f"mesh \"{bind_dic['mesh']}\" doesn't have shapekey. "
                                     + "But blendshape Group needs it. "
                                     + f'Please fix setting in textblock "{blendshape_group_name}"',
@@ -519,7 +520,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                         else:
                             if bind_dic["index"] not in shape_keys.key_blocks:
                                 warning_messages.append(
-                                    lang_support(
+                                    lang.support(
                                         f"mesh \"{bind_dic['mesh']}\" doesn't have \"{bind_dic['index']}\" shapekey. "
                                         + "But blendshape Group needs it. "
                                         + f'Please fix setting in textblock "{blendshape_group_name}"',
@@ -530,7 +531,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                                 )
                             if bind_dic["weight"] > 1 or bind_dic["weight"] < 0:
                                 warning_messages.append(
-                                    lang_support(
+                                    lang.support(
                                         f"mesh \"{bind_dic['mesh']}:shapekey:{bind_dic['index']}:value\" "
                                         + "needs between 0 and 1."
                                         + f'Please fix setting in textblock "{blendshape_group_name}"',
@@ -553,7 +554,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 ):
                     bone_name = bone_group["center"]
                     warning_messages.append(
-                        lang_support(
+                        lang.support(
                             f'Center bone name "{bone_name}" is not found in spring_bone setting.',
                             f"spring_boneのcenterのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
                             + "テキストエディタの spring_bone の json を修正してください。",
@@ -562,7 +563,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 for bone_name in bone_group["bones"]:
                     if bone_name not in bone_names_list:
                         warning_messages.append(
-                            lang_support(
+                            lang.support(
                                 f'Bone name "{bone_name}" is not found in spring_bone setting.',
                                 f"spring_boneのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
                                 + "テキストエディタの spring_bone の json を修正してください。",
@@ -571,7 +572,7 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 for bone_name in bone_group["colliderGroups"]:
                     if bone_name not in bone_names_list:
                         warning_messages.append(
-                            lang_support(
+                            lang.support(
                                 f'Bone name "{bone_name}" is not found in spring_bone setting.',
                                 f"spring_bone settingにある、ボーン名「{bone_name}」がアーマチュア中に見つかりません。"
                                 + "テキストエディタの spring_bone のjsonを修正してください。",
@@ -623,16 +624,6 @@ class WM_OT_vrmValidator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
                 )
 
 
-def lang_support(en_message: str, ja_message: str) -> str:
-    # for fake-bpy-module
-    if not bpy.app.translations:
-        return en_message
-
-    if bpy.app.translations.locale == "ja_JP":
-        return ja_message
-    return en_message
-
-
 def node_material_input_check(
     node: bpy.types.ShaderNodeGroup,
     material: bpy.types.Material,
@@ -658,7 +649,7 @@ def node_material_input_check(
         n = node.inputs[shader_val].links[0].from_node
         if n.type != expect_node_type:
             messages.append(
-                lang_support(
+                lang.support(
                     f'need "{expect_node_type}" input in "{shader_val}" of "{material.name}"',
                     f"「{material.name}」の「{shader_val}」には、「{expect_node_type}」を直接つないでください。 ",
                 )
@@ -670,7 +661,7 @@ def node_material_input_check(
                         used_images.append(n.image)
                 else:
                     messages.append(
-                        lang_support(
+                        lang.support(
                             f'image in material "{material.name}" is not put. Please set image.',
                             f"マテリアル「{material.name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
                         )
