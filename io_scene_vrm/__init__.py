@@ -330,6 +330,11 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
         # region draw_main
         if mode == "OBJECT":
             # object_mode_box = layout.box()
+            vrm_validator_prop = layout.operator(
+                vrm_helper.WM_OT_vrmValidator.bl_idname,
+                text=vrm_helper.lang_support("Validate VRM model", "VRMモデルのチェック"),
+                icon='VIEWZOOM'
+            )
             preferences = get_preferences(context)
             if preferences:
                 layout.prop(
@@ -337,20 +342,16 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                     "export_invisibles",
                     text=vrm_helper.lang_support(
                         "Export invisible objects", "非表示オブジェクトを含める"
-                    ),
+                    )
                 )
                 layout.prop(
                     preferences,
                     "export_only_selections",
                     text=vrm_helper.lang_support(
                         "Export only selections", "選択されたオブジェクトのみ"
-                    ),
+                    )
                 )
-            vrm_validator_prop = layout.operator(
-                vrm_helper.WM_OT_vrmValidator.bl_idname,
-                text=vrm_helper.lang_support("Validate VRM model", "VRMモデルのチェック"),
-                icon='VIEWZOOM'
-            )
+
             vrm_validator_prop.show_successful_message = True
             # vrm_validator_prop.errors = []  # これはできない
             layout.separator()
@@ -416,9 +417,10 @@ class VRM_IMPORTER_PT_amature_controller(bpy.types.Panel):
             )
 
         armature_box = layout
-        armature_box.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname)
-        layout.separator()
+        armature_box.operator(vrm_helper.Add_VRM_extensions_to_armature.bl_idname,
+                              icon='MOD_BUILD')
 
+        layout.separator()
         requires_box = armature_box.box()
         requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
         for req in vrm_types.HumanBones.center_req[::-1]:
@@ -445,14 +447,14 @@ class VRM_IMPORTER_PT_amature_controller(bpy.types.Panel):
         row = requires_box.row()
         column = row.column()
         for req in vrm_types.HumanBones.right_leg_req:
-            icon = "HANDLE_AUTO"
+            icon = "MOD_DYNAMICPAINT"
             if req in data:
                 show_ui(column, req, icon)
             else:
                 show_add_require(column, req)
         column = row.column()
         for req in vrm_types.HumanBones.left_leg_req:
-            icon = "HANDLE_AUTO"
+            icon = "MOD_DYNAMICPAINT"
             if req in data:
                 show_ui(column, req, icon)
             else:
@@ -486,7 +488,7 @@ class VRM_IMPORTER_PT_amature_controller(bpy.types.Panel):
             else:
                 show_add_defined(defines_box, defs)
         for defs in vrm_types.HumanBones.right_leg_def:
-            icon = "HANDLE_AUTO"
+            icon = "MOD_DYNAMICPAINT"
             if defs in data:
                 show_ui(defines_box, defs, icon)
             else:
@@ -499,7 +501,7 @@ class VRM_IMPORTER_PT_amature_controller(bpy.types.Panel):
             else:
                 show_add_defined(defines_box, defs)
         for defs in vrm_types.HumanBones.left_leg_def:
-            icon = "HANDLE_AUTO"
+            icon = "MOD_DYNAMICPAINT"
             if defs in data:
                 show_ui(defines_box, defs, icon)
             else:
@@ -608,37 +610,38 @@ class VRM_IMPORTER_PT_vrm_humanoid_params(bpy.types.Panel):
         layout.label(text='Arm', icon="VIEW_PAN")
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "armStretch",
+            "arm_stretch",
         )
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "upperArmTwist"
+            "upper_arm_twist"
         )
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "lowerArmTwist"
+            "lower_arm_twist"
         )
         layout.separator()
-        layout.label(text='Leg', icon="HANDLE_AUTO")
+        layout.label(text='Leg', icon="MOD_DYNAMICPAINT")
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "legStretch"
+            "leg_stretch"
         )
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "upperLegTwist"
+            "upper_leg_twist"
         )
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "lowerLegTwist"
+            "lower_leg_twist"
         )
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "feetSpacing"
+            "feet_spacing"
         )
+        layout.separator()
         layout.prop(
             active_object.vrm_props.humanoid_params,
-            "hasTranslationDoF"
+            "has_translation_dof"
         )
 
 
@@ -666,83 +669,92 @@ class VRM_IMPORTER_PT_vrm_firstPerson_params(bpy.types.Panel):
         testing.label(text='Testing',
                       icon='EXPERIMENTAL')
         active_object = context.active_object
+        data = active_object.data
+        blend_data = context.blend_data
+        props = active_object.vrm_props.first_person_params
+        layout.prop_search(props,
+                           "first_person_bone",
+                           data,
+                           "bones")
         layout.prop(
-            active_object.vrm_props.firstPerson_params,
-            "firstPersonBone",
+            props,
+            "first_person_bone_offset",
             icon='BONE_DATA'
         )
         layout.prop(
-            active_object.vrm_props.firstPerson_params,
-            "firstPersonBoneOffset",
-            icon='BONE_DATA'
+            props,
+            "look_at_type_name"
         )
-        layout.prop(
-            active_object.vrm_props.firstPerson_params,
-            "lookAtTypeName"
-        )
-        # layout.prop(
-        #     active_object.vrm_props.firstPerson_params,
-        #     "meshAnnotations"
-        # )
+        for item in props.mesh_annotations:
+            box = layout.row()
+            box.prop_search(
+                item,
+                "mesh",
+                blend_data,
+                "meshes")
+            box.prop(
+                item,
+                "first_person_flag"
+            )
         box = layout.box()
         box.label(text='Look At Horizontal Inner',
                   icon='FULLSCREEN_EXIT')
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtHorizontalInner,
+            props.look_at_horizontal_inner,
             "curve"
         )
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtHorizontalInner,
-            "xRange"
+            props.look_at_horizontal_inner,
+            "x_range"
         )
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtHorizontalInner,
-            "yRange"
+            props.look_at_horizontal_inner,
+            "y_range"
         )
         box = layout.box()
         box.label(text='Look At Horizontal Outer',
                   icon='FULLSCREEN_ENTER')
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtHorizontalOuter,
+            props.look_at_horizontal_outer,
             "curve"
         )
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtHorizontalOuter,
-            "xRange"
+            props.look_at_horizontal_outer,
+            "x_range"
         )
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtHorizontalOuter,
-            "yRange"
-        )
-        box = layout.box()
-        box.label(text='Look At Vertical Down',
-                  icon='TRIA_UP')
-        box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtVerticalDown,
-            "curve"
-        )
-        box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtVerticalDown,
-            "xRange"
-        )
-        box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtVerticalDown,
-            "yRange"
+            props.look_at_horizontal_outer,
+            "y_range"
         )
         box = layout.box()
         box.label(text='Look At Vertical Up',
-                  icon='TRIA_UP')
+                  icon='ANCHOR_TOP')
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtVerticalUp,
+            props.look_at_vertical_up,
             "curve"
         )
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtVerticalUp,
-            "xRange"
+            props.look_at_vertical_up,
+            "x_range"
         )
         box.prop(
-            active_object.vrm_props.firstPerson_params.lookAtVerticalUp,
-            "yRange"
+            props.look_at_vertical_up,
+            "y_range"
+        )
+        box = layout.box()
+        box.label(text='Look At Vertical Down',
+                  icon='ANCHOR_BOTTOM')
+        box.prop(
+            props.look_at_vertical_down,
+            "curve"
+        )
+        box.prop(
+            props.look_at_vertical_down,
+            "x_range"
+        )
+        box.prop(
+            props.look_at_vertical_down,
+            "y_range"
         )
 
 
@@ -770,15 +782,44 @@ class VRM_IMPORTER_PT_vrm_blendshape_group(bpy.types.Panel):
         testing.label(text='Testing',
                       icon='EXPERIMENTAL')
         active_object = context.active_object
-        layout.prop(
-            active_object.vrm_props,
-            "blendshape_group"
-        )
+        blend_data = context.blend_data
+        for blendshape in active_object.vrm_props.blendshape_group:
+            box = layout.box()
+            box.prop(
+                blendshape,
+                "name"
+            )
+            box.prop(
+                blendshape,
+                "preset_name"
+            )
+            box.label(text="binds")
+            for bind in blendshape.binds:
+                sub = box.box()
+                sub.prop_search(
+                    bind,
+                    "mesh",
+                    blend_data,
+                    "meshes"
+                )
+                sub.prop(
+                    bind,
+                    "index"
+                )
+                sub.prop(
+                    bind,
+                    "weight"
+                )
+            box.label(text="materialValues is yet")
+            box.prop(
+                blendshape,
+                "is_binary"
+            )
 
 
 class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):
     bl_idname = "VRM_IMPORTER_PT_vrm_spring_bone"
-    bl_label = "VRM Spring Bone"
+    bl_label = "VRM Spring Bones"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -800,10 +841,64 @@ class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):
         testing.label(text='Testing',
                       icon='EXPERIMENTAL')
         active_object = context.active_object
-        layout.prop(
-            active_object.vrm_props,
-            "spring_bone",
-        )
+        data = context.active_object.data
+        spring_bones = active_object.vrm_props.spring_bones
+
+        for spring_bone in spring_bones:
+            box = layout.box()
+            box.prop(
+                spring_bone,
+                "comment",
+                icon='BOOKMARKS'
+            )
+            box.prop(
+                spring_bone,
+                "stiffiness",
+                icon='RIGID_BODY_CONSTRAINT'
+            )
+            box.prop(
+                spring_bone,
+                "drag_force",
+                icon='FORCE_DRAG'
+            )
+            box.separator()
+            box.prop(
+                spring_bone,
+                "gravity_power",
+                icon='OUTLINER_OB_FORCE_FIELD'
+            )
+            box.prop(
+                spring_bone,
+                "gravity_dir",
+                icon='OUTLINER_OB_FORCE_FIELD'
+            )
+            box.separator()
+            box.prop_search(spring_bone,
+                            "center",
+                            data,
+                            "bones",
+                            icon='PIVOT_MEDIAN')
+            box.prop(
+                spring_bone,
+                "hit_radius",
+                icon="MOD_PHYSICS",
+            )
+            box.separator()
+            box.label(text='Bones',
+                      icon='RIGID_BODY_CONSTRAINT')
+            for bone in spring_bone.bones:
+                box.prop_search(bone,
+                                "name",
+                                data,
+                                "bones")
+            box.separator()
+            box.label(text='collider Group',
+                      icon='MOD_PHYSICS')
+            for collider_group in spring_bone.collider_groups:
+                box.prop_search(collider_group,
+                                "name",
+                                data,
+                                "bones")
 
 
 class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
@@ -812,7 +907,6 @@ class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_options = {'DEFAULT_CLOSED'}
 
     @classmethod
     def poll(cls, context):
@@ -837,7 +931,7 @@ class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
         )
         layout.prop(
             active_object.vrm_props.metas,
-            "contactInformation",
+            "contact_information",
             icon='URL'
         )
         layout.separator()
@@ -860,88 +954,149 @@ class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
         box = layout.box()
         box.prop(
             active_object.vrm_props.required_metas,
-            "allowedUserName",
+            "allowed_user_name",
             icon='MATCLOTH'
         )
         box.prop(
             active_object.vrm_props.required_metas,
-            "violentUssageName",
+            "violent_ussage_name",
             icon='ORPHAN_DATA'
         )
         box.prop(
             active_object.vrm_props.required_metas,
-            "sexualUssageName",
-            icon='HEART'
+            "sexual_ussage_name",
+            icon='FUND'
         )
         box.prop(
             active_object.vrm_props.required_metas,
-            "commercialUssageName",
+            "commercial_ussage_name",
             icon='SOLO_OFF'
         )
         box.prop(
             active_object.vrm_props.required_metas,
-            "licenseName",
+            "license_name",
             icon='COMMUNITY'
         )
-        layout.prop(
-            active_object.vrm_props.metas,
-            "otherPermissionUrl",
-            icon='URL'
-        )
-        if active_object.vrm_props.required_metas.licenseName == REQUIRED_METAS.LICENSENAME_OTHER:
+        if active_object.vrm_props.required_metas.license_name == REQUIRED_METAS.LICENSENAME_OTHER:
             layout.prop(
                 active_object.vrm_props.metas,
-                "otherLicenseUrl",
+                "other_license_url",
                 icon='URL'
             )
+        layout.prop(
+            active_object.vrm_props.metas,
+            "other_permission_url",
+            icon='URL'
+        )
 
 
 class HUMANOID_PARAMS(bpy.types.PropertyGroup):
-    armStretch: bpy.props.FloatProperty(name='Arm Stretch')
-    legStretch: bpy.props.FloatProperty(name='Leg Stretch')
-    upperArmTwist: bpy.props.FloatProperty(name='Upper Arm Twist')
-    lowerArmTwist: bpy.props.FloatProperty(name='Lower Arm Twist')
-    upperLegTwist: bpy.props.FloatProperty(name='Upper Leg Twist')
-    lowerLegTwist: bpy.props.FloatProperty(name='Lower Leg Twist')
-    feetSpacing: bpy.props.IntProperty(name='Feet Spacing')
-    hasTranslationDoF: bpy.props.BoolProperty(name='Has Translation DoF')
+    arm_stretch: bpy.props.FloatProperty(name='Arm Stretch')
+    leg_stretch: bpy.props.FloatProperty(name='Leg Stretch')
+    upper_arm_twist: bpy.props.FloatProperty(name='Upper Arm Twist')
+    lower_arm_twist: bpy.props.FloatProperty(name='Lower Arm Twist')
+    upper_leg_twist: bpy.props.FloatProperty(name='Upper Leg Twist')
+    lower_leg_twist: bpy.props.FloatProperty(name='Lower Leg Twist')
+    feet_spacing: bpy.props.IntProperty(name='Feet Spacing')
+    has_translation_dof: bpy.props.BoolProperty(name='Has Translation DoF')
 
 
 class LOOKAT_CURVE(bpy.types.PropertyGroup):
     curve: bpy.props.FloatVectorProperty(size=8, name='Curve')
-    xRange: bpy.props.IntProperty(name='X Range')
-    yRange: bpy.props.IntProperty(name='Y Range')
+    x_range: bpy.props.IntProperty(name='X Range')
+    y_range: bpy.props.IntProperty(name='Y Range')
+
+
+class MESH_ANNOTATION(bpy.types.PropertyGroup):
+    mesh: bpy.props.StringProperty(name='Mesh')
+    first_person_flag_items = [
+        ("Auto", "Auto", "", 0),
+        ("FirstPersonOnly", "FirstPersonOnly", "", 1),
+        ("ThirdPersonOnly", "ThirdPersonOnly", "", 2),
+        ("Both", "Both", "", 3),
+    ]
+    first_person_flag: bpy.props.EnumProperty(items=first_person_flag_items,
+                                              name='First Person Flag')
 
 
 class FIRSTPERSON_PARAMS(bpy.types.PropertyGroup):
-    firstPersonBone: bpy.props.StringProperty(name='First Person Bone')
-    firstPersonBoneOffset: bpy.props.FloatVectorProperty(size=3, name='first Person Bone Offset')
-    meshAnnotations = None  # Dummy
-    lookAtTypeName: bpy.props.StringProperty(name='Look At Type Name')
-    lookAtHorizontalInner: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Horizontal Inner')
-    lookAtHorizontalOuter: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Horizontal Outer')
-    lookAtVerticalDown: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Vertical Down')
-    lookAtVerticalUp: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='lookAt Vertical Up')
+    first_person_bone: bpy.props.StringProperty(name='First Person Bone')
+    first_person_bone_offset: bpy.props.FloatVectorProperty(size=3,
+                                                            name='first Person Bone Offset',
+                                                            subtype='TRANSLATION',
+                                                            unit='LENGTH')
+    mesh_annotations: bpy.props.CollectionProperty(name="Mesh Annotations", type=MESH_ANNOTATION)
+    look_at_type_name_items = [
+        ("Bone", "Bone", "Bone", "BONE_DATA", 0),
+        ("BlendShape", "BlendShape", "BlendShape", "SHAPEKEY_DATA", 1)
+    ]
+    look_at_type_name: bpy.props.EnumProperty(items=look_at_type_name_items,
+                                              name='Look At Type Name')
+    look_at_horizontal_inner: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Horizontal Inner')
+    look_at_horizontal_outer: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Horizontal Outer')
+    look_at_vertical_down: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='Look At Vertical Down')
+    look_at_vertical_up: bpy.props.PointerProperty(type=LOOKAT_CURVE, name='lookAt Vertical Up')
+
+
+class BLENDSHAPE_BIND(bpy.types.PropertyGroup):
+    mesh: bpy.props.StringProperty(name='Mesh')
+    index: bpy.props.StringProperty(name='Index')
+    weight: bpy.props.FloatProperty(name='Weight')
+
+
+class BLENDSHAPE_MATERIAL_BIND(bpy.types.PropertyGroup):
+    material_name: bpy.props.StringProperty(name='Material Name')
+    property_name: bpy.props.StringProperty(name='Property Name')
+    targetValue = None   # Dummy
 
 
 class BLENDSHAPE_GROUP(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name='Name')
-    presetName: bpy.props.StringProperty(name='Preset Name')
-    binds = None  # Dummy
-    materialValues = None  # Dummy
-    isBinary: bpy.props.BoolProperty(name='Is Binary')
+    preset_name_items = [
+        ("unknown", "unknown", "", "NONE", 0),
+        ("neutral", "neutral", "", "NONE", 1),
+        ("a", "a", "", "EVENT_A", 2),
+        ("i", "i", "", "EVENT_I", 3),
+        ("u", "u", "", "EVENT_U", 4),
+        ("e", "e", "", "EVENT_E", 5),
+        ("o", "o", "", "EVENT_O", 6),
+        ("blink", "blink", "", "HIDE_ON", 7),
+        ("joy", "joy", "", "HEART", 8),
+        ("angry", "angry", "", "ORPHAN_DATA", 9),
+        ("sorrow", "sorrow", "", "MOD_FLUIDSIM", 10),
+        ("fun", "fun", "", "LIGHT_SUN", 11),
+        ("lookup", "lookup", "", "ANCHOR_TOP", 12),
+        ("lookdown", "lookdown", "", "ANCHOR_BOTTOM", 13),
+        ("lookleft", "lookleft", "", "ANCHOR_RIGHT", 14),
+        ("lookright", "lookright", "", "ANCHOR_LEFT", 15),
+        ("blink_l", "blink_l", "", "HIDE_ON", 16),
+        ("blink_r", "blink_r", "", "HIDE_ON", 17)
+    ]
+    preset_name: bpy.props.EnumProperty(items=preset_name_items,
+                                        name='Preset')
+    binds: bpy.props.CollectionProperty(type=BLENDSHAPE_BIND, name="Binds")
+    material_values = bpy.props.CollectionProperty(type=BLENDSHAPE_MATERIAL_BIND, name="Material Values")
+    is_binary: bpy.props.BoolProperty(name='Is Binary')
+
+
+class COLLIDER_GROUP(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(name='Name')
+
+
+class BONE_GROUP(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(name='Name')
 
 
 class SPRING_BONE(bpy.types.PropertyGroup):
     comment: bpy.props.StringProperty(name='Comment')
     stiffiness: bpy.props.IntProperty(name='stiffiness')
-    gravityPower: bpy.props.IntProperty(name='Gravity Power')
-    gravityDir: bpy.props.FloatVectorProperty(size=3, name='Gravity Dir')
-    dragForce: bpy.props.FloatProperty(name='DragForce')
-    center: bpy.props.IntProperty(name='Center')
-    hitRadius: bpy.props.FloatProperty(name='Hit Radius')
-    bones = None  # Dummy
-    colliderGroups = None  # Dummy
+    gravity_power: bpy.props.IntProperty(name='Gravity Power')
+    gravity_dir: bpy.props.FloatVectorProperty(size=3, name='Gravity Dir')
+    drag_force: bpy.props.FloatProperty(name='DragForce')
+    center: bpy.props.StringProperty(name='Center')
+    hit_radius: bpy.props.FloatProperty(name='Hit Radius')
+    bones: bpy.props.CollectionProperty(name="Bones", type=BONE_GROUP)
+    collider_groups: bpy.props.CollectionProperty(name="Collider Groups", type=COLLIDER_GROUP)
 
 
 class METAS(bpy.types.PropertyGroup):
@@ -963,11 +1118,11 @@ class METAS(bpy.types.PropertyGroup):
         if key in self.id_data:
             self.id_data[key] = value
 
-    def get_contactInformation(self):
+    def get_contact_information(self):
         key = "contactInformation"
         return self.id_data[key] if key in self.id_data else ""
 
-    def set_contactInformation(self, value):
+    def set_contact_information(self, value):
         key = "contactInformation"
         if key in self.id_data:
             self.id_data[key] = value
@@ -990,20 +1145,20 @@ class METAS(bpy.types.PropertyGroup):
         if key in self.id_data:
             self.id_data[key] = value
 
-    def get_otherPermissionUrl(self):
+    def get_other_permission_url(self):
         key = "otherPermissionUrl"
         return self.id_data[key] if key in self.id_data else ""
 
-    def set_otherPermissionUrl(self, value):
+    def set_other_permission_url(self, value):
         key = "otherPermissionUrl"
         if key in self.id_data:
             self.id_data[key] = value
 
-    def get_otherLicenseUrl(self):
+    def get_other_license_url(self):
         key = "otherLicenseUrl"
         return self.id_data[key] if key in self.id_data else ""
 
-    def set_otherLicenseUrl(self, value):
+    def set_other_license_url(self, value):
         key = "otherLicenseUrl"
         if key in self.id_data:
             self.id_data[key] = value
@@ -1014,45 +1169,45 @@ class METAS(bpy.types.PropertyGroup):
     author: bpy.props.StringProperty(name='Author',
                                      get=get_author,
                                      set=set_author)
-    contactInformation: bpy.props.StringProperty(name='ContactInformation',
-                                                 get=get_contactInformation,
-                                                 set=set_contactInformation)
+    contact_information: bpy.props.StringProperty(name='ContactInformation',
+                                                  get=get_contact_information,
+                                                  set=set_contact_information)
     reference: bpy.props.StringProperty(name='Reference',
                                         get=get_reference,
                                         set=set_reference)
     title: bpy.props.StringProperty(name='Title',
                                     get=get_title,
                                     set=set_title)
-    otherPermissionUrl: bpy.props.StringProperty(name='Other Permission Url',
-                                                 get=get_otherPermissionUrl,
-                                                 set=set_otherPermissionUrl)
-    otherLicenseUrl: bpy.props.StringProperty(name='Other License Url',
-                                              get=get_otherLicenseUrl,
-                                              set=set_otherLicenseUrl)
+    other_permission_url: bpy.props.StringProperty(name='Other Permission Url',
+                                                   get=get_other_permission_url,
+                                                   set=set_other_permission_url)
+    other_license_url: bpy.props.StringProperty(name='Other License Url',
+                                                get=get_other_license_url,
+                                                set=set_other_license_url)
 
 
 class REQUIRED_METAS(bpy.types.PropertyGroup):
     INDEX_ID = 0
     INDEX_NUMBER = 3
     LICENSENAME_OTHER = "Other"
-    allowedUserName_items = [
+    allowed_user_name_items = [
         ("OnlyAuthor", "OnlyAuthor", "", 0),
         ("ExplicitlyLicensedPerson", "ExplicitlyLicensedPerson", "", 1),
         ("Everyone", "Everyone", "", 2)
     ]
-    violentUssageName_items = [
+    violent_ussage_name_items = [
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1)
     ]
-    sexualUssageName_items = [
+    sexual_ussage_name_items = [
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1)
     ]
-    commercialUssageName_items = [
+    commercial_ussage_name_items = [
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1)
     ]
-    licenseName_items = [
+    license_name_items = [
         ("Redistribution_Prohibited", "Redistribution_Prohibited", "", 0),
         ("CC0", "CC0", "", 1),
         ("CC_BY", "CC_BY", "", 2),
@@ -1064,118 +1219,118 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):
         (LICENSENAME_OTHER, LICENSENAME_OTHER, "", 8),
     ]
 
-    def get_allowedUserName(self):
+    def get_allowed_user_name(self):
         key = "allowedUserName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.allowedUserName_items:
+            for item in self.allowed_user_name_items:
                 if item[self.INDEX_ID] == v:
                     ret = item[self.INDEX_NUMBER]
             return ret
         else:
             return 0
 
-    def set_allowedUserName(self, value):
+    def set_allowed_user_name(self, value):
         key = "allowedUserName"
         if key in self.id_data:
-            self.id_data[key] = self.allowedUserName_items[value][self.INDEX_ID]
+            self.id_data[key] = self.allowed_user_name_items[value][self.INDEX_ID]
 
-    def get_violentUssageName(self):
+    def get_violent_ussage_name(self):
         key = "violentUssageName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.violentUssageName_items:
+            for item in self.violent_ussage_name_items:
                 if item[self.INDEX_ID] == v:
                     ret = item[self.INDEX_NUMBER]
             return ret
         else:
             return 0
 
-    def set_violentUssageName(self, value):
+    def set_violent_ussage_name(self, value):
         key = "violentUssageName"
         if key in self.id_data:
-            self.id_data[key] = self.violentUssageName_items[value][self.INDEX_ID]
+            self.id_data[key] = self.violent_ussage_name_items[value][self.INDEX_ID]
 
-    def get_sexualUssageName(self):
+    def get_sexual_ussage_name(self):
         key = "sexualUssageName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.sexualUssageName_items:
+            for item in self.sexual_ussage_name_items:
                 if item[self.INDEX_ID] == v:
                     ret = item[self.INDEX_NUMBER]
             return ret
         else:
             return 0
 
-    def set_sexualUssageName(self, value):
+    def set_sexual_ussage_name(self, value):
         key = "sexualUssageName"
         if key in self.id_data:
-            self.id_data[key] = self.sexualUssageName_items[value][self.INDEX_ID]
+            self.id_data[key] = self.sexual_ussage_name_items[value][self.INDEX_ID]
 
-    def get_commercialUssageName(self):
+    def get_commercial_ussage_name(self):
         key = "commercialUssageName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.commercialUssageName_items:
+            for item in self.commercial_ussage_name_items:
                 if item[self.INDEX_ID] == v:
                     ret = item[self.INDEX_NUMBER]
             return ret
         else:
             return 0
 
-    def set_commercialUssageName(self, value):
+    def set_commercial_ussage_name(self, value):
         key = "commercialUssageName"
         if key in self.id_data:
-            self.id_data[key] = self.commercialUssageName_items[value][self.INDEX_ID]
+            self.id_data[key] = self.commercial_ussage_name_items[value][self.INDEX_ID]
 
-    def get_licenseName(self):
+    def get_license_name(self):
         key = "licenseName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.licenseName_items:
+            for item in self.license_name_items:
                 if item[self.INDEX_ID] == v:
                     ret = item[self.INDEX_NUMBER]
             return ret
         else:
             return 0
 
-    def set_licenseName(self, value):
+    def set_license_name(self, value):
         key = "licenseName"
         if key in self.id_data:
-            self.id_data[key] = self.licenseName_items[value][self.INDEX_ID]
+            self.id_data[key] = self.license_name_items[value][self.INDEX_ID]
 
-    allowedUserName: bpy.props.EnumProperty(items=allowedUserName_items,
-                                            get=get_allowedUserName,
-                                            set=set_allowedUserName,
-                                            name='Allowed User')
-    violentUssageName: bpy.props.EnumProperty(items=violentUssageName_items,
-                                              get=get_violentUssageName,
-                                              set=set_violentUssageName,
-                                              name='Violent Ussage')
-    sexualUssageName: bpy.props.EnumProperty(items=sexualUssageName_items,
-                                             get=get_sexualUssageName,
-                                             set=set_sexualUssageName,
-                                             name='Sexual Ussage')
-    commercialUssageName: bpy.props.EnumProperty(items=commercialUssageName_items,
-                                                 get=get_commercialUssageName,
-                                                 set=set_commercialUssageName,
-                                                 name='Commercial Ussage')
-    licenseName: bpy.props.EnumProperty(items=licenseName_items,
-                                        get=get_licenseName,
-                                        set=set_licenseName,
-                                        name='License')
+    allowed_user_name: bpy.props.EnumProperty(items=allowed_user_name_items,
+                                              get=get_allowed_user_name,
+                                              set=set_allowed_user_name,
+                                              name='Allowed User')
+    violent_ussage_name: bpy.props.EnumProperty(items=violent_ussage_name_items,
+                                                get=get_violent_ussage_name,
+                                                set=set_violent_ussage_name,
+                                                name='Violent Ussage')
+    sexual_ussage_name: bpy.props.EnumProperty(items=sexual_ussage_name_items,
+                                               get=get_sexual_ussage_name,
+                                               set=set_sexual_ussage_name,
+                                               name='Sexual Ussage')
+    commercial_ussage_name: bpy.props.EnumProperty(items=commercial_ussage_name_items,
+                                                   get=get_commercial_ussage_name,
+                                                   set=set_commercial_ussage_name,
+                                                   name='Commercial Ussage')
+    license_name: bpy.props.EnumProperty(items=license_name_items,
+                                         get=get_license_name,
+                                         set=set_license_name,
+                                         name='License')
 
 
 class VRMProps(bpy.types.PropertyGroup):
     humanoid_params: bpy.props.PointerProperty(name="Humanoid Params", type=HUMANOID_PARAMS)
-    firstPerson_params: bpy.props.PointerProperty(name="FirstPerson Params", type=FIRSTPERSON_PARAMS)
+    first_person_params: bpy.props.PointerProperty(name="FirstPerson Params", type=FIRSTPERSON_PARAMS)
     blendshape_group: bpy.props.CollectionProperty(name="Blendshape Group", type=BLENDSHAPE_GROUP)
-    spring_bone: bpy.props.CollectionProperty(name="Spring Bone", type=SPRING_BONE)
+    spring_bones: bpy.props.CollectionProperty(name="Spring Bones", type=SPRING_BONE)
     metas: bpy.props.PointerProperty(name="Metas", type=METAS)
     required_metas: bpy.props.PointerProperty(name="Required Metas", type=REQUIRED_METAS)
 
@@ -1218,8 +1373,13 @@ classes = [
     VRM_IMPORTER_PT_amature_controller,
     HUMANOID_PARAMS,
     LOOKAT_CURVE,
+    MESH_ANNOTATION,
     FIRSTPERSON_PARAMS,
+    BLENDSHAPE_BIND,
+    BLENDSHAPE_MATERIAL_BIND,
     BLENDSHAPE_GROUP,
+    COLLIDER_GROUP,
+    BONE_GROUP,
     SPRING_BONE,
     METAS,
     REQUIRED_METAS,

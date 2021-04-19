@@ -1817,6 +1817,7 @@ class BlendModel:
         humanoid_params = copy.deepcopy(vrm0_extension["humanoid"])
         del humanoid_params["humanBones"]
         write_textblock_and_assign_to_armature("humanoid_params", humanoid_params)
+        self.load_humanoid_params(self.armature, humanoid_params)
         # endregion humanoid_parameter
         # region first_person
         first_person_params = copy.deepcopy(vrm0_extension["firstPerson"])
@@ -1841,6 +1842,7 @@ class BlendModel:
         write_textblock_and_assign_to_armature(
             "firstPerson_params", first_person_params
         )
+        self.load_first_person_params(self.armature, first_person_params)
         # endregion first_person
 
         # region blendshape_master
@@ -1872,6 +1874,7 @@ class BlendModel:
         if legacy_vrm0:
             blendshape_groups = []
         write_textblock_and_assign_to_armature("blendshape_group", blendshape_groups)
+        self.load_blendshape_group(self.armature, blendshape_groups)
         # endregion blendshape_master
 
         # region springbone
@@ -1901,7 +1904,93 @@ class BlendModel:
             ]
 
         write_textblock_and_assign_to_armature("spring_bone", spring_bonegroup_list)
+        self.load_spring_bones(self.armature, spring_bonegroup_list)
         # endregion springbone
+
+    def load_humanoid_params(self, armature, humanoid_params):
+        props = armature.vrm_props.humanoid_params
+        props.arm_stretch = humanoid_params["armStretch"]
+        props.leg_stretch = humanoid_params["legStretch"]
+        props.upper_arm_twist = humanoid_params["upperArmTwist"]
+        props.lower_arm_twist = humanoid_params["lowerArmTwist"]
+        props.upper_leg_twist = humanoid_params["upperLegTwist"]
+        props.lower_leg_twist = humanoid_params["lowerLegTwist"]
+        props.feet_spacing = humanoid_params["feetSpacing"]
+        props.has_translation_dof = humanoid_params["hasTranslationDoF"]
+
+    def load_first_person_params(self, armature, first_person_params):
+        props = armature.vrm_props.first_person_params
+        props.first_person_bone = first_person_params["firstPersonBone"]
+        first_person_bone_offset = first_person_params["firstPersonBoneOffset"]
+        # Axis cofuing
+        props.first_person_bone_offset = (first_person_bone_offset['x'],
+                                          first_person_bone_offset['z'],
+                                          first_person_bone_offset['y'])
+        props.mesh_annotations.clear()
+        for mesh_annotation in first_person_params["meshAnnotations"]:
+            item = props.mesh_annotations.add()
+            item.mesh = mesh_annotation["mesh"]
+            item.first_person_flag = mesh_annotation["firstPersonFlag"]
+        props.look_at_type_name = first_person_params["lookAtTypeName"]
+        look_at_horizontal_inner = first_person_params["lookAtHorizontalInner"]
+        props.look_at_horizontal_inner.curve = look_at_horizontal_inner["curve"]
+        props.look_at_horizontal_inner.x_range = look_at_horizontal_inner["xRange"]
+        props.look_at_horizontal_inner.y_range = look_at_horizontal_inner["yRange"]
+        look_at_horizontal_outer = first_person_params["lookAtHorizontalOuter"]
+        props.look_at_horizontal_outer.curve = look_at_horizontal_outer["curve"]
+        props.look_at_horizontal_outer.x_range = look_at_horizontal_outer["xRange"]
+        props.look_at_horizontal_outer.y_range = look_at_horizontal_outer["yRange"]
+        look_at_vertical_down = first_person_params["lookAtVerticalDown"]
+        props.look_at_vertical_down.curve = look_at_vertical_down["curve"]
+        props.look_at_vertical_down.x_range = look_at_vertical_down["xRange"]
+        props.look_at_vertical_down.y_range = look_at_vertical_down["yRange"]
+        look_at_vertical_up = first_person_params["lookAtVerticalUp"]
+        props.look_at_vertical_up.curve = look_at_vertical_up["curve"]
+        props.look_at_vertical_up.x_range = look_at_vertical_up["xRange"]
+        props.look_at_vertical_up.y_range = look_at_vertical_up["yRange"]
+
+    def load_blendshape_group(self, armature, blendshape_group):
+        props = armature.vrm_props.blendshape_group
+        props.clear()
+        for blendshape in blendshape_group:
+            item = props.add()
+            item.name = blendshape["name"]
+            item.preset_name = blendshape["presetName"]
+            item.binds.clear()
+            binds = blendshape["binds"]
+            for bind in binds:
+                added = item.binds.add()
+                added.mesh = bind['mesh']
+                added.index = bind['index']
+                added.weight = bind['weight']
+            # "materialValues": [],
+            if "isBinary" in blendshape:
+                item.is_binary = blendshape["isBinary"]
+
+    def load_spring_bones(self, armature, spring_bonegroup_list):
+        props = armature.vrm_props.spring_bones
+        props.clear()
+        for spring_bonegroup in spring_bonegroup_list:
+            item = props.add()
+            item.comment = spring_bonegroup['comment']
+            item.stiffiness = spring_bonegroup["stiffiness"]
+            item.gravity_power = spring_bonegroup["gravityPower"]
+            gravity_dir = spring_bonegroup["gravityDir"]
+            # Axis cofuing
+            item.gravity_dir = (gravity_dir['x'], gravity_dir['z'], gravity_dir['y'])
+            item.drag_force = spring_bonegroup["dragForce"]
+            NO_REFERENCE = -1
+            if spring_bonegroup["center"] != NO_REFERENCE:
+                item.center = spring_bonegroup["center"]
+            item.hit_radius = spring_bonegroup["hitRadius"]
+            item.bones.clear()
+            for bone in spring_bonegroup["bones"]:
+                added = item.bones.add()
+                added.name = bone
+            item.collider_groups.clear()
+            for bone in spring_bonegroup["colliderGroups"]:
+                added = item.collider_groups.add()
+                added.name = bone
 
     def cleaning_data(self) -> None:
         # collection setting
