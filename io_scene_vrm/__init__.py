@@ -793,28 +793,40 @@ class VRM_IMPORTER_PT_vrm_blendshape_group(bpy.types.Panel):
                 blendshape,
                 "preset_name"
             )
-            box.label(text="binds")
-            for bind in blendshape.binds:
-                sub = box.box()
-                sub.prop_search(
-                    bind,
-                    "mesh",
-                    blend_data,
-                    "meshes"
-                )
-                sub.prop(
-                    bind,
-                    "index"
-                )
-                sub.prop(
-                    bind,
-                    "weight"
-                )
-            box.label(text="materialValues is yet")
+
             box.prop(
                 blendshape,
-                "is_binary"
+                "is_binary",
+                icon='IPO_CONSTANT'
             )
+            box.separator()
+            row = box.row()
+            row.prop(
+                blendshape,
+                "show_expanded_binds",
+                icon='TRIA_DOWN' if blendshape.show_expanded_binds else 'TRIA_RIGHT',
+                icon_only=True,
+                emboss=False
+            )
+            row.label(text="Binds")
+            if blendshape.show_expanded_binds:
+                for bind in blendshape.binds:
+                    box.prop_search(
+                        bind,
+                        "mesh",
+                        blend_data,
+                        "meshes"
+                    )
+                    box.prop(
+                        bind,
+                        "index"
+                    )
+                    box.prop(
+                        bind,
+                        "weight"
+                    )
+                    box.separator()
+            box.label(text="materialValues is yet")
 
 
 class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):
@@ -846,6 +858,9 @@ class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):
 
         for spring_bone in spring_bones:
             box = layout.box()
+            row = box.row()
+            row.label(icon='REMOVE')
+            # row.alignment = 'RIGHT'
             box.prop(
                 spring_bone,
                 "comment",
@@ -884,21 +899,36 @@ class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):
                 icon="MOD_PHYSICS",
             )
             box.separator()
-            box.label(text='Bones',
-                      icon='RIGID_BODY_CONSTRAINT')
-            for bone in spring_bone.bones:
-                box.prop_search(bone,
-                                "name",
-                                data,
-                                "bones")
-            box.separator()
-            box.label(text='collider Group',
-                      icon='MOD_PHYSICS')
-            for collider_group in spring_bone.collider_groups:
-                box.prop_search(collider_group,
-                                "name",
-                                data,
-                                "bones")
+            row = box.row()
+            row.prop(
+                spring_bone,
+                "show_expanded_bones",
+                icon='TRIA_DOWN' if spring_bone.show_expanded_bones else 'TRIA_RIGHT',
+                icon_only=True,
+                emboss=False
+            )
+            row.label(text='Bones')
+            if spring_bone.show_expanded_bones:
+                for bone in spring_bone.bones:
+                    box.prop_search(bone,
+                                    "name",
+                                    data,
+                                    "bones")
+            row = box.row()
+            row.prop(
+                spring_bone,
+                "show_expanded_collider_groups",
+                icon='TRIA_DOWN' if spring_bone.show_expanded_collider_groups else 'TRIA_RIGHT',
+                icon_only=True,
+                emboss=False
+            )
+            row.label(text='Collider Group')
+            if spring_bone.show_expanded_collider_groups:
+                for collider_group in spring_bone.collider_groups:
+                    box.prop_search(collider_group,
+                                    "name",
+                                    data,
+                                    "bones")
 
 
 class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):
@@ -1077,6 +1107,7 @@ class BLENDSHAPE_GROUP(bpy.types.PropertyGroup):
     binds: bpy.props.CollectionProperty(type=BLENDSHAPE_BIND, name="Binds")
     material_values = bpy.props.CollectionProperty(type=BLENDSHAPE_MATERIAL_BIND, name="Material Values")
     is_binary: bpy.props.BoolProperty(name='Is Binary')
+    show_expanded_binds: bpy.props.BoolProperty(name='Show Expanded Binds')
 
 
 class COLLIDER_GROUP(bpy.types.PropertyGroup):
@@ -1087,9 +1118,9 @@ class BONE_GROUP(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name='Name')
 
 
-class SPRING_BONE(bpy.types.PropertyGroup):
+class SPRING_BONE_GROUP(bpy.types.PropertyGroup):
     comment: bpy.props.StringProperty(name='Comment')
-    stiffiness: bpy.props.IntProperty(name='stiffiness')
+    stiffiness: bpy.props.IntProperty(name='Stiffiness')
     gravity_power: bpy.props.IntProperty(name='Gravity Power')
     gravity_dir: bpy.props.FloatVectorProperty(size=3, name='Gravity Dir')
     drag_force: bpy.props.FloatProperty(name='DragForce')
@@ -1097,6 +1128,8 @@ class SPRING_BONE(bpy.types.PropertyGroup):
     hit_radius: bpy.props.FloatProperty(name='Hit Radius')
     bones: bpy.props.CollectionProperty(name="Bones", type=BONE_GROUP)
     collider_groups: bpy.props.CollectionProperty(name="Collider Groups", type=COLLIDER_GROUP)
+    show_expanded_bones: bpy.props.BoolProperty(name='Show Expanded Bones')    
+    show_expanded_collider_groups: bpy.props.BoolProperty(name='Show Expanded Collider Groups')
 
 
 class METAS(bpy.types.PropertyGroup):
@@ -1330,7 +1363,7 @@ class VRMProps(bpy.types.PropertyGroup):
     humanoid_params: bpy.props.PointerProperty(name="Humanoid Params", type=HUMANOID_PARAMS)
     first_person_params: bpy.props.PointerProperty(name="FirstPerson Params", type=FIRSTPERSON_PARAMS)
     blendshape_group: bpy.props.CollectionProperty(name="Blendshape Group", type=BLENDSHAPE_GROUP)
-    spring_bones: bpy.props.CollectionProperty(name="Spring Bones", type=SPRING_BONE)
+    spring_bones: bpy.props.CollectionProperty(name="Spring Bones", type=SPRING_BONE_GROUP)
     metas: bpy.props.PointerProperty(name="Metas", type=METAS)
     required_metas: bpy.props.PointerProperty(name="Required Metas", type=REQUIRED_METAS)
 
@@ -1380,7 +1413,7 @@ classes = [
     BLENDSHAPE_GROUP,
     COLLIDER_GROUP,
     BONE_GROUP,
-    SPRING_BONE,
+    SPRING_BONE_GROUP,
     METAS,
     REQUIRED_METAS,
     VRMProps,
