@@ -13,6 +13,7 @@ import re
 import sys
 import tempfile
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from itertools import repeat
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import ParseResult, parse_qsl, urlparse
@@ -25,98 +26,40 @@ from ..gl_constants import GlConstants
 from .binary_reader import BinaryReader
 
 
-class PyModel:
-    def __init__(
-        self,
-        model_path: str,
-        extract_textures_into_folder: bool,
-        make_new_texture_folder: bool,
-        license_check: bool,
-        legacy_importer: bool,
-    ) -> None:
-        self.filepath = model_path
-        self.decoded_binary: List[Any] = []
-        self.image_properties: List[ImageProps] = []
-        self.meshes: List[List[PyMesh]] = []
-        self.materials: List[PyMaterial] = []
-        self.nodes_dict: Dict[int, PyNode] = {}
-        self.origin_nodes_dict: Dict[int, List[Any]] = {}
-        self.skins_joints_list: List[List[int]] = []
-        self.skins_root_node_list: List[int] = []
-
-        # datachunkは普通一つしかない
-        with open(model_path, "rb") as f:
-            json_dict, body_binary = parse_glb(f.read())
-            self.json = json_dict
-
-        # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
-        if (
-            "extensionsRequired" in self.json
-            and "KHR_DRACO_MESH_COMPRESSION" in self.json["extensionsRequired"]
-        ):
-            raise Exception(
-                "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
-            )
-
-        if license_check:
-            validate_license(self)
-
-        if legacy_importer:
-            texture_rip(
-                self,
-                body_binary,
-                extract_textures_into_folder,
-                make_new_texture_folder,
-            )
-            self.decoded_binary = decode_bin(self.json, body_binary)
-            mesh_read(self)
-            material_read(self)
-            skin_read(self)
-            node_read(self)
-        else:
-            material_read(self)
-
-
+@dataclass
 class PyMesh:
-    def __init__(self, object_id: int) -> None:
-        self.name = ""
-        self.face_indices: Any = []  # ndarray
-        self.skin_id: Optional[int] = None
-        self.object_id = object_id
-        self.material_index: Optional[int] = None
-        self.POSITION_accessor: Optional[int] = None
-        self.POSITION: Optional[List[List[float]]] = None
-        self.JOINTS_0: Optional[List[List[int]]] = None
-        self.WEIGHTS_0: Optional[List[List[float]]] = None
-        self.NORMAL: Optional[List[List[float]]] = None
-        self.vert_normal_normalized: Optional[bool] = None
-        self.morph_target_point_list_and_accessor_index_dict: Optional[
-            Dict[str, List[Any]]
-        ] = None
+    object_id: int
+    name: str = ""
+    face_indices: Any = field(default_factory=list)  # ndarray
+    skin_id: Optional[int] = None
+    material_index: Optional[int] = None
+    POSITION_accessor: Optional[int] = None
+    POSITION: Optional[List[List[float]]] = None
+    JOINTS_0: Optional[List[List[int]]] = None
+    WEIGHTS_0: Optional[List[List[float]]] = None
+    NORMAL: Optional[List[List[float]]] = None
+    vert_normal_normalized: Optional[bool] = None
+    morph_target_point_list_and_accessor_index_dict: Optional[
+        Dict[str, List[Any]]
+    ] = None
 
 
+@dataclass
 class PyNode:
-    def __init__(
-        self,
-        name: str,
-        position: Sequence[float],
-        rotation: Sequence[float],
-        scale: Sequence[float],
-    ) -> None:
-        self.name = name
-        self.position = position
-        self.rotation = rotation
-        self.scale = scale
-        self.children: Optional[List[int]] = None
-        self.blend_bone: Optional[bpy.types.Bone] = None
-        self.mesh_id: Optional[int] = None
-        self.skin_id: Optional[int] = None
+    name: str
+    position: Sequence[float]
+    rotation: Sequence[float]
+    scale: Sequence[float]
+    children: Optional[List[int]] = None
+    blend_bone: Optional[bpy.types.Bone] = None
+    mesh_id: Optional[int] = None
+    skin_id: Optional[int] = None
 
 
+@dataclass
 class PyMaterial:
-    def __init__(self) -> None:
-        self.name = ""
-        self.shader_name = ""
+    name: str = ""
+    shader_name: str = ""
 
 
 class PyMaterialGltf(PyMaterial):
@@ -181,11 +124,61 @@ class PyMaterialMtoon(PyMaterial):
         }
 
 
+@dataclass
 class ImageProps:
-    def __init__(self, name: str, filepath: str, filetype: str) -> None:
-        self.name = name
-        self.filepath = filepath
-        self.filetype = filetype
+    name: str
+    filepath: str
+    filetype: str
+
+
+@dataclass
+class PyModel:
+    filepath: str
+    extract_textures_into_folder: bool
+    make_new_texture_folder: bool
+    license_check: bool
+    legacy_importer: bool
+    decoded_binary: List[Any] = field(default_factory=list)
+    image_properties: List[ImageProps] = field(default_factory=list)
+    meshes: List[List[PyMesh]] = field(default_factory=list)
+    materials: List[PyMaterial] = field(default_factory=list)
+    nodes_dict: Dict[int, PyNode] = field(default_factory=dict)
+    origin_nodes_dict: Dict[int, List[Any]] = field(default_factory=dict)
+    skins_joints_list: List[List[int]] = field(default_factory=list)
+    skins_root_node_list: List[int] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        # datachunkは普通一つしかない
+        with open(self.filepath, "rb") as f:
+            json_dict, body_binary = parse_glb(f.read())
+            self.json = json_dict
+
+        # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
+        if (
+            "extensionsRequired" in self.json
+            and "KHR_DRACO_MESH_COMPRESSION" in self.json["extensionsRequired"]
+        ):
+            raise Exception(
+                "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
+            )
+
+        if self.license_check:
+            validate_license(self)
+
+        if self.legacy_importer:
+            texture_rip(
+                self,
+                body_binary,
+                self.extract_textures_into_folder,
+                self.make_new_texture_folder,
+            )
+            self.decoded_binary = decode_bin(self.json, body_binary)
+            mesh_read(self)
+            material_read(self)
+            skin_read(self)
+            node_read(self)
+        else:
+            material_read(self)
 
 
 class LicenseConfirmationRequiredProp:

@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -89,10 +90,14 @@ class GlbBinCollection:
         return len(self.vertex_attribute_bins)
 
 
+@dataclass
 class BaseBin:
-    def __init__(self, binary: bytes, glb_bin_collection: GlbBinCollection) -> None:
-        self.bin = binary
-        self.bin_length = len(binary)
+    bin: bytes
+    glb_bin_collection: GlbBinCollection
+    bin_length: int = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.bin_length = len(self.bin)
 
 
 class ImageBin(BaseBin):

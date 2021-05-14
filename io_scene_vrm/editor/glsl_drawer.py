@@ -1,6 +1,7 @@
 import collections
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
 import bgl
@@ -169,15 +170,15 @@ class MtoonGlsl:
                     self.texture_dic[k] = self.get_texture(k)
 
 
+@dataclass
 class GlMesh:
-    def __init__(self) -> None:
-        self.pos: Dict[Any, Any] = {}
-        self.normals: Dict[Any, Any] = {}
-        self.uvs: Dict[Any, Any] = {}
-        self.tangents: Dict[Any, Any] = {}
-        self.index_per_mat: Dict[Any, Any] = {}
-        self.mat_list: List[MtoonGlsl] = []
-        self.index_per_mat = {}  # material : vert index
+    pos: Dict[Any, Any] = field(default_factory=dict)
+    normals: Dict[Any, Any] = field(default_factory=dict)
+    uvs: Dict[Any, Any] = field(default_factory=dict)
+    tangents: Dict[Any, Any] = field(default_factory=dict)
+    index_per_mat: Dict[Any, Any] = field(default_factory=dict)
+    mat_list: List[MtoonGlsl] = field(default_factory=list)
+    index_per_mat = field(default_factory=dict)  # material : vert index
 
 
 class GlslDrawObj:
