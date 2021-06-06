@@ -83,7 +83,7 @@ classes = [
     editor.VRM_IMPORTER_PT_vrm_firstPerson_params,
     editor.VRM_IMPORTER_PT_vrm_blendshape_group,
     editor.VRM_IMPORTER_PT_vrm_spring_bone,
-    editor.VRM_IMPORTER_PT_vrm_metas
+    editor.VRM_IMPORTER_PT_vrm_metas,
 ]
 
 
@@ -101,8 +101,7 @@ def register(init_version: Any) -> None:
     # bpy.types.VIEW3D_MT_mesh_add.append(editor.make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
     bpy.app.translations.register(addon_package_name, translation_dictionary)
-    bpy.types.Object.vrm_props = \
-        bpy.props.PointerProperty(type=editor.VRMProps)
+    bpy.types.Object.vrm_props = bpy.props.PointerProperty(type=editor.VRMProps)
 
 
 # アドオン無効化時の処理

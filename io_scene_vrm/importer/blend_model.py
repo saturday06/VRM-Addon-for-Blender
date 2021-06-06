@@ -1931,7 +1931,9 @@ class BlendModel:
         self.load_spring_bones(self.armature, spring_bonegroup_list)
         # endregion springbone
 
-    def load_humanoid_params(self, armature, humanoid_params):
+    def load_humanoid_params(
+        self, armature: bpy.types.Armature, humanoid_params: Dict[str, Any]
+    ) -> None:
         props = armature.vrm_props.humanoid_params
         props.arm_stretch = humanoid_params["armStretch"]
         props.leg_stretch = humanoid_params["legStretch"]
@@ -1942,14 +1944,18 @@ class BlendModel:
         props.feet_spacing = humanoid_params["feetSpacing"]
         props.has_translation_dof = humanoid_params["hasTranslationDoF"]
 
-    def load_first_person_params(self, armature, first_person_params):
+    def load_first_person_params(
+        self, armature: bpy.types.Armature, first_person_params: Dict[str, Any]
+    ) -> None:
         props = armature.vrm_props.first_person_params
         props.first_person_bone = first_person_params["firstPersonBone"]
         first_person_bone_offset = first_person_params["firstPersonBoneOffset"]
         # Axis cofuing
-        props.first_person_bone_offset = (first_person_bone_offset['x'],
-                                          first_person_bone_offset['z'],
-                                          first_person_bone_offset['y'])
+        props.first_person_bone_offset = (
+            first_person_bone_offset["x"],
+            first_person_bone_offset["z"],
+            first_person_bone_offset["y"],
+        )
         props.mesh_annotations.clear()
         for mesh_annotation in first_person_params["meshAnnotations"]:
             item = props.mesh_annotations.add()
@@ -1973,7 +1979,9 @@ class BlendModel:
         props.look_at_vertical_up.x_range = look_at_vertical_up["xRange"]
         props.look_at_vertical_up.y_range = look_at_vertical_up["yRange"]
 
-    def load_blendshape_group(self, armature, blendshape_group):
+    def load_blendshape_group(
+        self, armature: bpy.types.Armature, blendshape_group: List[Dict[str, Any]]
+    ) -> None:
         props = armature.vrm_props.blendshape_group
         props.clear()
         for blendshape in blendshape_group:
@@ -1984,24 +1992,26 @@ class BlendModel:
             binds = blendshape["binds"]
             for bind in binds:
                 added = item.binds.add()
-                added.mesh = bind['mesh']
-                added.index = bind['index']
-                added.weight = bind['weight']
+                added.mesh = bind["mesh"]
+                added.index = bind["index"]
+                added.weight = bind["weight"]
             # "materialValues": [],
             if "isBinary" in blendshape:
                 item.is_binary = blendshape["isBinary"]
 
-    def load_spring_bones(self, armature, spring_bonegroup_list):
+    def load_spring_bones(
+        self, armature: bpy.types.Armature, spring_bonegroup_list: List[Dict[str, Any]]
+    ) -> None:
         props = armature.vrm_props.spring_bones
         props.clear()
         for spring_bonegroup in spring_bonegroup_list:
             item = props.add()
-            item.comment = spring_bonegroup['comment']
+            item.comment = spring_bonegroup["comment"]
             item.stiffiness = spring_bonegroup["stiffiness"]
             item.gravity_power = spring_bonegroup["gravityPower"]
             gravity_dir = spring_bonegroup["gravityDir"]
             # Axis cofuing
-            item.gravity_dir = (gravity_dir['x'], gravity_dir['z'], gravity_dir['y'])
+            item.gravity_dir = (gravity_dir["x"], gravity_dir["z"], gravity_dir["y"])
             item.drag_force = spring_bonegroup["dragForce"]
             NO_REFERENCE = -1
             if spring_bonegroup["center"] != NO_REFERENCE:
