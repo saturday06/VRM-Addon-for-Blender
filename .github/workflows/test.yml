@@ -158,7 +158,7 @@ jobs:
       - name: Pylint
         run: |
           poetry remove fake-bpy-module-2.82 # pylint and fake-bpy-module are incompatible
-          poetry run pylint $(git ls-files "*.py")
+          poetry run pylint --rcfile .pylintrc.ci $(git ls-files "*.py")
           git checkout .
           poetry install
       - name: Mypy
