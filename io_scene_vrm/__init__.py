@@ -65,6 +65,25 @@ classes = [
     # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     # blend_model.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
+    editor.VRM_IMPORTER_PT_amature_controller,
+    editor.HUMANOID_PARAMS,
+    editor.LOOKAT_CURVE,
+    editor.MESH_ANNOTATION,
+    editor.FIRSTPERSON_PARAMS,
+    editor.BLENDSHAPE_BIND,
+    editor.BLENDSHAPE_MATERIAL_BIND,
+    editor.BLENDSHAPE_GROUP,
+    editor.COLLIDER_GROUP,
+    editor.BONE_GROUP,
+    editor.SPRING_BONE_GROUP,
+    editor.METAS,
+    editor.REQUIRED_METAS,
+    editor.VRMProps,
+    editor.VRM_IMPORTER_PT_vrm_humanoid_params,
+    editor.VRM_IMPORTER_PT_vrm_firstPerson_params,
+    editor.VRM_IMPORTER_PT_vrm_blendshape_group,
+    editor.VRM_IMPORTER_PT_vrm_spring_bone,
+    editor.VRM_IMPORTER_PT_vrm_metas
 ]
 
 
@@ -82,10 +101,13 @@ def register(init_version: Any) -> None:
     # bpy.types.VIEW3D_MT_mesh_add.append(editor.make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
     bpy.app.translations.register(addon_package_name, translation_dictionary)
+    bpy.types.Object.vrm_props = \
+        bpy.props.PointerProperty(type=editor.VRMProps)
 
 
 # アドオン無効化時の処理
 def unregister() -> None:
+    del bpy.types.Object.vrm_props
     bpy.app.translations.unregister(addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(editor.add_armature)
