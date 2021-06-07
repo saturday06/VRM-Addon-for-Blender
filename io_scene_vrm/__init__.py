@@ -14,7 +14,11 @@ from . import editor, exporter, importer, shader, version
 from .editor import glsl_drawer, make_armature, vrm_helper
 from .exporter import validation
 from .lang import translation_dictionary
-from .preferences import VrmAddonPreferences, addon_package_name
+from .preferences import (
+    VrmAddonPreferences,
+    addon_package_name,
+    use_experimental_vrm_component_ui,
+)
 
 
 class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -65,7 +69,6 @@ classes = [
     # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     # blend_model.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
-    editor.VRM_IMPORTER_PT_armature_controller,
     editor.HUMANOID_PARAMS,
     editor.LOOKAT_CURVE,
     editor.MESH_ANNOTATION,
@@ -78,6 +81,10 @@ classes = [
     editor.SPRING_BONE_GROUP,
     editor.METAS,
     editor.REQUIRED_METAS,
+]
+
+experimental_vrm_component_ui_classes = [
+    editor.VRM_IMPORTER_PT_armature_controller,
     editor.VRMProps,
     editor.VRM_IMPORTER_PT_vrm_humanoid_params,
     editor.VRM_IMPORTER_PT_vrm_firstPerson_params,
@@ -87,12 +94,27 @@ classes = [
 ]
 
 
+def set_use_experimental_vrm_component_ui(enable: bool) -> None:
+    has_props = hasattr(bpy.types.Object, "vrm_props")
+    if enable and not has_props:
+        for cls in experimental_vrm_component_ui_classes:
+            bpy.utils.register_class(cls)
+        bpy.types.Object.vrm_props = bpy.props.PointerProperty(type=editor.VRMProps)
+    elif not enable and has_props:
+        del bpy.types.Object.vrm_props
+        for cls in experimental_vrm_component_ui_classes:
+            bpy.utils.unregister_class(cls)
+
+
 # アドオン有効化時の処理
 def register(init_version: Any) -> None:
     # Sanity check
     if init_version != version.version():
         raise Exception(f"Version mismatch: {init_version} != {version.version()}")
 
+    VrmAddonPreferences.set_use_experimental_vrm_component_ui_callback = (
+        set_use_experimental_vrm_component_ui
+    )
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(importer.menu_import)
@@ -101,12 +123,14 @@ def register(init_version: Any) -> None:
     # bpy.types.VIEW3D_MT_mesh_add.append(editor.make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
     bpy.app.translations.register(addon_package_name, translation_dictionary)
-    bpy.types.Object.vrm_props = bpy.props.PointerProperty(type=editor.VRMProps)
+
+    set_use_experimental_vrm_component_ui(
+        use_experimental_vrm_component_ui(bpy.context)
+    )
 
 
 # アドオン無効化時の処理
 def unregister() -> None:
-    del bpy.types.Object.vrm_props
     bpy.app.translations.unregister(addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(editor.add_armature)

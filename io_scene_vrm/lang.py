@@ -13,6 +13,7 @@ translation_dictionary = {
             "*",
             'Official add-on "glTF 2.0 format" is required. Please enable it.',
         ): "公式アドオン「glTF 2.0 format」が必要です。有効化してください。",
+        ("*", "Try experimental VRM component UI"): "実験中のVRMコンポーネントUIを試す",
     }
 }
 

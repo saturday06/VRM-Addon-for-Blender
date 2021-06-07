@@ -55,7 +55,9 @@ class BlendModel:
         extract_textures_into_folder: bool,
         make_new_texture_folder: bool,
         legacy_importer: bool,
+        use_experimental_vrm_component_ui: bool,
     ) -> None:
+        self.use_experimental_vrm_component_ui = use_experimental_vrm_component_ui
         self.meshes: Dict[int, bpy.types.Object] = {}
         self.extract_textures_into_folder = extract_textures_into_folder
         self.make_new_texture_folder = make_new_texture_folder
@@ -1934,6 +1936,9 @@ class BlendModel:
     def load_humanoid_params(
         self, armature: bpy.types.Armature, humanoid_params: Dict[str, Any]
     ) -> None:
+        if not self.use_experimental_vrm_component_ui:
+            return
+
         props = armature.vrm_props.humanoid_params
         props.arm_stretch = humanoid_params["armStretch"]
         props.leg_stretch = humanoid_params["legStretch"]
@@ -1947,6 +1952,9 @@ class BlendModel:
     def load_first_person_params(
         self, armature: bpy.types.Armature, first_person_params: Dict[str, Any]
     ) -> None:
+        if not self.use_experimental_vrm_component_ui:
+            return
+
         props = armature.vrm_props.first_person_params
         props.first_person_bone = first_person_params["firstPersonBone"]
         first_person_bone_offset = first_person_params["firstPersonBoneOffset"]
@@ -1982,6 +1990,9 @@ class BlendModel:
     def load_blendshape_group(
         self, armature: bpy.types.Armature, blendshape_group: List[Dict[str, Any]]
     ) -> None:
+        if not self.use_experimental_vrm_component_ui:
+            return
+
         props = armature.vrm_props.blendshape_group
         props.clear()
         for blendshape in blendshape_group:
@@ -2002,6 +2013,9 @@ class BlendModel:
     def load_spring_bones(
         self, armature: bpy.types.Armature, spring_bonegroup_list: List[Dict[str, Any]]
     ) -> None:
+        if not self.use_experimental_vrm_component_ui:
+            return
+
         props = armature.vrm_props.spring_bones
         props.clear()
         for spring_bonegroup in spring_bonegroup_list:
