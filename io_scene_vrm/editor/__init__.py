@@ -841,13 +841,10 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         key = "allowedUserName"
         if key in self.id_data:
             v = self.id_data[key]
-            ret = 0
             for item in self.allowed_user_name_items:
                 if item[self.INDEX_ID] == v:
-                    ret = int(item[self.INDEX_NUMBER])
-            return ret
-        else:
-            return 0
+                    return int(item[self.INDEX_NUMBER])
+        return 0
 
     def set_allowed_user_name(self, value: int) -> None:
         key = "allowedUserName"
@@ -858,13 +855,10 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         key = "violentUssageName"
         if key in self.id_data:
             v = self.id_data[key]
-            ret = 0
             for item in self.violent_ussage_name_items:  # noqa: SC200
                 if item[self.INDEX_ID] == v:
-                    ret = int(item[self.INDEX_NUMBER])
-            return ret
-        else:
-            return 0
+                    return int(item[self.INDEX_NUMBER])
+        return 0
 
     def set_violent_ussage_name(self, value: int) -> None:  # noqa: SC200
         key = "violentUssageName"
@@ -877,13 +871,10 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         key = "sexualUssageName"
         if key in self.id_data:
             v = self.id_data[key]
-            ret = 0
             for item in self.sexual_ussage_name_items:  # noqa: SC200
                 if item[self.INDEX_ID] == v:
-                    ret = int(item[self.INDEX_NUMBER])
-            return ret
-        else:
-            return 0
+                    return int(item[self.INDEX_NUMBER])
+        return 0
 
     def set_sexual_ussage_name(self, value: int) -> None:  # noqa: SC200
         key = "sexualUssageName"
@@ -896,13 +887,10 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         key = "commercialUssageName"
         if key in self.id_data:
             v = self.id_data[key]
-            ret = 0
             for item in self.commercial_ussage_name_items:  # noqa: SC200
                 if item[self.INDEX_ID] == v:
-                    ret = int(item[self.INDEX_NUMBER])
-            return ret
-        else:
-            return 0
+                    return int(item[self.INDEX_NUMBER])
+        return 0
 
     def set_commercial_ussage_name(self, value: int) -> None:  # noqa: SC200
         key = "commercialUssageName"
@@ -915,13 +903,10 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         key = "licenseName"
         if key in self.id_data:
             v = self.id_data[key]
-            ret = 0
             for item in self.license_name_items:
                 if item[self.INDEX_ID] == v:
-                    ret = int(item[self.INDEX_NUMBER])
-            return ret
-        else:
-            return 0
+                    return int(item[self.INDEX_NUMBER])
+        return 0
 
     def set_license_name(self, value: int) -> None:
         key = "licenseName"
