@@ -506,7 +506,7 @@ class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):  # type: ignore[misc] # noqa: 
         )
         if (
             active_object.vrm_props.required_metas.license_name
-            == REQUIRED_METAS.LICENSENAME_OTHER
+            == REQUIRED_METAS.LICENSE_NAME_OTHER
         ):
             layout.prop(active_object.vrm_props.metas, "other_license_url", icon="URL")
         layout.prop(active_object.vrm_props.metas, "other_permission_url", icon="URL")
@@ -619,7 +619,7 @@ class BLENDSHAPE_MATERIAL_BIND(bpy.types.PropertyGroup):  # type: ignore[misc] #
     property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Property Name"  # noqa: F722
     )
-    targetValue = None  # Dummy
+    target_value = None  # Dummy
 
 
 class BLENDSHAPE_GROUP(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
@@ -807,7 +807,7 @@ class METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
 class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
     INDEX_ID = 0
     INDEX_NUMBER = 3
-    LICENSENAME_OTHER = "Other"
+    LICENSE_NAME_OTHER = "Other"
     allowed_user_name_items = [
         ("OnlyAuthor", "OnlyAuthor", "", 0),
         ("ExplicitlyLicensedPerson", "ExplicitlyLicensedPerson", "", 1),
@@ -834,7 +834,7 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         ("CC_BY_NC_SA", "CC_BY_NC_SA", "", 5),
         ("CC_BY_ND", "CC_BY_ND", "", 6),
         ("CC_BY_NC_ND", "CC_BY_NC_ND", "", 7),
-        (LICENSENAME_OTHER, LICENSENAME_OTHER, "", 8),
+        (LICENSE_NAME_OTHER, LICENSE_NAME_OTHER, "", 8),
     ]
 
     def get_allowed_user_name(self) -> int:

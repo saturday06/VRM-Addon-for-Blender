@@ -2013,8 +2013,8 @@ class BlendModel:
             # Axis cofuing
             item.gravity_dir = (gravity_dir["x"], gravity_dir["z"], gravity_dir["y"])
             item.drag_force = spring_bonegroup["dragForce"]
-            NO_REFERENCE = -1
-            if spring_bonegroup["center"] != NO_REFERENCE:
+            no_reference = -1
+            if spring_bonegroup["center"] != no_reference:
                 item.center = spring_bonegroup["center"]
             item.hit_radius = spring_bonegroup["hitRadius"]
             item.bones.clear()
