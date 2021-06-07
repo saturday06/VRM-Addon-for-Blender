@@ -65,7 +65,7 @@ classes = [
     # detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     # blend_model.ICYP_OT_select_helper,
     # mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES
-    editor.VRM_IMPORTER_PT_amature_controller,
+    editor.VRM_IMPORTER_PT_armature_controller,
     editor.HUMANOID_PARAMS,
     editor.LOOKAT_CURVE,
     editor.MESH_ANNOTATION,

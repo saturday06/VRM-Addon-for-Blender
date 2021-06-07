@@ -110,9 +110,9 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
         # endregion draw_main
 
 
-class VRM_IMPORTER_PT_amature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
-    bl_idname = "VRM_IMPORTER_PT_amature_controller"
-    bl_label = "VRM Amature Helper"
+class VRM_IMPORTER_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_idname = "VRM_IMPORTER_PT_armature_controller"
+    bl_label = "VRM Armature Helper"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"

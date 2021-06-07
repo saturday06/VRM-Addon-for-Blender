@@ -1950,7 +1950,7 @@ class BlendModel:
         props = armature.vrm_props.first_person_params
         props.first_person_bone = first_person_params["firstPersonBone"]
         first_person_bone_offset = first_person_params["firstPersonBoneOffset"]
-        # Axis cofuing
+        # Axis confusing
         props.first_person_bone_offset = (
             first_person_bone_offset["x"],
             first_person_bone_offset["z"],
@@ -2010,7 +2010,7 @@ class BlendModel:
             item.stiffiness = spring_bonegroup["stiffiness"]
             item.gravity_power = spring_bonegroup["gravityPower"]
             gravity_dir = spring_bonegroup["gravityDir"]
-            # Axis cofuing
+            # Axis confusing
             item.gravity_dir = (gravity_dir["x"], gravity_dir["z"], gravity_dir["y"])
             item.drag_force = spring_bonegroup["dragForce"]
             no_reference = -1
