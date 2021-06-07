@@ -679,7 +679,7 @@ class SPRING_BONE_GROUP(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: 
     comment: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Comment"  # noqa: F821
     )
-    stiffiness: bpy.props.IntProperty(  # type: ignore[valid-type]
+    stiffiness: bpy.props.IntProperty(  # type: ignore[valid-type] # noqa: SC200
         name="Stiffiness"  # noqa: F821
     )
     gravity_power: bpy.props.IntProperty(  # type: ignore[valid-type]
@@ -813,15 +813,15 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         ("ExplicitlyLicensedPerson", "ExplicitlyLicensedPerson", "", 1),
         ("Everyone", "Everyone", "", 2),
     ]
-    violent_ussage_name_items = [
+    violent_ussage_name_items = [  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     ]
-    sexual_ussage_name_items = [
+    sexual_ussage_name_items = [  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     ]
-    commercial_ussage_name_items = [
+    commercial_ussage_name_items = [  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     ]
@@ -854,56 +854,62 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         if key in self.id_data:
             self.id_data[key] = self.allowed_user_name_items[value][self.INDEX_ID]
 
-    def get_violent_ussage_name(self) -> int:
+    def get_violent_ussage_name(self) -> int:  # noqa: SC200
         key = "violentUssageName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.violent_ussage_name_items:
+            for item in self.violent_ussage_name_items:  # noqa: SC200
                 if item[self.INDEX_ID] == v:
                     ret = int(item[self.INDEX_NUMBER])
             return ret
         else:
             return 0
 
-    def set_violent_ussage_name(self, value: int) -> None:
+    def set_violent_ussage_name(self, value: int) -> None:  # noqa: SC200
         key = "violentUssageName"
         if key in self.id_data:
-            self.id_data[key] = self.violent_ussage_name_items[value][self.INDEX_ID]
+            self.id_data[key] = self.violent_ussage_name_items[value][  # noqa: SC200
+                self.INDEX_ID
+            ]
 
-    def get_sexual_ussage_name(self) -> int:
+    def get_sexual_ussage_name(self) -> int:  # noqa: SC200
         key = "sexualUssageName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.sexual_ussage_name_items:
+            for item in self.sexual_ussage_name_items:  # noqa: SC200
                 if item[self.INDEX_ID] == v:
                     ret = int(item[self.INDEX_NUMBER])
             return ret
         else:
             return 0
 
-    def set_sexual_ussage_name(self, value: int) -> None:
+    def set_sexual_ussage_name(self, value: int) -> None:  # noqa: SC200
         key = "sexualUssageName"
         if key in self.id_data:
-            self.id_data[key] = self.sexual_ussage_name_items[value][self.INDEX_ID]
+            self.id_data[key] = self.sexual_ussage_name_items[value][  # noqa: SC200
+                self.INDEX_ID
+            ]
 
-    def get_commercial_ussage_name(self) -> int:
+    def get_commercial_ussage_name(self) -> int:  # noqa: SC200
         key = "commercialUssageName"
         if key in self.id_data:
             v = self.id_data[key]
             ret = 0
-            for item in self.commercial_ussage_name_items:
+            for item in self.commercial_ussage_name_items:  # noqa: SC200
                 if item[self.INDEX_ID] == v:
                     ret = int(item[self.INDEX_NUMBER])
             return ret
         else:
             return 0
 
-    def set_commercial_ussage_name(self, value: int) -> None:
+    def set_commercial_ussage_name(self, value: int) -> None:  # noqa: SC200
         key = "commercialUssageName"
         if key in self.id_data:
-            self.id_data[key] = self.commercial_ussage_name_items[value][self.INDEX_ID]
+            self.id_data[key] = self.commercial_ussage_name_items[value][  # noqa: SC200
+                self.INDEX_ID
+            ]
 
     def get_license_name(self) -> int:
         key = "licenseName"
@@ -928,22 +934,22 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
         set=set_allowed_user_name,
         name="Allowed User",  # noqa: F722
     )
-    violent_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=violent_ussage_name_items,
-        get=get_violent_ussage_name,
-        set=set_violent_ussage_name,
+    violent_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
+        items=violent_ussage_name_items,  # noqa: SC200
+        get=get_violent_ussage_name,  # noqa: SC200
+        set=set_violent_ussage_name,  # noqa: SC200
         name="Violent Ussage",  # noqa: F722
     )
-    sexual_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=sexual_ussage_name_items,
-        get=get_sexual_ussage_name,
-        set=set_sexual_ussage_name,
+    sexual_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
+        items=sexual_ussage_name_items,  # noqa: SC200
+        get=get_sexual_ussage_name,  # noqa: SC200
+        set=set_sexual_ussage_name,  # noqa: SC200
         name="Sexual Ussage",  # noqa: F722
     )
-    commercial_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=commercial_ussage_name_items,
-        get=get_commercial_ussage_name,
-        set=set_commercial_ussage_name,
+    commercial_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
+        items=commercial_ussage_name_items,  # noqa: SC200
+        get=get_commercial_ussage_name,  # noqa: SC200
+        set=set_commercial_ussage_name,  # noqa: SC200
         name="Commercial Ussage",  # noqa: F722
     )
     license_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
