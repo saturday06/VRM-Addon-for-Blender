@@ -2007,7 +2007,7 @@ class BlendModel:
         for spring_bonegroup in spring_bonegroup_list:
             item = props.add()
             item.comment = spring_bonegroup["comment"]
-            item.stiffiness = spring_bonegroup["stiffiness"]
+            item.stiffiness = spring_bonegroup["stiffiness"]  # noqa: SC200
             item.gravity_power = spring_bonegroup["gravityPower"]
             gravity_dir = spring_bonegroup["gravityDir"]
             # Axis confusing
