@@ -56,6 +56,7 @@ dic
 dicts
 dirname
 dn
+dof
 doublesided
 dtype
 dview
@@ -210,6 +211,7 @@ sqrt
 src
 subpixel
 subtarget
+subtype
 superciliaris
 tagmap
 texcoord
