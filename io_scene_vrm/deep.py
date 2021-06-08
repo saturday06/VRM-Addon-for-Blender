@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 
 def make_return_value(
@@ -20,7 +20,7 @@ def make_return_value(
         return v
 
     print(f"WARNING: {v} is unrecognized type")
-    return cast(Optional[Union[int, bool, float, str, List[Any], Dict[str, Any]]], v)
+    return None
 
 
 def get(
