@@ -10,7 +10,19 @@ if not addon_package_name:
 class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     bl_idname = addon_package_name
 
-    set_use_experimental_vrm_component_ui_callback: Callable[[bool], None]
+    set_use_experimental_vrm_component_ui_callback: Optional[
+        Callable[[bool], None]
+    ] = None
+
+    @classmethod
+    def register_set_use_experimental_vrm_component_ui_callback(
+        cls, callback: Callable[[bool], None]
+    ) -> None:
+        if cls.set_use_experimental_vrm_component_ui_callback is not None:
+            print(
+                "WARNING: VrmAddonPreferences.set_use_experimental_vrm_component_ui_callback is already registered"
+            )
+        cls.set_use_experimental_vrm_component_ui_callback = callback
 
     def get_use_experimental_vrm_component_ui(self) -> bool:
         return bool(self.get("use_experimental_vrm_component_ui", False))
@@ -20,7 +32,13 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
         if self.get(key) == value:
             return
         self[key] = value
-        VrmAddonPreferences.set_use_experimental_vrm_component_ui_callback(value)
+        callback = self.set_use_experimental_vrm_component_ui_callback
+        if callback is None:
+            print(
+                "WARNING: VrmAddonPreferences.set_use_experimental_vrm_component_ui_callback is None"
+            )
+        else:
+            callback(value)
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export invisible objects",  # noqa: F722

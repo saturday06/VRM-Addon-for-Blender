@@ -112,7 +112,7 @@ def register(init_version: Any) -> None:
     if init_version != version.version():
         raise Exception(f"Version mismatch: {init_version} != {version.version()}")
 
-    VrmAddonPreferences.set_use_experimental_vrm_component_ui_callback = (
+    VrmAddonPreferences.register_set_use_experimental_vrm_component_ui_callback(
         set_use_experimental_vrm_component_ui
     )
     for cls in classes:
