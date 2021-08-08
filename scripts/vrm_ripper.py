@@ -11,9 +11,8 @@ https://opensource.org/licenses/mit-license.php
 import json
 import os
 import sys
-import tkinter.filedialog as filedialog
-import tkinter.messagebox as messagebox
 from os.path import dirname
+from tkinter import filedialog, messagebox
 
 sys.path.insert(0, dirname(dirname(__file__)))
 
