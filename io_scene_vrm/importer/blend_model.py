@@ -607,7 +607,9 @@ class BlendModel:
             if not image.name.startswith(image_name_prefix):
                 continue
             image_index = int(
-                "".join(image.name.split(image_name_prefix)[1:]).split("_")[0]
+                "".join(image.name.split(image_name_prefix)[1:]).split("_", maxsplit=1)[
+                    0
+                ]
             )
             if 0 <= image_index < len(json_dict["images"]):
                 # image.nameはインポート時に勝手に縮められてしまうことがあるので、jsonの値から復元する

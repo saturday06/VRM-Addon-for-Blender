@@ -133,6 +133,7 @@ mataballs
 materialmtoon
 mathutils
 matval
+maxsplit
 mball
 mbox
 messagebox
