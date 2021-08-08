@@ -33,12 +33,13 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
             return
         self[key] = value
         callback = self.set_use_experimental_vrm_component_ui_callback
-        if callback is None:
-            print(
-                "WARNING: VrmAddonPreferences.set_use_experimental_vrm_component_ui_callback is None"
-            )
-        else:
+        if callable(callback):
+            # pylint: disable=not-callable;
             callback(value)
+        else:
+            print(
+                "WARNING: VrmAddonPreferences.set_use_experimental_vrm_component_ui_callback is not a callable"
+            )
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export invisible objects",  # noqa: F722
