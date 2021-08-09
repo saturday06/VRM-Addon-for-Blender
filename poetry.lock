@@ -255,14 +255,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "numpy"
-version = "1.17.5"
-description = "NumPy is the fundamental package for array computing with Python."
-category = "main"
-optional = false
-python-versions = ">=3.5"
-
-[[package]]
 name = "pathspec"
 version = "0.9.0"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -376,7 +368,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "e8bc0b2232733d53b3db797fa268cf799343598d65ae26cef3a9dc5e0734385d"
+content-hash = "b560e1d93ad4ef2954667210ac91d3d450aeb450d9559218a815bc800b728c27"
 
 [metadata.files]
 appdirs = [
@@ -502,29 +494,6 @@ mypy = [
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
-]
-numpy = [
-    {file = "numpy-1.17.5-cp35-cp35m-macosx_10_9_intel.whl", hash = "sha256:d977a91f7b02b14843562d2e8740acfdfb46996e64985b69b2d404bfa43bc07d"},
-    {file = "numpy-1.17.5-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:6c6cab8089ad39554d7fed04d338e7bd7ea6ac48235a542ea0b37214c8d0a9bc"},
-    {file = "numpy-1.17.5-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:4760bcc6adaf0d853379d01ce60f320e5ab6d0d719662aef3c460dad3cf79989"},
-    {file = "numpy-1.17.5-cp35-cp35m-win32.whl", hash = "sha256:c3fb7eb84cd455ea2294980e557cc40b0042f7fc7ebab28c74ccae85c8b0c2c4"},
-    {file = "numpy-1.17.5-cp35-cp35m-win_amd64.whl", hash = "sha256:6167d214a842610d4168311d803f2a6f2c1a9a866b6b370f7408ba508d265add"},
-    {file = "numpy-1.17.5-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:ca43581440ce2585f83c8d524c3435569b212bf281b7c67395e78260fcffb341"},
-    {file = "numpy-1.17.5-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:5347fc1258ebe501d352363da06229fc97785d67423b56a9fd032a8389355781"},
-    {file = "numpy-1.17.5-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:1739f079e2fcc985cc187aa3ce489d127a02ff12bcc5178269bb7ce5dc860e8f"},
-    {file = "numpy-1.17.5-cp36-cp36m-win32.whl", hash = "sha256:af51bc1d78ddc1588115b73a1d3824440f5cf55c498681e8ac4ab2f28f0efa99"},
-    {file = "numpy-1.17.5-cp36-cp36m-win_amd64.whl", hash = "sha256:259b5aa0a1d2e63bbe9d985bc8249b515541b9993e1b1540563428f5db7bc389"},
-    {file = "numpy-1.17.5-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:8ba8ef37b16288dd2390cd9dea3c8470436f6cfe4c665f4640c349e98bae2908"},
-    {file = "numpy-1.17.5-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:348efb76a26f9f3235e492813503639731a885aa5780579ee28d688607d188b2"},
-    {file = "numpy-1.17.5-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:31db2f9604afbf897b23478942074bbbb2513467d2b4b4ac573a7b65c63c073c"},
-    {file = "numpy-1.17.5-cp37-cp37m-win32.whl", hash = "sha256:68bdc37f3ccdc3e945914b3201acd8823ac9dec870ede5371cd5cfedcf5a901a"},
-    {file = "numpy-1.17.5-cp37-cp37m-win_amd64.whl", hash = "sha256:15db548aade41e32bfb6f6d3d9e91797261197622afe4102f79220d17da2a29f"},
-    {file = "numpy-1.17.5-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:fc56ec046a2cc3aba91fe29e482c145c17925db1b00eafa924d9e16020a3eb88"},
-    {file = "numpy-1.17.5-cp38-cp38-manylinux1_i686.whl", hash = "sha256:73d20aebe518997dce89da356d4b8e4cf60143151c22a0ec76cb00840bb09320"},
-    {file = "numpy-1.17.5-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:aa3dd92c1427e032fe345f054503f45c9fc7883aa7156a60900641259dd78a78"},
-    {file = "numpy-1.17.5-cp38-cp38-win32.whl", hash = "sha256:6338f8fa99ea0b00944a256941eea406089a9c0242f594b69289edd91e2d6192"},
-    {file = "numpy-1.17.5-cp38-cp38-win_amd64.whl", hash = "sha256:14804866e57322bf601c966e428c271b7e301b631bdfbe0522800483b802bc58"},
-    {file = "numpy-1.17.5.zip", hash = "sha256:16507ba6617f62ae3c6ab1725ae6f550331025d4d9a369b83f6d5a470446c342"},
 ]
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},

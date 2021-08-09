@@ -19,7 +19,6 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
 import bpy
-import numpy
 
 from .. import deep, lang, vrm_types
 from ..gl_constants import GlConstants
@@ -30,7 +29,7 @@ from .binary_reader import BinaryReader
 class PyMesh:
     object_id: int
     name: str = ""
-    face_indices: Any = field(default_factory=list)  # ndarray
+    face_indices: List[List[int]] = field(default_factory=list)
     skin_id: Optional[int] = None
     material_index: Optional[int] = None
     POSITION_accessor: Optional[int] = None
@@ -708,10 +707,17 @@ def mesh_read(py_model: PyModel) -> None:
                 raise Exception(
                     "Unsupported polygon type(:{}) Exception".format(primitive["mode"])
                 )
-            face_indices = py_model.decoded_binary[primitive["indices"]]
+            scalar_face_indices = py_model.decoded_binary[primitive["indices"]]
+            while len(scalar_face_indices) % 3 != 0:
+                print(f"meshes[{n}]primitives[{j}] length is not a multiple of 3")
+                scalar_face_indices.append(0)
+
             # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
-            # ATTENTION これだけndarray
-            vrm_mesh.face_indices = numpy.reshape(face_indices, (-1, 3))
+            vrm_mesh.face_indices = [
+                scalar_face_indices[x : x + 3]
+                for x in range(0, len(scalar_face_indices), 3)
+            ]
+
             # endregion 頂点index
 
             # ここから頂点属性

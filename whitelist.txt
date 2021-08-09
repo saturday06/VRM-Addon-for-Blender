@@ -149,7 +149,6 @@ morphname
 mspec
 mtoon
 myinstance
-ndarray
 neckneck
 ngon
 nonlocal
@@ -157,7 +156,6 @@ normalmap
 normals
 notequal
 num
-numpy
 objs
 offscreen
 ortho

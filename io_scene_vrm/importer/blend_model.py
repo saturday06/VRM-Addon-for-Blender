@@ -25,7 +25,6 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple
 
 import bpy
 import mathutils
-import numpy
 from mathutils import Matrix, Vector
 
 from .. import deep, editor, exporter, vrm_types
@@ -830,8 +829,8 @@ class BlendModel:
                 parent_pos = [0, 0, 0]
             else:
                 parent_pos = self.bones[parent_node_id].head
-            b.head = numpy.array(parent_pos) + numpy.array(
-                self.axis_glb_to_blender(py_bone.position)
+            b.head = tuple(
+                Vector(parent_pos) + Vector(self.axis_glb_to_blender(py_bone.position))
             )
 
             # region temporary tail pos(glTF doesn't have bone. there defines as joints )
@@ -861,10 +860,12 @@ class BlendModel:
                         pos_diff[1] += 0.01
                     b.tail = [b.head[i] + pos_diff[i] for i in range(3)]
             else:  # 子供たちの方向の中間を見る
-                mean_relate_pos = numpy.array([0.0, 0.0, 0.0], dtype=numpy.float)
+                mean_relate_pos = Vector([0.0, 0.0, 0.0])
                 for child_id in py_bone.children:
-                    mean_relate_pos += self.axis_glb_to_blender(
-                        self.py_model.nodes_dict[child_id].position
+                    mean_relate_pos += Vector(
+                        self.axis_glb_to_blender(
+                            self.py_model.nodes_dict[child_id].position
+                        )
                     )
                 children_len = len(py_bone.children)
                 if children_len > 0:
@@ -874,7 +875,7 @@ class BlendModel:
                     ):  # ボーンの長さが1mm以下なら上に10cm延ばす
                         mean_relate_pos[1] += 0.1
 
-                b.tail = [b.head[i] + mean_relate_pos[i] for i in range(3)]
+                b.tail = tuple(Vector(b.head) + mean_relate_pos)
 
             # endregion tail pos
             self.bones[node_id] = b
@@ -1605,7 +1606,9 @@ class BlendModel:
 
             # region uv
             flatten_vrm_mesh_vert_index = [
-                ind for prim in pymesh for ind in prim.face_indices.flatten()
+                ind
+                for prim in pymesh
+                for ind in itertools.chain.from_iterable(prim.face_indices)
             ]
 
             for prim in pymesh:
@@ -1738,7 +1741,6 @@ class BlendModel:
                     ]
 
                 for base_pos, morph_pos in zip(base_points, morph_target_pos):
-                    # numpy.array毎回作るのは見た目きれいだけど8倍くらい遅い
                     shape_key_positions.append(
                         self.axis_glb_to_blender(
                             [base_pos[i] + morph_pos[i] for i in range(3)]
