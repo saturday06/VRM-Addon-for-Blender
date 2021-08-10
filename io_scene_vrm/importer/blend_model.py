@@ -76,7 +76,7 @@ class BlendModel:
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
         self.vrm0_extension: Optional[Dict[str, Any]] = None
-        self.vrm1_draft_extension: Optional[Dict[str, Any]] = None
+        self.vrm_extension: Optional[Dict[str, Any]] = None
         self.vrm_model_build()
 
     def vrm_model_build(self) -> None:
@@ -137,13 +137,9 @@ class BlendModel:
 
     def parse_vrm_extension(self) -> None:
         json_dict = self.py_model.json
-        vrm1_draft = deep.get(json_dict, ["extensions", "VRMC_vrm-1.0_draft"])
-        if not isinstance(vrm1_draft, dict):
-            vrm1_draft = deep.get(json_dict, ["extensions", "VRMC_vrm-1.0"])
-            if not isinstance(vrm1_draft, dict):
-                vrm1_draft = None
-        if vrm1_draft is not None:
-            self.vrm1_draft_extension = vrm1_draft
+        vrm = deep.get(json_dict, ["extensions", "VRMC_vrm"])
+        if isinstance(vrm, dict):
+            self.vrm_extension = vrm
             return
 
         vrm0 = deep.get(json_dict, ["extensions", "VRM"])
@@ -525,10 +521,10 @@ class BlendModel:
         spec_version: Optional[str] = None
         hips_bone_node_index: Optional[int] = None
 
-        if self.vrm1_draft_extension is not None:
+        if self.vrm_extension is not None:
             spec_version = "1.0_draft"
             hips_index = deep.get(
-                self.vrm1_draft_extension, ["humanoid", "humanBones", "hips", "node"]
+                self.vrm_extension, ["humanoid", "humanBones", "hips", "node"]
             )
             if isinstance(hips_index, int):
                 hips_bone_node_index = hips_index
@@ -1829,7 +1825,7 @@ class BlendModel:
                 armature[metatag] = metainfo
 
     def json_dump(self) -> None:
-        if self.vrm1_draft_extension is not None:
+        if self.vrm_extension is not None:
             return
         vrm0_extension = self.vrm0_extension
         if not isinstance(vrm0_extension, dict):
