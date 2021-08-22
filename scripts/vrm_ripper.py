@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
+# noqa: INP001
 
 """
 Copyright (c) 2018 iCyP
 Released under the MIT license
 https://opensource.org/licenses/mit-license.php
-
-# noqa: INP001
 """
 
 import json

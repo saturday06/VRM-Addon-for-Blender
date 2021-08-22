@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-
-"""
 # noqa: INP001
-"""
 
 import platform
 import sys
