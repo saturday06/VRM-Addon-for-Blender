@@ -1521,7 +1521,7 @@ class BlendModel:
                         vg_dict: Dict[str, List[Tuple[int, float]]] = {
                             self.py_model.nodes_dict[
                                 nodes_index_list[joint_id]
-                            ].name: list()
+                            ].name: []
                             for joint_id in [
                                 joint_id
                                 for joint_ids in prim.JOINTS_0
@@ -2252,12 +2252,12 @@ class ICYP_OT_select_helper(bpy.types.Operator):  # type: ignore[misc] # noqa: N
     bl_description = "VRM importer internal only"
     bl_options = {"REGISTER", "UNDO"}
 
-    bpy.types.Scene.icyp_select_helper_select_list = list()
+    bpy.types.Scene.icyp_select_helper_select_list = []
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         bpy.ops.object.mode_set(mode="OBJECT")
         for vid in bpy.types.Scene.icyp_select_helper_select_list:
             bpy.context.active_object.data.vertices[vid].select = True
         bpy.ops.object.mode_set(mode="EDIT")
-        bpy.types.Scene.icyp_select_helper_select_list = list()
+        bpy.types.Scene.icyp_select_helper_select_list = []
         return {"FINISHED"}

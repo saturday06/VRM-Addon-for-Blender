@@ -31,11 +31,9 @@ class TestImporter(TestCase):
             ),
         ]:
             with self.subTest(url):
-                confirmation_props: List[
-                    py_model.LicenseConfirmationRequiredProp
-                ] = list()
+                confirmation_props: List[py_model.LicenseConfirmationRequiredProp] = []
                 py_model.validate_license_url(url, "key", confirmation_props)
                 if confirmation_required:
                     self.assertEqual(1, len(confirmation_props))
                 else:
-                    self.assertEqual(list(), confirmation_props)
+                    self.assertEqual([], confirmation_props)
