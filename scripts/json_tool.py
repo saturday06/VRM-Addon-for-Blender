@@ -28,7 +28,7 @@ with open(read_path, "rb") as vrm_file:
             binary[magic : magic + bi_size].decode("utf-8"),
             object_pairs_hook=OrderedDict,
         )
-        with open(read_path + ".json", "wt") as json_file:
+        with open(read_path + ".json", "wt", encoding="utf-8") as json_file:
             json_file.write(json.dumps(loaded_json, indent=4))
     elif filetype == "json":
         loaded_json = json.load(vrm_file)
@@ -43,5 +43,5 @@ with open(read_path, "rb") as vrm_file:
 for i, m in enumerate(loaded_json["materials"]):
     print(i, m["name"])
 
-with open(read_path + "_skin" + ".json", "wt") as skin_json_file:
+with open(read_path + "_skin" + ".json", "wt", encoding="utf-8") as skin_json_file:
     skin_json_file.write(json.dumps(loaded_json, indent=4))

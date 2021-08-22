@@ -106,7 +106,7 @@ class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # type: ignore[mi
             os.path.dirname(__file__), "vroid2vrc_lipsync_recipe.json"
         )
         recipe = None
-        with open(recipe_uri, "rt") as raw_recipe:
+        with open(recipe_uri, "rt", encoding="utf-8") as raw_recipe:
             recipe = json.loads(raw_recipe.read(), object_pairs_hook=OrderedDict)
         for shapekey_name, based_values in recipe["shapekeys"].items():
             for k in bpy.context.active_object.data.shape_keys.key_blocks:
