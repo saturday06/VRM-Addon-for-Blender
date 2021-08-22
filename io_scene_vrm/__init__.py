@@ -63,6 +63,7 @@ classes = [
     exporter.ExportVRM,
     exporter.VRM_IMPORTER_PT_export_error_messages,
     editor.VRM_IMPORTER_PT_controller,
+    editor.VRM_IMPORTER_PT_armature_controller,
     make_armature.ICYP_OT_MAKE_ARMATURE,
     glsl_drawer.ICYP_OT_Draw_Model,
     glsl_drawer.ICYP_OT_Remove_Draw_Model,
@@ -84,7 +85,6 @@ classes = [
 ]
 
 experimental_vrm_component_ui_classes = [
-    editor.VRM_IMPORTER_PT_armature_controller,
     editor.VRMProps,
     editor.VRM_IMPORTER_PT_vrm_humanoid_params,
     editor.VRM_IMPORTER_PT_vrm_firstPerson_params,
