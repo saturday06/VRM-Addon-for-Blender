@@ -478,11 +478,7 @@ class GlslDrawObj:
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
                     bgl.glDepthMask(bgl.GL_TRUE)
                     bgl.glEnable(bgl.GL_DEPTH_TEST)
-                elif mat.alpha_method == "OPAQUE":
-                    bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
-                    bgl.glDepthMask(bgl.GL_TRUE)
-                    bgl.glEnable(bgl.GL_DEPTH_TEST)
-                elif mat.alpha_method == "CLIP":
+                elif mat.alpha_method in ("CLIP", "OPAQUE"):
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
                     bgl.glDepthMask(bgl.GL_TRUE)
                     bgl.glEnable(bgl.GL_DEPTH_TEST)
@@ -528,9 +524,7 @@ class GlslDrawObj:
                 bgl.glEnable(bgl.GL_DEPTH_TEST)
                 if mat.alpha_method == "TRANSPARENT":
                     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-                elif mat.alpha_method == "OPAQUE":
-                    bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
-                elif mat.alpha_method == "CLIP":
+                elif mat.alpha_method in ("CLIP", "OPAQUE"):
                     bgl.glBlendFunc(bgl.GL_ONE, bgl.GL_ZERO)
 
                 if is_outline == 0:

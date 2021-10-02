@@ -1282,7 +1282,12 @@ class BlendModel:
         vector_props_dic = vrm_types.MaterialMtoon.vector_props_exchange_dic
         for k, vec in pymat.vector_props_dic.items():
             if k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
-                self.connect_rgb_node(b_mat, vec, sg.inputs[vector_props_dic[k]])
+                self.connect_rgb_node(
+                    b_mat,
+                    vec,
+                    sg.inputs[vector_props_dic[k]],
+                    default_color=[1, 1, 1, 1],
+                )
             elif k == "_RimColor":
                 self.connect_rgb_node(
                     b_mat,
@@ -1404,11 +1409,12 @@ class BlendModel:
             pass
         elif math.fabs(transparent_mode_float - 1) < 0.001:
             transparent_mode = "CUTOUT"
-        elif math.fabs(transparent_mode_float - 2) < 0.001:
-            transparent_mode = "Z_TRANSPARENCY"
-        elif math.fabs(transparent_mode_float - 3) < 0.001:
-            transparent_mode = "Z_TRANSPARENCY"
+        elif (
+            math.fabs(transparent_mode_float - 2) < 0.001
+            or math.fabs(transparent_mode_float - 3) < 0.001
+        ):
             # Trans_Zwrite(3)も2扱いで。
+            transparent_mode = "Z_TRANSPARENCY"
         self.set_material_transparent(b_mat, pymat, transparent_mode)
 
     def build_material_from_transparent_z_write(
