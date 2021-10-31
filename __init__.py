@@ -14,7 +14,7 @@ https://opensource.org/licenses/mit-license.php
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (1, 13, 0),
+    "version": (1, 14, 0),
     "blender": (2, 82, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
