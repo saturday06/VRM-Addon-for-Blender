@@ -85,7 +85,7 @@ class BinaryReader:
             return self.read_float()
         if data_type == GlConstants.UNSIGNED_BYTE:
             return self.read_unsigned_byte()
-        print("unsupported type : {}".format(data_type))
+        print(f"unsupported type : {data_type}")
         raise Exception
 
 

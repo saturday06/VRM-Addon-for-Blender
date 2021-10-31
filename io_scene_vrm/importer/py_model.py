@@ -224,12 +224,12 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     reader = BinaryReader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
-        raise Exception("glTF header signature not found: #{}".format(magic))
+        raise Exception(f"glTF header signature not found: #{magic}")
 
     version = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
     if version != 2:
         raise Exception(
-            "version #{} found. This plugin only supports version 2".format(version)
+            f"version #{version} found. This plugin only supports version 2"
         )
 
     size = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
@@ -261,7 +261,7 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
             json_str = chunk_data.decode("utf-8")  # blenderのpythonverが古く自前decode要す
             continue
 
-        raise Exception("unknown chunk_type: {}".format(chunk_type))
+        raise Exception(f"unknown chunk_type: {chunk_type}")
 
     if not json_str:
         raise Exception("failed to read json chunk")
@@ -382,11 +382,8 @@ def create_py_material(
         }
         for k, _subset in subset.items():
             if _subset:
-                print(
-                    "unknown {} properties {} in {}".format(
-                        k, _subset, ext_mat.get("name")
-                    )
-                )
+                ext_mat_name = ext_mat.get("name")
+                print(f"unknown {k} properties {_subset} in {ext_mat_name}")
         # endregion check unknown props exit
 
         mtoon.float_props_dic.update(ext_mat.get("floatProperties", {}))
@@ -617,14 +614,11 @@ def texture_rip(
         image_type = image_prop["mimeType"].split("/")[-1]
         if image_name == "":
             image_name = "texture_" + str(image_id)
-            print("no name image is named {}".format(image_name))
+            print(f"no name image is named {image_name}")
         elif len(image_name) >= 50:
-            print(
-                "too long name image: {} is named {}".format(
-                    image_name, "tex_2longname_" + str(image_id)
-                )
-            )
-            image_name = "tex_2longname_" + str(image_id)
+            new_image_name = "tex_2longname_" + str(image_id)
+            print(f"too long name image: {image_name} is named {new_image_name}")
+            image_name = new_image_name
 
         image_name = remove_unsafe_path_chars(image_name)
         image_path = os.path.join(dir_path, image_name)
@@ -704,8 +698,9 @@ def mesh_read(py_model: PyModel) -> None:
             # region 頂点index
             if primitive.get("mode", 4) != GlConstants.TRIANGLES:
                 # TODO その他メッシュタイプ対応
+                primitive_mode = primitive.get("mode")
                 raise Exception(
-                    "Unsupported polygon type(:{}) Exception".format(primitive["mode"])
+                    f"Unsupported polygon type(:{primitive_mode}) Exception"
                 )
             scalar_face_indices = py_model.decoded_binary[primitive["indices"]]
             while len(scalar_face_indices) % 3 != 0:
@@ -738,7 +733,7 @@ def mesh_read(py_model: PyModel) -> None:
 
             uv_count = 0
             while True:
-                texcoord_name = "TEXCOORD_{}".format(uv_count)
+                texcoord_name = f"TEXCOORD_{uv_count}"
                 if hasattr(vrm_mesh, texcoord_name):
                     texcoord = getattr(vrm_mesh, texcoord_name)
                     if legacy_uv_flag:

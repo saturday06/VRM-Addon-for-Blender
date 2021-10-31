@@ -33,7 +33,7 @@ with open(read_path, "rb") as vrm_file:
     elif filetype == "json":
         loaded_json = json.load(vrm_file)
     else:
-        print("unsupported format :{}".format(filetype))
+        print(f"unsupported format :{filetype}")
         sys.exit(1)
 
 # something do in below with loaded_json

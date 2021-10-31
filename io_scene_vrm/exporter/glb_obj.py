@@ -1712,7 +1712,7 @@ class GlbObj:
                     )
                 primitive["attributes"].update(
                     {
-                        "TEXCOORD_{}".format(i): uv_glb.accessor_id
+                        f"TEXCOORD_{i}": uv_glb.accessor_id
                         for i, uv_glb in enumerate(uv_glbs)
                     }
                 )
@@ -1912,11 +1912,9 @@ class GlbObj:
             if max_val >= val:
                 if val >= min_val:
                     return val
-                print(
-                    "blendshapeGroup weight is between 0 and 1, value is {}".format(val)
-                )
+                print(f"blendshapeGroup weight is between 0 and 1, value is {val}")
                 return min_val
-            print("blendshapeGroup weight is between 0 and 1, value is {}".format(val))
+            print(f"blendshapeGroup weight is between 0 and 1, value is {val}")
             return max_val
 
         for blend_shape_group in blend_shape_groups:
