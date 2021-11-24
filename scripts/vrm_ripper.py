@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# noqa: INP001
 
 """
 Copyright (c) 2018 iCyP

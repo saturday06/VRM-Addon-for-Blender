@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# noqa: INP001
 
 import sys
 from os.path import dirname
