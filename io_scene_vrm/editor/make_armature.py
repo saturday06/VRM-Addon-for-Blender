@@ -232,7 +232,6 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         # 胸椎・spineの全長 #首の1/3は顎の後ろに隠れてる
         backbone_len = self.tall - hips_tall - head_size - neck_len / 2
         # FIXME 胸椎と脊椎の割合の確認 //脊椎の基部に位置する主となる屈曲点と、胸郭基部に位置するもうひとつの屈曲点byHumanoid Doc
-        chest_len = backbone_len * 12 / 17  # noqa: F841 mesh生成で使ってる
         spine_len = backbone_len * 5 / 17
 
         root = bone_add("Root", (0, 0, 0), (0, 0, 0.3))

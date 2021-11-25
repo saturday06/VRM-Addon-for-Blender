@@ -2228,7 +2228,6 @@ class BlendModel:
             raise Exception("armature is None")
         bpy.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
-        edit_bones = armature.data.edit_bones  # noqa: F841
 
         right_upper_leg_name = armature.data["rightUpperLeg"]
         right_lower_leg_name = armature.data["rightLowerLeg"]

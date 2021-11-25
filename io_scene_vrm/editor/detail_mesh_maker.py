@@ -26,7 +26,6 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # type: ignore[misc] # noq
         ][0].name
         face_mesh = bpy.data.objects[self.face_mesh_name]
         face_mesh.display_type = "WIRE"
-        mesh_origin_center_bounds = face_mesh.bound_box  # noqa: F841
         rfd = face_mesh.bound_box[4]
         lfd = face_mesh.bound_box[0]
         rfu = face_mesh.bound_box[5]
@@ -155,9 +154,6 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # type: ignore[misc] # noq
         def width_add(point: Vector, add_loc: float) -> Vector:
             return Vector([p + a for p, a in zip(point, [0, 0, add_loc])])
 
-        def up_add(point: Vector, add_loc: float) -> Vector:
-            return Vector([p + a for p, a in zip(point, [0, add_loc, 0])])
-
         def depth_add(point: Vector, add_loc: float) -> Vector:
             return Vector([p + a for p, a in zip(point, [add_loc, 0, 0])])
             # X depth Y up Z width
@@ -166,12 +162,8 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # type: ignore[misc] # noq
 
         face_tall = self.head_tall_size * self.face_center_ratio
 
-        head_top_point_vert = add_point([0, self.head_tall_size, 0])  # noqa: F841
         add_point([-self.head_depth_size / 2, 0, 0])
 
-        neck_point_vert = add_point(  # noqa: F841
-            [-self.head_tall_size / 16, self.neck_tail_y, 0]
-        )
         eye_point = Vector(
             [
                 -self.eye_depth - self.head_depth_size / 2,
@@ -282,9 +274,6 @@ class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # type: ignore[misc] # noq
             -self.nose_height,
         )
         nose_end_side_vert = add_point(nose_end_side_point)
-        nose_end_under_vert = add_point(  # noqa: F841
-            depth_add(nose_end_point, -self.nose_height)
-        )
 
         otogai_point = [-self.head_depth_size / 2, 0, 0]
         otogai_vert = add_point(otogai_point)

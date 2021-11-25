@@ -81,7 +81,6 @@ class ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES(bpy.types.Operator):  # type: ignore
         mobj.location = armature.location
         mobj.rotation_quaternion = armature.rotation_quaternion
         mobj.scale = armature.scale
-        obj_name = mobj.name  # noqa: F841
         bpy.ops.object.select_all(action="DESELECT")
         bpy.ops.object.mode_set(mode="OBJECT")
         context.scene.collection.objects.link(mobj)
