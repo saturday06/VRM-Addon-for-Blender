@@ -110,7 +110,9 @@ def set_use_experimental_vrm_component_ui(enable: bool) -> None:
 def register(init_version: Any) -> None:
     # Sanity check
     if init_version != version.version():
-        raise Exception(f"Version mismatch: {init_version} != {version.version()}")
+        raise Exception(
+            f"Sanity error: version mismatch: {init_version} != {version.version()}"
+        )
 
     VrmAddonPreferences.register_set_use_experimental_vrm_component_ui_callback(
         set_use_experimental_vrm_component_ui
