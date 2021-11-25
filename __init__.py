@@ -68,7 +68,7 @@ def register() -> None:
     # pylint: disable=import-self,no-name-in-module
     from . import io_scene_vrm  # type: ignore[attr-defined]
 
-    io_scene_vrm.register(bl_info.get("version"))
+    io_scene_vrm.register(bl_info["version"])
 
 
 def unregister() -> None:
