@@ -1094,6 +1094,7 @@ class GlbObj:
                 "gltf_extras": True,
                 "gltf_user_extensions": [],
                 "gltf_binary": bytearray(),
+                "gltf_keep_original_textures": False,
             }
             try:
                 if bpy.app.version >= (2, 91):
