@@ -15,7 +15,7 @@ bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
     "version": (1, 14, 1),
-    "blender": (2, 82, 0),
+    "blender": (2, 80, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
     "warning": "",
@@ -57,12 +57,10 @@ if "bpy" in locals():
 def register() -> None:
     import bpy
 
-    if bpy.app.version < (2, 80):
+    if bpy.app.version < bl_info["blender"]:
         raise Exception(
-            "This add-on doesn't support Blender version less than 2.80 "
-            + "and 2.82 or greater is recommended "
-            + "but the current version is "
-            + ".".join(map(str, bpy.app.version))
+            f"This add-on doesn't support Blender version less than {bl_info['blender']} "
+            + f"but the current version is {bpy.app.version}"
         )
 
     # Lazy import to minimize initialization before blender version checking and reload_package().
@@ -76,7 +74,7 @@ def register() -> None:
 def unregister() -> None:
     import bpy
 
-    if bpy.app.version < (2, 80):
+    if bpy.app.version < bl_info["blender"]:
         return
 
     # Lazy import to minimize initialization before blender version checking and reload_package().
