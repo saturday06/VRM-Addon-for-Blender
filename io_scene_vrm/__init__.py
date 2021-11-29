@@ -133,5 +133,5 @@ def unregister() -> None:
     # bpy.types.VIEW3D_MT_mesh_add.remove(editor.make_mesh)
     bpy.types.TOPBAR_MT_file_import.remove(importer.menu_import)
     bpy.types.TOPBAR_MT_file_export.remove(exporter.menu_export)
-    for cls in classes:
+    for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
