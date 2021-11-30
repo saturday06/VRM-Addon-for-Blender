@@ -6,7 +6,7 @@ import tempfile
 from unittest import TestCase
 
 
-class TestBlender(TestCase):
+class BaseBlenderTestCase(TestCase):
     def __init__(self, *args: str, **kwargs: str) -> None:
         # https://stackoverflow.com/a/19102520
         super().__init__(*args, **kwargs)
@@ -55,16 +55,16 @@ class TestBlender(TestCase):
         )
         if completed_process.returncode != 0:
             raise Exception("Failed to execute command:\n" + output)
-        major_minor = ".".join(stdout_str.splitlines()[0].split(" ")[1].split(".")[:2])
+        self.major_minor = ".".join(
+            stdout_str.splitlines()[0].split(" ")[1].split(".")[:2]
+        )
 
-        self.test_blend_dir = os.path.join(os.path.dirname(test_vrm_dir), "blend")
-        self.test_temp_vrm_dir = os.path.join(test_vrm_dir, major_minor, "temp")
-        self.test_in_vrm_dir = os.path.join(test_vrm_dir, "in")
-        self.test_out_vrm_dir = os.path.join(test_vrm_dir, major_minor, "out")
-        self.test_out2_vrm_dir = os.path.join(test_vrm_dir, major_minor, "out2")
-        os.makedirs(self.test_temp_vrm_dir, exist_ok=True)
-        os.makedirs(self.test_out_vrm_dir, exist_ok=True)
-        os.makedirs(self.test_out2_vrm_dir, exist_ok=True)
+        test_temp_vrm_dir = os.path.join(test_vrm_dir, self.major_minor, "temp")
+        test_out_vrm_dir = os.path.join(test_vrm_dir, self.major_minor, "out")
+        test_out2_vrm_dir = os.path.join(test_vrm_dir, self.major_minor, "out2")
+        os.makedirs(test_temp_vrm_dir, exist_ok=True)
+        os.makedirs(test_out_vrm_dir, exist_ok=True)
+        os.makedirs(test_out2_vrm_dir, exist_ok=True)
 
     def process_output_to_str(self, process_output: bytes) -> str:
         output = None
@@ -121,6 +121,8 @@ class TestBlender(TestCase):
         env = os.environ.copy()
         env["BLENDER_USER_SCRIPTS"] = self.user_scripts_dir
         env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
+        env["BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION"] = self.major_minor
+
         command = [
             self.find_blender_command(),
             "-noaudio",  # sound system to None (less output on stdout)
@@ -159,80 +161,3 @@ class TestBlender(TestCase):
             0,
             "Failed to execute command:\n" + output,
         )
-
-    def test_basic_armature(self) -> None:
-        self.run_script(
-            "blender_basic_armature.py",
-            os.path.join(self.test_in_vrm_dir, "basic_armature.vrm"),
-            self.test_temp_vrm_dir,
-        )
-
-    def test_blend_io(self) -> None:
-        for blend in os.listdir(self.test_blend_dir):
-            if not blend.endswith(".blend"):
-                continue
-            vrm = os.path.splitext(blend)[0] + ".vrm"
-            with self.subTest(blend):
-                self.run_script(
-                    "blender_io.py",
-                    os.path.join(self.test_blend_dir, blend),
-                    os.path.join(self.test_out_vrm_dir, vrm),
-                    self.test_temp_vrm_dir,
-                    "false",
-                )
-
-    def test_vrm_io(self) -> None:
-        update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
-        for (vrm, extract_textures) in [
-            (v, e)
-            for e in ["false", "true"]
-            for v in os.listdir(self.test_in_vrm_dir)
-            if v.endswith(".vrm")
-        ]:
-            with self.subTest((vrm, extract_textures)):
-                if (
-                    not os.path.exists(os.path.join(self.test_out_vrm_dir, vrm))
-                    and not update_vrm_dir
-                ):
-                    self.run_script(
-                        "blender_io.py",
-                        os.path.join(self.test_in_vrm_dir, vrm),
-                        os.path.join(self.test_in_vrm_dir, vrm),
-                        self.test_temp_vrm_dir,
-                        extract_textures,
-                    )
-                    continue
-
-                self.run_script(
-                    "blender_io.py",
-                    os.path.join(self.test_in_vrm_dir, vrm),
-                    os.path.join(self.test_out_vrm_dir, vrm),
-                    self.test_temp_vrm_dir,
-                    extract_textures,
-                )
-
-                if update_vrm_dir and not os.path.exists(
-                    os.path.join(self.test_out_vrm_dir, vrm)
-                ):
-                    continue
-
-                if (
-                    not os.path.exists(os.path.join(self.test_out2_vrm_dir, vrm))
-                    and not update_vrm_dir
-                ):
-                    self.run_script(
-                        "blender_io.py",
-                        os.path.join(self.test_out_vrm_dir, vrm),
-                        os.path.join(self.test_out_vrm_dir, vrm),
-                        self.test_temp_vrm_dir,
-                        extract_textures,
-                    )
-                    continue
-
-                self.run_script(
-                    "blender_io.py",
-                    os.path.join(self.test_out_vrm_dir, vrm),
-                    os.path.join(self.test_out2_vrm_dir, vrm),
-                    self.test_temp_vrm_dir,
-                    extract_textures,
-                )

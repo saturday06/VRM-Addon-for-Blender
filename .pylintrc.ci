@@ -1,5 +1,6 @@
 [MASTER]
 disable=broad-except,
+        duplicate-code, # https://github.com/PyCQA/pylint/issues/214
         fixme,
         import-error,
         import-outside-toplevel,

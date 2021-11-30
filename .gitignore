@@ -36,3 +36,4 @@
 .vscode/.ropeproject/objectdb
 .vscode/tasks.json
 /tests/vrm/*/temp/
+/tests/test_GENERATED_*

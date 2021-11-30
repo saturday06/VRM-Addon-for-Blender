@@ -3,8 +3,10 @@
 max-line-length = 120
 # https://github.com/PyCQA/pycodestyle/issues/373
 extend-ignore = E203
-# https://github.com/adamchainz/flake8-no-pep420/blob/2.0.0/README.rst#inp001-file-is-part-of-an-implicit-namespace-package
 per-file-ignores =
+    # Dynamically generated tests can have misspelt words
+    tests/test_GENERATED_*.py:SC200
+    # https://github.com/adamchainz/flake8-no-pep420/blob/2.0.0/README.rst#inp001-file-is-part-of-an-implicit-namespace-package
     scripts/*.py:INP001
 
 dictionaries=en_US,python,technical
