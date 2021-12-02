@@ -5,6 +5,7 @@ import bpy
 addon_package_name = ".".join(__name__.split(".")[:-3])
 if not addon_package_name:
     addon_package_name = "VRM_Addon_for_Blender_fallback_key"
+    print(f"VRM Add-on: failed to detect add-on package name from __name__={__name__}")
 
 
 class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
