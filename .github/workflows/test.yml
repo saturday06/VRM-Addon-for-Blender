@@ -132,6 +132,16 @@ jobs:
             esac
           done
           git diff --exit-code
+      - name: Check whitelist.txt contents
+        run: |
+          result=0
+          for word in $(cat whitelist.txt); do
+            if ! git grep -i "$word" "*.py" > /dev/null; then
+              >&2 echo whitelist.txt:$word is no longer necessary
+              result=1
+            fi
+          done
+          exit $result
       - name: Check whitelist.txt ordering
         run: LC_ALL=C sort whitelist.txt | diff -u whitelist.txt -
       - name: Validate GLSL
