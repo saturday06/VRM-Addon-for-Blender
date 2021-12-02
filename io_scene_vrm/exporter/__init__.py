@@ -84,7 +84,8 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
         pass  # Is needed to get panels available
 
 
-class VRM_IMPORTER_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_idname = "VRM_IMPORTER_PT_export_error_messages"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"

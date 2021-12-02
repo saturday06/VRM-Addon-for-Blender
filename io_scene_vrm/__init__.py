@@ -54,8 +54,8 @@ classes = [
     editor.METAS,
     editor.REQUIRED_METAS,
     editor.SPRING_BONE_GROUP,
-    editor.VRM_IMPORTER_PT_armature_controller,
-    editor.VRM_IMPORTER_PT_controller,
+    editor.VRM_PT_armature_controller,
+    editor.VRM_PT_controller,
     # editor.detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
     editor.glsl_drawer.ICYP_OT_Draw_Model,
     editor.glsl_drawer.ICYP_OT_Remove_Draw_Model,
@@ -69,7 +69,7 @@ classes = [
     exporter.validation.VrmValidationError,
     exporter.validation.WM_OT_vrmValidator,
     exporter.ExportVRM,
-    exporter.VRM_IMPORTER_PT_export_error_messages,
+    exporter.VRM_PT_export_error_messages,
     importer.ImportVRM,
     importer.LicenseConfirmation,
     importer.WM_OT_licenseConfirmation,
@@ -79,11 +79,11 @@ classes = [
 
 experimental_vrm_component_ui_classes = [
     editor.VRMProps,
-    editor.VRM_IMPORTER_PT_vrm_blendshape_group,
-    editor.VRM_IMPORTER_PT_vrm_firstPerson_params,
-    editor.VRM_IMPORTER_PT_vrm_humanoid_params,
-    editor.VRM_IMPORTER_PT_vrm_metas,
-    editor.VRM_IMPORTER_PT_vrm_spring_bone,
+    editor.VRM_PT_vrm_blendshape_group,
+    editor.VRM_PT_vrm_firstPerson_params,
+    editor.VRM_PT_vrm_humanoid_params,
+    editor.VRM_PT_vrm_metas,
+    editor.VRM_PT_vrm_spring_bone,
 ]
 
 

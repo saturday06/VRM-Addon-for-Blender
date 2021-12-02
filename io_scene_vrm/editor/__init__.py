@@ -37,7 +37,7 @@ def make_mesh(make_mesh_op: bpy.types.Operator, context: bpy.types.Context) -> N
     )
 
 
-class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "VRM Helper"
     # どこに置くかの定義
@@ -110,7 +110,7 @@ class VRM_IMPORTER_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
         # endregion draw_main
 
 
-class VRM_IMPORTER_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_armature_controller"
     bl_label = "VRM Armature Helper"
     bl_space_type = "VIEW_3D"
@@ -238,7 +238,7 @@ class VRM_IMPORTER_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc
         armature_box.operator(vrm_helper.Bones_rename.bl_idname, icon="EXPERIMENTAL")
 
 
-class VRM_IMPORTER_PT_vrm_humanoid_params(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_humanoid_params(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_vrm_humanoid_params"
     bl_label = "VRM Humanoid Params"
     bl_space_type = "PROPERTIES"
@@ -278,7 +278,7 @@ class VRM_IMPORTER_PT_vrm_humanoid_params(bpy.types.Panel):  # type: ignore[misc
         layout.prop(active_object.vrm_props.humanoid_params, "has_translation_dof")
 
 
-class VRM_IMPORTER_PT_vrm_firstPerson_params(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_firstPerson_params(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_vrm_firstPerson_params"
     bl_label = "VRM FirstPerson Params"
     bl_space_type = "PROPERTIES"
@@ -333,7 +333,7 @@ class VRM_IMPORTER_PT_vrm_firstPerson_params(bpy.types.Panel):  # type: ignore[m
         box.prop(props.look_at_vertical_down, "y_range")
 
 
-class VRM_IMPORTER_PT_vrm_blendshape_group(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_blendshape_group(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_vrm_blendshape_group"
     bl_label = "VRM Blendshape Group"
     bl_space_type = "PROPERTIES"
@@ -382,7 +382,7 @@ class VRM_IMPORTER_PT_vrm_blendshape_group(bpy.types.Panel):  # type: ignore[mis
             box.label(text="materialValues is yet")
 
 
-class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_spring_bone(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_vrm_spring_bone"
     bl_label = "VRM Spring Bones"
     bl_space_type = "PROPERTIES"
@@ -455,7 +455,7 @@ class VRM_IMPORTER_PT_vrm_spring_bone(bpy.types.Panel):  # type: ignore[misc] # 
                     box.prop_search(collider_group, "name", data, "bones")
 
 
-class VRM_IMPORTER_PT_vrm_metas(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_metas(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_vrm_metas"
     bl_label = "VRM Metas"
     bl_space_type = "PROPERTIES"
