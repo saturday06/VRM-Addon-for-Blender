@@ -8,9 +8,9 @@ from typing import Any, Dict, List, Optional, Set, Union, cast
 import bpy
 from mathutils import Vector
 
-from .. import deep, lang, vrm_types
-from ..preferences import get_preferences
-from ..vrm_types import Gltf
+from ..common import deep, lang, vrm_types
+from ..common.preferences import get_preferences
+from ..common.vrm_types import Gltf
 from . import search
 
 

@@ -6,7 +6,7 @@ from bmesh.types import BMesh
 from bpy.types import Mesh
 from mathutils import Matrix, Vector
 
-from ..vrm_types import HumanBones
+from ..common.vrm_types import HumanBones
 
 
 class IcypTemplateMeshMaker:

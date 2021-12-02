@@ -10,7 +10,8 @@ from typing import Any, Set, cast
 import bpy
 from bpy.app.handlers import persistent
 
-from . import editor, exporter, importer, lang, preferences, shader, version
+from . import editor, exporter, importer
+from .common import lang, preferences, shader, version
 
 
 class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801

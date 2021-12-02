@@ -3,8 +3,8 @@ from typing import Set, cast
 import bpy
 from bpy_extras.io_utils import ExportHelper
 
+from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import validation
-from ..preferences import get_preferences, use_legacy_importer_exporter
 from .glb_obj import GlbObj
 
 

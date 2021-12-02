@@ -5,8 +5,8 @@ from typing import Any, Set, cast
 import bpy
 from bpy_extras.io_utils import ImportHelper
 
-from .. import lang
-from ..preferences import (
+from ..common import lang
+from ..common.preferences import (
     use_experimental_vrm_component_ui,
     use_legacy_importer_exporter,
 )

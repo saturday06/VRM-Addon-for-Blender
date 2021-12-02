@@ -10,8 +10,8 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 from mathutils import Matrix, Vector
 
-from .. import vrm_types
-from ..preferences import get_preferences
+from ..common import vrm_types
+from ..common.preferences import get_preferences
 from . import search
 
 

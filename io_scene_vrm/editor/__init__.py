@@ -1,7 +1,7 @@
 import bpy
 
-from .. import lang, vrm_types
-from ..preferences import get_preferences
+from ..common import lang, vrm_types
+from ..common.preferences import get_preferences
 from . import (
     detail_mesh_maker,
     glsl_drawer,

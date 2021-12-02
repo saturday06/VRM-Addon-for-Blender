@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import bpy
 from mathutils import Matrix
 
-from ..vrm_types import Vrm0
+from ..common.vrm_types import Vrm0
 from .template_mesh_maker import IcypTemplateMeshMaker
 
 

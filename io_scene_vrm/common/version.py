@@ -3,7 +3,7 @@ from typing import Tuple
 
 # To avoid circular reference
 def version() -> Tuple[int, int, int]:
-    v = __import__(".".join(__name__.split(".")[:-2])).bl_info.get("version")
+    v = __import__(".".join(__name__.split(".")[:-3])).bl_info.get("version")
     if (
         not isinstance(v, tuple)
         or len(v) != 3

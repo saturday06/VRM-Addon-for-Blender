@@ -8,7 +8,7 @@ https://opensource.org/licenses/mit-license.php
 import struct
 from typing import Union
 
-from ..gl_constants import GlConstants
+from ..common.gl_constants import GlConstants
 
 
 class BinaryReader:

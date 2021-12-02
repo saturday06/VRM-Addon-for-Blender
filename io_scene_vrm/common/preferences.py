@@ -2,7 +2,7 @@ from typing import Callable, Optional
 
 import bpy
 
-addon_package_name = ".".join(__name__.split(".")[:-2])
+addon_package_name = ".".join(__name__.split(".")[:-3])
 if not addon_package_name:
     addon_package_name = "VRM_Addon_for_Blender_fallback_key"
 

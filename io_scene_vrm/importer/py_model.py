@@ -20,8 +20,8 @@ from urllib.parse import ParseResult, parse_qsl, urlparse
 
 import bpy
 
-from .. import deep, lang, vrm_types
-from ..gl_constants import GlConstants
+from ..common import deep, lang, vrm_types
+from ..common.gl_constants import GlConstants
 from .binary_reader import BinaryReader
 
 

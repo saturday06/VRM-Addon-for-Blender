@@ -25,10 +25,10 @@ import bmesh
 import bpy
 from mathutils import Matrix
 
-from .. import deep, vrm_types
+from ..common import deep, vrm_types
+from ..common.gl_constants import GlConstants
+from ..common.version import version
 from ..editor import search
-from ..gl_constants import GlConstants
-from ..version import version
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
 

@@ -12,7 +12,7 @@ from typing import Set
 
 import bpy
 
-from .. import vrm_types
+from ..common import vrm_types
 from .make_armature import ICYP_OT_MAKE_ARMATURE
 
 

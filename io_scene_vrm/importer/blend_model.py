@@ -27,9 +27,10 @@ import bpy
 import mathutils
 from mathutils import Matrix, Vector
 
-from .. import deep, editor, exporter, vrm_types
-from ..gl_constants import GlConstants
-from ..shader import shader_node_group_import
+from .. import editor, exporter
+from ..common import deep, vrm_types
+from ..common.gl_constants import GlConstants
+from ..common.shader import shader_node_group_import
 from .py_model import (
     PyMaterial,
     PyMaterialGltf,
