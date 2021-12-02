@@ -74,7 +74,7 @@ def get_preferences(context: bpy.types.Context) -> Optional[bpy.types.AddonPrefe
     addon = context.preferences.addons.get(addon_package_name)
     if addon:
         return addon.preferences
-    print(f"WARNING: Failed to read addon preferences for {addon_package_name}")
+    print(f"WARNING: Failed to read add-on preferences for {addon_package_name}")
     return None
 
 
