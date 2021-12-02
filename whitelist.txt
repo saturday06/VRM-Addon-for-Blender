@@ -87,7 +87,6 @@ glbs
 glsl
 gltf
 gltf2
-gltf2AddonDisabledWarning
 hb
 hpos
 hrad
@@ -282,7 +281,6 @@ viewport
 vrm
 vrm0
 vrm1
-vrmValidator
 vrmautoiksetup
 vroid
 vroid064

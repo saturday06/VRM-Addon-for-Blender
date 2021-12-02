@@ -17,7 +17,7 @@ def add_armature(
     add_armature_op: bpy.types.Operator, context: bpy.types.Context
 ) -> None:
     add_armature_op.layout.operator(
-        make_armature.ICYP_OT_MAKE_ARMATURE.bl_idname,
+        make_armature.ICYP_OT_make_armature.bl_idname,
         text="VRM Humanoid",
         icon="OUTLINER_OB_ARMATURE",
     )
@@ -26,12 +26,12 @@ def add_armature(
 def make_mesh(make_mesh_op: bpy.types.Operator, context: bpy.types.Context) -> None:
     make_mesh_op.layout.separator()
     make_mesh_op.layout.operator(
-        mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES.bl_idname,
+        mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes.bl_idname,
         text="Mesh from selected armature",
         icon="PLUGIN",
     )
     make_mesh_op.layout.operator(
-        detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER.bl_idname,
+        detail_mesh_maker.ICYP_OT_detail_mesh_maker.bl_idname,
         text="(WIP)Face mesh from selected armature and bound mesh",
         icon="PLUGIN",
     )
@@ -59,7 +59,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         if mode == "OBJECT":
             # object_mode_box = layout.box()
             vrm_validator_prop = layout.operator(
-                validation.WM_OT_vrmValidator.bl_idname,
+                validation.WM_OT_vrm_validator.bl_idname,
                 text=lang.support("Validate VRM model", "VRMモデルのチェック"),
                 icon="VIEWZOOM",
             )
@@ -83,14 +83,14 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
 
             if GlslDrawObj.draw_objs:
                 layout.operator(
-                    glsl_drawer.ICYP_OT_Remove_Draw_Model.bl_idname,
+                    glsl_drawer.ICYP_OT_remove_draw_model.bl_idname,
                     icon="SHADING_RENDERED",
                     depress=True,
                 )
             else:
                 if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
                     layout.operator(
-                        glsl_drawer.ICYP_OT_Draw_Model.bl_idname,
+                        glsl_drawer.ICYP_OT_draw_model.bl_idname,
                         icon="SHADING_RENDERED",
                         depress=False,
                     )

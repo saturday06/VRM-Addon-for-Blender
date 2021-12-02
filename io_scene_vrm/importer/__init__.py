@@ -145,7 +145,7 @@ def menu_import(
     import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
 
 
-class WM_OT_licenseConfirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_label = "License confirmation"
     bl_idname = "wm.vrm_license_warning"
     bl_options = {"REGISTER", "UNDO"}

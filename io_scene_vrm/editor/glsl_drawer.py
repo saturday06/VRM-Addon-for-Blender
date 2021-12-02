@@ -15,7 +15,7 @@ from ..common.preferences import get_preferences
 from . import search
 
 
-class ICYP_OT_Draw_Model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class ICYP_OT_draw_model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.model_draw"
     bl_label = "Preview MToon"
     bl_description = "Draw selected with MToon of GLSL"
@@ -33,7 +33,7 @@ class ICYP_OT_Draw_Model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         return {"FINISHED"}
 
 
-class ICYP_OT_Remove_Draw_Model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class ICYP_OT_remove_draw_model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.model_draw_remove"
     bl_label = "Remove MToon preview"
     bl_description = "remove draw function"

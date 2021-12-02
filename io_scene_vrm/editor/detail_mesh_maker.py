@@ -8,7 +8,7 @@ from mathutils import Matrix, Vector
 from .template_mesh_maker import IcypTemplateMeshMaker
 
 
-class ICYP_OT_DETAIL_MESH_MAKER(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "icyp.make_mesh_detail"
     bl_label = "(Don't work currently)detail mesh"
     l_description = "Create mesh with a simple setup for VRM export"

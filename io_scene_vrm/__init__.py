@@ -14,7 +14,7 @@ from . import editor, exporter, importer
 from .common import lang, preferences, shader, version
 
 
-class WM_OT_gltf2AddonDisabledWarning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class WM_OT_gltf2_addon_disabled_warning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.gltf2_addon_disabled_warning"
     bl_options = {"REGISTER", "UNDO"}
@@ -41,7 +41,7 @@ if persistent:  # for fake-bpy-modules
 
 
 classes = [
-    WM_OT_gltf2AddonDisabledWarning,
+    WM_OT_gltf2_addon_disabled_warning,
     editor.BLENDSHAPE_BIND,
     editor.BLENDSHAPE_GROUP,
     editor.BLENDSHAPE_MATERIAL_BIND,
@@ -56,23 +56,23 @@ classes = [
     editor.SPRING_BONE_GROUP,
     editor.VRM_PT_armature_controller,
     editor.VRM_PT_controller,
-    # editor.detail_mesh_maker.ICYP_OT_DETAIL_MESH_MAKER,
-    editor.glsl_drawer.ICYP_OT_Draw_Model,
-    editor.glsl_drawer.ICYP_OT_Remove_Draw_Model,
-    editor.make_armature.ICYP_OT_MAKE_ARMATURE,
-    # editor.mesh_from_bone_envelopes.ICYP_OT_MAKE_MESH_FROM_BONE_ENVELOPES,
+    # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
+    editor.glsl_drawer.ICYP_OT_draw_model,
+    editor.glsl_drawer.ICYP_OT_remove_draw_model,
+    editor.make_armature.ICYP_OT_make_armature,
+    # editor.mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
     editor.vrm_helper.Add_VRM_defined_humanbone_custom_property,
     editor.vrm_helper.Add_VRM_extensions_to_armature,
     editor.vrm_helper.Add_VRM_require_humanbone_custom_property,
     editor.vrm_helper.Bones_rename,
     editor.vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
     exporter.validation.VrmValidationError,
-    exporter.validation.WM_OT_vrmValidator,
+    exporter.validation.WM_OT_vrm_validator,
     exporter.ExportVRM,
     exporter.VRM_PT_export_error_messages,
     importer.ImportVRM,
     importer.LicenseConfirmation,
-    importer.WM_OT_licenseConfirmation,
+    importer.WM_OT_license_confirmation,
     # importer.blend_model.ICYP_OT_select_helper,
     preferences.VrmAddonPreferences,
 ]

@@ -9,7 +9,7 @@ from ..common.vrm_types import Vrm0
 from .template_mesh_maker import IcypTemplateMeshMaker
 
 
-class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "Create armature along with a simple setup for VRM export"
@@ -509,7 +509,7 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N
     ) -> None:
         for vrm_bone_name, blender_bone_name in compare_dict.items():
             armature.data[vrm_bone_name] = blender_bone_name
-        ICYP_OT_MAKE_ARMATURE.make_extension_setting_and_metas(armature)
+        ICYP_OT_make_armature.make_extension_setting_and_metas(armature)
 
     @classmethod
     def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
@@ -523,16 +523,16 @@ class ICYP_OT_MAKE_ARMATURE(bpy.types.Operator):  # type: ignore[misc] # noqa: N
 
         # param_dicts are below of this method
         write_textblock_and_assign_to_armature(
-            "humanoid_params", ICYP_OT_MAKE_ARMATURE.humanoid_params
+            "humanoid_params", ICYP_OT_make_armature.humanoid_params
         )
         write_textblock_and_assign_to_armature(
-            "firstPerson_params", ICYP_OT_MAKE_ARMATURE.first_person_params
+            "firstPerson_params", ICYP_OT_make_armature.first_person_params
         )
         write_textblock_and_assign_to_armature(
-            "blendshape_group", ICYP_OT_MAKE_ARMATURE.blendshape_group
+            "blendshape_group", ICYP_OT_make_armature.blendshape_group
         )
         write_textblock_and_assign_to_armature(
-            "spring_bone", ICYP_OT_MAKE_ARMATURE.spring_bone_prams
+            "spring_bone", ICYP_OT_make_armature.spring_bone_prams
         )
 
         for v in Vrm0.METAS:

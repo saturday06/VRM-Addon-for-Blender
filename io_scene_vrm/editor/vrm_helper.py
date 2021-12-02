@@ -13,7 +13,7 @@ from typing import Set
 import bpy
 
 from ..common import vrm_types
-from .make_armature import ICYP_OT_MAKE_ARMATURE
+from .make_armature import ICYP_OT_make_armature
 
 
 class Bones_rename(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -63,7 +63,7 @@ class Add_VRM_extensions_to_armature(bpy.types.Operator):  # type: ignore[misc] 
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        ICYP_OT_MAKE_ARMATURE.make_extension_setting_and_metas(context.active_object)
+        ICYP_OT_make_armature.make_extension_setting_and_metas(context.active_object)
         return {"FINISHED"}
 
 
