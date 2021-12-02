@@ -31,7 +31,6 @@ bindcode
 blendfy
 blendmode
 blendshape
-blf
 bmesh
 bonegroup
 bonename
@@ -47,9 +46,7 @@ copyfile
 cullmode
 customdata
 datachunk
-datas
 decr
-defbox
 defs
 depsgraph
 dic
@@ -58,7 +55,6 @@ dirname
 dn
 dof
 doublesided
-dtype
 dview
 editmode
 emissive
@@ -66,7 +62,6 @@ endregion
 eval
 exc
 exeext
-existance
 f00
 fabs
 filedialog
@@ -85,7 +80,6 @@ fromkeys
 fsum
 func
 geocode
-getsize
 geturl
 gl
 glb
@@ -135,7 +129,6 @@ mathutils
 matval
 maxsplit
 mball
-mbox
 messagebox
 metaballs
 metainfo
@@ -149,9 +142,7 @@ morphname
 mspec
 mtoon
 myinstance
-neckneck
 ngon
-nonlocal
 normalmap
 normals
 notequal
@@ -161,7 +152,6 @@ offscreen
 ortho
 otogai
 out2
-out3
 param
 parameteri
 params
@@ -292,17 +282,13 @@ viewport
 vrm
 vrm0
 vrm1
-vrm2pydata
 vrmValidator
-vrmValidatorPrivate
 vrmautoiksetup
 vroid
 vroid064
 vroid2vrc
-vroidhub
 vscode
 vtype
-w0199
 w0201
 webgl
 winapi
