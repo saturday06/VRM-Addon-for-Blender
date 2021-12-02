@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from io_scene_vrm import deep
+from io_scene_vrm.common import deep
 
 
 class TestDeep(TestCase):
