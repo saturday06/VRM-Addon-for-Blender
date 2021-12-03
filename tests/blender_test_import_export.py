@@ -127,10 +127,7 @@ def assert_import_export(
                 + f"input ={in_path}\n"
                 + f"output={expected_path}\n"
             )
-            if platform.system() == "Windows":
-                sys.stderr.buffer.write(message.encode())
-                raise AssertionError
-            raise AssertionError(message)
+            sys.stderr.buffer.write(message.encode())
         sys.exit(0)
 
     if not os.path.exists(expected_path):
