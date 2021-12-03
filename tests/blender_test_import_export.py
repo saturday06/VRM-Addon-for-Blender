@@ -100,17 +100,6 @@ def assert_import_export(
 ) -> None:
     bpy.ops.wm.open_mainfile(filepath=bpy.data.filepath)
 
-    # 同じファイルを複数回インポートしても名前が変わらないようにする
-    for block in (
-        list(bpy.data.collections)
-        + list(bpy.data.meshes)
-        + list(bpy.data.materials)
-        + list(bpy.data.textures)
-        + list(bpy.data.images)
-        + list(bpy.data.armatures)
-    ):
-        block.name = "ignore_" + uuid.uuid4().hex
-
     bpy.ops.import_scene.vrm(
         filepath=in_path,
         extract_textures_into_folder=extract_textures,
