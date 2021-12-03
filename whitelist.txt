@@ -84,6 +84,7 @@ geturl
 gl
 glb
 glbs
+globals
 glsl
 gltf
 gltf2

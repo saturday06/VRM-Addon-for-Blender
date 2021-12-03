@@ -2,10 +2,23 @@ from typing import Callable, Optional
 
 import bpy
 
-addon_package_name = ".".join(__name__.split(".")[:-3])
-if not addon_package_name:
-    addon_package_name = "VRM_Addon_for_Blender_fallback_key"
-    print(f"VRM Add-on: failed to detect add-on package name from __name__={__name__}")
+addon_package_name_temp = ".".join(__name__.split(".")[:-3])
+if not addon_package_name_temp:
+    addon_package_name_temp = "VRM_Addon_for_Blender_fallback_key"
+    print(f"VRM Add-on: Failed to detect add-on package name from __name__={__name__}")
+
+if "addon_package_name" not in globals():
+    addon_package_name = addon_package_name_temp
+elif globals()["addon_package_name"] != addon_package_name_temp:
+    print(
+        "VRM Add-on: Accidentally package name is changed? addon_package_name: "
+        + str(globals()["addon_package_name"])
+        + f" => {addon_package_name_temp}, __name__: "
+        + str(globals().get("previous_package_name"))
+        + f" => {__name__}"
+    )
+
+previous_package_name = __name__
 
 
 class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
