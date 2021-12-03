@@ -3,7 +3,6 @@ import pathlib
 import platform
 import shutil
 import sys
-import uuid
 from typing import List
 
 import bpy
@@ -32,11 +31,6 @@ def get_test_command_args() -> List[List[str]]:
     ]:
         command_args.append([vrm, extract_textures])
     return command_args
-
-
-def fix_stderr_encoding() -> None:
-    if platform.system() == "Windows":
-        sys.stderr.reconfigure(encoding="ansi")  # type: ignore
 
 
 def test() -> None:
@@ -93,7 +87,7 @@ def test() -> None:
 
 def assert_import_export(
     in_path: str,
-    expected_out_path: str,
+    expected_path: str,
     temp_dir_path: str,
     extract_textures: bool,
     update_vrm_dir: bool,
@@ -108,9 +102,9 @@ def assert_import_export(
 
     bpy.ops.vrm.model_validate()
 
-    actual_out_path = os.path.join(temp_dir_path, os.path.basename(in_path))
-    bpy.ops.export_scene.vrm(filepath=actual_out_path)
-    actual_out_bytes = pathlib.Path(actual_out_path).read_bytes()
+    actual_path = os.path.join(temp_dir_path, os.path.basename(in_path))
+    bpy.ops.export_scene.vrm(filepath=actual_path)
+    actual_bytes = pathlib.Path(actual_path).read_bytes()
 
     system = platform.system()
     if system == "Darwin":
@@ -122,44 +116,49 @@ def assert_import_export(
 
     if (
         update_vrm_dir
-        and in_path != expected_out_path
+        and in_path != expected_path
         and not vrm_diff(
-            actual_out_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
+            actual_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
         )
     ):
-        if os.path.exists(expected_out_path):
-            fix_stderr_encoding()
-            raise Exception(
-                f"""The input and the output are same. The output file is unnecessary.
-input ={in_path}
-output={expected_out_path}
-"""
+        if os.path.exists(expected_path):
+            message = (
+                "The input and the output are same. The output file is unnecessary.\n"
+                + f"input ={in_path}\n"
+                + f"output={expected_path}\n"
             )
+            if platform.system() == "Windows":
+                sys.stderr.buffer.write(message.encode())
+                raise AssertionError
+            raise AssertionError(message)
         sys.exit(0)
 
-    if not os.path.exists(expected_out_path):
-        shutil.copy(actual_out_path, expected_out_path)
+    if not os.path.exists(expected_path):
+        shutil.copy(actual_path, expected_path)
 
     diffs = vrm_diff(
-        actual_out_bytes,
-        pathlib.Path(expected_out_path).read_bytes(),
+        actual_bytes,
+        pathlib.Path(expected_path).read_bytes(),
         float_tolerance,
     )
-    diffs_str = "\n".join(diffs[:50])
+    if not diffs:
+        return
 
-    try:
-        assert (
-            len(diffs) == 0
-        ), f"""Exceeded the VRM diff threshold:{float_tolerance:19.17f}
-input={in_path}
-left ={actual_out_path}
-right={expected_out_path}
-{diffs_str}"""
-    except AssertionError:
-        if update_vrm_dir:
-            shutil.copy(actual_out_path, expected_out_path)
-        fix_stderr_encoding()
-        raise
+    if update_vrm_dir:
+        shutil.copy(actual_path, expected_path)
+
+    diffs_str = "\n".join(diffs[:50])
+    message = (
+        f"Exceeded the VRM diff threshold:{float_tolerance:19.17f}\n"
+        + f"input={in_path}\n"
+        + f"left ={actual_path}\n"
+        + f"right={expected_path}\n"
+        + f"{diffs_str}\n"
+    )
+    if platform.system() == "Windows":
+        sys.stderr.buffer.write(message.encode())
+        raise AssertionError
+    raise AssertionError(message)
 
 
 if __name__ == "__main__":

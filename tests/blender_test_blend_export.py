@@ -31,11 +31,6 @@ def get_test_command_args() -> List[List[str]]:
     return command_args
 
 
-def fix_stderr_encoding() -> None:
-    if platform.system() == "Windows":
-        sys.stderr.reconfigure(encoding="ansi")  # type: ignore
-
-
 def test() -> None:
     os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
     update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
@@ -65,21 +60,24 @@ def test() -> None:
         pathlib.Path(expected_path).read_bytes(),
         float_tolerance,
     )
-    diffs_str = "\n".join(diffs)
+    if not diffs:
+        return
 
-    try:
-        assert (
-            len(diffs) == 0
-        ), f"""Exceeded the VRM diff threshold::{float_tolerance:19.17f} for {in_path}
-input={in_path}
-left ={actual_path}
-right={expected_path}
-    {diffs_str}"""
-    except AssertionError:
-        if update_vrm_dir:
-            shutil.copy(actual_path, expected_path)
-        fix_stderr_encoding()
-        raise
+    if update_vrm_dir:
+        shutil.copy(actual_path, expected_path)
+
+    diffs_str = "\n".join(diffs[:50])
+    message = (
+        f"Exceeded the VRM diff threshold:{float_tolerance:19.17f}\n"
+        + f"input={in_path}\n"
+        + f"left ={actual_path}\n"
+        + f"right={expected_path}\n"
+        + f"{diffs_str}\n"
+    )
+    if platform.system() == "Windows":
+        sys.stderr.buffer.write(message.encode())
+        raise AssertionError
+    raise AssertionError(message)
 
 
 if __name__ == "__main__":

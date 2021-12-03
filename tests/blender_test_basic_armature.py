@@ -1,5 +1,6 @@
 import os
 import pathlib
+import platform
 import shutil
 import sys
 from os.path import dirname
@@ -46,14 +47,20 @@ def test() -> None:
         pathlib.Path(expected_path).read_bytes(),
         float_tolerance,
     )
-    diffs_str = "\n".join(diffs)
+    if not diffs:
+        return
 
-    assert (
-        len(diffs) == 0
-    ), f"""Exceeded the VRM diff threshold::{float_tolerance:19.17f} for basic armature operator
-left ={actual_path}
-right={expected_path}
-    {diffs_str}"""
+    diffs_str = "\n".join(diffs[:50])
+    message = (
+        f"Exceeded the VRM diff threshold:{float_tolerance:19.17f}\n"
+        + f"left ={actual_path}\n"
+        + f"right={expected_path}\n"
+        + f"{diffs_str}\n"
+    )
+    if platform.system() == "Windows":
+        sys.stderr.buffer.write(message.encode())
+        raise AssertionError
+    raise AssertionError(message)
 
 
 if __name__ == "__main__":
