@@ -55,6 +55,12 @@ def test() -> None:
     if not os.path.exists(os.path.join(out_vrm_dir, vrm)):
         update_vrm_dir = True
 
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete()
+    while bpy.data.collections:
+        bpy.data.collections.remove(bpy.data.collections[0])
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(temp_vrm_dir, vrm + ".blend"))
+
     assert_import_export(
         in_path,
         os.path.join(out_vrm_dir, vrm),
@@ -92,12 +98,7 @@ def assert_import_export(
     extract_textures: bool,
     update_vrm_dir: bool,
 ) -> None:
-    bpy.ops.object.mode_set(mode="OBJECT")
-    bpy.ops.object.select_all(action="SELECT")
-    for obj in bpy.context.scene.objects:
-        obj.hide_set(False)
-        obj.select_set(True)
-    bpy.ops.object.delete()
+    bpy.ops.wm.open_mainfile(filepath=bpy.data.filepath)
 
     # 同じファイルを複数回インポートしても名前が変わらないようにする
     for block in (
