@@ -112,7 +112,7 @@ def assert_import_export(
     elif system == "Linux":
         float_tolerance = 0.0006
     else:
-        float_tolerance = 0.000001
+        float_tolerance = 0.000015
 
     if (
         update_vrm_dir
