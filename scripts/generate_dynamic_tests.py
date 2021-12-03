@@ -8,6 +8,25 @@ import uuid
 from pathlib import Path
 from typing import Any, Optional
 
+
+def to_function_component_literal(s: str) -> str:
+    ascii_lower = "abcdefghijklmnopqrstuvwxyz0123456789"
+    ascii_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    # str.lower() is locale dependent
+    # https://stackoverflow.com/questions/19030948/python-utf-8-lowercase-turkish-specific-letter
+    ascii_upper_to_lower = dict(zip(ascii_upper, ascii_lower))
+    return "".join(
+        map(
+            lambda c: c
+            if c in ascii_lower
+            else ascii_upper_to_lower[c]
+            if c in ascii_upper
+            else "_",
+            s,
+        )
+    )
+
+
 test_src_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tests")
 for path in sorted(os.listdir(test_src_dir)):
     if not path.startswith("blender_test_") or not path.endswith(".py"):
@@ -60,16 +79,7 @@ class Blender{class_name}TestCase(BaseBlenderTestCase):
     elif test_command_args_list:
         existing_method_names = []
         for args in test_command_args_list:
-            names = []
-            for arg in args:
-                name = ""
-                for c in arg:
-                    if re.match("[a-zA-Z]", f"{c}"):
-                        name = f"{name}{c}"
-                    else:
-                        name = f"{name}_"
-                names.append(name)
-            default_method_name = "_".join(names).lower()
+            default_method_name = "_".join(map(to_function_component_literal, args))
             method_name = default_method_name
             for index in range(1000000):
                 if index > 0:
