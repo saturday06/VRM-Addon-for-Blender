@@ -48,11 +48,6 @@ def test() -> None:
     expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
 
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete()
-    while bpy.data.collections:
-        bpy.data.collections.remove(bpy.data.collections[0])
-
     bpy.ops.wm.open_mainfile(filepath=in_path)
 
     bpy.ops.vrm.model_validate()
