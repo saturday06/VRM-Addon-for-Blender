@@ -1339,7 +1339,7 @@ class BlendModel:
             image_index = self.py_model.json["textures"][tex_index]["source"]
             if image_index not in self.images:
                 continue
-            if tex_name not in tex_dic.keys():
+            if tex_name not in tex_dic:
                 if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
                 b_mat["unknown_texture"].update(

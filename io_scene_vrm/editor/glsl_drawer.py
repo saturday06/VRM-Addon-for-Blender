@@ -240,7 +240,7 @@ class GlslDrawObj:
         glsl_draw_obj.light = lights[0]
         for obj in glsl_draw_obj.objs:
             for mat_slot in obj.material_slots:
-                if mat_slot.material.name not in glsl_draw_obj.materials.keys():
+                if mat_slot.material.name not in glsl_draw_obj.materials:
                     glsl_draw_obj.materials[mat_slot.material.name] = MtoonGlsl(
                         mat_slot.material
                     )
