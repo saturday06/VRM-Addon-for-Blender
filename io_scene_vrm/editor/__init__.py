@@ -132,18 +132,20 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
             )
 
         def show_add_require(parent: bpy.types.UILayout, bone_name: str) -> None:
-            parent.operator(
-                vrm_helper.Add_VRM_require_humanbone_custom_property.bl_idname,
+            op = parent.operator(
+                vrm_helper.Add_VRM_humanbone_custom_property.bl_idname,
                 text=f"Add {bone_name} property",
                 icon="ADD",
             )
+            op.bone_name = bone_name
 
         def show_add_defined(parent: bpy.types.UILayout, bone_name: str) -> None:
-            parent.operator(
-                vrm_helper.Add_VRM_defined_humanbone_custom_property.bl_idname,
+            op = parent.operator(
+                vrm_helper.Add_VRM_humanbone_custom_property.bl_idname,
                 text=f"Add {bone_name} property",
                 icon="ADD",
             )
+            op.bone_name = bone_name
 
         armature_box = layout
         armature_box.operator(
