@@ -58,8 +58,8 @@ class Bones_rename(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
 
 class Add_VRM_extensions_to_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_extensions"
-    bl_label = "Add vrm attributes"
-    bl_description = "Add vrm extensions & metas to armature"
+    bl_label = "Add VRM attributes"
+    bl_description = "Add VRM extensions & metas to armature"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
