@@ -14,7 +14,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, _context: bpy.types.Context) -> bool:
         return True
 
     def execute(self, context: bpy.types.Context) -> Set[str]:

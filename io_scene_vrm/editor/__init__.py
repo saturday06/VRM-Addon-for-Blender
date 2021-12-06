@@ -14,7 +14,7 @@ from .glsl_drawer import GlslDrawObj
 
 
 def add_armature(
-    add_armature_op: bpy.types.Operator, context: bpy.types.Context
+    add_armature_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:
     add_armature_op.layout.operator(
         make_armature.ICYP_OT_make_armature.bl_idname,
@@ -23,7 +23,7 @@ def add_armature(
     )
 
 
-def make_mesh(make_mesh_op: bpy.types.Operator, context: bpy.types.Context) -> None:
+def make_mesh(make_mesh_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
     make_mesh_op.layout.separator()
     make_mesh_op.layout.operator(
         mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes.bl_idname,
@@ -254,7 +254,7 @@ class VRM_PT_vrm_humanoid_params(bpy.types.Panel):  # type: ignore[misc] # noqa:
         armature = context.object.type == "ARMATURE"
         return exist and armature
 
-    def draw_header(self, context: bpy.types.Context) -> None:
+    def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="ARMATURE_DATA")
 
@@ -294,7 +294,7 @@ class VRM_PT_vrm_firstPerson_params(bpy.types.Panel):  # type: ignore[misc] # no
         armature = context.object.type == "ARMATURE"
         return exist and armature
 
-    def draw_header(self, context: bpy.types.Context) -> None:
+    def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="HIDE_OFF")
 
@@ -349,7 +349,7 @@ class VRM_PT_vrm_blendshape_group(bpy.types.Panel):  # type: ignore[misc] # noqa
         armature = context.object.type == "ARMATURE"
         return exist and armature
 
-    def draw_header(self, context: bpy.types.Context) -> None:
+    def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="SHAPEKEY_DATA")
 
@@ -398,7 +398,7 @@ class VRM_PT_vrm_spring_bone(bpy.types.Panel):  # type: ignore[misc] # noqa: N80
         armature = context.object.type == "ARMATURE"
         return exist and armature
 
-    def draw_header(self, context: bpy.types.Context) -> None:
+    def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="RIGID_BODY_CONSTRAINT")
 
@@ -470,7 +470,7 @@ class VRM_PT_vrm_metas(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         armature = context.object.type == "ARMATURE"
         return exist and armature
 
-    def draw_header(self, context: bpy.types.Context) -> None:
+    def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="FILE_BLEND")
 

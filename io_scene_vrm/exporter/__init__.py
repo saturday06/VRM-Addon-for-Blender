@@ -45,7 +45,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
 
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         if not self.filepath:
             return {"CANCELLED"}
         filepath: str = self.filepath
@@ -80,7 +80,7 @@ class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
             )
         return cast(Set[str], ExportHelper.invoke(self, context, event))
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, _context: bpy.types.Context) -> None:
         pass  # Is needed to get panels available
 
 
@@ -113,5 +113,5 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
         )
 
 
-def menu_export(export_op: bpy.types.Operator, context: bpy.types.Context) -> None:
+def menu_export(export_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
     export_op.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")

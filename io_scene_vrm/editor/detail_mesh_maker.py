@@ -17,7 +17,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noq
     # init before execute
     # https://docs.blender.org/api/2.82/bpy.types.Operator.html#invoke-function
     # pylint: disable=W0201
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
         self.base_armature_name = [
             o for o in bpy.context.selected_objects if o.type == "ARMATURE"
         ][0].name
@@ -115,7 +115,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noq
         default=0.1, min=0.0, max=1, name="Mouth flat"  # noqa: F722
     )
 
-    def make_face(self, context: bpy.types.Context, mesh: bpy.types.Mesh) -> None:
+    def make_face(self, _context: bpy.types.Context, mesh: bpy.types.Mesh) -> None:
         def add_point(point: Vector) -> bmesh.types.BMVert:
             return bm.verts.new(point)
 

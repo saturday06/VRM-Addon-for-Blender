@@ -140,7 +140,7 @@ def create_blend_model(
 
 
 def menu_import(
-    import_op: bpy.types.Operator, context: bpy.types.Context
+    import_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
     import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
 
@@ -167,12 +167,12 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
             license_check=False,
         )
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
         return cast(
             Set[str], context.window_manager.invoke_props_dialog(self, width=600)
         )
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(text=self.filepath)
         for license_confirmation in self.license_confirmations:

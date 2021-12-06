@@ -22,7 +22,7 @@ class Bones_rename(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_description = "Rename VRoid_bones as Blender type"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         def reprstr(bone_name: str) -> str:
             ml = re.match("(.*)_" + "L" + "_(.*)", bone_name)
             mr = re.match("(.*)_" + "R" + "_(.*)", bone_name)
@@ -73,7 +73,7 @@ class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # type: ig
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
         for bone_name in vrm_types.HumanBones.requires:
             if bone_name not in armature:
@@ -87,7 +87,7 @@ class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # type: ig
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
         for bone_name in vrm_types.HumanBones.defines:
             if bone_name not in armature:
@@ -101,7 +101,7 @@ class Vroid2VRC_lipsync_from_json_recipe(bpy.types.Operator):  # type: ignore[mi
     bl_description = "Make lipsync from VRoid to VRC by json"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         recipe_uri = os.path.join(
             os.path.dirname(__file__), "vroid2vrc_lipsync_recipe.json"
         )

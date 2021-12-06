@@ -39,7 +39,7 @@ class ICYP_OT_remove_draw_model(bpy.types.Operator):  # type: ignore[misc] # noq
     bl_description = "remove draw function"
     bl_options = {"REGISTER"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         GlslDrawObj.draw_func_remove()
         return {"FINISHED"}
 
@@ -225,7 +225,7 @@ class GlslDrawObj:
     scene_meshes: List[GlMesh] = []
 
     @staticmethod
-    def build_scene(dummy: None = None) -> None:
+    def build_scene(_dummy: None = None) -> None:
         glsl_draw_obj: Optional[GlslDrawObj] = None
         if GlslDrawObj.myinstance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()

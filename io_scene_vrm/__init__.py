@@ -19,15 +19,15 @@ class WM_OT_gltf2_addon_disabled_warning(bpy.types.Operator):  # type: ignore[mi
     bl_idname = "wm.gltf2_addon_disabled_warning"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
         return cast(
             Set[str], context.window_manager.invoke_props_dialog(self, width=500)
         )
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, _context: bpy.types.Context) -> None:
         self.layout.label(
             text='Official add-on "glTF 2.0 format" is required. Please enable it.'
         )
@@ -36,8 +36,8 @@ class WM_OT_gltf2_addon_disabled_warning(bpy.types.Operator):  # type: ignore[mi
 if persistent:  # for fake-bpy-modules
 
     @persistent  # type: ignore[misc]
-    def add_shaders(self: Any) -> None:
-        shader.add_shaders(self)
+    def add_shaders(_dummy: Any) -> None:
+        shader.add_shaders()
 
 
 classes = [

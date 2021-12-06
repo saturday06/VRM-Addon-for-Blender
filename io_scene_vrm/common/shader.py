@@ -1,10 +1,9 @@
 import os
-from typing import Any
 
 import bpy
 
 
-def add_shaders(self: Any) -> None:
+def add_shaders() -> None:
     filedir = os.path.join(os.path.dirname(__file__), "material_node_groups.blend")
     with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
         for nt in data_from.node_groups:

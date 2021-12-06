@@ -38,7 +38,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             return {"CANCELLED"}
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
         self.detect_errors_and_warnings(
             context, self.errors, self.show_successful_message
         )

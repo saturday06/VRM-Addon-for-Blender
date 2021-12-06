@@ -70,7 +70,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
         set=set_use_experimental_vrm_component_ui,
     )
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.prop(self, "export_invisibles")
         layout.prop(self, "export_only_selections")
