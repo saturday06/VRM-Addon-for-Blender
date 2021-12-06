@@ -74,10 +74,10 @@ class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # type: ig
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        arm = bpy.data.armatures[bpy.context.active_object.data.name]
-        for req in vrm_types.HumanBones.requires:
-            if req not in arm:
-                arm[req] = ""
+        armature = bpy.data.armatures[bpy.context.active_object.data.name]
+        for bone_name in vrm_types.HumanBones.requires:
+            if bone_name not in armature:
+                armature[bone_name] = ""
         return {"FINISHED"}
 
 
@@ -88,10 +88,10 @@ class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # type: ig
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        arm = bpy.data.armatures[bpy.context.active_object.data.name]
-        for d in vrm_types.HumanBones.defines:
-            if d not in arm:
-                arm[d] = ""
+        armature = bpy.data.armatures[bpy.context.active_object.data.name]
+        for bone_name in vrm_types.HumanBones.defines:
+            if bone_name not in armature:
+                armature[bone_name] = ""
         return {"FINISHED"}
 
 
