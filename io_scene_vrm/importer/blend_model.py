@@ -23,13 +23,13 @@ import tempfile
 from math import radians, sqrt
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple
 
+import bgl
 import bpy
 import mathutils
 from mathutils import Matrix, Vector
 
 from .. import editor, exporter
 from ..common import deep, vrm_types
-from ..common.gl_constants import GlConstants
 from ..common.shader import shader_node_group_import
 from .py_model import (
     PyMaterial,
@@ -255,7 +255,7 @@ class BlendModel:
                         "bufferView": position_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC3",
-                        "componentType": GlConstants.FLOAT,
+                        "componentType": bgl.GL_FLOAT,
                         "count": 3,
                         "min": [0, 0, 0],
                         "max": [1, 1, 0],
@@ -267,7 +267,7 @@ class BlendModel:
                         "bufferView": texcoord_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC2",
-                        "componentType": GlConstants.FLOAT,
+                        "componentType": bgl.GL_FLOAT,
                         "count": 3,
                     }
                 )
@@ -424,7 +424,7 @@ class BlendModel:
                         "bufferView": position_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC3",
-                        "componentType": GlConstants.FLOAT,
+                        "componentType": bgl.GL_FLOAT,
                         "count": 3,
                         "min": [0, 0, 0],
                         "max": [1, 1, 0],
@@ -436,7 +436,7 @@ class BlendModel:
                         "bufferView": joints_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC4",
-                        "componentType": GlConstants.UNSIGNED_SHORT,
+                        "componentType": bgl.GL_UNSIGNED_SHORT,
                         "count": 3,
                     }
                 )
@@ -446,7 +446,7 @@ class BlendModel:
                         "bufferView": weights_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC4",
-                        "componentType": GlConstants.FLOAT,
+                        "componentType": bgl.GL_FLOAT,
                         "count": 3,
                     }
                 )
@@ -1079,7 +1079,7 @@ class BlendModel:
         sampler = (
             self.py_model.json["samplers"][tex["sampler"]]
             if "samplers" in self.py_model.json
-            else [{"wrapS": GlConstants.REPEAT, "magFilter": GlConstants.LINEAR}]
+            else [{"wrapS": bgl.GL_REPEAT, "magFilter": bgl.GL_LINEAR}]
         )
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         if image_index in self.images:
@@ -1091,16 +1091,14 @@ class BlendModel:
         else:
             image_node.label = "what_is_this_node"
         # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
-        filter_type = (
-            sampler["magFilter"] if "magFilter" in sampler else GlConstants.LINEAR
-        )
-        if filter_type == GlConstants.NEAREST:
+        filter_type = sampler["magFilter"] if "magFilter" in sampler else bgl.GL_LINEAR
+        if filter_type == bgl.GL_NEAREST:
             image_node.interpolation = "Closest"
         else:
             image_node.interpolation = "Linear"
         # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-        wrap_type = sampler["wrapS"] if "wrapS" in sampler else GlConstants.REPEAT
-        if wrap_type in (GlConstants.REPEAT, GlConstants.MIRRORED_REPEAT):
+        wrap_type = sampler["wrapS"] if "wrapS" in sampler else bgl.GL_REPEAT
+        if wrap_type in (bgl.GL_REPEAT, bgl.GL_MIRRORED_REPEAT):
             image_node.extension = "REPEAT"
         else:
             image_node.extension = "EXTEND"

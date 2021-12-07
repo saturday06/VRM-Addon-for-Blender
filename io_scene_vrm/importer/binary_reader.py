@@ -8,7 +8,7 @@ https://opensource.org/licenses/mit-license.php
 import struct
 from typing import Union
 
-from ..common.gl_constants import GlConstants
+import bgl
 
 
 class BinaryReader:
@@ -73,17 +73,17 @@ class BinaryReader:
         return result
 
     def read_as_data_type(self, data_type: int) -> Union[int, float]:
-        if data_type == GlConstants.UNSIGNED_INT:
+        if data_type == bgl.GL_UNSIGNED_INT:
             return self.read_unsigned_int()
-        if data_type == GlConstants.INT:
+        if data_type == bgl.GL_INT:
             return self.read_int()
-        if data_type == GlConstants.UNSIGNED_SHORT:
+        if data_type == bgl.GL_UNSIGNED_SHORT:
             return self.read_unsigned_short()
-        if data_type == GlConstants.SHORT:
+        if data_type == bgl.GL_SHORT:
             return self.read_short()
-        if data_type == GlConstants.FLOAT:
+        if data_type == bgl.GL_FLOAT:
             return self.read_float()
-        if data_type == GlConstants.UNSIGNED_BYTE:
+        if data_type == bgl.GL_UNSIGNED_BYTE:
             return self.read_unsigned_byte()
         print(f"unsupported type : {data_type}")
         raise Exception

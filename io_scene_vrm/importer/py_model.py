@@ -18,10 +18,10 @@ from itertools import repeat
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
+import bgl
 import bpy
 
 from ..common import deep, lang, vrm_types
-from ..common.gl_constants import GlConstants
 from .binary_reader import BinaryReader
 
 
@@ -226,13 +226,13 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     if magic != "glTF":
         raise Exception(f"glTF header signature not found: #{magic}")
 
-    version = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
+    version = reader.read_unsigned_int()
     if version != 2:
         raise Exception(
             f"version #{version} found. This plugin only supports version 2"
         )
 
-    size = reader.read_as_data_type(GlConstants.UNSIGNED_INT)
+    size = reader.read_unsigned_int()
     size -= 12
 
     json_str: Optional[str] = None
@@ -696,7 +696,7 @@ def mesh_read(py_model: PyModel) -> None:
                 vrm_mesh.name = mesh["name"] + str(j)
 
             # region 頂点index
-            if primitive.get("mode", 4) != GlConstants.TRIANGLES:
+            if primitive.get("mode", 4) != bgl.GL_TRIANGLES:
                 # TODO その他メッシュタイプ対応
                 primitive_mode = primitive.get("mode")
                 raise Exception(

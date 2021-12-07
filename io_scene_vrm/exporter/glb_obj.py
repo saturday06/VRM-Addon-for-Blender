@@ -21,12 +21,12 @@ from math import floor
 from sys import float_info
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+import bgl
 import bmesh
 import bpy
 from mathutils import Matrix
 
 from ..common import deep, vrm_types
-from ..common.gl_constants import GlConstants
 from ..common.version import version
 from ..editor import search
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
@@ -317,7 +317,7 @@ class GlbObj:
             im_bin = GlbBin(
                 skin_invert_matrix_bin,
                 "MAT4",
-                GlConstants.FLOAT,
+                bgl.GL_FLOAT,
                 len(skin["joints"]),
                 None,
                 self.glb_bin_collector,
@@ -500,17 +500,17 @@ class GlbObj:
                 .from_node.interpolation
                 == "Closest"
             ):
-                filter_type = GlConstants.NEAREST
+                filter_type = bgl.GL_NEAREST
             else:
-                filter_type = GlConstants.LINEAR
+                filter_type = bgl.GL_LINEAR
             # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
             if (
                 shader_node.inputs.get(input_socket_name).links[0].from_node.extension
                 == "REPEAT"
             ):
-                wrap_type = GlConstants.REPEAT
+                wrap_type = bgl.GL_REPEAT
             else:
-                wrap_type = GlConstants.CLAMP_TO_EDGE
+                wrap_type = bgl.GL_CLAMP_TO_EDGE
             return tex_name, wrap_type, filter_type
 
         def get_float_value(
@@ -1012,30 +1012,30 @@ class GlbObj:
             sampler = gltf2_io_texture_info.index.sampler
             if sampler is None:
                 sampler_dic_key = (
-                    GlConstants.REPEAT,
-                    GlConstants.REPEAT,
-                    GlConstants.LINEAR,
-                    GlConstants.LINEAR,
+                    bgl.GL_REPEAT,
+                    bgl.GL_REPEAT,
+                    bgl.GL_LINEAR,
+                    bgl.GL_LINEAR,
                 )
             else:
                 sampler_dic_key = (
-                    sampler.wrap_s or GlConstants.REPEAT,
-                    sampler.wrap_t or GlConstants.REPEAT,
-                    sampler.mag_filter or GlConstants.LINEAR,
-                    sampler.min_filter or GlConstants.LINEAR,
+                    sampler.wrap_s or bgl.GL_REPEAT,
+                    sampler.wrap_t or bgl.GL_REPEAT,
+                    sampler.mag_filter or bgl.GL_LINEAR,
+                    sampler.min_filter or bgl.GL_LINEAR,
                 )
 
                 # VRoid Hub may not support a mipmap
                 if sampler_dic_key[3] in [
-                    GlConstants.NEAREST_MIPMAP_LINEAR,
-                    GlConstants.NEAREST_MIPMAP_NEAREST,
+                    bgl.GL_NEAREST_MIPMAP_LINEAR,
+                    bgl.GL_NEAREST_MIPMAP_NEAREST,
                 ]:
-                    sampler_dic_key = sampler_dic_key[0:3] + (GlConstants.NEAREST,)
+                    sampler_dic_key = sampler_dic_key[0:3] + (bgl.GL_NEAREST,)
                 elif sampler_dic_key[3] in [
-                    GlConstants.LINEAR_MIPMAP_NEAREST,
-                    GlConstants.LINEAR_MIPMAP_LINEAR,
+                    bgl.GL_LINEAR_MIPMAP_NEAREST,
+                    bgl.GL_LINEAR_MIPMAP_LINEAR,
                 ]:
-                    sampler_dic_key = sampler_dic_key[0:3] + (GlConstants.LINEAR,)
+                    sampler_dic_key = sampler_dic_key[0:3] + (bgl.GL_LINEAR,)
 
             if sampler_dic_key not in sampler_dic.keys():
                 sampler_dic.update({sampler_dic_key: len(sampler_dic)})
@@ -1617,7 +1617,7 @@ class GlbObj:
                     mat_id: GlbBin(
                         index_bin,
                         "SCALAR",
-                        GlConstants.UNSIGNED_INT,
+                        bgl.GL_UNSIGNED_INT,
                         primitive_index_vertex_count[mat_id],
                         None,
                         self.glb_bin_collector,
@@ -1629,7 +1629,7 @@ class GlbObj:
             pos_glb = GlbBin(
                 position_bin,
                 "VEC3",
-                GlConstants.FLOAT,
+                bgl.GL_FLOAT,
                 unique_vertex_id,
                 position_min_max,
                 self.glb_bin_collector,
@@ -1637,7 +1637,7 @@ class GlbObj:
             nor_glb = GlbBin(
                 normal_bin,
                 "VEC3",
-                GlConstants.FLOAT,
+                bgl.GL_FLOAT,
                 unique_vertex_id,
                 None,
                 self.glb_bin_collector,
@@ -1646,7 +1646,7 @@ class GlbObj:
                 GlbBin(
                     texcoord_bin,
                     "VEC2",
-                    GlConstants.FLOAT,
+                    bgl.GL_FLOAT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -1660,7 +1660,7 @@ class GlbObj:
                 joints_glb = GlbBin(
                     joints_bin,
                     "VEC4",
-                    GlConstants.UNSIGNED_SHORT,
+                    bgl.GL_UNSIGNED_SHORT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -1668,7 +1668,7 @@ class GlbObj:
                 weights_glb = GlbBin(
                     weights_bin,
                     "VEC4",
-                    GlConstants.FLOAT,
+                    bgl.GL_FLOAT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -1681,7 +1681,7 @@ class GlbObj:
                     GlbBin(
                         morph_pos_bin,
                         "VEC3",
-                        GlConstants.FLOAT,
+                        bgl.GL_FLOAT,
                         unique_vertex_id,
                         morph_minmax,
                         self.glb_bin_collector,
@@ -1695,7 +1695,7 @@ class GlbObj:
                         GlbBin(
                             morph_normal_bin,
                             "VEC3",
-                            GlConstants.FLOAT,
+                            bgl.GL_FLOAT,
                             unique_vertex_id,
                             None,
                             self.glb_bin_collector,
