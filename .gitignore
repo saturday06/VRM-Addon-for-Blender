@@ -16,7 +16,6 @@
 !/.gitignore
 !/.pylintrc
 !/LICENSE
-!/mypy.ini
 !/poetry.lock
 !/pyproject.toml
 !/scripts/*.bat

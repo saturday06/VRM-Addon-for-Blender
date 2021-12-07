@@ -25,6 +25,25 @@ pylint = "*"
 [tool.black]
 target-version = ['py37']
 
+[tool.mypy]
+python_version = 3.7
+strict = true
+namespace_packages = true
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = [
+    "bgl",
+    "bmesh.*",
+    "bpy.*",
+    "bpy_extras.*",
+    "gpu",
+    "gpu_extras.*",
+    "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials",
+    "mathutils",
+]
+ignore_missing_imports = true
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
