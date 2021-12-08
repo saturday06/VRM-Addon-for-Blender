@@ -97,6 +97,7 @@ khr
 ld
 lfd
 licenseConfirmation
+lineno
 lipsync
 listdir
 loc
@@ -140,6 +141,7 @@ params
 pathlib
 pbr
 pbrmat
+pgettext
 pi2
 pos
 premultiply

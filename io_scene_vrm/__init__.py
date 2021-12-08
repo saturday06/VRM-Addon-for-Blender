@@ -10,8 +10,8 @@ from typing import Any, Set, cast
 import bpy
 from bpy.app.handlers import persistent
 
-from . import editor, exporter, importer
-from .common import lang, preferences, shader, version
+from . import editor, exporter, importer, locale
+from .common import preferences, shader, version
 
 
 class WM_OT_gltf2_addon_disabled_warning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -119,7 +119,7 @@ def register(init_version: Any) -> None:
     # bpy.types.VIEW3D_MT_mesh_add.append(editor.make_mesh)
     bpy.app.handlers.load_post.append(add_shaders)
     bpy.app.translations.register(
-        preferences.addon_package_name, lang.translation_dictionary
+        preferences.addon_package_name, locale.translation_dictionary
     )
 
     set_use_experimental_vrm_component_ui(

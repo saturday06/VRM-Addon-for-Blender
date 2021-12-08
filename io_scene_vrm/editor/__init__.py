@@ -1,6 +1,7 @@
 import bpy
+from bpy.app.translations import pgettext
 
-from ..common import lang, vrm_types
+from ..common import vrm_types
 from ..common.preferences import get_preferences
 from . import (
     detail_mesh_maker,
@@ -60,21 +61,13 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
             # object_mode_box = layout.box()
             vrm_validator_prop = layout.operator(
                 validation.WM_OT_vrm_validator.bl_idname,
-                text=lang.support("Validate VRM model", "VRMモデルのチェック"),
+                text=pgettext("Validate VRM model"),
                 icon="VIEWZOOM",
             )
             preferences = get_preferences(context)
             if preferences:
-                layout.prop(
-                    preferences,
-                    "export_invisibles",
-                    text=lang.support("Export invisible objects", "非表示オブジェクトを含める"),
-                )
-                layout.prop(
-                    preferences,
-                    "export_only_selections",
-                    text=lang.support("Export only selections", "選択されたオブジェクトのみ"),
-                )
+                layout.prop(preferences, "export_invisibles")
+                layout.prop(preferences, "export_only_selections")
 
             vrm_validator_prop.show_successful_message = True
             # vrm_validator_prop.errors = []  # これはできない
@@ -97,7 +90,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                 else:
                     layout.box().label(
                         icon="INFO",
-                        text=lang.support("A light is required", "ライトが必要です"),
+                        text=pgettext("A light is required"),
                     )
             if object_type == "MESH":
                 layout.separator()

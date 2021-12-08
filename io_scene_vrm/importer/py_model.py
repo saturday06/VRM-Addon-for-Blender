@@ -20,8 +20,9 @@ from urllib.parse import ParseResult, parse_qsl, urlparse
 
 import bgl
 import bpy
+from bpy.app.translations import pgettext
 
-from ..common import deep, lang, vrm_types
+from ..common import deep, vrm_types
 from .binary_reader import BinaryReader
 
 
@@ -185,12 +186,11 @@ class LicenseConfirmationRequiredProp:
         self,
         url: Optional[str],
         json_key: Optional[str],
-        message_en: str,
-        message_ja: str,
+        message: str,
     ) -> None:
         self.url = url
         self.json_key = json_key
-        self.message = lang.support(message_en, message_ja)
+        self.message = message
 
     def description(self) -> str:
         return f"""class=LicenseConfirmationRequired
@@ -427,8 +427,9 @@ def validate_license_url(
         LicenseConfirmationRequiredProp(
             url_str,
             json_key,
-            "Is this VRM allowed to edited? Please check its copyright license.",
-            "独自のライセンスが記載されています。",
+            pgettext(
+                "Is this VRM allowed to edited? Please check its copyright license."
+            ),
         )
     )
 
@@ -447,8 +448,9 @@ def validate_vroid_hub_license_url(
             LicenseConfirmationRequiredProp(
                 url.geturl(),
                 json_key,
-                'This VRM is licensed by VRoid Hub License "Alterations: No".',
-                "このVRMにはVRoid Hubの「改変: NG」ライセンスが設定されています。",
+                pgettext(
+                    'This VRM is licensed by VRoid Hub License "Alterations: No".'
+                ),
             )
         )
     return True
@@ -468,8 +470,7 @@ def validate_uni_virtual_license_url(
             LicenseConfirmationRequiredProp(
                 url.geturl(),
                 json_key,
-                'This VRM is licensed by UV License with "Remarks".',
-                "このVRMには特記事項(Remarks)付きのUVライセンスが設定されています。",
+                pgettext('This VRM is licensed by UV License with "Remarks".'),
             )
         )
     return True
@@ -488,8 +489,9 @@ def validate_license(py_model: PyModel) -> None:
             LicenseConfirmationRequiredProp(
                 None,
                 None,
-                'The VRM is licensed by "{license_name}".\nNo derivative works are allowed.',
-                f"指定されたVRMは改変不可ライセンス「{license_name}」が設定されています。\n改変することはできません。",
+                pgettext(
+                    'The VRM is licensed by "{license_name}".\nNo derivative works are allowed.'
+                ).format(license_name=license_name),
             )
         )
 
@@ -514,8 +516,9 @@ def validate_license(py_model: PyModel) -> None:
                 LicenseConfirmationRequiredProp(
                     None,
                     None,
-                    'The VRM selects "Other" license but no license url is found.',
-                    "このVRMには「Other」ライセンスが指定されていますが、URLが設定されていません。",
+                    pgettext(
+                        'The VRM selects "Other" license but no license url is found.'
+                    ),
                 )
             )
         else:

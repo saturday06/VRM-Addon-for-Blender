@@ -6,9 +6,10 @@ from sys import float_info
 from typing import Any, Dict, List, Optional, Set, Union, cast
 
 import bpy
+from bpy.app.translations import pgettext
 from mathutils import Vector
 
-from ..common import deep, lang, vrm_types
+from ..common import deep, vrm_types
 from ..common.preferences import get_preferences
 from ..common.vrm_types import Gltf
 from . import search
@@ -85,10 +86,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             if obj.type not in ["ARMATURE", "EMPTY"]:
                 if obj.name in node_names:
                     messages.append(
-                        lang.support(
-                            f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
-                            f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
-                        )
+                        pgettext(
+                            "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated."
+                        ).format(name=obj.name)
                     )
                 if obj.name not in node_names:
                     node_names.append(obj.name)
@@ -99,9 +99,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 and obj.location != Vector([0.0, 0.0, 0.0])
             ):  # mesh and armature origin is on [0,0,0]
                 warning_messages.append(
-                    lang.support(
-                        f'There are not an object on the origin "{obj.name}"',
-                        f"「{obj.name}」が原点座標にありません",
+                    pgettext('There are not an object on the origin "{name}"').format(
+                        name=obj.name
                     )
                 )
             if obj.type == "ARMATURE":
@@ -109,18 +108,16 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 armature_count += 1
                 if armature_count >= 2:  # only one armature
                     messages.append(
-                        lang.support(
-                            "Only one armature is required for VRM export. Multiple armatures found.",
-                            "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
+                        pgettext(
+                            "Only one armature is required for VRM export. Multiple armatures found."
                         )
                     )
                 for bone in obj.data.bones:
                     if bone.name in node_names:  # nodes name is unique
                         messages.append(
-                            lang.support(
-                                f"Nodes(mesh,bones) require unique names for VRM export. {obj.name} is duplicated.",
-                                f"glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{obj.name}」が重複しています。",
-                            )
+                            pgettext(
+                                "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",
+                            ).format(name=obj.name)
                         )
                     if bone.name not in node_names:
                         node_names.append(bone.name)
@@ -131,12 +128,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     ] in [bone.name for bone in armature.data.bones]:
                         continue
                     messages.append(
-                        lang.support(
-                            f'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found. '
+                        pgettext(
+                            'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found. '
                             + 'Fix armature "object" custom property.',
-                            f"必須VRMヒューマンボーン「{humanoid_name}」の属性を持つボーンがありません。"
-                            + "アーマチュア「オブジェクト」のカスタムプロパティを修正してください。",
-                        )
+                        ).format(humanoid_name=humanoid_name)
                     )
 
                 for humanoid_name in vrm_types.HumanBones.defines:
@@ -148,32 +143,27 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     ]:
                         continue
                     warning_messages.append(
-                        lang.support(
-                            f'Bone name "{node_name}" as VRM HumanBone "{humanoid_name}" is not found. '
+                        pgettext(
+                            'Bone name "{node_name}" as VRM HumanBone "{humanoid_name}" is not found. '
                             + 'Fix armature "object" custom property.',
-                            f"ボーン名「{node_name}」のVRMヒューマンボーン属性「{humanoid_name}」がありません。"
-                            + "アーマチュア「オブジェクト」のカスタムプロパティを修正してください。",
-                        )
+                        ).format(node_name=node_name, humanoid_name=humanoid_name)
                     )
 
             if obj.type == "MESH":
                 for poly in obj.data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle
                         warning_messages.append(
-                            lang.support(
-                                f'Faces must be Triangle, but not face in "{obj.name}" or '
+                            pgettext(
+                                'Faces must be Triangle, but not face in "{name}" or '
                                 + "it will be triangulated automatically.",
-                                f"「{obj.name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
-                            )
+                            ).format(name=obj.name)
                         )
                         break
 
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
         # endregion export object seeking
         if armature_count == 0:
-            warning_messages.append(
-                lang.support("Please add ARMATURE to selections", "アーマチュアを選択範囲に含めてください")
-            )
+            warning_messages.append(pgettext("Please add ARMATURE to selections"))
 
         used_images: List[bpy.types.Image] = []
         used_materials = []
@@ -192,12 +182,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     if vertex_error_count > 5:
                         continue
                     warning_messages.append(
-                        lang.support(
-                            f'vertex id "{v.index}" is no weight in "{mesh.name}". '
-                            + 'Add weight to VRM HumanBone "hips" automatically.',
-                            f"「{mesh.name}」の頂点id「{v.index}」にウェイトが乗っていません。"
-                            + "VRMヒューマンボーン「hips」へのウエイトを自動で割り当てます。",
-                        )
+                        pgettext(
+                            'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
+                            + 'Add weight to VRM HumanBone "hips" automatically.'
+                        ).format(vertex_index=v.index, mesh_name=mesh.name)
                     )
                     vertex_error_count = vertex_error_count + 1
                 elif len(v.groups) >= 5 and armature is not None:
@@ -210,12 +198,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             weight_count += 1
                     if weight_count > 4 and vertex_error_count < 5:
                         warning_messages.append(
-                            lang.support(
-                                f'vertex id "{v.index}" has too many(over 4) weight in "{mesh.name}". '
-                                + "It will be truncated to 4 descending order by its weight.",
-                                f"「{mesh.name}」の頂点id「{v.index}」に影響を与えるボーンが5以上あります。"
-                                + "重い順に4つまでエクスポートされます。",
-                            )
+                            pgettext(
+                                'vertex index "{vertex_index}" has too many(over 4) weight in "{mesh_name}". '
+                                + "It will be truncated to 4 descending order by its weight."
+                            ).format(vertex_index=v.index, mesh_name=mesh.name)
                         )
                         vertex_error_count = vertex_error_count + 1
         if bpy.app.version < (2, 83):
@@ -234,15 +220,18 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             "MToon_unversioned",
                             "TRANSPARENT_ZWRITE",
                         ]
-                        groups_en_str = "/".join(groups)
-                        groups_ja_str = "".join(f"「{group}」" for group in groups)
+                        if (
+                            bpy.app.translations
+                            and bpy.app.translations.locale == "ja_JP"
+                        ):
+                            groups_str = "".join(f"「{group}」" for group in groups)
+                        else:
+                            groups_str = "/".join(groups)
                         warning_messages.append(
-                            lang.support(
-                                f'"{mat.name}" needs to connect {groups_en_str} to "Surface" directly. '
-                                + "Empty material will be exported.",
-                                f"マテリアル「{mat.name}」には{groups_ja_str}のいずれかを直接「サーフェス」に指定してください。"
-                                + "空のマテリアルを出力します。",
-                            )
+                            pgettext(
+                                '"{material_name}" needs to connect {groups} to "Surface" directly. '
+                                + "Empty material will be exported."
+                            ).format(material_name=mat.name, groups=groups_str)
                         )
 
         for node, material in search.shader_nodes_and_materials(used_materials):
@@ -301,26 +290,23 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         used_images.append(image)
                 else:
                     messages.append(
-                        lang.support(
-                            f"thumbnail_image is missing. Please load \"{armature['texture']}\"",
-                            f"VRM用サムネイル画像がBlenderにロードされていません。「{armature['texture']}」を読み込んでください。",
-                        )
+                        pgettext(
+                            'VRM thumbnail image is missing. Please load "{thumbnail}"'
+                        ).format(thumbnail=armature["texture"])
                     )
 
         except Exception:
             messages.append(
-                lang.support(
-                    f"thumbnail_image is missing. Please load \"{armature['texture']}\"",
-                    f"VRM用サムネイル画像がBlenderにロードされていません。「{armature['texture']}」を読み込んでください。",
-                )
+                pgettext(
+                    'VRM thumbnail image is missing. Please load "{thumbnail}"'
+                ).format(thumbnail=armature["texture"])
             )
 
         for image in used_images:
             if image.is_dirty or (image.packed_file is None and not image.filepath):
                 messages.append(
-                    lang.support(
-                        f'Image "{image.name}" is not saved. Please save.',
-                        f"画像「{image.name}」のBlender上での変更を保存してください。",
+                    pgettext('Image "{image_name}" is not saved. Please save.').format(
+                        image_name=image.name
                     )
                 )
                 continue
@@ -328,20 +314,19 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 image.filepath_from_user()
             ):
                 messages.append(
-                    lang.support(
-                        f'"{image.name}" is not found in file path "{image.filepath_from_user()}". '
-                        + "Please load file of it in Blender.",
-                        f'「{image.name}」の画像ファイルが指定ファイルパス「"{image.filepath_from_user()}"」'
-                        + "に存在しません。画像を読み込み直してください。",
+                    pgettext(
+                        '"{image_name}" is not found in file path "{image_filepath}". '
+                        + "Please load file of it in Blender."
+                    ).format(
+                        image_name=image.name, image_filepath=image.filepath_from_user()
                     )
                 )
                 continue
             if image.file_format.lower() not in ["png", "jpeg"]:
                 messages.append(
-                    lang.support(
-                        f'glTF only supports PNG and JPEG textures but "{image.name}" is "{image.file_format}"',
-                        f"glTFはPNGとJPEGのみの対応ですが「{image.name}」は「{image.file_format}」です。",
-                    )
+                    pgettext(
+                        'glTF only supports PNG and JPEG textures but "{image_name}" is "{image_file_format}"',
+                    ).format(image_name=image.name, image_file_format=image.file_format)
                 )
 
         if armature is not None:
@@ -370,9 +355,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             for k, v in enum_vrm_metas.items():
                 if armature.get(k) is not None and armature.get(k) not in v:
                     messages.append(
-                        lang.support(
-                            f'"{k}" value must be in "{v}". Value is "{armature.get(k)}"',
-                            f"VRM権利情報の「{k}」は「{v}」のいずれかでないといけません。現在の設定値は「{armature.get(k)}」です。",
+                        pgettext(
+                            '"{meta_key}" value must be in "{meta_values}". Value is "{current_meta_value}"',
+                        ).format(
+                            meta_key=k,
+                            meta_values=v,
+                            current_meta_value=armature.get(k),
                         )
                     )
 
@@ -385,10 +373,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     return None
                 if textblock_name not in armature:
                     warning_messages.append(
-                        lang.support(
-                            f'textblock name "{textblock_name}" isn\'t put on armature custom property.',
-                            f"「{textblock_name}」のテキストブロックの指定がアーマチュアのカスタムプロパティにありません。",
-                        )
+                        pgettext(
+                            'textblock name "{textblock_name}" isn\'t put on armature custom property.',
+                        ).format(textblock_name=textblock_name)
                     )
                     return None
                 text_key = armature[textblock_name]
@@ -397,10 +384,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     text_found = text_key in bpy.data.texts
                 if not text_found:
                     warning_messages.append(
-                        lang.support(
-                            f'textblock name "{textblock_name}" doesn\'t exist.',
-                            f"「{textblock_name}」のテキストがエディタ上にありません。",
-                        )
+                        pgettext(
+                            'textblock name "{textblock_name}" doesn\'t exist.'
+                        ).format(textblock_name=textblock_name)
                     )
                     return None
                 try:
@@ -410,12 +396,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     )
                 except json.JSONDecodeError as e:
                     warning_messages.append(
-                        lang.support(
-                            f'Cannot load textblock of "{textblock_name}" as Json at line {e.lineno}. '
-                            + "please check json grammar.",
-                            f"「{textblock_name}」のJsonとしての読み込みに失敗しました。{e.lineno}行目付近にエラーがあります。"
-                            + "形式を確認してください。",
-                        )
+                        pgettext(
+                            'Cannot load textblock of "{textblock_name}" as Json at line {error_lineno}. '
+                            + "please check json grammar."
+                        ).format(textblock_name=textblock_name, error_lineno=e.lineno)
                     )
                     json_as_dict = None
                 return deep.make_return_value(json_as_dict)
@@ -441,13 +425,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     and firstperson_params["firstPersonBone"] not in armature.data.bones
                 ):
                     warning_messages.append(
-                        lang.support(
-                            f"firstPersonBone \"{firstperson_params['firstPersonBone']}\" is not found. "
-                            + f'Please fix in textblock "{first_person_params_name}". '
-                            + 'Set VRM HumanBone "head" instead automatically.',
-                            f"firstPersonBone「{firstperson_params['firstPersonBone']}」がアーマチュアにありませんでした。"
-                            + f"テキストエディタの「{first_person_params_name}」の該当項目を修正してください。"
-                            + "代わりにfirstPersonBoneとしてVRMヒューマンボーン「head」を自動で設定します。",
+                        pgettext(
+                            'firstPersonBone "{bone_name}" is not found. '
+                            + 'Please fix in textblock "{first_person_params_name}". '
+                            + 'Set VRM HumanBone "head" instead automatically.'
+                        ).format(
+                            bone_name=firstperson_params["firstPersonBone"],
+                            first_person_params_name=first_person_params_name,
                         )
                     )
                 if "meshAnnotations" in firstperson_params:
@@ -455,19 +439,19 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         for mesh_annotation in firstperson_params["meshAnnotations"]:
                             if mesh_annotation["mesh"] not in mesh_name_to_mesh:
                                 warning_messages.append(
-                                    lang.support(
-                                        f"mesh \"{mesh_annotation['mesh']}\" is not found. "
-                                        + f'Please fix setting in textblock "{first_person_params_name}"',
-                                        f"「{mesh_annotation['mesh']}」というメッシュオブジェクトが見つかりません。"
-                                        + f"テキストエディタの「{first_person_params_name}」を修正してください。",
+                                    pgettext(
+                                        'mesh "{mesh_name}" is not found. '
+                                        + 'Please fix setting in textblock "{first_person_params_name}"',
+                                    ).format(
+                                        mesh_name=mesh_annotation["mesh"],
+                                        first_person_params_name=first_person_params_name,
                                     )
                                 )
                     else:
                         warning_messages.append(
-                            lang.support(
-                                f'meshAnnotations in textblock "{first_person_params_name}" must be list.',
-                                f"テキストエディタの「{first_person_params_name}」のmeshAnnotationsはリスト要素でないといけません。",
-                            )
+                            pgettext(
+                                'meshAnnotations in textblock "{first_person_params_name}" must be list.'
+                            ).format(first_person_params_name=first_person_params_name)
                         )
                 if "lookAtTypeName" in firstperson_params and firstperson_params[
                     "lookAtTypeName"
@@ -476,13 +460,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     "BlendShape",
                 ]:
                     messages.append(
-                        lang.support(
+                        pgettext(
                             'lookAtTypeName is "Bone" or "BlendShape". '
-                            + f"Current \"{firstperson_params['lookAtTypeName']}\". "
-                            + f'Please fix setting in textblock "{first_person_params_name}"',
-                            'lookAtTypeNameは "Bone" か "BlendShape" です。'
-                            + f"今は「{firstperson_params['lookAtTypeName']}」です。"
-                            + f"テキストエディタの「{first_person_params_name}」を修正してください。",
+                            + 'Current "{look_at_type_name}". '
+                            + 'Please fix setting in textblock "{first_person_params_name}"'
+                        ).format(
+                            look_at_type_name=firstperson_params["lookAtTypeName"],
+                            first_person_params_name=first_person_params_name,
                         )
                     )
             # endregion first_person
@@ -497,46 +481,49 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 for bind_dic in blendshape_group.get("binds", []):
                     if bind_dic["mesh"] not in mesh_name_to_mesh:
                         warning_messages.append(
-                            lang.support(
-                                f"mesh \"{bind_dic['mesh']}\" is not found. "
-                                + f'Please fix setting in textblock "{blendshape_group_name}"',
-                                f"メッシュ「{bind_dic['mesh']}」が見つかりません。"
-                                + f"テキストエディタの「{blendshape_group_name}」を修正してください。",
+                            pgettext(
+                                'mesh "{mesh_name}" is not found. '
+                                + 'Please fix setting in textblock "{blendshape_group_name}"',
+                            ).format(
+                                mesh_name=bind_dic["mesh"],
+                                blendshape_group_name=blendshape_group_name,
                             )
                         )
                     else:
                         shape_keys = mesh_name_to_mesh[bind_dic["mesh"]].shape_keys
                         if shape_keys is None:
                             warning_messages.append(
-                                lang.support(
-                                    f"mesh \"{bind_dic['mesh']}\" doesn't have shapekey. "
+                                pgettext(
+                                    'mesh "{mesh_name}" doesn\'t have shapekey. '
                                     + "But blendshape Group needs it. "
-                                    + f'Please fix setting in textblock "{blendshape_group_name}"',
-                                    f"メッシュ「{bind_dic['mesh']}」はシェイプキーがありません。"
-                                    + "しかし blendshape Group の設定はそれを必要としています。"
-                                    + f"テキストエディタの「{blendshape_group_name}」を修正してください。",
+                                    + 'Please fix setting in textblock "{blendshape_group_name}"',
+                                ).format(
+                                    mesh_name=bind_dic["mesh"],
+                                    blendshape_group_name=blendshape_group_name,
                                 )
                             )
                         else:
                             if bind_dic["index"] not in shape_keys.key_blocks:
                                 warning_messages.append(
-                                    lang.support(
-                                        f"mesh \"{bind_dic['mesh']}\" doesn't have \"{bind_dic['index']}\" shapekey. "
+                                    pgettext(
+                                        'mesh "{mesh_name}" doesn\'t have "{bind_dic[\'index\']}" shapekey. '
                                         + "But blendshape Group needs it. "
-                                        + f'Please fix setting in textblock "{blendshape_group_name}"',
-                                        f"メッシュ「{bind_dic['mesh']}」にはシェイプキー「{bind_dic['index']}」が存在しません。"
-                                        + "しかし blendshape Group の設定はそれを必要としています。"
-                                        + f"テキストエディタの「{blendshape_group_name}」を修正してください。",
+                                        + 'Please fix setting in textblock "{blendshape_group_name}"',
+                                    ).format(
+                                        mesh_name=bind_dic["mesh"],
+                                        blendshape_group_name=blendshape_group_name,
                                     )
                                 )
                             if bind_dic["weight"] > 1 or bind_dic["weight"] < 0:
                                 warning_messages.append(
-                                    lang.support(
-                                        f"mesh \"{bind_dic['mesh']}:shapekey:{bind_dic['index']}:value\" "
+                                    pgettext(
+                                        'mesh "{mesh_name}:shapekey:{shapekey_name}:value" '
                                         + "needs between 0 and 1."
-                                        + f'Please fix setting in textblock "{blendshape_group_name}"',
-                                        f"メッシュ「{bind_dic['mesh']}」のshapekey「{bind_dic['index']}」の値は0以上1以下でないといけません。"
-                                        + f"テキストエディタの「{blendshape_group_name}」を修正してください。",
+                                        + 'Please fix setting in textblock "{blendshape_group_name}"',
+                                    ).format(
+                                        mesh_name=bind_dic["mesh"],
+                                        shapekey_name=bind_dic["index"],
+                                        blendshape_group_name=blendshape_group_name,
                                     )
                                 )
 
@@ -554,29 +541,23 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 ):
                     bone_name = bone_group["center"]
                     warning_messages.append(
-                        lang.support(
-                            f'Center bone name "{bone_name}" is not found in spring_bone setting.',
-                            f"spring_boneのcenterのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
-                            + "テキストエディタの spring_bone の json を修正してください。",
-                        )
+                        pgettext(
+                            'Center bone name "{bone_name}" is not found in spring_bone setting.',
+                        ).format(bone_name=bone_name)
                     )
                 for bone_name in bone_group["bones"]:
                     if bone_name not in bone_names_list:
                         warning_messages.append(
-                            lang.support(
-                                f'Bone name "{bone_name}" is not found in spring_bone setting.',
-                                f"spring_boneのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
-                                + "テキストエディタの spring_bone の json を修正してください。",
-                            )
+                            pgettext(
+                                'Bone name "{bone_name}" is not found in spring_bone setting.',
+                            ).format(bone_name=bone_name)
                         )
                 for bone_name in bone_group["colliderGroups"]:
                     if bone_name not in bone_names_list:
                         warning_messages.append(
-                            lang.support(
-                                f'Bone name "{bone_name}" is not found in spring_bone setting.',
-                                f"spring_bone settingにある、ボーン名「{bone_name}」がアーマチュア中に見つかりません。"
-                                + "テキストエディタの spring_bone のjsonを修正してください。",
-                            )
+                            pgettext(
+                                'Bone name "{bone_name}" is not found in spring_bone setting.'
+                            ).format(bone_name=bone_name)
                         )
 
         # endregion vrm metas check
@@ -649,9 +630,12 @@ def node_material_input_check(
         n = node.inputs[shader_val].links[0].from_node
         if n.type != expect_node_type:
             messages.append(
-                lang.support(
-                    f'need "{expect_node_type}" input in "{shader_val}" of "{material.name}"',
-                    f"「{material.name}」の「{shader_val}」には、「{expect_node_type}」を直接つないでください。 ",
+                pgettext(
+                    'need "{expect_node_type}" input in "{shader_val}" of "{material_name}"',
+                ).format(
+                    expect_node_type=expect_node_type,
+                    shader_val=shader_val,
+                    material_name=material.name,
                 )
             )
         else:
@@ -661,8 +645,7 @@ def node_material_input_check(
                         used_images.append(n.image)
                 else:
                     messages.append(
-                        lang.support(
-                            f'image in material "{material.name}" is not put. Please set image.',
-                            f"マテリアル「{material.name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
-                        )
+                        pgettext(
+                            'image in material "{material_name}" is not put. Please set image.',
+                        ).format(material_name=material.name)
                     )

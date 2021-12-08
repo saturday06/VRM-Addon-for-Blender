@@ -3,9 +3,9 @@ import os
 from typing import Any, Set, cast
 
 import bpy
+from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ImportHelper
 
-from ..common import lang
 from ..common.preferences import (
     use_experimental_vrm_component_ui,
     use_legacy_importer_exporter,
@@ -153,7 +153,9 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
     filepath: bpy.props.StringProperty()  # type: ignore[valid-type]
 
     license_confirmations: bpy.props.CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
-    import_anyway: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    import_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Import anyway",  # noqa: F722
+    )
 
     extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
     make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
@@ -180,10 +182,7 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
                 layout.label(text=line)
             if license_confirmation.json_key:
                 layout.label(
-                    text=lang.support(
-                        "For more information please check following URL.",
-                        "詳しくは下記のURLを確認してください。",
-                    )
+                    text=pgettext("For more information please check following URL.")
                 )
                 layout.prop(
                     license_confirmation,
@@ -191,8 +190,4 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
                     text=license_confirmation.json_key,
                     translate=False,
                 )
-        layout.prop(
-            self,
-            "import_anyway",
-            text=lang.support("Import anyway", "インポートします"),
-        )
+        layout.prop(self, "import_anyway")
