@@ -13,7 +13,7 @@
 !/.flake8
 !/.gitattributes
 !/.gitignore
-!/.pylintrc
+!/.pylintrc.ci
 !/LICENSE
 !/poetry.lock
 !/pyproject.toml
