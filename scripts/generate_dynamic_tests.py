@@ -28,13 +28,15 @@ def to_function_component_literal(s: str) -> str:
 
 
 test_src_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tests")
-for path in sorted(os.listdir(test_src_dir)):
+for path in map(str.strip, sorted(os.listdir(test_src_dir))):
     if not path.startswith("blender_test_") or not path.endswith(".py"):
         continue
     out_path = os.path.join(
         test_src_dir, re.sub("^blender_test_", "test_GENERATED_", path)
     )
     path_without_ext = re.sub("\\.py$", "", path)
+    if not re.match("^[A-Za-z0-9_]+$", path_without_ext):
+        raise Exception(f"Invalid file name: {path}")
     class_name = "".join(
         word.title()
         for word in re.sub("blender_test_", "", path_without_ext).split("_")
