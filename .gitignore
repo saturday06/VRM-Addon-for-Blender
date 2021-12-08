@@ -11,7 +11,6 @@
 !*.md
 !*.py
 !/.flake8
-!/.git-blame-ignore-revs
 !/.gitattributes
 !/.gitignore
 !/.pylintrc
