@@ -102,7 +102,7 @@ class Blender{class_name}TestCase(BaseBlenderTestCase):
         self.run_script("{path}")
 """
 
-    content_bytes = content.replace("\r\n", "\n").encode("utf-8")
+    content_bytes = content.replace("\r\n", "\n").encode()
     if os.path.exists(out_path) and content_bytes == Path(out_path).read_bytes():
         continue
 
