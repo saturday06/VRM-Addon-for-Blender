@@ -282,8 +282,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     node, material, "TEX_IMAGE", "Main_Texture", messages, used_images
                 )
         # thumbnail
-        try:
-            if armature is not None and armature.get("texture") is not None:
+        if armature is not None and "texture" in armature:
+            try:
                 if armature["texture"] in bpy.data.images:
                     image = bpy.data.images[armature["texture"]]
                     if image not in used_images:
@@ -295,12 +295,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         ).format(thumbnail=armature["texture"])
                     )
 
-        except Exception:
-            messages.append(
-                pgettext(
-                    'VRM thumbnail image is missing. Please load "{thumbnail}"'
-                ).format(thumbnail=armature["texture"])
-            )
+            except Exception:
+                messages.append(
+                    pgettext(
+                        'VRM thumbnail image is missing. Please load "{thumbnail}"'
+                    ).format(thumbnail=armature["texture"])
+                )
 
         for image in used_images:
             if image.is_dirty or (image.packed_file is None and not image.filepath):
