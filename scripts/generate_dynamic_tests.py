@@ -90,7 +90,7 @@ class Blender{class_name}TestCase(BaseBlenderTestCase):
                 raise Exception(f"Test method name {method_name}_index is duplicated")
             existing_method_names.append(method_name)
 
-            escaped = list(map(lambda a: str(a).replace('"', '\\"'), [path] + args))
+            escaped = list(map(lambda a: fr"{a}", [path] + args))
             args_str = '"' + '", "'.join(escaped) + '"'
             content += f"""
     def test_{method_name}(self) -> None:
