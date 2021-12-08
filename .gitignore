@@ -2,8 +2,6 @@
 *
 # すべてのディレクトリをホワイトリストに追加する
 !*/
-#
-/venv/
 # ホワイトリストに入れたいファイルを許可する
 !*.blend
 !*.glsl
@@ -28,6 +26,7 @@
 !/docs/*.pptx
 !/whitelist.txt
 !/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
+
 *.blend1
 *.pyc
 .vscode/.ropeproject/config.py
@@ -35,3 +34,5 @@
 .vscode/tasks.json
 /tests/vrm/*/temp/
 /tests/test_GENERATED_*
+/venv/
+/.venv/
