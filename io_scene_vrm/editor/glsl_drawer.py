@@ -236,6 +236,7 @@ class GlslDrawObj:
         glsl_draw_obj.objs = [obj for obj in glsl_draw_obj.draw_objs if obj is not None]
         lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
         if not lights:
+            GlslDrawObj.draw_func_remove()
             raise Exception("Please add a light to scene")
         glsl_draw_obj.light = lights[0]
         for obj in glsl_draw_obj.objs:
@@ -419,6 +420,7 @@ class GlslDrawObj:
             raise Exception("glsl draw obj is None")
         light = glsl_draw_obj.light
         if light is None:
+            GlslDrawObj.draw_func_remove()
             raise Exception("no light exists")
 
         model_offset = Matrix.Translation((glsl_draw_obj.draw_x_offset, 0, 0))
