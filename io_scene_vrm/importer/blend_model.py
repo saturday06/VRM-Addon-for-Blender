@@ -1876,8 +1876,8 @@ class BlendModel:
         self.load_first_person_params(self.armature, first_person_params)
         # endregion first_person
 
-        # region blendshape_master
-        blendshape_groups = copy.deepcopy(
+        # region blend_shape_master
+        blend_shape_groups = copy.deepcopy(
             vrm0_extension["blendShapeMaster"]["blendShapeGroups"]
         )
         # meshをidから名前に
@@ -1886,8 +1886,8 @@ class BlendModel:
         # TODO VRM1.0 is using node index that has mesh
         # materialValuesはそのままで行けるハズ・・・
         legacy_vrm0 = False
-        for blendshape_group in blendshape_groups:
-            for bind_dic in blendshape_group.get("binds", []):
+        for blend_shape_group in blend_shape_groups:
+            for bind_dic in blend_shape_group.get("binds", []):
                 try:
                     bind_dic["index"] = self.py_model.json["meshes"][bind_dic["mesh"]][
                         "primitives"
@@ -1903,10 +1903,10 @@ class BlendModel:
             if legacy_vrm0:
                 break
         if legacy_vrm0:
-            blendshape_groups = []
-        write_textblock_and_assign_to_armature("blendshape_group", blendshape_groups)
-        self.load_blendshape_group(self.armature, blendshape_groups)
-        # endregion blendshape_master
+            blend_shape_groups = []
+        write_textblock_and_assign_to_armature("blendshape_group", blend_shape_groups)
+        self.load_blend_shape_group(self.armature, blend_shape_groups)
+        # endregion blend_shape_master
 
         # region springbone
         spring_bonegroup_list = copy.deepcopy(
@@ -1992,28 +1992,28 @@ class BlendModel:
         props.look_at_vertical_up.x_range = look_at_vertical_up["xRange"]
         props.look_at_vertical_up.y_range = look_at_vertical_up["yRange"]
 
-    def load_blendshape_group(
-        self, armature: bpy.types.Armature, blendshape_group: List[Dict[str, Any]]
+    def load_blend_shape_group(
+        self, armature: bpy.types.Armature, blend_shape_group: List[Dict[str, Any]]
     ) -> None:
         if not self.use_experimental_vrm_component_ui:
             return
 
-        props = armature.vrm_props.blendshape_group
+        props = armature.vrm_props.blend_shape_group
         props.clear()
-        for blendshape in blendshape_group:
+        for blend_shape in blend_shape_group:
             item = props.add()
-            item.name = blendshape["name"]
-            item.preset_name = blendshape["presetName"]
+            item.name = blend_shape["name"]
+            item.preset_name = blend_shape["presetName"]
             item.binds.clear()
-            binds = blendshape["binds"]
+            binds = blend_shape["binds"]
             for bind in binds:
                 added = item.binds.add()
                 added.mesh = bind["mesh"]
                 added.index = bind["index"]
                 added.weight = bind["weight"]
             # "materialValues": [],
-            if "isBinary" in blendshape:
-                item.is_binary = blendshape["isBinary"]
+            if "isBinary" in blend_shape:
+                item.is_binary = blend_shape["isBinary"]
 
     def load_spring_bones(
         self, armature: bpy.types.Armature, spring_bonegroup_list: List[Dict[str, Any]]

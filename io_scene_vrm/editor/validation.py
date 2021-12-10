@@ -417,12 +417,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             # endregion humanoid_parameter
             # region first_person
             first_person_params_name = "firstPerson_params"
-            firstperson_params = text_block_name_to_json(first_person_params_name)
-            if isinstance(firstperson_params, dict):
-                fp_bone = deep.get(firstperson_params, ["firstPersonBone"], -1)
+            first_person_params = text_block_name_to_json(first_person_params_name)
+            if isinstance(first_person_params, dict):
+                fp_bone = deep.get(first_person_params, ["firstPersonBone"], -1)
                 if (
                     fp_bone != -1
-                    and firstperson_params["firstPersonBone"] not in armature.data.bones
+                    and first_person_params["firstPersonBone"]
+                    not in armature.data.bones
                 ):
                     warning_messages.append(
                         pgettext(
@@ -430,13 +431,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             + 'Please fix in textblock "{first_person_params_name}". '
                             + 'Set VRM HumanBone "head" instead automatically.'
                         ).format(
-                            bone_name=firstperson_params["firstPersonBone"],
+                            bone_name=first_person_params["firstPersonBone"],
                             first_person_params_name=first_person_params_name,
                         )
                     )
-                if "meshAnnotations" in firstperson_params:
-                    if isinstance(firstperson_params["meshAnnotations"], list):
-                        for mesh_annotation in firstperson_params["meshAnnotations"]:
+                if "meshAnnotations" in first_person_params:
+                    if isinstance(first_person_params["meshAnnotations"], list):
+                        for mesh_annotation in first_person_params["meshAnnotations"]:
                             if mesh_annotation["mesh"] not in mesh_name_to_mesh:
                                 warning_messages.append(
                                     pgettext(
@@ -453,7 +454,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                                 'meshAnnotations in textblock "{first_person_params_name}" must be list.'
                             ).format(first_person_params_name=first_person_params_name)
                         )
-                if "lookAtTypeName" in firstperson_params and firstperson_params[
+                if "lookAtTypeName" in first_person_params and first_person_params[
                     "lookAtTypeName"
                 ] not in [
                     "Bone",
@@ -465,28 +466,28 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             + 'Current "{look_at_type_name}". '
                             + 'Please fix setting in textblock "{first_person_params_name}"'
                         ).format(
-                            look_at_type_name=firstperson_params["lookAtTypeName"],
+                            look_at_type_name=first_person_params["lookAtTypeName"],
                             first_person_params_name=first_person_params_name,
                         )
                     )
             # endregion first_person
 
-            # region blendshape_master
-            blendshape_group_name = "blendshape_group"
-            blendshape_groups = text_block_name_to_json(blendshape_group_name)
-            if not isinstance(blendshape_groups, list):
-                blendshape_groups = []
+            # region blend_shape_master
+            blend_shape_group_name = "blendshape_group"
+            blend_shape_groups = text_block_name_to_json(blend_shape_group_name)
+            if not isinstance(blend_shape_groups, list):
+                blend_shape_groups = []
             # TODO material value and material existence
-            for blendshape_group in blendshape_groups:
-                for bind_dic in blendshape_group.get("binds", []):
+            for blend_shape_group in blend_shape_groups:
+                for bind_dic in blend_shape_group.get("binds", []):
                     if bind_dic["mesh"] not in mesh_name_to_mesh:
                         warning_messages.append(
                             pgettext(
                                 'mesh "{mesh_name}" is not found. '
-                                + 'Please fix setting in textblock "{blendshape_group_name}"',
+                                + 'Please fix setting in textblock "{blend_shape_group_name}"',
                             ).format(
                                 mesh_name=bind_dic["mesh"],
-                                blendshape_group_name=blendshape_group_name,
+                                blend_shape_group_name=blend_shape_group_name,
                             )
                         )
                     else:
@@ -495,11 +496,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             warning_messages.append(
                                 pgettext(
                                     'mesh "{mesh_name}" doesn\'t have shapekey. '
-                                    + "But blendshape Group needs it. "
-                                    + 'Please fix setting in textblock "{blendshape_group_name}"',
+                                    + "But blend shape group needs it. "
+                                    + 'Please fix setting in textblock "{blend_shape_group_name}"',
                                 ).format(
                                     mesh_name=bind_dic["mesh"],
-                                    blendshape_group_name=blendshape_group_name,
+                                    blend_shape_group_name=blend_shape_group_name,
                                 )
                             )
                         else:
@@ -507,11 +508,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                                 warning_messages.append(
                                     pgettext(
                                         'mesh "{mesh_name}" doesn\'t have "{bind_dic[\'index\']}" shapekey. '
-                                        + "But blendshape Group needs it. "
-                                        + 'Please fix setting in textblock "{blendshape_group_name}"',
+                                        + "But blend shape group needs it. "
+                                        + 'Please fix setting in textblock "{blend_shape_group_name}"',
                                     ).format(
                                         mesh_name=bind_dic["mesh"],
-                                        blendshape_group_name=blendshape_group_name,
+                                        blend_shape_group_name=blend_shape_group_name,
                                     )
                                 )
                             if bind_dic["weight"] > 1 or bind_dic["weight"] < 0:
@@ -519,15 +520,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                                     pgettext(
                                         'mesh "{mesh_name}:shapekey:{shapekey_name}:value" '
                                         + "needs between 0 and 1."
-                                        + 'Please fix setting in textblock "{blendshape_group_name}"',
+                                        + 'Please fix setting in textblock "{blend_shape_group_name}"',
                                     ).format(
                                         mesh_name=bind_dic["mesh"],
                                         shapekey_name=bind_dic["index"],
-                                        blendshape_group_name=blendshape_group_name,
+                                        blend_shape_group_name=blend_shape_group_name,
                                     )
                                 )
 
-            # endregion blendshape_master
+            # endregion blend_shape_master
 
             # region springbone
             spring_bonegroup_list = text_block_name_to_json("spring_bone")

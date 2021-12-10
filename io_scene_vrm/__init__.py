@@ -42,14 +42,14 @@ if persistent:  # for fake-bpy-modules
 
 classes = [
     WM_OT_gltf2_addon_disabled_warning,
-    editor.BLENDSHAPE_BIND,
-    editor.BLENDSHAPE_GROUP,
-    editor.BLENDSHAPE_MATERIAL_BIND,
+    editor.BLEND_SHAPE_BIND,
+    editor.BLEND_SHAPE_GROUP,
+    editor.BLEND_SHAPE_MATERIAL_BIND,
     editor.BONE_GROUP,
     editor.COLLIDER_GROUP,
     editor.MESH_ANNOTATION,
     editor.LOOKAT_CURVE,
-    editor.FIRSTPERSON_PARAMS,
+    editor.FIRST_PERSON_PARAMS,
     editor.HUMANOID_PARAMS,
     editor.METAS,
     editor.REQUIRED_METAS,
@@ -81,9 +81,9 @@ classes = [
 ]
 
 experimental_vrm_component_ui_classes = [
-    editor.VRMProps,
-    editor.VRM_PT_vrm_blendshape_group,
-    editor.VRM_PT_vrm_firstPerson_params,
+    editor.VrmProps,
+    editor.VRM_PT_vrm_blend_shape_group,
+    editor.VRM_PT_vrm_first_person_params,
     editor.VRM_PT_vrm_humanoid_params,
     editor.VRM_PT_vrm_metas,
     editor.VRM_PT_vrm_spring_bone,
@@ -95,7 +95,7 @@ def set_use_experimental_vrm_component_ui(enable: bool) -> None:
     if enable and not has_props:
         for cls in experimental_vrm_component_ui_classes:
             bpy.utils.register_class(cls)
-        bpy.types.Object.vrm_props = bpy.props.PointerProperty(type=editor.VRMProps)
+        bpy.types.Object.vrm_props = bpy.props.PointerProperty(type=editor.VrmProps)
     elif not enable and has_props:
         del bpy.types.Object.vrm_props
         for cls in experimental_vrm_component_ui_classes:

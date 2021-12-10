@@ -146,32 +146,32 @@ translation_dictionary = {
     (
         "*",
         'mesh "{mesh_name}" is not found. '
-        + 'Please fix setting in textblock "{blendshape_group_name}"',
+        + 'Please fix setting in textblock "{blend_shape_group_name}"',
     ): "メッシュ「{mesh_name}」が見つかりません。"
-    + "テキストエディタの「{blendshape_group_name}」を修正してください。",
+    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
     (
         "*",
         'mesh "{mesh_name}" doesn\'t have shapekey. '
-        + "But blendshape Group needs it. "
-        + 'Please fix setting in textblock "{blendshape_group_name}"',
+        + "But blend shape group needs it. "
+        + 'Please fix setting in textblock "{blend_shape_group_name}"',
     ): "メッシュ「{mesh_name}」はシェイプキーがありません。"
-    + "しかし blendshape Group の設定はそれを必要としています。"
-    + "テキストエディタの「{blendshape_group_name}」を修正してください。",
+    + "しかし blend shape group の設定はそれを必要としています。"
+    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
     (
         "*",
         'mesh "{mesh_name}" doesn\'t have "{bind_dic[\'index\']}" shapekey. '
-        + "But blendshape Group needs it. "
-        + 'Please fix setting in textblock "{blendshape_group_name}"',
+        + "But blend shape group needs it. "
+        + 'Please fix setting in textblock "{blend_shape_group_name}"',
     ): "メッシュ「{mesh_name}」にはシェイプキー「{bind_dic['index']}」が存在しません。"
-    + "しかし blendshape Group の設定はそれを必要としています。"
-    + "テキストエディタの「{blendshape_group_name}」を修正してください。",
+    + "しかし blend shape group の設定はそれを必要としています。"
+    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
     (
         "*",
         'mesh "{mesh_name}:shapekey:{shapekey_name}:value" '
         + "needs between 0 and 1."
-        + 'Please fix setting in textblock "{blendshape_group_name}"',
+        + 'Please fix setting in textblock "{blend_shape_group_name}"',
     ): "メッシュ「{mesh_name}」のshapekey「{shapekey_name}」の値は0以上1以下でないといけません。"
-    + "テキストエディタの「{blendshape_group_name}」を修正してください。",
+    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
     (
         "*",
         'Center bone name "{bone_name}" is not found in spring_bone setting.',

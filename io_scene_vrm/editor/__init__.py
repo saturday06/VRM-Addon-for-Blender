@@ -279,7 +279,7 @@ class VRM_PT_vrm_humanoid_params(bpy.types.Panel):  # type: ignore[misc] # noqa:
         layout.prop(active_object.vrm_props.humanoid_params, "has_translation_dof")
 
 
-class VRM_PT_vrm_firstPerson_params(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_first_person_params(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_vrm_firstPerson_params"
     bl_label = "VRM FirstPerson Params"
     bl_space_type = "PROPERTIES"
@@ -335,9 +335,9 @@ class VRM_PT_vrm_firstPerson_params(bpy.types.Panel):  # type: ignore[misc] # no
         box.prop(props.look_at_vertical_down, "y_range")
 
 
-class VRM_PT_vrm_blendshape_group(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_blend_shape_group(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_IMPORTER_PT_vrm_blendshape_group"
-    bl_label = "VRM Blendshape Group"
+    bl_label = "VRM Blend Shape Group"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -360,24 +360,24 @@ class VRM_PT_vrm_blendshape_group(bpy.types.Panel):  # type: ignore[misc] # noqa
         testing = layout.box()
         testing.label(text="Testing", icon="EXPERIMENTAL")
         blend_data = context.blend_data
-        for blendshape in active_object.vrm_props.blendshape_group:
+        for blend_shape in active_object.vrm_props.blend_shape_group:
             box = layout.box()
-            box.prop(blendshape, "name")
-            box.prop(blendshape, "preset_name")
+            box.prop(blend_shape, "name")
+            box.prop(blend_shape, "preset_name")
 
-            box.prop(blendshape, "is_binary", icon="IPO_CONSTANT")
+            box.prop(blend_shape, "is_binary", icon="IPO_CONSTANT")
             box.separator()
             row = box.row()
             row.prop(
-                blendshape,
+                blend_shape,
                 "show_expanded_binds",
-                icon="TRIA_DOWN" if blendshape.show_expanded_binds else "TRIA_RIGHT",
+                icon="TRIA_DOWN" if blend_shape.show_expanded_binds else "TRIA_RIGHT",
                 icon_only=True,
                 emboss=False,
             )
             row.label(text="Binds")
-            if blendshape.show_expanded_binds:
-                for bind in blendshape.binds:
+            if blend_shape.show_expanded_binds:
+                for bind in blend_shape.binds:
                     box.prop_search(bind, "mesh", blend_data, "meshes")
                     box.prop(bind, "index")
                     box.prop(bind, "weight")
@@ -571,7 +571,7 @@ class MESH_ANNOTATION(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N8
     )
 
 
-class FIRSTPERSON_PARAMS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
+class FIRST_PERSON_PARAMS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
     first_person_bone: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="First Person Bone"  # noqa: F722
     )
@@ -605,7 +605,7 @@ class FIRSTPERSON_PARAMS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa:
     )
 
 
-class BLENDSHAPE_BIND(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
+class BLEND_SHAPE_BIND(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
     mesh: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Mesh"  # noqa: F821
     )
@@ -617,7 +617,7 @@ class BLENDSHAPE_BIND(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N8
     )
 
 
-class BLENDSHAPE_MATERIAL_BIND(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
+class BLEND_SHAPE_MATERIAL_BIND(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Material Name"  # noqa: F722
     )
@@ -627,7 +627,7 @@ class BLENDSHAPE_MATERIAL_BIND(bpy.types.PropertyGroup):  # type: ignore[misc] #
     target_value = None  # Dummy
 
 
-class BLENDSHAPE_GROUP(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
+class BLEND_SHAPE_GROUP(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
     name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name"  # noqa: F821
     )
@@ -655,10 +655,10 @@ class BLENDSHAPE_GROUP(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N
         items=preset_name_items, name="Preset"  # noqa: F821
     )
     binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=BLENDSHAPE_BIND, name="Binds"  # noqa: F821
+        type=BLEND_SHAPE_BIND, name="Binds"  # noqa: F821
     )
     material_values = bpy.props.CollectionProperty(
-        type=BLENDSHAPE_MATERIAL_BIND, name="Material Values"
+        type=BLEND_SHAPE_MATERIAL_BIND, name="Material Values"
     )
     is_binary: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Is Binary"  # noqa: F722
@@ -950,15 +950,15 @@ class REQUIRED_METAS(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N80
     )
 
 
-class VRMProps(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
+class VrmProps(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
     humanoid_params: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Humanoid Params", type=HUMANOID_PARAMS  # noqa: F722
     )
     first_person_params: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="FirstPerson Params", type=FIRSTPERSON_PARAMS  # noqa: F722
+        name="FirstPerson Params", type=FIRST_PERSON_PARAMS  # noqa: F722
     )
-    blendshape_group: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Blendshape Group", type=BLENDSHAPE_GROUP  # noqa: F722
+    blend_shape_group: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        name="BlendShape Group", type=BLEND_SHAPE_GROUP  # noqa: F722
     )
     spring_bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Spring Bones", type=SPRING_BONE_GROUP  # noqa: F722

@@ -528,7 +528,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
             "firstPerson_params", ICYP_OT_make_armature.first_person_params
         )
         write_textblock_and_assign_to_armature(
-            "blendshape_group", ICYP_OT_make_armature.blendshape_group
+            "blendshape_group", ICYP_OT_make_armature.blend_shape_group
         )
         write_textblock_and_assign_to_armature(
             "spring_bone", ICYP_OT_make_armature.spring_bone_prams
@@ -569,7 +569,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         },
     }
 
-    blendshape_group = [
+    blend_shape_group = [
         {
             "name": "Neutral",
             "presetName": "neutral",

@@ -1913,10 +1913,10 @@ class GlbObj:
 
         # endregion firstPerson
         # region blendShapeMaster
-        blendshape_group_name = (
+        blend_shape_group_name = (
             "blendShapeMaster" if vrm_version.startswith("0.") else "blendShape"
         )
-        vrm_extension_dic[blendshape_group_name] = vrm_blend_shape_groups_dic = {}
+        vrm_extension_dic[blend_shape_group_name] = vrm_blend_shape_groups_dic = {}
         blend_shape_groups = self.textblock2json_list("blendshape_group", [])
 
         # meshを名前からid
