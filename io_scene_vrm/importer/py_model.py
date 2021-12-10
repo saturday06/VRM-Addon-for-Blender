@@ -828,7 +828,7 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
 
 
 def json_dict_diff(
-    left: Any, right: Any, path: str, float_tolerance: float = 0
+    left: Any, right: Any, float_tolerance: float = 0, path: str = ""
 ) -> List[str]:
     if isinstance(left, list):
         if not isinstance(right, list):
@@ -840,7 +840,7 @@ def json_dict_diff(
         diffs = []
         for i, _ in enumerate(left):
             diffs.extend(
-                json_dict_diff(left[i], right[i], f"{path}[{i}]", float_tolerance)
+                json_dict_diff(left[i], right[i], float_tolerance, f"{path}[{i}]")
             )
         return diffs
 
@@ -857,7 +857,7 @@ def json_dict_diff(
                 continue
             diffs.extend(
                 json_dict_diff(
-                    left[key], right[key], f'{path}["{key}"]', float_tolerance
+                    left[key], right[key], float_tolerance, f'{path}["{key}"]'
                 )
             )
         return diffs
@@ -897,7 +897,7 @@ def json_dict_diff(
 
 def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> List[str]:
     return json_dict_diff(
-        create_vrm_json_dict(before), create_vrm_json_dict(after), "", float_tolerance
+        create_vrm_json_dict(before), create_vrm_json_dict(after), float_tolerance
     )
 
 
