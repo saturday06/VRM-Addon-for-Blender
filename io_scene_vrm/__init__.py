@@ -61,10 +61,10 @@ classes = [
     editor.glsl_drawer.ICYP_OT_remove_draw_model,
     editor.make_armature.ICYP_OT_make_armature,
     # editor.mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
-    editor.vrm_helper.Add_VRM_humanbone_custom_property,
-    editor.vrm_helper.Add_VRM_defined_humanbone_custom_property,  # deprecated
+    editor.vrm_helper.Add_VRM_human_bone_custom_property,
+    editor.vrm_helper.Add_VRM_defined_human_bone_custom_property,  # deprecated
     editor.vrm_helper.Add_VRM_extensions_to_armature,
-    editor.vrm_helper.Add_VRM_require_humanbone_custom_property,  # deprecated
+    editor.vrm_helper.Add_VRM_require_human_bone_custom_property,  # deprecated
     editor.vrm_helper.Bones_rename,
     editor.vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
     exporter.validation.VrmValidationError,

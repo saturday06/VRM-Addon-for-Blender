@@ -1843,18 +1843,18 @@ class GlbObj:
             node_name_id_dic = {
                 node["name"]: i for i, node in enumerate(self.json_dic["nodes"])
             }
-            for humanbone in (
+            for human_bone in (
                 vrm_types.HumanBones.requires + vrm_types.HumanBones.defines
             ):
                 if (
-                    humanbone in self.armature.data
-                    and self.armature.data[humanbone]
-                    and self.armature.data[humanbone] in node_name_id_dic
+                    human_bone in self.armature.data
+                    and self.armature.data[human_bone]
+                    and self.armature.data[human_bone] in node_name_id_dic
                 ):
                     vrm0_humanoid_dic["humanBones"].append(
                         {
-                            "bone": humanbone,
-                            "node": node_name_id_dic[self.armature.data[humanbone]],
+                            "bone": human_bone,
+                            "node": node_name_id_dic[self.armature.data[human_bone]],
                             # TODO min,max,center,axisLength : useDef(ry):Trueなら不要な気がするのでほっとく
                             "useDefaultValues": True,
                         }
@@ -1870,18 +1870,18 @@ class GlbObj:
             node_name_id_dic = {
                 node["name"]: i for i, node in enumerate(self.json_dic["nodes"])
             }
-            for humanbone in (
+            for human_bone in (
                 vrm_types.HumanBones.requires + vrm_types.HumanBones.defines
             ):
                 if (
-                    humanbone in self.armature.data
-                    and self.armature.data[humanbone]
-                    and self.armature.data[humanbone] in node_name_id_dic
+                    human_bone in self.armature.data
+                    and self.armature.data[human_bone]
+                    and self.armature.data[human_bone] in node_name_id_dic
                 ):
                     vrm_humanoid_dic["humanBones"].update(
                         {
-                            humanbone: {
-                                "node": node_name_id_dic[self.armature.data[humanbone]]
+                            human_bone: {
+                                "node": node_name_id_dic[self.armature.data[human_bone]]
                             }
                         }
                     )

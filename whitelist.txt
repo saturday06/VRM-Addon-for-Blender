@@ -78,8 +78,6 @@ gltf2
 hb
 hpos
 hrad
-humanbone
-humanbones
 hx
 icyp
 idname

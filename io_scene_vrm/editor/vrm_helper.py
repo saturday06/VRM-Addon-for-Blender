@@ -67,9 +67,9 @@ class Add_VRM_extensions_to_armature(bpy.types.Operator):  # type: ignore[misc] 
         return {"FINISHED"}
 
 
-class Add_VRM_humanbone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class Add_VRM_human_bone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_humanbone_custom_property"
-    bl_label = "Add VRM humanbone prop"
+    bl_label = "Add VRM Human Bone prop"
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
@@ -83,9 +83,9 @@ class Add_VRM_humanbone_custom_property(bpy.types.Operator):  # type: ignore[mis
 
 
 # deprecated
-class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class Add_VRM_require_human_bone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_req_humanbone_prop"
-    bl_label = "Add vrm humanbone_prop"
+    bl_label = "Add vrm human_bone_prop"
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
@@ -98,9 +98,9 @@ class Add_VRM_require_humanbone_custom_property(bpy.types.Operator):  # type: ig
 
 
 # deprecated
-class Add_VRM_defined_humanbone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class Add_VRM_defined_human_bone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_def_humanbone_prop"
-    bl_label = "Add vrm humanbone_prop"
+    bl_label = "Add vrm human_bone_prop"
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 

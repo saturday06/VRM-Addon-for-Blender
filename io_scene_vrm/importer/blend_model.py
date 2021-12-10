@@ -1795,13 +1795,13 @@ class BlendModel:
         vrm0_extension = self.vrm0_extension
         if vrm0_extension is None:
             return
-        humanbones_relations = deep.get(vrm0_extension, ["humanoid", "humanBones"], [])
-        if not isinstance(humanbones_relations, list):
+        human_bones_relations = deep.get(vrm0_extension, ["humanoid", "humanBones"], [])
+        if not isinstance(human_bones_relations, list):
             raise Exception("extensions.VRM.humanoid.humanBones is not list")
-        for (i, humanbone) in enumerate(humanbones_relations):
-            if not isinstance(humanbone, dict):
+        for (i, human_bone) in enumerate(human_bones_relations):
+            if not isinstance(human_bone, dict):
                 raise Exception(f"extensions.VRM.humanoid.humanBones[{i}] is not dict")
-            node_index = humanbone["node"]
+            node_index = human_bone["node"]
             if not isinstance(node_index, int):
                 raise Exception(
                     f'json extensions.VRM.humanoid.humanBones[{i}]["node"] is not int but {node_index}'
@@ -1810,7 +1810,7 @@ class BlendModel:
             if node_name not in armature.data.bones:
                 continue
             armature.data.bones[node_name]["humanBone"] = node_index
-            armature.data[humanbone["bone"]] = armature.data.bones[node_name].name
+            armature.data[human_bone["bone"]] = armature.data.bones[node_name].name
 
         vrm_meta = vrm0_extension.get("meta", {})
         if not isinstance(vrm_meta, dict):
