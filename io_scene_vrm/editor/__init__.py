@@ -47,33 +47,25 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_region_type = "UI"
     bl_category = "VRM"
 
-    @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(context.active_object)
-
     def draw(self, context: bpy.types.Context) -> None:
         active_object = context.active_object
         mode = context.mode
         layout = self.layout
-        object_type = active_object.type
+        object_type = active_object.type if active_object else None
+        preferences = get_preferences(context)
 
         # region draw_main
+        vrm_validator_prop = layout.operator(
+            validation.WM_OT_vrm_validator.bl_idname,
+            text=pgettext("Validate VRM model"),
+            icon="VIEWZOOM",
+        )
+        vrm_validator_prop.show_successful_message = True
+        if preferences:
+            layout.prop(preferences, "export_invisibles")
+            layout.prop(preferences, "export_only_selections")
+
         if mode == "OBJECT":
-            # object_mode_box = layout.box()
-            vrm_validator_prop = layout.operator(
-                validation.WM_OT_vrm_validator.bl_idname,
-                text=pgettext("Validate VRM model"),
-                icon="VIEWZOOM",
-            )
-            preferences = get_preferences(context)
-            if preferences:
-                layout.prop(preferences, "export_invisibles")
-                layout.prop(preferences, "export_only_selections")
-
-            vrm_validator_prop.show_successful_message = True
-            # vrm_validator_prop.errors = []  # これはできない
-            layout.separator()
-
             if GlslDrawObj.draw_objs:
                 layout.operator(
                     glsl_drawer.ICYP_OT_remove_draw_model.bl_idname,
@@ -94,7 +86,6 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                         text=pgettext("A light is required"),
                     )
             if object_type == "MESH":
-                layout.separator()
                 layout.operator(
                     vrm_helper.VRM_OT_vroid2vrc_lipsync_from_json_recipe.bl_idname,
                     icon="EXPERIMENTAL",
