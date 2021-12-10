@@ -10,19 +10,12 @@ from typing import Any, Optional
 
 
 def to_function_component_literal(s: str) -> str:
-    ascii_lower = "abcdefghijklmnopqrstuvwxyz0123456789"
-    ascii_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    # str.lower() is locale dependent
-    # https://stackoverflow.com/questions/19030948/python-utf-8-lowercase-turkish-specific-letter
-    ascii_upper_to_lower = dict(zip(ascii_upper, ascii_lower))
+    permitted = "abcdefghijklmnopqrstuvwxyz0123456789"
     return "".join(
         map(
-            lambda c: c
-            if c in ascii_lower
-            else ascii_upper_to_lower[c]
-            if c in ascii_upper
-            else "_",
-            s,
+            lambda c: c if c in permitted else "_",
+            # str.lower() is locale dependent. bytes.lower() is locale independent.
+            s.encode().lower().decode(),
         )
     )
 
