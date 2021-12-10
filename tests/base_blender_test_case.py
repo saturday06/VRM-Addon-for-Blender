@@ -67,16 +67,17 @@ class BaseBlenderTestCase(TestCase):
         os.makedirs(test_out2_vrm_dir, exist_ok=True)
 
     def process_output_to_str(self, process_output: bytes) -> str:
-        output = None
-        if platform.system() != "Windows":
-            output = process_output.decode()
-        else:
-            with contextlib.suppress(UnicodeDecodeError):
-                output = process_output.decode("ansi")
-            if output is None:
-                output = process_output.decode()
-        if output != "" and not output.endswith("\n"):
-            output += "\n"
+        output = ""
+        for line_bytes in process_output.splitlines():
+            line = None
+            if platform.system() != "Windows":
+                line = line_bytes.decode()
+            else:
+                with contextlib.suppress(UnicodeDecodeError):
+                    line = line_bytes.decode("ansi")
+                if line is None:
+                    line = line_bytes.decode()
+            output += str.rstrip(line) + "\n"
         return output
 
     def find_blender_command(self) -> str:
