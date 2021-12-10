@@ -821,14 +821,14 @@ def node_read(py_model: PyModel) -> None:
                 print(node["name"] + "is not have skin")
 
 
-def create_vrm_dict(data: bytes) -> Dict[str, Any]:
+def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
     vrm_json, binary_chunk = parse_glb(data)
     vrm_json["~accessors_decoded"] = decode_bin(vrm_json, binary_chunk)
     return vrm_json
 
 
-def vrm_dict_diff(
-    left: Any, right: Any, path: str, float_tolerance: float
+def json_dict_diff(
+    left: Any, right: Any, path: str, float_tolerance: float = 0
 ) -> List[str]:
     if isinstance(left, list):
         if not isinstance(right, list):
@@ -840,7 +840,7 @@ def vrm_dict_diff(
         diffs = []
         for i, _ in enumerate(left):
             diffs.extend(
-                vrm_dict_diff(left[i], right[i], f"{path}[{i}]", float_tolerance)
+                json_dict_diff(left[i], right[i], f"{path}[{i}]", float_tolerance)
             )
         return diffs
 
@@ -856,7 +856,7 @@ def vrm_dict_diff(
                 diffs.append(f"{path}: {key} not in right")
                 continue
             diffs.extend(
-                vrm_dict_diff(
+                json_dict_diff(
                     left[key], right[key], f'{path}["{key}"]', float_tolerance
                 )
             )
@@ -896,8 +896,8 @@ def vrm_dict_diff(
 
 
 def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> List[str]:
-    return vrm_dict_diff(
-        create_vrm_dict(before), create_vrm_dict(after), "", float_tolerance
+    return json_dict_diff(
+        create_vrm_json_dict(before), create_vrm_json_dict(after), "", float_tolerance
     )
 
 
