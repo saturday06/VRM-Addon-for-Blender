@@ -67,6 +67,8 @@ classes = [
     editor.vrm_helper.VRM_OT_add_required_human_bone_custom_property,  # deprecated
     editor.vrm_helper.VRM_OT_rename_bones,
     editor.vrm_helper.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
+    editor.vrm_helper.VRM_OT_save_human_bone_mappings,
+    editor.vrm_helper.VRM_OT_load_human_bone_mappings,
     exporter.validation.VrmValidationError,
     exporter.validation.WM_OT_vrm_validator,
     exporter.EXPORT_SCENE_OT_vrm,

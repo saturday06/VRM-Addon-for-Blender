@@ -144,6 +144,12 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
         armature_box.operator(
             vrm_helper.VRM_OT_add_extensions_to_armature.bl_idname, icon="MOD_BUILD"
         )
+        armature_box.operator(
+            vrm_helper.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT"
+        )
+        armature_box.operator(
+            vrm_helper.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT"
+        )
 
         layout.separator()
         requires_box = armature_box.box()

@@ -8,9 +8,10 @@ import json
 import os
 import re
 from collections import OrderedDict
-from typing import Set
+from typing import Set, cast
 
 import bpy
+from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from ..common import vrm_types
 from .make_armature import ICYP_OT_make_armature
@@ -110,6 +111,69 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
             if bone_name not in armature:
                 armature[bone_name] = ""
         return {"FINISHED"}
+
+
+class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.save_human_bone_mappings"
+    bl_label = "Save bone mappings"
+    bl_description = ""
+    bl_options = {"REGISTER"}
+
+    filename_ext = ".json"
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+        default="*.json", options={"HIDDEN"}  # noqa: F722,F821
+    )
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return bool(context.active_object) and context.active_object.type == "ARMATURE"
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        armature = context.active_object.data
+        mappings = {}
+        for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
+            if human_bone in armature and armature[human_bone]:
+                mappings[human_bone] = armature[human_bone]
+        with open(self.filepath, "wb") as file:
+            file.write(
+                json.dumps(mappings, sort_keys=True, indent=4)
+                .replace("\r\n", "\n")
+                .encode()
+            )
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        return cast(Set[str], ExportHelper.invoke(self, context, event))
+
+
+class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.load_human_bone_mappings"
+    bl_label = "Load bone mappings"
+    bl_description = ""
+    bl_options = {"REGISTER", "UNDO"}
+
+    filename_ext = ".json"
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+        default="*.json", options={"HIDDEN"}  # noqa: F722,F821
+    )
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return bool(context.active_object) and context.active_object.type == "ARMATURE"
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        with open(self.filepath, "rb") as file:
+            obj = json.load(file)
+        if not isinstance(obj, dict):
+            return {"CANCELLED"}
+        for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
+            if human_bone in obj:
+                context.active_object.data[human_bone] = obj[human_bone]
+
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        return cast(Set[str], ImportHelper.invoke(self, context, event))
 
 
 class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
