@@ -8,6 +8,7 @@ from . import (
     glsl_drawer,
     make_armature,
     mesh_from_bone_envelopes,
+    search,
     validation,
     vrm_helper,
 )
@@ -112,10 +113,13 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(context.active_object) and context.active_object.type == "ARMATURE"
+        return search.armature_exists(context)
 
     def draw(self, context: bpy.types.Context) -> None:
-        active_object = context.active_object
+        active_object = search.current_armature(context)
+        if not active_object:
+            return
+
         layout = self.layout
         data = active_object.data
 
@@ -253,19 +257,20 @@ class VRM_PT_vrm_humanoid_params(bpy.types.Panel):  # type: ignore[misc] # noqa:
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        exist = context.object is not None
-        armature = context.object.type == "ARMATURE"
-        return exist and armature
+        return search.armature_exists(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="ARMATURE_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = search.current_armature(context)
+        if not active_object:
+            return
+
         layout = self.layout
         testing = layout.box()
         testing.label(text="Testing", icon="EXPERIMENTAL")
-        active_object = context.active_object
         layout.label(text="Arm", icon="VIEW_PAN")
         layout.prop(
             active_object.vrm_props.humanoid_params,
@@ -293,19 +298,20 @@ class VRM_PT_vrm_firstPerson_params(bpy.types.Panel):  # type: ignore[misc] # no
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        exist = context.object is not None
-        armature = context.object.type == "ARMATURE"
-        return exist and armature
+        return search.armature_exists(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="HIDE_OFF")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = search.current_armature(context)
+        if not active_object:
+            return
+
         layout = self.layout
         testing = layout.box()
         testing.label(text="Testing", icon="EXPERIMENTAL")
-        active_object = context.active_object
         data = active_object.data
         blend_data = context.blend_data
         props = active_object.vrm_props.first_person_params
@@ -348,19 +354,20 @@ class VRM_PT_vrm_blendshape_group(bpy.types.Panel):  # type: ignore[misc] # noqa
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        exist = context.object is not None
-        armature = context.object.type == "ARMATURE"
-        return exist and armature
+        return search.armature_exists(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="SHAPEKEY_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = search.current_armature(context)
+        if not active_object:
+            return
+
         layout = self.layout
         testing = layout.box()
         testing.label(text="Testing", icon="EXPERIMENTAL")
-        active_object = context.active_object
         blend_data = context.blend_data
         for blendshape in active_object.vrm_props.blendshape_group:
             box = layout.box()
@@ -397,19 +404,20 @@ class VRM_PT_vrm_spring_bone(bpy.types.Panel):  # type: ignore[misc] # noqa: N80
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        exist = context.object is not None
-        armature = context.object.type == "ARMATURE"
-        return exist and armature
+        return search.armature_exists(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="RIGID_BODY_CONSTRAINT")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = search.current_armature(context)
+        if not active_object:
+            return
+
         layout = self.layout
         testing = layout.box()
         testing.label(text="Testing", icon="EXPERIMENTAL")
-        active_object = context.active_object
         data = context.active_object.data
         spring_bones = active_object.vrm_props.spring_bones
 
@@ -469,19 +477,20 @@ class VRM_PT_vrm_metas(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        exist = context.object is not None
-        armature = context.object.type == "ARMATURE"
-        return exist and armature
+        return search.armature_exists(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(icon="FILE_BLEND")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = search.current_armature(context)
+        if not active_object:
+            return
+
         layout = self.layout
         testing = layout.box()
         testing.label(text="Testing", icon="EXPERIMENTAL")
-        active_object = context.active_object
         layout.prop(active_object.vrm_props.metas, "author", icon="USER")
         layout.prop(active_object.vrm_props.metas, "contact_information", icon="URL")
         layout.separator()

@@ -14,6 +14,7 @@ import bpy
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from ..common import vrm_types
+from . import search
 from .make_armature import ICYP_OT_make_armature
 
 
@@ -126,14 +127,17 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(context.active_object) and context.active_object.type == "ARMATURE"
+        return search.armature_exists(context)
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        armature = context.active_object.data
+        armature = search.current_armature(context)
+        if not armature:
+            return {"CANCELLED"}
+
         mappings = {}
         for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
-            if human_bone in armature and armature[human_bone]:
-                mappings[human_bone] = armature[human_bone]
+            if human_bone in armature.data and armature.data[human_bone]:
+                mappings[human_bone] = armature.data[human_bone]
         with open(self.filepath, "wb") as file:
             file.write(
                 json.dumps(mappings, sort_keys=True, indent=4)
@@ -159,16 +163,20 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(context.active_object) and context.active_object.type == "ARMATURE"
+        return search.armature_exists(context)
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
+        armature = search.current_armature(context)
+        if not armature:
+            return {"CANCELLED"}
+
         with open(self.filepath, "rb") as file:
             obj = json.load(file)
         if not isinstance(obj, dict):
             return {"CANCELLED"}
         for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
             if human_bone in obj:
-                context.active_object.data[human_bone] = obj[human_bone]
+                armature.data[human_bone] = obj[human_bone]
 
         return {"FINISHED"}
 
