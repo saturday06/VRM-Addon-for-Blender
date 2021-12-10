@@ -66,7 +66,7 @@ def test() -> None:
     if update_vrm_dir:
         shutil.copy(actual_path, expected_path)
 
-    diffs_str = "\n".join(diffs[:50])
+    diffs_str = "\n".join(diffs)
     message = (
         f"Exceeded the VRM diff threshold:{float_tolerance:19.17f}\n"
         + f"input={in_path}\n"

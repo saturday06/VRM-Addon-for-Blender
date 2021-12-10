@@ -84,7 +84,7 @@ def test() -> None:
     if not diffs:
         return
 
-    message = "\n".join(diffs[:50])
+    message = "\n".join(diffs)
     if platform.system() == "Windows":
         sys.stderr.buffer.write((message + "\n").encode())
         raise AssertionError

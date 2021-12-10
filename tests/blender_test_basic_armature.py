@@ -50,7 +50,7 @@ def test() -> None:
     if not diffs:
         return
 
-    diffs_str = "\n".join(diffs[:50])
+    diffs_str = "\n".join(diffs)
     message = (
         f"Exceeded the VRM diff threshold:{float_tolerance:19.17f}\n"
         + f"left ={actual_path}\n"
