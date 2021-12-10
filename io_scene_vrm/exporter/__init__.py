@@ -22,7 +22,7 @@ def export_vrm_update_addon_preferences(
         preferences.export_only_selections = export_op.export_only_selections
 
 
-class ExportVRM(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
+class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[misc] # noqa: N801
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
     bl_description = "Export VRM"
@@ -114,4 +114,4 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
 
 
 def menu_export(export_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
-    export_op.layout.operator(ExportVRM.bl_idname, text="VRM (.vrm)")
+    export_op.layout.operator(EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")

@@ -61,17 +61,17 @@ classes = [
     editor.glsl_drawer.ICYP_OT_remove_draw_model,
     editor.make_armature.ICYP_OT_make_armature,
     # editor.mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
-    editor.vrm_helper.Add_VRM_human_bone_custom_property,
-    editor.vrm_helper.Add_VRM_defined_human_bone_custom_property,  # deprecated
-    editor.vrm_helper.Add_VRM_extensions_to_armature,
-    editor.vrm_helper.Add_VRM_require_human_bone_custom_property,  # deprecated
-    editor.vrm_helper.Bones_rename,
-    editor.vrm_helper.Vroid2VRC_lipsync_from_json_recipe,
+    editor.vrm_helper.VRM_OT_add_human_bone_custom_property,
+    editor.vrm_helper.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
+    editor.vrm_helper.VRM_OT_add_extensions_to_armature,
+    editor.vrm_helper.VRM_OT_add_required_human_bone_custom_property,  # deprecated
+    editor.vrm_helper.VRM_OT_rename_bones,
+    editor.vrm_helper.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
     exporter.validation.VrmValidationError,
     exporter.validation.WM_OT_vrm_validator,
-    exporter.ExportVRM,
+    exporter.EXPORT_SCENE_OT_vrm,
     exporter.VRM_PT_export_error_messages,
-    importer.ImportVRM,
+    importer.IMPORT_SCENE_OT_vrm,
     importer.LicenseConfirmation,
     importer.WM_OT_license_confirmation,
     # importer.blend_model.ICYP_OT_select_helper,

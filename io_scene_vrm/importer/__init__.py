@@ -20,7 +20,7 @@ class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
-class ImportVRM(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
+class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[misc] # noqa: N801
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
     bl_description = "Import VRM"
@@ -142,7 +142,7 @@ def create_blend_model(
 def menu_import(
     import_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
-    import_op.layout.operator(ImportVRM.bl_idname, text="VRM (.vrm)")
+    import_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
 
 
 class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801

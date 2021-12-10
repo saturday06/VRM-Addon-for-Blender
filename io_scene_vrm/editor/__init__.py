@@ -95,7 +95,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
             if object_type == "MESH":
                 layout.separator()
                 layout.operator(
-                    vrm_helper.Vroid2VRC_lipsync_from_json_recipe.bl_idname,
+                    vrm_helper.VRM_OT_vroid2vrc_lipsync_from_json_recipe.bl_idname,
                     icon="EXPERIMENTAL",
                 )
         if mode == "EDIT_MESH":
@@ -126,7 +126,7 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
 
         def show_add_require(parent: bpy.types.UILayout, bone_name: str) -> None:
             op = parent.operator(
-                vrm_helper.Add_VRM_human_bone_custom_property.bl_idname,
+                vrm_helper.VRM_OT_add_human_bone_custom_property.bl_idname,
                 text=f"Add {bone_name} property",
                 icon="ADD",
             )
@@ -134,7 +134,7 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
 
         def show_add_defined(parent: bpy.types.UILayout, bone_name: str) -> None:
             op = parent.operator(
-                vrm_helper.Add_VRM_human_bone_custom_property.bl_idname,
+                vrm_helper.VRM_OT_add_human_bone_custom_property.bl_idname,
                 text=f"Add {bone_name} property",
                 icon="ADD",
             )
@@ -142,7 +142,7 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
 
         armature_box = layout
         armature_box.operator(
-            vrm_helper.Add_VRM_extensions_to_armature.bl_idname, icon="MOD_BUILD"
+            vrm_helper.VRM_OT_add_extensions_to_armature.bl_idname, icon="MOD_BUILD"
         )
 
         layout.separator()
@@ -232,7 +232,9 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
             else:
                 show_add_defined(defines_box, defs)
         armature_box.separator()
-        armature_box.operator(vrm_helper.Bones_rename.bl_idname, icon="EXPERIMENTAL")
+        armature_box.operator(
+            vrm_helper.VRM_OT_rename_bones.bl_idname, icon="EXPERIMENTAL"
+        )
 
 
 class VRM_PT_vrm_humanoid_params(bpy.types.Panel):  # type: ignore[misc] # noqa: N801

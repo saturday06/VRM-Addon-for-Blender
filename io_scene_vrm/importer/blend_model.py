@@ -2246,7 +2246,7 @@ class BlendModel:
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
-        editor.vrm_helper.Bones_rename(bpy.context)
+        editor.vrm_helper.VRM_OT_rename_bones(bpy.context)
 
 
 # DeprecationWarning
