@@ -72,7 +72,6 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
             vrm_validator_prop.show_successful_message = True
             # vrm_validator_prop.errors = []  # これはできない
             layout.separator()
-            layout.label(text="MToon preview")
 
             if GlslDrawObj.draw_objs:
                 layout.operator(
@@ -88,6 +87,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                         depress=False,
                     )
                 else:
+                    layout.label(text="Preview MToon")
                     layout.box().label(
                         icon="INFO",
                         text=pgettext("A light is required"),

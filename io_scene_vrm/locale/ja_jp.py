@@ -3,7 +3,7 @@ locale_key = "ja_JP"
 translation_dictionary = {
     ("*", "Export invisible objects"): "非表示のオブジェクトも含める",
     ("*", "Export only selections"): "選択されたオブジェクトのみ",
-    ("*", "MToon preview"): "MToonのプレビュー",
+    ("*", "Preview MToon"): "MToonのプレビュー",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
     ("*", "VRM Export"): "VRMエクスポート",
     ("*", "Validate VRM model"): "VRMモデルのチェック",
