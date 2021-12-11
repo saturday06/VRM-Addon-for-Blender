@@ -543,7 +543,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
 
     humanoid_params = Vrm0.HUMANOID_DEFAULT_PARAMS
     first_person_params = {
-        "firstPersonBone": "HeadBone",
+        "firstPersonBone": "head",
         "firstPersonBoneOffset": {"x": 0, "y": 0, "z": 0},
         "meshAnnotations": [],
         "lookAtTypeName": "Bone",
