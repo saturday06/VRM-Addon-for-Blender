@@ -39,6 +39,27 @@ def make_mesh(make_mesh_op: bpy.types.Operator, _context: bpy.types.Context) -> 
     )
 
 
+class VRM_PT_current_selected_armature(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_idname = "VRM_PT_current_selected_armature"
+    bl_label = "Current selected armature"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "VRM"
+    bl_options = {"HIDE_HEADER"}
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return search.multiple_armatures_exist(context)
+
+    def draw(self, context: bpy.types.Context) -> None:
+        armature = search.current_armature(context)
+        if not armature:
+            return
+
+        layout = self.layout
+        layout.label(text=armature.name, icon="ARMATURE_DATA", translate=False)
+
+
 class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "VRM Helper"

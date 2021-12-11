@@ -54,6 +54,7 @@ classes = [
     editor.METAS,
     editor.REQUIRED_METAS,
     editor.SPRING_BONE_GROUP,
+    editor.VRM_PT_current_selected_armature,
     editor.VRM_PT_armature_controller,
     editor.VRM_PT_controller,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,

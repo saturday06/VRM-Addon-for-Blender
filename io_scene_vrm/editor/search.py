@@ -88,6 +88,12 @@ def armature_exists(context: bpy.types.Object) -> bool:
     return any(obj.type == "ARMATURE" for obj in context.selectable_objects)
 
 
+def multiple_armatures_exist(context: bpy.types.Object) -> bool:
+    return (
+        len([True for obj in context.selectable_objects if obj.type == "ARMATURE"]) > 1
+    )
+
+
 def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
     objects = [obj for obj in context.selectable_objects if obj.type == "ARMATURE"]
 
