@@ -76,6 +76,11 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         preferences = get_preferences(context)
 
         # region draw_main
+        layout.operator(
+            make_armature.ICYP_OT_make_armature.bl_idname,
+            text=pgettext("Create VRM model"),
+            icon="OUTLINER_OB_ARMATURE",
+        )
         vrm_validator_prop = layout.operator(
             validation.WM_OT_vrm_validator.bl_idname,
             text=pgettext("Validate VRM model"),

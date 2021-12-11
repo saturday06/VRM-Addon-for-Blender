@@ -6,6 +6,7 @@ translation_dictionary = {
     ("*", "Preview MToon"): "MToonのプレビュー",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
     ("*", "VRM Export"): "VRMエクスポート",
+    ("*", "Create VRM model"): "VRMモデルを作成",
     ("*", "Validate VRM model"): "VRMモデルのチェック",
     ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
     (
