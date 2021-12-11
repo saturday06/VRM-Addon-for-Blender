@@ -75,10 +75,13 @@ class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):  # type: ignore
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
+    armature_name: bpy.props.StringProperty()  # type: ignore[valid-type]
     bone_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures[bpy.context.active_object.data.name]
+        if self.armature_name not in bpy.data.armatures:
+            return {"CANCELLED"}
+        armature = bpy.data.armatures[self.armature_name]
         if self.bone_name not in armature:
             armature[self.bone_name] = ""
         return {"FINISHED"}

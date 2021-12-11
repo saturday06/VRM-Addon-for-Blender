@@ -151,6 +151,7 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                 text=f"Add {bone_name} property",
                 icon="ADD",
             )
+            op.armature_name = data.name
             op.bone_name = bone_name
 
         def show_add_defined(parent: bpy.types.UILayout, bone_name: str) -> None:
@@ -159,6 +160,7 @@ class VRM_PT_armature_controller(bpy.types.Panel):  # type: ignore[misc] # noqa:
                 text=f"Add {bone_name} property",
                 icon="ADD",
             )
+            op.armature_name = data.name
             op.bone_name = bone_name
 
         armature_box = layout
