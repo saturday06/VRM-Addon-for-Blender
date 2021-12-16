@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+import collections
 import contextlib
 import json
 import math
@@ -824,6 +825,66 @@ def node_read(py_model: PyModel) -> None:
 def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
     vrm_json, binary_chunk = parse_glb(data)
     vrm_json["~accessors_decoded"] = decode_bin(vrm_json, binary_chunk)
+
+    if "extensions" not in vrm_json:
+        return vrm_json
+
+    if "VRM" not in vrm_json["extensions"]:
+        return vrm_json
+
+    vrm0_extension = vrm_json["extensions"]["VRM"]
+    if not isinstance(vrm0_extension, dict):
+        return vrm_json
+
+    if "firstPerson" not in vrm0_extension:
+        vrm0_extension["firstPerson"] = {}
+
+    first_person_dict = vrm0_extension["firstPerson"]
+    if not isinstance(first_person_dict, dict):
+        return vrm_json
+
+    if (
+        "firstPersonBone" not in first_person_dict
+        and isinstance(vrm0_extension.get("humanoid"), dict)
+        and isinstance(
+            vrm0_extension["humanoid"].get("humanBones"), collections.Iterable
+        )
+    ):
+        for human_bone in vrm0_extension["humanoid"]["humanBones"]:
+            if not isinstance(human_bone, dict):
+                continue
+            node = human_bone.get("node")
+            if not isinstance(node, int) or node < 0:
+                continue
+            if human_bone.get("bone") == "head":
+                first_person_dict["firstPersonBone"] = node
+                break
+
+    for look_at_key in [
+        "lookAtHorizontalInner",
+        "lookAtHorizontalOuter",
+        "lookAtVerticalDown",
+        "lookAtVerticalUp",
+    ]:
+        if look_at_key not in first_person_dict:
+            first_person_dict[look_at_key] = {}
+        look_at_dict = first_person_dict[look_at_key]
+        if not isinstance(look_at_dict, dict):
+            continue
+        if "curve" not in look_at_dict:
+            look_at_dict["curve"] = [0, 0, 0, 1, 1, 1, 1, 0]
+
+    if isinstance(vrm0_extension.get("blendShapeMaster"), dict) and isinstance(
+        vrm0_extension["blendShapeMaster"].get("blendShapeGroups"),
+        collections.Iterable,
+    ):
+        for blend_shape_group_dict in vrm0_extension["blendShapeMaster"][
+            "blendShapeGroups"
+        ]:
+            if not isinstance(blend_shape_group_dict, dict):
+                continue
+            if "isBinary" not in blend_shape_group_dict:
+                blend_shape_group_dict["isBinary"] = False
     return vrm_json
 
 
