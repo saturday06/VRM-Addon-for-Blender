@@ -27,7 +27,7 @@ def exist_or_makedir(path: str) -> str:
     return ripped_dir
 
 
-model_path = filedialog.askopenfilename(filetypes=[("", "*vrm")])  # type: ignore[no-untyped-call]
+model_path = filedialog.askopenfilename(filetypes=[("", "*vrm")])
 with open(model_path, "rb") as f:
     vrm_json, binary = parse_glb(f.read())
 if messagebox.askyesno(message="write VRM.json?"):
