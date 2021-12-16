@@ -48,6 +48,8 @@ def test() -> None:
     bpy.ops.vrm.model_validate()
 
     actual_path = os.path.join(temp_vrm_dir, vrm)
+    if os.path.exists(actual_path):
+        os.remove(actual_path)
     bpy.ops.export_scene.vrm(filepath=actual_path)
 
     float_tolerance = 0.000001

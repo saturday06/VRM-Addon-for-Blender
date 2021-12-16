@@ -103,6 +103,8 @@ def assert_import_export(
     bpy.ops.vrm.model_validate()
 
     actual_path = os.path.join(temp_dir_path, os.path.basename(in_path))
+    if os.path.exists(actual_path):
+        os.remove(actual_path)
     bpy.ops.export_scene.vrm(filepath=actual_path)
     actual_bytes = pathlib.Path(actual_path).read_bytes()
 

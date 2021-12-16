@@ -37,6 +37,8 @@ def test() -> None:
     bpy.ops.vrm.model_validate()
 
     actual_path = os.path.join(temp_dir_path, "basic_armature.vrm")
+    if os.path.exists(actual_path):
+        os.remove(actual_path)
     bpy.ops.export_scene.vrm(filepath=actual_path)
     if not os.path.exists(expected_path):
         shutil.copy(actual_path, expected_path)
