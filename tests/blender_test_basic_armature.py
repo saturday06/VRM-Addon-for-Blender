@@ -25,7 +25,7 @@ def test() -> None:
     )
     major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
     vrm = "basic_armature.vrm"
-    expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
+    expected_path = os.path.join(vrm_dir, "in", vrm)
     temp_dir_path = os.path.join(vrm_dir, major_minor, "temp")
 
     bpy.ops.object.select_all(action="SELECT")
