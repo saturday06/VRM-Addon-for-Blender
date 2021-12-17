@@ -23,23 +23,25 @@ blend_dir = os.path.join(os.path.dirname(vrm_dir), "blend")
 
 
 def get_test_command_args() -> List[List[str]]:
-    command_args: List[List[str]] = []
-    for blend in sorted(os.listdir(blend_dir)):
-        if not blend.endswith(".blend"):
-            continue
-        command_args.append([blend])
-
+    names = [
+        blend_path.name for blend_path in pathlib.Path(blend_dir).glob("**/*.blend")
+    ]
+    command_args: List[List[str]] = [
+        [name] for name in sorted(list(dict.fromkeys(names)))
+    ]
     return command_args
 
 
 def test() -> None:
     os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
     update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
+    major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
 
     blend = sys.argv[sys.argv.index("--") + 1]
     in_path = os.path.join(blend_dir, blend)
+    if not os.path.exists(in_path):
+        in_path = os.path.join(blend_dir, major_minor, blend)
 
-    major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
     vrm = os.path.splitext(blend)[0] + ".vrm"
     expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
