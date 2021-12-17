@@ -3,7 +3,7 @@ import pathlib
 import platform
 import shutil
 import sys
-from typing import List
+from typing import List, Optional
 
 import bpy
 
@@ -45,6 +45,12 @@ def test() -> None:
     out2_vrm_dir = os.path.join(vrm_dir, major_minor, "out2")
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
     os.makedirs(temp_vrm_dir, exist_ok=True)
+    test_blend_path = os.path.join(
+        os.path.dirname(vrm_dir),
+        "blend",
+        major_minor,
+        os.path.splitext(vrm)[0] + ".blend",
+    )
     extract_textures = extract_textures_str == "true"
 
     if not os.path.exists(os.path.join(out_vrm_dir, vrm)):
@@ -54,7 +60,8 @@ def test() -> None:
     bpy.ops.object.delete()
     while bpy.data.collections:
         bpy.data.collections.remove(bpy.data.collections[0])
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(temp_vrm_dir, vrm + ".blend"))
+    startup_blend_path = os.path.join(temp_vrm_dir, vrm + ".blend")
+    bpy.ops.wm.save_as_mainfile(filepath=startup_blend_path)
 
     assert_import_export(
         in_path,
@@ -62,6 +69,8 @@ def test() -> None:
         temp_vrm_dir,
         extract_textures,
         update_vrm_dir,
+        startup_blend_path,
+        test_blend_path,
     )
 
     if update_vrm_dir and not os.path.exists(os.path.join(out_vrm_dir, vrm)):
@@ -74,6 +83,7 @@ def test() -> None:
             temp_vrm_dir,
             extract_textures,
             update_vrm_dir,
+            startup_blend_path,
         )
         return
 
@@ -83,6 +93,7 @@ def test() -> None:
         temp_vrm_dir,
         extract_textures,
         update_vrm_dir,
+        startup_blend_path,
     )
 
 
@@ -92,8 +103,10 @@ def assert_import_export(
     temp_dir_path: str,
     extract_textures: bool,
     update_vrm_dir: bool,
+    startup_blend_path: str,
+    test_blend_path: Optional[str] = None,
 ) -> None:
-    bpy.ops.wm.open_mainfile(filepath=bpy.data.filepath)
+    bpy.ops.wm.open_mainfile(filepath=startup_blend_path)
 
     bpy.ops.import_scene.vrm(
         filepath=in_path,
@@ -102,6 +115,10 @@ def assert_import_export(
     )
 
     bpy.ops.vrm.model_validate()
+
+    if test_blend_path is not None and not os.path.exists(test_blend_path):
+        os.makedirs(os.path.dirname(test_blend_path), exist_ok=True)
+        bpy.ops.wm.save_as_mainfile(filepath=test_blend_path)
 
     actual_path = os.path.join(temp_dir_path, os.path.basename(in_path))
     if os.path.exists(actual_path):
