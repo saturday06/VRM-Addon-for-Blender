@@ -691,19 +691,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         },
     ]
 
-    spring_bone_prams = [
-        {
-            "comment": "",
-            "stiffiness": 1,
-            "gravityPower": 0,
-            "gravityDir": {"x": 0, "y": -1, "z": 0},
-            "dragForce": 0.4,
-            "center": -1,
-            "hitRadius": 0.02,
-            "bones": [],
-            "colliderGroups": [],
-        }
-    ]
+    spring_bone_prams: List[Dict[str, Any]] = []
 
 
 def connect_parent_tail_and_child_head_if_same_position(
