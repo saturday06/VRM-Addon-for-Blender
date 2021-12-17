@@ -34,7 +34,7 @@ for path in map(str.strip, sorted(os.listdir(test_src_dir))):
         word.title()
         for word in re.sub("blender_test_", "", path_without_ext).split("_")
     )
-    import_exception: Optional[BaseException] = None
+    import_exception_str: Optional[str] = None
     test_command_args_list: Any = []
     try:
         # pylint: disable=no-value-for-parameter,deprecated-method
@@ -49,7 +49,7 @@ for path in map(str.strip, sorted(os.listdir(test_src_dir))):
             if callable(func):
                 test_command_args_list = func()
     except BaseException as e:
-        import_exception = e
+        import_exception_str = fr"{e}".replace('"', '\\"')
 
     content = f"""#
 # This source file is machine generated. Please don't edit it
@@ -66,10 +66,13 @@ class Blender{class_name}TestCase(BaseBlenderTestCase):
     def test_health_check(self) -> None:
         self.assertTrue(True)
 """
-    if import_exception is not None:
+    if import_exception_str is not None:
         content += f"""
-##### ERROR #####
-# {import_exception}
+    def test_dynamic_test_case_generation_failed(self) -> None:
+        self.fail(\"""Exception: {import_exception_str}
+
+This error is often caused by the absence of its submodule.
+If so please run `git submodule update --init`.\""")
 """
     elif test_command_args_list:
         existing_method_names = []

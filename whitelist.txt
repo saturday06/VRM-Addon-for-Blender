@@ -178,6 +178,7 @@ splitnormals
 springbone
 sqrt
 src
+submodule
 subtarget
 subtype
 superciliaris
