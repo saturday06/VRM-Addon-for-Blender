@@ -885,6 +885,55 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
                 continue
             if "isBinary" not in blend_shape_group_dict:
                 blend_shape_group_dict["isBinary"] = False
+
+    if isinstance(vrm0_extension.get("secondaryAnimation"), dict) and isinstance(
+        vrm0_extension["secondaryAnimation"].get("colliderGroups"), collections.Iterable
+    ):
+
+        def sort_collider_groups_with_index_key(
+            collider_group_with_index: Tuple[int, Dict[str, Any]]
+        ) -> int:
+            (_, collider_group) = collider_group_with_index
+            if not isinstance(collider_group, dict):
+                return -999
+            node = collider_group.get("node")
+            if not isinstance(node, int):
+                return -999
+            return node
+
+        sorted_collider_groups_with_original_index = sorted(
+            enumerate(vrm0_extension["secondaryAnimation"]["colliderGroups"]),
+            key=sort_collider_groups_with_index_key,
+        )
+        vrm0_extension["secondaryAnimation"]["colliderGroups"] = [
+            collider_group
+            for _, collider_group in sorted_collider_groups_with_original_index
+        ]
+        original_index_to_sorted_index = {
+            original_index: sorted_index
+            for (sorted_index, (original_index, _)) in enumerate(
+                sorted_collider_groups_with_original_index
+            )
+        }
+
+        bone_groups = vrm0_extension["secondaryAnimation"].get("boneGroups")
+        if isinstance(bone_groups, collections.Iterable):
+            for bone_group in bone_groups:
+                if not isinstance(bone_group, dict):
+                    continue
+                collider_groups = bone_group.get("colliderGroups")
+                if not isinstance(collider_groups, collections.Iterable):
+                    continue
+                for i, collider_group in enumerate(list(collider_groups)):
+                    if not isinstance(collider_group, int):
+                        continue
+                    if collider_group not in original_index_to_sorted_index:
+                        bone_group["colliderGroups"][i] = -999
+                        continue
+                    bone_group["colliderGroups"][i] = original_index_to_sorted_index[
+                        collider_group
+                    ]
+
     return vrm_json
 
 
