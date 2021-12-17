@@ -69,7 +69,7 @@ class Blender{class_name}TestCase(BaseBlenderTestCase):
     if import_exception_str is not None:
         content += f"""
     def test_dynamic_test_case_generation_failed(self) -> None:
-        self.fail(\"""Exception: {import_exception_str}
+        self.fail(r\"""Exception: {import_exception_str}
 
 This error is often caused by the absence of its submodule.
 If so please run `git submodule update --init`.\""")
