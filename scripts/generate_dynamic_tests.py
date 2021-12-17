@@ -37,6 +37,10 @@ for path in map(str.strip, sorted(os.listdir(test_src_dir))):
     import_exception_str: Optional[str] = None
     test_command_args_list: Any = []
     try:
+        for d in ["vrm", "blend"]:
+            if not os.path.exists(os.path.join(test_src_dir, "resources", d)):
+                raise Exception(f"'./tests/resources/{d}/' doesn't exist.")
+
         # pylint: disable=no-value-for-parameter,deprecated-method
         m = importlib.machinery.SourceFileLoader(
             "blender_vrm_addon_base_blender_test_case_generate_blender_test_case__"
