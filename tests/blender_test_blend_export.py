@@ -16,7 +16,8 @@ from io_scene_vrm.importer.py_model import vrm_diff  # noqa: E402
 
 repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 vrm_dir = os.environ.get(
-    "BLENDER_VRM_TEST_VRM_DIR", os.path.join(repository_root_dir, "tests", "vrm")
+    "BLENDER_VRM_TEST_VRM_DIR",
+    os.path.join(repository_root_dir, "tests", "resources", "vrm"),
 )
 blend_dir = os.path.join(os.path.dirname(vrm_dir), "blend")
 
@@ -42,6 +43,7 @@ def test() -> None:
     vrm = os.path.splitext(blend)[0] + ".vrm"
     expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
+    os.makedirs(temp_vrm_dir, exist_ok=True)
 
     bpy.ops.wm.open_mainfile(filepath=in_path)
 

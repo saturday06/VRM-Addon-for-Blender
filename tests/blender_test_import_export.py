@@ -17,7 +17,7 @@ from io_scene_vrm.importer.py_model import vrm_diff  # noqa: E402
 repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 vrm_dir = os.environ.get(
     "BLENDER_VRM_TEST_VRM_DIR",
-    os.path.join(repository_root_dir, "tests", "vrm"),
+    os.path.join(repository_root_dir, "tests", "resources", "vrm"),
 )
 
 
@@ -44,6 +44,7 @@ def test() -> None:
     out_vrm_dir = os.path.join(vrm_dir, major_minor, "out")
     out2_vrm_dir = os.path.join(vrm_dir, major_minor, "out2")
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
+    os.makedirs(temp_vrm_dir, exist_ok=True)
     extract_textures = extract_textures_str == "true"
 
     if not os.path.exists(os.path.join(out_vrm_dir, vrm)):

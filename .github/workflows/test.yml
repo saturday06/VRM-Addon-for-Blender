@@ -16,6 +16,8 @@ jobs:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender3.0/blender-3.0.0-windows-x64.zip
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v2
@@ -47,6 +49,8 @@ jobs:
           - https://ftp.nluug.nl/pub/graphics/blender/release/Blender3.0/blender-3.0.0-macos-x64.dmg
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v2
@@ -80,11 +84,13 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Disable git config core.quotepath
         run: git config core.quotepath off
       - name: Check file permissions
         run: |
-          git ls-files ':!scripts/' | while read -r f; do
+          git ls-files ':!scripts/' ':!tests/resources' | while read -r f; do
             echo $f
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."

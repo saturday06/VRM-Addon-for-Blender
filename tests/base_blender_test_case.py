@@ -32,11 +32,6 @@ class BaseBlenderTestCase(TestCase):
         else:
             os.symlink(self.repository_root_dir, addon_dir)
 
-        test_vrm_dir = os.environ.get(
-            "BLENDER_VRM_TEST_VRM_DIR",
-            os.path.join(self.repository_root_dir, "tests", "vrm"),
-        )
-
         command = [self.find_blender_command(), "--version"]
         completed_process = subprocess.run(
             command,
@@ -58,13 +53,6 @@ class BaseBlenderTestCase(TestCase):
         self.major_minor = ".".join(
             stdout_str.splitlines()[0].split(" ")[1].split(".")[:2]
         )
-
-        test_temp_vrm_dir = os.path.join(test_vrm_dir, self.major_minor, "temp")
-        test_out_vrm_dir = os.path.join(test_vrm_dir, self.major_minor, "out")
-        test_out2_vrm_dir = os.path.join(test_vrm_dir, self.major_minor, "out2")
-        os.makedirs(test_temp_vrm_dir, exist_ok=True)
-        os.makedirs(test_out_vrm_dir, exist_ok=True)
-        os.makedirs(test_out2_vrm_dir, exist_ok=True)
 
     def process_output_to_str(self, process_output: bytes) -> str:
         output = ""
