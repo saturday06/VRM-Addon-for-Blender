@@ -44,6 +44,8 @@ def test() -> None:
 
     vrm = os.path.splitext(blend)[0] + ".vrm"
     expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
+    if not os.path.exists(expected_path):
+        expected_path = os.path.join(vrm_dir, "in", vrm)
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
     os.makedirs(temp_vrm_dir, exist_ok=True)
 
@@ -57,9 +59,6 @@ def test() -> None:
     bpy.ops.export_scene.vrm(filepath=actual_path)
 
     float_tolerance = 0.000001
-
-    if not os.path.exists(expected_path):
-        shutil.copy(actual_path, expected_path)
 
     diffs = vrm_diff(
         pathlib.Path(actual_path).read_bytes(),
