@@ -36,6 +36,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             context, self.errors, self.show_successful_message
         )
         if any(error.fatal for error in self.errors):
+            for index, error in enumerate(self.errors):
+                if index > 10:
+                    print("ERROR: ... truncated ...")
+                    break
+                if error.fatal:
+                    print("ERROR: " + error.message)
             return {"CANCELLED"}
         return {"FINISHED"}
 
