@@ -76,6 +76,10 @@ def test() -> None:
     if update_vrm_dir and not os.path.exists(os.path.join(out_vrm_dir, vrm)):
         return
 
+    if os.path.exists(os.path.join(out2_vrm_dir, vrm + ".TO_BE_SUPPORTED.txt")):
+        print(f"WARNING: Second import-export assertion for {vrm} is skipped.")
+        return
+
     if not os.path.exists(os.path.join(out2_vrm_dir, vrm)) and not update_vrm_dir:
         assert_import_export(
             os.path.join(out_vrm_dir, vrm),
