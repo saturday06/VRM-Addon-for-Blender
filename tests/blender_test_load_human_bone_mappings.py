@@ -7,16 +7,20 @@ import bpy
 def test() -> None:
     bpy.ops.icyp.make_basic_armature()
 
-    head_name = "ModifiedHead"
+    new_head_name = "root"
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        file.write(json.dumps({"head": head_name}).encode())
+        file.write(json.dumps({"head": new_head_name}).encode())
         file.close()
         bpy.ops.vrm.load_human_bone_mappings(filepath=file.name)
 
-    data = bpy.context.active_object.data
+    b = [
+        human_bone
+        for human_bone in bpy.context.active_object.data.vrm_addon_extension.vrm0.humanoid.human_bones
+        if human_bone.bone == "head"
+    ][0]
     assert (
-        data["head"] == head_name
-    ), f'head is expected to {head_name} but {data["head"]}'
+        b.node.name == new_head_name
+    ), f"head is expected to {new_head_name} but {b.node.name}"
 
 
 if __name__ == "__main__":

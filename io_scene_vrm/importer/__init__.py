@@ -6,10 +6,7 @@ import bpy
 from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ImportHelper
 
-from ..common.preferences import (
-    use_experimental_vrm_component_ui,
-    use_legacy_importer_exporter,
-)
+from ..common.preferences import use_legacy_importer_exporter
 from . import blend_model
 from .py_model import LicenseConfirmationRequired, PyModel
 
@@ -109,9 +106,6 @@ def create_blend_model(
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
                     legacy_importer=legacy_importer,
-                    use_experimental_vrm_component_ui=use_experimental_vrm_component_ui(
-                        context
-                    ),
                 )
                 return {"FINISHED"}
 
@@ -128,9 +122,6 @@ def create_blend_model(
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
             legacy_importer=True,
-            use_experimental_vrm_component_ui=use_experimental_vrm_component_ui(
-                context
-            ),
         )
     finally:
         if has_ui_localization and ui_localization:

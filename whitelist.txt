@@ -20,6 +20,7 @@ bindcode
 blendfy
 blendmode
 blendshape
+blendshapemaster
 bmesh
 bonegroup
 bonename
@@ -38,7 +39,6 @@ datachunk
 defs
 depsgraph
 dic
-dicts
 dirname
 dn
 dof
@@ -95,7 +95,6 @@ khr
 ld
 lfd
 licenseConfirmation
-lineno
 lipsync
 listdir
 loc
@@ -108,20 +107,16 @@ mat4
 mataballs
 materialmtoon
 mathutils
-matval
 maxsplit
 mball
 messagebox
 metaballs
-metainfo
 metalness
 metas
-metatag
 minmax
 mipmap
 mobj
 morphname
-mspec
 mtoon
 myinstance
 ngon
@@ -162,8 +157,8 @@ rgb
 rgba
 rl
 roid
-rootbone
 runtime
+secondaryanimation
 selectable
 sg
 shadeless
@@ -175,7 +170,6 @@ shapekey
 skinnedmesh
 splitext
 splitnormals
-springbone
 sqrt
 src
 submodule
@@ -185,7 +179,6 @@ superciliaris
 tagmap
 texcoord
 textblock
-textblock2json
 texture0
 texture1
 tkinter
@@ -208,6 +201,7 @@ unregister
 unversioned
 util
 utils
+uuids
 uvlayer
 uvlayers
 uvs
@@ -221,6 +215,7 @@ vec
 vec2
 vec3
 vec4
+vector3
 vertexcode
 vertexid
 verts
@@ -230,7 +225,6 @@ view3d
 viewport
 vrm
 vrm0
-vrm1
 vrmautoiksetup
 vroid
 vroid064

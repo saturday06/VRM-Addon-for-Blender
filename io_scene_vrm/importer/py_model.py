@@ -23,7 +23,8 @@ import bgl
 import bpy
 from bpy.app.translations import pgettext
 
-from ..common import deep, vrm_types
+from ..common import deep
+from ..common.mtoon_constants import MaterialMtoon, MaterialTransparentZWrite
 from .binary_reader import BinaryReader
 
 
@@ -95,13 +96,13 @@ class PyMaterialTransparentZWrite(PyMaterial):
     def __init__(self) -> None:
         super().__init__()
         self.float_props_dic: Dict[str, Optional[float]] = {
-            prop: None for prop in vrm_types.MaterialTransparentZWrite.float_props
+            prop: None for prop in MaterialTransparentZWrite.float_props
         }
         self.vector_props_dic: Dict[str, Optional[List[float]]] = {
-            prop: None for prop in vrm_types.MaterialTransparentZWrite.vector_props
+            prop: None for prop in MaterialTransparentZWrite.vector_props
         }
         self.texture_index_dic: Dict[str, Optional[int]] = {
-            tex: None for tex in vrm_types.MaterialTransparentZWrite.texture_index_list
+            tex: None for tex in MaterialTransparentZWrite.texture_index_list
         }
 
 
@@ -109,19 +110,19 @@ class PyMaterialMtoon(PyMaterial):
     def __init__(self) -> None:
         super().__init__()
         self.float_props_dic: Dict[str, Optional[float]] = {
-            prop: None for prop in vrm_types.MaterialMtoon.float_props_exchange_dic
+            prop: None for prop in MaterialMtoon.float_props_exchange_dic
         }
         self.vector_props_dic: Dict[str, Optional[Sequence[float]]] = {
-            prop: None for prop in vrm_types.MaterialMtoon.vector_props_exchange_dic
+            prop: None for prop in MaterialMtoon.vector_props_exchange_dic
         }
         self.texture_index_dic: Dict[str, Optional[int]] = {
-            prop: None for prop in vrm_types.MaterialMtoon.texture_kind_exchange_dic
+            prop: None for prop in MaterialMtoon.texture_kind_exchange_dic
         }
         self.keyword_dic: Dict[str, bool] = {
-            kw: False for kw in vrm_types.MaterialMtoon.keyword_list
+            kw: False for kw in MaterialMtoon.keyword_list
         }
         self.tag_dic: Dict[str, Optional[str]] = {
-            tag: None for tag in vrm_types.MaterialMtoon.tagmap_list
+            tag: None for tag in MaterialMtoon.tagmap_list
         }
 
 

@@ -48,16 +48,8 @@ translation_dictionary = {
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
         "*",
-        'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found. '
-        + 'Fix armature "object" custom property.',
-    ): "必須VRMヒューマンボーン「{humanoid_name}」の属性を持つボーンがありません。"
-    + "アーマチュア「オブジェクト」のカスタムプロパティを修正してください。",
-    (
-        "*",
-        'Bone name "{node_name}" as VRM HumanBone "{humanoid_name}" is not found. '
-        + 'Fix armature "object" custom property.',
-    ): "ボーン名「{node_name}」のVRMヒューマンボーン属性「{humanoid_name}」がありません。"
-    + "アーマチュア「オブジェクト」のカスタムプロパティを修正してください。",
+        'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found.',
+    ): "必須VRMヒューマンボーン「{humanoid_name}」の属性を持つボーンが未設定です。",
     (
         "*",
         'Faces must be Triangle, but not face in "{name}" or '
@@ -84,10 +76,6 @@ translation_dictionary = {
     + "空のマテリアルを出力します。",
     (
         "*",
-        'VRM thumbnail image is missing. Please load "{thumbnail}"',
-    ): "VRM用サムネイル画像がBlenderにロードされていません。「{thumbnail}」を読み込んでください。",
-    (
-        "*",
         'Image "{image_name}" is not saved. Please save.',
     ): "画像「{image_name}」のBlender上での変更を保存してください。",
     (
@@ -102,87 +90,21 @@ translation_dictionary = {
     ): "glTFはPNGとJPEGのみの対応ですが「{image_name}」は「{image_file_format}」です。",
     (
         "*",
-        '"{meta_key}" value must be in "{meta_values}". Value is "{current_meta_value}"',
-    ): "VRM権利情報の「{meta_key}」は「{meta_values}」のいずれかでないといけません。現在の設定値は「{current_meta_value}」です。",
-    (
-        "*",
-        'textblock name "{textblock_name}" isn\'t put on armature custom property.',
-    ): "「{textblock_name}」のテキストブロックの指定がアーマチュアのカスタムプロパティにありません。",
-    (
-        "*",
-        'textblock name "{textblock_name}" doesn\'t exist.',
-    ): "「{textblock_name}」のテキストがエディタ上にありません。",
-    (
-        "*",
-        'Cannot load textblock of "{textblock_name}" as Json at line {error_lineno}. '
-        + "please check json grammar.",
-    ): "「{textblock_name}」のJsonとしての読み込みに失敗しました。{error_lineno}行目付近にエラーがあります。"
-    + "形式を確認してください。",
-    (
-        "*",
-        'firstPersonBone "{bone_name}" is not found. '
-        + 'Please fix in textblock "{first_person_params_name}". '
+        "firstPersonBone is not found. "
         + 'Set VRM HumanBone "head" instead automatically.',
-    ): "firstPersonBone「{bone_name}」がアーマチュアにありませんでした。"
-    + "テキストエディタの「{first_person_params_name}」の該当項目を修正してください。"
+    ): "firstPersonBoneが設定されていません。"
     + "代わりにfirstPersonBoneとしてVRMヒューマンボーン「head」を自動で設定します。",
     (
         "*",
-        'mesh "{mesh_name}" is not found. '
-        + 'Please fix setting in textblock "{first_person_params_name}"',
-    ): "「{mesh_name}」というメッシュオブジェクトが見つかりません。"
-    + "テキストエディタの「{first_person_params_name}」を修正してください。",
+        'mesh "{mesh_name}" doesn\'t have shape key. '
+        + 'But blend shape group needs "{shape_key_name}" in its shape key.',
+    ): "blend shape groupが参照しているメッシュ「{mesh_name}」のシェイプキー「{shape_key_name}」が存在しません。",
     (
         "*",
-        'meshAnnotations in textblock "{first_person_params_name}" must be list.',
-    ): "テキストエディタの「{first_person_params_name}」のmeshAnnotationsはリスト要素でないといけません。",
-    (
-        "*",
-        'lookAtTypeName is "Bone" or "BlendShape". '
-        + 'Current "{look_at_type_name}". '
-        + 'Please fix setting in textblock "{first_person_params_name}"',
-    ): 'lookAtTypeNameは "Bone" か "BlendShape" です。'
-    + "今は「{look_at_type_name}」です。"
-    + "テキストエディタの「{first_person_params_name}」を修正してください。",
-    (
-        "*",
-        'mesh "{mesh_name}" is not found. '
-        + 'Please fix setting in textblock "{blend_shape_group_name}"',
-    ): "メッシュ「{mesh_name}」が見つかりません。"
-    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
-    (
-        "*",
-        'mesh "{mesh_name}" doesn\'t have shapekey. '
-        + "But blend shape group needs it. "
-        + 'Please fix setting in textblock "{blend_shape_group_name}"',
-    ): "メッシュ「{mesh_name}」はシェイプキーがありません。"
-    + "しかし blend shape group の設定はそれを必要としています。"
-    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
-    (
-        "*",
-        'mesh "{mesh_name}" doesn\'t have "{bind_dic[\'index\']}" shapekey. '
-        + "But blend shape group needs it. "
-        + 'Please fix setting in textblock "{blend_shape_group_name}"',
-    ): "メッシュ「{mesh_name}」にはシェイプキー「{bind_dic['index']}」が存在しません。"
-    + "しかし blend shape group の設定はそれを必要としています。"
-    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
-    (
-        "*",
-        'mesh "{mesh_name}:shapekey:{shapekey_name}:value" '
-        + "needs between 0 and 1."
-        + 'Please fix setting in textblock "{blend_shape_group_name}"',
-    ): "メッシュ「{mesh_name}」のshapekey「{shapekey_name}」の値は0以上1以下でないといけません。"
-    + "テキストエディタの「{blend_shape_group_name}」を修正してください。",
-    (
-        "*",
-        'Center bone name "{bone_name}" is not found in spring_bone setting.',
-    ): "spring_boneのcenterのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
-    + "テキストエディタのspring_boneのjsonを修正してください。",
-    (
-        "*",
-        'Bone name "{bone_name}" is not found in spring_bone setting.',
-    ): "spring_boneのボーン名「{bone_name}」がアーマチュア中に見つかりません。"
-    + "テキストエディタのspring_boneのjsonを修正してください。",
+        'mesh "{mesh_name}" doesn\'t have "{shape_key_name}" shape key. '
+        + "But blend shape group needs it.",
+    ): "メッシュ「{mesh_name}」にはシェイプキー「{shape_key_name}」が存在しません。"
+    + "しかし blend shape group の設定はそれを必要としています。",
     (
         "*",
         'need "{expect_node_type}" input in "{shader_val}" of "{material_name}"',

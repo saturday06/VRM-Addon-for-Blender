@@ -20,6 +20,7 @@ import string
 import struct
 import sys
 import tempfile
+import uuid
 from math import radians, sqrt
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple
 
@@ -28,8 +29,9 @@ import bpy
 import mathutils
 from mathutils import Matrix, Vector
 
-from .. import editor, exporter
-from ..common import deep, vrm_types
+from .. import common, editor, exporter
+from ..common import convert, deep, human_bone_constants
+from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
 from .py_model import (
     PyMaterial,
@@ -55,9 +57,7 @@ class BlendModel:
         extract_textures_into_folder: bool,
         make_new_texture_folder: bool,
         legacy_importer: bool,
-        use_experimental_vrm_component_ui: bool,
     ) -> None:
-        self.use_experimental_vrm_component_ui = use_experimental_vrm_component_ui
         self.meshes: Dict[int, bpy.types.Object] = {}
         self.extract_textures_into_folder = extract_textures_into_folder
         self.make_new_texture_folder = make_new_texture_folder
@@ -71,7 +71,7 @@ class BlendModel:
         self.py_model = py_model
         self.images: Dict[int, bpy.types.Image] = {}
         self.armature: Optional[bpy.types.Object] = None
-        self.bones: Dict[int, bpy.types.Bone] = {}
+        self.bone_names: Dict[int, str] = {}
         self.gltf_materials: Dict[int, bpy.types.Material] = {}
         self.vrm_materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
@@ -113,16 +113,12 @@ class BlendModel:
             if self.legacy_importer:
                 self.make_primitive_mesh_objects(wm, i)
                 # i=prog(i) ↑関数内でやる
-            self.json_dump()
-            i = prog(i)
             self.attach_vrm_attributes()
             i = prog(i)
             self.cleaning_data()
             if self.legacy_importer:
                 i = prog(i)
                 self.set_bone_roll()
-            i = prog(i)
-            self.put_spring_bone_info()
             i = prog(i)
             self.finishing(affected_object)
         finally:
@@ -548,15 +544,15 @@ class BlendModel:
                 data = obj.data
                 if not isinstance(data, bpy.types.Armature):
                     continue
-                for bone in data.bones:
+                for bone_name, bone in data.bones.items():
                     bone_node_index = bone.get(extras_node_index_key)
                     if not isinstance(bone_node_index, int):
                         continue
                     if 0 <= bone_node_index < len(self.py_model.json["nodes"]):
                         node = self.py_model.json["nodes"][bone_node_index]
-                        node["name"] = bone.name
+                        node["name"] = bone_name
                     del bone[extras_node_index_key]
-                    self.bones[bone_node_index] = bone
+                    self.bone_names[bone_node_index] = bone_name
                     if (
                         self.armature is not None
                         or bone_node_index != hips_bone_node_index
@@ -797,7 +793,7 @@ class BlendModel:
         self.context.scene.collection.objects.link(self.armature)
         bpy.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
-        self.bones = {}
+        bones: Dict[int, bpy.types.Bone] = {}
         armature_edit_bones: Dict[int, bpy.types.Bone] = {}
 
         # region bone recursive func
@@ -809,11 +805,11 @@ class BlendModel:
             if py_bone.blend_bone:  # すでに割り当て済みのボーンが出てきたとき、その親の位置に動かす
                 if parent_node_id == -1 or py_bone.blend_bone.parent is not None:
                     return
-                py_bone.blend_bone.parent = self.bones[parent_node_id]
+                py_bone.blend_bone.parent = bones[parent_node_id]
                 li = [py_bone.blend_bone]
                 while li:
                     bo = li.pop()
-                    bo.translate(self.bones[parent_node_id].head)
+                    bo.translate(bones[parent_node_id].head)
                     for ch in bo.children:
                         li.append(ch)
                 return
@@ -825,7 +821,7 @@ class BlendModel:
             if parent_node_id == -1:
                 parent_pos = [0, 0, 0]
             else:
-                parent_pos = self.bones[parent_node_id].head
+                parent_pos = bones[parent_node_id].head
             b.head = tuple(
                 Vector(parent_pos) + Vector(self.axis_glb_to_blender(py_bone.position))
             )
@@ -875,10 +871,10 @@ class BlendModel:
                 b.tail = tuple(Vector(b.head) + mean_relate_pos)
 
             # endregion tail pos
-            self.bones[node_id] = b
+            bones[node_id] = b
 
             if parent_node_id != -1:
-                b.parent = self.bones[parent_node_id]
+                b.parent = bones[parent_node_id]
             if py_bone.children is not None:
                 for x in py_bone.children:
                     bone_nodes.append((x, node_id))
@@ -914,6 +910,12 @@ class BlendModel:
         # call when bone built
         self.context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="OBJECT")
+
+        self.bone_names = {
+            index: py_bone.name
+            for index, py_bone in self.py_model.nodes_dict.items()
+            if py_bone.blend_bone
+        }
 
     def extract_textures(self) -> None:
         dir_path = os.path.abspath(self.py_model.filepath) + ".textures"
@@ -1257,7 +1259,7 @@ class BlendModel:
             sg.outputs["Emission"],
         )
 
-        float_prop_exchange_dic = vrm_types.MaterialMtoon.float_props_exchange_dic
+        float_prop_exchange_dic = MaterialMtoon.float_props_exchange_dic
         for k, v in pymat.float_props_dic.items():
             if k == "_CullMode":
                 if v == 2:  # 0: no cull 1:front cull 2:back cull
@@ -1278,7 +1280,7 @@ class BlendModel:
             b_mat[k] = v
 
         uv_offset_tiling_value: Sequence[float] = [0, 0, 1, 1]
-        vector_props_dic = vrm_types.MaterialMtoon.vector_props_exchange_dic
+        vector_props_dic = MaterialMtoon.vector_props_exchange_dic
         for k, vec in pymat.vector_props_dic.items():
             if k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
                 self.connect_rgb_node(
@@ -1329,7 +1331,7 @@ class BlendModel:
                 texture_node.inputs[0], uv_offset_tiling_node.outputs[0]
             )
 
-        tex_dic = vrm_types.MaterialMtoon.texture_kind_exchange_dic
+        tex_dic = MaterialMtoon.texture_kind_exchange_dic
 
         for tex_name, tex_index in pymat.texture_index_dic.items():
             if tex_index is None:
@@ -1790,260 +1792,497 @@ class BlendModel:
 
     def attach_vrm_attributes(self) -> None:
         armature = self.armature
-        if armature is None:
-            raise Exception("armature is None")
-        vrm0_extension = self.vrm0_extension
-        if vrm0_extension is None:
+        if not armature:
             return
-        human_bones_relations = deep.get(vrm0_extension, ["humanoid", "humanBones"], [])
-        if not isinstance(human_bones_relations, list):
-            raise Exception("extensions.VRM.humanoid.humanBones is not list")
-        for (i, human_bone) in enumerate(human_bones_relations):
-            if not isinstance(human_bone, dict):
-                raise Exception(f"extensions.VRM.humanoid.humanBones[{i}] is not dict")
-            node_index = human_bone["node"]
-            if not isinstance(node_index, int):
-                raise Exception(
-                    f'json extensions.VRM.humanoid.humanBones[{i}]["node"] is not int but {node_index}'
-                )
-            node_name = self.py_model.json["nodes"][node_index]["name"]
-            if node_name not in armature.data.bones:
-                continue
-            armature.data.bones[node_name]["humanBone"] = node_index
-            armature.data[human_bone["bone"]] = armature.data.bones[node_name].name
+        addon_extension = armature.data.vrm_addon_extension
+        if not isinstance(
+            addon_extension, editor.VrmAddonArmatureExtensionPropertyGroup
+        ):
+            return
+        vrm0 = addon_extension.vrm0
+        if not isinstance(vrm0, editor.Vrm0PropertyGroup):
+            return
 
-        vrm_meta = vrm0_extension.get("meta", {})
-        if not isinstance(vrm_meta, dict):
-            raise Exception("json extensions.VRM.meta is not dict")
-        for metatag, metainfo in vrm_meta.items():
-            if metatag == "texture":
-                if (
-                    "textures" in self.py_model.json
-                    # extensions.VRM.meta.texture could be -1
-                    # https://github.com/vrm-c/UniVRM/issues/91#issuecomment-454284964
-                    and 0 <= metainfo < len(self.py_model.json["textures"])
-                ):
-                    image_index = self.py_model.json["textures"][metainfo]["source"]
-                    if image_index in self.images:
-                        armature[metatag] = self.images[image_index].name
-            else:
-                armature[metatag] = metainfo
-
-    def json_dump(self) -> None:
         if self.vrm_extension is not None:
             return
         vrm0_extension = self.vrm0_extension
         if not isinstance(vrm0_extension, dict):
             raise Exception("json extensions VRM is not dict")
-        textblock = bpy.data.texts.new(name="raw.json")
+
+        addon_extension.addon_version = common.version.version()
+
+        textblock = bpy.data.texts.new(name="vrm.json")
         textblock.write(json.dumps(self.py_model.json, indent=4))
 
-        def write_textblock_and_assign_to_armature(block_name: str, value: str) -> None:
-            text_block = bpy.data.texts.new(name=f"{block_name}.json")
-            text_block.write(json.dumps(value, indent=4))
-            armature = self.armature
-            if armature is None:
-                raise Exception("armature is None")
-            armature[f"{block_name}"] = text_block.name
+        self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
+        self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
+        self.load_vrm0_first_person(
+            vrm0.first_person, vrm0_extension.get("firstPerson")
+        )
+        self.load_vrm0_blend_shape_master(
+            vrm0.blend_shape_master, vrm0_extension.get("blendShapeMaster")
+        )
+        self.load_vrm0_secondary_animation(
+            vrm0.secondary_animation, vrm0_extension.get("secondaryAnimation")
+        )
+        editor.migration.migrate(armature, defer=False)
 
-        # region humanoid_parameter
-        humanoid_params = copy.deepcopy(vrm0_extension["humanoid"])
-        del humanoid_params["humanBones"]
-        write_textblock_and_assign_to_armature("humanoid_params", humanoid_params)
-        self.load_humanoid_params(self.armature, humanoid_params)
-        # endregion humanoid_parameter
-        # region first_person
-        first_person_params = copy.deepcopy(vrm0_extension["firstPerson"])
-        first_person_bone = deep.get(first_person_params, ["firstPersonBone"], -1)
-        if isinstance(first_person_bone, int) and 0 <= first_person_bone < len(
-            self.py_model.json["nodes"]
+    def load_vrm0_meta(
+        self, meta_props: editor.Vrm0MetaPropertyGroup, meta_dict: Any
+    ) -> None:
+        if not isinstance(meta_dict, dict):
+            return
+
+        title = meta_dict.get("title")
+        if isinstance(title, str):
+            meta_props.title = title
+
+        version = meta_dict.get("version")
+        if isinstance(version, str):
+            meta_props.version = version
+
+        author = meta_dict.get("author")
+        if isinstance(author, str):
+            meta_props.author = author
+
+        contact_information = meta_dict.get("contactInformation")
+        if isinstance(contact_information, str):
+            meta_props.contact_information = contact_information
+
+        reference = meta_dict.get("reference")
+        if isinstance(reference, str):
+            meta_props.reference = reference
+
+        allowed_user_name = meta_dict.get("allowedUserName")
+        if isinstance(allowed_user_name, str):
+            meta_props.allowed_user_name = allowed_user_name
+
+        violent_ussage_name = meta_dict.get("violentUssageName")  # noqa: SC200
+        if isinstance(violent_ussage_name, str):  # noqa: SC200
+            meta_props.violent_ussage_name = violent_ussage_name  # noqa: SC200
+
+        sexual_ussage_name = meta_dict.get("sexualUssageName")  # noqa: SC200
+        if isinstance(sexual_ussage_name, str):  # noqa: SC200
+            meta_props.sexual_ussage_name = sexual_ussage_name  # noqa: SC200
+
+        commercial_ussage_name = meta_dict.get("commercialUssageName")  # noqa: SC200
+        if isinstance(commercial_ussage_name, str):  # noqa: SC200
+            meta_props.commercial_ussage_name = commercial_ussage_name  # noqa: SC200
+
+        other_permission_url = meta_dict.get("otherPermissionUrl")
+        if isinstance(other_permission_url, str):
+            meta_props.other_permission_url = other_permission_url
+
+        license_name = meta_dict.get("licenseName")
+        if isinstance(license_name, str):
+            meta_props.license_name = license_name
+
+        other_license_url = meta_dict.get("otherLicenseUrl")
+        if isinstance(other_license_url, str):
+            meta_props.other_license_url = other_license_url
+
+        texture = meta_dict.get("texture")
+        if (
+            isinstance(texture, int)
+            and "textures" in self.py_model.json
+            # extensions.VRM.meta.texture could be -1
+            # https://github.com/vrm-c/UniVRM/issues/91#issuecomment-454284964
+            and 0 <= texture < len(self.py_model.json["textures"])
         ):
-            first_person_params["firstPersonBone"] = self.py_model.json["nodes"][
-                first_person_bone
-            ]["name"]
-        if isinstance(first_person_params.get("meshAnnotations"), list):
-            # TODO VRM1.0 is using node index that has mesh
-            for mesh_annotation in first_person_params["meshAnnotations"]:
-                mesh = mesh_annotation["mesh"]
-                if isinstance(mesh, int) and 0 <= mesh < len(
-                    self.py_model.json["meshes"]
+            image_index = self.py_model.json["textures"][texture]["source"]
+            if image_index in self.images:
+                meta_props.texture = self.images[image_index]
+
+    def load_vrm0_humanoid(
+        self, humanoid_props: editor.Vrm0HumanoidPropertyGroup, humanoid_dict: Any
+    ) -> None:
+        if not isinstance(humanoid_dict, dict):
+            return
+        human_bones = humanoid_dict.get("humanBones")
+        if isinstance(human_bones, collections.Iterable):
+            for human_bone_dict in human_bones:
+                if not isinstance(human_bone_dict, dict):
+                    continue
+
+                bone = human_bone_dict.get("bone")
+                if (
+                    bone
+                    not in human_bone_constants.HumanBone.requires
+                    + human_bone_constants.HumanBone.defines
                 ):
-                    mesh_annotation["mesh"] = self.py_model.json["meshes"][mesh]["name"]
+                    continue
+                if any(
+                    human_bone_props.bone == bone
+                    for human_bone_props in humanoid_props.human_bones
+                ):
+                    print(f'Duplicated bone: "{bone}"')
+                    continue
 
-        write_textblock_and_assign_to_armature(
-            "firstPerson_params", first_person_params
-        )
-        self.load_first_person_params(self.armature, first_person_params)
-        # endregion first_person
+                node = human_bone_dict.get("node")
+                if not isinstance(node, int) or node not in self.bone_names:
+                    continue
 
-        # region blend_shape_master
-        blend_shape_groups = copy.deepcopy(
-            vrm0_extension["blendShapeMaster"]["blendShapeGroups"]
-        )
-        # meshをidから名前に
-        # weightを0-100から0-1に
-        # shape_indexを名前に
-        # TODO VRM1.0 is using node index that has mesh
-        # materialValuesはそのままで行けるハズ・・・
-        legacy_vrm0 = False
-        for blend_shape_group in blend_shape_groups:
-            for bind_dic in blend_shape_group.get("binds", []):
-                try:
-                    bind_dic["index"] = self.py_model.json["meshes"][bind_dic["mesh"]][
-                        "primitives"
-                    ][0]["extras"]["targetNames"][bind_dic["index"]]
-                except KeyError:
-                    legacy_vrm0 = True
-                    break
-                if 0 <= bind_dic["mesh"] < len(self.meshes):
-                    bind_dic["mesh"] = self.meshes[bind_dic["mesh"]].data.name
-                else:
-                    bind_dic["mesh"] = None
-                bind_dic["weight"] = bind_dic["weight"] / 100
-            if legacy_vrm0:
-                break
-        if legacy_vrm0:
-            blend_shape_groups = []
-        write_textblock_and_assign_to_armature("blendshape_group", blend_shape_groups)
-        self.load_blend_shape_group(self.armature, blend_shape_groups)
-        # endregion blend_shape_master
+                human_bone_props = humanoid_props.human_bones.add()
+                human_bone_props.bone = bone
+                human_bone_props.node.name = self.bone_names[node]
 
-        # region springbone
-        spring_bonegroup_list = copy.deepcopy(
-            vrm0_extension["secondaryAnimation"]["boneGroups"]
-        )
-        collider_groups_list = vrm0_extension["secondaryAnimation"]["colliderGroups"]
-        # node_idを管理するのは面倒なので、名前に置き換える
-        # collider_groupも同じく
-        for bone_group in spring_bonegroup_list:
-            center_node_id = bone_group.get("center")
-            if isinstance(center_node_id, int) and 0 <= center_node_id < len(
-                self.py_model.json["nodes"]
-            ):
-                bone_group["center"] = self.py_model.json["nodes"][center_node_id][
-                    "name"
-                ]
-            bone_group["bones"] = [
-                self.py_model.json["nodes"][node_id]["name"]
-                for node_id in bone_group["bones"]
+                use_default_values = human_bone_dict.get("useDefaultValues")
+                if isinstance(use_default_values, bool):
+                    human_bone_props.use_default_values = use_default_values
+
+                min_ = convert.vrm_json_vector3_to_tuple(human_bone_dict.get("min"))
+                if min_ is not None:
+                    human_bone_props.min = min_
+
+                max_ = convert.vrm_json_vector3_to_tuple(human_bone_dict.get("max"))
+                if max_ is not None:
+                    human_bone_props.max = max_
+
+                center = convert.vrm_json_vector3_to_tuple(
+                    human_bone_dict.get("center")
+                )
+                if center is not None:
+                    human_bone_props.center = center
+
+                axis_length = human_bone_dict.get("axisLength")
+                if isinstance(axis_length, (int, float)):
+                    human_bone_props.axis_length = axis_length
+
+        arm_stretch = humanoid_dict.get("armStretch")
+        if isinstance(arm_stretch, (int, float)):
+            humanoid_props.arm_stretch = arm_stretch
+
+        leg_stretch = humanoid_dict.get("legStretch")
+        if isinstance(leg_stretch, (int, float)):
+            humanoid_props.leg_stretch = leg_stretch
+
+        upper_arm_twist = humanoid_dict.get("upperArmTwist")
+        if isinstance(upper_arm_twist, (int, float)):
+            humanoid_props.upper_arm_twist = upper_arm_twist
+
+        lower_arm_twist = humanoid_dict.get("lowerArmTwist")
+        if isinstance(lower_arm_twist, (int, float)):
+            humanoid_props.lower_arm_twist = lower_arm_twist
+
+        upper_leg_twist = humanoid_dict.get("upperLegTwist")
+        if isinstance(upper_leg_twist, (int, float)):
+            humanoid_props.upper_leg_twist = upper_leg_twist
+
+        lower_leg_twist = humanoid_dict.get("lowerLegTwist")
+        if isinstance(lower_leg_twist, (int, float)):
+            humanoid_props.lower_leg_twist = lower_leg_twist
+
+        feet_spacing = humanoid_dict.get("feetSpacing")
+        if isinstance(feet_spacing, (int, float)):
+            humanoid_props.feet_spacing = feet_spacing
+
+        has_translation_dof = humanoid_dict.get("hasTranslationDoF")
+        if isinstance(has_translation_dof, bool):
+            humanoid_props.has_translation_dof = has_translation_dof
+
+    def load_vrm0_first_person(
+        self,
+        first_person_props: editor.Vrm0FirstPersonPropertyGroup,
+        first_person_dict: Any,
+    ) -> None:
+        if not isinstance(first_person_dict, dict):
+            return
+
+        first_person_bone = first_person_dict.get("firstPersonBone")
+        if isinstance(first_person_bone, int) and first_person_bone in self.bone_names:
+            first_person_props.first_person_bone.name = self.bone_names[
+                first_person_bone
             ]
-            bone_group["colliderGroups"] = [
-                self.py_model.json["nodes"][
-                    collider_groups_list[collider_gp_id]["node"]
-                ]["name"]
-                for collider_gp_id in bone_group["colliderGroups"]
-            ]
 
-        write_textblock_and_assign_to_armature("spring_bone", spring_bonegroup_list)
-        self.load_spring_bones(self.armature, spring_bonegroup_list)
-        # endregion springbone
-
-    def load_humanoid_params(
-        self, armature: bpy.types.Armature, humanoid_params: Dict[str, Any]
-    ) -> None:
-        if not self.use_experimental_vrm_component_ui:
-            return
-
-        props = armature.vrm_props.humanoid_params
-        props.arm_stretch = humanoid_params["armStretch"]
-        props.leg_stretch = humanoid_params["legStretch"]
-        props.upper_arm_twist = humanoid_params["upperArmTwist"]
-        props.lower_arm_twist = humanoid_params["lowerArmTwist"]
-        props.upper_leg_twist = humanoid_params["upperLegTwist"]
-        props.lower_leg_twist = humanoid_params["lowerLegTwist"]
-        props.feet_spacing = humanoid_params["feetSpacing"]
-        props.has_translation_dof = humanoid_params["hasTranslationDoF"]
-
-    def load_first_person_params(
-        self, armature: bpy.types.Armature, first_person_params: Dict[str, Any]
-    ) -> None:
-        if not self.use_experimental_vrm_component_ui:
-            return
-
-        props = armature.vrm_props.first_person_params
-        props.first_person_bone = first_person_params["firstPersonBone"]
-        first_person_bone_offset = first_person_params["firstPersonBoneOffset"]
-        # Axis confusing
-        props.first_person_bone_offset = (
-            first_person_bone_offset["x"],
-            first_person_bone_offset["z"],
-            first_person_bone_offset["y"],
+        first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
+            first_person_dict.get("firstPersonBoneOffset")
         )
-        props.mesh_annotations.clear()
-        for mesh_annotation in first_person_params["meshAnnotations"]:
-            item = props.mesh_annotations.add()
-            item.mesh = mesh_annotation["mesh"]
-            item.first_person_flag = mesh_annotation["firstPersonFlag"]
-        props.look_at_type_name = first_person_params["lookAtTypeName"]
-        look_at_horizontal_inner = first_person_params["lookAtHorizontalInner"]
-        props.look_at_horizontal_inner.curve = look_at_horizontal_inner["curve"]
-        props.look_at_horizontal_inner.x_range = look_at_horizontal_inner["xRange"]
-        props.look_at_horizontal_inner.y_range = look_at_horizontal_inner["yRange"]
-        look_at_horizontal_outer = first_person_params["lookAtHorizontalOuter"]
-        props.look_at_horizontal_outer.curve = look_at_horizontal_outer["curve"]
-        props.look_at_horizontal_outer.x_range = look_at_horizontal_outer["xRange"]
-        props.look_at_horizontal_outer.y_range = look_at_horizontal_outer["yRange"]
-        look_at_vertical_down = first_person_params["lookAtVerticalDown"]
-        props.look_at_vertical_down.curve = look_at_vertical_down["curve"]
-        props.look_at_vertical_down.x_range = look_at_vertical_down["xRange"]
-        props.look_at_vertical_down.y_range = look_at_vertical_down["yRange"]
-        look_at_vertical_up = first_person_params["lookAtVerticalUp"]
-        props.look_at_vertical_up.curve = look_at_vertical_up["curve"]
-        props.look_at_vertical_up.x_range = look_at_vertical_up["xRange"]
-        props.look_at_vertical_up.y_range = look_at_vertical_up["yRange"]
-
-    def load_blend_shape_group(
-        self, armature: bpy.types.Armature, blend_shape_group: List[Dict[str, Any]]
-    ) -> None:
-        if not self.use_experimental_vrm_component_ui:
-            return
-
-        props = armature.vrm_props.blend_shape_group
-        props.clear()
-        for blend_shape in blend_shape_group:
-            item = props.add()
-            item.name = blend_shape["name"]
-            item.preset_name = blend_shape["presetName"]
-            item.binds.clear()
-            binds = blend_shape["binds"]
-            for bind in binds:
-                added = item.binds.add()
-                added.mesh = bind["mesh"]
-                added.index = bind["index"]
-                added.weight = bind["weight"]
-            # "materialValues": [],
-            if "isBinary" in blend_shape:
-                item.is_binary = blend_shape["isBinary"]
-
-    def load_spring_bones(
-        self, armature: bpy.types.Armature, spring_bonegroup_list: List[Dict[str, Any]]
-    ) -> None:
-        if not self.use_experimental_vrm_component_ui:
-            return
-
-        props = armature.vrm_props.spring_bones
-        props.clear()
-        for spring_bonegroup in spring_bonegroup_list:
-            item = props.add()
-            item.comment = spring_bonegroup["comment"]
-            item.stiffiness = spring_bonegroup["stiffiness"]  # noqa: SC200
-            item.gravity_power = spring_bonegroup["gravityPower"]
-            gravity_dir = spring_bonegroup["gravityDir"]
+        if first_person_bone_offset is not None:
             # Axis confusing
-            item.gravity_dir = (gravity_dir["x"], gravity_dir["z"], gravity_dir["y"])
-            item.drag_force = spring_bonegroup["dragForce"]
-            no_reference = -1
-            if spring_bonegroup["center"] != no_reference:
-                item.center = spring_bonegroup["center"]
-            item.hit_radius = spring_bonegroup["hitRadius"]
-            item.bones.clear()
-            for bone in spring_bonegroup["bones"]:
-                added = item.bones.add()
-                added.name = bone
-            item.collider_groups.clear()
-            for bone in spring_bonegroup["colliderGroups"]:
-                added = item.collider_groups.add()
-                added.name = bone
+            (x, y, z) = first_person_bone_offset
+            first_person_props.first_person_bone_offset = (x, z, y)
+
+        mesh_annotations = first_person_dict.get("meshAnnotations")
+        if isinstance(mesh_annotations, collections.Iterable):
+            for mesh_annotation_dict in mesh_annotations:
+                mesh_annotation_props = first_person_props.mesh_annotations.add()
+
+                if not isinstance(mesh_annotation_dict, dict):
+                    continue
+
+                mesh = mesh_annotation_dict.get("mesh")
+                if isinstance(mesh, int) and mesh in self.meshes:
+                    mesh_annotation_props.mesh = self.meshes[mesh].data
+
+                first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
+                if isinstance(first_person_flag, str):
+                    mesh_annotation_props.first_person_flag = first_person_flag
+
+        look_at_type_name = first_person_dict.get("lookAtTypeName")
+        if look_at_type_name in ["Bone", "BlendShape"]:
+            first_person_props.look_at_type_name = look_at_type_name
+
+        for (look_at_props, look_at_dict) in [
+            (
+                first_person_props.look_at_horizontal_inner,
+                first_person_dict.get("lookAtHorizontalInner"),
+            ),
+            (
+                first_person_props.look_at_horizontal_outer,
+                first_person_dict.get("lookAtHorizontalOuter"),
+            ),
+            (
+                first_person_props.look_at_vertical_down,
+                first_person_dict.get("lookAtVerticalDown"),
+            ),
+            (
+                first_person_props.look_at_vertical_up,
+                first_person_dict.get("lookAtVerticalUp"),
+            ),
+        ]:
+            if not isinstance(look_at_dict, dict):
+                continue
+
+            curve = convert.vrm_json_curve_to_list(look_at_dict.get("curve"))
+            if curve is not None:
+                look_at_props.curve = curve
+
+            x_range = look_at_dict.get("xRange")
+            if isinstance(x_range, (float, int)):
+                look_at_props.x_range = x_range
+
+            y_range = look_at_dict.get("yRange")
+            if isinstance(y_range, (float, int)):
+                look_at_props.y_range = y_range
+
+    def load_vrm0_blend_shape_master(
+        self,
+        blend_shape_master_props: editor.Vrm0BlendShapeMasterPropertyGroup,
+        blend_shape_master_dict: Any,
+    ) -> None:
+        if not isinstance(blend_shape_master_dict, dict):
+            return
+        blend_shape_groups = blend_shape_master_dict.get("blendShapeGroups")
+        if not isinstance(blend_shape_groups, collections.Iterable):
+            return
+
+        for blend_shape_group_dict in blend_shape_groups:
+            blend_shape_group_props = blend_shape_master_props.blend_shape_groups.add()
+
+            if not isinstance(blend_shape_group_dict, dict):
+                continue
+
+            name = blend_shape_group_dict.get("name")
+            if name is not None:
+                blend_shape_group_props.name = name
+
+            preset_name = blend_shape_group_dict.get("presetName")
+            if preset_name is not None:
+                blend_shape_group_props.preset_name = preset_name
+
+            binds = blend_shape_group_dict.get("binds")
+            if isinstance(binds, collections.Iterable):
+                for bind_dict in binds:
+                    if not isinstance(bind_dict, dict):
+                        continue
+
+                    mesh = bind_dict.get("mesh")
+                    if not isinstance(mesh, int) or mesh not in self.meshes:
+                        continue
+
+                    index = bind_dict.get("index")
+                    if not isinstance(index, int) or not (
+                        1
+                        <= (index + 1)
+                        < len(self.meshes[mesh].data.shape_keys.key_blocks)
+                    ):
+                        continue
+
+                    weight = bind_dict.get("weight")
+                    if not isinstance(weight, (int, float)):
+                        weight = 0
+
+                    bind_props = blend_shape_group_props.binds.add()
+                    bind_props.mesh = self.meshes[mesh].data
+                    bind_props.index.name = self.meshes[
+                        mesh
+                    ].data.shape_keys.key_blocks.keys()[index + 1]
+                    bind_props.weight = min(max(weight / 100.0, 0), 1)
+
+            material_values = blend_shape_group_dict.get("materialValues")
+            if isinstance(material_values, collections.Iterable):
+                for material_value_dict in material_values:
+                    material_value_props = blend_shape_group_props.material_values.add()
+
+                    if not isinstance(material_value_dict, dict):
+                        continue
+
+                    material_name = material_value_dict.get("materialName")
+                    if isinstance(material_name, str):
+                        material_value_props.material_name = material_name
+
+                    property_name = material_value_dict.get("propertyName")
+                    if isinstance(property_name, str):
+                        material_value_props.property_name = property_name
+
+                    target_value = material_value_dict.get("targetValue")
+                    if isinstance(target_value, collections.Iterable):
+                        for target_value_element in target_value:
+                            if not isinstance(target_value_element, (int, float)):
+                                target_value_element = 0
+                            target_value_element_props = (
+                                material_value_props.target_value.add()
+                            )
+                            target_value_element_props.value = target_value_element
+
+            is_binary = blend_shape_group_dict.get("isBinary")
+            if isinstance(is_binary, bool):
+                blend_shape_group_props.is_binary = is_binary
+
+    def load_vrm0_secondary_animation(
+        self,
+        secondary_animation_props: editor.Vrm0SecondaryAnimationPropertyGroup,
+        secondary_animation_dict: Any,
+    ) -> None:
+        if not isinstance(secondary_animation_dict, dict):
+            return
+        armature = self.armature
+        if armature is None:
+            raise Exception("armature is None")
+
+        collider_groups = secondary_animation_dict.get("colliderGroups")
+        if isinstance(collider_groups, collections.Iterable):
+            bpy.context.view_layer.depsgraph.update()
+            bpy.context.scene.view_layers.update()
+            collider_objs = []
+            for collider_group_dict in collider_groups:
+                collider_group_props = secondary_animation_props.collider_groups.add()
+                collider_group_props.uuid = uuid.uuid4().hex
+
+                if not isinstance(collider_group_dict, dict):
+                    continue
+
+                node = collider_group_dict.get("node")
+                if not isinstance(node, int) or node not in self.bone_names:
+                    continue
+
+                bone_name = self.bone_names[node]
+                collider_group_props.node.name = bone_name
+                colliders = collider_group_dict.get("colliders")
+                if not isinstance(colliders, collections.Iterable):
+                    continue
+
+                for collider_index, collider_dict in enumerate(colliders):
+                    collider_props = collider_group_props.colliders.add()
+
+                    if not isinstance(collider_dict, dict):
+                        continue
+
+                    offset = convert.vrm_json_vector3_to_tuple(
+                        collider_dict.get("offset")
+                    )
+                    if offset is None:
+                        offset = (0, 0, 0)
+
+                    radius = collider_dict.get("radius")
+                    if not isinstance(radius, (int, float)):
+                        radius = 0
+
+                    collider_name = f"{bone_name}_collider_{collider_index}"
+                    obj = bpy.data.objects.new(name=collider_name, object_data=None)
+                    collider_props.value = obj
+                    obj.parent = self.armature
+                    obj.parent_type = "BONE"
+                    obj.parent_bone = bone_name
+                    fixed_offset = [
+                        offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
+                    ]  # TODO: Y軸反転はUniVRMのシリアライズに合わせてる
+
+                    # boneのtail側にparentされるので、根元からのpositionに動かしなおす
+                    obj.matrix_world = Matrix.Translation(
+                        [
+                            armature.matrix_world.to_translation()[i]
+                            + armature.data.bones[
+                                bone_name
+                            ].matrix_local.to_translation()[i]
+                            + fixed_offset[i]
+                            for i in range(3)
+                        ]
+                    )
+
+                    obj.empty_display_size = radius
+                    obj.empty_display_type = "SPHERE"
+                    collider_objs.append(obj)
+            if collider_objs:
+                colliders_collection = bpy.data.collections.new("Colliders")
+                self.context.scene.collection.children.link(colliders_collection)
+                for collider_obj in collider_objs:
+                    colliders_collection.objects.link(collider_obj)
+
+        bone_groups = secondary_animation_dict.get("boneGroups")
+        if not isinstance(bone_groups, collections.Iterable):
+            return
+
+        for bone_group_dict in bone_groups:
+            bone_group_props = secondary_animation_props.bone_groups.add()
+
+            if not isinstance(bone_group_dict, dict):
+                continue
+
+            comment = bone_group_dict.get("comment")
+            if isinstance(comment, str):
+                bone_group_props.comment = comment
+
+            stiffiness = bone_group_dict.get("stiffiness")  # noqa: SC200
+            if isinstance(stiffiness, (int, float)):  # noqa: SC200
+                bone_group_props.stiffiness = stiffiness  # noqa: SC200
+
+            gravity_power = bone_group_dict.get("gravityPower")
+            if isinstance(gravity_power, (int, float)):
+                bone_group_props.gravity_power = gravity_power
+
+            gravity_dir = convert.vrm_json_vector3_to_tuple(
+                bone_group_dict.get("gravityDir")
+            )
+            if gravity_dir is not None:
+                # Axis confusing
+                (x, y, z) = gravity_dir
+                bone_group_props.gravity_dir = (x, z, y)
+
+            drag_force = bone_group_dict.get("dragForce")
+            if isinstance(drag_force, (int, float)):
+                bone_group_props.drag_force = drag_force
+
+            center = bone_group_dict.get("center")
+            if isinstance(center, int) and center in self.bone_names:
+                bone_group_props.center.name = self.bone_names[center]
+
+            hit_radius = bone_group_dict.get("hitRadius")
+            if isinstance(hit_radius, (int, float)):
+                bone_group_props.hit_radius = hit_radius
+
+            bones = bone_group_dict.get("bones")
+            if isinstance(bones, collections.Iterable):
+                for bone in bones:
+                    bone_prop = bone_group_props.bones.add()
+                    if not isinstance(bone, int) or bone not in self.bone_names:
+                        continue
+
+                    bone_prop.name = self.bone_names[bone]
+
+            collider_groups = bone_group_dict.get("colliderGroups")
+            if isinstance(collider_groups, collections.Iterable):
+                for collider_group in collider_groups:
+                    if not isinstance(collider_group, int) and not (
+                        0
+                        <= collider_group
+                        < len(secondary_animation_props.collider_groups)
+                    ):
+                        continue
+                    collider_group_uuid_props = bone_group_props.collider_groups.add()
+                    collider_group_uuid_props.value = (
+                        secondary_animation_props.collider_groups[collider_group].uuid
+                    )
 
     def cleaning_data(self) -> None:
         # collection setting
@@ -2065,7 +2304,7 @@ class BlendModel:
         armature.select_set(True)
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
-        hb = vrm_types.HumanBones
+        hb = human_bone_constants.HumanBone
         stop_bone_names = {*armature.data.values()[:]}
 
         def set_children_roll(bone_name: str, roll: float) -> None:
@@ -2101,76 +2340,6 @@ class BlendModel:
         ):
             set_children_roll(b, 90)
         bpy.ops.object.mode_set(mode="OBJECT")
-
-    def put_spring_bone_info(self) -> None:
-        armature = self.armature
-        if armature is None:
-            raise Exception("armature is None")
-        vrm0_extension = self.vrm0_extension
-        if vrm0_extension is None:
-            return
-
-        secondary_animation_json = vrm0_extension.get("secondaryAnimation")
-        if secondary_animation_json is None:
-            print("no secondary animation object")
-            return
-        spring_rootbone_groups_json = secondary_animation_json["boneGroups"]
-        collider_groups_json = secondary_animation_json["colliderGroups"]
-        nodes_json = self.py_model.json["nodes"]
-        for bone_group in spring_rootbone_groups_json:
-            for bone_id in bone_group["bones"]:
-                node_name = nodes_json[bone_id]["name"]
-                if node_name not in armature.data.bones:
-                    continue
-                bone = armature.data.bones[node_name]
-                for key, val in bone_group.items():
-                    if key == "bones":
-                        continue
-                    bone[key] = val
-
-        collider_objs = []
-        bpy.context.view_layer.depsgraph.update()
-        bpy.context.scene.view_layers.update()
-        for collider_group in collider_groups_json:
-            collider_base_node = self.py_model.json["nodes"][collider_group["node"]]
-            node_name = collider_base_node["name"]
-            for i, collider in enumerate(collider_group["colliders"]):
-                if node_name not in armature.data.bones:
-                    continue
-                collider_name = f"{node_name}_collider_{i}"
-                obj = bpy.data.objects.new(name=collider_name, object_data=None)
-                obj.parent = self.armature
-                obj.parent_type = "BONE"
-                obj.parent_bone = node_name
-                offset = [
-                    collider["offset"]["x"],
-                    collider["offset"]["y"],
-                    collider["offset"]["z"],
-                ]  # values直接はindexアクセス出来ないのでしゃあなし
-                offset = [
-                    offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
-                ]  # TODO: Y軸反転はUniVRMのシリアライズに合わせてる
-
-                # boneのtail側にparentされるので、根元からのpositionに動かしなおす
-                obj.matrix_world = Matrix.Translation(
-                    [
-                        armature.matrix_world.to_translation()[i]
-                        + armature.data.bones[node_name].matrix_local.to_translation()[
-                            i
-                        ]
-                        + offset[i]
-                        for i in range(3)
-                    ]
-                )
-
-                obj.empty_display_size = collider["radius"]
-                obj.empty_display_type = "SPHERE"
-                collider_objs.append(obj)
-        if collider_objs:
-            coll = bpy.data.collections.new("Colliders")
-            self.context.scene.collection.children.link(coll)
-            for collider_obj in collider_objs:
-                coll.objects.link(collider_obj)
 
     def make_pole_target(
         self, rl: str, upper_leg_name: str, lower_leg_name: str, foot_name: str
@@ -2246,7 +2415,7 @@ class BlendModel:
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
-        editor.vrm_helper.VRM_OT_rename_bones(bpy.context)
+        editor.helper.VRM_OT_rename_bones(bpy.context)
 
 
 # DeprecationWarning

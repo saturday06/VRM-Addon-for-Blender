@@ -10,7 +10,7 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 from mathutils import Matrix, Vector
 
-from ..common import vrm_types
+from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
 from . import search
 
@@ -150,13 +150,13 @@ class MtoonGlsl:
         self.float_dic: Dict[str, float] = {}
         self.vector_dic = {}
         self.texture_dic = {}
-        for k in vrm_types.MaterialMtoon.float_props_exchange_dic.values():
+        for k in MaterialMtoon.float_props_exchange_dic.values():
             if k is not None:
                 self.float_dic[k] = self.get_value(k)
-        for k in vrm_types.MaterialMtoon.vector_base_props_exchange_dic.values():
+        for k in MaterialMtoon.vector_base_props_exchange_dic.values():
             if k is not None:
                 self.vector_dic[k] = self.get_color(k)
-        for k in vrm_types.MaterialMtoon.texture_kind_exchange_dic.values():
+        for k in MaterialMtoon.texture_kind_exchange_dic.values():
             if k is not None:
                 if k == "SphereAddTexture":
                     self.texture_dic[k] = self.get_texture(k, "black")

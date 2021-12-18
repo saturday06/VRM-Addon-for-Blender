@@ -1,11 +1,10 @@
-import json
 from math import radians
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, Optional, Set, Tuple
 
 import bpy
 from mathutils import Matrix
 
-from ..common.vrm_types import Vrm0
+from . import migration
 from .template_mesh_maker import IcypTemplateMeshMaker
 
 
@@ -507,191 +506,51 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         self, armature: bpy.types.Object, compare_dict: Dict[str, str]
     ) -> None:
         for vrm_bone_name, blender_bone_name in compare_dict.items():
-            armature.data[vrm_bone_name] = blender_bone_name
-        ICYP_OT_make_armature.make_extension_setting_and_metas(armature)
+            props = armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
+            props.bone = vrm_bone_name
+            props.node.name = blender_bone_name
+        self.make_extension_setting_and_metas(armature)
+        migration.migrate(armature, defer=False)
 
     @classmethod
     def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
-        def write_textblock_and_assign_to_armature(
-            block_name: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]
-        ) -> None:
-            text_block = bpy.data.texts.new(name=f"{armature.name}_{block_name}.json")
-            text_block.write(json.dumps(value, indent=4))
-            if block_name not in armature:
-                armature[f"{block_name}"] = text_block.name
+        vrm0 = armature.data.vrm_addon_extension.vrm0
+        vrm0.first_person.first_person_bone.name = "head"
+        vrm0.first_person.first_person_offset = (0, 0, 0.06)
+        vrm0.first_person.look_at_horizontal_inner.y_range = 8
+        vrm0.first_person.look_at_horizontal_outer.y_range = 12
+        vrm0.meta.author = "undefined"
+        vrm0.meta.contact_information = "undefined"
+        vrm0.meta.other_license_url = "undefined"
+        vrm0.meta.other_permission_url = "undefined"
+        vrm0.meta.reference = "undefined"
+        vrm0.meta.title = "undefined"
+        vrm0.meta.version = "undefined"
+        for name in [
+            "Neutral",
+            "A",
+            "I",
+            "U",
+            "E",
+            "O",
+            "Blink",
+            "Joy",
+            "Angry",
+            "Sorrow",
+            "Fun",
+            "LookUp",
+            "LookDown",
+            "LookLeft",
+            "LookRight",
+            "Blink_L",
+            "Blink_R",
+        ]:
+            # str.lower() is locale dependent.
+            preset_name = name.encode().lower().decode()
 
-        # param_dicts are below of this method
-        write_textblock_and_assign_to_armature(
-            "humanoid_params", ICYP_OT_make_armature.humanoid_params
-        )
-        write_textblock_and_assign_to_armature(
-            "firstPerson_params", ICYP_OT_make_armature.first_person_params
-        )
-        write_textblock_and_assign_to_armature(
-            "blendshape_group", ICYP_OT_make_armature.blend_shape_group
-        )
-        write_textblock_and_assign_to_armature(
-            "spring_bone", ICYP_OT_make_armature.spring_bone_prams
-        )
-
-        for v in Vrm0.METAS:
-            if v not in armature:
-                armature[v] = "undefined"
-        for k, v in Vrm0.REQUIRED_METAS.items():
-            if k not in armature:
-                armature[k] = v
-
-    humanoid_params = Vrm0.HUMANOID_DEFAULT_PARAMS
-    first_person_params = {
-        "firstPersonBone": "head",
-        "firstPersonBoneOffset": {"x": 0, "y": 0, "z": 0},
-        "meshAnnotations": [],
-        "lookAtTypeName": "Bone",
-        "lookAtHorizontalInner": {
-            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
-            "xRange": 90,
-            "yRange": 8,
-        },
-        "lookAtHorizontalOuter": {
-            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
-            "xRange": 90,
-            "yRange": 12,
-        },
-        "lookAtVerticalDown": {
-            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
-            "xRange": 90,
-            "yRange": 10,
-        },
-        "lookAtVerticalUp": {
-            "curve": [0, 0, 0, 1, 1, 1, 1, 0],
-            "xRange": 90,
-            "yRange": 10,
-        },
-    }
-
-    blend_shape_group = [
-        {
-            "name": "Neutral",
-            "presetName": "neutral",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "A",
-            "presetName": "a",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "I",
-            "presetName": "i",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "U",
-            "presetName": "u",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "E",
-            "presetName": "e",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "O",
-            "presetName": "o",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "Blink",
-            "presetName": "blink",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "Joy",
-            "presetName": "joy",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "Angry",
-            "presetName": "angry",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "Sorrow",
-            "presetName": "sorrow",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "Fun",
-            "presetName": "fun",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "LookUp",
-            "presetName": "lookup",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "LookDown",
-            "presetName": "lookdown",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "LookLeft",
-            "presetName": "lookleft",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "LookRight",
-            "presetName": "lookright",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "Blink_L",
-            "presetName": "blink_l",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-        {
-            "name": "Blink_R",
-            "presetName": "blink_r",
-            "binds": [],
-            "materialValues": [],
-            "isBinary": False,
-        },
-    ]
-
-    spring_bone_prams: List[Dict[str, Any]] = []
+            blend_shape_group = vrm0.blend_shape_master.blend_shape_groups.add()
+            blend_shape_group.name = name
+            blend_shape_group.preset_name = preset_name
 
 
 def connect_parent_tail_and_child_head_if_same_position(

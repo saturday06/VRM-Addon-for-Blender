@@ -13,7 +13,7 @@ from typing import Set, cast
 import bpy
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
-from ..common import vrm_types
+from ..common.human_bone_constants import HumanBone
 from . import search
 from .make_armature import ICYP_OT_make_armature
 
@@ -50,7 +50,7 @@ class VRM_OT_rename_bones(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 for i, collider in enumerate(jdic["colliderGroups"]):
                     jdic["colliderGroups"][i] = reprstr(collider)
             textblock.from_string(json.dumps(j, indent=4))
-        for bonename in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
+        for bonename in HumanBone.requires + HumanBone.defines:
             if bonename in bpy.context.active_object.data:
                 bpy.context.active_object.data[bonename] = reprstr(
                     bpy.context.active_object.data[bonename]
@@ -69,6 +69,7 @@ class VRM_OT_add_extensions_to_armature(bpy.types.Operator):  # type: ignore[mis
         return {"FINISHED"}
 
 
+# deprecated
 class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm_humanbone_custom_property"
     bl_label = "Add VRM Human Bone prop"
@@ -96,7 +97,7 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # typ
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
-        for bone_name in vrm_types.HumanBones.requires:
+        for bone_name in HumanBone.requires:
             if bone_name not in armature:
                 armature[bone_name] = ""
         return {"FINISHED"}
@@ -111,7 +112,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
-        for bone_name in vrm_types.HumanBones.defines:
+        for bone_name in HumanBone.defines:
             if bone_name not in armature:
                 armature[bone_name] = ""
         return {"FINISHED"}
@@ -138,9 +139,13 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
             return {"CANCELLED"}
 
         mappings = {}
-        for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
-            if human_bone in armature.data and armature.data[human_bone]:
-                mappings[human_bone] = armature.data[human_bone]
+        for human_bone in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
+            if human_bone.bone not in HumanBone.requires + HumanBone.defines:
+                continue
+            if not human_bone.node.name:
+                continue
+            mappings[human_bone.bone] = human_bone.node.name
+
         with open(self.filepath, "wb") as file:
             file.write(
                 json.dumps(mappings, sort_keys=True, indent=4)
@@ -177,9 +182,27 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
             obj = json.load(file)
         if not isinstance(obj, dict):
             return {"CANCELLED"}
-        for human_bone in vrm_types.HumanBones.requires + vrm_types.HumanBones.defines:
-            if human_bone in obj:
-                armature.data[human_bone] = obj[human_bone]
+
+        for human_bone_name, blender_bone_name in obj.items():
+            if human_bone_name not in HumanBone.requires + HumanBone.defines:
+                continue
+
+            found = False
+            for (
+                human_bone_props
+            ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
+                if human_bone_props.bone == human_bone_name:
+                    human_bone_props.node.name = blender_bone_name
+                    found = True
+                    break
+            if found:
+                continue
+
+            human_bone_props = (
+                armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
+            )
+            human_bone_props.bone = human_bone_name
+            human_bone_props.node.name = blender_bone_name
 
         return {"FINISHED"}
 

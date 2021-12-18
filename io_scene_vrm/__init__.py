@@ -42,34 +42,70 @@ if persistent:  # for fake-bpy-modules
 
 classes = [
     WM_OT_gltf2_addon_disabled_warning,
-    editor.BLEND_SHAPE_BIND,
-    editor.BLEND_SHAPE_GROUP,
-    editor.BLEND_SHAPE_MATERIAL_BIND,
-    editor.BONE_GROUP,
-    editor.COLLIDER_GROUP,
-    editor.MESH_ANNOTATION,
-    editor.LOOKAT_CURVE,
-    editor.FIRST_PERSON_PARAMS,
-    editor.HUMANOID_PARAMS,
-    editor.METAS,
-    editor.REQUIRED_METAS,
-    editor.SPRING_BONE_GROUP,
+    editor.ObjectPropertyGroup,
+    editor.StringPropertyGroup,
+    editor.FloatPropertyGroup,
+    editor.ShapeKeyPropertyGroup,
+    editor.BonePropertyGroup,
+    editor.Vrm0MaterialValueBindPropertyGroup,
+    editor.Vrm0BlendShapeBindPropertyGroup,
+    editor.Vrm0BlendShapeGroupPropertyGroup,
+    editor.Vrm0BlendShapeMasterPropertyGroup,
+    editor.Vrm0MeshAnnotationPropertyGroup,
+    editor.Vrm0DegreeMapPropertyGroup,
+    editor.Vrm0FirstPersonPropertyGroup,
+    editor.Vrm0HumanoidBonePropertyGroup,
+    editor.Vrm0HumanoidPropertyGroup,
+    editor.Vrm0MetaPropertyGroup,
+    editor.Vrm0SecondaryAnimationColliderGroupPropertyGroup,
+    editor.Vrm0SecondaryAnimationGroupPropertyGroup,
+    editor.Vrm0SecondaryAnimationPropertyGroup,
     editor.VRM_PT_current_selected_armature,
-    editor.VRM_PT_armature_controller,
     editor.VRM_PT_controller,
+    editor.VRM_PT_vrm_armature_object_property,
+    editor.VRM_PT_vrm0_meta_armature_object_property,
+    editor.VRM_PT_vrm0_meta_ui,
+    editor.VRM_PT_vrm0_humanoid_armature_object_property,
+    editor.VRM_PT_vrm0_humanoid_ui,
+    editor.VRM_PT_vrm0_blend_shape_master_armature_object_property,
+    editor.VRM_PT_vrm0_blend_shape_master_ui,
+    editor.VRM_PT_vrm0_first_person_armature_object_property,
+    editor.VRM_PT_vrm0_first_person_ui,
+    editor.VRM_PT_vrm0_secondary_animation_armature_object_property,
+    editor.VRM_PT_vrm0_secondary_animation_ui,
+    editor.VRM_OT_add_vrm0_first_person_mesh_annotation,
+    editor.VRM_OT_remove_vrm0_first_person_mesh_annotation,
+    editor.VRM_OT_add_vrm0_material_value_bind,
+    editor.VRM_OT_remove_vrm0_material_value_bind,
+    editor.VRM_OT_add_vrm0_material_value_bind_target_value,
+    editor.VRM_OT_remove_vrm0_material_value_bind_target_value,
+    editor.VRM_OT_add_vrm0_blend_shape_bind,
+    editor.VRM_OT_remove_vrm0_blend_shape_bind,
+    editor.VRM_OT_add_vrm0_secondary_animation_collider_group_collider,
+    editor.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider,
+    editor.VRM_OT_add_vrm0_secondary_animation_group_bone,
+    editor.VRM_OT_remove_vrm0_secondary_animation_group_bone,
+    editor.VRM_OT_add_vrm0_secondary_animation_group_collider_group,
+    editor.VRM_OT_remove_vrm0_secondary_animation_group_collider_group,
+    editor.VRM_OT_add_vrm0_blend_shape_group,
+    editor.VRM_OT_remove_vrm0_blend_shape_group,
+    editor.VRM_OT_add_vrm0_secondary_animation_group,
+    editor.VRM_OT_remove_vrm0_secondary_animation_group,
+    editor.VRM_OT_add_vrm0_secondary_animation_collider_group,
+    editor.VRM_OT_remove_vrm0_secondary_animation_collider_group,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     editor.glsl_drawer.ICYP_OT_draw_model,
     editor.glsl_drawer.ICYP_OT_remove_draw_model,
     editor.make_armature.ICYP_OT_make_armature,
     # editor.mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
-    editor.vrm_helper.VRM_OT_add_human_bone_custom_property,
-    editor.vrm_helper.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
-    editor.vrm_helper.VRM_OT_add_extensions_to_armature,
-    editor.vrm_helper.VRM_OT_add_required_human_bone_custom_property,  # deprecated
-    editor.vrm_helper.VRM_OT_rename_bones,
-    editor.vrm_helper.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
-    editor.vrm_helper.VRM_OT_save_human_bone_mappings,
-    editor.vrm_helper.VRM_OT_load_human_bone_mappings,
+    editor.helper.VRM_OT_add_human_bone_custom_property,
+    editor.helper.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
+    editor.helper.VRM_OT_add_extensions_to_armature,
+    editor.helper.VRM_OT_add_required_human_bone_custom_property,  # deprecated
+    editor.helper.VRM_OT_rename_bones,
+    editor.helper.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
+    editor.helper.VRM_OT_save_human_bone_mappings,
+    editor.helper.VRM_OT_load_human_bone_mappings,
     exporter.validation.VrmValidationError,
     exporter.validation.WM_OT_vrm_validator,
     exporter.EXPORT_SCENE_OT_vrm,
@@ -79,28 +115,9 @@ classes = [
     importer.WM_OT_license_confirmation,
     # importer.blend_model.ICYP_OT_select_helper,
     preferences.VrmAddonPreferences,
+    editor.Vrm0PropertyGroup,
+    editor.VrmAddonArmatureExtensionPropertyGroup,
 ]
-
-experimental_vrm_component_ui_classes = [
-    editor.VrmProps,
-    editor.VRM_PT_vrm_blend_shape_group,
-    editor.VRM_PT_vrm_first_person_params,
-    editor.VRM_PT_vrm_humanoid_params,
-    editor.VRM_PT_vrm_metas,
-    editor.VRM_PT_vrm_spring_bone,
-]
-
-
-def set_use_experimental_vrm_component_ui(enable: bool) -> None:
-    has_props = hasattr(bpy.types.Object, "vrm_props")
-    if enable and not has_props:
-        for cls in experimental_vrm_component_ui_classes:
-            bpy.utils.register_class(cls)
-        bpy.types.Object.vrm_props = bpy.props.PointerProperty(type=editor.VrmProps)
-    elif not enable and has_props:
-        del bpy.types.Object.vrm_props
-        for cls in experimental_vrm_component_ui_classes:
-            bpy.utils.unregister_class(cls)
 
 
 # アドオン有効化時の処理
@@ -111,9 +128,6 @@ def register(init_version: Any) -> None:
             f"Sanity error: version mismatch: {init_version} != {version.version()}"
         )
 
-    preferences.VrmAddonPreferences.register_set_use_experimental_vrm_component_ui_callback(
-        set_use_experimental_vrm_component_ui
-    )
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.TOPBAR_MT_file_import.append(importer.menu_import)
@@ -124,9 +138,14 @@ def register(init_version: Any) -> None:
     bpy.app.translations.register(
         preferences.addon_package_name, locale.translation_dictionary
     )
-
-    set_use_experimental_vrm_component_ui(
-        preferences.use_experimental_vrm_component_ui(bpy.context)
+    bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(
+        type=editor.VrmAddonArmatureExtensionPropertyGroup
+    )
+    bpy.types.Bone.vrm_addon_extension = bpy.props.PointerProperty(
+        type=editor.VrmAddonBoneExtensionPropertyGroup
+    )
+    bpy.types.ShapeKey.vrm_addon_extension = bpy.props.PointerProperty(
+        type=editor.VrmAddonShapeKeyExtensionPropertyGroup
     )
 
 
@@ -140,3 +159,9 @@ def unregister() -> None:
     bpy.types.TOPBAR_MT_file_export.remove(exporter.menu_export)
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    if hasattr(bpy.types.Armature, "vrm_addon_extension"):
+        del bpy.types.Armature.vrm_addon_extension
+    if hasattr(bpy.types.Bone, "vrm_addon_extension"):
+        del bpy.types.Bone.vrm_addon_extension
+    if hasattr(bpy.types.ShapeKey, "vrm_addon_extension"):
+        del bpy.types.ShapeKey.vrm_addon_extension
