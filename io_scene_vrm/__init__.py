@@ -45,8 +45,8 @@ classes = [
     editor.ObjectPropertyGroup,
     editor.StringPropertyGroup,
     editor.FloatPropertyGroup,
-    editor.ShapeKeyPropertyGroup,
     editor.BonePropertyGroup,
+    editor.MeshPropertyGroup,
     editor.Vrm0MaterialValueBindPropertyGroup,
     editor.Vrm0BlendShapeBindPropertyGroup,
     editor.Vrm0BlendShapeGroupPropertyGroup,
@@ -57,6 +57,7 @@ classes = [
     editor.Vrm0HumanoidBonePropertyGroup,
     editor.Vrm0HumanoidPropertyGroup,
     editor.Vrm0MetaPropertyGroup,
+    editor.Vrm0SecondaryAnimationCollider,
     editor.Vrm0SecondaryAnimationColliderGroupPropertyGroup,
     editor.Vrm0SecondaryAnimationGroupPropertyGroup,
     editor.Vrm0SecondaryAnimationPropertyGroup,
@@ -140,12 +141,6 @@ def register(init_version: Any) -> None:
     )
     bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(
         type=editor.VrmAddonArmatureExtensionPropertyGroup
-    )
-    bpy.types.Bone.vrm_addon_extension = bpy.props.PointerProperty(
-        type=editor.VrmAddonBoneExtensionPropertyGroup
-    )
-    bpy.types.ShapeKey.vrm_addon_extension = bpy.props.PointerProperty(
-        type=editor.VrmAddonShapeKeyExtensionPropertyGroup
     )
 
 

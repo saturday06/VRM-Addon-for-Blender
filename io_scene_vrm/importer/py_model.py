@@ -845,7 +845,7 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
         return vrm_json
 
     if (
-        "firstPersonBone" not in first_person_dict
+        first_person_dict.get("firstPersonBone") in [None, -1]
         and isinstance(vrm0_extension.get("humanoid"), dict)
         and isinstance(
             vrm0_extension["humanoid"].get("humanBones"), collections.Iterable
@@ -886,6 +886,10 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
                 continue
             if "isBinary" not in blend_shape_group_dict:
                 blend_shape_group_dict["isBinary"] = False
+            if "binds" not in blend_shape_group_dict:
+                blend_shape_group_dict["binds"] = []
+            if "materialValues" not in blend_shape_group_dict:
+                blend_shape_group_dict["materialValues"] = []
 
     if isinstance(vrm0_extension.get("secondaryAnimation"), dict) and isinstance(
         vrm0_extension["secondaryAnimation"].get("colliderGroups"), collections.Iterable
@@ -922,6 +926,8 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
             for bone_group in bone_groups:
                 if not isinstance(bone_group, dict):
                     continue
+                if "comment" not in bone_group:
+                    bone_group["comment"] = ""
                 collider_groups = bone_group.get("colliderGroups")
                 if not isinstance(collider_groups, collections.Iterable):
                     continue

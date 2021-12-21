@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Set
+from typing import Any, Optional, Set
 
 import bpy
 from bpy.app.translations import pgettext
@@ -16,7 +16,7 @@ from . import (
     validation,
 )
 from .glsl_drawer import GlslDrawObj
-from .migration import migrate
+from .migration import get_all_bone_property_groups, migrate
 
 
 class ObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -37,85 +37,109 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
 
-class ShapeKeyPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Shape Key Name"  # noqa: F722
+class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def get_value(self) -> str:
+        if (
+            not self.link_to_mesh
+            or not self.link_to_mesh.name
+            or not self.link_to_mesh.parent
+            or self.link_to_mesh.parent.type != "MESH"
+            or not self.link_to_mesh.parent.data
+            or not self.link_to_mesh.parent.data.name
+        ):
+            return ""
+        return str(self.link_to_mesh.parent.data.name)
+
+    def set_value(self, value: Any) -> None:
+        if not isinstance(value, str) or value not in bpy.data.meshes:
+            return
+        mesh = bpy.data.meshes[value]
+        mesh_obj: Optional[bpy.types.Object] = None
+        for obj in bpy.data.objects:
+            if obj.data == mesh:
+                mesh_obj = obj
+                break
+        if mesh_obj is None:
+            return
+
+        if not self.link_to_mesh or not self.link_to_mesh.name:
+            uuid_str = uuid.uuid4().hex
+            self.link_to_mesh = bpy.data.objects.new(
+                name="VrmAddonLinkToMesh" + uuid_str, object_data=None
+            )
+        self.link_to_mesh.parent = mesh_obj
+
+    value: bpy.props.StringProperty(  # type: ignore[valid-type]
+        get=get_value, set=set_value
+    )
+    link_to_mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Object  # noqa: F722
     )
 
 
-# TODO: Use bone extensions
 class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def is_parent(self, armature: bpy.types.Object) -> bool:
-        ext = armature.data.vrm_addon_extension
-        bone_property_groups = (
-            [ext.vrm0.first_person.first_person_bone]
-            + [human_bone.node for human_bone in ext.vrm0.humanoid.human_bones]
-            + [
-                collider_group.node
-                for collider_group in ext.vrm0.secondary_animation.collider_groups
-            ]
-            + sum(
-                [
-                    ([bone_group.center] + list(bone_group.bones))
-                    for bone_group in ext.vrm0.secondary_animation.bone_groups
-                ],
-                [],
-            )
-        )
-        assert all(isinstance(x, BonePropertyGroup) for x in bone_property_groups)
-        return any(
-            bone_property_group.uuid == self.uuid
-            for bone_property_group in bone_property_groups
-        )
+    def refresh(self, armature: bpy.types.Object) -> None:
+        if (
+            self.link_to_bone
+            and self.link_to_bone.parent
+            and self.link_to_bone.parent == armature
+        ):
+            return
 
-    def get_name(self) -> str:
+        value = self.value
+        uuid_str = uuid.uuid4().hex
+        self.link_to_bone = bpy.data.objects.new(
+            name="VrmAddonLinkToBone" + uuid_str, object_data=None
+        )
+        self.link_to_bone.parent = armature
+        self.value = value
+
+    def get_value(self) -> str:
         if self.link_to_bone and self.link_to_bone.parent_bone:
             return str(self.link_to_bone.parent_bone)
         return ""
 
-    def set_name(self, value: Any) -> None:
-        if not self.link_to_bone:
-            uuid_str = uuid.uuid4().hex
-            self.uuid = uuid_str
-            self.link_to_bone = bpy.data.objects.new(
-                name="VrmAddonLinkToBone" + uuid_str, object_data=None
-            )
+    def set_value(self, value: Any) -> None:
+        if not self.link_to_bone or not self.link_to_bone.parent:
             for armature in bpy.data.objects:
                 if armature.type != "ARMATURE":
                     continue
-                if not self.is_parent(armature):
+                if all(
+                    bone_property_group != self
+                    for bone_property_group in get_all_bone_property_groups(armature)
+                ):
                     continue
-                self.link_to_bone.parent = armature
-                self.link_to_bone.parent_type = "BONE"
+                self.refresh(armature)
+                break
         if not self.link_to_bone.parent:
             print("WARNING: No armature found")
             return
 
         value_str = str(value)
-        if not value_str:
+        if not value_str or value_str not in self.link_to_bone.parent.data.bones:
+            self.link_to_bone.parent_type = "OBJECT"
             self.link_to_bone.parent_bone = ""
+        elif self.link_to_bone.parent_bone == value_str:
             return
-        if value_str not in self.link_to_bone.parent.data.bones:
-            return
-        if self.link_to_bone.parent_bone == value_str:
-            return
-        self.link_to_bone.parent_bone = value_str
+        else:
+            self.link_to_bone.parent_bone = value_str
+            self.link_to_bone.parent_type = "BONE"
+
         for (
             collider_group
         ) in (
             self.link_to_bone.parent.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
         ):
-            collider_group.refresh_name()
+            collider_group.refresh(self.link_to_bone.parent)
 
-    name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    value: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Bone",  # noqa: F821
-        get=get_name,
-        set=set_name,
+        get=get_value,
+        set=set_value,
     )
     link_to_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
-    uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L70-L164
@@ -179,10 +203,10 @@ class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     curve: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=8, name="Curve", default=[0, 0, 0, 1, 1, 1, 1, 0]  # noqa: F821
     )
-    x_range: bpy.props.IntProperty(  # type: ignore[valid-type]
+    x_range: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="X Range", default=90  # noqa: F722
     )
-    y_range: bpy.props.IntProperty(  # type: ignore[valid-type]
+    y_range: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Y Range", default=10  # noqa: F722
     )
 
@@ -190,7 +214,7 @@ class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L32-L41
 class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Mesh", type=bpy.types.Mesh  # noqa: F821
+        name="Mesh", type=MeshPropertyGroup  # noqa: F821
     )
     first_person_flag_items = [
         ("Auto", "Auto", "", 0),
@@ -242,10 +266,10 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Mesh", type=bpy.types.Mesh  # noqa: F821
+        name="Mesh", type=MeshPropertyGroup  # noqa: F821
     )
-    index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Index", type=ShapeKeyPropertyGroup  # noqa: F821
+    index: bpy.props.StringProperty(  # type: ignore[valid-type]
+        name="Index"  # noqa: F821
     )
     weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Weight", min=0, max=1  # noqa: F821
@@ -312,6 +336,26 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     )
 
 
+# https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
+class Vrm0SecondaryAnimationCollider(bpy.types.PropertyGroup):  # type: ignore[misc]
+    blender_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Object  # noqa: F722
+    )
+
+    def refresh(self, armature: bpy.types.Object, bone_name: str) -> None:
+        if not self.blender_object or not self.blender_object.name:
+            return
+
+        self.blender_object.name = self.blender_object.name
+        self.blender_object.parent = armature
+        self.blender_object.empty_display_type = "SPHERE"
+        if bone_name:
+            self.blender_object.parent_type = "BONE"
+            self.blender_object.parent_bone = bone_name
+        else:
+            self.blender_object.parent_type = "OBJECT"
+
+
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L21-L29
 class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
@@ -322,13 +366,22 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
     )
     # offsetとradiusはコライダー自身のデータを用いる
     colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Colliders", type=ObjectPropertyGroup  # noqa: F821
+        name="Colliders", type=Vrm0SecondaryAnimationCollider  # noqa: F821
     )
 
-    def refresh_name(self) -> None:
+    def refresh(self, armature: bpy.types.Object) -> None:
         self.name = (
-            str(self.node.name) if self.node and self.node.name else ""
+            str(self.node.value) if self.node and self.node.value else ""
         ) + f"#{self.uuid}"
+        for index, collider in reversed(list(enumerate(list(self.colliders)))):
+            if not collider.blender_object or not collider.blender_object.name:
+                self.colliders.remove(index)
+            else:
+                collider.refresh(armature, self.node.value)
+        for (
+            bone_group
+        ) in armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
+            bone_group.refresh(armature)
 
     # for reference from Vrm0SecondaryAnimationGroupPropertyGroup
     name: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -373,6 +426,19 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
     show_expanded_collider_groups: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Collider Groups"  # noqa: F722
     )
+
+    def refresh(self, armature: bpy.types.Object) -> None:
+        collider_group_uuid_to_name = {
+            collider_group.uuid: collider_group.name
+            for collider_group in armature.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+        }
+        for index, collider_group in reversed(list(enumerate(self.collider_groups))):
+            uuid_str = collider_group.value.split("#")[-1:][0]
+            name = collider_group_uuid_to_name.get(uuid_str)
+            if name is None:
+                self.collider_groups.remove(index)
+            else:
+                collider_group.value = name
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
@@ -502,6 +568,8 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
     vrm0: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="VRM 0.x", type=Vrm0PropertyGroup  # noqa: F722
     )
+
+    armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
 class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -658,7 +726,9 @@ def draw_vrm0_humanoid_layout(
                 break
         if not props:
             return
-        parent.prop_search(props.node, "name", data, "bones", text=bone_name, icon=icon)
+        parent.prop_search(
+            props.node, "value", data, "bones", text=bone_name, icon=icon
+        )
 
     armature_box = layout
     armature_box.operator(
@@ -805,7 +875,7 @@ def draw_vrm0_first_person_layout(
     migrate(armature, defer=True)
     blend_data = context.blend_data
     layout.prop_search(
-        first_person_props.first_person_bone, "name", armature.data, "bones"
+        first_person_props.first_person_bone, "value", armature.data, "bones"
     )
     layout.prop(first_person_props, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person_props, "look_at_type_name")
@@ -815,7 +885,7 @@ def draw_vrm0_first_person_layout(
         first_person_props.mesh_annotations
     ):
         row = box.row()
-        row.prop_search(mesh_annotation, "mesh", blend_data, "meshes")
+        row.prop_search(mesh_annotation.mesh, "value", blend_data, "meshes")
         row.prop(mesh_annotation, "first_person_flag")
         remove_mesh_annotation_op = row.operator(
             VRM_OT_remove_vrm0_first_person_mesh_annotation.bl_idname,
@@ -944,18 +1014,25 @@ def draw_vrm0_blend_shape_master_layout(
         if blend_shape_group_props.show_expanded_binds:
             for bind_index, bind_props in enumerate(blend_shape_group_props.binds):
                 bind_box = box.box()
-                bind_box.prop_search(bind_props, "mesh", blend_data, "meshes")
+                bind_box.prop_search(
+                    bind_props.mesh, "value", blend_data, "meshes", text="Mesh"
+                )
                 if (
-                    bind_props.mesh
-                    and bind_props.mesh.shape_keys
-                    and bind_props.mesh.shape_keys.key_blocks
-                    and bind_props.mesh.shape_keys.key_blocks.keys()
+                    bind_props.mesh.value
+                    and bind_props.mesh.value in blend_data.meshes
+                    and blend_data.meshes[bind_props.mesh.value]
+                    and blend_data.meshes[bind_props.mesh.value].shape_keys
+                    and blend_data.meshes[bind_props.mesh.value].shape_keys.key_blocks
+                    and blend_data.meshes[
+                        bind_props.mesh.value
+                    ].shape_keys.key_blocks.keys()
                 ):
                     bind_box.prop_search(
-                        bind_props.index,
-                        "name",
-                        bind_props.mesh.shape_keys,
+                        bind_props,
+                        "index",
+                        blend_data.meshes[bind_props.mesh.value].shape_keys,
                         "key_blocks",
+                        text="Shape key",
                     )
                 bind_box.prop(bind_props, "weight")
                 remove_blend_shape_bind_op = bind_box.operator(
@@ -1126,7 +1203,7 @@ def draw_vrm0_secondary_animation_layout(
         box.separator()
         box.prop_search(
             bone_group_props.center,
-            "name",
+            "value",
             data,
             "bones",
             icon="PIVOT_MEDIAN",
@@ -1149,7 +1226,7 @@ def draw_vrm0_secondary_animation_layout(
         if bone_group_props.show_expanded_bones:
             for bone_index, bone in enumerate(bone_group_props.bones):
                 bone_row = box.split(align=True, factor=0.7)
-                bone_row.prop_search(bone, "name", data, "bones", text="")
+                bone_row.prop_search(bone, "value", data, "bones", text="")
                 remove_bone_op = bone_row.operator(
                     VRM_OT_remove_vrm0_secondary_animation_group_bone.bl_idname,
                     icon="REMOVE",
@@ -1217,12 +1294,15 @@ def draw_vrm0_secondary_animation_layout(
         box = layout.box()
         row = box.row()
         box.label(text=collider_group_props.name)
-        box.prop_search(collider_group_props.node, "name", armature.data, "bones")
+        box.prop_search(collider_group_props.node, "value", armature.data, "bones")
 
         for collider_index, collider_props in enumerate(collider_group_props.colliders):
-            collider_row = box.split(align=True, factor=0.7)
-            collider_row.prop_search(
-                collider_props, "value", bpy.data, "objects", text="Collider"
+            collider_row = box.split(align=True, factor=0.5)
+            collider_row.prop(
+                collider_props.blender_object, "name", icon="MESH_UVSPHERE", text=""
+            )
+            collider_row.prop(
+                collider_props.blender_object, "empty_display_size", text=""
             )
             remove_collider_op = collider_row.operator(
                 VRM_OT_remove_vrm0_secondary_animation_collider_group_collider.bl_idname,
@@ -1238,6 +1318,7 @@ def draw_vrm0_secondary_animation_layout(
         )
         add_collider_op.armature_name = armature.name
         add_collider_op.collider_group_index = collider_group_index
+        add_collider_op.bone_name = collider_group_props.node.value
 
         remove_collider_group_op = box.operator(
             VRM_OT_remove_vrm0_secondary_animation_collider_group.bl_idname,
@@ -1612,8 +1693,9 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(  # noqa: N801
 
     armature_name: bpy.props.StringProperty()  # type: ignore[valid-type]
     collider_group_index: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
+    bone_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1622,7 +1704,20 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(  # noqa: N801
         )
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
-        collider_groups[self.collider_group_index].colliders.add()
+        collider = collider_groups[self.collider_group_index].colliders.add()
+        obj = bpy.data.objects.new(
+            name=f"{self.armature_name}_{self.bone_name}_collider", object_data=None
+        )
+        collider.blender_object = obj
+        obj.parent = armature
+        obj.empty_display_type = "SPHERE"
+        obj.empty_display_size = 0.25
+        if self.bone_name:
+            obj.parent_type = "BONE"
+            obj.parent_bone = self.bone_name
+        else:
+            obj.parent_type = "OBJECT"
+        context.scene.collection.objects.link(obj)
         return {"FINISHED"}
 
 
@@ -1638,7 +1733,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(  # noqa: N
     collider_group_index: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
     collider_index: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1650,6 +1745,10 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(  # noqa: N
         colliders = collider_groups[self.collider_group_index].colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
+        blender_object = colliders[self.collider_index].blender_object
+        if blender_object and blender_object.name in context.scene.collection.objects:
+            blender_object.parent_type = "OBJECT"
+            context.scene.collection.objects.unlink(blender_object)
         colliders.remove(self.collider_index)
         return {"FINISHED"}
 
@@ -1845,7 +1944,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):  #
             armature.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups.add()
         )
         collider_group.uuid = uuid.uuid4().hex
-        collider_group.refresh_name()
+        collider_group.refresh(armature)
         return {"FINISHED"}
 
 
@@ -1868,4 +1967,9 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_groups.remove(self.collider_group_index)
+
+        for (
+            bone_group
+        ) in armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
+            bone_group.refresh(armature)
         return {"FINISHED"}

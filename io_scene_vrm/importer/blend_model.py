@@ -1924,7 +1924,7 @@ class BlendModel:
 
                 human_bone_props = humanoid_props.human_bones.add()
                 human_bone_props.bone = bone
-                human_bone_props.node.name = self.bone_names[node]
+                human_bone_props.node.value = self.bone_names[node]
 
                 use_default_values = human_bone_dict.get("useDefaultValues")
                 if isinstance(use_default_values, bool):
@@ -2012,7 +2012,7 @@ class BlendModel:
 
                 mesh = mesh_annotation_dict.get("mesh")
                 if isinstance(mesh, int) and mesh in self.meshes:
-                    mesh_annotation_props.mesh = self.meshes[mesh].data
+                    mesh_annotation_props.mesh.value = self.meshes[mesh].data.name
 
                 first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
                 if isinstance(first_person_flag, str):
@@ -2103,8 +2103,8 @@ class BlendModel:
                         weight = 0
 
                     bind_props = blend_shape_group_props.binds.add()
-                    bind_props.mesh = self.meshes[mesh].data
-                    bind_props.index.name = self.meshes[
+                    bind_props.mesh.value = self.meshes[mesh].data.name
+                    bind_props.index = self.meshes[
                         mesh
                     ].data.shape_keys.key_blocks.keys()[index + 1]
                     bind_props.weight = min(max(weight / 100.0, 0), 1)
@@ -2118,8 +2118,13 @@ class BlendModel:
                         continue
 
                     material_name = material_value_dict.get("materialName")
-                    if isinstance(material_name, str):
-                        material_value_props.material_name = material_name
+                    if (
+                        isinstance(material_name, str)
+                        and material_name in bpy.data.materials
+                    ):
+                        material_value_props.material = bpy.data.materials[
+                            material_name
+                        ]
 
                     property_name = material_value_dict.get("propertyName")
                     if isinstance(property_name, str):
@@ -2151,82 +2156,83 @@ class BlendModel:
             raise Exception("armature is None")
 
         collider_groups = secondary_animation_dict.get("colliderGroups")
-        if isinstance(collider_groups, collections.Iterable):
-            bpy.context.view_layer.depsgraph.update()
-            bpy.context.scene.view_layers.update()
-            collider_objs = []
-            for collider_group_dict in collider_groups:
-                collider_group_props = secondary_animation_props.collider_groups.add()
-                collider_group_props.uuid = uuid.uuid4().hex
+        if not isinstance(collider_groups, collections.Iterable):
+            collider_groups = []
 
-                if not isinstance(collider_group_dict, dict):
+        bpy.context.view_layer.depsgraph.update()
+        bpy.context.scene.view_layers.update()
+        collider_objs = []
+        for collider_group_dict in collider_groups:
+            collider_group_props = secondary_animation_props.collider_groups.add()
+            collider_group_props.uuid = uuid.uuid4().hex
+
+            if not isinstance(collider_group_dict, dict):
+                continue
+
+            node = collider_group_dict.get("node")
+            if not isinstance(node, int) or node not in self.bone_names:
+                continue
+
+            bone_name = self.bone_names[node]
+            collider_group_props.node.value = bone_name
+            colliders = collider_group_dict.get("colliders")
+            if not isinstance(colliders, collections.Iterable):
+                continue
+
+            for collider_index, collider_dict in enumerate(colliders):
+                collider_props = collider_group_props.colliders.add()
+
+                if not isinstance(collider_dict, dict):
                     continue
 
-                node = collider_group_dict.get("node")
-                if not isinstance(node, int) or node not in self.bone_names:
-                    continue
+                offset = convert.vrm_json_vector3_to_tuple(collider_dict.get("offset"))
+                if offset is None:
+                    offset = (0, 0, 0)
 
-                bone_name = self.bone_names[node]
-                collider_group_props.node.name = bone_name
-                colliders = collider_group_dict.get("colliders")
-                if not isinstance(colliders, collections.Iterable):
-                    continue
+                radius = collider_dict.get("radius")
+                if not isinstance(radius, (int, float)):
+                    radius = 0
 
-                for collider_index, collider_dict in enumerate(colliders):
-                    collider_props = collider_group_props.colliders.add()
+                collider_name = f"{bone_name}_collider_{collider_index}"
+                obj = bpy.data.objects.new(name=collider_name, object_data=None)
+                collider_props.blender_object = obj
+                obj.parent = self.armature
+                obj.parent_type = "BONE"
+                obj.parent_bone = bone_name
+                fixed_offset = [
+                    offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
+                ]  # TODO: Y軸反転はUniVRMのシリアライズに合わせてる
 
-                    if not isinstance(collider_dict, dict):
-                        continue
-
-                    offset = convert.vrm_json_vector3_to_tuple(
-                        collider_dict.get("offset")
-                    )
-                    if offset is None:
-                        offset = (0, 0, 0)
-
-                    radius = collider_dict.get("radius")
-                    if not isinstance(radius, (int, float)):
-                        radius = 0
-
-                    collider_name = f"{bone_name}_collider_{collider_index}"
-                    obj = bpy.data.objects.new(name=collider_name, object_data=None)
-                    collider_props.value = obj
-                    obj.parent = self.armature
-                    obj.parent_type = "BONE"
-                    obj.parent_bone = bone_name
-                    fixed_offset = [
-                        offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
-                    ]  # TODO: Y軸反転はUniVRMのシリアライズに合わせてる
-
-                    # boneのtail側にparentされるので、根元からのpositionに動かしなおす
-                    obj.matrix_world = Matrix.Translation(
-                        [
-                            armature.matrix_world.to_translation()[i]
-                            + armature.data.bones[
-                                bone_name
-                            ].matrix_local.to_translation()[i]
-                            + fixed_offset[i]
-                            for i in range(3)
+                # boneのtail側にparentされるので、根元からのpositionに動かしなおす
+                obj.matrix_world = Matrix.Translation(
+                    [
+                        armature.matrix_world.to_translation()[i]
+                        + armature.data.bones[bone_name].matrix_local.to_translation()[
+                            i
                         ]
-                    )
+                        + fixed_offset[i]
+                        for i in range(3)
+                    ]
+                )
 
-                    obj.empty_display_size = radius
-                    obj.empty_display_type = "SPHERE"
-                    collider_objs.append(obj)
-            if collider_objs:
-                colliders_collection = bpy.data.collections.new("Colliders")
-                self.context.scene.collection.children.link(colliders_collection)
-                for collider_obj in collider_objs:
-                    colliders_collection.objects.link(collider_obj)
+                obj.empty_display_size = radius
+                obj.empty_display_type = "SPHERE"
+                collider_objs.append(obj)
+        if collider_objs:
+            colliders_collection = bpy.data.collections.new("Colliders")
+            self.context.scene.collection.children.link(colliders_collection)
+            for collider_obj in collider_objs:
+                colliders_collection.objects.link(collider_obj)
 
         bone_groups = secondary_animation_dict.get("boneGroups")
         if not isinstance(bone_groups, collections.Iterable):
-            return
+            bone_groups = []
 
         for bone_group_dict in bone_groups:
             bone_group_props = secondary_animation_props.bone_groups.add()
 
             if not isinstance(bone_group_dict, dict):
+                bone_group_props.refresh(armature)
                 continue
 
             comment = bone_group_dict.get("comment")
@@ -2255,7 +2261,7 @@ class BlendModel:
 
             center = bone_group_dict.get("center")
             if isinstance(center, int) and center in self.bone_names:
-                bone_group_props.center.name = self.bone_names[center]
+                bone_group_props.center.value = self.bone_names[center]
 
             hit_radius = bone_group_dict.get("hitRadius")
             if isinstance(hit_radius, (int, float)):
@@ -2268,7 +2274,7 @@ class BlendModel:
                     if not isinstance(bone, int) or bone not in self.bone_names:
                         continue
 
-                    bone_prop.name = self.bone_names[bone]
+                    bone_prop.value = self.bone_names[bone]
 
             collider_groups = bone_group_dict.get("colliderGroups")
             if isinstance(collider_groups, collections.Iterable):
@@ -2283,6 +2289,12 @@ class BlendModel:
                     collider_group_uuid_props.value = (
                         secondary_animation_props.collider_groups[collider_group].uuid
                     )
+
+        for bone_group_props in secondary_animation_props.bone_groups:
+            bone_group_props.refresh(armature)
+
+        for collider_group_props in secondary_animation_props.collider_groups:
+            collider_group_props.refresh(armature)
 
     def cleaning_data(self) -> None:
         # collection setting

@@ -330,12 +330,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                                 + 'But blend shape group needs "{shape_key_name}" in its shape key.'
                             ).format(
                                 mesh_name=bind_props.mesh.name,
-                                shape_key_name=bind_props.index.name,
+                                shape_key_name=bind_props.index,
                             )
                         )
                         continue
 
-                    if bind_props.index.name not in shape_keys.key_blocks:
+                    if bind_props.index not in shape_keys.key_blocks:
                         warning_messages.append(
                             pgettext(
                                 'mesh "{mesh_name}" doesn\'t have "{shape_key_name}" shape key. '

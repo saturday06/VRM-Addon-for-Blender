@@ -3,7 +3,7 @@ import contextlib
 import functools
 import json
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 import bpy
 
@@ -151,7 +151,7 @@ def migrate_vrm0_first_person(
 
             mesh = mesh_annotation_dict.get("mesh")
             if isinstance(mesh, str) and mesh in bpy.data.meshes:
-                mesh_annotation_props.mesh = bpy.data.meshes[mesh]
+                mesh_annotation_props.mesh.value = bpy.data.meshes[mesh].name
 
             first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
             if isinstance(first_person_flag, str):
@@ -226,13 +226,11 @@ def migrate_vrm0_blend_shape_groups(
 
                 mesh = bind_dict.get("mesh")
                 if isinstance(mesh, str) and mesh in bpy.data.meshes:
-                    bind_props.mesh = bpy.data.meshes[mesh]
+                    mesh = bpy.data.meshes[mesh]
+                    bind_props.mesh.value = mesh.name
                     index = bind_dict.get("index")
-                    if (
-                        isinstance(index, str)
-                        and index in bind_props.mesh.shape_keys.key_blocks
-                    ):
-                        bind_props.index.name = index
+                    if isinstance(index, str) and index in mesh.shape_keys.key_blocks:
+                        bind_props.index = index
 
                 weight = bind_dict.get("weight")
                 if isinstance(weight, (int, float)):
@@ -247,8 +245,11 @@ def migrate_vrm0_blend_shape_groups(
                     continue
 
                 material_name = material_value_dict.get("materialName")
-                if isinstance(material_name, str):
-                    material_value_props.material_name = material_name
+                if (
+                    isinstance(material_name, str)
+                    and material_name in bpy.data.materials
+                ):
+                    material_value_props.material = bpy.data.materials[material_name]
 
                 property_name = material_value_dict.get("propertyName")
                 if isinstance(property_name, str):
@@ -291,13 +292,16 @@ def migrate_vrm0_secondary_animation(
     for bone_name, collider_objects in bone_name_to_collider_objects.items():
         collider_group_props = secondary_animation_props.collider_groups.add()
         collider_group_props.uuid = uuid.uuid4().hex
-        collider_group_props.node.name = bone_name
+        collider_group_props.node.value = bone_name
         for collider_object in collider_objects:
             collider_prop = collider_group_props.colliders.add()
-            collider_prop.value = collider_object
+            collider_prop.blender_object = collider_object
+
+    for collider_group_props in secondary_animation_props.collider_groups:
+        collider_group_props.refresh(armature)
 
     if not isinstance(bone_groups, collections.Iterable):
-        return
+        bone_groups = []
 
     for bone_group_dict in bone_groups:
         bone_group_props = secondary_animation_props.bone_groups.add()
@@ -331,7 +335,7 @@ def migrate_vrm0_secondary_animation(
 
         center = bone_group_dict.get("center")
         if isinstance(center, str):
-            bone_group_props.center.name = center
+            bone_group_props.center.value = center
 
         hit_radius = bone_group_dict.get("hitRadius")
         if isinstance(hit_radius, (int, float)):
@@ -343,7 +347,7 @@ def migrate_vrm0_secondary_animation(
                 bone_prop = bone_group_props.bones.add()
                 if not isinstance(bone, str):
                     continue
-                bone_prop.name = bone
+                bone_prop.value = bone
 
         collider_group_node_names = bone_group_dict.get("colliderGroups")
         if not isinstance(collider_group_node_names, collections.Iterable):
@@ -353,16 +357,19 @@ def migrate_vrm0_secondary_animation(
             if not isinstance(collider_group_node_name, str):
                 continue
             for collider_group_props in secondary_animation_props.collider_groups:
-                if collider_group_props.node.name != collider_group_node_name:
+                if collider_group_props.node.value != collider_group_node_name:
                     continue
-                collider_group_uuid_props = bone_group_props.collider_groups.add()
-                collider_group_uuid_props.value = collider_group_props.uuid
+                collider_group_name_props = bone_group_props.collider_groups.add()
+                collider_group_name_props.value = collider_group_props.name
                 break
+
+    for bone_group_props in secondary_animation_props.bone_groups:
+        bone_group_props.refresh(armature)
 
 
 def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
     ext = armature.data.vrm_addon_extension
-    if tuple(ext.addon_version) >= (2, 0, 0):
+    if tuple(ext.addon_version) >= (2, 0, 1):
         return
 
     migrate_vrm0_meta(ext.vrm0.meta, armature)
@@ -391,21 +398,45 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
 
         for human_bone_props in ext.vrm0.humanoid.human_bones:
             if human_bone_props.bone == human_bone_name:
-                human_bone_props.node.name = blender_bone_name
+                human_bone_props.node.value = blender_bone_name
                 break
 
 
+def get_all_bone_property_groups(
+    armature: bpy.types.Object,
+) -> Iterator[bpy.types.PropertyGroup]:
+    ext = armature.data.vrm_addon_extension
+    yield ext.vrm0.first_person.first_person_bone
+    for human_bone in ext.vrm0.humanoid.human_bones:
+        yield human_bone.node
+    for collider_group in ext.vrm0.secondary_animation.collider_groups:
+        yield collider_group.node
+    for bone_group in ext.vrm0.secondary_animation.bone_groups:
+        yield bone_group.center
+        yield from bone_group.bones
+
+
 def migrate(armature: bpy.types.Object, defer: bool) -> None:
-    if not armature or not armature.name:
+    if not armature or not armature.name or not armature.data.name:
         return
 
     ext = armature.data.vrm_addon_extension
-    if tuple(ext.addon_version) >= common.version.version():
+    if (
+        tuple(ext.addon_version) >= common.version.version()
+        and armature.data.name == ext.armature_data_name
+    ):
         return
 
     if defer:
         bpy.app.timers.register(functools.partial(migrate, armature, False))
         return
+
+    for bone_property_group in get_all_bone_property_groups(armature):
+        bone_property_group.refresh(armature)
+    for collider_group_props in ext.vrm0.secondary_animation.collider_groups:
+        collider_group_props.refresh(armature)
+    for bone_group_props in ext.vrm0.secondary_animation.bone_groups:
+        bone_group_props.refresh(armature)
 
     for human_bone_name in (
         human_bone_constants.HumanBone.requires + human_bone_constants.HumanBone.defines
@@ -421,3 +452,4 @@ def migrate(armature: bpy.types.Object, defer: bool) -> None:
     migrate_legacy_custom_properties(armature)
 
     ext.addon_version = common.version.version()
+    ext.armature_data_name = armature.data.name

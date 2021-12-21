@@ -508,7 +508,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         for vrm_bone_name, blender_bone_name in compare_dict.items():
             props = armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
             props.bone = vrm_bone_name
-            props.node.name = blender_bone_name
+            props.node.value = blender_bone_name
         self.make_extension_setting_and_metas(armature)
         migration.migrate(armature, defer=False)
 

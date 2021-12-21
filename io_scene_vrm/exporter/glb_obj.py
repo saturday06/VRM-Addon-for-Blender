@@ -225,7 +225,7 @@ class GlbObj:
             return node
 
         human_bone_node_names = [
-            human_bone.node.name
+            human_bone.node.value
             for human_bone in self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
         ]
 
@@ -1322,9 +1322,7 @@ class GlbObj:
                 ] = self.axis_blender_to_glb(relate_pos)
 
             # region hell
-            # Check added to resolve https://github.com/saturday06/VRM_Addon_for_Blender/issues/70
-            if bpy.context.view_layer.objects.active is not None:
-                bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.mode_set(mode="OBJECT")
 
             # region glTF-Blender-IO
             # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.91-release/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_nodes.py#L285-L303
@@ -1549,7 +1547,19 @@ class GlbObj:
                             )
 
                             # Attach hips bone
-                            hips_bone_name = self.armature.data["hips"]
+                            hips_bone_name: Optional[str] = None
+                            for (
+                                human_bone
+                            ) in (
+                                self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                            ):
+                                if human_bone.bone == "hips":
+                                    hips_bone_name = human_bone.node.value
+                            if (
+                                hips_bone_name is None
+                                or hips_bone_name not in self.armature.data.bones
+                            ):
+                                raise Exception("No hips bone found")
                             hips_bone_index = next(
                                 index
                                 for index, node in enumerate(self.json_dic["nodes"])
@@ -1825,13 +1835,13 @@ class GlbObj:
             for human_bone_props in humanoid_props.human_bones:
                 if (
                     human_bone_props.bone != human_bone_name
-                    or not human_bone_props.node.name
-                    or human_bone_props.node.name not in node_name_id_dict
+                    or not human_bone_props.node.value
+                    or human_bone_props.node.value not in node_name_id_dict
                 ):
                     continue
                 human_bone_dict = {
                     "bone": human_bone_name,
-                    "node": node_name_id_dict[human_bone_props.node.name],
+                    "node": node_name_id_dict[human_bone_props.node.value],
                     "useDefaultValues": human_bone_props.use_default_values,
                 }
                 humanoid_dict["humanBones"].append(human_bone_dict)
@@ -1872,13 +1882,13 @@ class GlbObj:
         vrm_extension_dict["firstPerson"] = first_person_dict
         first_person_props = self.armature.data.vrm_addon_extension.vrm0.first_person
 
-        if first_person_props.first_person_bone.name:
+        if first_person_props.first_person_bone.value:
             first_person_dict["firstPersonBone"] = node_name_id_dict[
-                first_person_props.first_person_bone.name
+                first_person_props.first_person_bone.value
             ]
         else:
             name = [
-                human_bone.node.name
+                human_bone.node.value
                 for human_bone in self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
                 if human_bone.bone == "head"
             ][0]
@@ -1894,16 +1904,18 @@ class GlbObj:
         mesh_annotations: List[Dict[str, Any]] = []
         first_person_dict["meshAnnotations"] = mesh_annotations
         for mesh_annotation_props in first_person_props.mesh_annotations:
-            if not mesh_annotation_props.mesh or not mesh_annotation_props.mesh.name:
-                continue
-            matched_mesh_indices = [
-                i
-                for i, mesh in enumerate(self.json_dic["meshes"])
-                if mesh["name"] == mesh_annotation_props.mesh.name
-            ]
+            if not mesh_annotation_props.mesh or not mesh_annotation_props.mesh.value:
+                mesh_index = -1
+            else:
+                matched_mesh_indices = [
+                    i
+                    for i, mesh in enumerate(self.json_dic["meshes"])
+                    if mesh["name"] == mesh_annotation_props.mesh.value
+                ]
+                mesh_index = (matched_mesh_indices + [-1])[0]
             mesh_annotations.append(
                 {
-                    "mesh": (matched_mesh_indices + [-1])[0],
+                    "mesh": mesh_index,
                     "firstPersonFlag": mesh_annotation_props.first_person_flag,
                 }
             )
@@ -1959,7 +1971,7 @@ class GlbObj:
             blend_shape_group_dict["binds"] = binds = []
             for bind_props in blend_shape_group_props.binds:
                 bind_dict: Dict[str, Any] = {}
-                mesh = self.mesh_name_to_index.get(bind_props.mesh.name)
+                mesh = self.mesh_name_to_index.get(bind_props.mesh.value)
                 if mesh is None:
                     continue
                 bind_dict["mesh"] = mesh
@@ -1970,17 +1982,20 @@ class GlbObj:
                     [],
                 )
 
-                if bind_props.index.name not in target_names:
+                if bind_props.index not in target_names:
                     continue
 
-                bind_dict["index"] = target_names.index(bind_props.index.name)
+                bind_dict["index"] = target_names.index(bind_props.index)
                 bind_dict["weight"] = min(max(bind_props.weight * 100, 0), 100)
 
                 binds.append(bind_dict)
 
             blend_shape_group_dict["materialValues"] = material_values = []
             for material_value_props in blend_shape_group_props.material_values:
-                if not material_value_props.material:
+                if (
+                    not material_value_props.material
+                    or not material_value_props.material.name
+                ):
                     continue
 
                 material_values.append(
@@ -2008,8 +2023,8 @@ class GlbObj:
         secondary_animation_props = (
             self.armature.data.vrm_addon_extension.vrm0.secondary_animation
         )
-        collider_group_uuids = [
-            collider_group_props.uuid
+        collider_group_names = [
+            collider_group_props.name
             for collider_group_props in secondary_animation_props.collider_groups
         ]
 
@@ -2027,19 +2042,19 @@ class GlbObj:
                     "z": bone_group_props.gravity_dir[1],
                 },
                 "dragForce": bone_group_props.drag_force,
-                "center": node_name_id_dict.get(bone_group_props.center.name, -1),
+                "center": node_name_id_dict.get(bone_group_props.center.value, -1),
                 "hitRadius": bone_group_props.hit_radius,
                 "bones": [
-                    node_name_id_dict[bone.name]
+                    node_name_id_dict[bone.value]
                     for bone in bone_group_props.bones
-                    if bone.name in node_name_id_dict
+                    if bone.value in node_name_id_dict
                 ],
             }
             collider_group_indices: List[int] = []
-            for collider_group_uuid_props in bone_group_props.collider_groups:
-                if collider_group_uuid_props.value not in collider_group_uuids:
+            for collider_group_name_props in bone_group_props.collider_groups:
+                if collider_group_name_props.value not in collider_group_names:
                     continue
-                index = collider_group_uuids.index(collider_group_uuid_props.value)
+                index = collider_group_names.index(collider_group_name_props.value)
                 collider_group_indices.append(index)
 
             bone_group_dict["colliderGroups"] = collider_group_indices
@@ -2052,16 +2067,16 @@ class GlbObj:
             collider_group_dict["colliders"] = colliders = []
             collider_groups.append(collider_group_dict)
 
-            if collider_group_props.node and collider_group_props.node.name:
+            if collider_group_props.node and collider_group_props.node.value:
                 collider_group_dict["node"] = node_name_id_dict[
-                    collider_group_props.node.name
+                    collider_group_props.node.value
                 ]
             else:
                 collider_group_dict["node"] = -1
                 continue
 
             for collider_props in collider_group_props.colliders:
-                collider_object = collider_props.value
+                collider_object = collider_props.blender_object
                 if collider_object.parent_bone not in self.armature.data.bones:
                     continue
 
