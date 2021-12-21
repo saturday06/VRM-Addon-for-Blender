@@ -1322,7 +1322,9 @@ class GlbObj:
                 ] = self.axis_blender_to_glb(relate_pos)
 
             # region hell
-            bpy.ops.object.mode_set(mode="OBJECT")
+            # Check added to resolve https://github.com/saturday06/VRM_Addon_for_Blender/issues/70
+            if bpy.context.view_layer.objects.active is not None:
+                bpy.ops.object.mode_set(mode="OBJECT")
 
             # region glTF-Blender-IO
             # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.91-release/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_nodes.py#L285-L303
