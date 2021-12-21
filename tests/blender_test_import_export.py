@@ -120,7 +120,12 @@ def assert_import_export(
 
     bpy.ops.vrm.model_validate()
 
-    if test_blend_path is not None and not os.path.exists(test_blend_path):
+    if (
+        not extract_textures
+        and test_blend_path is not None
+        and not os.path.exists(test_blend_path)
+        and not os.path.exists(test_blend_path + ".OPT_OUT.txt")
+    ):
         os.makedirs(os.path.dirname(test_blend_path), exist_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=test_blend_path)
 
