@@ -131,7 +131,7 @@ def migrate_vrm0_first_person(
 
     first_person_bone = first_person_dict.get("firstPersonBone")
     if isinstance(first_person_bone, str):
-        first_person_props.first_person_bone.name = first_person_bone
+        first_person_props.first_person_bone.value = first_person_bone
 
     first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
         first_person_dict.get("firstPersonBoneOffset")

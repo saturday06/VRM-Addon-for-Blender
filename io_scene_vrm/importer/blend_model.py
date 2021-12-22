@@ -1990,7 +1990,7 @@ class BlendModel:
 
         first_person_bone = first_person_dict.get("firstPersonBone")
         if isinstance(first_person_bone, int) and first_person_bone in self.bone_names:
-            first_person_props.first_person_bone.name = self.bone_names[
+            first_person_props.first_person_bone.value = self.bone_names[
                 first_person_bone
             ]
 

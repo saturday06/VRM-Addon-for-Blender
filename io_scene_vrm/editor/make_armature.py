@@ -515,7 +515,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
     @classmethod
     def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
         vrm0 = armature.data.vrm_addon_extension.vrm0
-        vrm0.first_person.first_person_bone.name = "head"
+        vrm0.first_person.first_person_bone.value = "head"
         vrm0.first_person.first_person_offset = (0, 0, 0.06)
         vrm0.first_person.look_at_horizontal_inner.y_range = 8
         vrm0.first_person.look_at_horizontal_outer.y_range = 12

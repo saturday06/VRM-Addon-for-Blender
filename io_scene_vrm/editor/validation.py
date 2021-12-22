@@ -303,7 +303,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         if armature is not None:
             # region first_person
             first_person_props = armature.data.vrm_addon_extension.vrm0.first_person
-            if not first_person_props.first_person_bone.name:
+            if not first_person_props.first_person_bone.value:
                 warning_messages.append(
                     pgettext(
                         "firstPersonBone is not found. "
