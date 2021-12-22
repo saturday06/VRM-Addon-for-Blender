@@ -1350,7 +1350,7 @@ class VRM_PT_vrm0_secondary_animation_armature_object_property(bpy.types.Panel):
         )
 
     def draw_header(self, _context: bpy.types.Context) -> None:
-        self.layout.label(icon="FILE_BLEND")
+        self.layout.label(icon="PHYSICS")
 
     def draw(self, context: bpy.types.Context) -> None:
         ext = context.active_object.data.vrm_addon_extension
@@ -1373,7 +1373,7 @@ class VRM_PT_vrm0_secondary_animation_ui(bpy.types.Panel):  # type: ignore[misc]
         return search.armature_exists(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
-        self.layout.label(icon="FILE_BLEND")
+        self.layout.label(icon="PHYSICS")
 
     def draw(self, context: bpy.types.Context) -> None:
         armature = search.current_armature(context)
