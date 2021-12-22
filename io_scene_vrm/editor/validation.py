@@ -135,6 +135,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 for humanoid_name in HumanBone.requires:
                     if any(
                         human_bone_props.bone == humanoid_name
+                        and human_bone_props.node
+                        and human_bone_props.node.value
+                        and human_bone_props.node.value in armature.data.bones
                         for human_bone_props in human_bones_props
                     ):
                         continue
