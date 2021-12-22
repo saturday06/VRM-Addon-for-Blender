@@ -95,7 +95,14 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         self.value = value
 
     def get_value(self) -> str:
-        if self.link_to_bone and self.link_to_bone.parent_bone:
+        if (
+            self.link_to_bone
+            and self.link_to_bone.parent_bone
+            and self.link_to_bone.parent
+            and self.link_to_bone.parent.name
+            and self.link_to_bone.parent.type == "ARMATURE"
+            and self.link_to_bone.parent_bone in self.link_to_bone.parent.data.bones
+        ):
             return str(self.link_to_bone.parent_bone)
         return ""
 

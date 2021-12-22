@@ -424,6 +424,13 @@ def migrate(armature: bpy.types.Object, defer: bool) -> None:
     if (
         tuple(ext.addon_version) >= common.version.version()
         and armature.data.name == ext.armature_data_name
+        and (
+            ext.vrm0.first_person.first_person_bone.value
+            or all(
+                (human_bone.bone != "head" or not human_bone.node.value)
+                for human_bone in ext.vrm0.humanoid.human_bones
+            )
+        )
     ):
         return
 
@@ -448,6 +455,12 @@ def migrate(armature: bpy.types.Object, defer: bool) -> None:
             continue
         human_bone_props = ext.vrm0.humanoid.human_bones.add()
         human_bone_props.bone = human_bone_name
+
+    if not ext.vrm0.first_person.first_person_bone.value:
+        for human_bone in ext.vrm0.humanoid.human_bones:
+            if human_bone.bone == "head":
+                ext.vrm0.first_person.first_person_bone.value = human_bone.node.value
+                break
 
     migrate_legacy_custom_properties(armature)
 
