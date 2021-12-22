@@ -4,7 +4,7 @@ import bpy
 from bpy_extras.io_utils import ExportHelper
 
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
-from ..editor import migration, validation
+from ..editor import validation
 from .glb_obj import GlbObj
 
 
@@ -65,8 +65,6 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        migration.migrate(self.armature, defer=False)
-
         preferences = get_preferences(context)
         if preferences:
             self.export_invisibles = bool(preferences.export_invisibles)

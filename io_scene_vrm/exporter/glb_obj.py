@@ -29,7 +29,7 @@ from ..common import deep, human_bone_constants
 from ..common.gltf_constants import Gltf
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
-from ..editor import search
+from ..editor import migration, search
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
 
@@ -87,6 +87,7 @@ class GlbObj:
             if not self.armature:
                 raise Exception("Failed to generate default armature")
             self.use_dummy_armature = True
+        migration.migrate(self.armature, defer=False)
         self.result: Optional[bytes] = None
 
     def convert_bpy2glb(self, vrm_version: str) -> Optional[bytes]:
