@@ -589,6 +589,9 @@ class BlendModel:
 
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
+            if self.is_temp_object_name(material.name):
+                material.name = "~" + material.name  # TODO: Remove it permanently
+                continue
             material_index = material.get(extras_material_index_key)
             if not isinstance(material_index, int):
                 continue
@@ -1006,7 +1009,7 @@ class BlendModel:
                         or material != self.gltf_materials.get(vrm_material_index)
                     ):
                         continue
-                    material.name = "glTF_VRM_overridden_" + material_original_name
+                    material.name = "~glTF_VRM_overridden_" + material_original_name
                     vrm_material.name = material_original_name
                     mesh.data.materials[material_index] = vrm_material
                     break
