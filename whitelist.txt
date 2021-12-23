@@ -23,7 +23,6 @@ blendshape
 blendshapemaster
 bmesh
 bonegroup
-bonename
 bpy
 bpy2glb
 bugyyyyyyyyyyyyyyyyy
@@ -89,7 +88,6 @@ inv
 invisibles
 iterdir
 ja
-jdic
 keyblock
 khr
 ld
@@ -150,7 +148,6 @@ quaternion
 raytrace
 rbd
 recalc
-reprstr
 req
 rfu
 rgb

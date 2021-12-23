@@ -745,6 +745,14 @@ def draw_vrm0_humanoid_layout(
         helper.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT"
     )
 
+    if helper.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
+        simplify_vroid_bones_op = armature_box.operator(
+            helper.VRM_OT_simplify_vroid_bones.bl_idname,
+            text=pgettext(helper.VRM_OT_simplify_vroid_bones.bl_label),
+            icon="IMPORT",
+        )
+        simplify_vroid_bones_op.armature_name = armature.name
+
     layout.separator()
     requires_box = armature_box.box()
     requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")

@@ -103,7 +103,7 @@ classes = [
     editor.helper.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
     editor.helper.VRM_OT_add_extensions_to_armature,
     editor.helper.VRM_OT_add_required_human_bone_custom_property,  # deprecated
-    editor.helper.VRM_OT_rename_bones,
+    editor.helper.VRM_OT_simplify_vroid_bones,
     editor.helper.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
     editor.helper.VRM_OT_save_human_bone_mappings,
     editor.helper.VRM_OT_load_human_bone_mappings,

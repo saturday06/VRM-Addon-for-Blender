@@ -18,43 +18,44 @@ from . import search
 from .make_armature import ICYP_OT_make_armature
 
 
-class VRM_OT_rename_bones(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.bones_rename"
-    bl_label = "Rename VRoid_bones"
+    bl_label = "Simplify VRoid Bones"
     bl_description = "Rename VRoid_bones as Blender type"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        def reprstr(bone_name: str) -> str:
-            ml = re.match("(.*)_" + "L" + "_(.*)", bone_name)
-            mr = re.match("(.*)_" + "R" + "_(.*)", bone_name)
-            if ml or mr:
-                tmp = ""
-                ma = ml if ml else mr
-                if ma is None:
-                    raise Exception(f"{bone_name} is not vroid bone name")
-                for y in ma.groups():
-                    tmp += y + "_"
-                tmp += "R" if mr else "L"
-                return tmp
-            return bone_name
+    left__pattern = re.compile("^J_(Adj|Bip|Sec)_L_")
+    right_pattern = re.compile("^J_(Adj|Bip|Sec)_R_")
+    full__pattern = re.compile("^J_(Adj|Bip|Sec)_[CLR]_")
 
-        for x in bpy.context.active_object.data.bones:
-            x.name = reprstr(x.name)
-        if "spring_bone" in bpy.context.active_object:
-            textblock = bpy.data.texts[bpy.context.active_object["spring_bone"]]
-            j = json.loads("".join([line.body for line in textblock.lines]))
-            for jdic in j:
-                for i, bones in enumerate(jdic["bones"]):
-                    jdic["bones"][i] = reprstr(bones)
-                for i, collider in enumerate(jdic["colliderGroups"]):
-                    jdic["colliderGroups"][i] = reprstr(collider)
-            textblock.from_string(json.dumps(j, indent=4))
-        for bonename in HumanBone.requires + HumanBone.defines:
-            if bonename in bpy.context.active_object.data:
-                bpy.context.active_object.data[bonename] = reprstr(
-                    bpy.context.active_object.data[bonename]
-                )
+    armature_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    @staticmethod
+    def vroid_bones_exist(armature: bpy.types.Armature) -> bool:
+        return any(
+            map(VRM_OT_simplify_vroid_bones.full__pattern.match, armature.bones.keys())
+        )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        for bone_name, bone in armature.data.bones.items():
+            left = VRM_OT_simplify_vroid_bones.left__pattern.sub("", bone_name)
+            if left != bone_name:
+                bone.name = left + "_L"
+                continue
+
+            right = VRM_OT_simplify_vroid_bones.right_pattern.sub("", bone_name)
+            if right != bone_name:
+                bone.name = right + "_R"
+                continue
+
+            a = VRM_OT_simplify_vroid_bones.full__pattern.sub("", bone_name)
+            if a != bone_name:
+                bone.name = a
+                continue
+
         return {"FINISHED"}
 
 
