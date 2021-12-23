@@ -579,14 +579,6 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
     armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
-class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
-
-
-class VrmAddonShapeKeyExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
-
-
 class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm_armature_object_property"
     bl_label = "VRM"
