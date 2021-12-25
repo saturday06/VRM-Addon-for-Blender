@@ -28,7 +28,9 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc] # n
     right_pattern = re.compile("^J_(Adj|Bip|Sec)_R_")
     full__pattern = re.compile("^J_(Adj|Bip|Sec)_[CLR]_")
 
-    armature_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
 
     @staticmethod
     def vroid_bones_exist(armature: bpy.types.Armature) -> bool:

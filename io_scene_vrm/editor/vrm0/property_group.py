@@ -194,6 +194,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     )
 
     # for UI
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
     show_expanded_binds: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Binds"  # noqa: F821
     )
@@ -249,6 +250,9 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
         ) in armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
+    # for UI
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
     # for reference from Vrm0SecondaryAnimationGroupPropertyGroup
     name: bpy.props.StringProperty()  # type: ignore[valid-type]
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -286,6 +290,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
     )
 
     # for UI
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
     show_expanded_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Bones"  # noqa: F821
     )

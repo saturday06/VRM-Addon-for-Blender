@@ -309,6 +309,21 @@ def draw_vrm0_blend_shape_master_layout(
     for blend_shape_group_index, blend_shape_group_props in enumerate(
         blend_shape_master_props.blend_shape_groups
     ):
+        row = layout.row()
+        row.alignment = "LEFT"
+        row.prop(
+            blend_shape_group_props,
+            "show_expanded",
+            icon="TRIA_DOWN" if blend_shape_group_props.show_expanded else "TRIA_RIGHT",
+            emboss=False,
+            text=blend_shape_group_props.name
+            + " / "
+            + blend_shape_group_props.preset_name,
+            translate=False,
+        )
+        if not blend_shape_group_props.show_expanded:
+            continue
+
         box = layout.box()
         box.prop(blend_shape_group_props, "name")
         box.prop(blend_shape_group_props, "preset_name")
@@ -433,6 +448,7 @@ def draw_vrm0_blend_shape_master_layout(
     add_blend_shape_group_op = layout.operator(
         vrm0_operator.VRM_OT_add_vrm0_blend_shape_group.bl_idname, icon="ADD"
     )
+    add_blend_shape_group_op.name = "New"
     add_blend_shape_group_op.armature_name = armature.name
 
 
@@ -505,10 +521,47 @@ def draw_vrm0_secondary_animation_layout(
     migrate(armature, defer=True)
     data = armature.data
 
+    bone_groups_box = layout.box()
+    bone_groups_box.label(text="Spring Bone Groups", icon="GROUP_BONE")
     for bone_group_index, bone_group_props in enumerate(
         secondary_animation.bone_groups
     ):
-        box = layout.box()
+        row = bone_groups_box.row()
+        row.alignment = "LEFT"
+
+        text = ""
+        if bone_group_props.bones:
+            text = (
+                "("
+                + ", ".join(map(lambda bone: str(bone.value), bone_group_props.bones))
+                + ")"
+            )
+
+        if bone_group_props.center.value:
+            if text:
+                text = " - " + text
+            text = bone_group_props.center.value + text
+
+        if bone_group_props.comment:
+            if text:
+                text = " / " + text
+            text = bone_group_props.comment + text
+
+        if not text:
+            text = "(EMPTY)"
+
+        row.prop(
+            bone_group_props,
+            "show_expanded",
+            icon="TRIA_DOWN" if bone_group_props.show_expanded else "TRIA_RIGHT",
+            emboss=False,
+            text=text,
+            translate=False,
+        )
+        if not bone_group_props.show_expanded:
+            continue
+
+        box = bone_groups_box.box()
         row = box.row()
         box.prop(bone_group_props, "comment", icon="BOOKMARKS")
         box.prop(bone_group_props, "stiffiness", icon="RIGID_BODY_CONSTRAINT")
@@ -601,15 +654,30 @@ def draw_vrm0_secondary_animation_layout(
         )
         remove_bone_group_op.armature_name = armature.name
         remove_bone_group_op.bone_group_index = bone_group_index
-    add_bone_group_op = layout.operator(
+    add_bone_group_op = bone_groups_box.operator(
         vrm0_operator.VRM_OT_add_vrm0_secondary_animation_group.bl_idname, icon="ADD"
     )
     add_bone_group_op.armature_name = armature.name
 
+    collider_groups_box = layout.box()
+    collider_groups_box.label(text="Collider Groups", icon="SPHERE")
     for collider_group_index, collider_group_props in enumerate(
         secondary_animation.collider_groups
     ):
-        box = layout.box()
+        row = collider_groups_box.row()
+        row.alignment = "LEFT"
+        row.prop(
+            collider_group_props,
+            "show_expanded",
+            icon="TRIA_DOWN" if collider_group_props.show_expanded else "TRIA_RIGHT",
+            emboss=False,
+            text=collider_group_props.name,
+            translate=False,
+        )
+        if not collider_group_props.show_expanded:
+            continue
+
+        box = collider_groups_box.box()
         row = box.row()
         box.label(text=collider_group_props.name)
         box.prop_search(collider_group_props.node, "value", armature.data, "bones")
@@ -644,7 +712,7 @@ def draw_vrm0_secondary_animation_layout(
         )
         remove_collider_group_op.armature_name = armature.name
         remove_collider_group_op.collider_group_index = collider_group_index
-    add_collider_group_op = layout.operator(
+    add_collider_group_op = collider_groups_box.operator(
         vrm0_operator.VRM_OT_add_vrm0_secondary_animation_collider_group.bl_idname,
         icon="ADD",
     )
