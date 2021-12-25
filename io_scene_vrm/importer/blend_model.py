@@ -33,6 +33,17 @@ from .. import common, editor, exporter
 from ..common import convert, deep, human_bone_constants
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
+from ..editor import operator, panel
+from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
+from ..editor.vrm0.property_group import (
+    Vrm0BlendShapeMasterPropertyGroup,
+    Vrm0FirstPersonPropertyGroup,
+    Vrm0HumanoidPropertyGroup,
+    Vrm0MetaPropertyGroup,
+    Vrm0PropertyGroup,
+    Vrm0SecondaryAnimationPropertyGroup,
+)
+from ..exporter import glb_obj
 from .py_model import (
     PyMaterial,
     PyMaterialGltf,
@@ -484,7 +495,7 @@ class BlendModel:
 
         full_vrm_import_success = False
         with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-            indexed_vrm_file.write(exporter.glb_obj.pack_glb(json_dict, body_binary))
+            indexed_vrm_file.write(glb_obj.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
             try:
                 bpy.ops.import_scene.gltf(
@@ -734,7 +745,7 @@ class BlendModel:
                         # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
                         disconnected_bone.parent.tail = disconnected_bone.head
 
-            editor.make_armature.connect_parent_tail_and_child_head_if_same_position(
+            panel.make_armature.connect_parent_tail_and_child_head_if_same_position(
                 armature.data
             )
             bpy.ops.object.mode_set(mode="OBJECT")
@@ -1798,12 +1809,10 @@ class BlendModel:
         if not armature:
             return
         addon_extension = armature.data.vrm_addon_extension
-        if not isinstance(
-            addon_extension, editor.VrmAddonArmatureExtensionPropertyGroup
-        ):
+        if not isinstance(addon_extension, VrmAddonArmatureExtensionPropertyGroup):
             return
         vrm0 = addon_extension.vrm0
-        if not isinstance(vrm0, editor.Vrm0PropertyGroup):
+        if not isinstance(vrm0, Vrm0PropertyGroup):
             return
 
         if self.vrm_extension is not None:
@@ -1830,9 +1839,7 @@ class BlendModel:
         )
         editor.migration.migrate(armature, defer=False)
 
-    def load_vrm0_meta(
-        self, meta_props: editor.Vrm0MetaPropertyGroup, meta_dict: Any
-    ) -> None:
+    def load_vrm0_meta(self, meta_props: Vrm0MetaPropertyGroup, meta_dict: Any) -> None:
         if not isinstance(meta_dict, dict):
             return
 
@@ -1897,7 +1904,7 @@ class BlendModel:
                 meta_props.texture = self.images[image_index]
 
     def load_vrm0_humanoid(
-        self, humanoid_props: editor.Vrm0HumanoidPropertyGroup, humanoid_dict: Any
+        self, humanoid_props: Vrm0HumanoidPropertyGroup, humanoid_dict: Any
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -1985,7 +1992,7 @@ class BlendModel:
 
     def load_vrm0_first_person(
         self,
-        first_person_props: editor.Vrm0FirstPersonPropertyGroup,
+        first_person_props: Vrm0FirstPersonPropertyGroup,
         first_person_dict: Any,
     ) -> None:
         if not isinstance(first_person_dict, dict):
@@ -2060,7 +2067,7 @@ class BlendModel:
 
     def load_vrm0_blend_shape_master(
         self,
-        blend_shape_master_props: editor.Vrm0BlendShapeMasterPropertyGroup,
+        blend_shape_master_props: Vrm0BlendShapeMasterPropertyGroup,
         blend_shape_master_dict: Any,
     ) -> None:
         if not isinstance(blend_shape_master_dict, dict):
@@ -2149,7 +2156,7 @@ class BlendModel:
 
     def load_vrm0_secondary_animation(
         self,
-        secondary_animation_props: editor.Vrm0SecondaryAnimationPropertyGroup,
+        secondary_animation_props: Vrm0SecondaryAnimationPropertyGroup,
         secondary_animation_dict: Any,
     ) -> None:
         if not isinstance(secondary_animation_dict, dict):
@@ -2430,7 +2437,7 @@ class BlendModel:
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
-        editor.helper.VRM_OT_simplify_vroid_bones(bpy.context)
+        operator.VRM_OT_simplify_vroid_bones(bpy.context)
 
 
 # DeprecationWarning

@@ -41,6 +41,7 @@ module = [
     "gpu_extras.*",
     "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials",
     "mathutils",
+    "__main__.io_scene_vrm",
 ]
 ignore_missing_imports = true
 

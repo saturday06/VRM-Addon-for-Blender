@@ -2,7 +2,7 @@ import sys
 from typing import Sequence, cast
 from unittest import TestCase
 
-from io_scene_vrm import exporter
+from io_scene_vrm.exporter import glb_obj
 
 
 class TestExporter(TestCase):
@@ -16,7 +16,7 @@ class TestExporter(TestCase):
             ([0, sys.float_info.epsilon, 0, sys.float_info.epsilon], [0, 0.5, 0, 0.5]),
         ]:
             with self.subTest(arg):
-                actual = exporter.glb_obj.normalize_weights_compatible_with_gl_float(
+                actual = glb_obj.normalize_weights_compatible_with_gl_float(
                     cast(Sequence[float], arg)
                 )
                 self.assertEqual(
