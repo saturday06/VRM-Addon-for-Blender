@@ -7,7 +7,8 @@ from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ImportHelper
 
 from ..common.preferences import use_legacy_importer_exporter
-from . import blend_model
+from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
+from .legacy_vrm_importer import LegacyVrmImporter
 from .license import LicenseConfirmationRequired
 from .vrm_parser import VrmParser
 
@@ -93,21 +94,20 @@ def create_blend_model(
         ui_localization = bpy.context.preferences.view.use_international_fonts
     try:
         if not legacy_importer:
-            with contextlib.suppress(blend_model.RetryUsingLegacyImporter):
+            with contextlib.suppress(RetryUsingLegacyVrmImporter):
                 parse_result = VrmParser(
                     addon.filepath,
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
                     license_validation=license_validation,
-                    legacy_importer=legacy_importer,
+                    legacy_importer=False,
                 ).parse()
-                blend_model.BlendModel(
+                Gltf2AddonVrmImporter(
                     context,
                     parse_result,
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
-                    legacy_importer=legacy_importer,
-                )
+                ).import_vrm()
                 return {"FINISHED"}
 
         parse_result = VrmParser(
@@ -117,13 +117,12 @@ def create_blend_model(
             license_validation=license_validation,
             legacy_importer=True,
         ).parse()
-        blend_model.BlendModel(
+        LegacyVrmImporter(
             context,
             parse_result,
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
-            legacy_importer=True,
-        )
+        ).import_vrm()
     finally:
         if has_ui_localization and ui_localization:
             bpy.context.preferences.view.use_international_fonts = ui_localization
