@@ -2,7 +2,7 @@ import collections
 from typing import Any, Dict, List, Tuple
 
 from ..common import deep
-from .py_model import decode_bin, parse_glb
+from .vrm_parser import decode_bin, parse_glb
 
 
 def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:

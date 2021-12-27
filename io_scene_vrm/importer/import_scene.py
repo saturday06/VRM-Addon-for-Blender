@@ -8,7 +8,8 @@ from bpy_extras.io_utils import ImportHelper
 
 from ..common.preferences import use_legacy_importer_exporter
 from . import blend_model
-from .py_model import LicenseConfirmationRequired, PyModel
+from .license import LicenseConfirmationRequired
+from .vrm_parser import VrmParser
 
 
 class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -42,7 +43,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
             return create_blend_model(
                 self,
                 context,
-                license_check=True,
+                license_validation=True,
             )
         except LicenseConfirmationRequired as e:
             license_error = e  # Prevent traceback dump on another exception
@@ -83,7 +84,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
 def create_blend_model(
     addon: Any,
     context: bpy.types.Context,
-    license_check: bool,
+    license_validation: bool,
 ) -> Set[str]:
     legacy_importer = use_legacy_importer_exporter()
     has_ui_localization = bpy.app.version < (2, 83)
@@ -93,32 +94,32 @@ def create_blend_model(
     try:
         if not legacy_importer:
             with contextlib.suppress(blend_model.RetryUsingLegacyImporter):
-                py_model = PyModel(
+                parse_result = VrmParser(
                     addon.filepath,
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
-                    license_check=license_check,
+                    license_validation=license_validation,
                     legacy_importer=legacy_importer,
-                )
+                ).parse()
                 blend_model.BlendModel(
                     context,
-                    py_model,
+                    parse_result,
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
                     legacy_importer=legacy_importer,
                 )
                 return {"FINISHED"}
 
-        py_model = PyModel(
+        parse_result = VrmParser(
             addon.filepath,
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
-            license_check=license_check,
+            license_validation=license_validation,
             legacy_importer=True,
-        )
+        ).parse()
         blend_model.BlendModel(
             context,
-            py_model,
+            parse_result,
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
             legacy_importer=True,
@@ -157,7 +158,7 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
         return create_blend_model(
             self,
             context,
-            license_check=False,
+            license_validation=False,
         )
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
