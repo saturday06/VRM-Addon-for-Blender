@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://vrm-addon-for-blender.info/sitemap.xml
