@@ -431,9 +431,9 @@ class VrmParser:
             json_dict, body_binary = parse_glb(f.read())
             self.json_dict = json_dict
 
-        # KHR_DRACO_MESH_COMPRESSION は対応してない場合落とさないといけないらしい。どのみち壊れたデータになるからね。
         if (
-            "extensionsRequired" in self.json_dict
+            self.legacy_importer
+            and "extensionsRequired" in self.json_dict
             and "KHR_DRACO_MESH_COMPRESSION" in self.json_dict["extensionsRequired"]
         ):
             raise Exception(
