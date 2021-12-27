@@ -9,7 +9,7 @@ import bpy
 sys.path.insert(0, dirname(dirname(__file__)))
 
 # pylint: disable=wrong-import-position;
-from io_scene_vrm.importer.py_model import json_dict_diff  # noqa: E402
+from io_scene_vrm.common import deep  # noqa: E402
 
 # pylint: enable=wrong-import-position;
 
@@ -23,7 +23,7 @@ def test() -> None:
         with open(file.name, "rb") as read_file:
             loaded_json = json.load(read_file)
 
-    diffs = json_dict_diff(
+    diffs = deep.diff(
         loaded_json,
         {
             "chest": "chest",
