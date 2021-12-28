@@ -7,13 +7,12 @@ import shutil
 import string
 import struct
 import tempfile
-from typing import Optional
 
 import bgl
 import bpy
 import mathutils
 
-from ..common import deep, glb
+from ..common import glb
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -49,8 +48,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         try:
             i = 1
             affected_object = self.scene_init()
-            i = prog(i)
-            self.parse_vrm_extension()
             i = prog(i)
             self.import_gltf2_with_indices()
             if self.extract_textures_into_folder:
@@ -438,63 +435,44 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     )
                 except RuntimeError as e:
                     self.cleanup_gltf2_with_indices()
+                    if self.parse_result.spec_version_number >= (1, 0):
+                        raise e
                     raise RetryUsingLegacyVrmImporter() from e
 
-        spec_version: Optional[str] = None
-        hips_bone_node_index: Optional[int] = None
-
-        if self.vrm_extension is not None:
-            spec_version = "1.0_draft"
-            hips_index = deep.get(
-                self.vrm_extension, ["humanoid", "humanBones", "hips", "node"]
-            )
-            if isinstance(hips_index, int):
-                hips_bone_node_index = hips_index
-        elif self.vrm0_extension is not None:
-            spec_version = "0.0"
-            human_bones = deep.get(self.vrm0_extension, ["humanoid", "humanBones"], [])
-            if isinstance(human_bones, list):
-                for human_bone in human_bones:
-                    if (
-                        isinstance(human_bone, dict)
-                        and human_bone.get("bone") == "hips"
-                        and isinstance(human_bone.get("node"), int)
-                    ):
-                        hips_bone_node_index = human_bone["node"]
-                        break
-
         extras_node_index_key = self.import_id + "Nodes"
-        if hips_bone_node_index is not None:
-            for obj in bpy.context.selectable_objects:
-                data = obj.data
-                if not isinstance(data, bpy.types.Armature):
+        for obj in bpy.context.selectable_objects:
+            data = obj.data
+            if not isinstance(data, bpy.types.Armature):
+                continue
+            for bone_name, bone in data.bones.items():
+                bone_node_index = bone.get(extras_node_index_key)
+                if not isinstance(bone_node_index, int):
                     continue
-                for bone_name, bone in data.bones.items():
-                    bone_node_index = bone.get(extras_node_index_key)
-                    if not isinstance(bone_node_index, int):
-                        continue
-                    if 0 <= bone_node_index < len(self.parse_result.json_dict["nodes"]):
-                        node = self.parse_result.json_dict["nodes"][bone_node_index]
-                        node["name"] = bone_name
-                    del bone[extras_node_index_key]
-                    self.bone_names[bone_node_index] = bone_name
-                    if (
-                        self.armature is not None
-                        or bone_node_index != hips_bone_node_index
-                    ):
-                        continue
-                    if spec_version == "0.0" and obj.rotation_mode == "QUATERNION":
-                        obj.rotation_quaternion.rotate(
-                            mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
-                        )
-                        obj.select_set(True)
-                        previous_active = bpy.context.view_layer.objects.active
-                        try:
-                            bpy.context.view_layer.objects.active = obj
-                            bpy.ops.object.transform_apply(rotation=True)
-                        finally:
-                            bpy.context.view_layer.objects.active = previous_active
-                    self.armature = obj
+                if 0 <= bone_node_index < len(self.parse_result.json_dict["nodes"]):
+                    node = self.parse_result.json_dict["nodes"][bone_node_index]
+                    node["name"] = bone_name
+                del bone[extras_node_index_key]
+                self.bone_names[bone_node_index] = bone_name
+                if (
+                    self.armature is not None
+                    or bone_node_index != self.parse_result.hips_node_index
+                ):
+                    continue
+                if (
+                    self.parse_result.spec_version_number < (1, 0)
+                    and obj.rotation_mode == "QUATERNION"
+                ):
+                    obj.rotation_quaternion.rotate(
+                        mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
+                    )
+                    obj.select_set(True)
+                    previous_active = bpy.context.view_layer.objects.active
+                    try:
+                        bpy.context.view_layer.objects.active = obj
+                        bpy.ops.object.transform_apply(rotation=True)
+                    finally:
+                        bpy.context.view_layer.objects.active = previous_active
+                self.armature = obj
 
         extras_mesh_index_key = self.import_id + "Meshes"
         for obj in bpy.context.selectable_objects:

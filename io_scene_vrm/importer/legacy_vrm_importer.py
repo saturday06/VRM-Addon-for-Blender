@@ -24,8 +24,6 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             i = 1
             affected_object = self.scene_init()
             i = prog(i)
-            self.parse_vrm_extension()
-            i = prog(i)
             self.texture_load()
             i = prog(i)
             self.make_armature()

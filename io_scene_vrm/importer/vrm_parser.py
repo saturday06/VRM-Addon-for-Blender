@@ -13,7 +13,7 @@ import tempfile
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from itertools import repeat
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import bgl
 import bpy
@@ -133,6 +133,12 @@ class ImageProperties:
 class ParseResult:
     filepath: str
     json_dict: Dict[str, Any] = field(default_factory=dict)
+    spec_version_number: Tuple[int, int] = (0, 0)
+    spec_version_str: str = "0.0"
+    spec_version_is_stable: bool = True
+    vrm0_extension: Dict[str, Any] = field(init=False, default_factory=dict)
+    vrm1_extension: Dict[str, Any] = field(init=False, default_factory=dict)
+    hips_node_index: int = 0
     image_properties: List[ImageProperties] = field(init=False, default_factory=list)
     meshes: List[List[PyMesh]] = field(init=False, default_factory=list)
     materials: List[PyMaterial] = field(init=False, default_factory=list)
@@ -391,6 +397,7 @@ class VrmParser:
             validate_license(self.json_dict)
 
         parse_result = ParseResult(filepath=self.filepath, json_dict=self.json_dict)
+        self.vrm_extension_read(parse_result)
         if self.legacy_importer:
             self.texture_rip(parse_result, body_binary)
             self.decoded_binary = decode_bin(self.json_dict, body_binary)
@@ -402,6 +409,59 @@ class VrmParser:
             self.material_read(parse_result)
 
         return parse_result
+
+    def vrm_extension_read(self, parse_result: ParseResult) -> None:
+        vrm1_dict = deep.get(self.json_dict, ["extensions", "VRMC_vrm"])
+        if isinstance(vrm1_dict, dict):
+            self.vrm1_extension_read(parse_result, vrm1_dict)
+            return
+
+        vrm0_dict = deep.get(self.json_dict, ["extensions", "VRM"])
+        if isinstance(vrm0_dict, dict):
+            self.vrm0_extension_read(parse_result, vrm0_dict)
+            return
+
+        raise Exception("No VRM extension found")
+
+    def vrm0_extension_read(
+        self, parse_result: ParseResult, vrm0_dict: Dict[str, Any]
+    ) -> None:
+        spec_version = vrm0_dict.get("specVersion")
+        if isinstance(spec_version, str):
+            parse_result.spec_version_str = spec_version
+        parse_result.vrm0_extension = vrm0_dict
+
+        human_bones = deep.get(vrm0_dict, ["humanoid", "humanBones"], [])
+        if not isinstance(human_bones, list):
+            raise Exception()
+
+        hips_node_index: Optional[int] = None
+        for human_bone in human_bones:
+            if (
+                isinstance(human_bone, dict)
+                and human_bone.get("bone") == "hips"
+                and isinstance(human_bone.get("node"), int)
+            ):
+                hips_node_index = human_bone["node"]
+
+        if not isinstance(hips_node_index, int):
+            raise Exception("No hips bone index found")
+
+        parse_result.hips_node_index = hips_node_index
+
+    def vrm1_extension_read(
+        self, parse_result: ParseResult, vrm1_dict: Dict[str, Any]
+    ) -> None:
+        parse_result.vrm1_extension = vrm1_dict
+        parse_result.spec_version_number = (1, 0)
+        parse_result.spec_version_is_stable = False
+
+        hips_node_index = deep.get(
+            vrm1_dict, ["humanoid", "humanBones", "hips", "node"]
+        )
+        if not isinstance(hips_node_index, int):
+            raise Exception("No hips bone index found")
+        parse_result.hips_node_index = hips_node_index
 
     def texture_rip(
         self,

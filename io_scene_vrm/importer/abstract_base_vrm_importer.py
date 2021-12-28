@@ -62,8 +62,6 @@ class AbstractBaseVrmImporter(ABC):
         self.vrm_materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
-        self.vrm0_extension: Optional[Dict[str, Any]] = None
-        self.vrm_extension: Optional[Dict[str, Any]] = None
 
     @abstractmethod
     def import_vrm(self) -> None:
@@ -72,18 +70,6 @@ class AbstractBaseVrmImporter(ABC):
     @staticmethod
     def axis_glb_to_blender(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
-
-    def parse_vrm_extension(self) -> None:
-        json_dict = self.parse_result.json_dict
-        vrm = deep.get(json_dict, ["extensions", "VRMC_vrm"])
-        if isinstance(vrm, dict):
-            self.vrm_extension = vrm
-            return
-
-        vrm0 = deep.get(json_dict, ["extensions", "VRM"])
-        if not isinstance(vrm0, dict):
-            vrm0 = None
-        self.vrm0_extension = vrm0
 
     def connect_bones(self) -> None:
         armature = self.armature
@@ -97,7 +83,7 @@ class AbstractBaseVrmImporter(ABC):
             bpy.context.view_layer.objects.active = self.armature  # アーマチャーをアクティブに
             bpy.ops.object.mode_set(mode="EDIT")  # エディットモードに入る
             disconnected_bone_names = []  # 結合されてないボーンのリスト
-            vrm0_extension = self.vrm0_extension
+            vrm0_extension = self.parse_result.vrm0_extension
             if vrm0_extension is not None and str(
                 vrm0_extension.get("exporterVersion")
             ).startswith("VRoidStudio-"):
@@ -155,7 +141,9 @@ class AbstractBaseVrmImporter(ABC):
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtextureのインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
-        json_texture_index = deep.get(self.vrm0_extension, ["meta", "texture"], -1)
+        json_texture_index = deep.get(
+            self.parse_result.vrm0_extension, ["meta", "texture"], -1
+        )
         if not isinstance(json_texture_index, int):
             raise Exception('json["extensions"]["VRM"]["meta"]["texture"] is not int')
         json_textures = self.parse_result.json_dict.get("textures", [])
@@ -664,11 +652,10 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(vrm0, Vrm0PropertyGroup):
             return
 
-        if self.vrm_extension is not None:
+        if self.parse_result.spec_version_number >= (1, 0):
             return
-        vrm0_extension = self.vrm0_extension
-        if not isinstance(vrm0_extension, dict):
-            raise Exception("json extensions VRM is not dict")
+
+        vrm0_extension = self.parse_result.vrm0_extension
 
         addon_extension.addon_version = common.version.version()
 
