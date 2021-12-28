@@ -17,26 +17,27 @@ translation_dictionary = {
     ("*", "For more information please check following URL."): "詳しくは下記のURLを確認してください。",
     ("*", "Import anyway"): "インポートします",
     ("*", "A light is required"): "ライトが必要です",
+    ("*", "License Confirmation"): "ライセンスの確認",
     (
         "*",
-        "Is this VRM allowed to edited? Please check its copyright license.",
-    ): "独自のライセンスが記載されています。",
+        'Is this VRM allowed to edited? Please check its "{json_key}" value.',
+    ): "指定されたVRMのメタデータ「{json_key}」には独自のライセンスのURLが設定されています。",
     (
         "*",
         'This VRM is licensed by VRoid Hub License "Alterations: No".',
-    ): "このVRMにはVRoid Hubの「改変: NG」ライセンスが設定されています。",
+    ): "指定されたVRMにはVRoid Hubの「改変: NG」ライセンスが設定されています。",
     (
         "*",
         'This VRM is licensed by UV License with "Remarks".',
-    ): "このVRMには特記事項(Remarks)付きのUVライセンスが設定されています。",
+    ): "指定されたVRMには特記事項(Remarks)付きのUVライセンスが設定されています。",
     (
         "*",
         'The VRM selects "Other" license but no license url is found.',
-    ): "このVRMには「Other」ライセンスが指定されていますが、URLが設定されていません。",
+    ): "指定されたVRMには「Other」ライセンスが設定されていますが、URLが設定されていません。",
     (
         "*",
-        'The VRM is licensed by "{license_name}".\nNo derivative works are allowed.',
-    ): "指定されたVRMは改変不可ライセンス「{license_name}」が設定されています。\n改変することはできません。",
+        'The VRM is licensed by "{license_name}". No derivative works are allowed.',
+    ): "指定されたVRMには改変不可ライセンス「{license_name}」が設定されています。改変することはできません。",
     (
         "*",
         "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",

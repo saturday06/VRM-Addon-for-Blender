@@ -29,6 +29,7 @@ calc
 charnum
 collidergroup
 colorspace
+compat
 const
 copyfile
 cullmode
@@ -114,6 +115,7 @@ minmax
 mipmap
 mobj
 morphname
+msgctxt
 mtoon
 myinstance
 ngon

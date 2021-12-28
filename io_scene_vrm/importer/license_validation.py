@@ -3,9 +3,8 @@ import re
 from typing import Any, Dict, List, Optional
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
-from bpy.app.translations import pgettext
-
 from ..common import deep
+from ..common.fake_bpy_module_compat import pgettext
 
 
 class LicenseConfirmationRequiredProp:
@@ -66,8 +65,8 @@ def validate_license_url(
             url_str,
             json_key,
             pgettext(
-                "Is this VRM allowed to edited? Please check its copyright license."
-            ),
+                'Is this VRM allowed to edited? Please check its "{json_key}" value.'
+            ).format(json_key=json_key),
         )
     )
 
@@ -128,7 +127,7 @@ def validate_license(json_dict: Dict[str, Any]) -> None:
                 None,
                 None,
                 pgettext(
-                    'The VRM is licensed by "{license_name}".\nNo derivative works are allowed.'
+                    'The VRM is licensed by "{license_name}". No derivative works are allowed.'
                 ).format(license_name=license_name),
             )
         )

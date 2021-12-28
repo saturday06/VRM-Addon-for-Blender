@@ -137,7 +137,7 @@ def menu_import(
 
 
 class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_label = "License confirmation"
+    bl_label = "License Confirmation"
     bl_idname = "wm.vrm_license_warning"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -167,15 +167,16 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
-        layout.label(text=self.filepath)
+        layout.label(text=self.filepath, translate=False)
         for license_confirmation in self.license_confirmations:
+            box = layout.box()
             for line in license_confirmation.message.split("\n"):
-                layout.label(text=line)
+                box.label(text=line, translate=False, icon="INFO")
             if license_confirmation.json_key:
-                layout.label(
+                box.label(
                     text=pgettext("For more information please check following URL.")
                 )
-                layout.prop(
+                box.prop(
                     license_confirmation,
                     "url",
                     text=license_confirmation.json_key,
