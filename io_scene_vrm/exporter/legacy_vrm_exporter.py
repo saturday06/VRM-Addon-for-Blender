@@ -32,7 +32,7 @@ from ..editor import migration, search
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
 
-class GlbObj:
+class LegacyVrmExporter:
     class ValidationError(Exception):
         pass
 
@@ -89,8 +89,8 @@ class GlbObj:
         migration.migrate(self.armature, defer=False)
         self.result: Optional[bytes] = None
 
-    def convert_bpy2glb(self, vrm_version: str) -> Optional[bytes]:
-        self.vrm_version = vrm_version
+    def export_vrm(self) -> Optional[bytes]:
+        self.vrm_version = "0.0"
         self.image_to_bin()
         self.armature_to_node_and_scenes_dic()
         self.material_to_dic()
@@ -367,7 +367,7 @@ class GlbObj:
             transparency_cutoff: Optional[float] = 0.5,
             unlit: Optional[bool] = None,
             doublesided: bool = False,
-            texture_transform: Optional[GlbObj.KhrTextureTransform] = None,
+            texture_transform: Optional[LegacyVrmExporter.KhrTextureTransform] = None,
         ) -> Dict[str, Any]:
             """transparent_method = {"OPAQUE","MASK","BLEND"}"""
             if base_color is None:
@@ -605,7 +605,9 @@ class GlbObj:
 
             use_normalmap = False
             main_texture: Optional[Tuple[str, int, int]] = None
-            main_texture_transform: Optional[GlbObj.KhrTextureTransform] = None
+            main_texture_transform: Optional[
+                LegacyVrmExporter.KhrTextureTransform
+            ] = None
             normal_texture: Optional[Tuple[str, int, int]] = None
             emissive_texture: Optional[Tuple[str, int, int]] = None
 
@@ -656,7 +658,7 @@ class GlbObj:
                             ]
                     else:
                         mtoon_vector_dic[texture_key] = [0, 0, 1, 1]
-                    main_texture_transform = GlbObj.KhrTextureTransform(
+                    main_texture_transform = LegacyVrmExporter.KhrTextureTransform(
                         offset=(
                             mtoon_vector_dic[texture_key][0],
                             mtoon_vector_dic[texture_key][1],

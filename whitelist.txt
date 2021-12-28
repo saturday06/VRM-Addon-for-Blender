@@ -24,7 +24,6 @@ blendshapemaster
 bmesh
 bonegroup
 bpy
-bpy2glb
 bugyyyyyyyyyyyyyyyyy
 calc
 charnum

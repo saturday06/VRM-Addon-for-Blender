@@ -5,7 +5,7 @@ from bpy_extras.io_utils import ExportHelper
 
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import validation
-from .glb_obj import GlbObj
+from .legacy_vrm_exporter import LegacyVrmExporter
 
 
 def export_vrm_update_addon_preferences(
@@ -51,13 +51,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         filepath: str = self.filepath
 
         try:
-            glb_obj = GlbObj(
+            vrm_exporter = LegacyVrmExporter(
                 bool(self.export_invisibles), bool(self.export_only_selections)
             )
-        except GlbObj.ValidationError:
+        except LegacyVrmExporter.ValidationError:
             return {"CANCELLED"}
-        # vrm_bin =  glb_obj().convert_bpy2glb(self.vrm_version)
-        vrm_bin = glb_obj.convert_bpy2glb("0.0")
+        vrm_bin = vrm_exporter.export_vrm()
         if vrm_bin is None:
             return {"CANCELLED"}
         with open(filepath, "wb") as f:
