@@ -10,9 +10,16 @@ from typing import Any, Set, cast
 import bpy
 from bpy.app.handlers import persistent
 
-from . import editor
 from .common import preferences, shader, version
-from .editor import extension, operator, panel, property_group
+from .editor import (
+    extension,
+    glsl_drawer,
+    make_armature,
+    operator,
+    panel,
+    property_group,
+    validation,
+)
 from .editor.vrm0 import operator as vrm0_operator
 from .editor.vrm0 import panel as vrm0_panel
 from .editor.vrm0 import property_group as vrm0_property_group
@@ -103,9 +110,9 @@ classes = [
     vrm0_operator.VRM_OT_add_vrm0_secondary_animation_collider_group,
     vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
-    editor.glsl_drawer.ICYP_OT_draw_model,
-    editor.glsl_drawer.ICYP_OT_remove_draw_model,
-    editor.make_armature.ICYP_OT_make_armature,
+    glsl_drawer.ICYP_OT_draw_model,
+    glsl_drawer.ICYP_OT_remove_draw_model,
+    make_armature.ICYP_OT_make_armature,
     # editor.mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
     operator.VRM_OT_add_human_bone_custom_property,
     operator.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
@@ -115,7 +122,7 @@ classes = [
     operator.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
     operator.VRM_OT_save_human_bone_mappings,
     operator.VRM_OT_load_human_bone_mappings,
-    editor.validation.VrmValidationError,
+    validation.VrmValidationError,
     export_scene.validation.WM_OT_vrm_validator,
     export_scene.VRM_PT_export_error_messages,
     export_scene.EXPORT_SCENE_OT_vrm,
