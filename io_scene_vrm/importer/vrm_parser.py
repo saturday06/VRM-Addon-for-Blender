@@ -6,7 +6,6 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import contextlib
-import json
 import os
 import re
 import sys
@@ -14,14 +13,14 @@ import tempfile
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from itertools import repeat
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence
 
 import bgl
 import bpy
 
-from ..common import deep
+from ..common import deep, glb
+from ..common.binary_reader import BinaryReader
 from ..common.mtoon_constants import MaterialMtoon, MaterialTransparentZWrite
-from .binary_reader import BinaryReader
 from .license import validate_license
 
 
@@ -141,58 +140,6 @@ class ParseResult:
     origin_nodes_dict: Dict[int, List[Any]] = field(init=False, default_factory=dict)
     skins_joints_list: List[List[int]] = field(init=False, default_factory=list)
     skins_root_node_list: List[int] = field(init=False, default_factory=list)
-
-
-def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
-    reader = BinaryReader(data)
-    magic = reader.read_str(4)
-    if magic != "glTF":
-        raise Exception(f"glTF header signature not found: #{magic}")
-
-    version = reader.read_unsigned_int()
-    if version != 2:
-        raise Exception(
-            f"version #{version} found. This plugin only supports version 2"
-        )
-
-    size = reader.read_unsigned_int()
-    size -= 12
-
-    json_str: Optional[str] = None
-    body: Optional[bytes] = None
-    while size > 0:
-        # print(size)
-
-        if json_str is not None and body is not None:
-            raise Exception(
-                "This VRM has multiple chunks, this plugin reads one chunk only."
-            )
-
-        chunk_size = reader.read_unsigned_int()
-        size -= 4
-
-        chunk_type = reader.read_str(4)
-        size -= 4
-
-        chunk_data = reader.read_binary(chunk_size)
-        size -= chunk_size
-
-        if chunk_type == "BIN\x00":
-            body = chunk_data
-            continue
-        if chunk_type == "JSON":
-            json_str = chunk_data.decode("utf-8")  # blenderのpythonverが古く自前decode要す
-            continue
-
-        raise Exception(f"unknown chunk_type: {chunk_type}")
-
-    if not json_str:
-        raise Exception("failed to read json chunk")
-
-    json_obj = json.loads(json_str, object_pairs_hook=OrderedDict)
-    if not isinstance(json_obj, dict):
-        raise Exception("VRM has invalid json: " + str(json_obj))
-    return json_obj, body if body else bytes()
 
 
 def create_py_bone(node: Dict[str, Any]) -> PyNode:
@@ -428,7 +375,7 @@ class VrmParser:
     def parse(self) -> ParseResult:
         # datachunkは普通一つしかない
         with open(self.filepath, "rb") as f:
-            json_dict, body_binary = parse_glb(f.read())
+            json_dict, body_binary = glb.parse(f.read())
             self.json_dict = json_dict
 
         if (

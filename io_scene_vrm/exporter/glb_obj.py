@@ -7,7 +7,6 @@ https://opensource.org/licenses/mit-license.php
 
 import collections
 import datetime
-import json
 import math
 import os
 import re
@@ -25,7 +24,7 @@ import bmesh
 import bpy
 from mathutils import Matrix
 
-from ..common import deep, human_bone_constants
+from ..common import deep, glb, human_bone_constants
 from ..common.gltf_constants import Gltf
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
@@ -2130,7 +2129,7 @@ class GlbObj:
             del self.json_dic["meshes"]
         if not self.json_dic["materials"]:
             del self.json_dic["materials"]
-        self.result = pack_glb(self.json_dic, self.bin)
+        self.result = glb.pack(self.json_dic, self.bin)
         if self.use_dummy_armature:
             bpy.data.objects.remove(self.armature, do_unlink=True)
 
@@ -2156,27 +2155,3 @@ def normalize_weights_compatible_with_gl_float(
             break
 
     return weights
-
-
-def pack_glb(json_dict: Dict[str, Any], binary_chunk: bytes) -> bytes:
-    magic = b"glTF" + struct.pack("<I", 2)
-    json_str = json.dumps(json_dict).encode("utf-8")
-    if len(json_str) % 4 != 0:
-        json_str += b"\x20" * (4 - len(json_str) % 4)
-    json_size = struct.pack("<I", len(json_str))
-    if len(binary_chunk) % 4 != 0:
-        binary_chunk += b"\x00" * (4 - len(binary_chunk) % 4)
-    bin_size = struct.pack("<I", len(binary_chunk))
-    total_size = struct.pack(
-        "<I", len(json_str) + len(binary_chunk) + 28
-    )  # include header size
-    return (
-        magic
-        + total_size
-        + json_size
-        + b"JSON"
-        + json_str
-        + bin_size
-        + b"BIN\x00"
-        + binary_chunk
-    )

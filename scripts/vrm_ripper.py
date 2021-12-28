@@ -15,7 +15,7 @@ from tkinter import filedialog, messagebox
 sys.path.insert(0, dirname(dirname(__file__)))
 
 # pylint: disable=wrong-import-position;
-from io_scene_vrm.importer.vrm_parser import parse_glb  # noqa: E402
+from io_scene_vrm.common import glb  # noqa: E402
 
 # pylint: enable=wrong-import-position;
 
@@ -29,7 +29,7 @@ def exist_or_makedir(path: str) -> str:
 
 model_path = filedialog.askopenfilename(filetypes=[("", "*vrm")])
 with open(model_path, "rb") as f:
-    vrm_json, binary = parse_glb(f.read())
+    vrm_json, binary = glb.parse(f.read())
 if messagebox.askyesno(message="write VRM.json?"):
     writedir = exist_or_makedir(model_path)
     writejsonpath = os.path.join(writedir, "vrm.json")
