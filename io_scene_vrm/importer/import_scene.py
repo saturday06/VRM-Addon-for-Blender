@@ -9,7 +9,7 @@ from bpy_extras.io_utils import ImportHelper
 from ..common.preferences import use_legacy_importer_exporter
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
-from .license import LicenseConfirmationRequired
+from .license_validation import LicenseConfirmationRequired
 from .vrm_parser import VrmParser
 
 

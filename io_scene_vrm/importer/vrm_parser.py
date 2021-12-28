@@ -21,7 +21,7 @@ import bpy
 from ..common import deep, glb
 from ..common.binary_reader import BinaryReader
 from ..common.mtoon_constants import MaterialMtoon, MaterialTransparentZWrite
-from .license import validate_license
+from .license_validation import validate_license
 
 
 @dataclass
