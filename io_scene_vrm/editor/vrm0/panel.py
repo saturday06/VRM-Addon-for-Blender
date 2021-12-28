@@ -48,7 +48,7 @@ def draw_vrm0_humanoid_layout(
         simplify_vroid_bones_op = armature_box.operator(
             operator.VRM_OT_simplify_vroid_bones.bl_idname,
             text=pgettext(operator.VRM_OT_simplify_vroid_bones.bl_label),
-            icon="IMPORT",
+            icon="GREASEPENCIL",
         )
         simplify_vroid_bones_op.armature_name = armature.name
 
