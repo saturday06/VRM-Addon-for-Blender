@@ -43,9 +43,11 @@ def test() -> None:
         in_path = os.path.join(blend_dir, major_minor, blend)
 
     vrm = os.path.splitext(blend)[0] + ".vrm"
-    expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
+    expected_path = os.path.join(vrm_dir, major_minor, "out", blend + ".vrm")
     if not os.path.exists(expected_path):
-        expected_path = os.path.join(vrm_dir, "in", vrm)
+        expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
+        if not os.path.exists(expected_path):
+            expected_path = os.path.join(vrm_dir, "in", vrm)
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
     os.makedirs(temp_vrm_dir, exist_ok=True)
 
