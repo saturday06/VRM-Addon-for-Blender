@@ -52,7 +52,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             i = prog(i)
             self.parse_vrm_extension()
             i = prog(i)
-            self.summon()
+            self.import_gltf2_with_indices()
             if self.extract_textures_into_folder:
                 i = prog(i)
                 self.extract_textures()
@@ -71,7 +71,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         finally:
             wm.progress_end()
 
-    def summon(self) -> None:
+    def import_gltf2_with_indices(self) -> None:
         with open(self.parse_result.filepath, "rb") as f:
             json_dict, body_binary = glb.parse(f.read())
 
@@ -421,7 +421,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 full_vrm_import_success = True
             except RuntimeError:
-                self.cleanup()
+                self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
             # Some VRM has broken animations.
             # https://github.com/saturday06/VRM_Addon_for_Blender/issues/58
@@ -437,7 +437,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         bone_heuristic="FORTUNE",
                     )
                 except RuntimeError as e:
-                    self.cleanup()
+                    self.cleanup_gltf2_with_indices()
                     raise RetryUsingLegacyVrmImporter() from e
 
         spec_version: Optional[str] = None
@@ -571,7 +571,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if armature is None:
             raise Exception("Failed to read VRM Humanoid")
 
-    def cleanup(self) -> None:
+    def cleanup_gltf2_with_indices(self) -> None:
         if (
             self.context.view_layer.objects.active is not None
             and self.context.view_layer.objects.active.mode != "OBJECT"
