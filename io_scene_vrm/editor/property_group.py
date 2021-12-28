@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator, Optional, Set
 
 import bpy
 
@@ -133,12 +133,20 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             self.link_to_bone.parent_bone = value_str
             self.link_to_bone.parent_type = "BONE"
 
-        for (
-            collider_group
-        ) in (
-            self.link_to_bone.parent.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
-        ):
+        armature_data = self.link_to_bone.parent.data
+        ext = armature_data.vrm_addon_extension
+        for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(self.link_to_bone.parent)
+
+        assigned_blender_bone_names: Set[str] = {
+            human_bone.node.value
+            for human_bone in ext.vrm0.humanoid.human_bones
+            if human_bone.node.value
+        }
+        for human_bone in ext.vrm0.humanoid.human_bones:
+            human_bone.update_node_candidates(
+                armature_data, assigned_blender_bone_names
+            )
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Bone",  # noqa: F821

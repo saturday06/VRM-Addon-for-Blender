@@ -1,3 +1,6 @@
+import functools
+from typing import Set
+
 import bpy
 
 from ..property_group import (
@@ -32,6 +35,32 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
         name="Unity's HumanLimit.axisLength"  # noqa: F722
     )
 
+    # for UI
+    node_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup
+    )
+
+    def update_node_candidates(
+        self, armature_data: bpy.types.Armature, assigned_blender_bone_names: Set[str]
+    ) -> None:
+        new_candidates = set(armature_data.bones.keys()) - assigned_blender_bone_names
+        if self.node.value:
+            new_candidates.add(self.node.value)
+
+        if set(map(lambda n: n.value, self.node_candidates)) == new_candidates:
+            return
+
+        self.node_candidates.clear()
+        for bone_name in armature_data.bones.keys():
+            if (
+                bone_name in assigned_blender_bone_names
+                and bone_name != self.node.value
+            ):
+                continue
+            candidate = self.node_candidates.add()
+            candidate.value = bone_name  # for logic
+            candidate.name = bone_name  # for view
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
 class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -62,6 +91,45 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     has_translation_dof: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Has Translation DoF", default=False  # noqa: F722
     )
+
+    # for UI
+    last_bone_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup
+    )
+
+    @staticmethod
+    def update_last_bone_names_and_bone_candidates(
+        humanoid_props: bpy.types.PropertyGroup, armature_data: bpy.types.Armature
+    ) -> None:
+        humanoid_props.last_bone_names.clear()
+        for bone_name in armature_data.bones.keys():
+            bone_name_props = humanoid_props.last_bone_names.add()
+            bone_name_props.value = bone_name
+        assigned_blender_bone_names: Set[str] = {
+            human_bone.node.value
+            for human_bone in humanoid_props.human_bones
+            if human_bone.node.value
+        }
+        for human_bone in humanoid_props.human_bones:
+            human_bone.update_node_candidates(
+                armature_data, assigned_blender_bone_names
+            )
+
+    def check_last_bone_names_and_update(
+        self, armature_data: bpy.types.Armature
+    ) -> None:
+        if set(map(lambda n: n.value, self.last_bone_names)) == set(
+            armature_data.bones.keys()
+        ):
+            return
+
+        bpy.app.timers.register(
+            functools.partial(
+                Vrm0HumanoidPropertyGroup.update_last_bone_names_and_bone_candidates,
+                self,
+                armature_data,
+            )
+        )
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22

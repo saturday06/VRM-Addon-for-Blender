@@ -16,25 +16,34 @@ from .property_group import (
 )
 
 
+def bone_prop_search(
+    layout: bpy.types.UILayout,
+    bone_name: str,
+    icon: str,
+    humanoid_props: Vrm0HumanoidPropertyGroup,
+) -> None:
+    props = None
+    for human_bone_props in humanoid_props.human_bones:
+        if human_bone_props.bone == bone_name:
+            props = human_bone_props
+            break
+    if not props:
+        return
+
+    layout.prop_search(
+        props.node, "value", props, "node_candidates", text=bone_name, icon=icon
+    )
+
+
 def draw_vrm0_humanoid_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
     humanoid_props: Vrm0HumanoidPropertyGroup,
 ) -> None:
-    migrate(armature, defer=True)
-    data = armature.data
+    if migrate(armature, defer=True):
+        humanoid_props.check_last_bone_names_and_update(armature.data)
 
-    def show_ui(parent: bpy.types.UILayout, bone_name: str, icon: str) -> None:
-        props = None
-        for human_bone_props in humanoid_props.human_bones:
-            if human_bone_props.bone == bone_name:
-                props = human_bone_props
-                break
-        if not props:
-            return
-        parent.prop_search(
-            props.node, "value", data, "bones", text=bone_name, icon=icon
-        )
+    data = armature.data
 
     armature_box = layout
     armature_box.operator(
@@ -57,51 +66,51 @@ def draw_vrm0_humanoid_layout(
     requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
     for req in human_bone_constants.HumanBone.center_req[::-1]:
         icon = "USER"
-        show_ui(requires_box, req, icon)
+        bone_prop_search(requires_box, req, icon, humanoid_props)
     row = requires_box.row()
     column = row.column()
     for req in human_bone_constants.HumanBone.right_arm_req:
         icon = "VIEW_PAN"
-        show_ui(column, req, icon)
+        bone_prop_search(column, req, icon, humanoid_props)
     column = row.column()
     for req in human_bone_constants.HumanBone.left_arm_req:
         icon = "VIEW_PAN"
-        show_ui(column, req, icon)
+        bone_prop_search(column, req, icon, humanoid_props)
     row = requires_box.row()
     column = row.column()
     for req in human_bone_constants.HumanBone.right_leg_req:
         icon = "MOD_DYNAMICPAINT"
-        show_ui(column, req, icon)
+        bone_prop_search(column, req, icon, humanoid_props)
     column = row.column()
     for req in human_bone_constants.HumanBone.left_leg_req:
         icon = "MOD_DYNAMICPAINT"
-        show_ui(column, req, icon)
+        bone_prop_search(column, req, icon, humanoid_props)
     defines_box = armature_box.box()
     defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")
     row = defines_box.row()
     for defs in ["rightEye"]:
         icon = "HIDE_OFF"
-        show_ui(row, defs, icon)
+        bone_prop_search(row, defs, icon, humanoid_props)
     for defs in ["leftEye"]:
         icon = "HIDE_OFF"
-        show_ui(row, defs, icon)
+        bone_prop_search(row, defs, icon, humanoid_props)
     for defs in human_bone_constants.HumanBone.center_def[::-1]:
         icon = "USER"
-        show_ui(defines_box, defs, icon)
+        bone_prop_search(defines_box, defs, icon, humanoid_props)
     defines_box.separator()
     for defs in human_bone_constants.HumanBone.right_arm_def:
         icon = "VIEW_PAN"
-        show_ui(defines_box, defs, icon)
+        bone_prop_search(defines_box, defs, icon, humanoid_props)
     for defs in human_bone_constants.HumanBone.right_leg_def:
         icon = "MOD_DYNAMICPAINT"
-        show_ui(defines_box, defs, icon)
+        bone_prop_search(defines_box, defs, icon, humanoid_props)
     defines_box.separator()
     for defs in human_bone_constants.HumanBone.left_arm_def:
         icon = "VIEW_PAN"
-        show_ui(defines_box, defs, icon)
+        bone_prop_search(defines_box, defs, icon, humanoid_props)
     for defs in human_bone_constants.HumanBone.left_leg_def:
         icon = "MOD_DYNAMICPAINT"
-        show_ui(defines_box, defs, icon)
+        bone_prop_search(defines_box, defs, icon, humanoid_props)
 
     armature_box.separator()
 

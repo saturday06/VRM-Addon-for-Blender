@@ -7,9 +7,13 @@ from .property_group import BonePropertyGroup
 from .vrm0 import migration as vrm0_migration
 
 
-def migrate(armature: bpy.types.Object, defer: bool) -> None:
+def migrate_no_defer_discarding_return_value(armature: bpy.types.Object) -> None:
+    migrate(armature, defer=False)
+
+
+def migrate(armature: bpy.types.Object, defer: bool) -> bool:
     if not armature or not armature.name or not armature.data.name:
-        return
+        return False
 
     ext = armature.data.vrm_addon_extension
     if (
@@ -17,11 +21,13 @@ def migrate(armature: bpy.types.Object, defer: bool) -> None:
         and armature.data.name == ext.armature_data_name
         and vrm0_migration.is_unnecessary(ext.vrm0)
     ):
-        return
+        return True
 
     if defer:
-        bpy.app.timers.register(functools.partial(migrate, armature, False))
-        return
+        bpy.app.timers.register(
+            functools.partial(migrate_no_defer_discarding_return_value, armature)
+        )
+        return False
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
         bone_property_group.refresh(armature)
@@ -30,3 +36,5 @@ def migrate(armature: bpy.types.Object, defer: bool) -> None:
 
     ext.addon_version = version.version()
     ext.armature_data_name = armature.data.name
+
+    return True
