@@ -68,6 +68,7 @@ classes = [
     vrm0_property_group.Vrm0SecondaryAnimationColliderGroupPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationGroupPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationPropertyGroup,
+    # vrm0_gizmo_group.Vrm0FirstPersonGizmoGroup,
     panel.VRM_PT_current_selected_armature,
     panel.VRM_PT_controller,
     panel.VRM_PT_vrm_armature_object_property,
