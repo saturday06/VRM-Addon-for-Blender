@@ -1,43 +1,45 @@
-# https://gist.github.com/FujiSunflower/09fdabc7ca991f8292657abc4ef001b0
-
 import bpy
 from bpy.types import GizmoGroup
 
-class Vrm0FirstPersonGizmoGroup(GizmoGroup):
-    bl_idname = "VRM_GGT_vrm0_first_person"
-    bl_label = "First Person Gizmo"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'WINDOW'
-    bl_options = {'3D', 'PERSISTENT'}
+
+# https://gist.github.com/FujiSunflower/09fdabc7ca991f8292657abc4ef001b0
+class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
+    bl_idname = "VRM_GGT_vrm0_first_person_bone_offset"
+    bl_label = "First Person Bone Offset Gizmo"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "WINDOW"
+    bl_options = {"3D", "PERSISTENT"}
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context: bpy.types.Context) -> bool:
         if context.active_object.data is None:
             return False
         return hasattr(context.active_object.data, "vrm_addon_extension")
 
-    def setup(self, context):
+    def setup(self, context: bpy.types.Context) -> None:
         armature = context.active_object.data
         ext = armature.vrm_addon_extension
         first_person_props = ext.vrm0.first_person
         first_person_bone = armature.bones[first_person_props.first_person_bone.value]
-        first_person_bone_offset = first_person_props.first_person_bone_offset
-        gz = self.gizmos.new("GIZMO_GT_move_3d")
-        gz.target_set_prop("offset", first_person_props, "first_person_bone_offset")
-        gz.matrix_basis = first_person_bone.matrix_local
-        gz.draw_style = 'CROSS_2D'
-        gz.draw_options = {'ALIGN_VIEW'}
-        gz.color = 1.0, 0.5, 0.0
-        gz.alpha = 0.5
-        gz.color_highlight = 1.0, 0.5, 1.0
-        gz.alpha_highlight = 0.5
-        gz.scale_basis = 0.25
-        self.first_person_gizmo = gz
+        gizmo = self.gizmos.new("GIZMO_GT_move_3d")
+        gizmo.target_set_prop("offset", first_person_props, "first_person_bone_offset")
+        gizmo.matrix_basis = first_person_bone.matrix_local
+        gizmo.draw_style = "CROSS_2D"
+        gizmo.draw_options = {"ALIGN_VIEW"}
+        gizmo.color = 1.0, 0.5, 0.0
+        gizmo.alpha = 0.5
+        gizmo.color_highlight = 1.0, 0.5, 1.0
+        gizmo.alpha_highlight = 0.5
+        gizmo.scale_basis = 0.25
 
-    def refresh(self, context):
+        # pylint: disable=attribute-defined-outside-init;
+        self.first_person_gizmo = gizmo
+        # pylint: enable=attribute-defined-outside-init;
+
+    def refresh(self, context: bpy.types.Context) -> None:
         armature = context.active_object.data
         ext = armature.vrm_addon_extension
-        gz = self.first_person_gizmo
+        gizmo = self.first_person_gizmo
         first_person_props = ext.vrm0.first_person
         first_person_bone = armature.bones[first_person_props.first_person_bone.value]
-        gz.matrix_basis = first_person_bone.matrix_local
+        gizmo.matrix_basis = first_person_bone.matrix_local

@@ -220,6 +220,7 @@ view3d
 viewport
 vrm
 vrm0
+vrm0firstpersonboneoffsetgizmogroup
 vrmautoiksetup
 vroid
 vroid064
