@@ -406,6 +406,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
                 scene["nodes"].append(skin_node_index)
 
+        if self.parse_result.spec_version_number < (1, 0):
+            bone_heuristic = "FORTUNE"
+        else:
+            bone_heuristic = "TEMPERANCE"
         full_vrm_import_success = False
         with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
             indexed_vrm_file.write(glb.pack(json_dict, body_binary))
@@ -414,7 +418,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bpy.ops.import_scene.gltf(
                     filepath=indexed_vrm_file.name,
                     import_pack_images=True,
-                    bone_heuristic="FORTUNE",
+                    bone_heuristic=bone_heuristic,
                 )
                 full_vrm_import_success = True
             except RuntimeError:
@@ -431,7 +435,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     bpy.ops.import_scene.gltf(
                         filepath=indexed_vrm_file.name,
                         import_pack_images=True,
-                        bone_heuristic="FORTUNE",
+                        bone_heuristic=bone_heuristic,
                     )
                 except RuntimeError as e:
                     self.cleanup_gltf2_with_indices()
