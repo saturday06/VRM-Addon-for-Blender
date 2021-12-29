@@ -75,7 +75,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         ):
             return cast(
                 Set[str],
-                bpy.ops.wm.gltf2_addon_disabled_warning(
+                bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
                     "INVOKE_DEFAULT",
                 ),
             )

@@ -5,12 +5,12 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-from typing import Any, Set, cast
+from typing import Any
 
 import bpy
 from bpy.app.handlers import persistent
 
-from .common import preferences, shader, version
+from .common import gltf2_addon_support, preferences, shader, version
 from .editor import (
     extension,
     glsl_drawer,
@@ -27,26 +27,6 @@ from .exporter import export_scene
 from .importer import import_scene
 from .locale.translation_dictionary import translation_dictionary
 
-
-class WM_OT_gltf2_addon_disabled_warning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_label = "glTF 2.0 add-on is disabled"
-    bl_idname = "wm.gltf2_addon_disabled_warning"
-    bl_options = {"REGISTER", "UNDO"}
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        return {"FINISHED"}
-
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
-        return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=500)
-        )
-
-    def draw(self, _context: bpy.types.Context) -> None:
-        self.layout.label(
-            text='Official add-on "glTF 2.0 format" is required. Please enable it.'
-        )
-
-
 if persistent:  # for fake-bpy-modules
 
     @persistent  # type: ignore[misc]
@@ -55,7 +35,7 @@ if persistent:  # for fake-bpy-modules
 
 
 classes = [
-    WM_OT_gltf2_addon_disabled_warning,
+    gltf2_addon_support.WM_OT_vrm_gltf2_addon_disabled_warning,
     property_group.ObjectPropertyGroup,
     property_group.StringPropertyGroup,
     property_group.FloatPropertyGroup,
