@@ -1,0 +1,81 @@
+# -- Site Configuration --
+# Refer to the theme docs for more details about each of these parameters.
+# https://jpanther.github.io/congo/docs/getting-started/
+
+baseURL = "https://vrm-addon-for-blender.info"
+defaultContentLanguage = "en"
+
+copyright = "&nbsp;"
+
+enableEmoji = true
+enableRobotsTXT = true
+summaryLength = 0
+
+defaultContentLanguageInSubdir = true
+
+[languages]
+  [languages.en]
+    title = 'VRM Add-on for Blender'
+  [languages.ja]
+    title = 'VRM Add-on for Blender'
+
+[[languages.en.menu.main]]
+  name = "Source Code"
+  url = "https://github.com/saturday06/VRM_Addon_for_Blender"
+
+
+[[languages.ja.menu.main]]
+  name = "バグを報告する"
+  url = "https://github.com/saturday06/VRM_Addon_for_Blender/issues"
+  weight = 1
+
+[[languages.ja.menu.main]]
+  name = "ソースコード"
+  url = "https://github.com/saturday06/VRM_Addon_for_Blender"
+  weight = 2
+
+[article]
+showPagination = false
+
+[author]
+  # name = "author"
+  # image = "img/author.jpg"
+  # bio = "A little bit about you"
+  links = [
+  #   { email = "mailto:hello@your_domain.com" },
+  #   { link = "https://link-to-some-website.com/" },
+  #   { amazon = "https://www.amazon.com/hz/wishlist/ls/wishlist-id" },
+  #   { apple = "https://www.apple.com" },
+  #   { codepen = "https://codepen.io/username" },
+  #   { dev = "https://dev.to/username" },
+  #   { discord = "https://discord.gg/invitecode" },
+  #   { dribbble = "https://dribbble.com/username" },
+  #   { facebook = "https://facebook.com/username" },
+  #   { flickr = "https://www.flickr.com/photos/username/" },
+  #   { foursquare = "https://foursquare.com/username" },
+  #    { github = "https://github.com/username" },
+  #   { gitlab = "https://gitlab.com/username" },
+  #   { google = "https://www.google.com/" },
+  #   { instagram = "https://instagram.com/username" },
+  #   { keybase = "https://keybase.io/username" },
+  #   { kickstarter = "https://www.kickstarter.com/profile/username" },
+  #   { lastfm = "https://lastfm.com/user/username" },
+  #   { linkedin = "https://linkedin.com/in/username" },
+  #   { mastodon = "https://mastodon.instance/@username" },
+  #   { medium = "https://medium.com/username" },
+  #   { microsoft = "https://www.microsoft.com/" },
+  #   { patreon = "https://www.patreon.com/username" },
+  #   { pinterest = "https://pinterest.com/username" },
+  #   { reddit = "https://reddit.com/user/username" },
+  #   { slack = "https://workspace.url/team/userid" },
+  #   { snapchat = "https://snapchat.com/add/username" },
+  #   { soundcloud = "https://soundcloud.com/username" },
+  #   { steam = "https://steamcommunity.com/profiles/userid" },
+  #   { telegram = "https://t.me/username" },
+  #   { tiktok = "https://tiktok.com/@username" },
+  #   { tumblr = "https://username.tumblr.com" },
+  #   { twitch = "https://twitch.tv/username" },
+  #   { twitter = "https://twitter.com/username" },
+  #   { whatsapp = "https://wa.me/phone-number" },
+  #   { youtube = "https://youtube.com/username" },
+  ]

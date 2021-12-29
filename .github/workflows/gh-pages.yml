@@ -1,0 +1,48 @@
+name: GitHub Pages
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          set -x
+
+          hugo_dir=$(mktemp -d)
+
+          pushd "$hugo_dir"
+          wget -q https://github.com/gohugoio/hugo/releases/download/v0.91.2/hugo_extended_0.91.2_Linux-64bit.tar.gz
+          tar xf hugo_extended_0.91.2_Linux-64bit.tar.gz
+          popd
+
+          git fetch --depth=1 origin gh-pages
+          cd docs/website
+          mkdir public
+          pushd public
+            ln -s ../../../.git .git
+            git checkout gh-pages
+            git rm $(git ls-files)
+          popd
+
+          "$hugo_dir/hugo" --minify
+
+      - name: Deploy
+        run: |
+          set -x
+
+          cd docs/website/public
+          git add .
+          if git diff --cached --exit-code; then
+            exit 0
+          fi
+          git config --global user.email "isamu@leafytree.jp"
+          git config --global user.name "Isamu Mogi (BOT)"
+          git commit -m "(BOT) Update"
+          git push origin gh-pages
+        if: "github.ref == 'refs/heads/release' || github.ref == 'refs/heads/docs'"

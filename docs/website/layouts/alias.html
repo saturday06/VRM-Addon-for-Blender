@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- https://github.com/gohugoio/hugo/blob/v0.91.2/tpl/tplimpl/embedded/templates.autogen.go#L99 -->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>{{ .Permalink }}</title>
+        <meta name="robots" content="noindex">
+        <script>
+            function guess_localized_href() {
+                // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
+                if (navigator.languages) {
+                    for (const language of navigator.languages) {
+                        if (language.startsWith("en")) {
+                            return "en/";
+                        }
+                        if (language.startsWith("ja")) {
+                            return "ja/";
+                        }
+                    }
+                }
+
+                // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
+                if (navigator.language.startsWith("en")) {
+                    return "en/";
+                }
+                if (navigator.language.startsWith("ja")) {
+                    return "ja/";
+                }
+                return "en/";
+            }
+            if (["", "/", "/index.html"].indexOf(window.location.pathname) >= 0) {
+                window.location.href = guess_localized_href();
+            }
+        </script>
+        <link rel="canonical" href="{{ .Permalink }}"/>
+        <meta http-equiv="refresh" content="0; url={{ .Permalink }}" />
+    </head>
+</html>

@@ -12,6 +12,7 @@
 !/.gitattributes
 !/.gitignore
 !/.pylintrc.ci
+!/.github/workflows/*.yml
 !/LICENSE
 !/poetry.lock
 !/pyproject.toml
@@ -21,6 +22,7 @@
 !/docs/*.jpg
 !/docs/*.png
 !/docs/*.pptx
+!/docs/website/**
 !/whitelist.txt
 !/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
 
@@ -32,3 +34,6 @@
 /tests/test_GENERATED_*
 /venv/
 /.venv/
+
+/docs/website/public/
+/docs/website/resources/_gen/
