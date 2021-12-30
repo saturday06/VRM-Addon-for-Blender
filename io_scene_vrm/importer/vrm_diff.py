@@ -5,6 +5,15 @@ from ..common import deep, glb
 from .vrm_parser import decode_bin
 
 
+def human_bone_sort_key(human_bone_dict: Any) -> int:
+    if not isinstance(human_bone_dict, dict):
+        return -1
+    node = human_bone_dict.get("node")
+    if not isinstance(node, int):
+        return -1
+    return node
+
+
 def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
     vrm_json, binary_chunk = glb.parse(data)
     vrm_json["~accessors_decoded"] = decode_bin(vrm_json, binary_chunk)
@@ -25,6 +34,13 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
     first_person_dict = vrm0_extension["firstPerson"]
     if not isinstance(first_person_dict, dict):
         return vrm_json
+
+    if isinstance(vrm0_extension.get("humanoid"), dict) and isinstance(
+        vrm0_extension["humanoid"].get("humanBones"), list
+    ):
+        vrm0_extension["humanoid"]["humanBones"] = sorted(
+            vrm0_extension["humanoid"]["humanBones"], key=human_bone_sort_key
+        )
 
     if (
         first_person_dict.get("firstPersonBone") in [None, -1]

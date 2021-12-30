@@ -6,7 +6,8 @@ from typing import Any, Dict, List, Optional
 
 import bpy
 
-from ...common import convert, human_bone_constants
+from ...common import convert
+from ...common.human_bone import HumanBones
 from .property_group import Vrm0PropertyGroup
 
 
@@ -388,9 +389,7 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
         armature,
     )
 
-    for human_bone_name in (
-        human_bone_constants.HumanBone.requires + human_bone_constants.HumanBone.defines
-    ):
+    for human_bone_name in HumanBones.all_names:
         blender_bone_name = armature.data.get(human_bone_name)
         if not isinstance(blender_bone_name, str):
             continue
@@ -414,9 +413,7 @@ def migrate(vrm0_props: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
     for bone_group_props in vrm0_props.secondary_animation.bone_groups:
         bone_group_props.refresh(armature)
 
-    for human_bone_name in (
-        human_bone_constants.HumanBone.requires + human_bone_constants.HumanBone.defines
-    ):
+    for human_bone_name in HumanBones.all_names:
         if any(
             human_bone.bone == human_bone_name
             for human_bone in vrm0_props.humanoid.human_bones

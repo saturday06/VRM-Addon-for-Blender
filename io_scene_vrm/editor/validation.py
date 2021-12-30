@@ -7,7 +7,7 @@ from bpy.app.translations import pgettext
 from mathutils import Vector
 
 from ..common.gltf_constants import Gltf
-from ..common.human_bone_constants import HumanBone
+from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
 from . import migration, search
@@ -132,7 +132,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 human_bones_props = (
                     armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
                 )
-                for humanoid_name in HumanBone.requires:
+                for humanoid_name in HumanBones.vrm0_required_names:
                     if any(
                         human_bone_props.bone == humanoid_name
                         and human_bone_props.node

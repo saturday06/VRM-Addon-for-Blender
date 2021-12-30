@@ -1,7 +1,7 @@
 import bpy
 from bpy.app.translations import pgettext
 
-from ...common import human_bone_constants
+from ...common.human_bone import HumanBones
 from .. import operator, search
 from ..extension import VrmAddonArmatureExtensionPropertyGroup
 from ..migration import migrate
@@ -64,25 +64,25 @@ def draw_vrm0_humanoid_layout(
     layout.separator()
     requires_box = armature_box.box()
     requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
-    for req in human_bone_constants.HumanBone.center_req[::-1]:
+    for req in HumanBones.center_req[::-1]:
         icon = "USER"
         bone_prop_search(requires_box, req, icon, humanoid_props)
     row = requires_box.row()
     column = row.column()
-    for req in human_bone_constants.HumanBone.right_arm_req:
+    for req in HumanBones.right_arm_req:
         icon = "VIEW_PAN"
         bone_prop_search(column, req, icon, humanoid_props)
     column = row.column()
-    for req in human_bone_constants.HumanBone.left_arm_req:
+    for req in HumanBones.left_arm_req:
         icon = "VIEW_PAN"
         bone_prop_search(column, req, icon, humanoid_props)
     row = requires_box.row()
     column = row.column()
-    for req in human_bone_constants.HumanBone.right_leg_req:
+    for req in HumanBones.right_leg_req:
         icon = "MOD_DYNAMICPAINT"
         bone_prop_search(column, req, icon, humanoid_props)
     column = row.column()
-    for req in human_bone_constants.HumanBone.left_leg_req:
+    for req in HumanBones.left_leg_req:
         icon = "MOD_DYNAMICPAINT"
         bone_prop_search(column, req, icon, humanoid_props)
     defines_box = armature_box.box()
@@ -94,21 +94,21 @@ def draw_vrm0_humanoid_layout(
     for defs in ["leftEye"]:
         icon = "HIDE_OFF"
         bone_prop_search(row, defs, icon, humanoid_props)
-    for defs in human_bone_constants.HumanBone.center_def[::-1]:
+    for defs in HumanBones.center_def[::-1]:
         icon = "USER"
         bone_prop_search(defines_box, defs, icon, humanoid_props)
     defines_box.separator()
-    for defs in human_bone_constants.HumanBone.right_arm_def:
+    for defs in HumanBones.right_arm_def:
         icon = "VIEW_PAN"
         bone_prop_search(defines_box, defs, icon, humanoid_props)
-    for defs in human_bone_constants.HumanBone.right_leg_def:
+    for defs in HumanBones.right_leg_def:
         icon = "MOD_DYNAMICPAINT"
         bone_prop_search(defines_box, defs, icon, humanoid_props)
     defines_box.separator()
-    for defs in human_bone_constants.HumanBone.left_arm_def:
+    for defs in HumanBones.left_arm_def:
         icon = "VIEW_PAN"
         bone_prop_search(defines_box, defs, icon, humanoid_props)
-    for defs in human_bone_constants.HumanBone.left_leg_def:
+    for defs in HumanBones.left_leg_def:
         icon = "MOD_DYNAMICPAINT"
         bone_prop_search(defines_box, defs, icon, humanoid_props)
 

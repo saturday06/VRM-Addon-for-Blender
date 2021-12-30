@@ -19,7 +19,8 @@ import bpy
 from mathutils import Matrix
 
 from .. import common, editor
-from ..common import convert, deep, human_bone_constants
+from ..common import convert, deep
+from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
 from ..editor import operator, panel
@@ -751,11 +752,7 @@ class AbstractBaseVrmImporter(ABC):
                     continue
 
                 bone = human_bone_dict.get("bone")
-                if (
-                    bone
-                    not in human_bone_constants.HumanBone.requires
-                    + human_bone_constants.HumanBone.defines
-                ):
+                if bone not in HumanBones.all_names:
                     continue
                 if any(
                     human_bone_props.bone == bone

@@ -13,7 +13,7 @@ from typing import Set, cast
 import bpy
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
-from ..common.human_bone_constants import HumanBone
+from ..common.human_bone import HumanBones
 from . import search
 from .make_armature import ICYP_OT_make_armature
 
@@ -100,7 +100,7 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # typ
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
-        for bone_name in HumanBone.requires:
+        for bone_name in HumanBones.vrm0_required_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
         return {"FINISHED"}
@@ -115,7 +115,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
-        for bone_name in HumanBone.defines:
+        for bone_name in HumanBones.vrm0_optional_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
         return {"FINISHED"}
@@ -143,7 +143,7 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
 
         mappings = {}
         for human_bone in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
-            if human_bone.bone not in HumanBone.requires + HumanBone.defines:
+            if human_bone.bone not in HumanBones.all_names:
                 continue
             if not human_bone.node.value:
                 continue
@@ -187,7 +187,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
             return {"CANCELLED"}
 
         for human_bone_name, blender_bone_name in obj.items():
-            if human_bone_name not in HumanBone.requires + HumanBone.defines:
+            if human_bone_name not in HumanBones.all_names:
                 continue
 
             found = False

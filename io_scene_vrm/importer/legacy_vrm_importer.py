@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Sequence, Set, Tuple
 import bpy
 from mathutils import Matrix, Vector
 
-from ..common import human_bone_constants
+from ..common import human_bone
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .vrm_parser import PyMesh
 
@@ -538,7 +538,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         armature.select_set(True)
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
-        hb = human_bone_constants.HumanBone
+        hb = human_bone.HumanBones
         stop_bone_names = {*armature.data.values()[:]}
 
         def set_children_roll(bone_name: str, roll: float) -> None:

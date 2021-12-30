@@ -24,8 +24,9 @@ import bmesh
 import bpy
 from mathutils import Matrix
 
-from ..common import deep, glb, human_bone_constants
+from ..common import deep, glb
 from ..common.gltf_constants import Gltf
+from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
 from ..editor import migration, search
@@ -1832,10 +1833,7 @@ class LegacyVrmExporter:
         humanoid_dict: Dict[str, Any] = {"humanBones": []}
         vrm_extension_dict["humanoid"] = humanoid_dict
         humanoid_props = self.armature.data.vrm_addon_extension.vrm0.humanoid
-        for human_bone_name in (
-            human_bone_constants.HumanBone.requires
-            + human_bone_constants.HumanBone.defines
-        ):
+        for human_bone_name in HumanBones.all_names:
             for human_bone_props in humanoid_props.human_bones:
                 if (
                     human_bone_props.bone != human_bone_name
