@@ -35,7 +35,6 @@ copyfile
 cullmode
 customdata
 datachunk
-defs
 depsgraph
 dic
 dirname

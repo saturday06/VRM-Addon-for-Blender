@@ -1,7 +1,7 @@
 import bpy
 from bpy.app.translations import pgettext
 
-from ...common.human_bone import HumanBones
+from ...common.human_bone import HumanBone, HumanBones
 from .. import operator, search
 from ..extension import VrmAddonArmatureExtensionPropertyGroup
 from ..migration import migrate
@@ -18,20 +18,26 @@ from .property_group import (
 
 def bone_prop_search(
     layout: bpy.types.UILayout,
-    bone_name: str,
+    human_bone: HumanBone,
     icon: str,
     humanoid_props: Vrm0HumanoidPropertyGroup,
 ) -> None:
     props = None
     for human_bone_props in humanoid_props.human_bones:
-        if human_bone_props.bone == bone_name:
+        if human_bone_props.bone == human_bone.name.value:
             props = human_bone_props
             break
     if not props:
         return
 
     layout.prop_search(
-        props.node, "value", props, "node_candidates", text=bone_name, icon=icon
+        props.node,
+        "value",
+        props,
+        "node_candidates",
+        text="",
+        translate=False,
+        icon=icon,
     )
 
 
@@ -61,58 +67,170 @@ def draw_vrm0_humanoid_layout(
         )
         simplify_vroid_bones_op.armature_name = armature.name
 
+    split_factor = 0.2
+
     layout.separator()
     requires_box = armature_box.box()
     requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
-    for req in HumanBones.center_req[::-1]:
-        icon = "USER"
-        bone_prop_search(requires_box, req, icon, humanoid_props)
-    row = requires_box.row()
+    row = requires_box.row().split(factor=split_factor)
     column = row.column()
-    for req in HumanBones.right_arm_req:
-        icon = "VIEW_PAN"
-        bone_prop_search(column, req, icon, humanoid_props)
+    column.label(text=HumanBones.HEAD.label)
+    column.label(text=HumanBones.NECK.label)
+    column.label(text=HumanBones.CHEST.label)
+    column.label(text=HumanBones.SPINE.label)
+    column.label(text=HumanBones.HIPS.label)
     column = row.column()
-    for req in HumanBones.left_arm_req:
-        icon = "VIEW_PAN"
-        bone_prop_search(column, req, icon, humanoid_props)
-    row = requires_box.row()
+    icon = "USER"
+    bone_prop_search(column, HumanBones.HEAD, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.NECK, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.CHEST, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.SPINE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.HIPS, icon, humanoid_props)
+
+    row = requires_box.row().split(factor=split_factor)
     column = row.column()
-    for req in HumanBones.right_leg_req:
-        icon = "MOD_DYNAMICPAINT"
-        bone_prop_search(column, req, icon, humanoid_props)
+    column.label(text="")
+    column.label(text=HumanBones.LEFT_UPPER_ARM.label_no_left_right)
+    column.label(text=HumanBones.LEFT_LOWER_ARM.label_no_left_right)
+    column.label(text=HumanBones.LEFT_HAND.label_no_left_right)
+    column.separator()
+    column.label(text=HumanBones.LEFT_UPPER_LEG.label_no_left_right)
+    column.label(text=HumanBones.LEFT_LOWER_LEG.label_no_left_right)
+    column.label(text=HumanBones.LEFT_FOOT.label_no_left_right)
+
     column = row.column()
-    for req in HumanBones.left_leg_req:
-        icon = "MOD_DYNAMICPAINT"
-        bone_prop_search(column, req, icon, humanoid_props)
+    column.label(text="right")
+    icon = "VIEW_PAN"
+    bone_prop_search(column, HumanBones.RIGHT_UPPER_ARM, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_LOWER_ARM, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_HAND, icon, humanoid_props)
+    column.separator()
+    icon = "MOD_DYNAMICPAINT"
+    bone_prop_search(column, HumanBones.RIGHT_UPPER_LEG, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_LOWER_LEG, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_FOOT, icon, humanoid_props)
+
+    column = row.column()
+    column.label(text="left")
+    icon = "VIEW_PAN"
+    bone_prop_search(column, HumanBones.LEFT_UPPER_ARM, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_LOWER_ARM, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_HAND, icon, humanoid_props)
+    column.separator()
+    icon = "MOD_DYNAMICPAINT"
+    bone_prop_search(column, HumanBones.LEFT_UPPER_LEG, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_LOWER_LEG, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_FOOT, icon, humanoid_props)
+
     defines_box = armature_box.box()
     defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")
-    row = defines_box.row()
-    for defs in ["rightEye"]:
-        icon = "HIDE_OFF"
-        bone_prop_search(row, defs, icon, humanoid_props)
-    for defs in ["leftEye"]:
-        icon = "HIDE_OFF"
-        bone_prop_search(row, defs, icon, humanoid_props)
-    for defs in HumanBones.center_def[::-1]:
-        icon = "USER"
-        bone_prop_search(defines_box, defs, icon, humanoid_props)
-    defines_box.separator()
-    for defs in HumanBones.right_arm_def:
-        icon = "VIEW_PAN"
-        bone_prop_search(defines_box, defs, icon, humanoid_props)
-    for defs in HumanBones.right_leg_def:
-        icon = "MOD_DYNAMICPAINT"
-        bone_prop_search(defines_box, defs, icon, humanoid_props)
-    defines_box.separator()
-    for defs in HumanBones.left_arm_def:
-        icon = "VIEW_PAN"
-        bone_prop_search(defines_box, defs, icon, humanoid_props)
-    for defs in HumanBones.left_leg_def:
-        icon = "MOD_DYNAMICPAINT"
-        bone_prop_search(defines_box, defs, icon, humanoid_props)
 
-    armature_box.separator()
+    row = defines_box.row().split(factor=split_factor)
+    icon = "HIDE_OFF"
+    column = row.column()
+    column.label(text="")
+    column.label(text=HumanBones.LEFT_EYE.label_no_left_right)
+    column = row.column()
+    column.label(text="right")
+    bone_prop_search(column, HumanBones.RIGHT_EYE, icon, humanoid_props)
+    column = row.column()
+    column.label(text="left")
+    bone_prop_search(column, HumanBones.LEFT_EYE, icon, humanoid_props)
+
+    row = defines_box.row().split(factor=split_factor)
+    column = row.column()
+    column.label(text=HumanBones.JAW.label)
+    column.label(text=HumanBones.UPPER_CHEST.label)
+
+    column = row.column()
+    icon = "USER"
+    bone_prop_search(column, HumanBones.JAW, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.UPPER_CHEST, icon, humanoid_props)
+
+    split_factor = 0.5
+    row = defines_box.row().split(factor=split_factor)
+    column = row.column()
+    column.label(text=HumanBones.RIGHT_SHOULDER.label)
+    column.label(text=HumanBones.RIGHT_THUMB_PROXIMAL.label)
+    column.label(text=HumanBones.RIGHT_THUMB_INTERMEDIATE.label)
+    column.label(text=HumanBones.RIGHT_THUMB_DISTAL.label)
+    column.label(text=HumanBones.RIGHT_INDEX_PROXIMAL.label)
+    column.label(text=HumanBones.RIGHT_INDEX_INTERMEDIATE.label)
+    column.label(text=HumanBones.RIGHT_INDEX_DISTAL.label)
+    column.label(text=HumanBones.RIGHT_MIDDLE_PROXIMAL.label)
+    column.label(text=HumanBones.RIGHT_MIDDLE_INTERMEDIATE.label)
+    column.label(text=HumanBones.RIGHT_MIDDLE_DISTAL.label)
+    column.label(text=HumanBones.RIGHT_RING_PROXIMAL.label)
+    column.label(text=HumanBones.RIGHT_RING_INTERMEDIATE.label)
+    column.label(text=HumanBones.RIGHT_RING_DISTAL.label)
+    column.label(text=HumanBones.RIGHT_LITTLE_PROXIMAL.label)
+    column.label(text=HumanBones.RIGHT_LITTLE_INTERMEDIATE.label)
+    column.label(text=HumanBones.RIGHT_LITTLE_DISTAL.label)
+    column.label(text=HumanBones.RIGHT_TOES.label)
+
+    column = row.column()
+    icon = "USER"
+    bone_prop_search(column, HumanBones.RIGHT_SHOULDER, icon, humanoid_props)
+    icon = "VIEW_PAN"
+    bone_prop_search(column, HumanBones.RIGHT_THUMB_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_THUMB_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_THUMB_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_INDEX_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_INDEX_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_INDEX_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_MIDDLE_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_MIDDLE_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_MIDDLE_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_RING_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_RING_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_RING_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_LITTLE_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_LITTLE_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.RIGHT_LITTLE_DISTAL, icon, humanoid_props)
+    icon = "MOD_DYNAMICPAINT"
+    bone_prop_search(column, HumanBones.RIGHT_TOES, icon, humanoid_props)
+
+    row = defines_box.row().split(factor=split_factor)
+    column = row.column()
+    column.label(text=HumanBones.LEFT_SHOULDER.label)
+    column.label(text=HumanBones.LEFT_THUMB_PROXIMAL.label)
+    column.label(text=HumanBones.LEFT_THUMB_INTERMEDIATE.label)
+    column.label(text=HumanBones.LEFT_THUMB_DISTAL.label)
+    column.label(text=HumanBones.LEFT_INDEX_PROXIMAL.label)
+    column.label(text=HumanBones.LEFT_INDEX_INTERMEDIATE.label)
+    column.label(text=HumanBones.LEFT_INDEX_DISTAL.label)
+    column.label(text=HumanBones.LEFT_MIDDLE_PROXIMAL.label)
+    column.label(text=HumanBones.LEFT_MIDDLE_INTERMEDIATE.label)
+    column.label(text=HumanBones.LEFT_MIDDLE_DISTAL.label)
+    column.label(text=HumanBones.LEFT_RING_PROXIMAL.label)
+    column.label(text=HumanBones.LEFT_RING_INTERMEDIATE.label)
+    column.label(text=HumanBones.LEFT_RING_DISTAL.label)
+    column.label(text=HumanBones.LEFT_LITTLE_PROXIMAL.label)
+    column.label(text=HumanBones.LEFT_LITTLE_INTERMEDIATE.label)
+    column.label(text=HumanBones.LEFT_LITTLE_DISTAL.label)
+    column.label(text=HumanBones.LEFT_TOES.label)
+
+    column = row.column()
+    icon = "USER"
+    bone_prop_search(column, HumanBones.LEFT_SHOULDER, icon, humanoid_props)
+    icon = "VIEW_PAN"
+    bone_prop_search(column, HumanBones.LEFT_THUMB_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_THUMB_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_THUMB_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_INDEX_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_INDEX_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_INDEX_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_MIDDLE_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_MIDDLE_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_MIDDLE_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_RING_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_RING_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_RING_DISTAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_LITTLE_PROXIMAL, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_LITTLE_INTERMEDIATE, icon, humanoid_props)
+    bone_prop_search(column, HumanBones.LEFT_LITTLE_DISTAL, icon, humanoid_props)
+    icon = "MOD_DYNAMICPAINT"
+    bone_prop_search(column, HumanBones.LEFT_TOES, icon, humanoid_props)
 
     layout.label(text="Arm", icon="VIEW_PAN", translate=False)  # TODO: 翻訳
     layout.prop(

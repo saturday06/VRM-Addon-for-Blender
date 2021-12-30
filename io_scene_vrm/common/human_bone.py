@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+import re
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -210,6 +211,8 @@ HUMAN_BONE_STRUCTURE: Dict[
 @dataclass(frozen=True)
 class HumanBone:
     name: HumanBoneName
+    label: str
+    label_no_left_right: str
     vrm0_requirement: bool
     vrm1_requirement: bool
     parent_name: Optional[HumanBoneName]
@@ -234,8 +237,14 @@ class HumanBone:
     def create(
         human_bone_name: HumanBoneName, vrm0_requirement: bool, vrm1_requirement: bool
     ) -> "HumanBone":
+        # https://stackoverflow.com/a/1176023
+        label = re.sub(r"(?<!^)(?=[A-Z])", " ", human_bone_name.value).lower()
+        label_no_left_right = re.sub(r"right ", "", re.sub(r"^left ", "", label))
+
         return HumanBone(
             name=human_bone_name,
+            label=label,
+            label_no_left_right=label_no_left_right,
             vrm0_requirement=vrm0_requirement,
             vrm1_requirement=vrm1_requirement,
             parent_name=HumanBone.find_parent_human_bone_name(
