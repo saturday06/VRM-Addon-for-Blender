@@ -1,8 +1,9 @@
 import functools
-from typing import Set
+from typing import Dict
 
 import bpy
 
+from ...common.human_bone import HumanBone, HumanBoneName, HumanBones
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
@@ -41,21 +42,27 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
     )
 
     def update_node_candidates(
-        self, armature_data: bpy.types.Armature, assigned_blender_bone_names: Set[str]
+        self,
+        armature_data: bpy.types.Armature,
+        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone],
     ) -> None:
-        new_candidates = set(armature_data.bones.keys()) - assigned_blender_bone_names
-        if self.node.value:
-            new_candidates.add(self.node.value)
-
+        human_bone_name = HumanBoneName.from_str(self.bone)
+        if human_bone_name is None:
+            print(f"WARNING: bone name '{self.bone}' is invalid")
+            return
+        target = HumanBones.get(human_bone_name)
+        new_candidates = BonePropertyGroup.find_bone_candidates(
+            armature_data,
+            target,
+            blender_bone_name_to_human_bone_dict,
+        )
         if set(map(lambda n: n.value, self.node_candidates)) == new_candidates:
             return
 
         self.node_candidates.clear()
+        # Preserving list order
         for bone_name in armature_data.bones.keys():
-            if (
-                bone_name in assigned_blender_bone_names
-                and bone_name != self.node.value
-            ):
+            if bone_name not in new_candidates:
                 continue
             candidate = self.node_candidates.add()
             candidate.value = bone_name  # for logic
@@ -101,18 +108,27 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def update_last_bone_names_and_bone_candidates(
         humanoid_props: bpy.types.PropertyGroup, armature_data: bpy.types.Armature
     ) -> None:
+        if set(map(lambda n: n.value, humanoid_props.last_bone_names)) == set(
+            armature_data.bones.keys()
+        ):
+            return
+
         humanoid_props.last_bone_names.clear()
         for bone_name in armature_data.bones.keys():
             bone_name_props = humanoid_props.last_bone_names.add()
             bone_name_props.value = bone_name
-        assigned_blender_bone_names: Set[str] = {
-            human_bone.node.value
+
+        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
+            human_bone.node.value: HumanBones.get(HumanBoneName(human_bone.bone))
             for human_bone in humanoid_props.human_bones
             if human_bone.node.value
+            and HumanBoneName.from_str(human_bone.bone) is not None
         }
+
         for human_bone in humanoid_props.human_bones:
             human_bone.update_node_candidates(
-                armature_data, assigned_blender_bone_names
+                armature_data,
+                blender_bone_name_to_human_bone_dict,
             )
 
     def check_last_bone_names_and_update(

@@ -1,7 +1,9 @@
 import uuid
-from typing import Any, Iterator, Optional, Set
+from typing import Any, Dict, Iterator, Optional, Set
 
 import bpy
+
+from ..common.human_bone import HumanBone, HumanBoneName, HumanBones
 
 
 class ObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -77,6 +79,63 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             yield bone_group.center
             yield from bone_group.bones
 
+    @staticmethod
+    def find_bone_candidates(
+        armature_data: bpy.types.Armature,
+        target_human_bone: HumanBone,
+        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone],
+    ) -> Set[str]:
+        result: Set[str] = set(armature_data.bones.keys())
+        remove_bones_tree: Set[bpy.types.Bone] = set()
+
+        for (
+            blender_bone_name,
+            human_bone,
+        ) in blender_bone_name_to_human_bone_dict.items():
+            if human_bone == target_human_bone:
+                continue
+
+            if human_bone.is_ancestor_of(target_human_bone):
+                remove_ancestors = True
+                remove_ancestor_branches = True
+            elif target_human_bone.is_ancestor_of(human_bone):
+                remove_bones_tree.add(armature_data.bones[blender_bone_name])
+                remove_ancestors = False
+                remove_ancestor_branches = True
+            else:
+                remove_bones_tree.add(armature_data.bones[blender_bone_name])
+                remove_ancestors = True
+                remove_ancestor_branches = False
+
+            parent = armature_data.bones[blender_bone_name]
+            while True:
+                if remove_ancestors and parent.name in result:
+                    result.remove(parent.name)
+                grand_parent = parent.parent
+                if not grand_parent:
+                    if remove_ancestor_branches:
+                        remove_bones_tree.update(
+                            bone
+                            for bone in armature_data.bones
+                            if not bone.parent and bone != parent
+                        )
+                    break
+
+                if remove_ancestor_branches:
+                    for grand_parent_child in grand_parent.children:
+                        if grand_parent_child != parent:
+                            remove_bones_tree.add(grand_parent_child)
+
+                parent = grand_parent
+
+        while remove_bones_tree:
+            child = remove_bones_tree.pop()
+            if child.name in result:
+                result.remove(child.name)
+            remove_bones_tree.update(child.children)
+
+        return result
+
     def refresh(self, armature: bpy.types.Object) -> None:
         if (
             self.link_to_bone
@@ -138,14 +197,17 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(self.link_to_bone.parent)
 
-        assigned_blender_bone_names: Set[str] = {
-            human_bone.node.value
+        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
+            human_bone.node.value: HumanBones.get(HumanBoneName(human_bone.bone))
             for human_bone in ext.vrm0.humanoid.human_bones
             if human_bone.node.value
+            and HumanBoneName.from_str(human_bone.bone) is not None
         }
+
         for human_bone in ext.vrm0.humanoid.human_bones:
             human_bone.update_node_candidates(
-                armature_data, assigned_blender_bone_names
+                armature_data,
+                blender_bone_name_to_human_bone_dict,
             )
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]

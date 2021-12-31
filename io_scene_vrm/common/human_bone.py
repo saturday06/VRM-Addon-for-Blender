@@ -78,6 +78,13 @@ class HumanBoneName(Enum):
     RIGHT_LITTLE_INTERMEDIATE = "rightLittleIntermediate"
     RIGHT_LITTLE_DISTAL = "rightLittleDistal"
 
+    @staticmethod
+    def from_str(human_bone_name_str: str) -> Optional["HumanBoneName"]:
+        for human_bone_name in HumanBoneName:
+            if human_bone_name.value == human_bone_name_str:
+                return human_bone_name
+        return None
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/humanoid.md#humanoid-bone-parent-child-relationship
 HUMAN_BONE_STRUCTURE: Dict[
@@ -295,6 +302,14 @@ class HumanBone:
                 return children
 
         return []
+
+    def is_ancestor_of(self, human_bone: "HumanBone") -> bool:
+        parent = human_bone.parent()
+        while parent:
+            if parent == self:
+                return True
+            parent = parent.parent()
+        return False
 
 
 def create_and_append_human_bone(
