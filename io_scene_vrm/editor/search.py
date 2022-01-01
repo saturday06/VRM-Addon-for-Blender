@@ -85,21 +85,38 @@ def object_distance(
 
 
 def armature_exists(context: bpy.types.Object) -> bool:
-    return any(obj.type == "ARMATURE" for obj in context.selectable_objects)
+    return any(armature.users for armature in bpy.data.armatures) and any(
+        obj.type == "ARMATURE" for obj in context.selectable_objects
+    )
 
 
 def multiple_armatures_exist(context: bpy.types.Object) -> bool:
-    return (
-        len([True for obj in context.selectable_objects if obj.type == "ARMATURE"]) > 1
-    )
+    first_data_exists = False
+    for data in bpy.data.armatures:
+        if not data.users:
+            continue
+        if not first_data_exists:
+            first_data_exists = True
+            continue
+
+        first_obj_exists = False
+        for obj in context.selectable_objects:
+            if obj.type == "ARMATURE":
+                if first_obj_exists:
+                    return True
+                first_obj_exists = True
+        break
+    return False
 
 
 def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
     objects = [obj for obj in context.selectable_objects if obj.type == "ARMATURE"]
+    if not objects:
+        return None
 
     active_object = context.active_object
     if not active_object:
-        return objects[0] if objects else None
+        return objects[0]
 
     collection_child_to_parent: Dict[
         bpy.types.Collection, Optional[bpy.types.Collection]
