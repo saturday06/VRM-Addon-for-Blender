@@ -68,6 +68,8 @@ def register() -> None:
     # pylint: disable=import-self,no-name-in-module
     from .io_scene_vrm import registration
 
+    # pylint: enable=import-self,no-name-in-module
+
     registration.register(bl_info["version"])
 
 
@@ -81,6 +83,8 @@ def unregister() -> None:
     # 'import io_scene_vrm' causes an error in blender and vscode mypy integration.
     # pylint: disable=import-self,no-name-in-module
     from .io_scene_vrm import registration
+
+    # pylint: enable=import-self,no-name-in-module
 
     registration.unregister()
 
