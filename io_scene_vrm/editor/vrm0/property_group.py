@@ -105,16 +105,32 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
     @staticmethod
-    def update_last_bone_names_and_bone_candidates(
-        humanoid_props: bpy.types.PropertyGroup, armature_data: bpy.types.Armature
+    def check_last_bone_names_and_update(
+        humanoid_props: bpy.types.PropertyGroup,
+        armature_data: bpy.types.Armature,
+        defer: bool = True,
     ) -> None:
-        if set(map(lambda n: n.value, humanoid_props.last_bone_names)) == set(
-            armature_data.bones.keys()
-        ):
+        bone_names = sorted(armature_data.bones.keys())
+        up_to_date = bone_names == list(
+            map(lambda n: str(n.value), humanoid_props.last_bone_names)
+        )
+
+        if up_to_date:
+            return
+
+        if defer:
+            bpy.app.timers.register(
+                functools.partial(
+                    Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update,
+                    humanoid_props,
+                    armature_data,
+                    False,
+                )
+            )
             return
 
         humanoid_props.last_bone_names.clear()
-        for bone_name in armature_data.bones.keys():
+        for bone_name in bone_names:
             bone_name_props = humanoid_props.last_bone_names.add()
             bone_name_props.value = bone_name
 
@@ -130,22 +146,6 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                 armature_data,
                 blender_bone_name_to_human_bone_dict,
             )
-
-    def check_last_bone_names_and_update(
-        self, armature_data: bpy.types.Armature
-    ) -> None:
-        if set(map(lambda n: n.value, self.last_bone_names)) == set(
-            armature_data.bones.keys()
-        ):
-            return
-
-        bpy.app.timers.register(
-            functools.partial(
-                Vrm0HumanoidPropertyGroup.update_last_bone_names_and_bone_candidates,
-                self,
-                armature_data,
-            )
-        )
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22

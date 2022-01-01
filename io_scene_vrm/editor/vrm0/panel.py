@@ -47,7 +47,9 @@ def draw_vrm0_humanoid_layout(
     humanoid_props: Vrm0HumanoidPropertyGroup,
 ) -> None:
     if migrate(armature, defer=True):
-        humanoid_props.check_last_bone_names_and_update(armature.data)
+        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+            humanoid_props, armature.data
+        )
 
     data = armature.data
 
