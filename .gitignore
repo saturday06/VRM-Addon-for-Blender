@@ -35,5 +35,6 @@
 /venv/
 /.venv/
 
+/docs/website/.hugo_build.lock
 /docs/website/public/
 /docs/website/resources/_gen/
