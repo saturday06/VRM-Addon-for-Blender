@@ -13,6 +13,7 @@
 !/.gitignore
 !/.pylintrc.ci
 !/.github/workflows/*.yml
+!/.github/*.yml
 !/LICENSE
 !/poetry.lock
 !/pyproject.toml
