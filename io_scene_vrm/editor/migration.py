@@ -7,12 +7,18 @@ from .property_group import BonePropertyGroup
 from .vrm0 import migration as vrm0_migration
 
 
-def migrate_no_defer_discarding_return_value(armature: bpy.types.Object) -> None:
-    migrate(armature, defer=False)
+def migrate_no_defer_discarding_return_value(armature_object_name: str) -> None:
+    migrate(armature_object_name, defer=False)
 
 
-def migrate(armature: bpy.types.Object, defer: bool) -> bool:
-    if not armature or not armature.name or not armature.data.name:
+def migrate(armature_object_name: str, defer: bool) -> bool:
+    armature = bpy.data.objects.get(armature_object_name)
+    if (
+        not armature
+        or not armature.name
+        or armature.type != "ARMATURE"
+        or not armature.data.name
+    ):
         return False
 
     ext = armature.data.vrm_addon_extension
@@ -25,7 +31,9 @@ def migrate(armature: bpy.types.Object, defer: bool) -> bool:
 
     if defer:
         bpy.app.timers.register(
-            functools.partial(migrate_no_defer_discarding_return_value, armature)
+            functools.partial(
+                migrate_no_defer_discarding_return_value, armature_object_name
+            )
         )
         return False
 

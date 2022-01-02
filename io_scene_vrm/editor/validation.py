@@ -111,7 +111,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             if obj.type == "ARMATURE":
                 armature = obj
                 if execute_migration:
-                    migration.migrate(armature, defer=False)
+                    migration.migrate(armature.name, defer=False)
                 armature_count += 1
                 if armature_count >= 2:  # only one armature
                     messages.append(

@@ -46,10 +46,8 @@ def draw_vrm0_humanoid_layout(
     layout: bpy.types.UILayout,
     humanoid_props: Vrm0HumanoidPropertyGroup,
 ) -> None:
-    if migrate(armature, defer=True):
-        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            humanoid_props, armature.data
-        )
+    if migrate(armature.name, defer=True):
+        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(armature.data.name)
 
     data = armature.data
 
@@ -315,7 +313,7 @@ def draw_vrm0_first_person_layout(
     layout: bpy.types.UILayout,
     first_person_props: Vrm0FirstPersonPropertyGroup,
 ) -> None:
-    migrate(armature, defer=True)
+    migrate(armature.name, defer=True)
     blend_data = context.blend_data
     layout.prop_search(
         first_person_props.first_person_bone, "value", armature.data, "bones"
@@ -433,7 +431,7 @@ def draw_vrm0_blend_shape_master_layout(
     layout: bpy.types.UILayout,
     blend_shape_master_props: Vrm0BlendShapeMasterPropertyGroup,
 ) -> None:
-    migrate(armature, defer=True)
+    migrate(armature.name, defer=True)
     blend_data = context.blend_data
     for blend_shape_group_index, blend_shape_group_props in enumerate(
         blend_shape_master_props.blend_shape_groups
@@ -647,7 +645,7 @@ def draw_vrm0_secondary_animation_layout(
     layout: bpy.types.UILayout,
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
 ) -> None:
-    migrate(armature, defer=True)
+    migrate(armature.name, defer=True)
     data = armature.data
 
     bone_groups_box = layout.box()
@@ -914,7 +912,7 @@ def draw_vrm0_meta_layout(
     layout: bpy.types.UILayout,
     meta_props: Vrm0MetaPropertyGroup,
 ) -> None:
-    migrate(armature, defer=True)
+    migrate(armature.name, defer=True)
     blend_data = context.blend_data
 
     layout.prop_search(meta_props, "texture", blend_data, "images", text="Thumbnail")

@@ -18,12 +18,12 @@ import bgl
 import bpy
 from mathutils import Matrix
 
-from .. import common, editor
+from .. import common
 from ..common import convert, deep
 from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
-from ..editor import operator, panel
+from ..editor import migration, operator, panel
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
 from ..editor.vrm0.property_group import (
     Vrm0BlendShapeMasterPropertyGroup,
@@ -674,7 +674,7 @@ class AbstractBaseVrmImporter(ABC):
         self.load_vrm0_secondary_animation(
             vrm0.secondary_animation, vrm0_extension.get("secondaryAnimation")
         )
-        editor.migration.migrate(armature, defer=False)
+        migration.migrate(armature.name, defer=False)
 
     def load_vrm0_meta(self, meta_props: Vrm0MetaPropertyGroup, meta_dict: Any) -> None:
         if not isinstance(meta_dict, dict):

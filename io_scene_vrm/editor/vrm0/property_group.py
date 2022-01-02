@@ -106,10 +106,13 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
     @staticmethod
     def check_last_bone_names_and_update(
-        humanoid_props: bpy.types.PropertyGroup,
-        armature_data: bpy.types.Armature,
+        armature_data_name: str,
         defer: bool = True,
     ) -> None:
+        armature_data = bpy.data.armatures.get(armature_data_name)
+        if not armature_data:
+            return
+        humanoid_props = armature_data.vrm_addon_extension.vrm0.humanoid
         bone_names = sorted(armature_data.bones.keys())
         up_to_date = bone_names == list(
             map(lambda n: str(n.value), humanoid_props.last_bone_names)
@@ -122,8 +125,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             bpy.app.timers.register(
                 functools.partial(
                     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update,
-                    humanoid_props,
-                    armature_data,
+                    armature_data_name,
                     False,
                 )
             )

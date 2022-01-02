@@ -87,7 +87,7 @@ class LegacyVrmExporter:
             if not self.armature:
                 raise Exception("Failed to generate default armature")
             self.use_dummy_armature = True
-        migration.migrate(self.armature, defer=False)
+        migration.migrate(self.armature.name, defer=False)
         self.result: Optional[bytes] = None
 
     def export_vrm(self) -> Optional[bytes]:

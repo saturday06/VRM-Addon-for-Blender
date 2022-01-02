@@ -510,7 +510,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
             props.bone = vrm_bone_name
             props.node.value = blender_bone_name
         self.make_extension_setting_and_metas(armature)
-        migration.migrate(armature, defer=False)
+        migration.migrate(armature.name, defer=False)
 
     @classmethod
     def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
