@@ -8,7 +8,7 @@
 colorScheme = "congo"
 darkMode = true
 darkToggle = true
-logo = "images/logo.png"
+logo = "images/logo.png" # https://openclipart.org/detail/277988/gear-icons
 description = "VRM Add-on for Blender"
 mainSections = ["section1", "section2"]
 # robots = ""
