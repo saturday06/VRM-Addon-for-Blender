@@ -27,7 +27,6 @@ jobs:
           pushd public
             ln -s ../../../.git .git
             git checkout gh-pages
-            git rm $(git ls-files)
           popd
 
           "$hugo_dir/hugo" --minify
