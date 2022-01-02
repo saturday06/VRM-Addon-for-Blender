@@ -539,7 +539,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
         hb = human_bone.HumanBones
-        stop_bone_names = {*armature.data.values()[:]}
+        stop_bone_names = set(armature.data.values())
 
         def set_children_roll(bone_name: str, roll: float) -> None:
             armature = self.armature
