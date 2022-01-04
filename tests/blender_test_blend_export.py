@@ -15,11 +15,12 @@ from io_scene_vrm.importer.vrm_diff import vrm_diff  # noqa: E402
 # pylint: enable=wrong-import-position;
 
 repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-vrm_dir = os.environ.get(
-    "BLENDER_VRM_TEST_VRM_DIR",
-    os.path.join(repository_root_dir, "tests", "resources", "vrm"),
+resources_dir = os.environ.get(
+    "BLENDER_VRM_TEST_RESOURCES_PATH",
+    os.path.join(repository_root_dir, "tests", "resources"),
 )
-blend_dir = os.path.join(os.path.dirname(vrm_dir), "blend")
+vrm_dir = os.path.join(resources_dir, "vrm")
+blend_dir = os.path.join(resources_dir, "blend")
 
 
 def get_test_command_args() -> List[List[str]]:
@@ -34,7 +35,7 @@ def get_test_command_args() -> List[List[str]]:
 
 def test() -> None:
     os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
-    update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
+    update_failed_vrm = os.environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
     major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
 
     blend = sys.argv[sys.argv.index("--") + 1]
@@ -70,7 +71,7 @@ def test() -> None:
     if not diffs:
         return
 
-    if update_vrm_dir:
+    if update_failed_vrm:
         shutil.copy(actual_path, expected_path)
 
     diffs_str = "\n".join(diffs)

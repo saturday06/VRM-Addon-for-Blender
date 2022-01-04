@@ -19,9 +19,12 @@ def test() -> None:
     os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 
     repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    vrm_dir = os.environ.get(
-        "BLENDER_VRM_TEST_VRM_DIR",
-        os.path.join(repository_root_dir, "tests", "resources", "vrm"),
+    vrm_dir = os.path.join(
+        os.environ.get(
+            "BLENDER_VRM_TEST_RESOURCES_PATH",
+            os.path.join(repository_root_dir, "tests", "resources"),
+        ),
+        "vrm",
     )
     major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
     vrm = "basic_armature.vrm"

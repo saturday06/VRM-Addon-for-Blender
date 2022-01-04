@@ -15,9 +15,12 @@ from io_scene_vrm.importer.vrm_diff import vrm_diff  # noqa: E402
 # pylint: enable=wrong-import-position;
 
 repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-vrm_dir = os.environ.get(
-    "BLENDER_VRM_TEST_VRM_DIR",
-    os.path.join(repository_root_dir, "tests", "resources", "vrm"),
+vrm_dir = os.path.join(
+    os.environ.get(
+        "BLENDER_VRM_TEST_RESOURCES_PATH",
+        os.path.join(repository_root_dir, "tests", "resources"),
+    ),
+    "vrm",
 )
 
 
@@ -35,7 +38,7 @@ def get_test_command_args() -> List[List[str]]:
 
 def test() -> None:
     os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
-    update_vrm_dir = os.environ.get("BLENDER_VRM_TEST_UPDATE_VRM_DIR") == "true"
+    update_failed_vrm = os.environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
 
     vrm, extract_textures_str = sys.argv[sys.argv.index("--") + 1 :]
     in_path = os.path.join(vrm_dir, "in", vrm)
@@ -54,7 +57,7 @@ def test() -> None:
     extract_textures = extract_textures_str == "true"
 
     if not os.path.exists(os.path.join(out_vrm_dir, vrm)):
-        update_vrm_dir = True
+        update_failed_vrm = True
 
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
@@ -68,25 +71,25 @@ def test() -> None:
         os.path.join(out_vrm_dir, vrm),
         temp_vrm_dir,
         extract_textures,
-        update_vrm_dir,
+        update_failed_vrm,
         startup_blend_path,
         test_blend_path,
     )
 
-    if update_vrm_dir and not os.path.exists(os.path.join(out_vrm_dir, vrm)):
+    if update_failed_vrm and not os.path.exists(os.path.join(out_vrm_dir, vrm)):
         return
 
     if os.path.exists(os.path.join(out2_vrm_dir, vrm + ".TO_BE_SUPPORTED.txt")):
         print(f"WARNING: Second import-export assertion for {vrm} is skipped.")
         return
 
-    if not os.path.exists(os.path.join(out2_vrm_dir, vrm)) and not update_vrm_dir:
+    if not os.path.exists(os.path.join(out2_vrm_dir, vrm)) and not update_failed_vrm:
         assert_import_export(
             os.path.join(out_vrm_dir, vrm),
             os.path.join(out_vrm_dir, vrm),
             temp_vrm_dir,
             extract_textures,
-            update_vrm_dir,
+            update_failed_vrm,
             startup_blend_path,
         )
         return
@@ -96,7 +99,7 @@ def test() -> None:
         os.path.join(out2_vrm_dir, vrm),
         temp_vrm_dir,
         extract_textures,
-        update_vrm_dir,
+        update_failed_vrm,
         startup_blend_path,
     )
 
@@ -106,7 +109,7 @@ def assert_import_export(
     expected_path: str,
     temp_dir_path: str,
     extract_textures: bool,
-    update_vrm_dir: bool,
+    update_failed_vrm: bool,
     startup_blend_path: str,
     test_blend_path: Optional[str] = None,
 ) -> None:
@@ -144,7 +147,7 @@ def assert_import_export(
         float_tolerance = 0.000015
 
     if (
-        update_vrm_dir
+        update_failed_vrm
         and in_path != expected_path
         and not vrm_diff(
             actual_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
@@ -170,7 +173,7 @@ def assert_import_export(
     if not diffs:
         return
 
-    if update_vrm_dir:
+    if update_failed_vrm:
         shutil.copy(actual_path, expected_path)
 
     diffs_str = "\n".join(diffs)

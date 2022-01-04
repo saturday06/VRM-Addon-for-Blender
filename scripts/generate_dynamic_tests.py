@@ -38,7 +38,11 @@ for path in map(str.strip, sorted(os.listdir(test_src_dir))):
     test_command_args_list: Any = []
     try:
         for d in ["vrm", "blend"]:
-            if not os.path.exists(os.path.join(test_src_dir, "resources", d)):
+            resources_dir = os.environ.get(
+                "BLENDER_VRM_TEST_RESOURCES_PATH",
+                os.path.join(test_src_dir, "resources"),
+            )
+            if not os.path.exists(os.path.join(resources_dir, d)):
                 raise Exception(f"'./tests/resources/{d}/' doesn't exist.")
 
         # pylint: disable=no-value-for-parameter,deprecated-method
