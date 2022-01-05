@@ -172,7 +172,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
             for mat in mesh.data.materials:
-                if mat not in used_materials:
+                if mat and mat not in used_materials:
                     used_materials.append(mat)
 
             for v in mesh.data.vertices:

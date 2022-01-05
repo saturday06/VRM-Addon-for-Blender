@@ -188,6 +188,8 @@ class AbstractBaseVrmImporter(ABC):
         }
         for mesh in self.meshes.values():
             for material_index, material in enumerate(mesh.data.materials):
+                if not material:
+                    continue
                 for vrm_material_index, vrm_material in self.vrm_materials.items():
                     material_original_name = gltf_material_original_names.get(
                         vrm_material_index
