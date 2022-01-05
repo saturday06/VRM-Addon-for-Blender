@@ -1381,7 +1381,7 @@ class LegacyVrmExporter:
                 mat["name"]: i for i, mat in enumerate(self.json_dic["materials"])
             }
             material_slot_dic = {
-                i: mat.name for i, mat in enumerate(mesh.material_slots)
+                i: mat.name for i, mat in enumerate(mesh.material_slots) if mat.name
             }
             node_id_dic = {
                 node["name"]: i for i, node in enumerate(self.json_dic["nodes"])
@@ -1398,12 +1398,12 @@ class LegacyVrmExporter:
 
             # endregion  temporary_used
             primitive_index_bin_dic: Dict[Optional[int], bytes] = OrderedDict(
-                {mat_id_dic[mat.name]: b"" for mat in mesh.material_slots}
+                {mat_id_dic[mat.name]: b"" for mat in mesh.material_slots if mat.name}
             )
             if not primitive_index_bin_dic:
                 primitive_index_bin_dic[None] = b""
             primitive_index_vertex_count: Dict[Optional[int], int] = OrderedDict(
-                {mat_id_dic[mat.name]: 0 for mat in mesh.material_slots}
+                {mat_id_dic[mat.name]: 0 for mat in mesh.material_slots if mat.name}
             )
             if not primitive_index_vertex_count:
                 primitive_index_vertex_count[None] = 0
