@@ -1306,7 +1306,7 @@ class LegacyVrmExporter:
             if not swapped:
                 break
 
-        for mesh_id, mesh in enumerate(meshes):
+        for mesh in meshes:
             is_skin_mesh = self.is_skin_mesh(mesh)
             node_dic = OrderedDict(
                 {
@@ -1314,13 +1314,10 @@ class LegacyVrmExporter:
                     "translation": self.axis_blender_to_glb(mesh.location),
                     "rotation": [0, 0, 0, 1],  # このへんは規約なので
                     "scale": [1, 1, 1],  # このへんは規約なので
-                    "mesh": mesh_id,
                 }
             )
             if is_skin_mesh:
                 node_dic["translation"] = [0, 0, 0]  # skinnedmeshはtransformを無視される
-                # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
-                node_dic["skin"] = 0
             self.json_dic["nodes"].append(node_dic)
 
             mesh_node_id = len(self.json_dic["nodes"]) - 1
@@ -1675,6 +1672,17 @@ class LegacyVrmExporter:
                     if index_bin != b""
                 }
             )
+
+            if not primitive_glbs_dic:
+                bm.free()
+                continue
+
+            mesh_index = len(self.json_dic["meshes"])
+            node_dic["mesh"] = mesh_index
+            if is_skin_mesh:
+                # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
+                node_dic["skin"] = 0
+
             pos_glb = GlbBin(
                 position_bin,
                 "VEC3",
@@ -1804,8 +1812,8 @@ class LegacyVrmExporter:
                     }
                 primitive_list.append(primitive)
             if mesh.name not in self.mesh_name_to_index:
-                self.mesh_name_to_index[mesh.name] = len(self.json_dic["meshes"])
-            self.mesh_name_to_index[mesh.data.name] = len(self.json_dic["meshes"])
+                self.mesh_name_to_index[mesh.name] = mesh_index
+            self.mesh_name_to_index[mesh.data.name] = mesh_index
             self.json_dic["meshes"].append(
                 OrderedDict({"name": mesh.data.name, "primitives": primitive_list})
             )
