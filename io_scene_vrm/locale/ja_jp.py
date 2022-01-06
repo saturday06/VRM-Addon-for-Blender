@@ -60,9 +60,9 @@ translation_dictionary = {
     (
         "*",
         'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
-        + 'Add weight to VRM HumanBone "hips" automatically.',
+        + "Add weight to parent bone automatically.",
     ): "「{mesh_name}」の頂点id「{vertex_index}」にウェイトが乗っていません。"
-    + "VRMヒューマンボーン「hips」へのウエイトを自動で割り当てます。",
+    + "親ボーンへのウエイトを自動で割り当てます。",
     (
         "*",
         'vertex index "{vertex_index}" has too many(over 4) weight in "{mesh_name}". '

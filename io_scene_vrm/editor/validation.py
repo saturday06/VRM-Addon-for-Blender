@@ -182,7 +182,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     warning_messages.append(
                         pgettext(
                             'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
-                            + 'Add weight to VRM HumanBone "hips" automatically.'
+                            + "Add weight to parent bone automatically."
                         ).format(vertex_index=v.index, mesh_name=mesh.name)
                     )
                     vertex_error_count = vertex_error_count + 1

@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import bgl
 import bmesh
 import bpy
-from mathutils import Matrix
+from mathutils import Matrix, Quaternion
 
 from ..common import deep, glb
 from ..common.gltf_constants import Gltf
@@ -1266,22 +1266,47 @@ class LegacyVrmExporter:
             morph_normal_diff_dic.update({k: values})
         return morph_normal_diff_dic
 
+    def is_skin_mesh(self, mesh: bpy.types.Object) -> bool:
+        while mesh:
+            if len([m for m in mesh.modifiers if m.type == "ARMATURE"]) > 0:
+                return True
+            if not mesh.parent:
+                return True
+            if (
+                mesh.parent_type == "BONE"
+                and mesh.parent.type == "ARMATURE"
+                and mesh.parent_bone is not None
+            ):
+                return False
+            if mesh.parent_type != "OBJECT" or mesh.parent.type != "MESH":
+                return True
+            mesh = mesh.parent
+        return True
+
     def mesh_to_bin_and_dic(self) -> None:
         self.json_dic["meshes"] = []
         vrm_version = self.vrm_version
         if vrm_version is None:
             raise Exception("vrm version is None")
-        for mesh_id, mesh in enumerate(
-            [obj for obj in self.export_objects if obj.type == "MESH"]
-        ):
-            is_skin_mesh = True
-            if (
-                len([m for m in mesh.modifiers if m.type == "ARMATURE"]) == 0
-                and mesh.parent is not None
-                and mesh.parent.type == "ARMATURE"
-                and mesh.parent_bone is not None
-            ):
-                is_skin_mesh = False
+
+        meshes = [obj for obj in self.export_objects if obj.type == "MESH"]
+        while True:
+            swapped = False
+            for mesh in list(meshes):
+                if (
+                    mesh.parent_type == "OBJECT"
+                    and mesh.parent
+                    and mesh.parent.type == "MESH"
+                    and meshes.index(mesh) < meshes.index(mesh.parent)
+                ):
+                    meshes.remove(mesh)
+                    meshes.append(mesh)
+                    swapped = True
+            if not swapped:
+                break
+
+        for mesh_id, mesh in enumerate(meshes):
+            is_skin_mesh = self.is_skin_mesh(mesh)
             node_dic = OrderedDict(
                 {
                     "name": mesh.name,
@@ -1302,24 +1327,43 @@ class LegacyVrmExporter:
             if is_skin_mesh:
                 self.json_dic["scenes"][0]["nodes"].append(mesh_node_id)
             else:
-                parent_node = (
-                    [
-                        node
-                        for node in self.json_dic["nodes"]
-                        if node["name"] == mesh.parent_bone
-                    ]
-                    + [None]
-                )[0]
+                if mesh.parent_type == "BONE":
+                    parent_node = (
+                        [
+                            node
+                            for node in self.json_dic["nodes"]
+                            if node["name"] == mesh.parent_bone
+                        ]
+                        + [None]
+                    )[0]
+                elif mesh.parent_type == "OBJECT":
+                    parent_node = (
+                        [
+                            node
+                            for node in self.json_dic["nodes"]
+                            if node["name"] == mesh.parent.name
+                        ]
+                        + [None]
+                    )[0]
+                else:
+                    parent_node = None
                 base_pos = [0, 0, 0]
                 if parent_node:
                     if "children" in parent_node:
                         parent_node["children"].append(mesh_node_id)
                     else:
                         parent_node["children"] = [mesh_node_id]
-                    base_pos = self.armature.data.bones[mesh.parent_bone].head_local
+                    if mesh.parent_type == "BONE":
+                        base_pos = (
+                            self.armature.matrix_world
+                            @ self.armature.data.bones[mesh.parent_bone].matrix_local
+                        ).to_translation()
+                    else:
+                        base_pos = mesh.parent.matrix_world.to_translation()
                 else:
                     self.json_dic["scenes"][0]["nodes"].append(mesh_node_id)
-                relate_pos = [mesh.location[i] - base_pos[i] for i in range(3)]
+                mesh_pos = mesh.matrix_world.to_translation()
+                relate_pos = [mesh_pos[i] - base_pos[i] for i in range(3)]
                 self.json_dic["nodes"][mesh_node_id][
                     "translation"
                 ] = self.axis_blender_to_glb(relate_pos)
@@ -1360,11 +1404,14 @@ class LegacyVrmExporter:
             bpy.ops.object.mode_set(mode="EDIT")
 
             bm_temp = bmesh.new()
-            mesh_data.transform(mesh.matrix_world, shape_keys=True)
-            bm_temp.from_mesh(mesh_data)
+            mesh_data_transform = Matrix.Identity(4)
             if not is_skin_mesh:
-                # TODO:
-                bmesh.ops.translate(bm_temp, vec=-mesh.location)
+                mesh_data_transform @= Matrix.Translation(
+                    -mesh.matrix_world.to_translation()
+                )
+            mesh_data_transform @= mesh.matrix_world
+            mesh_data.transform(mesh_data_transform, shape_keys=True)
+            bm_temp.from_mesh(mesh_data)
             bmesh.ops.triangulate(bm_temp, faces=bm_temp.faces[:])
             bm_temp.to_mesh(mesh_data)
             bm_temp.free()
@@ -1551,27 +1598,42 @@ class LegacyVrmExporter:
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
                             )
 
-                            # Attach hips bone
-                            hips_bone_name: Optional[str] = None
-                            for (
-                                human_bone
-                            ) in (
-                                self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                            # Attach near bone
+                            bone_name: Optional[str] = None
+                            mesh_parent = mesh
+                            while (
+                                mesh_parent
+                                and mesh_parent.type == "MESH"
+                                and mesh_parent != mesh
                             ):
-                                if human_bone.bone == "hips":
-                                    hips_bone_name = human_bone.node.value
-                            if (
-                                hips_bone_name is None
-                                or hips_bone_name not in self.armature.data.bones
-                            ):
-                                raise Exception("No hips bone found")
-                            hips_bone_index = next(
+                                if (
+                                    mesh_parent.parent_type == "BONE"
+                                    and mesh_parent.parent_bone
+                                    in self.armature.data.bones
+                                ):
+                                    bone_name = mesh_parent.parent_bone
+                                    break
+                                mesh_parent = mesh.parent
+                            if not bone_name:
+                                for (
+                                    human_bone
+                                ) in (
+                                    self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                                ):
+                                    if human_bone.bone == "hips":
+                                        bone_name = human_bone.node.value
+                                if (
+                                    bone_name is None
+                                    or bone_name not in self.armature.data.bones
+                                ):
+                                    raise Exception("No hips bone found")
+                            bone_index = next(
                                 index
                                 for index, node in enumerate(self.json_dic["nodes"])
-                                if node["name"] == hips_bone_name
+                                if node["name"] == bone_name
                             )
                             weights = [1.0, 0, 0, 0]
-                            joints = [hips_bone_index, 0, 0, 0]
+                            joints = [bone_index, 0, 0, 0]
 
                         normalized_weights = normalize_weights_compatible_with_gl_float(
                             weights
@@ -2157,3 +2219,20 @@ def normalize_weights_compatible_with_gl_float(
             break
 
     return weights
+
+
+def matrix_loc_rot_scale(
+    loc: Sequence[Union[int, float]],
+    rot: Quaternion,
+    scale: Sequence[Union[int, float]],
+) -> Matrix:
+    if bpy.app.version >= (2, 83):
+        return Matrix.LocRotScale(loc, rot, scale)
+
+    return (
+        Matrix.Translation(loc)
+        @ rot.to_matrix().to_4x4()
+        @ Matrix.Scale(scale[0], 4, (1, 0, 0))
+        @ Matrix.Scale(scale[1], 4, (0, 1, 0))
+        @ Matrix.Scale(scale[2], 4, (0, 0, 1))
+    )
