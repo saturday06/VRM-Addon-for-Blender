@@ -198,24 +198,25 @@ class LegacyVrmExporter:
         }
 
         def bone_to_node(b_bone: bpy.types.Bone) -> Dict[str, Any]:
-            parent_head_local = (
-                b_bone.parent.head_local if b_bone.parent is not None else [0, 0, 0]
-            )
-            world_head_local = (
-                self.armature.matrix_world @ Matrix.Translation(b_bone.head_local)
-            ).to_translation()
-            parent_world_head_local = (
-                self.armature.matrix_world @ Matrix.Translation(parent_head_local)
-            ).to_translation()
+            if b_bone.parent is not None:
+                world_head_local = (
+                    self.armature.matrix_world @ Matrix.Translation(b_bone.head_local)
+                ).to_translation()
+                parent_world_head_local = (
+                    self.armature.matrix_world
+                    @ Matrix.Translation(b_bone.parent.head_local)
+                ).to_translation()
+                translation = [
+                    world_head_local[i] - parent_world_head_local[i] for i in range(3)
+                ]
+            else:
+                translation = (
+                    self.armature.matrix_world @ b_bone.matrix_local
+                ).to_translation()
             node = OrderedDict(
                 {
                     "name": b_bone.name,
-                    "translation": self.axis_blender_to_glb(
-                        [
-                            world_head_local[i] - parent_world_head_local[i]
-                            for i in range(3)
-                        ]
-                    ),
+                    "translation": self.axis_blender_to_glb(translation),
                     # "rotation":[0,0,0,1],
                     # "scale":[1,1,1],
                     "children": [bone_id_dic[ch.name] for ch in b_bone.children],
