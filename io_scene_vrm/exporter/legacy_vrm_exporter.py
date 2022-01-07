@@ -30,10 +30,11 @@ from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
 from ..editor import migration, search
+from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
 
-class LegacyVrmExporter:
+class LegacyVrmExporter(AbstractBaseVrmExporter):
     class ValidationError(Exception):
         pass
 
