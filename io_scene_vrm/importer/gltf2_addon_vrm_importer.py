@@ -469,11 +469,16 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     obj.rotation_quaternion.rotate(
                         mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
                     )
+                    if bpy.context.object is not None:
+                        bpy.ops.object.mode_set(mode="OBJECT")
+                    bpy.ops.object.select_all(action="DESELECT")
                     obj.select_set(True)
                     previous_active = bpy.context.view_layer.objects.active
                     try:
                         bpy.context.view_layer.objects.active = obj
-                        bpy.ops.object.transform_apply(rotation=True)
+                        bpy.ops.object.transform_apply(
+                            location=False, rotation=True, scale=False, properties=False
+                        )
                     finally:
                         bpy.context.view_layer.objects.active = previous_active
                 self.armature = obj
