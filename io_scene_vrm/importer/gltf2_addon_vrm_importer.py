@@ -7,6 +7,7 @@ import shutil
 import string
 import struct
 import tempfile
+import traceback
 
 import bgl
 import bpy
@@ -422,6 +423,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 full_vrm_import_success = True
             except RuntimeError:
+                traceback.print_exc()
+                print(
+                    f'ERROR: Failed to import "{indexed_vrm_file.name}"'
+                    + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
+                )
                 self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
             # Some VRM has broken animations.
@@ -438,6 +444,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         bone_heuristic=bone_heuristic,
                     )
                 except RuntimeError as e:
+                    traceback.print_exc()
+                    print(
+                        f'ERROR: Failed to import "{indexed_vrm_file.name}"'
+                        + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
+                        + " without animations key"
+                    )
                     self.cleanup_gltf2_with_indices()
                     if self.parse_result.spec_version_number >= (1, 0):
                         raise e
