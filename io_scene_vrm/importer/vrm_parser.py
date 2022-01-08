@@ -18,8 +18,9 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import bgl
 import bpy
 
-from ..common import deep, glb
+from ..common import deep
 from ..common.binary_reader import BinaryReader
+from ..common.gltf import parse_glb
 from ..common.mtoon_constants import MaterialMtoon, MaterialTransparentZWrite
 from .license_validation import validate_license
 
@@ -381,7 +382,7 @@ class VrmParser:
     def parse(self) -> ParseResult:
         # datachunkは普通一つしかない
         with open(self.filepath, "rb") as f:
-            json_dict, body_binary = glb.parse(f.read())
+            json_dict, body_binary = parse_glb(f.read())
             self.json_dict = json_dict
 
         if (

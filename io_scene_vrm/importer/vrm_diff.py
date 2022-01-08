@@ -1,7 +1,7 @@
 import collections
 from typing import Any, Dict, List, Tuple
 
-from ..common import deep, glb
+from ..common import deep, gltf
 from .vrm_parser import decode_bin
 
 
@@ -15,7 +15,7 @@ def human_bone_sort_key(human_bone_dict: Any) -> int:
 
 
 def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
-    vrm_json, binary_chunk = glb.parse(data)
+    vrm_json, binary_chunk = gltf.parse_glb(data)
     vrm_json["~accessors_decoded"] = decode_bin(vrm_json, binary_chunk)
 
     if "extensions" not in vrm_json:

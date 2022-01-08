@@ -6,7 +6,7 @@ import bpy
 from bpy.app.translations import pgettext
 from mathutils import Vector
 
-from ..common.gltf_constants import Gltf
+from ..common import gltf
 from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
@@ -258,15 +258,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     )
             # GLTF
             elif node.node_tree["SHADER"] == "GLTF":
-                for k in Gltf.TEXTURE_INPUT_NAMES:
+                for k in gltf.TEXTURE_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "TEX_IMAGE", k, messages, used_images
                     )
-                for k in Gltf.VAL_INPUT_NAMES:
+                for k in gltf.VAL_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "VALUE", k, messages, used_images
                     )
-                for k in Gltf.RGBA_INPUT_NAMES:
+                for k in gltf.RGBA_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "RGB", k, messages, used_images
                     )

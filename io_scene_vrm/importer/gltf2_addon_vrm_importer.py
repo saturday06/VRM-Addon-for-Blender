@@ -12,7 +12,7 @@ import bgl
 import bpy
 import mathutils
 
-from ..common import glb
+from ..common import gltf
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -70,7 +70,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def import_gltf2_with_indices(self) -> None:
         with open(self.parse_result.filepath, "rb") as f:
-            json_dict, body_binary = glb.parse(f.read())
+            json_dict, body_binary = gltf.parse_glb(f.read())
 
         for key in ["nodes", "materials", "meshes"]:
             if key not in json_dict or not isinstance(json_dict[key], list):
@@ -412,7 +412,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             bone_heuristic = "TEMPERANCE"
         full_vrm_import_success = False
         with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-            indexed_vrm_file.write(glb.pack(json_dict, body_binary))
+            indexed_vrm_file.write(gltf.pack_glb(json_dict, body_binary))
             indexed_vrm_file.flush()
             try:
                 bpy.ops.import_scene.gltf(
@@ -429,7 +429,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if "animations" in json_dict:
                 del json_dict["animations"]
             with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-                indexed_vrm_file.write(glb.pack(json_dict, body_binary))
+                indexed_vrm_file.write(gltf.pack_glb(json_dict, body_binary))
                 indexed_vrm_file.flush()
                 try:
                     bpy.ops.import_scene.gltf(

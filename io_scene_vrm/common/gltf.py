@@ -5,8 +5,17 @@ from typing import Any, Dict, Optional, Tuple
 
 from .binary_reader import BinaryReader
 
+TEXTURE_INPUT_NAMES = [
+    "color_texture",
+    "normal",
+    "emissive_texture",
+    "occlusion_texture",
+]
+VAL_INPUT_NAMES = ["metallic", "roughness", "unlit"]
+RGBA_INPUT_NAMES = ["base_Color", "emissive_color"]
 
-def parse(data: bytes) -> Tuple[Dict[str, Any], bytes]:
+
+def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     reader = BinaryReader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
@@ -58,7 +67,7 @@ def parse(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     return json_obj, body if body else bytes()
 
 
-def pack(json_dict: Dict[str, Any], binary_chunk: bytes) -> bytes:
+def pack_glb(json_dict: Dict[str, Any], binary_chunk: bytes) -> bytes:
     magic = b"glTF" + struct.pack("<I", 2)
     json_str = json.dumps(json_dict).encode("utf-8")
     if len(json_str) % 4 != 0:

@@ -24,8 +24,7 @@ import bmesh
 import bpy
 from mathutils import Matrix, Quaternion
 
-from ..common import deep, glb
-from ..common.gltf_constants import Gltf
+from ..common import deep, gltf
 from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
@@ -149,7 +148,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             used_images.append(n.image)
             elif node.node_tree["SHADER"] == "GLTF":
                 mat["vrm_shader"] = "GLTF"
-                for k in Gltf.TEXTURE_INPUT_NAMES:
+                for k in gltf.TEXTURE_INPUT_NAMES:
                     if node.inputs[k].links:
                         n = node.inputs[k].links[0].from_node
                         if n.image not in used_images:
@@ -2203,7 +2202,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             del self.json_dic["meshes"]
         if not self.json_dic["materials"]:
             del self.json_dic["materials"]
-        self.result = glb.pack(self.json_dic, self.bin)
+        self.result = gltf.pack_glb(self.json_dic, self.bin)
         if self.use_dummy_armature:
             bpy.data.objects.remove(self.armature, do_unlink=True)
 
