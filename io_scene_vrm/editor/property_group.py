@@ -52,7 +52,7 @@ class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         if not self.link_to_mesh or not self.link_to_mesh.name:
             uuid_str = uuid.uuid4().hex
             self.link_to_mesh = bpy.data.objects.new(
-                name="VrmAddonLinkToMesh" + uuid_str, object_data=None
+                name="~VrmAddonLinkToMesh" + uuid_str, object_data=None
             )
         self.link_to_mesh.parent = mesh_obj
 
@@ -147,7 +147,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         value = self.value
         uuid_str = uuid.uuid4().hex
         self.link_to_bone = bpy.data.objects.new(
-            name="VrmAddonLinkToBone" + uuid_str, object_data=None
+            name="~VrmAddonLinkToBone" + uuid_str, object_data=None
         )
         self.link_to_bone.parent = armature
         self.value = value
