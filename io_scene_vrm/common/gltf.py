@@ -5,6 +5,10 @@ from typing import Any, Dict, Optional, Tuple
 
 from .binary_reader import BinaryReader
 
+# https://www.khronos.org/opengl/wiki/Small_Float_Formats#Numeric_limits_and_precision
+FLOAT_POSITIVE_MAX = 3.4028237e38
+FLOAT_NEGATIVE_MAX = -FLOAT_POSITIVE_MAX
+
 TEXTURE_INPUT_NAMES = [
     "color_texture",
     "normal",

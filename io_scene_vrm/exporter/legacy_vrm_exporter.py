@@ -1433,7 +1433,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             }
 
             v_group_name_dic = {i: vg.name for i, vg in enumerate(mesh.vertex_groups)}
-            fmin, fmax = -float_info.max, float_info.max  # .minはfloatで一番細かい正の数を示す。
+            fmin, fmax = gltf.FLOAT_NEGATIVE_MAX, gltf.FLOAT_POSITIVE_MAX
             unique_vertex_id = 0
             # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
             unique_vertex_dic: Dict[Tuple[Any, ...], int] = {}
