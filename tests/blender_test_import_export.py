@@ -139,10 +139,8 @@ def assert_import_export(
     actual_bytes = pathlib.Path(actual_path).read_bytes()
 
     system = platform.system()
-    if system == "Darwin":
-        float_tolerance = 0.0005
-    elif system == "Linux":
-        float_tolerance = 0.0006
+    if system in ["Darwin", "Linux"]:
+        float_tolerance = 0.00055
     else:
         float_tolerance = 0.000015
 

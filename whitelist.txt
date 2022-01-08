@@ -80,7 +80,6 @@ hrad
 hx
 icyp
 idname
-idx
 ik
 ikc
 img
@@ -127,6 +126,7 @@ offscreen
 ortho
 otogai
 out2
+outliner
 param
 parameteri
 params
@@ -136,6 +136,7 @@ pbrmat
 pgettext
 pi2
 pos
+poselib
 premultiply
 prog
 proj

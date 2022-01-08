@@ -52,6 +52,31 @@ def draw_vrm0_humanoid_layout(
     data = armature.data
 
     armature_box = layout
+    t_pose_box = armature_box.box()
+    column = t_pose_box.row().column()
+    column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
+    column.label(text="Pose Library")
+    column.prop_search(
+        humanoid_props, "pose_library", bpy.data, "actions", text="", translate=False
+    )
+    column.label(text="Pose")
+    if (
+        humanoid_props.pose_library
+        and humanoid_props.pose_library.name in bpy.data.actions
+    ):
+        column.prop_search(
+            humanoid_props,
+            "pose_marker_name",
+            humanoid_props.pose_library,
+            "pose_markers",
+            text="",
+            translate=False,
+        )
+    else:
+        pose_marker_name_empty_box = column.box()
+        pose_marker_name_empty_box.scale_y = 0.5
+        pose_marker_name_empty_box.label(text="Current Pose", translate=False)
+
     armature_box.operator(
         operator.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT"
     )
@@ -69,7 +94,6 @@ def draw_vrm0_humanoid_layout(
 
     split_factor = 0.2
 
-    layout.separator()
     requires_box = armature_box.box()
     requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
     row = requires_box.row().split(factor=split_factor)

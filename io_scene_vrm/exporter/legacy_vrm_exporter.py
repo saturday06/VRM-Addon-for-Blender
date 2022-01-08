@@ -88,23 +88,96 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 raise Exception("Failed to generate default armature")
             self.use_dummy_armature = True
         migration.migrate(self.armature.name, defer=False)
+
+        self.original_pose_library: Optional[bpy.types.Action] = None
+        self.saved_current_pose_library: Optional[bpy.types.Action] = None
+        self.saved_pose_position: Optional[str] = None
         self.result: Optional[bytes] = None
 
     def export_vrm(self) -> Optional[bytes]:
         self.vrm_version = "0.0"
-        self.image_to_bin()
-        self.armature_to_node_and_scenes_dic()
-        self.material_to_dic()
-        self.mesh_to_bin_and_dic()
-        self.json_dic["scene"] = 0
-        self.gltf_meta_to_dic()
-        self.vrm_meta_to_dic()  # colliderとかmetaとか....
-        self.finalize()
+        try:
+            self.setup_pose()
+            self.image_to_bin()
+            self.armature_to_node_and_scenes_dic()
+            self.material_to_dic()
+            self.mesh_to_bin_and_dic()
+            self.json_dic["scene"] = 0
+            self.gltf_meta_to_dic()
+            self.vrm_meta_to_dic()  # colliderとかmetaとか....
+            self.pack()
+        finally:
+            self.restore_pose()
+            self.cleanup()
         return self.result
 
     @staticmethod
     def axis_blender_to_glb(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
+
+    def setup_pose(self) -> None:
+        if bpy.context.view_layer.objects.active is not None:
+            bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        bpy.context.view_layer.objects.active = self.armature
+        bpy.ops.object.mode_set(mode="POSE")
+
+        self.saved_pose_position = self.armature.data.pose_position
+        humanoid_props = self.armature.data.vrm_addon_extension.vrm0.humanoid
+
+        pose_library: Optional[bpy.types.Action] = None
+        pose_index: Optional[int] = None
+        if (
+            humanoid_props.pose_library
+            and humanoid_props.pose_library.name in bpy.data.actions
+            and humanoid_props.pose_marker_name
+        ):
+            pose_library = humanoid_props.pose_library
+            if pose_library:
+                for search_pose_index, search_pose_marker in enumerate(
+                    pose_library.pose_markers.values()
+                ):
+                    if search_pose_marker.name == humanoid_props.pose_marker_name:
+                        pose_index = search_pose_index
+                        self.armature.data.pose_position = "POSE"
+                        break
+
+        self.original_pose_library = self.armature.pose_library
+        self.saved_current_pose_library = bpy.data.actions.new(
+            "~" + self.export_id + "SavedCurrentPoseLibrary"
+        )
+
+        self.armature.pose_library = self.saved_current_pose_library
+        bpy.ops.poselib.pose_add(name="~" + self.export_id + "SavedCurrentPose")
+
+        if pose_library and pose_index is not None:
+            self.armature.pose_library = pose_library
+            bpy.ops.poselib.apply_pose(pose_index=pose_index)
+
+    def restore_pose(self) -> None:
+        if bpy.context.view_layer.objects.active is not None:
+            bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        bpy.context.view_layer.objects.active = self.armature
+        bpy.ops.object.mode_set(mode="POSE")
+
+        if self.saved_current_pose_library:
+            self.armature.pose_library = self.saved_current_pose_library
+            bpy.ops.poselib.apply_pose(pose_index=0)
+            bpy.ops.poselib.unlink()
+
+        self.armature.pose_library = self.original_pose_library
+
+        if (
+            self.saved_current_pose_library
+            and not self.saved_current_pose_library.users
+        ):
+            bpy.data.actions.remove(self.saved_current_pose_library)
+
+        if self.saved_pose_position:
+            self.armature.data.pose_position = self.saved_pose_position
+
+        bpy.ops.object.mode_set(mode="OBJECT")
 
     def image_to_bin(self) -> None:
         # collect used image
@@ -194,24 +267,21 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         skins = []
 
         bone_id_dic = {
-            b.name: bone_id for bone_id, b in enumerate(self.armature.data.bones)
+            b.name: bone_id for bone_id, b in enumerate(self.armature.pose.bones)
         }
 
-        def bone_to_node(b_bone: bpy.types.Bone) -> Dict[str, Any]:
+        def bone_to_node(b_bone: bpy.types.PoseBone) -> Dict[str, Any]:
             if b_bone.parent is not None:
-                world_head_local = (
-                    self.armature.matrix_world @ Matrix.Translation(b_bone.head_local)
+                world_head = (
+                    self.armature.matrix_world @ Matrix.Translation(b_bone.head)
                 ).to_translation()
-                parent_world_head_local = (
-                    self.armature.matrix_world
-                    @ Matrix.Translation(b_bone.parent.head_local)
+                parent_world_head = (
+                    self.armature.matrix_world @ Matrix.Translation(b_bone.parent.head)
                 ).to_translation()
-                translation = [
-                    world_head_local[i] - parent_world_head_local[i] for i in range(3)
-                ]
+                translation = [world_head[i] - parent_world_head[i] for i in range(3)]
             else:
                 translation = (
-                    self.armature.matrix_world @ b_bone.matrix_local
+                    self.armature.matrix_world @ b_bone.matrix
                 ).to_translation()
             node = OrderedDict(
                 {
@@ -231,7 +301,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             for human_bone in self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
         ]
 
-        for bone in self.armature.data.bones:
+        for bone in self.armature.pose.bones:
             if bone.parent is not None:
                 continue
 
@@ -264,9 +334,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 bone_glb_world_pos = self.axis_blender_to_glb(
                     (
                         self.armature.matrix_world
-                        @ Matrix.Translation(
-                            self.armature.data.bones[bone_name].head_local
-                        )
+                        @ Matrix.Translation(self.armature.pose.bones[bone_name].head)
                     ).to_translation()
                 )
                 inv_matrix = [
@@ -1354,7 +1422,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     if mesh.parent_type == "BONE":
                         base_pos = (
                             self.armature.matrix_world
-                            @ self.armature.data.bones[mesh.parent_bone].matrix_local
+                            @ self.armature.pose.bones[mesh.parent_bone].matrix.to_4x4()
                         ).to_translation()
                     else:
                         base_pos = mesh.parent.matrix_world.to_translation()
@@ -1374,14 +1442,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             # region glTF-Blender-IO
             # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.91-release/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_nodes.py#L285-L303
             # http://www.apache.org/licenses/LICENSE-2.0
-            armature_modifiers = {}
-            if is_skin_mesh:
-                # temporarily disable Armature modifiers if exporting skins
-                for idx, modifier in enumerate(mesh.modifiers):
-                    if modifier.type == "ARMATURE":
-                        armature_modifiers[idx] = modifier.show_viewport
-                        modifier.show_viewport = False
-
             depsgraph = bpy.context.evaluated_depsgraph_get()
             mesh_owner = mesh.evaluated_get(depsgraph)
             mesh_data = mesh_owner.to_mesh(
@@ -1389,11 +1449,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             ).copy()
             for prop in mesh.data.keys():
                 mesh_data[prop] = mesh.data[prop]
-
-            if is_skin_mesh:
-                # restore Armature modifiers
-                for idx, show_viewport in armature_modifiers.items():
-                    mesh.modifiers[idx].show_viewport = show_viewport
             # endregion glTF-Blender-IO
 
             mesh.hide_viewport = False
@@ -2150,7 +2205,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             for collider_props in collider_group_props.colliders:
                 collider_object = collider_props.blender_object
-                if collider_object.parent_bone not in self.armature.data.bones:
+                if collider_object.parent_bone not in self.armature.pose.bones:
                     continue
 
                 collider: Dict[str, Any] = {}
@@ -2159,9 +2214,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     - (
                         self.armature.matrix_world
                         @ Matrix.Translation(
-                            self.armature.data.bones[
-                                collider_object.parent_bone
-                            ].head_local
+                            self.armature.pose.bones[collider_object.parent_bone].head
                         )
                     ).to_translation()[i]
                     for i in range(3)
@@ -2195,7 +2248,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         )
         self.json_dic["scenes"][0]["nodes"].append(len(self.json_dic["nodes"]) - 1)
 
-    def finalize(self) -> None:
+    def pack(self) -> None:
         bin_json, self.bin = self.glb_bin_collector.pack_all()
         self.json_dic.update(bin_json)
         if not self.json_dic["meshes"]:
@@ -2203,6 +2256,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         if not self.json_dic["materials"]:
             del self.json_dic["materials"]
         self.result = gltf.pack_glb(self.json_dic, self.bin)
+
+    def cleanup(self) -> None:
         if self.use_dummy_armature:
             bpy.data.objects.remove(self.armature, do_unlink=True)
 

@@ -99,6 +99,10 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         name="Has Translation DoF", default=False  # noqa: F722
     )
 
+    # for T-Pose
+    pose_library: bpy.props.PointerProperty(type=bpy.types.Action)  # type: ignore[valid-type]
+    pose_marker_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+
     # for UI
     last_bone_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
