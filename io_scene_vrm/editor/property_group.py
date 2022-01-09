@@ -54,6 +54,9 @@ class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             self.link_to_mesh = bpy.data.objects.new(
                 name="~VrmAddonLinkToMesh" + uuid_str, object_data=None
             )
+            self.link_to_mesh.hide_render = True
+            self.link_to_mesh.hide_select = True
+            self.link_to_mesh.hide_viewport = True
         self.link_to_mesh.parent = mesh_obj
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -149,6 +152,9 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         self.link_to_bone = bpy.data.objects.new(
             name="~VrmAddonLinkToBone" + uuid_str, object_data=None
         )
+        self.link_to_bone.hide_render = True
+        self.link_to_bone.hide_select = True
+        self.link_to_bone.hide_viewport = True
         self.link_to_bone.parent = armature
         self.value = value
 
