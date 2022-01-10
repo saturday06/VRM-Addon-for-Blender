@@ -123,7 +123,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
 
 class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.save_human_bone_mappings"
-    bl_label = "Save bone mappings"
+    bl_label = "Save Bone Mappings"
     bl_description = ""
     bl_options = {"REGISTER"}
 
@@ -163,7 +163,7 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
 
 class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.load_human_bone_mappings"
-    bl_label = "Load bone mappings"
+    bl_label = "Load Bone Mappings"
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
@@ -218,6 +218,16 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
     bl_label = "Make lipsync4VRC"
     bl_description = "Make lipsync from VRoid to VRC by json"
     bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        obj = context.active_object
+        return bool(
+            obj
+            and obj.type == "MESH"
+            and obj.data.shape_keys
+            and obj.data.shape_keys.key_blocks
+        )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         recipe_uri = os.path.join(

@@ -1,21 +1,19 @@
 locale_key = "ja_JP"
 
 translation_dictionary = {
-    ("*", "Export invisible objects"): "非表示のオブジェクトも含める",
-    ("*", "Export only selections"): "選択されたオブジェクトのみ",
-    ("*", "Preview MToon"): "MToonのプレビュー",
+    ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
+    ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
     ("*", "VRM Export"): "VRMエクスポート",
-    ("*", "Create VRM model"): "VRMモデルを作成",
-    ("*", "Validate VRM model"): "VRMモデルのチェック",
+    ("*", "Create VRM Model"): "VRMモデルを作成",
+    ("*", "Validate VRM Model"): "VRMモデルのチェック",
     ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
     (
         "*",
         'Official add-on "glTF 2.0 format" is required. Please enable it.',
     ): "公式アドオン「glTF 2.0 format」が必要です。有効化してください。",
-    ("*", "Try experimental VRM component UI"): "実験中のVRMコンポーネントUIを試す",
     ("*", "For more information please check following URL."): "詳しくは下記のURLを確認してください。",
-    ("*", "Import anyway"): "インポートします",
+    ("*", "Import Anyway"): "インポートします",
     ("*", "A light is required"): "ライトが必要です",
     ("*", "License Confirmation"): "ライセンスの確認",
     (
@@ -116,4 +114,9 @@ translation_dictionary = {
     ): "マテリアル「{material_name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
     ("*", "Simplify VRoid Bones"): "VRoidのボーン名を短くする",
     ("*", "Current Pose"): "現在のポーズ",
+    ("*", "Save Bone Mappings"): "ボーンの対応を保存",
+    ("*", "Load Bone Mappings"): "ボーンの対応を読み込み",
+    ("Operator", "Preview MToon"): "MToonのプレビュー",
+    ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
+    ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",
 }

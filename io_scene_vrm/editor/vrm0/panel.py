@@ -75,7 +75,7 @@ def draw_vrm0_humanoid_layout(
     else:
         pose_marker_name_empty_box = column.box()
         pose_marker_name_empty_box.scale_y = 0.5
-        pose_marker_name_empty_box.label(text="Current Pose", translate=False)
+        pose_marker_name_empty_box.label(text="Current Pose")
 
     armature_box.operator(
         operator.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT"
@@ -123,7 +123,7 @@ def draw_vrm0_humanoid_layout(
     column.label(text=HumanBones.LEFT_FOOT.label_no_left_right)
 
     column = row.column()
-    column.label(text="right")
+    column.label(text="Right")
     icon = "VIEW_PAN"
     bone_prop_search(column, HumanBones.RIGHT_UPPER_ARM, icon, humanoid_props)
     bone_prop_search(column, HumanBones.RIGHT_LOWER_ARM, icon, humanoid_props)
@@ -135,7 +135,7 @@ def draw_vrm0_humanoid_layout(
     bone_prop_search(column, HumanBones.RIGHT_FOOT, icon, humanoid_props)
 
     column = row.column()
-    column.label(text="left")
+    column.label(text="Left")
     icon = "VIEW_PAN"
     bone_prop_search(column, HumanBones.LEFT_UPPER_ARM, icon, humanoid_props)
     bone_prop_search(column, HumanBones.LEFT_LOWER_ARM, icon, humanoid_props)
@@ -155,10 +155,10 @@ def draw_vrm0_humanoid_layout(
     column.label(text="")
     column.label(text=HumanBones.LEFT_EYE.label_no_left_right)
     column = row.column()
-    column.label(text="right")
+    column.label(text="Right")
     bone_prop_search(column, HumanBones.RIGHT_EYE, icon, humanoid_props)
     column = row.column()
-    column.label(text="left")
+    column.label(text="Left")
     bone_prop_search(column, HumanBones.LEFT_EYE, icon, humanoid_props)
 
     row = defines_box.row().split(factor=split_factor)

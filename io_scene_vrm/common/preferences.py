@@ -25,11 +25,11 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     bl_idname = addon_package_name
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export invisible objects",  # noqa: F722
+        name="Export Invisible Objects",  # noqa: F722
         default=False,
     )
     export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export only selections",  # noqa: F722
+        name="Export Only Selections",  # noqa: F722
         default=False,
     )
 

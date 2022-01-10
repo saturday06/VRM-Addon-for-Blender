@@ -35,11 +35,11 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
 
     # vrm_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export invisible objects",  # noqa: F722
+        name="Export Invisible Objects",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
     export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export only selections",  # noqa: F722
+        name="Export Only Selections",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
 

@@ -137,7 +137,7 @@ def menu_import(
 
 
 class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_label = "License Confirmation"
+    bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -145,7 +145,7 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
 
     license_confirmations: bpy.props.CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
     import_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Import anyway",  # noqa: F722
+        name="Import Anyway",  # noqa: F722
     )
 
     extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]

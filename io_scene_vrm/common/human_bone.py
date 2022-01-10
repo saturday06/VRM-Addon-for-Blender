@@ -245,8 +245,9 @@ class HumanBone:
         human_bone_name: HumanBoneName, vrm0_requirement: bool, vrm1_requirement: bool
     ) -> "HumanBone":
         # https://stackoverflow.com/a/1176023
-        label = re.sub(r"(?<!^)(?=[A-Z])", " ", human_bone_name.value).lower()
-        label_no_left_right = re.sub(r"right ", "", re.sub(r"^left ", "", label))
+        words = re.sub(r"(?<!^)(?=[A-Z])", "#", human_bone_name.value).split("#")
+        label = " ".join(map(str.capitalize, words)) + ":"
+        label_no_left_right = re.sub(r"Right ", "", re.sub(r"^Left ", "", label))
 
         return HumanBone(
             name=human_bone_name,
