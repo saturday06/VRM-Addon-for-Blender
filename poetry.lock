@@ -131,11 +131,11 @@ dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit"]
 
 [[package]]
 name = "flake8-no-pep420"
-version = "2.0.0"
+version = "2.1.0"
 description = "A flake8 plugin to ban PEP-420 implicit namespace packages."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 flake8 = ">=3.0,<3.2.0 || >3.2.0"
@@ -411,8 +411,8 @@ flake8-bugbear = [
     {file = "flake8_bugbear-21.11.29-py36.py37.py38-none-any.whl", hash = "sha256:179e41ddae5de5e3c20d1f61736feeb234e70958fbb56ab3c28a67739c8e9a82"},
 ]
 flake8-no-pep420 = [
-    {file = "flake8-no-pep420-2.0.0.tar.gz", hash = "sha256:517126ced5fc43bb90a562cf7c1d33b67fbd067a69b6ded3867be5c5a1437355"},
-    {file = "flake8_no_pep420-2.0.0-py3-none-any.whl", hash = "sha256:9e5e402e75eab927d61c950dbbba628674b4d0ecb16ccc441627c439c1320654"},
+    {file = "flake8-no-pep420-2.1.0.tar.gz", hash = "sha256:dbbbba8124882e11fa30a2164f369078a8508a0b0359e203e4983d53598ca624"},
+    {file = "flake8_no_pep420-2.1.0-py3-none-any.whl", hash = "sha256:9d82088b125f2dda5a4e70b84ec5faad7465aed7c0efbcc29497350db2a28eee"},
 ]
 flake8-polyfill = [
     {file = "flake8-polyfill-1.0.2.tar.gz", hash = "sha256:e44b087597f6da52ec6393a709e7108b2905317d0c0b744cdca6208e670d8eda"},
