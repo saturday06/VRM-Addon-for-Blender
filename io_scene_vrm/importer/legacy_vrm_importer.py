@@ -443,10 +443,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 while vc_flag:
                     vc_color_name = f"COLOR_{vcolor_count}"
                     if hasattr(prim, vc_color_name):
-                        vc = None
-                        if vc_color_name in b_mesh.vertex_colors:
-                            vc = b_mesh.vertex_colors[vc_color_name]
-                        else:
+                        vc = b_mesh.vertex_colors.get(vc_color_name)
+                        if vc is None:
                             vc = b_mesh.vertex_colors.new(name=vc_color_name)
                         for v_index, _ in enumerate(vc.data):
                             vc.data[v_index].color = getattr(prim, vc_color_name)[

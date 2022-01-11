@@ -66,22 +66,19 @@ class MtoonGlsl:
 
     def __init__(self, material: bpy.types.Material) -> None:
         shader_black = "shader_black"
-        if shader_black not in bpy.data.images:
+        self.black_texture = bpy.data.images.get(shader_black)
+        if shader_black is None:
             self.black_texture = self.make_small_image(shader_black, (0, 0, 0, 0))
-        else:
-            self.black_texture = bpy.data.images[shader_black]
         shader_white = "shader_white"
-        if shader_white not in bpy.data.images:
+        self.white_texture = bpy.data.images.get(shader_white)
+        if shader_white is None:
             self.white_texture = self.make_small_image(shader_white, (1, 1, 1, 1))
-        else:
-            self.white_texture = bpy.data.images[shader_white]
         shader_normal = "shader_normal"
-        if shader_normal not in bpy.data.images:
+        self.normal_texture = bpy.data.images.get(shader_normal)
+        if shader_normal is None:
             self.normal_texture = self.make_small_image(
                 shader_normal, (0.5, 0.5, 1, 1), "Linear"
             )
-        else:
-            self.normal_texture = bpy.data.images[shader_normal]
         self.material = material
         self.name = material.name
         self.update()
