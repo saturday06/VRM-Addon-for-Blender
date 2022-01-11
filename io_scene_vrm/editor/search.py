@@ -114,6 +114,9 @@ def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
     if not objects:
         return None
 
+    if len(objects) == 1:
+        return objects[0]
+
     active_object = context.active_object
     if not active_object:
         return objects[0]
