@@ -42,6 +42,7 @@ module = [
     "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials",
     "mathutils",
     "__main__.io_scene_vrm",
+    "__main__.io_scene_vrm.exporter.user_extension",
 ]
 ignore_missing_imports = true
 

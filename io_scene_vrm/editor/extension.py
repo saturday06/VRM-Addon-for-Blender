@@ -13,3 +13,13 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
     )
 
     armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    spec_version_items = [  # noqa: SC200
+        ("0.0", "0.0", "", 0),
+        ("1.0-beta", "1.0-beta", "", 1),
+    ]
+
+    spec_version: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
+        items=spec_version_items,  # noqa: SC200
+        name="Spec Version",  # noqa: F722
+    )

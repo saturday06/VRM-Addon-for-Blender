@@ -34,9 +34,6 @@ from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
 
 class LegacyVrmExporter(AbstractBaseVrmExporter):
-    class ValidationError(Exception):
-        pass
-
     class KhrTextureTransform:
         def __init__(self, offset: Tuple[float, float], scale: Tuple[float, float]):
             self.offset = offset
@@ -54,15 +51,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
             )
 
-    def __init__(self, export_invisibles: bool, export_only_selections: bool) -> None:
-        if bpy.ops.vrm.model_validate(
-            "INVOKE_DEFAULT", show_successful_message=False
-        ) != {"FINISHED"}:
-            raise self.ValidationError()
-
-        self.export_objects = search.export_objects(
-            export_invisibles, export_only_selections
-        )
+    def __init__(self, export_objects: List[bpy.types.Object]) -> None:
+        self.export_objects = export_objects
         self.vrm_version: Optional[str] = None
         self.json_dic: Dict[str, Any] = OrderedDict()
         self.bin = b""

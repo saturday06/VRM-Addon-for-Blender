@@ -226,6 +226,7 @@ vrm0
 vrm0firstpersonboneoffsetgizmogroup
 vrm1
 vrmautoiksetup
+vrmc
 vroid
 vroid064
 vroid2vrc

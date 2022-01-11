@@ -32,11 +32,16 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
         name="Export Only Selections",  # noqa: F722
         default=False,
     )
+    enable_dangerous_vrm1_beta_features: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Enable Dangerous VRM 1.0 Beta Features",  # noqa: F722
+        default=False,
+    )
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.prop(self, "export_invisibles")
         layout.prop(self, "export_only_selections")
+        layout.prop(self, "enable_dangerous_vrm1_beta_features")
 
 
 def use_legacy_importer_exporter() -> bool:

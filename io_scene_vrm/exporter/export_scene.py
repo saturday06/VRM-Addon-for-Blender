@@ -4,7 +4,9 @@ import bpy
 from bpy_extras.io_utils import ExportHelper
 
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
-from ..editor import validation
+from ..editor import search, validation
+from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
+from .gltf2_addon_vrm_exporter import Gltf2AddonVrmExporter
 from .legacy_vrm_exporter import LegacyVrmExporter
 
 
@@ -50,12 +52,28 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             return {"CANCELLED"}
         filepath: str = self.filepath
 
-        try:
-            vrm_exporter = LegacyVrmExporter(
-                bool(self.export_invisibles), bool(self.export_only_selections)
-            )
-        except LegacyVrmExporter.ValidationError:
+        if bpy.ops.vrm.model_validate(
+            "INVOKE_DEFAULT", show_successful_message=False
+        ) != {"FINISHED"}:
             return {"CANCELLED"}
+
+        export_objects = search.export_objects(
+            bool(self.export_invisibles), bool(self.export_only_selections)
+        )
+        is_vrm1 = any(
+            obj
+            for obj in export_objects
+            if obj.type == "ARMATURE"
+            and obj.data.vrm_addon_extension.spec_version == "1.0-beta"
+        )
+
+        if is_vrm1:
+            vrm_exporter: AbstractBaseVrmExporter = Gltf2AddonVrmExporter(
+                export_objects
+            )
+        else:
+            vrm_exporter = LegacyVrmExporter(export_objects)
+
         vrm_bin = vrm_exporter.export_vrm()
         if vrm_bin is None:
             return {"CANCELLED"}

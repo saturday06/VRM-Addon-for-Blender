@@ -114,6 +114,14 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         if preferences:
             layout.prop(preferences, "export_invisibles")
             layout.prop(preferences, "export_only_selections")
+            if preferences.enable_dangerous_vrm1_beta_features:
+                armature = search.current_armature(context)
+                if armature:
+                    layout.prop(
+                        armature.data.vrm_addon_extension,
+                        "spec_version",
+                        icon="EXPERIMENTAL",
+                    )
 
         if mode == "OBJECT":
             if GlslDrawObj.draw_objs:
