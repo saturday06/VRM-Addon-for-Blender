@@ -51,6 +51,14 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
             )
 
+    MESH_CONVERTIBLE_OBJECT_TYPES = [
+        "CURVE",
+        "FONT",
+        "MESH",
+        # "META",  # Disable until the glTF 2.0 add-on supports it
+        "SURFACE",
+    ]
+
     def __init__(self, export_objects: List[bpy.types.Object]) -> None:
         self.export_objects = export_objects
         self.vrm_version: Optional[str] = None
@@ -173,7 +181,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         # collect used image
         used_images = []
         used_materials = []
-        for mesh in [obj for obj in self.export_objects if obj.type == "MESH"]:
+        for mesh in [
+            obj
+            for obj in self.export_objects
+            if obj.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
+        ]:
             for mat in mesh.data.materials:
                 if mat and mat not in used_materials:
                     if "vrm_shader" in mat:
@@ -1238,7 +1250,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         # endregion function separate by shader
 
         used_materials = []
-        for mesh in [obj for obj in self.export_objects if obj.type == "MESH"]:
+        for mesh in [
+            obj
+            for obj in self.export_objects
+            if obj.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
+        ]:
             for mat in mesh.data.materials:
                 if mat and mat not in used_materials:
                     used_materials.append(mat)
@@ -1337,7 +1353,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 and mesh.parent_bone is not None
             ):
                 return False
-            if mesh.parent_type != "OBJECT" or mesh.parent.type != "MESH":
+            if (
+                mesh.parent_type != "OBJECT"
+                or mesh.parent.type not in self.MESH_CONVERTIBLE_OBJECT_TYPES
+            ):
                 return True
             mesh = mesh.parent
         return True
@@ -1348,14 +1367,18 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         if vrm_version is None:
             raise Exception("vrm version is None")
 
-        meshes = [obj for obj in self.export_objects if obj.type == "MESH"]
+        meshes = [
+            obj
+            for obj in self.export_objects
+            if obj.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
+        ]
         while True:
             swapped = False
             for mesh in list(meshes):
                 if (
                     mesh.parent_type == "OBJECT"
                     and mesh.parent
-                    and mesh.parent.type == "MESH"
+                    and mesh.parent.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
                     and meshes.index(mesh) < meshes.index(mesh.parent)
                 ):
                     meshes.remove(mesh)
@@ -1646,7 +1669,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             mesh_parent = mesh
                             while (
                                 mesh_parent
-                                and mesh_parent.type == "MESH"
+                                and mesh_parent.type
+                                in self.MESH_CONVERTIBLE_OBJECT_TYPES
                                 and mesh_parent != mesh
                             ):
                                 if (
