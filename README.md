@@ -21,15 +21,15 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 ## Import / インポート
 
 - 「テクスチャ画像をフォルダに展開」オプションを有効にすると、100,000フォルダを上限にインポートごとに新たなテクスチャフォルダを作成する。インポートウィンドウのオプションで単一のテクスチャフォルダに存在しないテクスチャだけ書き込む仕様になりました。
-- If "Extract texture images into the folder" option enabled this add-on makes texture folder for import each times (max:100,000) name.
+- If the "Extract texture images into the folder" option is enabled then the add-on makes a texture folder for each import (max:100,000 character name).
 - インポート時に自動でAutoIK用のボーンのセットアップを行います。もとのコードは[こちらで配布されているもの](https://booth.pm/ja/items/1697977)で、作者様から許可をいただきマージしました。
 
 ## Edit / 編集
 
 - VRM向けシェーダーノードグループ追加(※モックアップ程度の出来)(GLTF,MToon_unversioned,TransparentZwrite)
-- Add VRM like shader as Node Group (GLTF,MToon_unversioned,TransparentZwrite)(Please use these node group and direct link it to TEX_IMAGE,RGBA,VALUE and Material output Nodes for export)
+- Add a VRM like shader as Node Group (GLTF,MToon_unversioned,TransparentZwrite)(Please use these node group and direct link it to TEX_IMAGE,RGBA,VALUE and Material output Nodes for export)
 - VRM向けHumanoid Armature追加機能(これを使わないとエクスポート出来ません)(絶対に出来ないとは言ってないけど圧倒的に楽)
-- Add humanoid armature for VRM(Tpose, required bone, and append custom properties to need export VRM (reference to VRM extensions textblock ,and bone tagging))
+- Add a humanoid armature for VRM(Tpose, required bone, and append custom properties to need export VRM (reference to VRM extensions textblock ,and bone tagging))
 
 ## Export / エクスポート
 
