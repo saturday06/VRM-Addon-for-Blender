@@ -174,8 +174,8 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
     )
     first_person_flag_items = [
         ("Auto", "Auto", "", 0),
-        ("FirstPersonOnly", "FirstPersonOnly", "", 1),
-        ("ThirdPersonOnly", "ThirdPersonOnly", "", 2),
+        ("FirstPersonOnly", "First-Person Only", "", 1),
+        ("ThirdPersonOnly", "Third-Person Only", "", 2),
         ("Both", "Both", "", 3),
     ]
     first_person_flag: bpy.props.EnumProperty(  # type: ignore[valid-type]
@@ -186,11 +186,11 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L50-L91
 class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     first_person_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="First Person Bone", type=BonePropertyGroup  # noqa: F722
+        name="First-Person Bone", type=BonePropertyGroup  # noqa: F722
     )
     first_person_bone_offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        name="First Person Bone Offset",  # noqa: F722
+        name="First-Person Bone Offset",  # noqa: F722
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
@@ -200,7 +200,7 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
     )
     look_at_type_name_items = [
         ("Bone", "Bone", "Bone", "BONE_DATA", 0),
-        ("BlendShape", "BlendShape", "BlendShape", "SHAPEKEY_DATA", 1),
+        ("BlendShape", "Blend Shape", "Blend Shape", "SHAPEKEY_DATA", 1),
     ]
     look_at_type_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=look_at_type_name_items, name="Look At Type Name"  # noqa: F722
@@ -354,16 +354,16 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
         name="Comment"  # noqa: F821
     )
     stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type] # noqa: SC200
-        name="Stiffiness"  # noqa: F821
+        name="Stiffness"  # noqa: F821
     )
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power"  # noqa: F722
     )
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=3, name="Gravity Dir"  # noqa: F722
+        size=3, name="Gravity Direction"  # noqa: F722
     )
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="DragForce"  # noqa: F821
+        name="Drag Force"  # noqa: F722
     )
     center: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Center", type=BonePropertyGroup  # noqa: F821
@@ -405,8 +405,8 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
 class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
     allowed_user_name_items = [
-        ("OnlyAuthor", "OnlyAuthor", "", 0),
-        ("ExplicitlyLicensedPerson", "ExplicitlyLicensedPerson", "", 1),
+        ("OnlyAuthor", "Only Author", "", 0),
+        ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", 1),
         ("Everyone", "Everyone", "", 2),
     ]
     violent_ussage_name_items = [  # noqa: SC200
@@ -424,15 +424,15 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
 
     LICENSE_NAME_OTHER = "Other"
     license_name_items = [
-        ("Redistribution_Prohibited", "Redistribution_Prohibited", "", 0),
+        ("Redistribution_Prohibited", "Redistribution Prohibited", "", 0),
         ("CC0", "CC0", "", 1),
-        ("CC_BY", "CC_BY", "", 2),
-        ("CC_BY_NC", "CC_BY_NC", "", 3),
-        ("CC_BY_SA", "CC_BY_SA", "", 4),
-        ("CC_BY_NC_SA", "CC_BY_NC_SA", "", 5),
-        ("CC_BY_ND", "CC_BY_ND", "", 6),
-        ("CC_BY_NC_ND", "CC_BY_NC_ND", "", 7),
-        (LICENSE_NAME_OTHER, LICENSE_NAME_OTHER, "", 8),
+        ("CC_BY", "CC BY", "", 2),
+        ("CC_BY_NC", "CC BY NC", "", 3),
+        ("CC_BY_SA", "CC BY SA", "", 4),
+        ("CC_BY_NC_SA", "CC BY NC SA", "", 5),
+        ("CC_BY_ND", "CC BY ND", "", 6),
+        ("CC_BY_NC_ND", "CC BY NC ND", "", 7),
+        (LICENSE_NAME_OTHER, "Other", "", 8),
     ]
 
     title: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -467,14 +467,14 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
         name="Commercial Usage",  # noqa: F722
     )
     other_permission_url: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Other Permission Url",  # noqa: F722
+        name="Other Permission URL",  # noqa: F722
     )
     license_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=license_name_items,
         name="License",  # noqa: F821
     )
     other_license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Other License Url",  # noqa: F722
+        name="Other License URL",  # noqa: F722
     )
     texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Thumbnail", type=bpy.types.Image  # noqa: F821
