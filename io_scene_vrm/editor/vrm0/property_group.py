@@ -294,7 +294,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
-class Vrm0SecondaryAnimationCollider(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     blender_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
@@ -323,7 +323,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
     )
     # offsetとradiusはコライダー自身のデータを用いる
     colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Colliders", type=Vrm0SecondaryAnimationCollider  # noqa: F821
+        name="Colliders", type=Vrm0SecondaryAnimationColliderPropertyGroup  # noqa: F821
     )
 
     def refresh(self, armature: bpy.types.Object) -> None:

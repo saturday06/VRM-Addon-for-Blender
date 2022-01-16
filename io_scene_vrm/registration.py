@@ -51,7 +51,7 @@ classes = [
     vrm0_property_group.Vrm0HumanoidBonePropertyGroup,
     vrm0_property_group.Vrm0HumanoidPropertyGroup,
     vrm0_property_group.Vrm0MetaPropertyGroup,
-    vrm0_property_group.Vrm0SecondaryAnimationCollider,
+    vrm0_property_group.Vrm0SecondaryAnimationColliderPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationColliderGroupPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationGroupPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationPropertyGroup,
