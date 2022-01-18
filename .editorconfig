@@ -1,0 +1,37 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_size = 4
+indent_style = space
+tab_width = 4
+trim_trailing_whitespace = true
+
+[*.bat]
+end_of_line = crlf
+
+[*.toml]
+indent_size = 2
+
+[*.yml]
+indent_size = 2
+
+[*.xml]
+indent_size = 2
+
+[*.html]
+indent_size = 2
+
+[*.md]
+indent_size = 2
+
+[/.gitmodules]
+indent_style = tab
+
+[/LICENSE]
+indent_size = 1
+
+[/docs/website/static/CNAME]
+insert_final_newline = false

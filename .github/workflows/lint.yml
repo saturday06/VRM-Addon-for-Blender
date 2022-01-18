@@ -97,6 +97,17 @@ jobs:
         run: |
           clang-format -style="{BasedOnStyle: Chromium, IndentWidth: 4}" -i $(git ls-files "**.glsl")
           git diff --exit-code
+      - name: editorconfig-checker
+        run: |
+          version="2.4.0"
+          os="linux"
+          arch="amd64"
+          ec_dir=$(mktemp -d)
+          pushd "$ec_dir"
+            curl -O -L -C - "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$version/ec-$os-$arch.tar.gz"
+            tar xzf ec-$os-$arch.tar.gz
+          popd
+          "$ec_dir/bin/ec-$os-$arch"
       - name: Install poetry
         run: |
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
