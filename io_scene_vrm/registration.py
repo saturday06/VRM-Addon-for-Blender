@@ -33,6 +33,11 @@ if persistent:  # for fake-bpy-modules
     def add_shaders(_dummy: Any) -> None:
         shader.add_shaders()
 
+else:
+
+    def add_shaders(_dummy: Any) -> None:
+        raise NotImplementedError
+
 
 classes = [
     gltf2_addon_support.WM_OT_vrm_gltf2_addon_disabled_warning,
