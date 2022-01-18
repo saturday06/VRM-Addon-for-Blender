@@ -1,0 +1,124 @@
+name: lint
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install deb packages
+        run: |
+          sudo apt-get update -qq || true
+          sudo apt-get install -y clang-format glslang-tools nkf python3 shellcheck uchardet
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Disable git config core.quotepath
+        run: git config core.quotepath off
+      - name: Check file permissions
+        run: |
+          git ls-files ':!scripts/' ':!tests/resources' | while read -r f; do
+            echo $f
+            if [ -x "$f" ]; then
+              echo "$f has unnecessary executable permission."
+              exit 1
+            fi
+          done
+          git ls-files scripts/ | while read -r f; do
+            echo $f
+            if [ ! -x "$f" ]; then
+              echo "$f has no executable permission."
+              exit 1
+            fi
+          done
+      - name: Check file name character encoding
+        run: |
+          git ls-files | while read -r f; do
+            encoding=$(echo "$f" | uchardet)
+            if [ "$encoding" != "ASCII" ]; then
+              echo "$f is not ascii file name but $encoding."
+              exit 1
+            fi
+          done
+      - name: Check file content character encoding
+        run: |
+          git ls-files | while read -r f; do
+            encoding=$(file --brief --mime-encoding "$f")
+            case "$encoding" in
+              binary)
+                file "$f"
+                ;;
+              us-ascii | utf-8)
+                case "$f" in
+                  *.bat)
+                    nkf -w -Lw -Z1 --in-place "$f"
+                    ;;
+                  *)
+                    nkf -w -Lu -Z1 --in-place "$f"
+                    ;;
+                esac
+                ;;
+              *)
+                echo "$f is not ascii nor utf-8 but $encoding."
+                exit 1
+                ;;
+            esac
+          done
+          git diff --exit-code
+      - name: Check whitelist.txt contents
+        run: |
+          result=0
+          for word in $(cat whitelist.txt); do
+            if ! git grep -i "$word" "*.py" > /dev/null; then
+              >&2 echo whitelist.txt:$word is no longer necessary
+              result=1
+            fi
+          done
+          exit $result
+      - name: Check whitelist.txt ordering
+        run: LC_ALL=C sort whitelist.txt | diff -u whitelist.txt -
+      - name: Validate GLSL
+        run: |
+          git ls-files "**.glsl" | while read -r orig; do
+            echo "$orig"
+            versioned="/tmp/$(basename "$orig")"
+            echo "#version 330" > "$versioned"
+            cat "$orig" >> "$versioned"
+            glslangValidator "$versioned"
+          done
+      - name: Shellcheck
+        run: shellcheck $(git ls-files "*.sh")
+      - name: Format GLSL (May break syntax!)
+        run: |
+          clang-format -style="{BasedOnStyle: Chromium, IndentWidth: 4}" -i $(git ls-files "**.glsl")
+          git diff --exit-code
+      - name: Install poetry
+        run: |
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+      - name: Check pyproject.toml format
+        run: poetry check
+      - name: Install poetry dependencies
+        run: poetry install
+      - name: Check source code formatting
+        run: poetry run black --check --diff $(git ls-files "*.py")
+      - name: Pylint
+        run: |
+          poetry remove fake-bpy-module-2.82 # pylint and fake-bpy-module are incompatible
+          poetry run pylint --rcfile .pylintrc.ci $(git ls-files "*.py")
+          git checkout .
+          poetry install
+      - name: Mypy
+        run: poetry run mypy --show-error-code $(git ls-files "*.py")
+      - name: Flake8
+        run: poetry run flake8 --count --show-source --statistics $(git ls-files "*.py")
+      - name: Check import sorting order
+        run: |
+          poetry run isort $(git ls-files "*.py")
+          poetry run black $(git ls-files "*.py")
+          git diff --exit-code
