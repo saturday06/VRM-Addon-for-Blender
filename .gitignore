@@ -12,6 +12,7 @@
 !/.flake8
 !/.gitattributes
 !/.gitignore
+!/.gitmodules
 !/.pylintrc.ci
 !/.github/workflows/*.yml
 !/.github/*.yml
