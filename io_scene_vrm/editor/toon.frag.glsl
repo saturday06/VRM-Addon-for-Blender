@@ -171,15 +171,14 @@ void main() {
     lightIntensity = lightIntensity * 2.0 - 1.0;
     float maxIntensityThreshold = mix(1, ShadeShift, ShadeToony);
     float minIntensityThreshold = ShadeShift;
-    float lerplightintensity =
-        (lightIntensity - minIntensityThreshold) /
+    float lerplightintensity = (lightIntensity - minIntensityThreshold) /
         max(const_less_val, (maxIntensityThreshold - minIntensityThreshold));
     lightIntensity = clamp(lerplightintensity, 0.0, 1.0);
 
     vec4 lit = color_linearlize(DiffuseColor) *
-               color_linearlize(texture(MainTexture, mainUV));
+        color_linearlize(texture(MainTexture, mainUV));
     vec4 shade = color_linearlize(ShadeColor) *
-                 color_linearlize(texture(ShadeTexture, mainUV));
+        color_linearlize(texture(ShadeTexture, mainUV));
     vec3 albedo = mix(shade.rgb, lit.rgb, lightIntensity);
 
     output_color = albedo;
@@ -187,8 +186,7 @@ void main() {
 
     // Direct light
     vec3 lighting = vec3(1.0);  // light color
-    lighting = mix(
-        lighting,
+    lighting = mix(lighting,
         vec3(max(const_less_val, max(lighting.r, max(lighting.g, lighting.b)))),
         LightColorAttenuation);
     // lighting *= min(0,dotNL) +1;
@@ -220,21 +218,20 @@ void main() {
 
     // emission
     vec3 emission = color_linearlize(texture(Emission_Texture, mainUV)).rgb *
-                    color_linearlize(EmissionColor).rgb;
+        color_linearlize(EmissionColor).rgb;
     output_color += emission;
 
     if (is_outline == 0) {
         FragColor = color_sRGBlize(vec4(output_color, lit.a));
     } else {  // is_outline in (1,2)//world or screen
         if (OutlineColorMode == 0) {
-            FragColor = color_sRGBlize(color_linearlize(OutlineColor) +
-                                       debug_unused_vec4);
+            FragColor = color_sRGBlize(
+                color_linearlize(OutlineColor) + debug_unused_vec4);
         } else {
-            FragColor = color_sRGBlize(vec4(
-                color_linearlize(OutlineColor).rgb *
+            FragColor = color_sRGBlize(vec4(color_linearlize(OutlineColor).rgb *
                     color_linearlize(
-                        vec4(mix(vec3(1.0), outline_col, OutlineLightingMix),
-                             1))
+                        vec4(
+                            mix(vec3(1.0), outline_col, OutlineLightingMix), 1))
                         .rgb,
                 1));
         }

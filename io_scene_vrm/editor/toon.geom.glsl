@@ -55,8 +55,9 @@ void main() {
                 tangent = rtangent[i];
                 float outlinewidth_tex = texture(OutlineWidthTexture, uv).r;
                 gl_Position = viewProjectionMatrix * obj_matrix *
-                              (posa[i] + vec4(na[i], 0) * OutlineWidth *
-                                             outlinewidth_tex * 0.01);
+                    (posa[i] +
+                        vec4(na[i], 0) * OutlineWidth * outlinewidth_tex *
+                            0.01);
                 shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                 EmitVertex();
             }
@@ -76,8 +77,7 @@ void main() {
                 extend_dir.y = extend_dir.y * aspect;
                 float outlinewidth_tex = texture(OutlineWidthTexture, uv).r;
                 gl_Position.xy += extend_dir.xy * 0.01 * OutlineWidth *
-                                  outlinewidth_tex *
-                                  clamp(1 - abs(view_normal.z), 0.0, 1.0);
+                    outlinewidth_tex * clamp(1 - abs(view_normal.z), 0.0, 1.0);
                 shadowCoord = depthBiasMVP * vec4(obj_matrix * posa[i]);
                 EmitVertex();
             }
