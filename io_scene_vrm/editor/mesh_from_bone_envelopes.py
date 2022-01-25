@@ -32,6 +32,13 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
     with_auto_weight: bpy.props.BoolProperty(default=False)  # type: ignore[valid-type]
     not_to_mesh: bpy.props.BoolProperty(default=True)  # type: ignore[valid-type]
 
+    @staticmethod
+    def find_material_output_node(material: bpy.types.Material) -> bpy.types.ShaderNode:
+        for node in material.node_tree.nodes:
+            if node.bl_idname == "ShaderNodeOutputMaterial":
+                return node
+        raise Exception(f'No "ShaderNodeOutputMaterial" node in {material}')
+
     def build_mesh(self, context: bpy.types.Context) -> None:
         if bpy.context.active_object.type != "ARMATURE":
             return
@@ -113,7 +120,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
         def material_init(mat: bpy.types.Material) -> None:
             mat.use_nodes = True
             for node in mat.node_tree.nodes:
-                if node.type != "OUTPUT_MATERIAL":
+                if node.bl_idname != "ShaderNodeOutputMaterial":
                     mat.node_tree.nodes.remove(node)
 
         def node_group_create(
@@ -129,7 +136,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
         material_init(b_mat)
         sg = node_group_create(b_mat, shader_node_group_name)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
+            self.find_material_output_node(b_mat).inputs["Surface"],
             sg.outputs["Emission"],
         )
         obj.data.materials.append(b_mat)

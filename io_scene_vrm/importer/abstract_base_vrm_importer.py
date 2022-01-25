@@ -159,6 +159,13 @@ class AbstractBaseVrmImporter(ABC):
                 self.images[image_index].use_fake_user = True
 
     # region material
+    @staticmethod
+    def find_material_output_node(material: bpy.types.Material) -> bpy.types.ShaderNode:
+        for node in material.node_tree.nodes:
+            if node.bl_idname == "ShaderNodeOutputMaterial":
+                return node
+        raise Exception(f'No "ShaderNodeOutputMaterial" node in {material}')
+
     def make_material(self) -> None:
         # 適当なので要調整
         for index, mat in enumerate(self.parse_result.materials):
@@ -178,7 +185,7 @@ class AbstractBaseVrmImporter(ABC):
                 self.build_material_from_transparent_z_write(b_mat, mat)
             else:
                 print(f"unknown material {mat.name}")
-            self.node_placer(b_mat.node_tree.nodes["Material Output"])
+            self.node_placer(self.find_material_output_node(b_mat))
             self.vrm_materials[index] = b_mat
 
         gltf_material_original_names = {
@@ -232,7 +239,7 @@ class AbstractBaseVrmImporter(ABC):
     def material_init(self, b_mat: bpy.types.Material) -> None:
         b_mat.use_nodes = True
         for node in b_mat.node_tree.nodes:
-            if node.type != "OUTPUT_MATERIAL":
+            if node.bl_idname != "ShaderNodeOutputMaterial":
                 b_mat.node_tree.nodes.remove(node)
 
     def connect_value_node(
@@ -351,7 +358,7 @@ class AbstractBaseVrmImporter(ABC):
         principled_node = b_mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
 
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
+            self.find_material_output_node(b_mat).inputs["Surface"],
             principled_node.outputs["BSDF"],
         )
         # self.connect_with_color_multiply_node(
@@ -391,7 +398,7 @@ class AbstractBaseVrmImporter(ABC):
         shader_node_group_import(gltf_node_name)
         sg = self.node_group_create(b_mat, gltf_node_name)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
+            self.find_material_output_node(b_mat).inputs["Surface"],
             sg.outputs["BSDF"],
         )
 
@@ -448,7 +455,7 @@ class AbstractBaseVrmImporter(ABC):
 
         sg = self.node_group_create(b_mat, shader_node_group_name)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
+            self.find_material_output_node(b_mat).inputs["Surface"],
             sg.outputs["Emission"],
         )
 
@@ -624,7 +631,7 @@ class AbstractBaseVrmImporter(ABC):
         shader_node_group_import(z_write_transparent_sg)
         sg = self.node_group_create(b_mat, z_write_transparent_sg)
         b_mat.node_tree.links.new(
-            b_mat.node_tree.nodes["Material Output"].inputs["Surface"],
+            self.find_material_output_node(b_mat).inputs["Surface"],
             sg.outputs["Emission"],
         )
 
