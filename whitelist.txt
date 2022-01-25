@@ -85,7 +85,6 @@ ikc
 img
 inv
 invisibles
-iterdir
 ja
 keyblock
 khr
