@@ -38,6 +38,14 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc] # n
             map(VRM_OT_simplify_vroid_bones.full__pattern.match, armature.bones.keys())
         )
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return (
+            bool(context.active_object)
+            and context.active_object.type == "ARMATURE"
+            and context.active_object.mode != "EDIT"
+        )
+
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
