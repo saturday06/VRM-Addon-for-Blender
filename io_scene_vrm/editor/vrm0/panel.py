@@ -833,6 +833,7 @@ def draw_vrm0_secondary_animation_layout(
         box.label(text=collider_group_props.name)
         box.prop_search(collider_group_props.node, "value", armature.data, "bones")
 
+        box.label(text="Colliders:")
         for collider_index, collider_props in enumerate(collider_group_props.colliders):
             collider_row = box.split(align=True, factor=0.5)
             collider_row.prop(
