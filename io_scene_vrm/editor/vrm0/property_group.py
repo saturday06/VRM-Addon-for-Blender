@@ -484,7 +484,7 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L101-L106
 class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     blend_shape_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="BlendShape Group", type=Vrm0BlendShapeGroupPropertyGroup  # noqa: F722
+        name="Blend Shape Group", type=Vrm0BlendShapeGroupPropertyGroup  # noqa: F722
     )
 
 
@@ -509,13 +509,13 @@ class Vrm0PropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         name="VRM Humanoid", type=Vrm0HumanoidPropertyGroup  # noqa: F722
     )
     first_person: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="VRM FirstPerson", type=Vrm0FirstPersonPropertyGroup  # noqa: F722
+        name="VRM First-Person", type=Vrm0FirstPersonPropertyGroup  # noqa: F722
     )
     blend_shape_master: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="VRM BlendShapeMaster",  # noqa: F722
+        name="VRM Blend Shape Master",  # noqa: F722
         type=Vrm0BlendShapeMasterPropertyGroup,
     )
     secondary_animation: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="VRM SecondaryAnimation",  # noqa: F722
+        name="VRM Secondary Animation",  # noqa: F722
         type=Vrm0SecondaryAnimationPropertyGroup,
     )

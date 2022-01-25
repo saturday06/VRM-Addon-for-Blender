@@ -6,7 +6,7 @@ import bpy
 
 class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_first_person_mesh_annotation"
-    bl_label = "Add mesh annotation"
+    bl_label = "Add Mesh Annotation"
     bl_description = "Add VRM 0.x First Person Mesh Annotation"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -24,7 +24,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type:
 
 class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_first_person_mesh_annotation"
-    bl_label = "Remove mesh annotation"
+    bl_label = "Remove Mesh Annotation"
     bl_description = "Remove VRM 0.x First Person Mesh Annotation"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -50,8 +50,8 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # ty
 
 class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_material_value_bind"
-    bl_label = "Add material value bind"
-    bl_description = "Add VRM 0.x BlendShape Material Value Bind"
+    bl_label = "Add Material Value Bind"
+    bl_description = "Add VRM 0.x Blend Shape Material Value Bind"
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -76,8 +76,8 @@ class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[m
 
 class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_material_value_bind"
-    bl_label = "Remove material value bind"
-    bl_description = "Remove VRM 0.x BlendShape Material Value Bind"
+    bl_label = "Remove Material Value Bind"
+    bl_description = "Remove VRM 0.x Blend Shape Material Value Bind"
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -110,8 +110,8 @@ class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):  # type: ignor
 
 class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_material_value_bind_target_value"
-    bl_label = "Add value"
-    bl_description = "Add VRM 0.x BlendShape Material Value Bind"
+    bl_label = "Add Value"
+    bl_description = "Add VRM 0.x Blend Shape Material Value Bind"
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -144,8 +144,8 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):  # t
 
 class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_material_value_bind_target_value"
-    bl_label = "Remove value"
-    bl_description = "Remove VRM 0.x BlendShape Material Value Bind"
+    bl_label = "Remove Value"
+    bl_description = "Remove VRM 0.x Blend Shape Material Value Bind"
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -184,8 +184,8 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):  
 
 class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_blend_shape_bind"
-    bl_label = "Add blendshape bind"
-    bl_description = "Add VRM 0.x BlendShape Bind"
+    bl_label = "Add Blend Shape Bind"
+    bl_description = "Add VRM 0.x Blend Shape Bind"
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -210,8 +210,8 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc
 
 class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_blend_shape_bind"
-    bl_label = "Remove blendshape bind"
-    bl_description = "Remove VRM 0.x BlendShape Bind"
+    bl_label = "Remove Blend Shape bind"
+    bl_description = "Remove VRM 0.x Blend Shape Bind"
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -244,7 +244,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(  # noqa: N801
     bpy.types.Operator  # type: ignore[misc]
 ):
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group_collider"
-    bl_label = "Add collider"
+    bl_label = "Add Collider"
     bl_description = "Add VRM 0.x Collider"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -288,7 +288,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(  # noqa: N
     bpy.types.Operator  # type: ignore[misc]
 ):
     bl_idname = "vrm.remove_vrm0_secondary_animation_collider_group_collider"
-    bl_label = "Remove collider"
+    bl_label = "Remove Collider"
     bl_description = "Remove VRM 0.x Collider"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -324,7 +324,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(  # noqa: N
 
 class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_secondary_animation_group_bone"
-    bl_label = "Add bone"
+    bl_label = "Add Bone"
     bl_description = "Add VRM 0.x Secondary Animation Group Bone"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -350,7 +350,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # typ
 
 class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_secondary_animation_group_bone"
-    bl_label = "Remove bone"
+    bl_label = "Remove Bone"
     bl_description = "Remove VRM 0.x Secondary Animation Group Bone"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -382,7 +382,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # 
 
 class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_secondary_animation_group_collider_group"
-    bl_label = "Add collider group"
+    bl_label = "Add Collider Group"
     bl_description = "Add VRM 0.x Secondary Animation Group Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -410,7 +410,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(  # noqa: N801
     bpy.types.Operator  # type: ignore[misc]
 ):
     bl_idname = "vrm.remove_vrm0_secondary_animation_group_collider_group"
-    bl_label = "Remove collider group"
+    bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 0.x Secondary Animation Group Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -442,7 +442,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(  # noqa: N801
 
 class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_blend_shape_group"
-    bl_label = "Add blendshape group"
+    bl_label = "Add Blend Shape group"
     bl_description = "Add VRM 0.x Blend Shape Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -466,7 +466,7 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[mis
 
 class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_blend_shape_group"
-    bl_label = "Remove blendshape group"
+    bl_label = "Remove Blend Shape group"
     bl_description = "Remove VRM 0.x Blend Shape Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -492,7 +492,7 @@ class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[
 
 class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_secondary_animation_group"
-    bl_label = "Add spring bone"
+    bl_label = "Add Spring Bone"
     bl_description = "Add VRM 0.x Secondary Animation Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -513,7 +513,7 @@ class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ig
 
 class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_secondary_animation_group"
-    bl_label = "Remove spring bone"
+    bl_label = "Remove Spring Bone"
     bl_description = "Remove VRM 0.x Secondary Animation Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -539,7 +539,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):  # type:
 
 class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group"
-    bl_label = "Add collider group"
+    bl_label = "Add Collider Group"
     bl_description = "Add VRM 0.x Secondary Animation Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -561,7 +561,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):  #
 
 class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_secondary_animation_collider_group"
-    bl_label = "Remove collider group"
+    bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 0.x Secondary Animation Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
