@@ -15,6 +15,7 @@ from .editor import (
     extension,
     glsl_drawer,
     make_armature,
+    migration,
     operator,
     panel,
     property_group,
@@ -33,9 +34,16 @@ if persistent:  # for fake-bpy-modules
     def add_shaders(_dummy: Any) -> None:
         shader.add_shaders()
 
+    @persistent  # type: ignore[misc]
+    def migrate(_dummy: Any) -> None:
+        migration.migrate_all_objects()
+
 else:
 
     def add_shaders(_dummy: Any) -> None:
+        raise NotImplementedError
+
+    def migrate(_dummy: Any) -> None:
         raise NotImplementedError
 
 
@@ -144,9 +152,13 @@ def register(init_version: Any) -> None:
         type=extension.VrmAddonArmatureExtensionPropertyGroup
     )
 
+    bpy.app.handlers.load_post.append(migrate)
+
 
 # アドオン無効化時の処理
 def unregister() -> None:
+    bpy.app.handlers.load_post.remove(migrate)
+
     bpy.app.translations.unregister(preferences.addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
     bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)

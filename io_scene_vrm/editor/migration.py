@@ -46,3 +46,9 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     ext.armature_data_name = armature.data.name
 
     return True
+
+
+def migrate_all_objects() -> None:
+    for obj in bpy.data.objects:
+        if obj.type == "ARMATURE":
+            migrate(obj.name, defer=False)
