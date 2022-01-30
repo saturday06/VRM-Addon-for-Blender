@@ -129,7 +129,6 @@ classes = [
 ]
 
 
-# アドオン有効化時の処理
 def register(init_version: Any) -> None:
     # Sanity check
     if init_version != version.version():
@@ -137,39 +136,40 @@ def register(init_version: Any) -> None:
             f"Sanity error: version mismatch: {init_version} != {version.version()}"
         )
 
-    for cls in classes:
-        bpy.utils.register_class(cls)
-    bpy.types.TOPBAR_MT_file_import.append(import_scene.menu_import)
-    bpy.types.TOPBAR_MT_file_export.append(export_scene.menu_export)
-    bpy.types.VIEW3D_MT_armature_add.append(panel.add_armature)
-    # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
-    bpy.app.handlers.load_post.append(add_shaders)
     bpy.app.translations.register(
         preferences.addon_package_name,
         translation_dictionary,
     )
+
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
     bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(
         type=extension.VrmAddonArmatureExtensionPropertyGroup
     )
 
+    bpy.types.TOPBAR_MT_file_import.append(import_scene.menu_import)
+    bpy.types.TOPBAR_MT_file_export.append(export_scene.menu_export)
+    bpy.types.VIEW3D_MT_armature_add.append(panel.add_armature)
+    # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
+
+    bpy.app.handlers.load_post.append(add_shaders)
     bpy.app.handlers.load_post.append(migrate)
 
 
-# アドオン無効化時の処理
 def unregister() -> None:
     bpy.app.handlers.load_post.remove(migrate)
-
-    bpy.app.translations.unregister(preferences.addon_package_name)
     bpy.app.handlers.load_post.remove(add_shaders)
-    bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)
+
     # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)
-    bpy.types.TOPBAR_MT_file_import.remove(import_scene.menu_import)
+    bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)
     bpy.types.TOPBAR_MT_file_export.remove(export_scene.menu_export)
-    for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+    bpy.types.TOPBAR_MT_file_import.remove(import_scene.menu_import)
+
     if hasattr(bpy.types.Armature, "vrm_addon_extension"):
         del bpy.types.Armature.vrm_addon_extension
-    if hasattr(bpy.types.Bone, "vrm_addon_extension"):
-        del bpy.types.Bone.vrm_addon_extension
-    if hasattr(bpy.types.ShapeKey, "vrm_addon_extension"):
-        del bpy.types.ShapeKey.vrm_addon_extension
+
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
+
+    bpy.app.translations.unregister(preferences.addon_package_name)
