@@ -57,7 +57,7 @@ for path in map(str.strip, sorted(os.listdir(test_src_dir))):
             if callable(func):
                 test_command_args_list = func()
     except BaseException as e:
-        import_exception_str = fr"{e}".replace('"', '\\"')
+        import_exception_str = rf"{e}".replace('"', '\\"')
 
     content = f"""#
 # This source file is machine generated. Please don't edit it
@@ -96,7 +96,7 @@ If so please run `git submodule update --init`.\""")
                 raise Exception(f"Test method name {method_name}_index is duplicated")
             existing_method_names.append(method_name)
 
-            escaped = list(map(lambda a: fr"{a}", [path] + args))
+            escaped = list(map(lambda a: rf"{a}", [path] + args))
             args_str = '"' + '", "'.join(escaped) + '"'
             content += f"""
     def test_{method_name}(self) -> None:
