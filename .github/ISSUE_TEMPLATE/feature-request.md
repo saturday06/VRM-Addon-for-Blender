@@ -1,7 +1,7 @@
 ---
 name: Feature request / 要望
 about: Suggest an idea for this project / 要望向けテンプレ
-title: Feature request / 要望
+title: 'Feature request / 要望: '
 labels: ''
 assignees: ''
 

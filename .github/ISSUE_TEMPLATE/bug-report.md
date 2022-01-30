@@ -1,7 +1,7 @@
 ---
 name: Bug report / バグ報告
 about: Create a report to help us improve
-title: 'Bug report / バグ報告'
+title: 'Bug report / バグ報告: '
 labels: ''
 assignees: ''
 
