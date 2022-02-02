@@ -22,14 +22,14 @@ jobs:
         run: git config core.quotepath off
       - name: Check file permissions
         run: |
-          git ls-files ':!scripts/' ':!tests/resources' | while read -r f; do
+          git ls-files ':!scripts/*.sh' ':!scripts/*.py' ':!tests/resources' | while read -r f; do
             echo $f
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."
               exit 1
             fi
           done
-          git ls-files scripts/ | while read -r f; do
+          git ls-files 'scripts/*.sh' 'scripts/*.py' | while read -r f; do
             echo $f
             if [ ! -x "$f" ]; then
               echo "$f has no executable permission."
