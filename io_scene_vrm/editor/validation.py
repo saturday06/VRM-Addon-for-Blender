@@ -143,8 +143,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         continue
                     messages.append(
                         pgettext(
-                            'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found.'
-                        ).format(humanoid_name=humanoid_name)
+                            'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
+                            + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
+                        ).format(humanoid_name=humanoid_name.capitalize())
                     )
 
             if obj.type == "MESH":

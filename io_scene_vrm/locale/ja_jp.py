@@ -47,8 +47,18 @@ translation_dictionary = {
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
         "*",
-        'Required VRM HumanBone "{humanoid_name}" is not defined or bone is not found.',
-    ): "必須VRMヒューマンボーン「{humanoid_name}」の属性を持つボーンが未設定です。",
+        "VRM Required Bones",
+    ): "VRM必須ボーン",
+    (
+        "*",
+        "VRM Optional Bones",
+    ): "VRMオプションボーン",
+    (
+        "*",
+        'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
+        + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".',
+    ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
+    + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
         'Faces must be Triangle, but not face in "{name}" or '
