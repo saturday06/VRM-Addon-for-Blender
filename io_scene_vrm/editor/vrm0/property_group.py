@@ -303,14 +303,19 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):  # t
         if not self.blender_object or not self.blender_object.name:
             return
 
-        self.blender_object.name = self.blender_object.name
-        self.blender_object.parent = armature
-        self.blender_object.empty_display_type = "SPHERE"
+        if self.blender_object.parent != armature:
+            self.blender_object.parent = armature
+        if self.blender_object.empty_display_type != "SPHERE":
+            self.blender_object.empty_display_type = "SPHERE"
+
         if bone_name:
-            self.blender_object.parent_type = "BONE"
-            self.blender_object.parent_bone = bone_name
+            if self.blender_object.parent_type != "BONE":
+                self.blender_object.parent_type = "BONE"
+            if self.blender_object.parent_bone != bone_name:
+                self.blender_object.parent_bone = bone_name
         else:
-            self.blender_object.parent_type = "OBJECT"
+            if self.blender_object.parent_type != "OBJECT":
+                self.blender_object.parent_type = "OBJECT"
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
