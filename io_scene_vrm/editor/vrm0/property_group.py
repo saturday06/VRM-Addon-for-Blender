@@ -316,7 +316,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):  # t
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L21-L29
 class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
-    bpy.types.PropertyGroup, bpy.types.ID  # type: ignore[misc]
+    bpy.types.PropertyGroup  # type: ignore[misc]
 ):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Node", type=BonePropertyGroup  # noqa: F821
