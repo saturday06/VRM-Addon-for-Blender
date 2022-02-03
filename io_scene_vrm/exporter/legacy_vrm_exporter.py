@@ -1947,6 +1947,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if image_bin.name == meta_props.texture.name
             ]
             if thumbnail_indices:
+                if "samplers" not in self.json_dic:
+                    self.json_dic["samplers"] = []
                 self.json_dic["samplers"].append(
                     {
                         "magFilter": bgl.GL_LINEAR,
@@ -1955,6 +1957,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         "wrapT": bgl.GL_REPEAT,
                     }
                 )
+                if "textures" not in self.json_dic:
+                    self.json_dic["textures"] = []
                 self.json_dic["textures"].append(
                     {
                         "sampler": len(self.json_dic["samplers"]) - 1,
