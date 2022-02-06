@@ -67,15 +67,15 @@ class MtoonGlsl:
     def __init__(self, material: bpy.types.Material) -> None:
         shader_black = "shader_black"
         self.black_texture = bpy.data.images.get(shader_black)
-        if shader_black is None:
+        if self.black_texture is None:
             self.black_texture = self.make_small_image(shader_black, (0, 0, 0, 0))
         shader_white = "shader_white"
         self.white_texture = bpy.data.images.get(shader_white)
-        if shader_white is None:
+        if self.white_texture is None:
             self.white_texture = self.make_small_image(shader_white, (1, 1, 1, 1))
         shader_normal = "shader_normal"
         self.normal_texture = bpy.data.images.get(shader_normal)
-        if shader_normal is None:
+        if self.normal_texture is None:
             self.normal_texture = self.make_small_image(
                 shader_normal, (0.5, 0.5, 1, 1), "Linear"
             )
