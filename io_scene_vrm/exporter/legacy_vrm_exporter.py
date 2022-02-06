@@ -5,7 +5,6 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-import collections
 import datetime
 import math
 import os
@@ -14,7 +13,7 @@ import secrets
 import string
 import struct
 import traceback
-from collections import OrderedDict
+from collections import OrderedDict, abc
 from math import floor
 from sys import float_info
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
@@ -1168,7 +1167,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     pbr_dic["alphaMode"] = gltf2_io_material.alpha_mode
                 if isinstance(gltf2_io_material.double_sided, bool):
                     pbr_dic["doubleSided"] = gltf2_io_material.double_sided
-                if isinstance(gltf2_io_material.emissive_factor, collections.Sequence):
+                if isinstance(gltf2_io_material.emissive_factor, abc.Sequence):
                     pbr_dic["emissiveFactor"] = gltf2_io_material.emissive_factor
                 if gltf2_io_material.emissive_texture is not None:
                     pbr_dic["emissiveTexture"] = add_gltf2_io_texture(
@@ -1194,7 +1193,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     pbr_metallic_roughness: Dict[str, Any] = {}
                     if isinstance(
                         gltf2_io_material.pbr_metallic_roughness.base_color_factor,
-                        collections.Sequence,
+                        abc.Sequence,
                     ):
                         pbr_metallic_roughness[
                             "baseColorFactor"

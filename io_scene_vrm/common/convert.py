@@ -1,4 +1,4 @@
-import collections
+from collections import abc
 from typing import Any, List, Optional, Tuple
 
 
@@ -20,7 +20,7 @@ def vrm_json_vector3_to_tuple(
 
 
 def vrm_json_curve_to_list(curve: Any) -> Optional[List[float]]:
-    if not isinstance(curve, collections.Iterable):
+    if not isinstance(curve, abc.Iterable):
         return None
     values = [v if isinstance(v, (int, float)) else 0 for v in curve]
     while len(values) < 8:

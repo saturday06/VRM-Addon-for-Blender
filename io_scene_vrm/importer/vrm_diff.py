@@ -1,4 +1,4 @@
-import collections
+from collections import abc
 from typing import Any, Dict, List, Tuple
 
 from ..common import deep, gltf
@@ -45,9 +45,7 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
     if (
         first_person_dict.get("firstPersonBone") in [None, -1]
         and isinstance(vrm0_extension.get("humanoid"), dict)
-        and isinstance(
-            vrm0_extension["humanoid"].get("humanBones"), collections.Iterable
-        )
+        and isinstance(vrm0_extension["humanoid"].get("humanBones"), abc.Iterable)
     ):
         for human_bone in vrm0_extension["humanoid"]["humanBones"]:
             if not isinstance(human_bone, dict):
@@ -75,7 +73,7 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
 
     if isinstance(vrm0_extension.get("blendShapeMaster"), dict) and isinstance(
         vrm0_extension["blendShapeMaster"].get("blendShapeGroups"),
-        collections.Iterable,
+        abc.Iterable,
     ):
         for blend_shape_group_dict in vrm0_extension["blendShapeMaster"][
             "blendShapeGroups"
@@ -90,7 +88,7 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
                 blend_shape_group_dict["materialValues"] = []
 
     if isinstance(vrm0_extension.get("secondaryAnimation"), dict) and isinstance(
-        vrm0_extension["secondaryAnimation"].get("colliderGroups"), collections.Iterable
+        vrm0_extension["secondaryAnimation"].get("colliderGroups"), abc.Iterable
     ):
 
         def sort_collider_groups_with_index_key(
@@ -120,14 +118,14 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Any]:
         }
 
         bone_groups = vrm0_extension["secondaryAnimation"].get("boneGroups")
-        if isinstance(bone_groups, collections.Iterable):
+        if isinstance(bone_groups, abc.Iterable):
             for bone_group in bone_groups:
                 if not isinstance(bone_group, dict):
                     continue
                 if "comment" not in bone_group:
                     bone_group["comment"] = ""
                 collider_groups = bone_group.get("colliderGroups")
-                if not isinstance(collider_groups, collections.Iterable):
+                if not isinstance(collider_groups, abc.Iterable):
                     continue
                 for i, collider_group in enumerate(list(collider_groups)):
                     if not isinstance(collider_group, int):

@@ -1,7 +1,7 @@
-import collections
 import secrets
 import string
 import tempfile
+from collections import abc
 from typing import Any, Dict, List, Optional
 
 import bpy
@@ -53,7 +53,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         bone_name_to_index_dict: Dict[str, int] = {}
 
         nodes = json_dict.get("nodes")
-        if not isinstance(nodes, collections.Iterable):
+        if not isinstance(nodes, abc.Iterable):
             nodes = []
         for node_index, node_dict in enumerate(nodes):
             if not isinstance(node_dict, dict):
@@ -86,7 +86,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 human_bones_dict[human_bone.bone] = {"node": index}
 
         extensions_used = json_dict.get("extensionsUsed")
-        if not isinstance(extensions_used, collections.Iterable):
+        if not isinstance(extensions_used, abc.Iterable):
             extensions_used = []
         else:
             extensions_used = list(extensions_used)
