@@ -62,7 +62,11 @@ def test() -> None:
         os.remove(actual_path)
     bpy.ops.export_scene.vrm(filepath=actual_path)
 
-    float_tolerance = 0.00001
+    system = platform.system()
+    if system in ["Darwin", "Linux"]:
+        float_tolerance = 0.00003
+    else:
+        float_tolerance = 0.00001
 
     diffs = vrm_diff(
         pathlib.Path(actual_path).read_bytes(),
