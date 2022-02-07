@@ -18,6 +18,7 @@
 !/.github/workflows/*.yml
 !/.github/*.yml
 !/LICENSE
+!/LICENSE.MToon
 !/poetry.lock
 !/pyproject.toml
 !/scripts/*.bat
