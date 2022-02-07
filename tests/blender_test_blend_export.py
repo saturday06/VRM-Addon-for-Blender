@@ -44,7 +44,8 @@ def test() -> None:
         in_path = os.path.join(blend_dir, major_minor, blend)
 
     vrm = os.path.splitext(blend)[0] + ".vrm"
-    expected_path = os.path.join(vrm_dir, major_minor, "out", blend + ".vrm")
+    blend_vrm_path = os.path.join(vrm_dir, major_minor, "out", blend + ".vrm")
+    expected_path = blend_vrm_path
     if not os.path.exists(expected_path):
         expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
         if not os.path.exists(expected_path):
@@ -72,7 +73,7 @@ def test() -> None:
         return
 
     if update_failed_vrm:
-        shutil.copy(actual_path, expected_path)
+        shutil.copy(actual_path, blend_vrm_path)
 
     diffs_str = "\n".join(diffs)
     message = (
