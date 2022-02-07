@@ -1451,9 +1451,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if bpy.context.view_layer.objects.active is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
 
-            # region glTF-Blender-IO
-            # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.91-release/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_nodes.py#L285-L303
-            # http://www.apache.org/licenses/LICENSE-2.0
+            # https://docs.blender.org/api/2.80/bpy.types.Depsgraph.html
             depsgraph = bpy.context.evaluated_depsgraph_get()
             mesh_owner = mesh.evaluated_get(depsgraph)
             mesh_data = mesh_owner.to_mesh(
@@ -1461,7 +1459,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             ).copy()
             for prop in mesh.data.keys():
                 mesh_data[prop] = mesh.data[prop]
-            # endregion glTF-Blender-IO
 
             mesh.hide_viewport = False
             mesh.hide_select = False
