@@ -12,6 +12,7 @@ import re
 import secrets
 import string
 import struct
+import tempfile
 import traceback
 from collections import OrderedDict, abc
 from math import floor
@@ -253,13 +254,46 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             else len(bpy.data.images) + used_images.index(used_image)
         )
         for image in sorted(used_images, key=image_to_image_index):
-            if image.packed_file is not None:
-                image_bin = image.packed_file.data
+            if (
+                image.source == "FILE"
+                and not image.is_dirty
+                and image.file_format in ["PNG", "JPEG"]
+            ):
+                if image.packed_file is not None:
+                    image_bin = image.packed_file.data
+                else:
+                    with open(image.filepath_from_user(), "rb") as f:
+                        image_bin = f.read()
+                filetype = "image/" + image.file_format.lower()
             else:
-                with open(image.filepath_from_user(), "rb") as f:
-                    image_bin = f.read()
+                filetype = "image/png"
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    export_image: Optional[bpy.types.Image] = None
+                    try:
+                        if image.size[0] > 0 and image.size[1] > 0:
+                            export_image = image.copy()
+                            # https://github.com/KhronosGroup/glTF-Blender-IO/issues/894#issuecomment-579094775
+                            export_image.update()
+                            # https://github.com/KhronosGroup/glTF-Blender-IO/commit/0ea9e74c40977a36bbccb7b823fe8bf5955fc528
+                            export_image.pixels = image.pixels[:]
+                        else:
+                            print('Failed to load image "{image.name}"')
+                            export_image = bpy.data.images.new(
+                                "~TempVrmExport-" + image.name,
+                                width=1,
+                                height=1,
+                            )
+                        filepath = os.path.join(temp_dir, "image.png")
+                        export_image.filepath_raw = filepath
+                        export_image.file_format = "PNG"
+                        export_image.save()
+                    finally:
+                        if export_image is not None:
+                            bpy.data.images.remove(export_image)
+                    with open(filepath, "rb") as f:
+                        image_bin = f.read()
+
             name = image.name
-            filetype = "image/" + image.file_format.lower()
             ImageBin(image_bin, name, filetype, self.glb_bin_collector)
 
     def armature_to_node_and_scenes_dic(self) -> None:

@@ -278,15 +278,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 )
 
         for image in used_images:
-            if image.is_dirty or (image.packed_file is None and not image.filepath):
-                messages.append(
-                    pgettext('Image "{image_name}" is not saved. Please save.').format(
-                        image_name=image.name
-                    )
-                )
-                continue
-            if image.packed_file is None and not os.path.exists(
-                image.filepath_from_user()
+            if (
+                image.source == "FILE"
+                and not image.is_dirty
+                and image.packed_file is None
+                and not os.path.exists(image.filepath_from_user())
             ):
                 messages.append(
                     pgettext(
@@ -295,13 +291,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     ).format(
                         image_name=image.name, image_filepath=image.filepath_from_user()
                     )
-                )
-                continue
-            if image.file_format.lower() not in ["png", "jpeg"]:
-                messages.append(
-                    pgettext(
-                        'glTF only supports PNG and JPEG textures but "{image_name}" is "{image_file_format}"',
-                    ).format(image_name=image.name, image_file_format=image.file_format)
                 )
 
         if armature is not None:

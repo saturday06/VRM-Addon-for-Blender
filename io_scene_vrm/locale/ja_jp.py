@@ -85,18 +85,10 @@ translation_dictionary = {
     + "空のマテリアルを出力します。",
     (
         "*",
-        'Image "{image_name}" is not saved. Please save.',
-    ): "画像「{image_name}」のBlender上での変更を保存してください。",
-    (
-        "*",
         '"{image_name}" is not found in file path "{image_filepath}". '
         + "Please load file of it in Blender.",
     ): '「{image_name}」の画像ファイルが指定ファイルパス「"{image_filepath}"」'
     + "に存在しません。画像を読み込み直してください。",
-    (
-        "*",
-        'glTF only supports PNG and JPEG textures but "{image_name}" is "{image_file_format}"',
-    ): "glTFはPNGとJPEGのみの対応ですが「{image_name}」は「{image_file_format}」です。",
     (
         "*",
         "firstPersonBone is not found. "
