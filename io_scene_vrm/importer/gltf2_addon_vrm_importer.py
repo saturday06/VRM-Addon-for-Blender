@@ -412,12 +412,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         else:
             bone_heuristic = "TEMPERANCE"
         full_vrm_import_success = False
-        with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-            indexed_vrm_file.write(gltf.pack_glb(json_dict, body_binary))
-            indexed_vrm_file.flush()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            indexed_vrm_filepath = os.path.join(temp_dir, "indexed.vrm")
+            with open(indexed_vrm_filepath, "wb") as file:
+                file.write(gltf.pack_glb(json_dict, body_binary))
             try:
                 bpy.ops.import_scene.gltf(
-                    filepath=indexed_vrm_file.name,
+                    filepath=indexed_vrm_filepath,
                     import_pack_images=True,
                     bone_heuristic=bone_heuristic,
                 )
@@ -425,7 +426,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             except RuntimeError:
                 traceback.print_exc()
                 print(
-                    f'ERROR: Failed to import "{indexed_vrm_file.name}"'
+                    f'ERROR: Failed to import "{indexed_vrm_filepath}"'
                     + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
                 )
                 self.cleanup_gltf2_with_indices()
@@ -434,19 +435,20 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             # https://github.com/saturday06/VRM_Addon_for_Blender/issues/58
             if "animations" in json_dict:
                 del json_dict["animations"]
-            with tempfile.NamedTemporaryFile(delete=False) as indexed_vrm_file:
-                indexed_vrm_file.write(gltf.pack_glb(json_dict, body_binary))
-                indexed_vrm_file.flush()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                indexed_vrm_filepath = os.path.join(temp_dir, "indexed.vrm")
+                with open(indexed_vrm_filepath, "wb") as file:
+                    file.write(gltf.pack_glb(json_dict, body_binary))
                 try:
                     bpy.ops.import_scene.gltf(
-                        filepath=indexed_vrm_file.name,
+                        filepath=indexed_vrm_filepath,
                         import_pack_images=True,
                         bone_heuristic=bone_heuristic,
                     )
                 except RuntimeError as e:
                     traceback.print_exc()
                     print(
-                        f'ERROR: Failed to import "{indexed_vrm_file.name}"'
+                        f'ERROR: Failed to import "{indexed_vrm_filepath}"'
                         + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
                         + " without animations key"
                     )

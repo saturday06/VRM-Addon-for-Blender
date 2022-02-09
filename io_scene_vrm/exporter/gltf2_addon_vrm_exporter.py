@@ -1,3 +1,4 @@
+import os
 import secrets
 import string
 import tempfile
@@ -31,16 +32,16 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             for bone in self.armature.data.bones:
                 bone[self.extras_bone_name_key] = bone.name
 
-            with tempfile.NamedTemporaryFile(suffix=".glb") as out_file:
-                out_file.close()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                filepath = os.path.join(temp_dir, "out.glb")
                 bpy.ops.export_scene.gltf(
-                    filepath=out_file.name,
+                    filepath=filepath,
                     check_existing=False,
                     export_format="GLB",
                     export_extras=True,
                 )
-                with open(out_file.name, "rb") as in_file:
-                    extra_name_assigned_glb = in_file.read()
+                with open(filepath, "rb") as file:
+                    extra_name_assigned_glb = file.read()
         finally:
             for bone in self.armature.pose.bones:
                 if self.extras_bone_name_key in bone:
