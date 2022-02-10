@@ -210,7 +210,7 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc
 
 class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_blend_shape_bind"
-    bl_label = "Remove Blend Shape bind"
+    bl_label = "Remove Blend Shape Bind"
     bl_description = "Remove VRM 0.x Blend Shape Bind"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -442,7 +442,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(  # noqa: N801
 
 class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_blend_shape_group"
-    bl_label = "Add Blend Shape group"
+    bl_label = "Add Blend Shape Group"
     bl_description = "Add VRM 0.x Blend Shape Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -466,7 +466,7 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[mis
 
 class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm0_blend_shape_group"
-    bl_label = "Remove Blend Shape group"
+    bl_label = "Remove Blend Shape Group"
     bl_description = "Remove VRM 0.x Blend Shape Group"
     bl_options = {"REGISTER", "UNDO"}
 
