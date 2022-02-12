@@ -1,0 +1,11 @@
+main article header div.mt-8.mb-12.text-base {
+  display: none;
+}
+
+.max-w-prose {
+  max-width: none;
+}
+
+th a {
+  font-size: 1.125rem;
+}

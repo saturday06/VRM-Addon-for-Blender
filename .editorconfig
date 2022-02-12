@@ -12,6 +12,9 @@ trim_trailing_whitespace = true
 [*.bat]
 end_of_line = crlf
 
+[*.css]
+indent_size = 2
+
 [*.toml]
 indent_size = 2
 

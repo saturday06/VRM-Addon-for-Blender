@@ -1,0 +1,5 @@
+({{ os.Getenv "HUGO_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME" | default "Version Dev" }})
+{{ $latest_publish_date_str := os.Getenv "HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE" }}
+{{ $latest_publish_date_str = default "2000-01-01" $latest_publish_date_str }}
+{{ $latest_publish_date := time $latest_publish_date_str }}
+{{ $latest_publish_date | time.Format ":date_long" }} UTC

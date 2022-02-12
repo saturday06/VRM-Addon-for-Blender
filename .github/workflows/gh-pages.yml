@@ -14,6 +14,17 @@ jobs:
         run: |
           set -x
 
+          curl \
+            --fail \
+            --show-error \
+            --location \
+            --output releases_latest.json \
+            --header "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/saturday06/VRM_Addon_for_Blender/releases/latest
+
+          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['name']")
+          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['published_at']")
+
           hugo_dir=$(mktemp -d)
 
           pushd "$hugo_dir"
@@ -44,4 +55,4 @@ jobs:
           git config --global user.name "Isamu Mogi (BOT)"
           git commit -m "(BOT) Update"
           git push origin gh-pages
-        if: "github.ref == 'refs/heads/release' || github.ref == 'refs/heads/docs'"
+        if: "github.ref == 'refs/heads/release' || github.ref == 'refs/heads/website'"

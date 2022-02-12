@@ -5,8 +5,6 @@
 baseURL = "https://vrm-addon-for-blender.info"
 defaultContentLanguage = "en"
 
-copyright = "&nbsp;"
-
 enableEmoji = true
 enableRobotsTXT = true
 summaryLength = 0
@@ -14,18 +12,29 @@ summaryLength = 0
 defaultContentLanguageInSubdir = true
 
 [languages]
-  [languages.en]
-    title = 'VRM Add-on for Blender'
-  [languages.ja]
-    title = 'VRM Add-on for Blender'
+
+[languages.en]
+  title = 'VRM Add-on for Blender'
+
+[languages.ja]
+  title = 'VRM Add-on for Blender'
+
+[languages.en.params]
+  isoCode = 'en'
+
+[languages.ja.params]
+  isoCode = 'ja'
+
+[[languages.en.menu.main]]
+  name = "Report Bugs"
+  url = "https://github.com/saturday06/VRM_Addon_for_Blender/issues"
 
 [[languages.en.menu.main]]
   name = "Source Code"
   url = "https://github.com/saturday06/VRM_Addon_for_Blender"
 
-
 [[languages.ja.menu.main]]
-  name = "バグを報告する"
+  name = "バグを報告"
   url = "https://github.com/saturday06/VRM_Addon_for_Blender/issues"
   weight = 1
 
@@ -33,9 +42,6 @@ defaultContentLanguageInSubdir = true
   name = "ソースコード"
   url = "https://github.com/saturday06/VRM_Addon_for_Blender"
   weight = 2
-
-[article]
-showPagination = false
 
 [author]
   # name = "author"

@@ -16,7 +16,7 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 
 # Functions / 機能
 
-<img alt="UI Panel" src="./docs/ui_panel.png">
+<img alt="UI Panel" src="./docs/website/static/ja/images/ui_panel.png">
 
 ## Import / インポート
 

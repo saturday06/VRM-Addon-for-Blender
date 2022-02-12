@@ -6,8 +6,11 @@
 # https://jpanther.github.io/congo/docs/configuration/#theme-parameters
 
 colorScheme = "congo"
-darkMode = true
-darkToggle = true
+defaultAppearance = "dark"
+autoSwitchAppearance = true
+showAppearanceSwitcher = true
+copyright = "&copy; 2022 saturday06"
+
 logo = "images/logo.png" # https://openclipart.org/detail/277988/gear-icons
 description = "VRM Add-on for Blender"
 mainSections = ["section1", "section2"]
@@ -18,7 +21,6 @@ mainSections = ["section1", "section2"]
   showRecent = false
 
 [article]
-  showDate = true
   dateFormat = "2 January 2006"
   showAuthor = false
   showBreadcrumbs = false
@@ -28,8 +30,9 @@ mainSections = ["section1", "section2"]
   editAppendPath = true
   showHeadingAnchors = true
   showPagination = false
-  showReadingTime = true
+  showReadingTime = false
   showWordCount = false
+  showDate = false
   # sharingLinks = ["facebook", "twitter", "pinterest", "reddit", "linkedin", "email"]
 
 [list]
