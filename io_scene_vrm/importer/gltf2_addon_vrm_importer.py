@@ -14,6 +14,7 @@ import bpy
 import mathutils
 
 from ..common import gltf
+from ..common.char import INTERNAL_NAME_PREFIX
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -517,7 +518,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
             if self.is_temp_object_name(material.name):
-                material.name = "~" + material.name  # TODO: Remove it permanently
+                material.name = (
+                    INTERNAL_NAME_PREFIX + material.name
+                )  # TODO: Remove it permanently
                 continue
             material_index = material.get(extras_material_index_key)
             if not isinstance(material_index, int):

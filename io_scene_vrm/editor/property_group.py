@@ -3,6 +3,7 @@ from typing import Any, Dict, Iterator, Optional, Set
 
 import bpy
 
+from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.human_bone import HumanBone, HumanBoneName, HumanBones
 
 
@@ -52,7 +53,8 @@ class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         if not self.link_to_mesh or not self.link_to_mesh.name:
             uuid_str = uuid.uuid4().hex
             self.link_to_mesh = bpy.data.objects.new(
-                name="~VrmAddonLinkToMesh" + uuid_str, object_data=None
+                name=INTERNAL_NAME_PREFIX + "VrmAddonLinkToMesh" + uuid_str,
+                object_data=None,
             )
             self.link_to_mesh.hide_render = True
             self.link_to_mesh.hide_select = True
@@ -150,7 +152,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         value = self.value
         uuid_str = uuid.uuid4().hex
         self.link_to_bone = bpy.data.objects.new(
-            name="~VrmAddonLinkToBone" + uuid_str, object_data=None
+            name=INTERNAL_NAME_PREFIX + "VrmAddonLinkToBone" + uuid_str,
+            object_data=None,
         )
         self.link_to_bone.hide_render = True
         self.link_to_bone.hide_select = True

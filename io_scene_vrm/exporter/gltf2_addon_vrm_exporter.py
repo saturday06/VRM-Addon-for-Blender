@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 import bpy
 
 from ..common import gltf
+from ..common.char import INTERNAL_NAME_PREFIX
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 
 
@@ -21,7 +22,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
-        self.extras_bone_name_key = "~" + self.export_id + "BoneName"
+        self.extras_bone_name_key = INTERNAL_NAME_PREFIX + self.export_id + "BoneName"
 
     def export_vrm(self) -> Optional[bytes]:
         try:

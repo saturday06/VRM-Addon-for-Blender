@@ -20,6 +20,7 @@ from mathutils import Matrix
 
 from .. import common
 from ..common import convert, deep
+from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
@@ -206,7 +207,11 @@ class AbstractBaseVrmImporter(ABC):
                         or material != self.gltf_materials.get(vrm_material_index)
                     ):
                         continue
-                    material.name = "~glTF_VRM_overridden_" + material_original_name
+                    material.name = (
+                        INTERNAL_NAME_PREFIX
+                        + "glTF_VRM_overridden_"
+                        + material_original_name
+                    )
                     vrm_material.name = material_original_name
                     mesh.data.materials[material_index] = vrm_material
                     break

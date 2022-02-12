@@ -25,6 +25,7 @@ import bpy
 from mathutils import Matrix, Quaternion
 
 from ..common import deep, gltf
+from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.human_bone import HumanBones
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
@@ -142,11 +143,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         self.original_pose_library = self.armature.pose_library
         self.saved_current_pose_library = bpy.data.actions.new(
-            "~" + self.export_id + "SavedCurrentPoseLibrary"
+            INTERNAL_NAME_PREFIX + self.export_id + "SavedCurrentPoseLibrary"
         )
 
         self.armature.pose_library = self.saved_current_pose_library
-        bpy.ops.poselib.pose_add(name="~" + self.export_id + "SavedCurrentPose")
+        bpy.ops.poselib.pose_add(
+            name=INTERNAL_NAME_PREFIX + self.export_id + "SavedCurrentPose"
+        )
 
         if pose_library and pose_index is not None:
             self.armature.pose_library = pose_library
@@ -279,7 +282,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         else:
                             print('Failed to load image "{image.name}"')
                             export_image = bpy.data.images.new(
-                                "~TempVrmExport-" + image.name,
+                                INTERNAL_NAME_PREFIX + "TempVrmExport-" + image.name,
                                 width=1,
                                 height=1,
                             )
