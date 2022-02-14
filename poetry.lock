@@ -150,7 +150,7 @@ flake8 = "*"
 
 [[package]]
 name = "flake8-simplify"
-version = "0.15.2"
+version = "0.17.0"
 description = "flake8 plugin which checks for code that can be simplified"
 category = "dev"
 optional = false
@@ -436,8 +436,8 @@ flake8-polyfill = [
     {file = "flake8_polyfill-1.0.2-py2.py3-none-any.whl", hash = "sha256:12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9"},
 ]
 flake8-simplify = [
-    {file = "flake8_simplify-0.15.2-py3-none-any.whl", hash = "sha256:5e0e311743af57d6eb17f46a5c3c5d04df6a5adddc6183573a0ea455833816d6"},
-    {file = "flake8_simplify-0.15.2.tar.gz", hash = "sha256:852d9ba96b572f530e14e2b393985b4d017f82039910c38b107388ef28ceb6dc"},
+    {file = "flake8_simplify-0.17.0-py3-none-any.whl", hash = "sha256:a566bb550706dbdc637b46729b760a7ac6442e2b28d64b729bc9da44a4dfd3b1"},
+    {file = "flake8_simplify-0.17.0.tar.gz", hash = "sha256:fd4076e0f9e9af4a18d91dfe32b1d460b7da97322d5e083fc3a5bbe487075877"},
 ]
 flake8-spellcheck = [
     {file = "flake8-spellcheck-0.24.0.tar.gz", hash = "sha256:833c92222158b5dea74f858ccfb9f980b7c865fbd89cabc18447dadb07ec62e6"},
