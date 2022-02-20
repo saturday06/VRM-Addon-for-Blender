@@ -282,6 +282,7 @@ def migrate_vrm0_secondary_animation(
         for child in armature.children
         if child.type == "EMPTY"
         and child.empty_display_type == "SPHERE"
+        and child.parent_type == "BONE"
         and child.parent_bone in armature.data.bones
     ]:
         if collider_object.parent_bone not in bone_name_to_collider_objects:
