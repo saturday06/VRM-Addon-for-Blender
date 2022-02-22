@@ -16,6 +16,20 @@ from .property_group import (
 )
 
 
+def active_object_is_vrm0_armature(context: bpy.types.Context) -> bool:
+    return bool(
+        context
+        and context.active_object
+        and context.active_object.type == "ARMATURE"
+        and hasattr(context.active_object.data, "vrm_addon_extension")
+        and isinstance(
+            context.active_object.data.vrm_addon_extension,
+            VrmAddonArmatureExtensionPropertyGroup,
+        )
+        and context.active_object.data.vrm_addon_extension.is_vrm0()
+    )
+
+
 def bone_prop_search(
     layout: bpy.types.UILayout,
     human_bone: HumanBone,
@@ -284,21 +298,17 @@ class VRM_PT_vrm0_humanoid_armature_object_property(bpy.types.Panel):  # type: i
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(
-            context.active_object
-            and context.active_object.type == "ARMATURE"
-            and hasattr(context.active_object.data, "vrm_addon_extension")
-        )
+        return active_object_is_vrm0_armature(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="ARMATURE_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
-        ext = context.active_object.data.vrm_addon_extension
-        if isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
-            draw_vrm0_humanoid_layout(
-                context.active_object, self.layout, ext.vrm0.humanoid
-            )
+        draw_vrm0_humanoid_layout(
+            context.active_object,
+            self.layout,
+            context.active_object.data.vrm_addon_extension.vrm0.humanoid,
+        )
 
 
 class VRM_PT_vrm0_humanoid_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
@@ -311,7 +321,7 @@ class VRM_PT_vrm0_humanoid_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N8
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return search.armature_exists(context)
+        return search.current_armature_is_vrm0(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="USER")
@@ -396,11 +406,7 @@ class VRM_PT_vrm0_first_person_armature_object_property(bpy.types.Panel):  # typ
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(
-            context.active_object
-            and context.active_object.type == "ARMATURE"
-            and hasattr(context.active_object.data, "vrm_addon_extension")
-        )
+        return active_object_is_vrm0_armature(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="HIDE_OFF")
@@ -426,7 +432,7 @@ class VRM_PT_vrm0_first_person_ui(bpy.types.Panel):  # type: ignore[misc] # noqa
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return search.armature_exists(context)
+        return search.current_armature_is_vrm0(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="HIDE_OFF")
@@ -614,11 +620,7 @@ class VRM_PT_vrm0_blend_shape_master_armature_object_property(bpy.types.Panel): 
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(
-            context.active_object
-            and context.active_object.type == "ARMATURE"
-            and hasattr(context.active_object.data, "vrm_addon_extension")
-        )
+        return active_object_is_vrm0_armature(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="SHAPEKEY_DATA")
@@ -641,7 +643,7 @@ class VRM_PT_vrm0_blend_shape_master_ui(bpy.types.Panel):  # type: ignore[misc] 
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return search.armature_exists(context)
+        return search.current_armature_is_vrm0(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="SHAPEKEY_DATA")
@@ -882,11 +884,7 @@ class VRM_PT_vrm0_secondary_animation_armature_object_property(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(
-            context.active_object
-            and context.active_object.type == "ARMATURE"
-            and hasattr(context.active_object.data, "vrm_addon_extension")
-        )
+        return active_object_is_vrm0_armature(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="PHYSICS")
@@ -909,7 +907,7 @@ class VRM_PT_vrm0_secondary_animation_ui(bpy.types.Panel):  # type: ignore[misc]
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return search.armature_exists(context)
+        return search.current_armature_is_vrm0(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="PHYSICS")
@@ -976,11 +974,7 @@ class VRM_PT_vrm0_meta_armature_object_property(bpy.types.Panel):  # type: ignor
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(
-            context.active_object
-            and context.active_object.type == "ARMATURE"
-            and hasattr(context.active_object.data, "vrm_addon_extension")
-        )
+        return active_object_is_vrm0_armature(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="FILE_BLEND")
@@ -1003,7 +997,7 @@ class VRM_PT_vrm0_meta_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return search.armature_exists(context)
+        return search.current_armature_is_vrm0(context)
 
     def draw_header(self, _context: bpy.types.Context) -> None:
         self.layout.label(icon="FILE_BLEND")

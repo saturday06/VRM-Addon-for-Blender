@@ -90,6 +90,42 @@ def armature_exists(context: bpy.types.Object) -> bool:
     )
 
 
+def current_armature_is_vrm0(context: bpy.types.Context) -> bool:
+    live_armature_datum = [
+        armature_data for armature_data in bpy.data.armatures if armature_data.users
+    ]
+    if not live_armature_datum:
+        return False
+    if all(
+        hasattr(armature_data, "vrm_addon_extension")
+        and armature_data.vrm_addon_extension.is_vrm0()
+        for armature_data in live_armature_datum
+    ):
+        return True
+    armature = current_armature(context)
+    if armature is None:
+        return False
+    return bool(armature.data.vrm_addon_extension.is_vrm0())
+
+
+def current_armature_is_vrm1(context: bpy.types.Context) -> bool:
+    live_armature_datum = [
+        armature_data for armature_data in bpy.data.armatures if armature_data.users
+    ]
+    if not live_armature_datum:
+        return False
+    if all(
+        hasattr(armature_data, "vrm_addon_extension")
+        and armature_data.vrm_addon_extension.is_vrm1()
+        for armature_data in live_armature_datum
+    ):
+        return True
+    armature = current_armature(context)
+    if armature is None:
+        return False
+    return bool(armature.data.vrm_addon_extension.is_vrm1())
+
+
 def multiple_armatures_exist(context: bpy.types.Object) -> bool:
     first_data_exists = False
     for data in bpy.data.armatures:

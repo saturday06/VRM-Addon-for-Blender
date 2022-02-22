@@ -43,6 +43,7 @@ dof
 doublesided
 dview
 editmode
+ee
 emissive
 endregion
 eval
@@ -80,6 +81,7 @@ hrad
 hx
 icyp
 idname
+ih
 ik
 ikc
 img
@@ -124,6 +126,7 @@ objs
 offscreen
 ortho
 otogai
+ou
 out2
 outliner
 param

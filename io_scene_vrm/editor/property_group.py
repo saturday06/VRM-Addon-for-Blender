@@ -83,6 +83,14 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for bone_group in ext.vrm0.secondary_animation.bone_groups:
             yield bone_group.center
             yield from bone_group.bones
+        for (
+            human_bone
+        ) in (
+            ext.vrm1.vrm.humanoid.human_bones.human_bone_to_human_bone_props().values()
+        ):
+            yield human_bone.node
+        for collider in ext.vrm1.spring_bone.colliders:
+            yield collider.node
 
     @staticmethod
     def find_bone_candidates(
