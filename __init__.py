@@ -66,9 +66,11 @@ class glTF2ExportUserExtension:  # noqa: N801, SC200
         # Lazy import to minimize initialization before blender version checking and reload_package().
         # 'import io_scene_vrm' causes an error in blender and vscode mypy integration.
         # pylint: disable=import-self,no-name-in-module
-        from .io_scene_vrm.exporter.user_extension import UserExtension
+        from .io_scene_vrm.exporter.gltf2_addon_exporter_user_extension import (
+            Gltf2AddonExporterUserExtension,
+        )
 
-        self.user_extension = UserExtension()
+        self.user_extension = Gltf2AddonExporterUserExtension()
 
     def gather_skin_hook(
         self, gltf2_object: object, blender_object: object, export_settings: object
