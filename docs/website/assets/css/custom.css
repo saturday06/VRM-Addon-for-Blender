@@ -9,3 +9,12 @@ main article header div.mt-8.mb-12.text-base {
 th a {
   font-size: 1.125rem;
 }
+
+.prose thead {
+  border-bottom-width: 0;
+}
+
+.prose td a :where(img):not(:where([class~=not-prose] *)) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
