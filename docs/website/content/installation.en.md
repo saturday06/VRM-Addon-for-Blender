@@ -7,23 +7,23 @@ Download latest add-on zip file from **[Download Latest Version {{< release_utc 
 
 Start Blender and select menu `Edit` → `Preferences`.
 
-<img src="../images/installation1.png">
+![](../images/installation1.png)
 
 Select `Add-ons` from the left menu when the preferences screen, and then press the `Install` button in the upper right corner.
 
-<img src="../images/installation2.png">
+![](../images/installation2.png)
 
 When the File View window appears, select the add-on you just downloaded.
 
-<img src="../images/installation3.png">
+![](../images/installation3.png)
 
 Find `Import-Export: VRM format` in the add-on list view. There is a search box in the upper right corner if there are too many items to find.
 
-<img src="../images/installation4.png">
+![](../images/installation4.png)
 
 Press the checkbox to complete the installation of the add-on.
 
-<img src="../images/installation5.png">
+![](../images/installation5.png)
 
 ## Related links:
 

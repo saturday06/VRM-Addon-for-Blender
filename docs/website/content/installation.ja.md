@@ -5,23 +5,23 @@ description: "VRM Add-on for Blender: アドオンのインストール"
 
 **[最新版のダウンロード {{< release_ja >}}](https://github.com/saturday06/VRM_Addon_for_Blender/archive/release.zip)** から最新版のアドオンのzipファイルをダウンロードします。次にBlenderを起動し、メニューの `編集` → `プリファレンス` を選択します。
 
-<img src="../images/installation1.png">
+![](../images/installation1.png)
 
 設定画面が出るので、左メニューの `アドオン` を選択後、右上の `インストール` ボタンを押します。
 
-<img src="../images/installation2.png">
+![](../images/installation2.png)
 
 ファイルを開くウィンドウが表示されるため、先ほどダウンロードしたzipファイルを選択し、 `アドオンをインストール` ボタンを押します。
 
-<img src="../images/installation3.png">
+![](../images/installation3.png)
 
 アドオン一覧表示から `Import-Export: VRM format` を探します。表示項目が多くて探すのが大変な場合は右上に検索ボックスがあるので、そこに `VRM` と入力すると項目の絞り込みができます。
 
-<img src="../images/installation4.png">
+![](../images/installation4.png)
 
 チェックボックスを押すことでアドオンのインストールが完了します。
 
-<img src="../images/installation5.png">
+![](../images/installation5.png)
 
 ## 関連リンク
 

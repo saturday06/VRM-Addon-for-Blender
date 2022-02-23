@@ -3,7 +3,7 @@ title: "VRM Add-on for Blender"
 description: "VRM Add-on for Blender: Home"
 ---
 
-<img src="images/top.png">
+![](images/top.png)
 
 VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.82以降のBlenderに対応しています。
 
@@ -13,7 +13,7 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 
 | [アドオンのインストール]({{< ref "installation" >}}) | [シンプルなVRMモデルを作る]({{< ref "create-simple-vrm-from-scratch" >}}) | [人型のVRMモデルを作る]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 | --- | --- | --- |
-| [<img src="./images/installation.png">]({{< ref "installation" >}}) | [<img src="../../images/simple.gif">]({{< ref "create-simple-vrm-from-scratch" >}}) | [<img src="../../images/humanoid.gif">]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
+| [![](images/installation.png)]({{< ref "installation" >}}) | [![](../../images/simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](../../images/humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 
 ## 概要
 
@@ -28,7 +28,7 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 ## 編集
 
 - VRMエクステンションの編集パネル
-  <img alt="UI Panel" src="images/ui_panel.png">
+  !["UI Panel"](images/ui_panel.png)
 - VRM向けシェーダーノードグループ(※モックアップ程度の出来)
   - GLTF
   - MToon_unversioned
