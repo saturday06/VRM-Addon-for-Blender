@@ -10,6 +10,7 @@ enableRobotsTXT = true
 summaryLength = 0
 
 defaultContentLanguageInSubdir = true
+googleAnalytics = 'G-L4E126M2JR'
 
 [languages]
 
