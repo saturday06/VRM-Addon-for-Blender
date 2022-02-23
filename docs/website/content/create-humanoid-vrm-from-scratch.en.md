@@ -101,6 +101,10 @@ If successful, the VRM file will be saved to the specified location.
 
 <img src="../../images/humanoid.gif">
 
+You can check the operation on this page.
+
+- https://hub.vroid.com/en/characters/4668234592601830916/models/6637924170056429746
+
 ## Links
 
 - [Top]({{< ref "/" >}})

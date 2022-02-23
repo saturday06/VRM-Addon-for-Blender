@@ -23,6 +23,10 @@ If successful, the VRM file will be saved to the specified location.
 
 <img src="../../images/simple.gif">
 
+You can check the operation on this page.
+
+- https://hub.vroid.com/en/characters/2535511199028537879/models/127230567429676411
+
 ## Links
 
 - [Top]({{< ref "/" >}})
