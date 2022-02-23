@@ -2,4 +2,4 @@
 {{ $latest_publish_date_str := os.Getenv "HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE" }}
 {{ $latest_publish_date_str = default "2000-01-01" $latest_publish_date_str }}
 {{ $latest_publish_date := time $latest_publish_date_str }}
-{{ $latest_publish_date.Format "2006年01月01日" }}
+{{ $latest_publish_date.Format "2006年01月02日" }}
