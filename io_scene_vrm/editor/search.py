@@ -1,6 +1,20 @@
-from typing import Dict, List, Optional, Tuple
+from collections import abc
+from typing import Dict, List, Optional, Sequence, Tuple, cast
 
 import bpy
+
+from ..common.preferences import VrmAddonPreferences, get_preferences
+
+
+def object_candidates(context: bpy.types.Context) -> Sequence[bpy.types.Object]:
+    preferences = get_preferences(context)
+    if isinstance(preferences, VrmAddonPreferences) and bool(
+        preferences.export_invisibles
+    ):
+        objects = bpy.data.objects
+    else:
+        objects = context.selectable_objects
+    return cast(abc.Sequence[bpy.types.Object], objects)
 
 
 def shader_nodes_and_materials(
@@ -86,7 +100,7 @@ def object_distance(
 
 def armature_exists(context: bpy.types.Object) -> bool:
     return any(armature.users for armature in bpy.data.armatures) and any(
-        obj.type == "ARMATURE" for obj in context.selectable_objects
+        obj.type == "ARMATURE" for obj in object_candidates(context)
     )
 
 
@@ -100,7 +114,7 @@ def current_armature_is_vrm0(context: bpy.types.Context) -> bool:
         hasattr(armature_data, "vrm_addon_extension")
         and armature_data.vrm_addon_extension.is_vrm0()
         for armature_data in live_armature_datum
-    ):
+    ) and any(obj.type == "ARMATURE" for obj in object_candidates(context)):
         return True
     armature = current_armature(context)
     if armature is None:
@@ -118,7 +132,7 @@ def current_armature_is_vrm1(context: bpy.types.Context) -> bool:
         hasattr(armature_data, "vrm_addon_extension")
         and armature_data.vrm_addon_extension.is_vrm1()
         for armature_data in live_armature_datum
-    ):
+    ) and any(obj.type == "ARMATURE" for obj in object_candidates(context)):
         return True
     armature = current_armature(context)
     if armature is None:
@@ -136,7 +150,7 @@ def multiple_armatures_exist(context: bpy.types.Object) -> bool:
             continue
 
         first_obj_exists = False
-        for obj in context.selectable_objects:
+        for obj in object_candidates(context):
             if obj.type == "ARMATURE":
                 if first_obj_exists:
                     return True
@@ -146,7 +160,7 @@ def multiple_armatures_exist(context: bpy.types.Object) -> bool:
 
 
 def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
-    objects = [obj for obj in context.selectable_objects if obj.type == "ARMATURE"]
+    objects = [obj for obj in object_candidates(context) if obj.type == "ARMATURE"]
     if not objects:
         return None
 
@@ -154,6 +168,8 @@ def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
         return objects[0]
 
     active_object = context.active_object
+    if not active_object:
+        active_object = context.view_layer.objects.active
     if not active_object:
         return objects[0]
 
