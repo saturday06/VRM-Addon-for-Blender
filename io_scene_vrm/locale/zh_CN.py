@@ -122,4 +122,3 @@ translation_dictionary = {
     ("Operator", "VRM Humanoid"): "VRM Humanoid",
     ("Operator", "VRM License Confirmation"): "VRM使用用条件确认",
 }
-
