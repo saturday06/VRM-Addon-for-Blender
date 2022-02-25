@@ -12,7 +12,7 @@ jobs:
       - name: Install deb packages
         run: |
           sudo apt-get update -qq || true
-          sudo apt-get install -y clang-format-12 glslang-tools nkf python3 shellcheck uchardet
+          sudo apt-get install -y clang-format-12 glslang-tools python3 shellcheck uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v2
@@ -50,18 +50,8 @@ jobs:
           git ls-files | while read -r f; do
             encoding=$(file --brief --mime-encoding "$f")
             case "$encoding" in
-              binary)
+              binary | us-ascii | utf-8)
                 file "$f"
-                ;;
-              us-ascii | utf-8)
-                case "$f" in
-                  *.bat)
-                    nkf -w -Lw -Z1 --in-place "$f"
-                    ;;
-                  *)
-                    nkf -w -Lu -Z1 --in-place "$f"
-                    ;;
-                esac
                 ;;
               *)
                 echo "$f is not ascii nor utf-8 but $encoding."
