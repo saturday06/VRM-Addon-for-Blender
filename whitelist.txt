@@ -27,6 +27,7 @@ bpy
 bugyyyyyyyyyyyyyyyyy
 calc
 charnum
+cn
 collidergroup
 colorspace
 compat
@@ -242,6 +243,7 @@ writejsonpath
 xy
 xyz
 xz
+zh
 zup
 zw
 zwrite
