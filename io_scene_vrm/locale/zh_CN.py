@@ -1,5 +1,6 @@
+locale_key = "ja_JP"
+
 translation_dictionary = {
-    "zh_CN": {
     ("*", "Export Invisible Objects"): "导出不可见对象",
     ("*", "Export Only Selections"): "导出仅选中项",
     ("*", "No error. Ready for export VRM"): "无错误可导出",
@@ -121,4 +122,4 @@ translation_dictionary = {
     ("Operator", "VRM Humanoid"): "VRM Humanoid",
     ("Operator", "VRM License Confirmation"): "VRM使用用条件确认",
 }
-}
+
