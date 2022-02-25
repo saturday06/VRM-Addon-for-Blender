@@ -1,4 +1,3 @@
-from collections import abc
 from typing import Dict, List, Optional, Sequence, Tuple, cast
 
 import bpy
@@ -14,7 +13,7 @@ def object_candidates(context: bpy.types.Context) -> Sequence[bpy.types.Object]:
         objects = bpy.data.objects
     else:
         objects = context.selectable_objects
-    return cast(abc.Sequence[bpy.types.Object], objects)
+    return cast(Sequence[bpy.types.Object], objects)
 
 
 def shader_nodes_and_materials(
