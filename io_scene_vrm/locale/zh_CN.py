@@ -1,4 +1,4 @@
-locale_key = "ja_JP"
+locale_key = "zh_CN"
 
 translation_dictionary = {
     ("*", "Export Invisible Objects"): "导出不可见对象",
