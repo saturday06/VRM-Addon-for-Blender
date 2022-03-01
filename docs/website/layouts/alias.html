@@ -7,31 +7,35 @@
   <title>VRM Add-on for Blender</title>
   <meta name="robots" content="noindex">
   <script>
-    function guess_localized_href() {
-      // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
-      if (navigator.languages) {
-        for (const language of navigator.languages) {
-          if (language.startsWith("en")) {
-            return "en/";
-          }
-          if (language.startsWith("ja")) {
-            return "ja/";
+    (function() {
+      const supported_languages = ["en", "ja"];
+
+      function guess_localized_href() {
+        // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
+        if (navigator.languages) {
+          for (const language of navigator.languages) {
+            for (const supported_language of supported_languages) {
+              if (language.startsWith(supported_language)) {
+                return supported_language + "/";
+              }
+            }
           }
         }
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
+        for (const supported_language of supported_languages) {
+          if (navigator.language.startsWith(supported_language)) {
+            return supported_language + "/";
+          }
+        }
+
+        return supported_languages[0] + "/";
       }
 
-      // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
-      if (navigator.language.startsWith("en")) {
-        return "en/";
+      if (["", "/", "/index.html"].indexOf(window.location.pathname) >= 0) {
+        window.location.replace(guess_localized_href());
       }
-      if (navigator.language.startsWith("ja")) {
-        return "ja/";
-      }
-      return "en/";
-    }
-    if (["", "/", "/index.html"].indexOf(window.location.pathname) >= 0) {
-      window.location.href = guess_localized_href();
-    }
+    })();
   </script>
   <link rel="canonical" href="{{ .Permalink }}" />
   <meta http-equiv="refresh" content="0; url={{ .Permalink }}" />
