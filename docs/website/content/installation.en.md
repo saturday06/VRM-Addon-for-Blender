@@ -1,6 +1,6 @@
 ---
 title: "Installation"
-description: "VRM Add-on for Blender: Installation"
+images: ["en/images/installation.png"]
 ---
 
 Download latest add-on zip file from **[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM_Addon_for_Blender/archive/release.zip)**

@@ -1,6 +1,7 @@
 ---
 title: "VRM Add-on for Blender"
-description: "VRM Add-on for Blender: Home"
+description: "VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender."
+images: ["en/images/top.png"]
 ---
 
 <img src="images/top.png">
