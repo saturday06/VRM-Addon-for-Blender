@@ -36,12 +36,19 @@ jobs:
               exit 1
             fi
           done
-      - name: Check file name character encoding
+      - name: Check file name characters
         run: |
           git ls-files | while read -r f; do
             encoding=$(echo "$f" | uchardet)
             if [ "$encoding" != "ASCII" ]; then
               echo "$f is not ascii file name but $encoding."
+              exit 1
+            fi
+          done
+
+          git ls-files "*.py" | while read -r f; do
+            if [ "$f" != "$(echo "$f" | LC_ALL=C tr "[:upper:]" "[:lower:]")" ]; then
+              echo "$f contains uppercase character"
               exit 1
             fi
           done
