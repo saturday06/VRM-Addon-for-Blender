@@ -593,6 +593,9 @@ class Vrm1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     node: bpy.props.PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
     shape: bpy.props.PointerProperty(type=Vrm1ColliderShapePropertyGroup)  # type: ignore[valid-type]
 
+    # for UI
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
     # for View3D
     blender_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
