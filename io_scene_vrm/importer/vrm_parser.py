@@ -331,7 +331,7 @@ def remove_unsafe_path_chars(filename: str) -> str:
         124: "|",
     }  # 32:space #33:!
     remove_table = str.maketrans(
-        "".join([chr(charnum) for charnum in unsafe_chars]),
+        "".join([chr(unsafe_char) for unsafe_char in unsafe_chars]),
         "".join(repeat("_", len(unsafe_chars))),
     )
     safe_filename = filename.translate(remove_table)
@@ -380,7 +380,7 @@ class VrmParser:
     json_dict: Dict[str, Any] = field(init=False, default_factory=dict)
 
     def parse(self) -> ParseResult:
-        # datachunkは普通一つしかない
+        # bin chunkは一つだけであることを期待
         with open(self.filepath, "rb") as f:
             json_dict, body_binary = parse_glb(f.read())
             self.json_dict = json_dict

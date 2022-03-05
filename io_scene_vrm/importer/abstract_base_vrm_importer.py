@@ -1212,7 +1212,7 @@ class AbstractBaseVrmImporter(ABC):
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
 
-    def blendfy(self) -> None:
+    def blend_setup(self) -> None:
         armature = self.armature
         if armature is None:
             raise Exception("armature is None")

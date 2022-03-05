@@ -69,6 +69,8 @@ jobs:
           git diff --exit-code
       - name: Check whitelist.txt contents
         run: |
+          LC_ALL=C tr '[:upper:]' '[:lower:]' < whitelist.txt | diff -u whitelist.txt -
+
           result=0
           for word in $(cat whitelist.txt); do
             if ! git grep -i "$word" "*.py" > /dev/null; then

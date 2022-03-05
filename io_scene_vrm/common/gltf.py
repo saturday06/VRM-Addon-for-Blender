@@ -57,7 +57,7 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
             body = chunk_data
             continue
         if chunk_type == "JSON":
-            json_str = chunk_data.decode("utf-8")  # blenderのpythonverが古く自前decode要す
+            json_str = chunk_data.decode("utf-8")  # blenderのpythonが古く自前decode要す
             continue
 
         raise Exception(f"unknown chunk_type: {chunk_type}")

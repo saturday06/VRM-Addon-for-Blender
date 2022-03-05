@@ -474,7 +474,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             transparent_method: str = "OPAQUE",
             transparency_cutoff: Optional[float] = 0.5,
             unlit: Optional[bool] = None,
-            doublesided: bool = False,
+            double_sided: bool = False,
             texture_transform: Optional[LegacyVrmExporter.KhrTextureTransform] = None,
         ) -> Dict[str, Any]:
             """transparent_method = {"OPAQUE","MASK","BLEND"}"""
@@ -552,7 +552,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 )
             if unlit:
                 fallback_dic["extensions"] = {"KHR_materials_unlit": {}}
-            fallback_dic["doubleSided"] = doublesided
+            fallback_dic["doubleSided"] = double_sided
             return fallback_dic
 
         # region util func
@@ -848,7 +848,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 emissive_texture=emissive_texture,
                 transparent_method=transparent_method,
                 transparency_cutoff=transparency_cutoff,
-                doublesided=not b_mat.use_backface_culling,
+                double_sided=not b_mat.use_backface_culling,
                 texture_transform=main_texture_transform,
             )
             vrm_version = self.vrm_version
@@ -859,15 +859,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 mtoon_ext_dic["properties"] = {}
                 mt_prop = mtoon_ext_dic["properties"]
                 mt_prop["version"] = "3.2"
-                blendmode = mtoon_float_dic.get("_BlendMode")
-                if blendmode == 0:
-                    blendmode_str = "opaque"
-                elif blendmode == 1:
-                    blendmode_str = "cutout"
+                blend_mode = mtoon_float_dic.get("_BlendMode")
+                if blend_mode == 0:
+                    blend_mode_str = "opaque"
+                elif blend_mode == 1:
+                    blend_mode_str = "cutout"
                 else:
-                    blendmode_str = "transparent"
+                    blend_mode_str = "transparent"
                 # TODO transparentWithZWrite
-                mt_prop["renderMode"] = blendmode_str
+                mt_prop["renderMode"] = blend_mode_str
 
                 mt_prop["cullMode"] = (
                     # mtoon_float_dic.get("_CullMode") == "back"
@@ -1006,7 +1006,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 transparent_method=transparent_method,
                 transparency_cutoff=transparency_cutoff,
                 unlit=unlit,
-                doublesided=not b_mat.use_backface_culling,
+                double_sided=not b_mat.use_backface_culling,
             )
 
             def pbr_tex_add(texture_type: str, socket_name: str) -> None:
