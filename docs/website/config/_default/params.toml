@@ -12,7 +12,6 @@ showAppearanceSwitcher = true
 copyright = "&copy; 2022 saturday06"
 
 logo = "images/logo.png" # https://openclipart.org/detail/277988/gear-icons
-description = "VRM Add-on for Blender"
 mainSections = ["section1", "section2"]
 # robots = ""
 
