@@ -43,6 +43,7 @@ module = [
     "mathutils",
     "__main__.io_scene_vrm",
     "__main__.io_scene_vrm.exporter.gltf2_addon_exporter_user_extension",
+    "__main__.io_scene_vrm.importer.gltf2_addon_importer_user_extension",
 ]
 ignore_missing_imports = true
 

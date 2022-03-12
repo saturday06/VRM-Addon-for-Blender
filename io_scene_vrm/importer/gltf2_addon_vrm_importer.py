@@ -2,10 +2,7 @@ import base64
 import contextlib
 import math
 import os.path
-import re
-import secrets
 import shutil
-import string
 import struct
 import tempfile
 import traceback
@@ -17,6 +14,7 @@ import mathutils
 from ..common import gltf
 from ..common.char import INTERNAL_NAME_PREFIX
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
+from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
 
@@ -35,9 +33,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         super().__init__(
             context, parse_result, extract_textures_into_folder, make_new_texture_folder
         )
-        self.import_id = "BlenderVrmAddonImport" + (
-            "".join(secrets.choice(string.digits) for _ in range(10))
-        )
+        self.import_id = Gltf2AddonImporterUserExtension.update_current_import_id()
         self.temp_object_name_count = 0
 
     def import_vrm(self) -> None:
@@ -530,37 +526,26 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.gltf_materials[material_index] = material
 
         for image in list(bpy.data.images):
-            # TODO: Blender 3.1以降はUserExtensionを利用するべき
-            # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v3.1-release/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L97
-            image_name_prefix = "Image_"
-            if image.name.startswith(legacy_image_name_prefix):
-                image_index = int(
-                    "".join(image.name.split(legacy_image_name_prefix)[1:]).split(
-                        "_", maxsplit=1
-                    )[0]
-                )
-            elif bpy.app.version >= (3, 1, 0) and image.name.startswith(
-                image_name_prefix
+            image_index = image.get(self.import_id)
+            if not isinstance(image_index, int) and image.name.startswith(
+                legacy_image_name_prefix
             ):
-                image_index_with_suffix_str = image.name.split(
-                    image_name_prefix, maxsplit=1
-                )[1]
-                # Image_1.001 などと命名される場合の .001 を消す
-                match = re.match(r"^\d+", image_index_with_suffix_str)
-                if match is None:
-                    continue
-                image_index_str = match.group(0)
-                try:
+                image_index_str = "".join(
+                    image.name.split(legacy_image_name_prefix)[1:]
+                ).split("_", maxsplit=1)[0]
+                with contextlib.suppress(ValueError):
                     image_index = int(image_index_str)
-                except ValueError:
-                    continue
-            else:
+            if not isinstance(image_index, int):
                 continue
             if 0 <= image_index < len(json_dict["images"]):
                 # image.nameはインポート時に勝手に縮められてしまうことがあるので、jsonの値から復元する
                 indexed_image_name = json_dict["images"][image_index].get("name")
+                if isinstance(
+                    indexed_image_name, str
+                ) and indexed_image_name.startswith(legacy_image_name_prefix):
+                    indexed_image_name = "_".join(indexed_image_name.split("_")[1:])
                 if indexed_image_name:
-                    image.name = "_".join(indexed_image_name.split("_")[1:])
+                    image.name = indexed_image_name
                 else:
                     image.name = f"Image{image_index}"
             else:

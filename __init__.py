@@ -61,6 +61,26 @@ def unregister() -> None:
     registration.unregister()
 
 
+class glTF2ImportUserExtension:  # noqa: N801, SC200
+    def __init__(self) -> None:
+        # Lazy import to minimize initialization before blender version checking and reload_package().
+        # 'import io_scene_vrm' causes an error in blender and vscode mypy integration.
+        # pylint: disable=import-self,no-name-in-module
+        from .io_scene_vrm.importer.gltf2_addon_importer_user_extension import (
+            Gltf2AddonImporterUserExtension,
+        )
+
+        self.user_extension = Gltf2AddonImporterUserExtension()
+
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L51
+    def gather_import_image_after_hook(
+        self, img: object, blender_image: object, gltf_importer: object
+    ) -> None:
+        self.user_extension.gather_import_image_after_hook(
+            img, blender_image, gltf_importer
+        )
+
+
 class glTF2ExportUserExtension:  # noqa: N801, SC200
     def __init__(self) -> None:
         # Lazy import to minimize initialization before blender version checking and reload_package().
@@ -71,13 +91,6 @@ class glTF2ExportUserExtension:  # noqa: N801, SC200
         )
 
         self.user_extension = Gltf2AddonExporterUserExtension()
-
-    def gather_skin_hook(
-        self, gltf2_object: object, blender_object: object, export_settings: object
-    ) -> None:
-        self.user_extension.gather_skin_hook(
-            gltf2_object, blender_object, export_settings
-        )
 
 
 if __name__ == "__main__":
