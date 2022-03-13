@@ -13,7 +13,7 @@ import tempfile
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from itertools import repeat
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import bgl
 import bpy
@@ -355,15 +355,18 @@ def decode_bin(json_dict: Dict[str, Any], binary: bytes) -> List[Any]:
             decoded_binary.append([])
             continue
         br.set_pos(buffer_views[accessor["bufferView"]]["byteOffset"])
-        data_list = []
+        data_list: List[Union[int, float, List[int], List[float]]] = []
         for _ in range(accessor["count"]):
             if type_num == 1:
-                data = br.read_as_data_type(accessor["componentType"])
+                single_data = br.read_as_data_type(accessor["componentType"])
+                data_list.append(single_data)
             else:
-                data = []  # type: ignore[assignment]
+                multiple_data = []
                 for _ in range(type_num):
-                    data.append(br.read_as_data_type(accessor["componentType"]))  # type: ignore[union-attr]
-            data_list.append(data)
+                    multiple_data.append(
+                        br.read_as_data_type(accessor["componentType"])
+                    )
+                data_list.append(multiple_data)
         decoded_binary.append(data_list)
 
     return decoded_binary
