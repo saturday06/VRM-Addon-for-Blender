@@ -29,7 +29,12 @@ class IcypTemplateMeshMaker:
         self.make_mesh_obj("Body", self.make_humanoid)
 
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
-        return self.args.armature_obj.data.bones[self.args.armature_obj.data[bone]]
+        tmpdic = {v.bone: i for i, v in enumerate(
+            self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones)
+            }
+        return self.args.armature_obj.data.bones.get(
+            self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones[tmpdic[bone]].node.value,
+            None)
 
     # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod
@@ -115,9 +120,7 @@ class IcypTemplateMeshMaker:
         left_arm_bones = [
             self.get_humanoid_bone(v)
             for v in HumanBones.left_arm_req + HumanBones.left_arm_def
-            if v in args.armature_obj.data
-            and args.armature_obj.data[v] != ""
-            and args.armature_obj.data[v] in args.armature_obj.data.bones
+            if self.get_humanoid_bone(v) is not None
         ]
         left_hand_bone = self.get_humanoid_bone("leftHand")
         for b in left_arm_bones:
@@ -140,9 +143,7 @@ class IcypTemplateMeshMaker:
         left_leg_bones = [
             self.get_humanoid_bone(v)
             for v in HumanBones.left_leg_req + HumanBones.left_leg_def
-            if v in args.armature_obj.data
-            and args.armature_obj.data[v] != ""
-            and args.armature_obj.data[v] in args.armature_obj.data.bones
+            if self.get_humanoid_bone(v) is not None
         ]
         for b in left_leg_bones:
             bone_name = ""
