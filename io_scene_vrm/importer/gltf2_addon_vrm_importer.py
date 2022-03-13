@@ -93,7 +93,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if not isinstance(image, dict):
                     continue
                 if not isinstance(image.get("name"), str) or not image["name"]:
-                    image["name"] = f"Image{image_index}"
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
+                    image["name"] = f"Image_{image_index}"
                 image["name"] = (
                     legacy_image_name_prefix + str(image_index) + "_" + image["name"]
                 )
@@ -547,7 +548,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if indexed_image_name:
                     image.name = indexed_image_name
                 else:
-                    image.name = f"Image{image_index}"
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
+                    image.name = f"Image_{image_index}"
             else:
                 image.name = "_".join(image.name.split("_")[1:])
 
