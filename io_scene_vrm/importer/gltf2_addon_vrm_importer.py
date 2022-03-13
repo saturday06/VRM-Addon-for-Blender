@@ -553,17 +553,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             else:
                 image.name = "_".join(image.name.split("_")[1:])
 
-            image.unpack(method="WRITE_ORIGINAL")
-            image_path = os.path.join(
-                os.path.dirname(image.filepath_from_user()),
-                remove_unsafe_path_chars(image.name)
-                + os.path.splitext(bpy.path.basename(image.filepath_from_user()))[1],
-            )
-            with contextlib.suppress(IOError, shutil.SameFileError):
-                shutil.copyfile(image.filepath_from_user(), image_path)
-                image.filepath = image_path
-                image.reload()
-                image.pack()
             self.images[image_index] = image
 
         if bpy.context.object is not None and bpy.context.object.mode == "EDIT":
