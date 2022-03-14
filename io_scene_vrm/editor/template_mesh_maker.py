@@ -29,12 +29,18 @@ class IcypTemplateMeshMaker:
         self.make_mesh_obj("Body", self.make_humanoid)
 
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
-        tmpdic = {v.bone: i for i, v in enumerate(
-            self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones)
-            }
+        tmpdic = {
+            v.bone: i
+            for i, v in enumerate(
+                self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones
+            )
+        }
         return self.args.armature_obj.data.bones.get(
-            self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones[tmpdic[bone]].node.value,
-            None)
+            self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones[
+                tmpdic[bone]
+            ].node.value,
+            None,
+        )
 
     # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod
