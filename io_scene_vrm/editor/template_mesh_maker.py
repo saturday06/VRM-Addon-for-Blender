@@ -29,7 +29,7 @@ class IcypTemplateMeshMaker:
         self.make_mesh_obj("Body", self.make_humanoid)
 
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
-        tmpdic = {
+        tmp_dic = {
             v.bone: i
             for i, v in enumerate(
                 self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones
@@ -37,7 +37,7 @@ class IcypTemplateMeshMaker:
         }
         return self.args.armature_obj.data.bones.get(
             self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones[
-                tmpdic[bone]
+                tmp_dic[bone]
             ].node.value,
             None,
         )
