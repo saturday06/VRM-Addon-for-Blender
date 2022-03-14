@@ -27,7 +27,7 @@ def test() -> None:
         "vrm",
     )
     major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
-    vrm = "basic_armature.vrm"
+    vrm = "template_mesh.vrm"
     expected_path = os.path.join(vrm_dir, "in", vrm)
     temp_dir_path = os.path.join(vrm_dir, major_minor, "temp")
     os.makedirs(temp_dir_path, exist_ok=True)
@@ -37,7 +37,7 @@ def test() -> None:
     while bpy.data.collections:
         bpy.data.collections.remove(bpy.data.collections[0])
 
-    bpy.ops.icyp.make_basic_armature()
+    bpy.ops.icyp.make_basic_armature(WIP_with_template_mesh=True)
     bpy.ops.vrm.model_validate()
 
     actual_path = os.path.join(temp_dir_path, vrm)
