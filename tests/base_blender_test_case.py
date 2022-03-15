@@ -28,7 +28,7 @@ class BaseBlenderTestCase(TestCase):
         if self.windows:
             import _winapi
 
-            _winapi.CreateJunction(self.repository_root_dir, addon_dir)
+            _winapi.CreateJunction(self.repository_root_dir, addon_dir)  # type: ignore[attr-defined]
         else:
             os.symlink(self.repository_root_dir, addon_dir)
 
