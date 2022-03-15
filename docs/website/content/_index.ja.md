@@ -6,6 +6,8 @@ images: ["ja/images/top.png"]
 
 ![](images/top.png)
 
+**2022年3月13日更新: 現在Blender 3.1.0でVRMエクスポート時にクラッシュする不具合が発生しています。<a href="https://developer.blender.org/T96294">Blender 3.1.1で修正される</a>ため、それまでBlender 3.0.1かそれ以下のバージョンのBlenderをご利用ください。**
+
 VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.82以降のBlenderに対応しています。
 
 **[最新版のダウンロード {{< release_ja >}}](https://github.com/saturday06/VRM_Addon_for_Blender/archive/release.zip)**<small> / [過去のバージョン一覧](https://github.com/saturday06/VRM_Addon_for_Blender/releases)</small>
