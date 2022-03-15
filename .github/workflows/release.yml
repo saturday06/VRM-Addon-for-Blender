@@ -1,0 +1,19 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'tag'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:3.15
+    steps:
+      - name: OK
+        run: |
+          echo OK
