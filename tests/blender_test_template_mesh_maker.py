@@ -22,7 +22,7 @@ def test() -> None:
     )
     major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
     vrm = "template_mesh.vrm"
-    expected_path = os.path.join(vrm_dir, "in", vrm)
+    expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
     temp_dir_path = os.path.join(vrm_dir, major_minor, "temp")
     os.makedirs(temp_dir_path, exist_ok=True)
 
