@@ -2,16 +2,10 @@ import json
 import platform
 import sys
 import tempfile
-from os.path import dirname
 
 import bpy
 
-sys.path.insert(0, dirname(dirname(__file__)))
-
-# pylint: disable=wrong-import-position;
-from io_scene_vrm.common import deep  # noqa: E402
-
-# pylint: enable=wrong-import-position;
+from io_scene_vrm.common import deep
 
 
 def test() -> None:

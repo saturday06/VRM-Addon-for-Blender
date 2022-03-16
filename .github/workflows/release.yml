@@ -32,8 +32,8 @@ jobs:
           for postfix in release "$tag_name"; do
             work_dir=$(mktemp -d)
             base="${prefix_name}-${postfix}"
-            mkdir "${work_dir}/${base}"
-            cp -fr *.py LICENSE* io_scene_vrm "${work_dir}/${base}/"
+            cp -r io_scene_vrm "${work_dir}/${base}"
+            cp -r LICENSE* "${work_dir}/${base}/"
             (
               cd "$work_dir"
               advzip --add --shrink-insane --iter 20 "${prefix_name}-${postfix}.zip" "${base}"

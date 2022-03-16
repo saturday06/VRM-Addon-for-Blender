@@ -7,12 +7,7 @@ from typing import List, Optional
 
 import bpy
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-# pylint: disable=wrong-import-position;
-from io_scene_vrm.importer.vrm_diff import vrm_diff  # noqa: E402
-
-# pylint: enable=wrong-import-position;
+from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 vrm_dir = os.path.join(

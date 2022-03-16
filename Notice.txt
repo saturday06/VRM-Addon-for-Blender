@@ -1,0 +1,5 @@
+The download location for VRM Add-on for Blender has changed. The add-on can be downloaded from
+the "Download Add-on" image link found at https://github.com/saturday06/VRM_Addon_for_Blender .
+
+VRM Add-on for Blenderのダウンロード場所は変更されました。https://github.com/saturday06/VRM_Addon_for_Blender
+に記載の「Download Add-on」画像リンクからダウンロードしてください。

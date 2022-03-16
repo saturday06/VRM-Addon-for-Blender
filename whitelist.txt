@@ -117,6 +117,7 @@ otogai
 ou
 out2
 parameteri
+pathsep
 pbr
 pbrmat
 pgettext
@@ -130,6 +131,7 @@ pylint
 pymat
 pymesh
 pyright
+pythonpath
 quaternion
 raytrace
 rbd
@@ -210,7 +212,6 @@ vrmc
 vroid
 vroid064
 vroid2vrc
-vscode
 vtype
 w0201
 winapi

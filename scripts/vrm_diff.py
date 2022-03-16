@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
-from os.path import dirname
 from pathlib import Path
 
-sys.path.insert(0, dirname(dirname(__file__)))
-
-# pylint: disable=wrong-import-position;
-from io_scene_vrm.importer.vrm_diff import vrm_diff  # noqa: E402
-
-# pylint: enable=wrong-import-position;
-
+from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 if __name__ == "__main__":
     float_tolerance = sys.float_info.epsilon

@@ -1,16 +1,9 @@
-import sys
-from os.path import dirname
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import bpy
 
-sys.path.insert(0, dirname(dirname(__file__)))
-
-# pylint: disable=wrong-import-position;
-from io_scene_vrm.common.human_bone import HumanBone, HumanBones  # noqa: E402
-from io_scene_vrm.editor.property_group import BonePropertyGroup  # noqa: E402
-
-# pylint: enable=wrong-import-position;
+from io_scene_vrm.common.human_bone import HumanBone, HumanBones
+from io_scene_vrm.editor.property_group import BonePropertyGroup
 
 
 def assert_bone_candidates(
@@ -54,7 +47,7 @@ def test() -> None:
 
     for props in BonePropertyGroup.get_all_bone_property_groups(armature):
         assert (props.__class__.__module__ + "." + props.__class__.__name__).endswith(
-            ".io_scene_vrm.editor.property_group.BonePropertyGroup"
+            ".editor.property_group.BonePropertyGroup"
         )
 
     assert_bone_candidates(armature, HumanBones.HIPS, {}, set(), {})

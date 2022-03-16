@@ -8,16 +8,9 @@ https://opensource.org/licenses/mit-license.php
 
 import json
 import os
-import sys
-from os.path import dirname
 from tkinter import filedialog, messagebox
 
-sys.path.insert(0, dirname(dirname(__file__)))
-
-# pylint: disable=wrong-import-position;
-from io_scene_vrm.common import gltf  # noqa: E402
-
-# pylint: enable=wrong-import-position;
+from io_scene_vrm.common import gltf
 
 
 def exist_or_makedir(path: str) -> str:

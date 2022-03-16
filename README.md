@@ -10,7 +10,7 @@ BlenderにVRM関連機能を追加するアドオンです。<strong>2021年2月
 VRM Add-on for Blender is an add-on that adds VRM-related functions to Blender.
 <strong>Please note that the add-on name (ex-VRM_IMPORTER_for_Blender) and its installation method have changed since the release on February 7, 2021. Please remove the old add-on when updating.</strong>
 
-<a alt="Download add-on for Blender 2.82+" href="https://github.com/saturday06/VRM_Addon_for_Blender/archive/release.zip"><img src="./docs/download_button.png"></a>
+<a alt="Download add-on for Blender 2.82+" href="https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip"><img src="./docs/download_button.png"></a>
 
 # Installation / インストール方法
 

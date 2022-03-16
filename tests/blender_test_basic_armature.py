@@ -3,16 +3,10 @@ import pathlib
 import platform
 import shutil
 import sys
-from os.path import dirname
 
 import bpy
 
-sys.path.insert(0, dirname(dirname(__file__)))
-
-# pylint: disable=wrong-import-position;
-from io_scene_vrm.importer.vrm_diff import vrm_diff  # noqa: E402
-
-# pylint: enable=wrong-import-position;
+from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 
 def test() -> None:

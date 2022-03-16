@@ -13,3 +13,6 @@
 go.mod text eol=lf
 go.sum text eol=lf
 poetry.lock text eol=lf
+
+* export-ignore
+/Notice.txt -export-ignore

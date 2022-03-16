@@ -20,17 +20,17 @@ class BaseBlenderTestCase(TestCase):
         self.repository_root_dir = os.path.dirname(
             os.path.dirname(os.path.realpath(__file__))
         )
+        repository_addon_dir = os.path.join(self.repository_root_dir, "io_scene_vrm")
         self.user_scripts_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(self.user_scripts_dir, "addons"))
-        addon_dir = os.path.join(
-            self.user_scripts_dir, "addons", "io_scene_vrm_saturday06"
-        )
+        self.addons_pythonpath = os.path.join(self.user_scripts_dir, "addons")
+        addon_dir = os.path.join(self.addons_pythonpath, "io_scene_vrm")
         if self.windows:
             import _winapi
 
-            _winapi.CreateJunction(self.repository_root_dir, addon_dir)  # type: ignore[attr-defined]
+            _winapi.CreateJunction(repository_addon_dir, addon_dir)  # type: ignore[attr-defined]
         else:
-            os.symlink(self.repository_root_dir, addon_dir)
+            os.symlink(repository_addon_dir, addon_dir)
 
         command = [self.find_blender_command(), "--version"]
         completed_process = subprocess.run(
@@ -111,13 +111,18 @@ class BaseBlenderTestCase(TestCase):
         env["BLENDER_USER_SCRIPTS"] = self.user_scripts_dir
         env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
         env["BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION"] = self.major_minor
+        pythonpath = env.get("PYTHONPATH", "")
+        if pythonpath:
+            pythonpath += os.pathsep
+        pythonpath += self.addons_pythonpath
+        env["PYTHONPATH"] = pythonpath
 
         command = [
             self.find_blender_command(),
             "-noaudio",  # sound system to None (less output on stdout)
             "--factory-startup",  # factory settings
             "--addons",
-            "io_scene_vrm_saturday06",  # enable the addon
+            "io_scene_vrm",  # enable the addon
             "--python-exit-code",
             "1",
             "--background",

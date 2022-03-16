@@ -19,6 +19,7 @@
 !/.github/*.yml
 !/LICENSE
 !/LICENSE.MToon
+!/Notice.txt
 !/poetry.lock
 !/pyproject.toml
 !/scripts/*.bat

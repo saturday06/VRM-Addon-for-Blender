@@ -28,8 +28,6 @@ target-version = ['py37']
 [tool.mypy]
 python_version = 3.7
 strict = true
-namespace_packages = true
-explicit_package_bases = true
 
 [[tool.mypy.overrides]]
 module = [
@@ -41,9 +39,6 @@ module = [
     "gpu_extras.*",
     "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials",
     "mathutils",
-    "__main__.io_scene_vrm",
-    "__main__.io_scene_vrm.exporter.gltf2_addon_exporter_user_extension",
-    "__main__.io_scene_vrm.importer.gltf2_addon_importer_user_extension",
 ]
 ignore_missing_imports = true
 

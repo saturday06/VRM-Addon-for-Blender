@@ -10,7 +10,7 @@ images: ["en/images/top.png"]
 
 VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender version 2.82 or later.
 
-**[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM_Addon_for_Blender/archive/release.zip)**<small> / [Past Releases](https://github.com/saturday06/VRM_Addon_for_Blender/releases)</small>
+**[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**<small> / [Past Releases](https://github.com/saturday06/VRM_Addon_for_Blender/releases)</small>
 
 ## Tutorials
 

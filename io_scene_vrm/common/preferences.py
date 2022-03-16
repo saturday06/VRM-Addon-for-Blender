@@ -2,7 +2,7 @@ from typing import Optional
 
 import bpy
 
-addon_package_name_temp = ".".join(__name__.split(".")[:-3])
+addon_package_name_temp = ".".join(__name__.split(".")[:-2])
 if not addon_package_name_temp:
     addon_package_name_temp = "VRM_Addon_for_Blender_fallback_key"
     print(f"VRM Add-on: Failed to detect add-on package name from __name__={__name__}")
