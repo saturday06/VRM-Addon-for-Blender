@@ -55,4 +55,4 @@ jobs:
           git config --global user.name "Isamu Mogi (BOT)"
           git commit -m "(BOT) Update"
           git push origin gh-pages
-        if: "github.ref == 'refs/heads/release' || github.ref == 'refs/heads/website'"
+        if: "github.ref == 'refs/heads/main' || github.ref == 'refs/heads/website'"
