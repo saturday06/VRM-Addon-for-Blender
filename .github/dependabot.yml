@@ -3,12 +3,10 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/"
-    target-branch: "next"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "gomod"
     directory: "/docs/website"
-    target-branch: "next"
     schedule:
       interval: "weekly"
