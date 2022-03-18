@@ -76,15 +76,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         armature: Optional[bpy.types.Object] = None
         node_names = []
 
-        if bpy.app.version == (3, 1, 0):
-            messages.append(
-                pgettext(
-                    "VRM Export is unavailable in your Blender 3.1.0 due to its fatal bug."
-                    + " Please use another version."
-                    + " For more information: https://developer.blender.org/T96294"
-                )
-            )
-
         # region export object seeking
         export_invisibles = False
         export_only_selections = False

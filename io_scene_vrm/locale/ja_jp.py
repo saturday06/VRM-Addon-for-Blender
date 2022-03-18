@@ -118,14 +118,6 @@ translation_dictionary = {
     ("*", "Current Pose"): "現在のポーズ",
     ("*", "Save Bone Mappings"): "ボーンの対応を保存",
     ("*", "Load Bone Mappings"): "ボーンの対応を読み込み",
-    (
-        "*",
-        "VRM Export is unavailable in your Blender 3.1.0 due to its fatal bug."
-        + " Please use another version."
-        + " For more information: https://developer.blender.org/T96294",
-    ): "Blender 3.1.0のバグの影響でVRMエクスポート機能は利用できません。"
-    + "別のバージョンのBlenderをご利用ください。"
-    + "詳細: https://developer.blender.org/T96294",
     ("Operator", "Preview MToon"): "MToonのプレビュー",
     ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
     ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",
