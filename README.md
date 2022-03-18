@@ -30,11 +30,11 @@ The `io_scene_vrm` folder is the main body of the Blender add-on. For efficient 
 
 ```
 # Linux
-ln -s "$PWD/io_scene_vrm" "$HOME/.config/blender/$BLENDER_VERSION/scripts/addons/VRM_Addon_for_BLender-repo"
+ln -s "$PWD/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/VRM_Addon_for_BLender-repo"
 # macOS
-ln -s "$PWD/io_scene_vrm" "$HOME/Library/Application Support/Blender/$BLENDER_VERSION/scripts/addons/VRM_Addon_for_BLender-repo"
+ln -s "$PWD/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/VRM_Addon_for_BLender-repo"
 # Windows
-mklink /j "%APPDATA%\Blender Foundation\%BLENDER_VERSION%\scripts\addons\VRM_Addon_for_Blender-repo" io_scene_vrm
+mklink /j "%APPDATA%\Blender Foundation\BLENDER_VERSION\scripts\addons\VRM_Addon_for_Blender-repo" io_scene_vrm
 ```
 
 テストの実行などより高度な開発をする場合はPoetry https://python-poetry.org/ をご利用ください。
