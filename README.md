@@ -22,6 +22,25 @@ VRM Add-on for Blender is an add-on that adds VRM-related functions to Blender.
 | :---: | :---: |
 | [![](./docs/website/static/images/simple.gif)](https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection) | [![](./docs/website/static/images/humanoid.gif)](https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection) |
 
+# Development / 開発するには
+
+`io_scene_vrm` フォルダがBlenderアドオンの本体になります。そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
+
+The `io_scene_vrm` folder is the main body of the Blender add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
+
+```
+# Linux
+ln -s "$PWD/io_scene_vrm" "$HOME/.config/blender/$BLENDER_VERSION/scripts/addons/VRM_Addon_for_BLender-repo"
+# macOS
+ln -s "$PWD/io_scene_vrm" "$HOME/Library/Application Support/Blender/$BLENDER_VERSION/scripts/addons/VRM_Addon_for_BLender-repo"
+# Windows
+mklink /j "%APPDATA%\Blender Foundation\%BLENDER_VERSION%\scripts\addons\VRM_Addon_for_Blender-repo" io_scene_vrm
+```
+
+テストの実行などより高度な開発をする場合はPoetry https://python-poetry.org/ をご利用ください。
+
+For more advanced development, such as running tests, please use Poetry https://python-poetry.org/ .
+
 # Documentation / ドキュメント
 
 [https://vrm-addon-for-blender.info](https://vrm-addon-for-blender.info)
