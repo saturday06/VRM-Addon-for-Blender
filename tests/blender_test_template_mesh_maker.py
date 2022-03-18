@@ -37,7 +37,7 @@ def test() -> None:
     actual_size = os.path.getsize(actual_path)
     expected_size = os.path.getsize(expected_path)
     assert (
-        abs(actual_size - expected_size) < 500
+        abs(actual_size - expected_size) < expected_size / 8
     ), f"actual:{actual_size} != expected:{expected_size}"
 
 
