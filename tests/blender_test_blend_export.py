@@ -59,7 +59,7 @@ def test() -> None:
 
     system = platform.system()
     if system in ["Darwin", "Linux"]:
-        float_tolerance = 0.00003
+        float_tolerance = 0.00004
     else:
         float_tolerance = 0.00001
 

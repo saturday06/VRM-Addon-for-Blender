@@ -1515,9 +1515,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             bm_temp.to_mesh(mesh_data)
             bm_temp.free()
 
-            if mesh_data.has_custom_normals:
-                mesh_data.calc_loop_triangles()
-                mesh_data.calc_normals_split()
+            mesh_data.calc_loop_triangles()
+            mesh_data.calc_normals_split()
 
             bm = bmesh.new()
             bm.from_mesh(mesh_data)
@@ -1605,22 +1604,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
                         uv_list += [loop[uv_layer].uv[0], loop[uv_layer].uv[1]]
 
-                    vert_normal = [0, 0, 0]
-                    if mesh_data.has_custom_normals:
-                        tri = mesh_data.loop_triangles[face.index]
-                        vid = -1
-                        for i, _vid in enumerate(tri.vertices):
-                            if _vid == loop.vert.index:
-                                vid = i
-                        if vid == -1:
-                            print("something wrong in custom normal export")
-                        vert_normal = tri.split_normals[vid]
-                    else:
-                        if face.smooth:
-                            vert_normal = loop.vert.normal
-                        else:
-                            vert_normal = face.normal
-
+                    # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると思うが、
+                    # glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
+                    vert_normal = mesh_data.loops[loop.index].normal
                     vertex_key = (*uv_list, *vert_normal, loop.vert.index)
                     cached_vert_id = unique_vertex_dic.get(
                         vertex_key
