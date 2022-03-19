@@ -119,6 +119,8 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
 
         def material_init(mat: bpy.types.Material) -> None:
             mat.use_nodes = True
+            if not self.material.node_tree:
+                return
             for node in mat.node_tree.nodes:
                 if node.bl_idname != "ShaderNodeOutputMaterial":
                     mat.node_tree.nodes.remove(node)
@@ -135,10 +137,11 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
         b_mat = bpy.data.materials.new(f"{armature.name}_mesh_mat")
         material_init(b_mat)
         sg = node_group_create(b_mat, shader_node_group_name)
-        b_mat.node_tree.links.new(
-            self.find_material_output_node(b_mat).inputs["Surface"],
-            sg.outputs["Emission"],
-        )
+        if self.material.node_tree:
+            b_mat.node_tree.links.new(
+                self.find_material_output_node(b_mat).inputs["Surface"],
+                sg.outputs["Emission"],
+            )
         obj.data.materials.append(b_mat)
 
         bpy.ops.object.mode_set(mode="OBJECT")

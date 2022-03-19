@@ -162,9 +162,10 @@ class AbstractBaseVrmImporter(ABC):
     # region material
     @staticmethod
     def find_material_output_node(material: bpy.types.Material) -> bpy.types.ShaderNode:
-        for node in material.node_tree.nodes:
-            if node.bl_idname == "ShaderNodeOutputMaterial":
-                return node
+        if material.node_tree:
+            for node in material.node_tree.nodes:
+                if node.bl_idname == "ShaderNodeOutputMaterial":
+                    return node
         raise Exception(f'No "ShaderNodeOutputMaterial" node in {material}')
 
     def make_material(self) -> None:

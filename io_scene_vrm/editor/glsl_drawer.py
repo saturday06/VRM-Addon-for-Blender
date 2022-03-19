@@ -140,6 +140,8 @@ class MtoonGlsl:
             self.cull_mode = "BACK"
         else:
             self.cull_mode = "NO"
+        if not self.material.node_tree:
+            return
         for node in self.material.node_tree.nodes:
             if node.type == "OUTPUT_MATERIAL":
                 self.main_node = node.inputs["Surface"].links[0].from_node

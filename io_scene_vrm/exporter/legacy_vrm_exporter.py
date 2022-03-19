@@ -1298,7 +1298,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         for b_mat in used_materials:
             material_properties_dic: Dict[str, Any] = {}
             pbr_dic: Dict[str, Any] = {}
-            if b_mat.get("vrm_shader") == "MToon_unversioned":
+            if not b_mat.node_tree:
+                material_properties_dic, pbr_dic = make_non_vrm_mat_dic(b_mat)
+            elif b_mat.get("vrm_shader") == "MToon_unversioned":
                 for node in b_mat.node_tree.nodes:
                     if node.type == "OUTPUT_MATERIAL":
                         mtoon_shader_node = node.inputs["Surface"].links[0].from_node

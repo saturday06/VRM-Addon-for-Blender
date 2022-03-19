@@ -205,6 +205,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         vertex_error_count = vertex_error_count + 1
         if bpy.app.version < (2, 83):
             for mat in used_materials:
+                if not mat.node_tree:
+                    continue
                 for node in mat.node_tree.nodes:
                     if node.type == "OUTPUT_MATERIAL" and (
                         not node.inputs["Surface"].links
