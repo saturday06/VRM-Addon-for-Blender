@@ -6,8 +6,6 @@ images: ["en/images/top.png"]
 
 <img src="images/top.png">
 
-**Update 3/13/2022: There is currently a crash when exporting VRM in Blender 3.1.0; <a href="https://developer.blender.org/T96294">this will be fixed in Blender 3.1.1</a>, so please use Blender 3.0.1 or lower versions until then.**
-
 VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender version 2.82 or later.
 
 **[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**<small> / [Past Releases](https://github.com/saturday06/VRM_Addon_for_Blender/releases)</small>
