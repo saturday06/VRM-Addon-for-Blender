@@ -3,6 +3,7 @@
 set -eux
 shellcheck "$0"
 
+export PYTHONDONTWRITEBYTECODE=1
 prefix_name=VRM_Addon_for_Blender
 
 tag_name=$(git describe --tags --exact-match || true)
