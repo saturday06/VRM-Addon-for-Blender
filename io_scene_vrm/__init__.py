@@ -21,6 +21,7 @@ bl_info = {
     "warning": "",
     "support": "COMMUNITY",
     "wiki_url": "",
+    "doc_url": "https://vrm-addon-for-blender.info",
     "tracker_url": "https://github.com/saturday06/VRM_Addon_for_Blender/issues",
     "category": "Import-Export",
 }
