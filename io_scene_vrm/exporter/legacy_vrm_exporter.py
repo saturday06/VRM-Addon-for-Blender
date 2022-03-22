@@ -1189,7 +1189,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 "gltf_keep_original_textures": False,
             }
             try:
-                if bpy.app.version >= (2, 91):
+                if bpy.app.version >= (3, 2):
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/master/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_primitives.py#L71-L96
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/9e08d423a803da52eb08fbc93d9aa99f3f681a27/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L42
+                    gltf2_io_material = gather_material(b_mat, 0, export_settings)
+                elif bpy.app.version >= (2, 91):
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/abd8380e19dbe5e5fb9042513ad6b744032bc9bc/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
                     gltf2_io_material = gather_material(b_mat, export_settings)
                 else:
