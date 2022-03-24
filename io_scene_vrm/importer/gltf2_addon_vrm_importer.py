@@ -66,6 +66,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.finishing(affected_object)
         finally:
             wm.progress_end()
+            Gltf2AddonImporterUserExtension.clear_current_import_id()
 
     def import_gltf2_with_indices(self) -> None:
         with open(self.parse_result.filepath, "rb") as f:
