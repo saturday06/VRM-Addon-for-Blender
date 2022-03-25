@@ -198,7 +198,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                     continue
                 self.refresh(armature)
                 break
-        if not self.link_to_bone.parent:
+        if not self.link_to_bone or not self.link_to_bone.parent:
             print("WARNING: No armature found")
             return
 
