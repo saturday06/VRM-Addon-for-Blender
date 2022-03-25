@@ -183,11 +183,14 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
     def set_value(self, value: Any) -> None:
         if not self.link_to_bone or not self.link_to_bone.parent:
+            # Armatureごとコピーされた場合UUIDもコピーされるため毎回生成しなおす必要がある
+            self.search_one_time_uuid = uuid.uuid4().hex
             for armature in bpy.data.objects:
                 if armature.type != "ARMATURE":
                     continue
                 if all(
-                    bone_property_group != self
+                    bone_property_group.search_one_time_uuid
+                    != self.search_one_time_uuid
                     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(
                         armature
                     )
@@ -235,3 +238,4 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     link_to_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
+    search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
