@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
     types: [opened, synchronize, reopened]
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -46,6 +48,12 @@ jobs:
         run: |
           set -x
 
+          case "$(git rev-parse HEAD)" in
+            "$(git rev-parse origin/main)");;
+            "$(git rev-parse origin/website)");;
+            *) exit 0;;
+          esac
+
           cd docs/website/public
           git add .
           if git diff --cached --exit-code; then
@@ -55,4 +63,3 @@ jobs:
           git config --global user.name "Isamu Mogi (BOT)"
           git commit -m "(BOT) Update"
           git push origin gh-pages
-        if: "github.ref == 'refs/heads/main' || github.ref == 'refs/heads/website'"
