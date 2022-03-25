@@ -91,6 +91,9 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             yield human_bone.node
         for collider in ext.vrm1.spring_bone.colliders:
             yield collider.node
+        for spring in ext.vrm1.spring_bone.springs:
+            for joint in spring.joints:
+                yield joint.node
 
     @staticmethod
     def find_bone_candidates(

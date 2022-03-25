@@ -36,3 +36,34 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
 
     def is_vrm1(self) -> bool:
         return str(self.spec_version) == self.SPEC_VERSION_VRM1
+
+
+def __on_change_blender_object_name() -> None:
+    for armature in bpy.data.armatures:
+        if not hasattr(armature, "vrm_addon_extension") or not isinstance(
+            armature.vrm_addon_extension, VrmAddonArmatureExtensionPropertyGroup
+        ):
+            continue
+
+        # FIXME: Needs optimization!
+        for collider_props in armature.vrm_addon_extension.vrm1.spring_bone.colliders:
+            if collider_props.blender_object:
+                name = collider_props.blender_object.name
+            else:
+                name = ""
+            if collider_props.vrm_name != name:
+                collider_props.vrm_name = name
+
+
+__subscription_owner = object()
+
+
+def setup() -> None:
+    subscribe_to = (bpy.types.Object, "name")
+    bpy.msgbus.subscribe_rna(
+        key=subscribe_to,
+        owner=__subscription_owner,
+        args=(),
+        notify=__on_change_blender_object_name,
+    )
+    bpy.msgbus.publish_rna(key=subscribe_to)

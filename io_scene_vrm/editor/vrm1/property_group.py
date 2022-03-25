@@ -1,5 +1,6 @@
 import functools
-from typing import Dict
+import uuid
+from typing import Any, Dict
 
 import bpy
 
@@ -573,7 +574,7 @@ class Vrm1ColliderShapePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         type=Vrm1ColliderShapeSpherePropertyGroup  # noqa: F722
     )
     capsule: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1ColliderShapeCapsulePropertyGroup  # noqa: F722
+        type=Vrm1ColliderShapeCapsulePropertyGroup  # noqa: F821
     )
 
     # for UI
@@ -584,12 +585,47 @@ class Vrm1ColliderShapePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         (SHAPE_CAPSULE, "Capsule", "", 1),
     ]
     shape: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=shape_items,  # noqa: F722
+        items=shape_items, name="Shape"  # noqa: F821
     )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
 class Vrm1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def __get_vrm_name(self) -> str:
+        value = self.get("vrm_name", "")
+        return value if isinstance(value, str) else str(value)
+
+    def __set_vrm_name(self, vrm_name: Any) -> None:
+        if not isinstance(vrm_name, str):
+            vrm_name = str(vrm_name)
+        self.name = vrm_name
+        if self.get("vrm_name") == vrm_name:
+            return
+
+        self["vrm_name"] = vrm_name
+
+        self.search_one_time_uuid = uuid.uuid4().hex
+        for armature in bpy.data.armatures:
+            if not hasattr(armature, "vrm_addon_extension"):
+                continue
+
+            spring_bone_props = armature.vrm_addon_extension.vrm1.spring_bone
+
+            for collider_props in spring_bone_props.colliders:
+                if collider_props.search_one_time_uuid != self.search_one_time_uuid:
+                    continue
+
+                for collider_group_props in spring_bone_props.collider_groups:
+                    for collider_reference_props in collider_group_props.colliders:
+                        if self.uuid != collider_reference_props.collider_uuid:
+                            continue
+                        collider_reference_props.collider_name = self.name
+
+                return
+
+    vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        get=__get_vrm_name, set=__set_vrm_name
+    )
     node: bpy.props.PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
     shape: bpy.props.PointerProperty(type=Vrm1ColliderShapePropertyGroup)  # type: ignore[valid-type]
 
@@ -601,48 +637,121 @@ class Vrm1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         type=bpy.types.Object  # noqa: F722
     )
 
+    # for references
+    uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+
     def refresh(self, armature: bpy.types.Object, bone_name: str) -> None:
-        if not self.node or not self.node.name:
+        if not self.blender_object or not self.blender_object.name:
             return
 
-        self.node.name = self.node.name
-        self.node.parent = armature
-        self.node.empty_display_type = "SPHERE"
+        if self.blender_object.parent != armature:
+            self.blender_object.parent = armature
+        if self.blender_object.empty_display_type != "SPHERE":
+            self.blender_object.empty_display_type = "SPHERE"
+
         if bone_name:
-            self.node.parent_type = "BONE"
-            self.node.parent_bone = bone_name
+            if self.blender_object.parent_type != "BONE":
+                self.blender_object.parent_type = "BONE"
+            if self.blender_object.parent_bone != bone_name:
+                self.blender_object.parent_bone = bone_name
         else:
-            self.node.parent_type = "OBJECT"
+            if self.blender_object.parent_type != "OBJECT":
+                self.blender_object.parent_type = "OBJECT"
+
+        self.node.refresh(armature)
+        self.node.value = bone_name
+
+
+class Vrm1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def __get_collider_name(self) -> str:
+        value = self.get("collider_name", "")
+        return value if isinstance(value, str) else str(value)
+
+    def __set_collider_name(self, value: Any) -> None:
+        if not isinstance(value, str):
+            value = str(value)
+        self.name = value
+        if self.get("collider_name") == value:
+            return
+        self["collider_name"] = value
+
+        self.search_one_time_uuid = uuid.uuid4().hex
+        for armature in bpy.data.armatures:
+            spring_bone_props = armature.vrm_addon_extension.vrm1.spring_bone
+            for collider_group_props in spring_bone_props.collider_groups:
+                for collider_reference_props in collider_group_props.colliders:
+                    if (
+                        collider_reference_props.search_one_time_uuid
+                        != self.search_one_time_uuid
+                    ):
+                        continue
+
+                    for collider_props in spring_bone_props.colliders:
+                        if collider_props.name == value:
+                            self.collider_uuid = collider_props.uuid
+                    return
+
+    collider_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        get=__get_collider_name, set=__set_collider_name
+    )
+    collider_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
 class Vrm1ColliderGroupPropertyGroup(
     bpy.types.PropertyGroup, bpy.types.ID  # type: ignore[misc]
 ):
-    name: bpy.props.StringProperty()  # type: ignore[valid-type]
-    colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Colliders", type=Vrm1ColliderPropertyGroup  # noqa: F821
+    def __get_vrm_name(self) -> str:
+        value = self.get("vrm_name", "")
+        return value if isinstance(value, str) else str(value)
+
+    def __set_vrm_name(self, vrm_name: Any) -> None:
+        if not isinstance(vrm_name, str):
+            vrm_name = str(vrm_name)
+        self["vrm_name"] = vrm_name
+        self.fix_index()
+
+    def fix_index(self) -> None:
+        self.search_one_time_uuid = uuid.uuid4().hex
+        for armature in bpy.data.armatures:
+            spring_bone_props = armature.vrm_addon_extension.vrm1.spring_bone
+
+            for (index, collider_group_props) in enumerate(
+                spring_bone_props.collider_groups
+            ):
+                if (
+                    collider_group_props.search_one_time_uuid
+                    != self.search_one_time_uuid
+                ):
+                    continue
+
+                self.name = f"{index}: {self.vrm_name}"
+                break
+
+            for spring_props in spring_bone_props.springs:
+                for collider_group_reference_props in spring_props.collider_groups:
+                    if collider_group_reference_props.collider_group_uuid == self.uuid:
+                        collider_group_reference_props.collider_group_name = self.name
+            return
+
+    vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        name="Name", get=__get_vrm_name, set=__set_vrm_name  # noqa: F722, F821
     )
 
-    def refresh(self, armature: bpy.types.Object) -> None:
-        self.name = (
-            str(self.node.value) if self.node and self.node.value else ""
-        ) + f"#{self.uuid}"
-        for index, collider in reversed(list(enumerate(list(self.colliders)))):
-            if not collider.blender_object or not collider.blender_object.name:
-                self.colliders.remove(index)
-            else:
-                collider.refresh(armature, self.node.value)
-        for (
-            bone_group
-        ) in armature.data.vrm_addon_extension.vrm1.secondary_animation.bone_groups:
-            bone_group.refresh(armature)
+    colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        name="Colliders", type=Vrm1ColliderReferencePropertyGroup  # noqa: F821
+    )
 
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     # for reference
+    # オブジェクトをコピーした場合同じuuidをもつオブジェクトが複数ある可能性があるのに注意する。
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.joint.schema.json
@@ -658,15 +767,56 @@ class Vrm1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         default=0.5, min=0, max=1.0
     )
 
+    # for UI
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
+
+class Vrm1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def __get_collider_group_name(self) -> str:
+        value = self.get("collider_group_name", "")
+        return value if isinstance(value, str) else str(value)
+
+    def __set_collider_group_name(self, value: Any) -> None:
+        if not isinstance(value, str):
+            value = str(value)
+        self.name = value
+        if self.get("collider_group_name") == value:
+            return
+        self["collider_group_name"] = value
+
+        self.search_one_time_uuid = uuid.uuid4().hex
+        for armature in bpy.data.armatures:
+            spring_bone_props = armature.vrm_addon_extension.vrm1.spring_bone
+            for spring_props in spring_bone_props.springs:
+                for collider_group_reference_props in spring_props.collider_groups:
+                    if (
+                        collider_group_reference_props.search_one_time_uuid
+                        != self.search_one_time_uuid
+                    ):
+                        continue
+
+                    for collider_group_props in spring_bone_props.collider_groups:
+                        if collider_group_props.name == value:
+                            self.collider_group_uuid = collider_group_props.uuid
+                    return
+
+    collider_group_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        get=__get_collider_group_name, set=__set_collider_group_name
+    )
+    collider_group_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.spring.schema.json
 class Vrm1SpringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        name="Name"  # noqa: F821
+    )
     joints: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=Vrm1JointPropertyGroup
     )
     collider_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup,
+        type=Vrm1ColliderGroupReferencePropertyGroup,
     )
 
     # for UI
@@ -677,19 +827,6 @@ class Vrm1SpringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     show_expanded_collider_groups: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Collider Groups"  # noqa: F722
     )
-
-    def refresh(self, armature: bpy.types.Object) -> None:
-        collider_group_uuid_to_name = {
-            collider_group.uuid: collider_group.name
-            for collider_group in armature.data.vrm_addon_extension.vrm1.secondary_animation.collider_groups
-        }
-        for index, collider_group in reversed(list(enumerate(self.collider_groups))):
-            uuid_str = collider_group.value.split("#")[-1:][0]
-            name = collider_group_uuid_to_name.get(uuid_str)
-            if name is None:
-                self.collider_groups.remove(index)
-            else:
-                collider_group.value = name
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.schema.json
@@ -737,7 +874,7 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
         ("allowModification", "Allow Modification", "", 1),
         ("allowModificationRedistribution", "Allow Modification Redistribution", "", 2),
     ]
-    name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name"  # noqa: F821
     )
     version: bpy.props.StringProperty(  # type: ignore[valid-type]

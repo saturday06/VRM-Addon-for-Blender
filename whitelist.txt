@@ -104,6 +104,7 @@ minmax
 mipmap
 mobj
 morphname
+msgbus
 msgctxt
 mtoon
 myinstance

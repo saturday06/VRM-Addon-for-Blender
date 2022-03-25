@@ -1,3 +1,4 @@
+import uuid
 from typing import Set
 
 import bpy
@@ -487,12 +488,15 @@ class VRM_OT_add_vrm1_spring_bone_collider(  # noqa: N801
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
         collider = armature.vrm_addon_extension.vrm1.spring_bone.colliders.add()
+        collider.uuid = uuid.uuid4().hex
+
         obj = bpy.data.objects.new(
-            name=f"{self.armature_data_name}_collider", object_data=None
+            name=f"{self.armature_data_name} Collider", object_data=None
         )
         collider.blender_object = obj
         obj.empty_display_type = "SPHERE"
         obj.empty_display_size = 0.25
+        collider.vrm_name = obj.name
         context.scene.collection.objects.link(obj)
         return {"FINISHED"}
 
@@ -543,7 +547,8 @@ class VRM_OT_add_vrm1_spring_bone_spring(  # noqa: N801
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        armature.vrm_addon_extension.vrm1.spring_bone.springs.add()
+        spring = armature.vrm_addon_extension.vrm1.spring_bone.springs.add()
+        spring.vrm_name = "Spring"
         return {"FINISHED"}
 
 
@@ -573,171 +578,6 @@ class VRM_OT_remove_vrm1_spring_bone_spring(  # noqa: N801
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.add_vrm1_secondary_animation_group_bone"
-    bl_label = "Add bone"
-    bl_description = "Add VRM 0.x Secondary Animation Group Bone"
-    bl_options = {"REGISTER", "UNDO"}
-
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
-    )
-    bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
-        if armature is None or armature.type != "ARMATURE":
-            return {"CANCELLED"}
-        bone_groups = (
-            armature.data.vrm_addon_extension.vrm1.secondary_animation.bone_groups
-        )
-        if len(bone_groups) <= self.bone_group_index:
-            return {"CANCELLED"}
-        bone_groups[self.bone_group_index].bones.add()
-        return {"FINISHED"}
-
-
-class VRM_OT_remove_vrm1_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.remove_vrm1_secondary_animation_group_bone"
-    bl_label = "Remove bone"
-    bl_description = "Remove VRM 0.x Secondary Animation Group Bone"
-    bl_options = {"REGISTER", "UNDO"}
-
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
-    )
-    bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-    bone_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
-        if armature is None or armature.type != "ARMATURE":
-            return {"CANCELLED"}
-        bone_groups = (
-            armature.data.vrm_addon_extension.vrm1.secondary_animation.bone_groups
-        )
-        if len(bone_groups) <= self.bone_group_index:
-            return {"CANCELLED"}
-        bones = bone_groups[self.bone_group_index].bones
-        if len(bones) <= self.bone_index:
-            return {"CANCELLED"}
-        bones.remove(self.bone_index)
-        return {"FINISHED"}
-
-
-class VRM_OT_add_vrm1_secondary_animation_group_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.add_vrm1_secondary_animation_group_collider_group"
-    bl_label = "Add collider group"
-    bl_description = "Add VRM 0.x Secondary Animation Group Collider Group"
-    bl_options = {"REGISTER", "UNDO"}
-
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
-    )
-    bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
-        if armature is None or armature.type != "ARMATURE":
-            return {"CANCELLED"}
-        bone_groups = (
-            armature.data.vrm_addon_extension.vrm1.secondary_animation.bone_groups
-        )
-        if len(bone_groups) <= self.bone_group_index:
-            return {"CANCELLED"}
-        bone_groups[self.bone_group_index].collider_groups.add()
-        return {"FINISHED"}
-
-
-class VRM_OT_remove_vrm1_secondary_animation_group_collider_group(  # noqa: N801
-    bpy.types.Operator  # type: ignore[misc]
-):
-    bl_idname = "vrm.remove_vrm1_secondary_animation_group_collider_group"
-    bl_label = "Remove collider group"
-    bl_description = "Remove VRM 0.x Secondary Animation Group Collider Group"
-    bl_options = {"REGISTER", "UNDO"}
-
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
-    )
-    bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
-        if armature is None or armature.type != "ARMATURE":
-            return {"CANCELLED"}
-        bone_groups = (
-            armature.data.vrm_addon_extension.vrm1.secondary_animation.bone_groups
-        )
-        if len(bone_groups) <= self.bone_group_index:
-            return {"CANCELLED"}
-        collider_groups = bone_groups[self.bone_group_index].collider_groups
-        if len(collider_groups) <= self.collider_group_index:
-            return {"CANCELLED"}
-        collider_groups.remove(self.collider_group_index)
-        return {"FINISHED"}
-
-
-class VRM_OT_add_vrm1_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.add_vrm1_secondary_animation_group"
-    bl_label = "Add spring bone"
-    bl_description = "Add VRM 0.x Secondary Animation Group"
-    bl_options = {"REGISTER", "UNDO"}
-
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
-    )
-    blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
-        if armature is None or armature.type != "ARMATURE":
-            return {"CANCELLED"}
-        armature.data.vrm_addon_extension.vrm1.secondary_animation.bone_groups.add()
-        return {"FINISHED"}
-
-
-class VRM_OT_remove_vrm1_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
-    bl_idname = "vrm.remove_vrm1_secondary_animation_group"
-    bl_label = "Remove spring bone"
-    bl_description = "Remove VRM 0.x Secondary Animation Group"
-    bl_options = {"REGISTER", "UNDO"}
-
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
-    )
-    bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
-    )
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
-        if armature is None or armature.type != "ARMATURE":
-            return {"CANCELLED"}
-        bone_groups = (
-            armature.data.vrm_addon_extension.vrm1.secondary_animation.bone_groups
-        )
-        if len(bone_groups) <= self.bone_group_index:
-            return {"CANCELLED"}
-        bone_groups.remove(self.bone_group_index)
-        return {"FINISHED"}
-
-
 class VRM_OT_add_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm1_spring_bone_collider_group"
     bl_label = "Add Collider Group"
@@ -752,13 +592,16 @@ class VRM_OT_add_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type: i
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        armature.vrm_addon_extension.vrm1.spring_bone.collider_groups.add()
+        collider_groups = (
+            armature.vrm_addon_extension.vrm1.spring_bone.collider_groups.add()
+        )
+        collider_groups.vrm_name = "Collider Group"
         return {"FINISHED"}
 
 
 class VRM_OT_remove_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.remove_vrm1_spring_bone_collider_group"
-    bl_label = "Remove collider group"
+    bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -777,4 +620,169 @@ class VRM_OT_remove_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_groups.remove(self.collider_group_index)
+        for collider_groups_props in collider_groups:
+            collider_groups_props.fix_index()
+        return {"FINISHED"}
+
+
+class VRM_OT_add_vrm1_spring_bone_collider_group_collider(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.add_vrm1_spring_bone_collider_group_collider"
+    bl_label = "Add Collider"
+    bl_description = "Add VRM 1.0 Spring Bone Collider Group Collider"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures.get(self.armature_data_name)
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
+        collider_groups = armature.vrm_addon_extension.vrm1.spring_bone.collider_groups
+        if len(collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        collider_groups[self.collider_group_index].colliders.add()
+        return {"FINISHED"}
+
+
+class VRM_OT_remove_vrm1_spring_bone_collider_group_collider(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.remove_vrm1_spring_bone_collider_group_collider"
+    bl_label = "Remove Collider"
+    bl_description = "Remove VRM 1.0 Spring Bone Collider Group Collider"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+    collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures.get(self.armature_data_name)
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
+        collider_groups = armature.vrm_addon_extension.vrm1.spring_bone.collider_groups
+        if len(collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        colliders = collider_groups[self.collider_group_index].colliders
+        if len(colliders) <= self.collider_index:
+            return {"CANCELLED"}
+        colliders.remove(self.collider_index)
+        return {"FINISHED"}
+
+
+class VRM_OT_add_vrm1_spring_bone_spring_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.add_vrm1_spring_bone_spring_collider_group"
+    bl_label = "Add Collider Group"
+    bl_description = "Add VRM 1.0 Spring Bone Spring Collider Group"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures.get(self.armature_data_name)
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature.vrm_addon_extension.vrm1.spring_bone.springs
+        if len(springs) <= self.spring_index:
+            return {"CANCELLED"}
+        collider_group = springs[self.spring_index].collider_groups.add()
+        collider_group.uuid = uuid.uuid4().hex
+        return {"FINISHED"}
+
+
+class VRM_OT_remove_vrm1_spring_bone_spring_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.remove_vrm1_spring_bone_spring_collider_group"
+    bl_label = "Remove Collider Group"
+    bl_description = "Remove VRM 1.0 Spring Bone Spring Collider Group"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures.get(self.armature_data_name)
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature.vrm_addon_extension.vrm1.spring_bone.springs
+        if len(springs) <= self.spring_index:
+            return {"CANCELLED"}
+        collider_groups = springs[self.spring_index].collider_groups
+        if len(collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        collider_groups.remove(self.collider_group_index)
+        return {"FINISHED"}
+
+
+class VRM_OT_add_vrm1_spring_bone_spring_joint(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.add_vrm1_spring_bone_spring_joint"
+    bl_label = "Add Joint"
+    bl_description = "Add VRM 1.0 Spring Bone Spring Joint"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures.get(self.armature_data_name)
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature.vrm_addon_extension.vrm1.spring_bone.springs
+        if len(springs) <= self.spring_index:
+            return {"CANCELLED"}
+        springs[self.spring_index].joints.add()
+        return {"FINISHED"}
+
+
+class VRM_OT_remove_vrm1_spring_bone_spring_joint(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.remove_vrm1_spring_bone_spring_joint"
+    bl_label = "Remove Joint"
+    bl_description = "Remove VRM 1.0 Spring Bone Spring Joint"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+    joint_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        min=0, options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures.get(self.armature_data_name)
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature.vrm_addon_extension.vrm1.spring_bone.springs
+        if len(springs) <= self.spring_index:
+            return {"CANCELLED"}
+        joints = springs[self.spring_index].joints
+        if len(joints) <= self.joint_index:
+            return {"CANCELLED"}
+        joints.remove(self.joint_index)
         return {"FINISHED"}

@@ -34,19 +34,14 @@ from .locale.translation_dictionary import translation_dictionary
 if persistent:  # for fake-bpy-modules
 
     @persistent  # type: ignore[misc]
-    def add_shaders(_dummy: Any) -> None:
+    def load_post(_dummy: Any) -> None:
         shader.add_shaders()
-
-    @persistent  # type: ignore[misc]
-    def migrate(_dummy: Any) -> None:
         migration.migrate_all_objects()
+        extension.setup()
 
 else:
 
-    def add_shaders(_dummy: Any) -> None:
-        raise NotImplementedError
-
-    def migrate(_dummy: Any) -> None:
+    def load_post(_dummy: Any) -> None:
         raise NotImplementedError
 
 
@@ -89,7 +84,9 @@ classes = [
     vrm1_property_group.Vrm1ColliderShapeCapsulePropertyGroup,
     vrm1_property_group.Vrm1ColliderShapePropertyGroup,
     vrm1_property_group.Vrm1ColliderPropertyGroup,
+    vrm1_property_group.Vrm1ColliderReferencePropertyGroup,
     vrm1_property_group.Vrm1ColliderGroupPropertyGroup,
+    vrm1_property_group.Vrm1ColliderGroupReferencePropertyGroup,
     vrm1_property_group.Vrm1JointPropertyGroup,
     vrm1_property_group.Vrm1SpringPropertyGroup,
     vrm1_property_group.Vrm1MetaPropertyGroup,
@@ -161,8 +158,14 @@ classes = [
     vrm1_operator.VRM_OT_remove_vrm1_spring_bone_collider,
     vrm1_operator.VRM_OT_add_vrm1_spring_bone_collider_group,
     vrm1_operator.VRM_OT_remove_vrm1_spring_bone_collider_group,
+    vrm1_operator.VRM_OT_add_vrm1_spring_bone_collider_group_collider,
+    vrm1_operator.VRM_OT_remove_vrm1_spring_bone_collider_group_collider,
     vrm1_operator.VRM_OT_add_vrm1_spring_bone_spring,
     vrm1_operator.VRM_OT_remove_vrm1_spring_bone_spring,
+    vrm1_operator.VRM_OT_add_vrm1_spring_bone_spring_collider_group,
+    vrm1_operator.VRM_OT_remove_vrm1_spring_bone_spring_collider_group,
+    vrm1_operator.VRM_OT_add_vrm1_spring_bone_spring_joint,
+    vrm1_operator.VRM_OT_remove_vrm1_spring_bone_spring_joint,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,
@@ -214,13 +217,11 @@ def register(init_version: Any) -> None:
     bpy.types.VIEW3D_MT_armature_add.append(panel.add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
-    bpy.app.handlers.load_post.append(add_shaders)
-    bpy.app.handlers.load_post.append(migrate)
+    bpy.app.handlers.load_post.append(load_post)
 
 
 def unregister() -> None:
-    bpy.app.handlers.load_post.remove(migrate)
-    bpy.app.handlers.load_post.remove(add_shaders)
+    bpy.app.handlers.load_post.remove(load_post)
 
     # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)
     bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)
