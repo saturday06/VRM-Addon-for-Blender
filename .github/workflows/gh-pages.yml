@@ -38,7 +38,7 @@ jobs:
           cd docs/website
           mkdir public
           pushd public
-            ln -s ../../../.git .git
+            cp -fr ../../../.git .git
             git checkout gh-pages
           popd
 
