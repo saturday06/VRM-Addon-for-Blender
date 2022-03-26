@@ -48,7 +48,8 @@ jobs:
         run: |
           set -x
 
-          case "$(git rev-parse HEAD)" in
+          git fetch --depth=1 origin main website
+          case "$GITHUB_SHA" in
             "$(git rev-parse origin/main)");;
             "$(git rev-parse origin/website)");;
             *) exit 0;;
