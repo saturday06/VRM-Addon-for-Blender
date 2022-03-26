@@ -5,7 +5,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
