@@ -26,7 +26,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def get_value(self) -> str:
+    def __get_value(self) -> str:
         if (
             not self.link_to_mesh
             or not self.link_to_mesh.name
@@ -38,7 +38,7 @@ class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             return ""
         return str(self.link_to_mesh.parent.data.name)
 
-    def set_value(self, value: Any) -> None:
+    def __set_value(self, value: Any) -> None:
         if not isinstance(value, str) or value not in bpy.data.meshes:
             return
         mesh = bpy.data.meshes[value]
@@ -62,7 +62,7 @@ class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         self.link_to_mesh.parent = mesh_obj
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
-        get=get_value, set=set_value
+        get=__get_value, set=__set_value
     )
     link_to_mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
@@ -169,7 +169,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         self.link_to_bone.parent = armature
         self.value = value
 
-    def get_value(self) -> str:
+    def __get_value(self) -> str:
         if (
             self.link_to_bone
             and self.link_to_bone.parent_bone
@@ -181,7 +181,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             return str(self.link_to_bone.parent_bone)
         return ""
 
-    def set_value(self, value: Any) -> None:
+    def __set_value(self, value: Any) -> None:
         if not self.link_to_bone or not self.link_to_bone.parent:
             # Armatureごとコピーされた場合UUIDもコピーされるため毎回生成しなおす必要がある
             self.search_one_time_uuid = uuid.uuid4().hex
@@ -232,8 +232,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Bone",  # noqa: F821
-        get=get_value,
-        set=set_value,
+        get=__get_value,
+        set=__set_value,
     )
     link_to_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
