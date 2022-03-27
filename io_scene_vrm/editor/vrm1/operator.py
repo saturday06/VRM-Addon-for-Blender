@@ -528,7 +528,7 @@ class VRM_OT_remove_vrm1_spring_bone_collider(  # noqa: N801
         if blender_object and blender_object.name in context.scene.collection.objects:
             blender_object.parent_type = "OBJECT"
             context.scene.collection.objects.unlink(blender_object)
-        uuid = colliders[self.collider_index].uuid
+        collider_uuid = colliders[self.collider_index].uuid
         colliders.remove(self.collider_index)
         for collider_group_props in spring_bone_props.collider_groups:
             while True:
@@ -536,7 +536,7 @@ class VRM_OT_remove_vrm1_spring_bone_collider(  # noqa: N801
                 for (index, collider_props) in enumerate(
                     list(collider_group_props.colliders)
                 ):
-                    if collider_props.collider_uuid != uuid:
+                    if collider_props.collider_uuid != collider_uuid:
                         continue
                     collider_group_props.colliders.remove(index)
                     removed = True
@@ -637,7 +637,7 @@ class VRM_OT_remove_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type
         collider_groups = spring_bone_props.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
-        uuid = collider_groups[self.collider_group_index].uuid
+        collider_group_uuid = collider_groups[self.collider_group_index].uuid
         collider_groups.remove(self.collider_group_index)
         for spring_props in spring_bone_props.springs:
             while True:
@@ -645,7 +645,7 @@ class VRM_OT_remove_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type
                 for (index, collider_group_props) in enumerate(
                     list(spring_props.collider_groups)
                 ):
-                    if collider_group_props.collider_group_uuid != uuid:
+                    if collider_group_props.collider_group_uuid != collider_group_uuid:
                         continue
                     spring_props.collider_groups.remove(index)
                     removed = True
