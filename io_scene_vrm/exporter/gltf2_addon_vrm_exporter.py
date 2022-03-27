@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 import bpy
 
-from ..common import gltf
+from ..common import deep, gltf, version
 from ..common.char import INTERNAL_NAME_PREFIX
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 
@@ -22,6 +22,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
+        self.armature[self.export_id] = True
         self.extras_bone_name_key = INTERNAL_NAME_PREFIX + self.export_id + "BoneName"
 
     def export_vrm(self) -> Optional[bytes]:
@@ -68,24 +69,29 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 continue
             bone_name_to_index_dict[bone_name] = node_index
 
-        vrm0_props = self.armature.data.vrm_addon_extension.vrm0
+        vrm_props = self.armature.data.vrm_addon_extension.vrm1.vrm
         human_bones_dict: Dict[str, Any] = {}
         vrmc_vrm_dict: Dict[str, Any] = {
             "specVersion": "1.0-beta",
             "meta": {
-                "name": vrm0_props.meta.title,
-                "version": vrm0_props.meta.version,
-                "authors": [vrm0_props.meta.author],
+                "name": vrm_props.meta.vrm_name,
+                "version": vrm_props.meta.version,
+                "authors": [author.value for author in vrm_props.meta.authors],
                 "licenseUrl": "https://vrm.dev/licenses/1.0/",
             },
             "humanoid": {
                 "humanBones": human_bones_dict,
             },
         }
-        for human_bone in vrm0_props.humanoid.human_bones:
+        for (
+            human_bone_name,
+            human_bone,
+        ) in (
+            vrm_props.humanoid.human_bones.human_bone_name_to_human_bone_props().items()
+        ):
             index = bone_name_to_index_dict.get(human_bone.node.value)
             if isinstance(index, int):
-                human_bones_dict[human_bone.bone] = {"node": index}
+                human_bones_dict[human_bone_name] = {"node": index}
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, abc.Iterable):
@@ -96,4 +102,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         json_dict["extensionsUsed"] = extensions_used
         json_dict.update({"extensions": {"VRMC_vrm": vrmc_vrm_dict}})
+
+        v = version.version()
+        if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
+            v = (999, 999, 999)
+
+        generator = "VRM Add-on for Blender v" + ".".join(map(str, v))
+
+        base_generator = deep.get(json_dict, ["asset", "generator"])
+        if isinstance(base_generator, str):
+            generator += " with " + base_generator
+
+        json_dict["asset"]["generator"] = generator
+
         return gltf.pack_glb(json_dict, body_binary)

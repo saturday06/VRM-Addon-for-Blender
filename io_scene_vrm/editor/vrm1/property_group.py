@@ -216,7 +216,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         type=StringPropertyGroup
     )
 
-    def human_bone_to_human_bone_props(
+    def human_bone_name_to_human_bone_props(
         self,
     ) -> Dict[HumanBoneName, Vrm1HumanBonePropertyGroup]:
         return {
@@ -312,11 +312,13 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             bone_name_props.value = bone_name
         blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
             human_bone_props.node.value: human_bone
-            for human_bone, human_bone_props in human_bones_props.human_bone_to_human_bone_props()
+            for human_bone, human_bone_props in human_bones_props.human_bone_name_to_human_bone_props()
             if human_bone_props.node.value
         }
 
-        for human_bone in human_bones_props.human_bone_to_human_bone_props().values():
+        for (
+            human_bone
+        ) in human_bones_props.human_bone_name_to_human_bone_props().values():
             human_bone.update_node_candidates(
                 armature_data,
                 blender_bone_name_to_human_bone_dict,

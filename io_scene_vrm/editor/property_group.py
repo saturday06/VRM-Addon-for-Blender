@@ -86,7 +86,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for (
             human_bone
         ) in (
-            ext.vrm1.vrm.humanoid.human_bones.human_bone_to_human_bone_props().values()
+            ext.vrm1.vrm.humanoid.human_bones.human_bone_name_to_human_bone_props().values()
         ):
             yield human_bone.node
         for collider in ext.vrm1.spring_bone.colliders:
