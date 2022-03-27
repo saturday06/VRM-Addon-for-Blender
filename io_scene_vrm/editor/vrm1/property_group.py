@@ -598,7 +598,7 @@ class Vrm1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def __set_vrm_name(self, vrm_name: Any) -> None:
         if not isinstance(vrm_name, str):
             vrm_name = str(vrm_name)
-        self.name = vrm_name
+        self.name = vrm_name  # pylint: disable=attribute-defined-outside-init
         if self.get("vrm_name") == vrm_name:
             return
 
@@ -671,7 +671,7 @@ class Vrm1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # type: igno
     def __set_collider_name(self, value: Any) -> None:
         if not isinstance(value, str):
             value = str(value)
-        self.name = value
+        self.name = value  # pylint: disable=attribute-defined-outside-init
         if self.get("collider_name") == value:
             return
         self["collider_name"] = value
@@ -727,14 +727,18 @@ class Vrm1ColliderGroupPropertyGroup(
                 ):
                     continue
 
-                self.name = f"{index}: {self.vrm_name}"
-                break
+                name = f"{index}: {self.vrm_name}"
+                self.name = name  # pylint: disable=attribute-defined-outside-init
 
-            for spring_props in spring_bone_props.springs:
-                for collider_group_reference_props in spring_props.collider_groups:
-                    if collider_group_reference_props.collider_group_uuid == self.uuid:
-                        collider_group_reference_props.collider_group_name = self.name
-            return
+                for spring_props in spring_bone_props.springs:
+                    for collider_group_reference_props in spring_props.collider_groups:
+                        if (
+                            collider_group_reference_props.collider_group_uuid
+                            == self.uuid
+                        ):
+                            collider_group_reference_props.collider_group_name = name
+
+                return
 
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name", get=__get_vrm_name, set=__set_vrm_name  # noqa: F722, F821
@@ -779,7 +783,7 @@ class Vrm1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  # type:
     def __set_collider_group_name(self, value: Any) -> None:
         if not isinstance(value, str):
             value = str(value)
-        self.name = value
+        self.name = value  # pylint: disable=attribute-defined-outside-init
         if self.get("collider_group_name") == value:
             return
         self["collider_group_name"] = value

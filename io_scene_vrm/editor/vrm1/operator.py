@@ -520,14 +520,30 @@ class VRM_OT_remove_vrm1_spring_bone_collider(  # noqa: N801
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        colliders = armature.vrm_addon_extension.vrm1.spring_bone.colliders
+        spring_bone_props = armature.vrm_addon_extension.vrm1.spring_bone
+        colliders = spring_bone_props.colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
         blender_object = colliders[self.collider_index].blender_object
         if blender_object and blender_object.name in context.scene.collection.objects:
             blender_object.parent_type = "OBJECT"
             context.scene.collection.objects.unlink(blender_object)
+        uuid = colliders[self.collider_index].uuid
         colliders.remove(self.collider_index)
+        for collider_group_props in spring_bone_props.collider_groups:
+            while True:
+                removed = False
+                for (index, collider_props) in enumerate(
+                    list(collider_group_props.colliders)
+                ):
+                    if collider_props.collider_uuid != uuid:
+                        continue
+                    collider_group_props.colliders.remove(index)
+                    removed = True
+                    break
+                if not removed:
+                    break
+
         return {"FINISHED"}
 
 
@@ -592,10 +608,11 @@ class VRM_OT_add_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type: i
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        collider_groups = (
+        collider_group = (
             armature.vrm_addon_extension.vrm1.spring_bone.collider_groups.add()
         )
-        collider_groups.vrm_name = "Collider Group"
+        collider_group.vrm_name = "Collider Group"
+        collider_group.uuid = uuid.uuid4().hex
         return {"FINISHED"}
 
 
@@ -616,12 +633,28 @@ class VRM_OT_remove_vrm1_spring_bone_collider_group(bpy.types.Operator):  # type
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        collider_groups = armature.vrm_addon_extension.vrm1.spring_bone.collider_groups
+        spring_bone_props = armature.vrm_addon_extension.vrm1.spring_bone
+        collider_groups = spring_bone_props.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
+        uuid = collider_groups[self.collider_group_index].uuid
         collider_groups.remove(self.collider_group_index)
+        for spring_props in spring_bone_props.springs:
+            while True:
+                removed = False
+                for (index, collider_group_props) in enumerate(
+                    list(spring_props.collider_groups)
+                ):
+                    if collider_group_props.collider_group_uuid != uuid:
+                        continue
+                    spring_props.collider_groups.remove(index)
+                    removed = True
+                    break
+                if not removed:
+                    break
         for collider_groups_props in collider_groups:
             collider_groups_props.fix_index()
+
         return {"FINISHED"}
 
 
@@ -699,8 +732,7 @@ class VRM_OT_add_vrm1_spring_bone_spring_collider_group(bpy.types.Operator):  # 
         springs = armature.vrm_addon_extension.vrm1.spring_bone.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
-        collider_group = springs[self.spring_index].collider_groups.add()
-        collider_group.uuid = uuid.uuid4().hex
+        springs[self.spring_index].collider_groups.add()
         return {"FINISHED"}
 
 
