@@ -174,7 +174,7 @@ importlib-metadata = {version = ">=0.9", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "flake8-spellcheck"
-version = "0.25.0"
+version = "0.26.0"
 description = "Spellcheck variables, comments and docstrings"
 category = "dev"
 optional = false
@@ -306,14 +306,14 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pylint"
-version = "2.13.1"
+version = "2.13.2"
 description = "python code static checker"
 category = "dev"
 optional = false
 python-versions = ">=3.6.2"
 
 [package.dependencies]
-astroid = ">=2.11.0,<=2.12.0-dev0"
+astroid = ">=2.11.2,<=2.12.0-dev0"
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
 dill = ">=0.2"
 isort = ">=4.2.5,<6"
@@ -452,8 +452,8 @@ flake8-simplify = [
     {file = "flake8_simplify-0.18.2.tar.gz", hash = "sha256:9c4ccb709d7f91660cb43799f845903380cceacce4e5a76db73fb0beed4bb935"},
 ]
 flake8-spellcheck = [
-    {file = "flake8-spellcheck-0.25.0.tar.gz", hash = "sha256:17e539e9299dcc595f812e9f7233e12c413bdd4b2e614621aaa06e289605bb6a"},
-    {file = "flake8_spellcheck-0.25.0-py2.py3-none-any.whl", hash = "sha256:0f3df63e2638b55f57f3da7c1085baf45ebfec008922d3ebfeabd44dcf853450"},
+    {file = "flake8-spellcheck-0.26.0.tar.gz", hash = "sha256:882de0b5c374fa9312ea4165f71f5583e6f4616f1661c5598378353df50796f4"},
+    {file = "flake8_spellcheck-0.26.0-py2.py3-none-any.whl", hash = "sha256:78be6dd8b1dd91f8a6ad0cf36dcfee7851b3faed97842ef9a138021743e67bea"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-4.2.0-py3-none-any.whl", hash = "sha256:057e92c15bc8d9e8109738a48db0ccb31b4d9d5cfbee5a8670879a30be66304b"},
@@ -556,8 +556,8 @@ pyflakes = [
     {file = "pyflakes-2.4.0.tar.gz", hash = "sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c"},
 ]
 pylint = [
-    {file = "pylint-2.13.1-py3-none-any.whl", hash = "sha256:cdd2cb558a974d0c0b426b44474884aa4a2d8cb9aae037b88476b45333b40ea3"},
-    {file = "pylint-2.13.1.tar.gz", hash = "sha256:7d5ea593303cf5ca567c60a8d475056825c7373f493ddb16308f09f5fe47f8f4"},
+    {file = "pylint-2.13.2-py3-none-any.whl", hash = "sha256:3cd8eb401c6aa6c66b614d72cf0c54a02d6bf7752aa9890fc41de71030f3c81a"},
+    {file = "pylint-2.13.2.tar.gz", hash = "sha256:0c6dd0e53e6e17f2d0d62660905f3868611e734e9d9b310dc651a4b9f3dc70da"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
