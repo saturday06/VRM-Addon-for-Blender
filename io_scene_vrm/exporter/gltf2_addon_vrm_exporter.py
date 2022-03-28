@@ -118,7 +118,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     else:
                         del child_removing_node_dict["children"]
 
-                # TODO: remove from node children, scene, ...
+                # TODO: remove from scenes, skin joints ...
 
         vrm_props = self.armature.data.vrm_addon_extension.vrm1.vrm
         human_bones_dict: Dict[str, Any] = {}
