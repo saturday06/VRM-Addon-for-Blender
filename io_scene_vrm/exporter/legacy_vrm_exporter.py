@@ -1648,10 +1648,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     )  # keyがなければNoneを返す
                     if cached_vert_id is not None:
                         primitive_index = None
-                        if face.material_index in material_slot_dic:
-                            primitive_index = mat_id_dic[
-                                material_slot_dic[face.material_index]
-                            ]
+                        material_slot_name = material_slot_dic.get(face.material_index)
+                        if isinstance(material_slot_name, str):
+                            primitive_index = mat_id_dic[material_slot_name]
                         primitive_index_bin_dic[
                             primitive_index
                         ] += unsigned_int_scalar_packer(cached_vert_id)
@@ -1769,10 +1768,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         *self.axis_blender_to_glb(vert_normal)
                     )
                     primitive_index = None
-                    if face.material_index in material_slot_dic:
-                        primitive_index = mat_id_dic[
-                            material_slot_dic[face.material_index]
-                        ]
+                    material_slot_name = material_slot_dic.get(face.material_index)
+                    if isinstance(material_slot_name, str):
+                        primitive_index = mat_id_dic[material_slot_name]
                     primitive_index_bin_dic[
                         primitive_index
                     ] += unsigned_int_scalar_packer(unique_vertex_id)
