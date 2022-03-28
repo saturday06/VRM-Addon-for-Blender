@@ -4,7 +4,7 @@ max-line-length = 120
 extend-ignore =
     # https://github.com/PyCQA/pycodestyle/issues/373
     E203,
-    # https://github.com/MartinThoma/flake8-simplify/commit/f5a25717d22afe7f7a6ad3dec13a10c69029174b#diff-b335630551682c19a781afebcf4d07bf978fb1f8ac04c6bf87428ed5106870f5R84
+    # https://github.com/MartinThoma/flake8-simplify/blob/0930f49e013f1e88903e8a94cfe9759b630f6b54/README.md?plain=1#L92-L98
     SIM9
 per-file-ignores =
     # Dynamically generated tests can have misspelt words
