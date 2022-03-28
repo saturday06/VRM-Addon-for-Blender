@@ -55,6 +55,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 bone[self.extras_bone_name_key] = bone.name
             for bone in self.armature.data.bones:
                 bone[self.extras_bone_name_key] = bone.name
+            for obj in bpy.data.objects:
+                obj[self.extras_object_name_key] = obj.name
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = os.path.join(temp_dir, "out.glb")
@@ -73,6 +75,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             for bone in self.armature.data.bones:
                 if self.extras_bone_name_key in bone:
                     del bone[self.extras_bone_name_key]
+            for obj in bpy.data.objects:
+                if self.extras_object_name_key in obj:
+                    del obj[self.extras_object_name_key]
 
         json_dict, body_binary = gltf.parse_glb(extra_name_assigned_glb)
         bone_name_to_index_dict: Dict[str, int] = {}
@@ -90,13 +95,29 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             bone_name = extras_dict.get(self.extras_bone_name_key)
             if isinstance(bone_name, str):
                 bone_name_to_index_dict[bone_name] = node_index
+                del extras_dict[self.extras_bone_name_key]
+                if not extras_dict:
+                    del node_dict["extras"]
                 continue
 
-            if (
-                extras_dict.get(self.extras_object_name_key)
-                == dummy_skinned_mesh_object.name
+            object_name = extras_dict.get(self.extras_object_name_key)
+            if isinstance(object_name, str) and (
+                object_name == dummy_skinned_mesh_object.name
+                or object_name.startswith(INTERNAL_NAME_PREFIX + "VrmAddonLinkTo")
             ):
                 node_dict.clear()
+                for child_removing_node_dict in list(nodes):
+                    if not isinstance(child_removing_node_dict, dict):
+                        continue
+                    children = child_removing_node_dict.get("children")
+                    if not isinstance(children, abc.Iterable):
+                        continue
+                    children = [child for child in children if child != node_index]
+                    if children:
+                        child_removing_node_dict["children"] = children
+                    else:
+                        del child_removing_node_dict["children"]
+
                 # TODO: remove from node children, scene, ...
 
         vrm_props = self.armature.data.vrm_addon_extension.vrm1.vrm
