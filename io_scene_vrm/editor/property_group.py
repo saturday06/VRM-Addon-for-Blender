@@ -220,7 +220,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(self.link_to_bone.parent)
 
-        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
+        vrm0_blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
             human_bone.node.value: HumanBones.get(HumanBoneName(human_bone.bone))
             for human_bone in ext.vrm0.humanoid.human_bones
             if human_bone.node.value
@@ -230,7 +230,26 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for human_bone in ext.vrm0.humanoid.human_bones:
             human_bone.update_node_candidates(
                 armature_data,
-                blender_bone_name_to_human_bone_dict,
+                vrm0_blender_bone_name_to_human_bone_dict,
+            )
+
+        human_bone_name_to_human_bone_props = (
+            ext.vrm1.vrm.humanoid.human_bones.human_bone_name_to_human_bone_props()
+        )
+        vrm1_blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
+            human_bone_props.node.value: HumanBones.get(human_bone_name)
+            for human_bone_name, human_bone_props in human_bone_name_to_human_bone_props.items()
+            if human_bone_props.node.value
+        }
+
+        for (
+            human_bone_name,
+            human_bone,
+        ) in human_bone_name_to_human_bone_props.items():
+            human_bone.update_node_candidates(
+                armature_data,
+                HumanBones.get(human_bone_name),
+                vrm1_blender_bone_name_to_human_bone_dict,
             )
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]

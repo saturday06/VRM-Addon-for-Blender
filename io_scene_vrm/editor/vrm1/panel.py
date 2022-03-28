@@ -109,8 +109,8 @@ def draw_vrm1_humanoid_layout(
     row = requires_box.row().split(factor=split_factor)
     column = row.column()
     column.label(text=HumanBones.HEAD.label)
-    column.label(text=HumanBones.NECK.label)
-    column.label(text=HumanBones.CHEST.label)
+    column.label(text=HumanBones.SPINE.label)
+    column.label(text=HumanBones.HIPS.label)
     column = row.column()
     icon = "USER"
     draw_vrm1_bone_prop_search(column, human_bones_props.head, icon)
@@ -170,9 +170,9 @@ def draw_vrm1_humanoid_layout(
     row = defines_box.row().split(factor=split_factor)
     column = row.column()
     column.label(text=HumanBones.JAW.label)
+    column.label(text=HumanBones.NECK.label)
     column.label(text=HumanBones.UPPER_CHEST.label)
-    column.label(text=HumanBones.SPINE.label)
-    column.label(text=HumanBones.HIPS.label)
+    column.label(text=HumanBones.CHEST.label)
 
     column = row.column()
     icon = "USER"

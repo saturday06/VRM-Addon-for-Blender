@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import bpy
 
-from ...common.human_bone import HumanBone, HumanBoneName
+from ...common.human_bone import HumanBone, HumanBoneName, HumanBones
 from ..property_group import BonePropertyGroup, MeshPropertyGroup, StringPropertyGroup
 
 
@@ -283,7 +283,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         defer: bool = True,
     ) -> None:
         armature_data = bpy.data.armatures.get(armature_data_name)
-        if not armature_data:
+        if not isinstance(armature_data, bpy.types.Armature):
             return
         human_bones_props = (
             armature_data.vrm_addon_extension.vrm1.vrm.humanoid.human_bones
@@ -311,16 +311,18 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             bone_name_props = human_bones_props.last_bone_names.add()
             bone_name_props.value = bone_name
         blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
-            human_bone_props.node.value: human_bone
-            for human_bone, human_bone_props in human_bones_props.human_bone_name_to_human_bone_props()
+            human_bone_props.node.value: HumanBones.get(human_bone_name)
+            for human_bone_name, human_bone_props in human_bones_props.human_bone_name_to_human_bone_props().items()
             if human_bone_props.node.value
         }
 
         for (
-            human_bone
-        ) in human_bones_props.human_bone_name_to_human_bone_props().values():
+            human_bone_name,
+            human_bone,
+        ) in human_bones_props.human_bone_name_to_human_bone_props().items():
             human_bone.update_node_candidates(
                 armature_data,
+                HumanBones.get(human_bone_name),
                 blender_bone_name_to_human_bone_dict,
             )
 

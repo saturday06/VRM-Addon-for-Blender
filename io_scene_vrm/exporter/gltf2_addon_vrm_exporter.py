@@ -24,8 +24,30 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         )
         self.armature[self.export_id] = True
         self.extras_bone_name_key = INTERNAL_NAME_PREFIX + self.export_id + "BoneName"
+        self.extras_object_name_key = (
+            INTERNAL_NAME_PREFIX + self.export_id + "ObjectName"
+        )
+
+    def create_dummy_skinned_mesh_object(self) -> bpy.types.Object:
+        vertices = [
+            (index / 16.0, 0, 0) for index, _ in enumerate(self.armature.pose.bones)
+        ]
+        vertices.append((0, 1, 0))
+        mesh = bpy.data.meshes.new(self.export_id + "_mesh")
+        mesh.from_pydata(vertices, [], [])
+        mesh.update()
+        obj = bpy.data.objects.new(self.export_id + "_object_mesh", mesh)
+        for index, bone_name in enumerate(self.armature.data.bones.keys()):
+            vertex_group = obj.vertex_groups.new(name=bone_name)
+            vertex_group.add([index], 1.0, "ADD")
+        modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
+        modifier.object = self.armature
+        bpy.context.scene.collection.objects.link(obj)
+        obj[self.extras_object_name_key] = obj.name
+        return obj
 
     def export_vrm(self) -> Optional[bytes]:
+        dummy_skinned_mesh_object = self.create_dummy_skinned_mesh_object()
         try:
             # glTF 2.0アドオンのコメントにはPoseBoneと書いてあるが、実際にはBoneのカスタムプロパティを参照している
             # そのため、いちおう両方に書いておく
@@ -64,10 +86,18 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             extras_dict = node_dict.get("extras")
             if not isinstance(extras_dict, dict):
                 continue
+
             bone_name = extras_dict.get(self.extras_bone_name_key)
-            if not isinstance(bone_name, str):
+            if isinstance(bone_name, str):
+                bone_name_to_index_dict[bone_name] = node_index
                 continue
-            bone_name_to_index_dict[bone_name] = node_index
+
+            if (
+                extras_dict.get(self.extras_object_name_key)
+                == dummy_skinned_mesh_object.name
+            ):
+                node_dict.clear()
+                # TODO: remove from node children, scene, ...
 
         vrm_props = self.armature.data.vrm_addon_extension.vrm1.vrm
         human_bones_dict: Dict[str, Any] = {}
@@ -91,7 +121,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         ):
             index = bone_name_to_index_dict.get(human_bone.node.value)
             if isinstance(index, int):
-                human_bones_dict[human_bone_name] = {"node": index}
+                human_bones_dict[human_bone_name.value] = {"node": index}
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, abc.Iterable):
@@ -114,5 +144,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             generator += " with " + base_generator
 
         json_dict["asset"]["generator"] = generator
+
+        bpy.context.scene.collection.objects.unlink(
+            dummy_skinned_mesh_object
+        )  # TODO: remove
 
         return gltf.pack_glb(json_dict, body_binary)
