@@ -1,27 +1,34 @@
-import os
+from os.path import dirname, join
 
 import bpy
 
+__file_names = [
+    "mtoon_unversioned.blend",
+    "transparent_z_write.blend",
+    "gltf.blend",
+]
+
 
 def add_shaders() -> None:
-    filedir = os.path.join(os.path.dirname(__file__), "material_node_groups.blend")
-    with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
-        for nt in data_from.node_groups:
-            if nt not in bpy.data.node_groups:
-                data_to.node_groups.append(nt)
+    for file_name in __file_names:
+        path = join(dirname(__file__), file_name)
+        with bpy.data.libraries.load(path, link=False) as (data_from, data_to):
+            for node_group in data_from.node_groups:
+                if node_group not in bpy.data.node_groups:
+                    data_to.node_groups.append(node_group)
 
 
 def shader_node_group_import(shader_node_group_name: str) -> None:
     if shader_node_group_name in bpy.data.node_groups:
         return
-    filedir = os.path.join(
-        os.path.dirname(__file__),
-        "material_node_groups.blend",
-        "NodeTree",
-    )
-    filepath = os.path.join(filedir, shader_node_group_name)
-    bpy.ops.wm.append(
-        filepath=filepath,
-        filename=shader_node_group_name,
-        directory=filedir,
-    )
+    for file_name in __file_names:
+        path = join(
+            dirname(__file__),
+            file_name,
+            "NodeTree",
+        )
+        bpy.ops.wm.append(
+            filepath=join(path, shader_node_group_name),
+            filename=shader_node_group_name,
+            directory=path,
+        )

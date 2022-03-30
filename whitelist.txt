@@ -44,7 +44,6 @@ f00
 fabs
 failfast
 filedialog
-filedir
 fileno
 filepath
 filetype
