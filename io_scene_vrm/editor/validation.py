@@ -128,25 +128,52 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         )
                     if bone.name not in node_names:
                         node_names.append(bone.name)
+
                 # TODO: T_POSE,
-                human_bones_props = (
-                    armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                required_bone_error_format = (
+                    'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
+                    + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
                 )
-                for humanoid_name in HumanBones.vrm0_required_names:
-                    if any(
-                        human_bone_props.bone == humanoid_name
-                        and human_bone_props.node
-                        and human_bone_props.node.value
-                        and human_bone_props.node.value in armature.data.bones
-                        for human_bone_props in human_bones_props
-                    ):
-                        continue
-                    messages.append(
-                        pgettext(
-                            'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
-                            + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
-                        ).format(humanoid_name=humanoid_name.capitalize())
+                if armature.data.vrm_addon_extension.is_vrm1():
+                    human_bones = (
+                        armature.data.vrm_addon_extension.vrm1.vrm.humanoid.human_bones
                     )
+                    for (
+                        human_bone_name,
+                        human_bone_props,
+                    ) in human_bones.human_bone_name_to_human_bone_props().items():
+                        human_bone = HumanBones.get(human_bone_name)
+                        if not human_bone.vrm1_requirement:
+                            continue
+                        if (
+                            human_bone_props.node
+                            and human_bone_props.node.value
+                            and human_bone_props.node.value in armature.data.bones
+                        ):
+                            continue
+                        messages.append(
+                            pgettext(required_bone_error_format).format(
+                                humanoid_name=human_bone.label
+                            )
+                        )
+                else:
+                    human_bones_props = (
+                        armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                    )
+                    for humanoid_name in HumanBones.vrm0_required_names:
+                        if any(
+                            human_bone_props.bone == humanoid_name
+                            and human_bone_props.node
+                            and human_bone_props.node.value
+                            and human_bone_props.node.value in armature.data.bones
+                            for human_bone_props in human_bones_props
+                        ):
+                            continue
+                        messages.append(
+                            pgettext(required_bone_error_format).format(
+                                humanoid_name=humanoid_name.capitalize()
+                            )
+                        )
 
             if obj.type == "MESH":
                 for poly in obj.data.polygons:

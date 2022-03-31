@@ -3,7 +3,7 @@ import secrets
 import string
 import tempfile
 from collections import abc
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import bpy
 
@@ -16,7 +16,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def __init__(self, export_objects: List[bpy.types.Object]) -> None:
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
-            raise NotImplementedError("アーマチュア無しエクスポートはまだ無い")
+            raise NotImplementedError("アーマチュア無しエクスポートはまだ未対応")
         self.armature = armatures[0]
 
         self.export_id = "BlenderVrmAddonExport" + (
@@ -121,19 +121,76 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 # TODO: remove from scenes, skin joints ...
 
         vrm_props = self.armature.data.vrm_addon_extension.vrm1.vrm
-        human_bones_dict: Dict[str, Any] = {}
-        vrmc_vrm_dict: Dict[str, Any] = {
-            "specVersion": "1.0-beta",
-            "meta": {
-                "name": vrm_props.meta.vrm_name,
-                "version": vrm_props.meta.version,
-                "authors": [author.value for author in vrm_props.meta.authors],
-                "licenseUrl": "https://vrm.dev/licenses/1.0/",
-            },
-            "humanoid": {
-                "humanBones": human_bones_dict,
-            },
+
+        meta_dict: Dict[str, Union[str, bool, List[str]]] = {
+            "licenseUrl": "https://vrm.dev/licenses/1.0/",
+            "name": vrm_props.meta.vrm_name if vrm_props.meta.vrm_name else "undefined",
+            "version": vrm_props.meta.version
+            if vrm_props.meta.version
+            else "undefined",
         }
+
+        authors = [author.value for author in vrm_props.meta.authors if author.value]
+        if not authors:
+            authors = ["undefined"]
+        meta_dict["authors"] = authors
+
+        if vrm_props.meta.copyright_information:
+            meta_dict["copyrightInformation"] = vrm_props.meta.copyright_information
+
+        references = [
+            reference.value
+            for reference in vrm_props.meta.references
+            if reference.value
+        ]
+        if references:
+            meta_dict["references"] = references
+
+        if vrm_props.meta.third_party_licenses:
+            meta_dict["thirdPartyLicenses"] = vrm_props.meta.third_party_licenses
+
+        if vrm_props.meta.license_url:
+            meta_dict["licenseUrl"] = vrm_props.meta.license_url
+
+        if vrm_props.meta.avatar_permission:
+            meta_dict["avatarPermission"] = vrm_props.meta.avatar_permission
+
+        if vrm_props.meta.allow_excessively_violent_usage:
+            meta_dict[
+                "allowExcessivelyViolentUsage"
+            ] = vrm_props.meta.allow_excessively_violent_usage
+
+        if vrm_props.meta.allow_excessively_sexual_usage:
+            meta_dict[
+                "allowExcessivelySexualUsage"
+            ] = vrm_props.meta.allow_excessively_sexual_usage
+
+        if vrm_props.meta.commercial_usage:
+            meta_dict["commercialUsage"] = vrm_props.meta.commercial_usage
+
+        if vrm_props.meta.allow_political_or_religious_usage:
+            meta_dict[
+                "allowPoliticalOrReligiousUsage"
+            ] = vrm_props.meta.allow_political_or_religious_usage
+
+        if vrm_props.meta.allow_antisocial_or_hate_usage:
+            meta_dict[
+                "allowAntisocialOrHateUsage"
+            ] = vrm_props.meta.allow_antisocial_or_hate_usage
+
+        if vrm_props.meta.credit_notation:
+            meta_dict["creditNotation"] = vrm_props.meta.credit_notation
+
+        if vrm_props.meta.allow_redistribution:
+            meta_dict["allowRedistribution"] = vrm_props.meta.allow_redistribution
+
+        if vrm_props.meta.modification:
+            meta_dict["modification"] = vrm_props.meta.modification
+
+        if vrm_props.meta.other_license_url:
+            meta_dict["otherLicenseUrl"] = vrm_props.meta.other_license_url
+
+        human_bones_dict: Dict[str, Any] = {}
         for (
             human_bone_name,
             human_bone,
@@ -150,9 +207,19 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         else:
             extensions_used = list(extensions_used)
         extensions_used.extend(["VRMC_vrm", "VRMC_springBone"])
-
         json_dict["extensionsUsed"] = extensions_used
-        json_dict.update({"extensions": {"VRMC_vrm": vrmc_vrm_dict}})
+
+        extensions = json_dict.get("extensions")
+        if not isinstance(extensions, dict):
+            extensions = {}
+        extensions["VRMC_vrm"] = {
+            "specVersion": self.armature.data.vrm_addon_extension.spec_version,
+            "meta": meta_dict,
+            "humanoid": {
+                "humanBones": human_bones_dict,
+            },
+        }
+        json_dict["extensions"] = extensions
 
         v = version.version()
         if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
