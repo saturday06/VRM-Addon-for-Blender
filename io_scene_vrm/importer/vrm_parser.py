@@ -41,6 +41,7 @@ class PyMesh:
     morph_target_point_list_and_accessor_index_dict: Optional[
         Dict[str, List[Any]]
     ] = None
+    has_FB_ngon_encoding: Optional[bool] = False
 
 
 @dataclass
@@ -549,6 +550,13 @@ class VrmParser:
                     vrm_mesh.name = mesh["name"]
                 else:
                     vrm_mesh.name = mesh["name"] + str(j)
+
+                vrm_mesh.has_FB_ngon_encoding = deep.get(
+                    mesh, ["extensions", "FB_ngon_encoding"], False
+                )
+                vrm_mesh.has_FB_ngon_encoding = (
+                    True if vrm_mesh.has_FB_ngon_encoding is not False else False
+                )
 
                 # region 頂点index
                 if primitive.get("mode", 4) != bgl.GL_TRIANGLES:

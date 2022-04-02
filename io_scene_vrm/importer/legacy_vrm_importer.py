@@ -202,11 +202,34 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         mesh_progress_unit = 1 / max(1, len(self.parse_result.meshes))
         for pymesh in self.parse_result.meshes:
             b_mesh = bpy.data.meshes.new(pymesh[0].name)
-            face_index = [tri for prim in pymesh for tri in prim.face_indices]
+
+            # FB_ngon_encoding実装
+            # 前のﾎﾟﾘｺﾞﾝの最初の頂点が今回の最初の頂点と同じ場合、そのﾎﾟﾘｺﾞﾝを一つのﾎﾟﾘｺﾞﾝ(ngon)としてインデックスを再構築する
+            face_indeices = []
+            primitive_length_list = []
+            for prim in pymesh:
+                face_count = len(prim.face_indices)
+                face_indeices.append(prim.face_indices[0])
+                face_offset = len([vert_ids for vert_ids in face_indeices])
+                for i in range(1, face_count):
+                    if (
+                        face_indeices[-1][0] == prim.face_indices[i][0]
+                        and prim.has_FB_ngon_encoding
+                    ):
+                        face_indeices[-1].append(prim.face_indices[i][2])
+                    else:
+                        face_indeices.append(prim.face_indices[i])
+                primitive_length_list.append(
+                    [
+                        prim.material_index,
+                        len([vert_ids for vert_ids in face_indeices]) - face_offset,
+                    ]
+                )
+            # face_index = [tri for prim in pymesh for tri in prim.face_indices]
             if pymesh[0].POSITION is None:
                 continue
             pos = list(map(self.axis_glb_to_blender, pymesh[0].POSITION))
-            b_mesh.from_pydata(pos, [], face_index)
+            b_mesh.from_pydata(pos, [], face_indeices)
             b_mesh.update()
             obj = bpy.data.objects.new(pymesh[0].name, b_mesh)
             obj.parent = self.armature
@@ -346,11 +369,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             # endregion  vertex groupの作成
 
             # region uv
-            flatten_vrm_mesh_vert_index = [
-                ind
-                for prim in pymesh
-                for ind in itertools.chain.from_iterable(prim.face_indices)
-            ]
+            flatten_vrm_mesh_vert_index = [v for verts in face_indeices for v in verts]
 
             for prim in pymesh:
                 texcoord_num = 0
@@ -406,7 +425,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
             # region material適用
             face_length = 0
-            for prim in pymesh:
+            for i, prim in enumerate(pymesh):
                 if (
                     prim.material_index is None
                     or prim.material_index not in self.vrm_materials
@@ -424,11 +443,10 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                         == self.vrm_materials[prim.material_index].name
                     ):
                         mat_index = i
-                tris = len(prim.face_indices)
-                for n in range(tris):
-                    b_mesh.polygons[face_length + n].material_index = mat_index
-                face_length = face_length + tris
 
+                for n in range(primitive_length_list[i][1]):
+                    b_mesh.polygons[face_length + n].material_index = mat_index
+                face_length += primitive_length_list[i][1] + 1
             # endregion material適用
 
             # region vertex_color
@@ -436,7 +454,11 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             # また、2.79では頂点カラーにalpha(4要素目)がないから完全対応は無理だったが
             # 2.80では4要素になった模様
             # TODO: テスト (懸案:cleaningで頂点結合でデータ物故割れる説)
-
+            flat_non_reducted_vert_index = [
+                ind
+                for prim in pymesh
+                for ind in itertools.chain.from_iterable(prim.face_indices)
+            ]
             for prim in pymesh:
                 vcolor_count = 0
                 vc_flag = True
@@ -448,7 +470,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                             vc = b_mesh.vertex_colors.new(name=vc_color_name)
                         for v_index, _ in enumerate(vc.data):
                             vc.data[v_index].color = getattr(prim, vc_color_name)[
-                                flatten_vrm_mesh_vert_index[v_index]
+                                flat_non_reducted_vert_index[v_index]
                             ]
                         vcolor_count += 1
                     else:
@@ -520,7 +542,6 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                     for i, co in enumerate(shape_data):
                         keyblock.data[i].co = co
             # endregion shape_key
-
             # progress update
             mesh_progress += mesh_progress_unit
             wm.progress_update(progress + mesh_progress)
