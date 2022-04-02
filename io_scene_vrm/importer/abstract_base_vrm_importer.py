@@ -615,17 +615,27 @@ class AbstractBaseVrmImporter(ABC):
                     print(f"{tex_name} is unknown texture")
 
         transparent_mode_float = pymat.float_props_dic["_BlendMode"]
+        # Z-WriteかどうかはMToon 1.0風のValue Nodeに保存する
+        # https://github.com/vrm-c/UniVRM/blob/master/Assets/VRMShaders/VRM10/MToon10/Resources/VRM10/vrmc_materials_mtoon.shader#L7
+        transparent_with_z_write_value = 0.0
+        # https://github.com/Santarh/MToon/blob/v3.8/MToon/Scripts/Enums.cs#L23-L29
         transparent_mode = "OPAQUE"
         if transparent_mode_float is None:
             pass
         elif math.fabs(transparent_mode_float - 1) < 0.001:
             transparent_mode = "CUTOUT"
-        elif (
-            math.fabs(transparent_mode_float - 2) < 0.001
-            or math.fabs(transparent_mode_float - 3) < 0.001
-        ):
-            # Trans_Zwrite(3)も2扱いで。
+        elif math.fabs(transparent_mode_float - 2) < 0.001:
             transparent_mode = "Z_TRANSPARENCY"
+        elif math.fabs(transparent_mode_float - 3) < 0.001:
+            transparent_mode = "Z_TRANSPARENCY"
+            transparent_with_z_write_value = 1.0
+
+        transparent_with_z_write_input = sg.inputs.get("TransparentWithZWrite")
+        if transparent_with_z_write_input:
+            self.connect_value_node(
+                b_mat, transparent_with_z_write_value, transparent_with_z_write_input
+            )
+
         self.set_material_transparent(b_mat, pymat, transparent_mode)
 
     def build_material_from_transparent_z_write(

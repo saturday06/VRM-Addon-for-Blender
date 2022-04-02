@@ -810,7 +810,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 material_prop_setter(1, 1, 0, 1, True, 2450, "TransparentCutout")
                 mtoon_float_dic["_Cutoff"] = b_mat.alpha_threshold
             else:  # transparent and Z_TRANSPARENCY or Raytrace
-                material_prop_setter(2, 5, 10, 0, False, 3000, "Transparent")
+                transparent_with_z_write = get_float_value(
+                    mtoon_shader_node, "TransparentWithZWrite"
+                )
+                if (
+                    not isinstance(transparent_with_z_write, (float, int))
+                    or math.fabs(transparent_with_z_write) < float_info.epsilon
+                ):
+                    material_prop_setter(2, 5, 10, 0, False, 3000, "Transparent")
+                else:
+                    material_prop_setter(3, 5, 10, 1, False, 2501, "Transparent")
             keyword_map.update(
                 {"_ALPHABLEND_ON": b_mat.blend_method not in ("OPAQUE", "CLIP")}
             )
