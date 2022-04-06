@@ -341,7 +341,7 @@ def draw_vrm1_first_person_layout(
             text="",
             translate=False,
         )
-        row.prop(mesh_annotation, "first_person_flag", text="", translate=False)
+        row.prop(mesh_annotation, "type", text="", translate=False)
         remove_mesh_annotation_op = row.operator(
             vrm1_operator.VRM_OT_remove_vrm1_first_person_mesh_annotation.bl_idname,
             text="Remove",
@@ -1144,7 +1144,7 @@ def draw_vrm1_meta_layout(
     add_reference_op.armature_data_name = armature.data.name
 
     layout.prop(meta_props, "third_party_licenses")
-    layout.prop(meta_props, "license_url", icon="URL")
+    # layout.prop(meta_props, "license_url", icon="URL")
     layout.prop(meta_props, "avatar_permission", icon="MATCLOTH")
     layout.prop(meta_props, "commercial_usage", icon="SOLO_OFF")
     layout.prop(meta_props, "credit_notation")

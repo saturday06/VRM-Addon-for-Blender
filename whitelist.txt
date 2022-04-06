@@ -41,6 +41,7 @@ eval
 exc
 exeext
 f00
+f2
 fabs
 failfast
 filedialog

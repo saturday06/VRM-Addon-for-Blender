@@ -351,8 +351,8 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         default=(0, 0, 0),
     )
     type_items = [
-        ("Bone", "Bone", "Bone", "BONE_DATA", 0),
-        ("Expression", "Expression", "Expression", "SHAPEKEY_DATA", 1),
+        ("bone", "Bone", "Bone", "BONE_DATA", 0),
+        ("expression", "Expression", "Expression", "SHAPEKEY_DATA", 1),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=type_items,  # noqa: F722
@@ -376,14 +376,14 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=MeshPropertyGroup  # noqa: F821
     )
-    first_person_flag_items = [
-        ("Auto", "Auto", "", 0),
-        ("Both", "Both", "", 1),
-        ("ThirdPersonOnly", "Third-Person Only", "", 2),
-        ("FirstPersonOnly", "First-Person Only", "", 3),
+    type_items = [
+        ("auto", "Auto", "", 0),
+        ("both", "Both", "", 1),
+        ("thirdPersonOnly", "Third-Person Only", "", 2),
+        ("firstPersonOnly", "First-Person Only", "", 3),
     ]
-    first_person_flag: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=first_person_flag_items, name="First Person Flag"  # noqa: F722
+    type: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=type_items, name="First Person Type"  # noqa: F722
     )
 
 
@@ -906,9 +906,9 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
     thumbnail_image: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Thumbnail Image", type=bpy.types.Image  # noqa: F722
     )
-    license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="License URL"  # noqa: F722
-    )
+    # license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
+    #     name="License URL"  # noqa: F722
+    # )
     avatar_permission: bpy.props.EnumProperty(  # type: ignore[valid-type]
         name="Avatar Permission",  # noqa: F722
         items=avatar_permission_items,
