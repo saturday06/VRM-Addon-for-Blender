@@ -460,17 +460,23 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         extras_node_index_key = self.import_id + "Nodes"
         for obj in bpy.context.selectable_objects:
+            if extras_node_index_key in obj:
+                del obj[extras_node_index_key]
             data = obj.data
+            if isinstance(data, bpy.types.Mesh) and extras_node_index_key in data:
+                del data[extras_node_index_key]
+
             if not isinstance(data, bpy.types.Armature):
                 continue
             for bone_name, bone in data.bones.items():
                 bone_node_index = bone.get(extras_node_index_key)
+                if extras_node_index_key in bone:
+                    del bone[extras_node_index_key]
                 if not isinstance(bone_node_index, int):
                     continue
                 if 0 <= bone_node_index < len(self.parse_result.json_dict["nodes"]):
                     node = self.parse_result.json_dict["nodes"][bone_node_index]
                     node["name"] = bone_name
-                del bone[extras_node_index_key]
                 self.bone_names[bone_node_index] = bone_name
                 if (
                     self.armature is not None
@@ -504,15 +510,17 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not isinstance(data, bpy.types.Mesh):
                 continue
             mesh_index = obj.data.get(extras_mesh_index_key)
-            if not isinstance(mesh_index, int):
-                mesh_index = obj.get(extras_mesh_index_key)
-                if not isinstance(mesh_index, int):
-                    continue
-                del obj[extras_mesh_index_key]
+            if isinstance(mesh_index, int):
                 self.meshes[mesh_index] = obj
             else:
+                mesh_index = obj.get(extras_mesh_index_key)
+                if isinstance(mesh_index, int):
+                    self.meshes[mesh_index] = obj
+
+            if extras_mesh_index_key in obj:
+                del obj[extras_mesh_index_key]
+            if extras_mesh_index_key in obj.data:
                 del obj.data[extras_mesh_index_key]
-                self.meshes[mesh_index] = obj
 
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
@@ -522,10 +530,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )  # TODO: Remove it permanently
                 continue
             material_index = material.get(extras_material_index_key)
-            if not isinstance(material_index, int):
-                continue
-            del material[extras_material_index_key]
-            self.gltf_materials[material_index] = material
+            if extras_material_index_key in material:
+                del material[extras_material_index_key]
+            if isinstance(material_index, int):
+                self.gltf_materials[material_index] = material
 
         for image in list(bpy.data.images):
             image_index = image.get(self.import_id)
