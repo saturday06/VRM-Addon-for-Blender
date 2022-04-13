@@ -309,6 +309,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     check_existing=False,
                     export_format="GLB",
                     export_extras=True,
+                    export_current_frame=True,
                 )
                 with open(filepath, "rb") as file:
                     extra_name_assigned_glb = file.read()
