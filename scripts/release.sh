@@ -34,7 +34,7 @@ for postfix in "$release_postfix" "$tag_name"; do
 done
 
 if ! curl \
-  --fail-with-body \
+  --fail \
   --show-error \
   --location \
   --output release.json \
@@ -51,7 +51,7 @@ fi
 upload_url=$(ruby -rjson -e "puts JSON.parse(File.read('release.json'))['upload_url'].sub(/{.+}$/, '')")
 
 if ! curl \
-  --fail-with-body \
+  --fail \
   --show-error \
   --location \
   --output release_upload.json \
