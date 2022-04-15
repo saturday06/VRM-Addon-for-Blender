@@ -103,7 +103,7 @@ If successful, the VRM file will be saved to the specified location.
 
 You can check the operation on this page.
 
-- https://hub.vroid.com/en/characters/4668234592601830916/models/6637924170056429746
+- https://hub.vroid.com/en/characters/6595382014094436897/models/1372267393572384142
 
 ## Links
 
