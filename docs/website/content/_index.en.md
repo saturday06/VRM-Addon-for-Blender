@@ -4,7 +4,7 @@ description: "VRM Add-on for Blender adds VRM import, export, and editing capabi
 images: ["en/images/top.png"]
 ---
 
-<img src="images/top.png">
+![](images/top.png)
 
 VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender version 2.82 or later.
 
