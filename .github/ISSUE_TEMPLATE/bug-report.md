@@ -27,9 +27,9 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 何か参考になりそうなスクショがあれば添付してください。
 **Desktop (please complete the following information) / PC環境情報**
-- OS: [e.g. Win,Mac,ubuntu,Fedora,...]
-- Blender [e.g. 2.80,2.81...]
-- Addon Version [e.g. 076]
+- OS: [e.g. Windows, macOS, Ubuntu Linux, ...]
+- Blender [e.g. 2.93.5, 3.1.2, ...]
+- Addon Version [e.g. 2.3.8]
 
 
 **Additional context / なにか他に書いておきたいことはこちらへ**
