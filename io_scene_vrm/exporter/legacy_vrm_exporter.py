@@ -104,6 +104,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             self.json_dic["scene"] = 0
             self.gltf_meta_to_dic()
             self.vrm_meta_to_dic()  # colliderとかmetaとか....
+            self.fill_empty_material()
             self.pack()
         finally:
             self.restore_pose()
@@ -2326,6 +2327,26 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             }
         )
         self.json_dic["scenes"][0]["nodes"].append(len(self.json_dic["nodes"]) - 1)
+
+    def fill_empty_material(self) -> None:
+        # clusterではマテリアル無しのプリミティブが許可されないため、空のマテリアルを付与する。
+        empty_material_index = len(self.json_dic["materials"])
+        create_empty_material = False
+        for mesh_dic in self.json_dic["meshes"]:
+            primitives = mesh_dic.get("primitives")
+            if not isinstance(primitives, abc.Iterable):
+                continue
+            for primitive_dic in primitives:
+                if not isinstance(primitive_dic, dict):
+                    continue
+                material_index = primitive_dic.get("material")
+                if isinstance(material_index, int):
+                    continue
+                primitive_dic["material"] = empty_material_index
+                create_empty_material = True
+
+        if create_empty_material:
+            self.json_dic["materials"].append({})
 
     def pack(self) -> None:
         bin_json, self.bin = self.glb_bin_collector.pack_all()
