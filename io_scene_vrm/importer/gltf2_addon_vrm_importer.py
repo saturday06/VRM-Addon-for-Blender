@@ -164,7 +164,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     {
                         "buffer": texcoord_buffer_index,
                         "byteOffset": 0,
-                        "byteLength": 24,
+                        "byteLength": len(texcoord_buffer_bytes),
                     }
                 )
 
