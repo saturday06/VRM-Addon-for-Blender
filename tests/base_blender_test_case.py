@@ -123,6 +123,7 @@ class BaseBlenderTestCase(TestCase):
         pythonpath += self.addons_pythonpath
         env["PYTHONPATH"] = pythonpath
 
+        error_exit_code = 1
         command = [
             self.find_blender_command(),
             "-noaudio",  # sound system to None (less output on stdout)
@@ -130,7 +131,7 @@ class BaseBlenderTestCase(TestCase):
             "--addons",
             "io_scene_vrm",  # enable the addon
             "--python-exit-code",
-            "1",
+            str(error_exit_code),
             "--background",
             "--python",
             os.path.join(
