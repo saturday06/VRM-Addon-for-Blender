@@ -11,6 +11,7 @@ class BaseBlenderTestCase(TestCase):
         # https://stackoverflow.com/a/19102520
         super().__init__(*args, **kwargs)
 
+        self.macos = platform.system() == "Darwin"
         self.windows = platform.system() == "Windows"
         if self.windows:
             self.exeext = ".exe"
@@ -101,7 +102,7 @@ class BaseBlenderTestCase(TestCase):
                 return self.process_output_to_str(
                     completed_process.stdout
                 ).splitlines()[0]
-        if platform.system() == "Darwin":
+        if self.macos:
             default_path = "/Applications/Blender.app/Contents/MacOS/Blender"
             if os.path.exists(default_path):
                 return default_path
