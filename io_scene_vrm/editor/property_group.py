@@ -86,12 +86,12 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for (
             human_bone
         ) in (
-            ext.vrm1.vrm.humanoid.human_bones.human_bone_name_to_human_bone_props().values()
+            ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone_props().values()
         ):
             yield human_bone.node
-        for collider in ext.vrm1.spring_bone.colliders:
+        for collider in ext.spring_bone1.colliders:
             yield collider.node
-        for spring in ext.vrm1.spring_bone.springs:
+        for spring in ext.spring_bone1.springs:
             for joint in spring.joints:
                 yield joint.node
 
@@ -234,7 +234,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             )
 
         human_bone_name_to_human_bone_props = (
-            ext.vrm1.vrm.humanoid.human_bones.human_bone_name_to_human_bone_props()
+            ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone_props()
         )
         vrm1_blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
             human_bone_props.node.value: HumanBones.get(human_bone_name)

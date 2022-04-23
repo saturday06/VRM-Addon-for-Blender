@@ -136,7 +136,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 )
                 if armature.data.vrm_addon_extension.is_vrm1():
                     human_bones = (
-                        armature.data.vrm_addon_extension.vrm1.vrm.humanoid.human_bones
+                        armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
                     )
                     for (
                         human_bone_name,

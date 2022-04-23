@@ -436,7 +436,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not extras_dict:
                 del mesh_dict["extras"]
 
-        vrm_props = self.armature.data.vrm_addon_extension.vrm1.vrm
+        vrm_props = self.armature.data.vrm_addon_extension.vrm1
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, abc.Iterable):

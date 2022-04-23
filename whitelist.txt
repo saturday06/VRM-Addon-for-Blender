@@ -18,6 +18,7 @@ base64
 bgl
 bindcode
 bmesh
+bone1
 bpy
 bugyyyyyyyyyyyyyyyyy
 calc
