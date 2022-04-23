@@ -50,9 +50,14 @@ class BaseBlenderTestCase(TestCase):
         )
         if completed_process.returncode != 0:
             raise Exception("Failed to execute command:\n" + output)
-        self.major_minor = ".".join(
-            stdout_str.splitlines()[0].split(" ")[1].split(".")[:2]
-        )
+
+        for line in stdout_str.splitlines():
+            if not line.startswith("Blender"):
+                continue
+            self.major_minor = ".".join(line.split(" ")[1].split(".")[:2])
+            return
+
+        raise Exception(f"Failed to detect Blender Version:\n---\n{stdout_str}\n---")
 
     def process_output_to_str(self, process_output: bytes) -> str:
         output = ""
