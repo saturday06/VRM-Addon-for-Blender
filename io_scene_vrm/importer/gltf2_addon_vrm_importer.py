@@ -646,10 +646,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             os.mkdir(dir_path)
 
         for image_index, image in self.images.items():
-            original_image_path = image.filepath_from_user()
-            if not os.path.exists(original_image_path):
-                continue
-            image_name = os.path.basename(original_image_path)
+            image_name = os.path.basename(image.filepath_from_user())
             image_type = image.file_format.lower()
             if len(image_name) >= 100:
                 new_image_name = "texture_too_long_name_" + str(image_index)
@@ -663,7 +660,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not os.path.exists(image_path):
                 image.unpack(method="WRITE_ORIGINAL")
                 with contextlib.suppress(IOError, shutil.SameFileError):
-                    shutil.copyfile(original_image_path, image_path)
+                    shutil.copyfile(image.filepath_from_user(), image_path)
                     image.filepath = image_path
                     image.reload()
             else:
