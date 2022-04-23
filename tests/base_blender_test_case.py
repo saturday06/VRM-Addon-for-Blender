@@ -140,13 +140,23 @@ class BaseBlenderTestCase(TestCase):
             "--",
             *args,
         ]
-        completed_process = subprocess.run(
-            command,
-            check=False,
-            capture_output=True,
-            cwd=self.repository_root_dir,
-            env=env,
-        )
+
+        if self.major_minor == "2.83" and self.macos:
+            retry = 3
+        else:
+            retry = 1
+
+        for _ in range(retry):
+            completed_process = subprocess.run(
+                command,
+                check=False,
+                capture_output=True,
+                cwd=self.repository_root_dir,
+                env=env,
+            )
+            if completed_process.returncode in [0, error_exit_code]:
+                break
+
         stdout_str = self.process_output_to_str(completed_process.stdout)
         stderr_str = self.process_output_to_str(completed_process.stderr)
         output = (
