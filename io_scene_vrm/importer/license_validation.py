@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
 from ..common import deep
-from ..common.fake_bpy_module_compat import pgettext
+from ..external.fake_bpy_module_support import pgettext
 
 
 class LicenseConfirmationRequiredProp:
