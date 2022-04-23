@@ -3,7 +3,7 @@ from typing import Set, cast
 import bpy
 
 
-class WM_OT_vrm_gltf2_addon_disabled_warning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.vrm_gltf2_addon_disabled_warning"
     bl_options = {"REGISTER"}

@@ -10,7 +10,7 @@ from typing import Any
 import bpy
 from bpy.app.handlers import persistent
 
-from .common import gltf2_addon_support, preferences, shader, version
+from .common import preferences, shader, version
 from .editor import (
     extension,
     glsl_drawer,
@@ -28,6 +28,7 @@ from .editor.vrm1 import operator as vrm1_operator
 from .editor.vrm1 import panel as vrm1_panel
 from .editor.vrm1 import property_group as vrm1_property_group
 from .exporter import export_scene
+from .external import io_scene_gltf2_support
 from .importer import import_scene
 from .locale.translation_dictionary import translation_dictionary
 
@@ -46,7 +47,7 @@ else:
 
 
 classes = [
-    gltf2_addon_support.WM_OT_vrm_gltf2_addon_disabled_warning,
+    io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,
     property_group.ObjectPropertyGroup,
     property_group.StringPropertyGroup,
     property_group.FloatPropertyGroup,
