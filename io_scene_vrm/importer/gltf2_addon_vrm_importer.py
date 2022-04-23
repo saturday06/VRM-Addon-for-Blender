@@ -642,6 +642,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     os.mkdir(checking_dir_path)
                     dir_path = checking_dir_path
                     break
+        elif not os.path.exists(dir_path):
+            os.mkdir(dir_path)
 
         for image_index, image in self.images.items():
             original_image_path = image.filepath_from_user()
