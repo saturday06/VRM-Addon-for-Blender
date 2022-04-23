@@ -655,7 +655,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             image_name = remove_unsafe_path_chars(image_name)
             image_path = os.path.join(dir_path, image_name)
-            if not image_name.lower().endswith("." + image_type.lower()):
+            if not image_name.lower().endswith("." + image_type.lower()) and not (
+                image_name.lower().endswith(".jpg") and image_type.lower() == "jpeg"
+            ):
                 image_path += "." + image_type
             if not os.path.exists(image_path):
                 image.unpack(method="WRITE_ORIGINAL")
