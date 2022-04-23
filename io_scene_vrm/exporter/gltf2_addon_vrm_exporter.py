@@ -9,6 +9,7 @@ import bpy
 
 from ..common import deep, gltf, version
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
@@ -284,6 +285,24 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "custom": custom_dict,
         }
 
+    @staticmethod
+    def create_spring_bone_colliders(
+        _spring_bone: SpringBone1SpringBonePropertyGroup,
+    ) -> List[Dict[str, Any]]:
+        return []
+
+    @staticmethod
+    def create_spring_bone_collider_groups(
+        _spring_bone: SpringBone1SpringBonePropertyGroup,
+    ) -> List[Dict[str, Any]]:
+        return []
+
+    @staticmethod
+    def create_spring_bone_springs(
+        _spring_bone: SpringBone1SpringBonePropertyGroup,
+    ) -> List[Dict[str, Any]]:
+        return []
+
     def export_vrm(self) -> Optional[bytes]:
         dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         try:
@@ -465,6 +484,16 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 mesh_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
             ),
+        }
+
+        spring_bone_props = self.armature.data.vrm_addon_extension.spring_bone1
+        extensions["VRMC_springBone"] = {
+            "specVersion": self.armature.data.vrm_addon_extension.spec_version,
+            "colliders": self.create_spring_bone_colliders(spring_bone_props),
+            "colliderGroups": self.create_spring_bone_collider_groups(
+                spring_bone_props
+            ),
+            "springs": self.create_spring_bone_springs(spring_bone_props),
         }
         json_dict["extensions"] = extensions
 
