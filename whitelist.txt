@@ -26,7 +26,6 @@ cn
 colorspace
 compat
 const
-copyfile
 cullmode
 customdata
 depsgraph

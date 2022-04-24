@@ -671,7 +671,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not os.path.exists(image_path):
                 image.unpack(method="WRITE_ORIGINAL")
                 with contextlib.suppress(IOError, shutil.SameFileError):
-                    shutil.copyfile(image.filepath_from_user(), image_path)
+                    shutil.move(image.filepath_from_user(), image_path)
                     image.filepath = image_path
                     image.reload()
             else:
@@ -682,7 +682,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     image_path = os.path.join(dir_path, second_image_name)
                     if not os.path.exists(image_path):
                         image.unpack(method="WRITE_ORIGINAL")
-                        shutil.copyfile(image.filepath_from_user(), image_path)
+                        shutil.move(image.filepath_from_user(), image_path)
                         image.filepath = image_path
                         image.reload()
                         written_flag = True
