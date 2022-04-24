@@ -2,6 +2,7 @@ import base64
 import contextlib
 import math
 import os.path
+import re
 import shutil
 import struct
 import tempfile
@@ -647,6 +648,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         for image_index, image in self.images.items():
             image_name = os.path.basename(image.filepath_from_user())
+            if image_name:
+                legacy_image_name_prefix = self.import_id + "Image"
+                if image_name.startswith(legacy_image_name_prefix):
+                    image_name = re.sub(
+                        r"^\d+_", "", image_name[len(legacy_image_name_prefix) :]
+                    )
             if not image_name:
                 image_name = image.name
             image_type = image.file_format.lower()
