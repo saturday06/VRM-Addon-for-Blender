@@ -21,6 +21,8 @@ from .editor import (
     property_group,
     validation,
 )
+from .editor.node_constraint1 import panel as node_constraint1_panel
+from .editor.node_constraint1 import property_group as node_constraint1_property_group
 from .editor.spring_bone1 import operator as spring_bone1_operator
 from .editor.spring_bone1 import panel as spring_bone1_panel
 from .editor.spring_bone1 import property_group as spring_bone1_property_group
@@ -87,6 +89,7 @@ classes = [
     vrm1_property_group.Vrm1ExpressionsPropertyGroup,
     vrm1_property_group.Vrm1MetaPropertyGroup,
     vrm1_property_group.Vrm1PropertyGroup,
+    node_constraint1_property_group.NodeConstraint1NodeConstraintPropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderShapeSpherePropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderShapeCapsulePropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderShapePropertyGroup,
@@ -120,6 +123,8 @@ classes = [
     vrm1_panel.VRM_PT_vrm1_look_at_ui,
     vrm1_panel.VRM_PT_vrm1_expressions_armature_object_property,
     vrm1_panel.VRM_PT_vrm1_expressions_ui,
+    node_constraint1_panel.VRM_PT_node_constraint1_armature_object_property,
+    node_constraint1_panel.VRM_PT_node_constraint1_ui,
     spring_bone1_panel.VRM_PT_spring_bone1_armature_object_property,
     spring_bone1_panel.VRM_PT_spring_bone1_ui,
     vrm0_operator.VRM_OT_add_vrm0_first_person_mesh_annotation,

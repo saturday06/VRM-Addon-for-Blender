@@ -29,7 +29,7 @@ class VRM_OT_add_spring_bone1_collider(  # noqa: N801
         collider.blender_object = obj
         obj.empty_display_type = "SPHERE"
         obj.empty_display_size = 0.25
-        collider.vrm_name = obj.name
+        collider.broadcast_blender_object_name()
         context.scene.collection.objects.link(obj)
         return {"FINISHED"}
 

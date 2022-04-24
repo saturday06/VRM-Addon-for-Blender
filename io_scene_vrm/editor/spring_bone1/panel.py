@@ -322,7 +322,7 @@ def draw_vrm1_spring_bone_layout(
 
 class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_spring_bone_armature_object_property"
-    bl_label = "VRM 1.0-Beta Spring Bone"
+    bl_label = "Spring Bone 1.0-Beta"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -346,7 +346,7 @@ class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):  # type: ig
 
 class VRM_PT_spring_bone1_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_spring_bone_ui"
-    bl_label = "VRM 1.0-Beta Spring Bone"
+    bl_label = "Spring Bone 1.0-Beta"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"

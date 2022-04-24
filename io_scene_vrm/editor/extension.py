@@ -1,5 +1,6 @@
 import bpy
 
+from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from .vrm0.property_group import Vrm0PropertyGroup
 from .vrm1.property_group import Vrm1PropertyGroup
@@ -20,6 +21,10 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
 
     spring_bone1: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=SpringBone1SpringBonePropertyGroup  # noqa: F722
+    )
+
+    node_constraint1: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=NodeConstraint1NodeConstraintPropertyGroup  # noqa: F722
     )
 
     armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -52,12 +57,7 @@ def __on_change_blender_object_name() -> None:
 
         # FIXME: Needs optimization!
         for collider_props in armature.vrm_addon_extension.spring_bone1.colliders:
-            if collider_props.blender_object:
-                name = collider_props.blender_object.name
-            else:
-                name = ""
-            if collider_props.vrm_name != name:
-                collider_props.vrm_name = name
+            collider_props.broadcast_blender_object_name()
 
 
 __subscription_owner = object()

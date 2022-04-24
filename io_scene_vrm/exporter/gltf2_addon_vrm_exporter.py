@@ -3,7 +3,7 @@ import secrets
 import string
 import tempfile
 from collections import abc
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import bpy
 
@@ -286,22 +286,112 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         }
 
     @staticmethod
-    def create_spring_bone_colliders(
-        _spring_bone: SpringBone1SpringBonePropertyGroup,
-    ) -> List[Dict[str, Any]]:
-        return []
+    def create_spring_bone_collider_dicts(
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        bone_name_to_index_dict: Dict[str, int],
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
+        collider_dicts: List[Dict[str, Any]] = []
+        collider_uuid_to_index_dict = {}
+        for collider_props in spring_bone.colliders:
+            collider_dict: Dict[str, Any] = {}
+            node_index = bone_name_to_index_dict.get(collider_props.node.value)
+            if not isinstance(node_index, int):
+                continue
+            collider_dict["node"] = node_index
+
+            shape_props = collider_props.shape
+            if shape_props.shape == shape_props.SHAPE_SPHERE:
+                shape_dict = {
+                    "sphere": {
+                        "offset": list(shape_props.sphere.offset),
+                        "radius": shape_props.sphere.radius,
+                    }
+                }
+            elif shape_props.shape == shape_props.SHAPE_CAPSULE:
+                shape_dict = {
+                    "capsule": {
+                        "offset": list(shape_props.capsule.offset),
+                        "radius": shape_props.capsule.radius,
+                        "tail": list(shape_props.capsule.tail),
+                    }
+                }
+            else:
+                continue
+
+            collider_dict["shape"] = shape_dict
+            collider_uuid_to_index_dict[collider_props.uuid] = len(collider_dicts)
+            collider_dicts.append(collider_dict)
+
+        return collider_dicts, collider_uuid_to_index_dict
 
     @staticmethod
-    def create_spring_bone_collider_groups(
-        _spring_bone: SpringBone1SpringBonePropertyGroup,
-    ) -> List[Dict[str, Any]]:
-        return []
+    def create_spring_bone_collider_group_dicts(
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        collider_uuid_to_index_dict: Dict[str, int],
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
+        collider_group_dicts: List[Dict[str, Any]] = []
+        collider_group_uuid_to_index_dict = {}
+        for collider_group_props in spring_bone.collider_groups:
+            collider_group_dict = {"name": collider_group_props.vrm_name}
+            collider_indices = []
+            for collider_reference_props in collider_group_props.colliders:
+                collider_index = collider_uuid_to_index_dict.get(
+                    collider_reference_props.collider_uuid
+                )
+                if isinstance(collider_index, int):
+                    collider_indices.append(collider_index)
+            if collider_indices:
+                collider_group_dict["colliders"] = collider_indices
+
+            collider_group_uuid_to_index_dict[collider_group_props.uuid] = len(
+                collider_group_dicts
+            )
+            collider_group_dicts.append(collider_group_dict)
+
+        return collider_group_dicts, collider_group_uuid_to_index_dict
 
     @staticmethod
-    def create_spring_bone_springs(
-        _spring_bone: SpringBone1SpringBonePropertyGroup,
+    def create_spring_bone_spring_dicts(
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        bone_name_to_index_dict: Dict[str, int],
+        collider_group_uuid_to_index_dict: Dict[str, int],
     ) -> List[Dict[str, Any]]:
-        return []
+        spring_dicts = []
+        for spring_props in spring_bone.spring_groups:
+            spring_dict = {"name": spring_props.vrm_name}
+
+            joint_dicts = []
+            for joint_props in spring_props.joints:
+                node_index = bone_name_to_index_dict.get(joint_props.node.value)
+                if not isinstance(node_index, int):
+                    continue
+                joint_dicts.append(
+                    {
+                        "node": node_index,
+                        "hitRadius": joint_props.hit_radius,
+                        "stiffness": joint_props.stiffness,
+                        "gravityPower": joint_props.gravity_power,
+                        "gravityDir": list(joint_props.gravity_dir),
+                        "dragForce": joint_props.drag_force,
+                    }
+                )
+
+            if joint_dicts:
+                spring_dict["joints"] = joint_dicts
+
+            collider_group_indices = []
+            for collider_group_reference_props in spring_props.collider_groups:
+                collider_group_index = collider_group_uuid_to_index_dict.get(
+                    collider_group_reference_props.collider_group_uuid
+                )
+                if isinstance(collider_group_index, int):
+                    collider_group_indices.append(collider_group_index)
+
+            if collider_group_indices:
+                spring_dict["colliderGroups"] = collider_group_indices
+
+            spring_dicts.append(spring_dict)
+        return spring_dicts
 
     def export_vrm(self) -> Optional[bytes]:
         dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
@@ -462,12 +552,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             extensions_used = []
         else:
             extensions_used = list(extensions_used)
-        extensions_used.extend(["VRMC_vrm", "VRMC_springBone"])
-        json_dict["extensionsUsed"] = extensions_used
 
         extensions = json_dict.get("extensions")
         if not isinstance(extensions, dict):
             extensions = {}
+
+        extensions_used.append("VRMC_vrm")
         extensions["VRMC_vrm"] = {
             "specVersion": self.armature.data.vrm_addon_extension.spec_version,
             "meta": self.create_meta_dict(vrm_props.meta),
@@ -487,15 +577,43 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         }
 
         spring_bone_props = self.armature.data.vrm_addon_extension.spring_bone1
-        extensions["VRMC_springBone"] = {
-            "specVersion": self.armature.data.vrm_addon_extension.spec_version,
-            "colliders": self.create_spring_bone_colliders(spring_bone_props),
-            "colliderGroups": self.create_spring_bone_collider_groups(
-                spring_bone_props
-            ),
-            "springs": self.create_spring_bone_springs(spring_bone_props),
-        }
+        spring_bone_dict = {}
+
+        (
+            spring_bone_collider_dicts,
+            collider_uuid_to_index_dict,
+        ) = self.create_spring_bone_collider_dicts(
+            spring_bone_props, bone_name_to_index_dict
+        )
+        if spring_bone_collider_dicts:
+            spring_bone_dict["colliders"] = spring_bone_collider_dicts
+
+        (
+            spring_bone_collider_group_dicts,
+            collider_group_uuid_to_index_dict,
+        ) = self.create_spring_bone_collider_group_dicts(
+            spring_bone_props, collider_uuid_to_index_dict
+        )
+        if spring_bone_collider_group_dicts:
+            spring_bone_dict["colliderGroups"] = spring_bone_collider_group_dicts
+
+        spring_bone_spring_dicts = self.create_spring_bone_spring_dicts(
+            spring_bone_props,
+            bone_name_to_index_dict,
+            collider_group_uuid_to_index_dict,
+        )
+        if spring_bone_spring_dicts:
+            spring_bone_dict["springs"] = spring_bone_spring_dicts
+
+        if spring_bone_dict:
+            extensions_used.append("VRMC_springBone")
+            spring_bone_dict[
+                "specVersion"
+            ] = self.armature.data.vrm_addon_extension.spec_version
+            extensions["VRMC_springBone"] = spring_bone_dict
+
         json_dict["extensions"] = extensions
+        json_dict["extensionsUsed"] = extensions_used
 
         v = version.version()
         if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":

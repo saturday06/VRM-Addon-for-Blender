@@ -57,18 +57,15 @@ class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):  # type: i
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
 class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def __get_vrm_name(self) -> str:
-        value = self.get("vrm_name", "")
-        return value if isinstance(value, str) else str(value)
-
-    def __set_vrm_name(self, vrm_name: Any) -> None:
-        if not isinstance(vrm_name, str):
-            vrm_name = str(vrm_name)
-        self.name = vrm_name  # pylint: disable=attribute-defined-outside-init
-        if self.get("vrm_name") == vrm_name:
+    def broadcast_blender_object_name(self) -> None:
+        if not self.blender_object or not self.blender_object.name:
+            self.name = ""  # pylint: disable=attribute-defined-outside-init
             return
-
-        self["vrm_name"] = vrm_name
+        if self.name == self.blender_object.name:
+            return
+        self.name = (  # pylint: disable=attribute-defined-outside-init
+            self.blender_object.name
+        )
 
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in bpy.data.armatures:
@@ -89,9 +86,6 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 
                 return
 
-    vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        get=__get_vrm_name, set=__set_vrm_name
-    )
     node: bpy.props.PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
     shape: bpy.props.PointerProperty(type=SpringBone1ColliderShapePropertyGroup)  # type: ignore[valid-type]
 
