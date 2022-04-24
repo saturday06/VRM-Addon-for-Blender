@@ -647,6 +647,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         for image_index, image in self.images.items():
             image_name = os.path.basename(image.filepath_from_user())
+            if not image_name:
+                image_name = image.name
             image_type = image.file_format.lower()
             if len(image_name) >= 100:
                 new_image_name = "texture_too_long_name_" + str(image_index)
