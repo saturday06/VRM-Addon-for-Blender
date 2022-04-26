@@ -1535,9 +1535,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             # https://docs.blender.org/api/2.80/bpy.types.Depsgraph.html
             depsgraph = bpy.context.evaluated_depsgraph_get()
             mesh_owner = mesh.evaluated_get(depsgraph)
-            mesh_data = mesh_owner.to_mesh(
+            mesh_from_mesh_owner = mesh_owner.to_mesh(
                 preserve_all_data_layers=True, depsgraph=depsgraph
-            ).copy()
+            )
+            if not mesh_from_mesh_owner:
+                continue
+            mesh_data = mesh_from_mesh_owner.copy()
             for prop in mesh.data.keys():
                 mesh_data[prop] = mesh.data[prop]
 
