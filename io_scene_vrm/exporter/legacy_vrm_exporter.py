@@ -1558,7 +1558,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             mesh_data_transform @= mesh.matrix_world
             mesh_data.transform(mesh_data_transform, shape_keys=True)
             bm_temp.from_mesh(mesh_data)
-            bmesh.ops.triangulate(bm_temp, faces=bm_temp.faces[:])
+            # bmesh.ops.triangulate(bm_temp, faces=bm_temp.faces[:])
             bm_temp.to_mesh(mesh_data)
             bm_temp.free()
 
@@ -1644,8 +1644,62 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         position[i] if position[i] > minmax[1][i] else minmax[1][i]
                     )
 
-            for face in bm.faces:
-                for loop in face.loops:
+            # FB_ngon_encodeのため、nGonを扇状に割る。また、分割前の連続したポリゴンが最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
+            # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを再生できる
+            # メリット：ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、拡張非対応であればそのまま読めば普通に三角として表示できる
+            # 欠点：ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
+            # また、ngonが凸包ﾎﾟﾘｺﾞﾝで無い場合、見た目が破綻する(例：鈍角三角形の底辺を接合した4角形)
+            def tessface_fan(faces):
+                sorted_faces: list = faces[:]
+                sorted_faces = sorted(sorted_faces, key=lambda f: f.material_index)
+                polys = []
+                for face in sorted_faces:
+                    if len(face.loops) <= 3:
+                        if (
+                            len(polys) > 0
+                            and face.loops[0].vert.index == polys[-1][1][0].vert.index
+                        ):
+                            polys.append(
+                                [
+                                    face.material_index,
+                                    [face.loops[n] for n in [1, 2, 0]],
+                                ]
+                            )
+                        else:
+                            polys.append([face.material_index, face.loops[:]])
+                    else:
+                        if (
+                            len(polys) > 0
+                            and face.loops[0].vert.index == polys[-1][1][0].vert.index
+                        ):
+                            for i in range(0, len(face.loops) - 2):
+                                polys.append(
+                                    [
+                                        face.material_index,
+                                        [
+                                            face.loops[-1],
+                                            face.loops[i],
+                                            face.loops[i + 1],
+                                        ],
+                                    ]
+                                )
+                        else:
+                            for i in range(1, len(face.loops) - 1):
+                                polys.append(
+                                    [
+                                        face.material_index,
+                                        [
+                                            face.loops[0],
+                                            face.loops[i],
+                                            face.loops[i + 1],
+                                        ],
+                                    ]
+                                )
+                return polys
+
+            for face in tessface_fan(bm.faces):
+                for loop in face[1]:
+                    material_index = face[0]
                     uv_list = []
                     for uvlayer_name in uvlayers_dic.values():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
@@ -1661,7 +1715,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     )  # keyがなければNoneを返す
                     if cached_vert_id is not None:
                         primitive_index = None
-                        material_slot_name = material_slot_dic.get(face.material_index)
+                        material_slot_name = material_slot_dic.get(material_index)
                         if isinstance(material_slot_name, str):
                             primitive_index = mat_id_dic[material_slot_name]
                         primitive_index_bin_dic[
@@ -1781,7 +1835,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         *self.axis_blender_to_glb(vert_normal)
                     )
                     primitive_index = None
-                    material_slot_name = material_slot_dic.get(face.material_index)
+                    material_slot_name = material_slot_dic.get(material_index)
                     if isinstance(material_slot_name, str):
                         primitive_index = mat_id_dic[material_slot_name]
                     primitive_index_bin_dic[
@@ -1949,7 +2003,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 self.mesh_name_to_index[mesh.name] = mesh_index
             self.mesh_name_to_index[mesh.data.name] = mesh_index
             self.json_dic["meshes"].append(
-                OrderedDict({"name": mesh.data.name, "primitives": primitive_list})
+                OrderedDict(
+                    {
+                        "name": mesh.data.name,
+                        "primitives": primitive_list,
+                        "extensions": {
+                            "FB_ngon_encoding": {},
+                        },
+                    }
+                )
             )
             bm.free()
             # endregion hell
