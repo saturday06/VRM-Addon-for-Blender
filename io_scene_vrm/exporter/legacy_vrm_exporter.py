@@ -1644,15 +1644,21 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         position[i] if position[i] > minmax[1][i] else minmax[1][i]
                     )
 
-            # FB_ngon_encodeのため、nGonを扇状に割る。また、分割前の連続したポリゴンが最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
+            # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
             # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを再生できる
             # メリット：ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、拡張非対応であればそのまま読めば普通に三角として表示できる
             # 欠点：ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
-            # また、ngonが凸包ﾎﾟﾘｺﾞﾝで無い場合、見た目が破綻する(例：鈍角三角形の底辺を接合した4角形)
-            def tessface_fan(faces):
-                sorted_faces: list = faces[:]
-                sorted_faces = sorted(sorted_faces, key=lambda f: f.material_index)
-                polys = []
+            # また、ngonが凸包ポリゴンで無い場合、見た目が破綻する(例：鈍角三角形の底辺を接合した4角形)
+            def tessface_fan(
+                faces: Sequence[bmesh.types.BMFace],
+            ) -> List[Tuple[int, List[bmesh.types.BMLoop]]]:
+                sorted_faces = sorted(
+                    faces,
+                    key=lambda f: int(  # material_indexの型をintとして明示的に指定しないとmypyがエラーになる
+                        f.material_index
+                    ),
+                )
+                polys: List[Tuple[int, List[bmesh.types.BMLoop]]] = []
                 for face in sorted_faces:
                     if len(face.loops) <= 3:
                         if (
@@ -1660,13 +1666,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             and face.loops[0].vert.index == polys[-1][1][0].vert.index
                         ):
                             polys.append(
-                                [
+                                (
                                     face.material_index,
                                     [face.loops[n] for n in [1, 2, 0]],
-                                ]
+                                )
                             )
                         else:
-                            polys.append([face.material_index, face.loops[:]])
+                            polys.append((face.material_index, face.loops[:]))
                     else:
                         if (
                             len(polys) > 0
@@ -1674,32 +1680,31 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         ):
                             for i in range(0, len(face.loops) - 2):
                                 polys.append(
-                                    [
+                                    (
                                         face.material_index,
                                         [
                                             face.loops[-1],
                                             face.loops[i],
                                             face.loops[i + 1],
                                         ],
-                                    ]
+                                    )
                                 )
                         else:
                             for i in range(1, len(face.loops) - 1):
                                 polys.append(
-                                    [
+                                    (
                                         face.material_index,
                                         [
                                             face.loops[0],
                                             face.loops[i],
                                             face.loops[i + 1],
                                         ],
-                                    ]
+                                    )
                                 )
                 return polys
 
-            for face in tessface_fan(bm.faces):
-                for loop in face[1]:
-                    material_index = face[0]
+            for material_index, loops in tessface_fan(bm.faces):
+                for loop in loops:
                     uv_list = []
                     for uvlayer_name in uvlayers_dic.values():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]

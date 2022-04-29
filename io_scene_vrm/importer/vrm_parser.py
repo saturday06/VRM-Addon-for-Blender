@@ -31,7 +31,7 @@ class PyMesh:
     name: str = ""
     face_indices: List[List[int]] = field(default_factory=list)
     skin_id: Optional[int] = None
-    material_index: Optional[int] = None
+    material_index: int = 0
     POSITION_accessor: Optional[int] = None
     POSITION: Optional[List[List[float]]] = None
     JOINTS_0: Optional[List[List[int]]] = None
@@ -41,7 +41,7 @@ class PyMesh:
     morph_target_point_list_and_accessor_index_dict: Optional[
         Dict[str, List[Any]]
     ] = None
-    has_FB_ngon_encoding: Optional[bool] = False
+    has_FB_ngon_encoding: bool = False  # noqa: N815
 
 
 @dataclass
@@ -551,11 +551,8 @@ class VrmParser:
                 else:
                     vrm_mesh.name = mesh["name"] + str(j)
 
-                vrm_mesh.has_FB_ngon_encoding = deep.get(
-                    mesh, ["extensions", "FB_ngon_encoding"], False
-                )
-                vrm_mesh.has_FB_ngon_encoding = (
-                    True if vrm_mesh.has_FB_ngon_encoding is not False else False
+                vrm_mesh.has_FB_ngon_encoding = isinstance(
+                    deep.get(mesh, ["extensions", "FB_ngon_encoding"]), dict
                 )
 
                 # region 頂点index

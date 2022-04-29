@@ -204,32 +204,32 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             b_mesh = bpy.data.meshes.new(pymesh[0].name)
 
             # FB_ngon_encoding実装
-            # 前のﾎﾟﾘｺﾞﾝの最初の頂点が今回の最初の頂点と同じ場合、そのﾎﾟﾘｺﾞﾝを一つのﾎﾟﾘｺﾞﾝ(ngon)としてインデックスを再構築する
-            face_indeices = []
+            # 前のポリゴンの最初の頂点が今回の最初の頂点と同じ場合、そのポリゴンを一つのポリゴン(ngon)としてインデックスを再構築する
+            face_indices = []
             primitive_length_list = []
             for prim in pymesh:
                 face_count = len(prim.face_indices)
-                face_indeices.append(prim.face_indices[0])
-                face_offset = len([vert_ids for vert_ids in face_indeices])
+                face_indices.append(prim.face_indices[0])
+                face_offset = len(face_indices)
                 for i in range(1, face_count):
                     if (
-                        face_indeices[-1][0] == prim.face_indices[i][0]
+                        face_indices[-1][0] == prim.face_indices[i][0]
                         and prim.has_FB_ngon_encoding
                     ):
-                        face_indeices[-1].append(prim.face_indices[i][2])
+                        face_indices[-1].append(prim.face_indices[i][2])
                     else:
-                        face_indeices.append(prim.face_indices[i])
+                        face_indices.append(prim.face_indices[i])
                 primitive_length_list.append(
                     [
                         prim.material_index,
-                        len([vert_ids for vert_ids in face_indeices]) - face_offset,
+                        len(face_indices) - face_offset,
                     ]
                 )
             # face_index = [tri for prim in pymesh for tri in prim.face_indices]
             if pymesh[0].POSITION is None:
                 continue
             pos = list(map(self.axis_glb_to_blender, pymesh[0].POSITION))
-            b_mesh.from_pydata(pos, [], face_indeices)
+            b_mesh.from_pydata(pos, [], face_indices)
             b_mesh.update()
             obj = bpy.data.objects.new(pymesh[0].name, b_mesh)
             obj.parent = self.armature
@@ -369,7 +369,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             # endregion  vertex groupの作成
 
             # region uv
-            flatten_vrm_mesh_vert_index = [v for verts in face_indeices for v in verts]
+            flatten_vrm_mesh_vert_index = [v for verts in face_indices for v in verts]
 
             for prim in pymesh:
                 texcoord_num = 0
@@ -437,12 +437,12 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 ):
                     obj.data.materials.append(self.vrm_materials[prim.material_index])
                 mat_index = 0
-                for i, mat in enumerate(obj.material_slots):
+                for j, mat in enumerate(obj.material_slots):
                     if (
                         mat.material.name
                         == self.vrm_materials[prim.material_index].name
                     ):
-                        mat_index = i
+                        mat_index = j
 
                 for n in range(primitive_length_list[i][1]):
                     b_mesh.polygons[face_length + n].material_index = mat_index

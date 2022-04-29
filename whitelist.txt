@@ -44,6 +44,7 @@ f00
 f2
 fabs
 failfast
+fb
 filedialog
 fileno
 filepath
@@ -139,6 +140,7 @@ quaternion
 raytrace
 rbd
 recalc
+reducted
 req
 rfu
 rgb
@@ -162,6 +164,7 @@ subtarget
 subtype
 superciliaris
 tagmap
+tessface
 texcoord
 textblock
 texture0
