@@ -111,25 +111,29 @@ class MtoonGlsl:
             return self.normal_texture
         raise Exception
 
-    def get_value(self, val_name: str) -> Any:
+    def get_value(self, val_name: str) -> float:
         main_node = self.main_node
         if main_node is None:
             raise Exception("main node is None")
+        if val_name not in main_node.inputs:
+            return 0.0
         if main_node.inputs[val_name].links:
-            return (
+            return float(
                 main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
             )
-        return main_node.inputs[val_name].default_value
+        return float(main_node.inputs[val_name].default_value)
 
-    def get_color(self, vec_name: str) -> Any:
+    def get_color(self, vec_name: str) -> List[float]:
         main_node = self.main_node
         if main_node is None:
             raise Exception("main node is None")
+        if vec_name not in main_node.inputs:
+            return [0.0, 0.0, 0.0, 0.0]
         if main_node.inputs[vec_name].links:
-            return (
+            return list(
                 main_node.inputs[vec_name].links[0].from_node.outputs[0].default_value
             )
-        return main_node.inputs[vec_name].default_value
+        return list(main_node.inputs[vec_name].default_value)
 
     def update(self) -> None:
         if self.material.blend_method in ("OPAQUE", "CLIP"):
