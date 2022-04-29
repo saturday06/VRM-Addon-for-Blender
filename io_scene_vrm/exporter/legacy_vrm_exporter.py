@@ -1549,7 +1549,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             bpy.context.view_layer.objects.active = mesh
             bpy.ops.object.mode_set(mode="EDIT")
 
-            bm_temp = bmesh.new()
             mesh_data_transform = Matrix.Identity(4)
             if not is_skin_mesh:
                 mesh_data_transform @= Matrix.Translation(
@@ -1557,11 +1556,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 )
             mesh_data_transform @= mesh.matrix_world
             mesh_data.transform(mesh_data_transform, shape_keys=True)
-            bm_temp.from_mesh(mesh_data)
-            # bmesh.ops.triangulate(bm_temp, faces=bm_temp.faces[:])
-            bm_temp.to_mesh(mesh_data)
-            bm_temp.free()
-
             mesh_data.calc_loop_triangles()
             mesh_data.calc_normals_split()
 
