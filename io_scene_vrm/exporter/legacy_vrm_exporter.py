@@ -1644,8 +1644,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             # 欠点：ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
             # また、ngonが凸包ポリゴンで無い場合、見た目が破綻する(例：鈍角三角形の底辺を接合した4角形)
             def tessface_fan(
-                faces: Sequence[bmesh.types.BMFace],
+                bm: bmesh.types.BMesh,
             ) -> List[Tuple[int, List[bmesh.types.BMLoop]]]:
+                return [
+                    (loops[0].face.material_index, loops)
+                    for loops in bm.calc_loop_triangles()
+                    if len(loops) > 0
+                ]
+
+                # TODO: 凹や穴の空いたNゴンに対応
+                # pylint: disable=unreachable
+                faces = bm.faces
                 sorted_faces = sorted(
                     faces,
                     key=lambda f: int(  # material_indexの型をintとして明示的に指定しないとmypyがエラーになる
@@ -1697,7 +1706,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                 )
                 return polys
 
-            for material_index, loops in tessface_fan(bm.faces):
+            for material_index, loops in tessface_fan(bm):
                 for loop in loops:
                     uv_list = []
                     for uvlayer_name in uvlayers_dic.values():
@@ -2006,9 +2015,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     {
                         "name": mesh.data.name,
                         "primitives": primitive_list,
-                        "extensions": {
-                            "FB_ngon_encoding": {},
-                        },
+                        # "extensions": {
+                        #    "FB_ngon_encoding": {},
+                        # },
                     }
                 )
             )
