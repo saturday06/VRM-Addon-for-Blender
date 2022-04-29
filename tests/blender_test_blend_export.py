@@ -57,7 +57,7 @@ def test() -> None:
         os.remove(actual_path)
     bpy.ops.export_scene.vrm(filepath=actual_path)
 
-    float_tolerance = 0.00004
+    float_tolerance = 0.00015
 
     diffs = vrm_diff(
         pathlib.Path(actual_path).read_bytes(),

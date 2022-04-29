@@ -137,7 +137,7 @@ def assert_import_export(
     if system in ["Darwin", "Linux"]:
         float_tolerance = 0.00055
     else:
-        float_tolerance = 0.000015
+        float_tolerance = 0.00030
 
     if (
         update_failed_vrm
