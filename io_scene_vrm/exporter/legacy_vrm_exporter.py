@@ -2304,9 +2304,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         secondary_animation_props = (
             self.armature.data.vrm_addon_extension.vrm0.secondary_animation
         )
+        filtered_collider_groups = list(
+            filter(
+                lambda collider_group_props: collider_group_props.node
+                and collider_group_props.node.value
+                and collider_group_props.node.value in node_name_id_dict,
+                secondary_animation_props.collider_groups,
+            )
+        )
         collider_group_names = [
             collider_group_props.name
-            for collider_group_props in secondary_animation_props.collider_groups
+            for collider_group_props in filtered_collider_groups
         ]
 
         # region boneGroup
@@ -2343,18 +2351,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         # endregion boneGroup
 
         # region colliderGroups
-        for collider_group_props in secondary_animation_props.collider_groups:
+        for collider_group_props in filtered_collider_groups:
             collider_group_dict: Dict[str, Any] = {}
             collider_group_dict["colliders"] = colliders = []
             collider_groups.append(collider_group_dict)
-
-            if collider_group_props.node and collider_group_props.node.value:
-                collider_group_dict["node"] = node_name_id_dict[
-                    collider_group_props.node.value
-                ]
-            else:
-                collider_group_dict["node"] = -1
-                continue
+            collider_group_dict["node"] = node_name_id_dict[
+                collider_group_props.node.value
+            ]
 
             for collider_props in collider_group_props.colliders:
                 collider_object = collider_props.blender_object
