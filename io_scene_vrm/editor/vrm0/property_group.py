@@ -400,11 +400,16 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
         }
         for index, collider_group in reversed(list(enumerate(self.collider_groups))):
             uuid_str = collider_group.value.split("#")[-1:][0]
-            name = collider_group_uuid_to_name.get(uuid_str)
-            if name is None:
+            if not uuid_str:
                 self.collider_groups.remove(index)
-            else:
-                collider_group.value = name
+                continue
+
+            name = collider_group_uuid_to_name.get(uuid_str)
+            if not name:
+                self.collider_groups.remove(index)
+                continue
+
+            collider_group.value = name
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
