@@ -1033,6 +1033,7 @@ class AbstractBaseVrmImporter(ABC):
         for collider_group_dict in collider_groups:
             collider_group_props = secondary_animation_props.collider_groups.add()
             collider_group_props.uuid = uuid.uuid4().hex
+            collider_group_props.refresh(armature)
 
             if not isinstance(collider_group_dict, dict):
                 continue
@@ -1091,6 +1092,9 @@ class AbstractBaseVrmImporter(ABC):
             self.context.scene.collection.children.link(colliders_collection)
             for collider_obj in collider_objs:
                 colliders_collection.objects.link(collider_obj)
+
+        for collider_group_props in secondary_animation_props.collider_groups:
+            collider_group_props.refresh(armature)
 
         bone_groups = secondary_animation_dict.get("boneGroups")
         if not isinstance(bone_groups, abc.Iterable):
@@ -1160,9 +1164,6 @@ class AbstractBaseVrmImporter(ABC):
 
         for bone_group_props in secondary_animation_props.bone_groups:
             bone_group_props.refresh(armature)
-
-        for collider_group_props in secondary_animation_props.collider_groups:
-            collider_group_props.refresh(armature)
 
     def cleaning_data(self) -> None:
         # collection setting
