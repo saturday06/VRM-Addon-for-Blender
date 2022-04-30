@@ -207,13 +207,17 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         value_str = str(value)
         if not value_str or value_str not in self.link_to_bone.parent.data.bones:
-            self.link_to_bone.parent_type = "OBJECT"
+            if self.link_to_bone.parent_type != "OBJECT":
+                self.link_to_bone.parent_type = "OBJECT"
+            if not self.link_to_bone.parent_bone:
+                return
             self.link_to_bone.parent_bone = ""
         elif self.link_to_bone.parent_bone == value_str:
             return
         else:
+            if self.link_to_bone.parent_type != "BONE":
+                self.link_to_bone.parent_type = "BONE"
             self.link_to_bone.parent_bone = value_str
-            self.link_to_bone.parent_type = "BONE"
 
         armature_data = self.link_to_bone.parent.data
         ext = armature_data.vrm_addon_extension
