@@ -1147,7 +1147,7 @@ class AbstractBaseVrmImporter(ABC):
             collider_groups = bone_group_dict.get("colliderGroups")
             if isinstance(collider_groups, abc.Iterable):
                 for collider_group in collider_groups:
-                    if not isinstance(collider_group, int) and not (
+                    if not isinstance(collider_group, int) or not (
                         0
                         <= collider_group
                         < len(secondary_animation_props.collider_groups)
