@@ -285,7 +285,10 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         if not isinstance(armature_data, bpy.types.Armature):
             return
         human_bones_props = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-        bone_names = sorted(armature_data.bones.keys())
+        bone_names = []
+        for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
+            bone_names.append(bone.name)
+            bone_names.append(bone.parent.name if bone.parent else "")
         up_to_date = bone_names == list(
             map(lambda n: str(n.value), human_bones_props.last_bone_names)
         )
