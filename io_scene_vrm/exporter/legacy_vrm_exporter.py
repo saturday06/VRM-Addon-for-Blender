@@ -10,6 +10,7 @@ import math
 import os
 import re
 import secrets
+import statistics
 import string
 import struct
 import tempfile
@@ -2376,8 +2377,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     for i in range(3)
                 ]
 
-                if isinstance(collider_object.empty_display_size, (int, float)):
-                    collider["radius"] = collider_object.empty_display_size
+                object_mean_scale = statistics.mean(
+                    map(
+                        lambda s: abs(float(s)),  # floatキャストはmypy対策
+                        collider_object.matrix_world.to_scale(),
+                    )
+                )
+                collider["radius"] = (
+                    collider_object.empty_display_size * object_mean_scale
+                )
 
                 collider["offset"] = OrderedDict(
                     zip(
