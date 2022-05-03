@@ -9,7 +9,7 @@ import bpy
 
 from ...common import convert
 from ...common.human_bone import HumanBones
-from .property_group import Vrm0PropertyGroup
+from .property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
 
 
 def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Optional[Any]:
@@ -431,3 +431,9 @@ def migrate(vrm0_props: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
                 break
 
     migrate_legacy_custom_properties(armature)
+
+    vrm0_props.humanoid.last_bone_names.clear()
+    Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+        armature.data.name,
+        defer=False,
+    )
