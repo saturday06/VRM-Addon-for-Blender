@@ -3,6 +3,7 @@ import functools
 import bpy
 
 from ..common import version
+from . import extension
 from .property_group import BonePropertyGroup
 from .vrm0 import migration as vrm0_migration
 
@@ -21,6 +22,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     ):
         return False
 
+    extension.setup(load_post=False)
     ext = armature.data.vrm_addon_extension
     if (
         tuple(ext.addon_version) >= version.version()

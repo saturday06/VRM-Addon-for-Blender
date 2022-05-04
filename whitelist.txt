@@ -166,6 +166,7 @@ subtarget
 subtype
 superciliaris
 tagmap
+teardown
 tessface
 texcoord
 textblock

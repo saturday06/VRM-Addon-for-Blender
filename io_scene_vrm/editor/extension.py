@@ -1,3 +1,5 @@
+from typing import List
+
 import bpy
 
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
@@ -61,9 +63,15 @@ def __on_change_blender_object_name() -> None:
 
 
 __subscription_owner = object()
+__setup_once: List[bool] = []  # mutableにするためlistを使う
 
 
-def setup() -> None:
+def setup(load_post: bool) -> None:
+    # 本来なら一度しか処理しないが、load_postから呼ばれた場合は強制的に処理する
+    if __setup_once and not load_post:
+        return
+    __setup_once.append(True)
+
     subscribe_to = (bpy.types.Object, "name")
     bpy.msgbus.subscribe_rna(
         key=subscribe_to,
@@ -72,3 +80,7 @@ def setup() -> None:
         notify=__on_change_blender_object_name,
     )
     bpy.msgbus.publish_rna(key=subscribe_to)
+
+
+def teardown() -> None:
+    __setup_once.clear()
