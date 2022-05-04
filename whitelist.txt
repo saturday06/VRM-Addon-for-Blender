@@ -19,6 +19,7 @@ bgl
 bindcode
 bmesh
 bone1
+bone2
 bpy
 bugyyyyyyyyyyyyyyyyy
 calc
@@ -52,6 +53,7 @@ fileno
 filepath
 filetype
 filetypes
+fixup
 fmax
 fmin
 fragcode

@@ -413,19 +413,12 @@ def is_unnecessary(vrm0_props: Vrm0PropertyGroup) -> bool:
 
 
 def migrate(vrm0_props: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
+    Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+
     for collider_group_props in vrm0_props.secondary_animation.collider_groups:
         collider_group_props.refresh(armature)
     for bone_group_props in vrm0_props.secondary_animation.bone_groups:
         bone_group_props.refresh(armature)
-
-    for human_bone_name in HumanBones.all_names:
-        if any(
-            human_bone.bone == human_bone_name
-            for human_bone in vrm0_props.humanoid.human_bones
-        ):
-            continue
-        human_bone_props = vrm0_props.humanoid.human_bones.add()
-        human_bone_props.bone = human_bone_name
 
     if not vrm0_props.first_person.first_person_bone.value:
         for human_bone in vrm0_props.humanoid.human_bones:

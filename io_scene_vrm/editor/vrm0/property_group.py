@@ -156,6 +156,72 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                 blender_bone_name_to_human_bone_dict,
             )
 
+    @staticmethod
+    def fixup_human_bones(obj: bpy.types.Object) -> None:
+        armature_data = obj.data
+        if (
+            obj.type != "ARMATURE"
+            or not isinstance(armature_data, bpy.types.Armature)
+            or not hasattr(armature_data, "vrm_addon_extension")
+        ):
+            return
+
+        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+
+        # 存在していないボーンマップを追加
+        refresh = False
+        for human_bone_name in HumanBones.all_names:
+            if any(
+                human_bone.bone == human_bone_name
+                for human_bone in humanoid.human_bones
+            ):
+                continue
+            human_bone_props = humanoid.human_bones.add()
+            human_bone_props.bone = human_bone_name
+            refresh = True
+
+        # 二重に入っているボーンマップを削除
+        fixup = True
+        while fixup:
+            fixup = False
+            found_bones = []
+            for i, human_bone in enumerate(list(humanoid.human_bones)):
+                if (
+                    human_bone.bone in HumanBones.all_names
+                    and human_bone.bone not in found_bones
+                ):
+                    found_bones.append(human_bone.bone)
+                    continue
+                humanoid.human_bones.remove(i)
+                refresh = True
+                fixup = True
+                break
+
+        # 複数のボーンマップに同一のBlenderのボーンが設定されていたら片方を削除
+        fixup = True
+        while fixup:
+            fixup = False
+            found_node_values = []
+            for human_bone in humanoid.human_bones:
+                if not human_bone.node.value:
+                    continue
+                if human_bone.node.value not in found_node_values:
+                    found_node_values.append(human_bone.node.value)
+                    continue
+                human_bone.node.value = ""
+                refresh = True
+                fixup = True
+                break
+
+        if not refresh:
+            return
+
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        for collider_group_props in secondary_animation.collider_groups:
+            collider_group_props.refresh(obj)
+        for bone_group_props in secondary_animation.bone_groups:
+            bone_group_props.refresh(obj)
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22
 class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]

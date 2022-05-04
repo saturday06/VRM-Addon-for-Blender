@@ -4,7 +4,7 @@ import bpy
 
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
-from .vrm0.property_group import Vrm0PropertyGroup
+from .vrm0.property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
 from .vrm1.property_group import Vrm1PropertyGroup
 
 
@@ -71,6 +71,9 @@ def setup(load_post: bool) -> None:
     if __setup_once and not load_post:
         return
     __setup_once.append(True)
+
+    for obj in bpy.data.objects:
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(obj)
 
     subscribe_to = (bpy.types.Object, "name")
     bpy.msgbus.subscribe_rna(
