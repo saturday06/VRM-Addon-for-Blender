@@ -13,12 +13,15 @@ from .property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
 
 
 def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Optional[Any]:
-    if armature_key not in armature:
+    text_key = armature.get(armature_key)
+    if isinstance(text_key, bpy.types.Text):
+        textblock = text_key
+    elif not isinstance(text_key, str):
         return None
-    with contextlib.suppress(TypeError):
-        if armature[armature_key] not in bpy.data.texts:
+    else:
+        textblock = bpy.data.texts.get(text_key)
+        if not isinstance(textblock, bpy.types.Text):
             return None
-    textblock = bpy.data.texts[armature[armature_key]]
     textblock_str = "".join([line.body for line in textblock.lines])
     with contextlib.suppress(json.JSONDecodeError):
         return json.loads(
