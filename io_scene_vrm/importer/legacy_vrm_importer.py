@@ -36,7 +36,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             i = prog(i)
             self.make_primitive_mesh_objects(wm, i)
             # i=prog(i) ↑関数内でやる
-            self.attach_vrm_attributes()
+            self.load_vrm0_extensions()
             i = prog(i)
             self.cleaning_data()
             i = prog(i)

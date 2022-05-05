@@ -667,7 +667,7 @@ class AbstractBaseVrmImporter(ABC):
 
     # endregion material
 
-    def attach_vrm_attributes(self) -> None:
+    def load_vrm0_extensions(self) -> None:
         armature = self.armature
         if not armature:
             return

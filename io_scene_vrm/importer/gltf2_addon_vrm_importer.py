@@ -60,7 +60,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             i = prog(i)
             self.make_material()
             i = prog(i)
-            self.attach_vrm_attributes()
+            self.load_vrm0_extensions()
             i = prog(i)
             self.cleaning_data()
             i = prog(i)
