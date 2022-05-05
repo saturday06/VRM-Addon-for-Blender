@@ -43,7 +43,7 @@ if persistent:  # for fake-bpy-modules
     def load_post(_dummy: Any) -> None:
         shader.add_shaders()
         migration.migrate_all_objects()
-        extension.setup(load_post=True)
+        migration.setup_subscription(load_post=True)
 
 else:
 
@@ -227,7 +227,7 @@ def register(init_version: Any) -> None:
 
 
 def unregister() -> None:
-    extension.teardown()  # extension.setup()はload_postで呼ばれる
+    migration.teardown_subscription()  # migration.setup_subscription()はload_postで呼ばれる
     bpy.app.handlers.load_post.remove(load_post)
 
     # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)

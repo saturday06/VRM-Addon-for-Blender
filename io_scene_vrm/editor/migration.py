@@ -1,9 +1,10 @@
 import functools
+from typing import List
 
 import bpy
 
 from ..common import version
-from . import extension
+from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .property_group import BonePropertyGroup
 from .vrm0 import migration as vrm0_migration
 
@@ -22,7 +23,6 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     ):
         return False
 
-    extension.setup(load_post=False)
     ext = armature.data.vrm_addon_extension
     if (
         tuple(ext.addon_version) >= version.version()
@@ -39,14 +39,16 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
         )
         return False
 
+    ext.armature_data_name = armature.data.name
+
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
         bone_property_group.refresh(armature)
 
     vrm0_migration.migrate(ext.vrm0, armature)
 
     ext.addon_version = version.version()
-    ext.armature_data_name = armature.data.name
 
+    setup_subscription(load_post=False)
     return True
 
 
@@ -54,3 +56,54 @@ def migrate_all_objects() -> None:
     for obj in bpy.data.objects:
         if obj.type == "ARMATURE":
             migrate(obj.name, defer=False)
+
+
+__object_subscription_owner = object()
+__armature_subscription_owner = object()
+__setup_once: List[bool] = []  # mutableにするためlistを使う
+
+
+def __on_change_bpy_object_name() -> None:
+    for armature in bpy.data.armatures:
+        if not hasattr(armature, "vrm_addon_extension") or not isinstance(
+            armature.vrm_addon_extension, VrmAddonArmatureExtensionPropertyGroup
+        ):
+            continue
+
+        # FIXME: Needs optimization!
+        for collider_props in armature.vrm_addon_extension.spring_bone1.colliders:
+            collider_props.broadcast_blender_object_name()
+
+
+def __on_change_bpy_armature_name() -> None:
+    migrate_all_objects()
+
+
+def setup_subscription(load_post: bool) -> None:
+    # 本来なら一度しか処理しないが、load_postから呼ばれた場合は強制的に処理する
+    if __setup_once and not load_post:
+        return
+    __setup_once.append(True)
+
+    object_subscribe_to = (bpy.types.Object, "name")
+    bpy.msgbus.subscribe_rna(
+        key=object_subscribe_to,
+        owner=__object_subscription_owner,
+        args=(),
+        notify=__on_change_bpy_object_name,
+    )
+
+    armature_subscribe_to = (bpy.types.Armature, "name")
+    bpy.msgbus.subscribe_rna(
+        key=armature_subscribe_to,
+        owner=__armature_subscription_owner,
+        args=(),
+        notify=__on_change_bpy_armature_name,
+    )
+
+    bpy.msgbus.publish_rna(key=object_subscribe_to)
+    bpy.msgbus.publish_rna(key=armature_subscribe_to)
+
+
+def teardown_subscription() -> None:
+    __setup_once.clear()
