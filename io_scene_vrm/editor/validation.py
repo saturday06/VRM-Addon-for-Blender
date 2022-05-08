@@ -71,7 +71,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
     ) -> None:
         messages = []
         warning_messages = []
-        print("validation start")
         armature_count = 0
         armature: Optional[bpy.types.Object] = None
         node_names = []
@@ -370,8 +369,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             # endregion blend_shape_master
 
         # endregion vrm metas check
-
-        print("validation finished")
 
         error_collection.clear()
 
