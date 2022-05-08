@@ -16,13 +16,13 @@ def vrm_json_vector3_to_tuple(
         y = 0
     if not isinstance(z, (int, float)):
         z = 0
-    return (x, y, z)
+    return (float(x), float(y), float(z))
 
 
 def vrm_json_curve_to_list(curve: Any) -> Optional[List[float]]:
     if not isinstance(curve, abc.Iterable):
         return None
-    values = [v if isinstance(v, (int, float)) else 0 for v in curve]
+    values = [float(v) if isinstance(v, (int, float)) else 0 for v in curve]
     while len(values) < 8:
         values.append(0)
     while len(values) > 8:
