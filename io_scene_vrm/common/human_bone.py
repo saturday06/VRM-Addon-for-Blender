@@ -218,6 +218,7 @@ HUMAN_BONE_STRUCTURE: Dict[
 @dataclass(frozen=True)
 class HumanBone:
     name: HumanBoneName
+    title: str
     label: str
     label_no_left_right: str
     vrm0_requirement: bool
@@ -246,11 +247,13 @@ class HumanBone:
     ) -> "HumanBone":
         # https://stackoverflow.com/a/1176023
         words = re.sub(r"(?<!^)(?=[A-Z])", "#", human_bone_name.value).split("#")
-        label = " ".join(map(str.capitalize, words)) + ":"
+        title = " ".join(map(str.capitalize, words))
+        label = title + ":"
         label_no_left_right = re.sub(r"Right ", "", re.sub(r"^Left ", "", label))
 
         return HumanBone(
             name=human_bone_name,
+            title=title,
             label=label,
             label_no_left_right=label_no_left_right,
             vrm0_requirement=vrm0_requirement,

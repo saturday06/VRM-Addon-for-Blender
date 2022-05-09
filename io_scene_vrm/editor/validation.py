@@ -152,7 +152,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             continue
                         messages.append(
                             pgettext(required_bone_error_format).format(
-                                humanoid_name=human_bone.label
+                                humanoid_name=human_bone.title
                             )
                         )
                 else:
