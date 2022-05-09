@@ -26,7 +26,7 @@ def test() -> None:
         bpy.data.collections.remove(bpy.data.collections[0])
 
     bpy.ops.icyp.make_basic_armature(WIP_with_template_mesh=True)
-    bpy.ops.vrm.model_validate()
+    assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
     actual_path = os.path.join(temp_dir_path, vrm)
     if os.path.exists(actual_path):

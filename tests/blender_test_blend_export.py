@@ -50,7 +50,7 @@ def test() -> None:
 
     bpy.ops.wm.open_mainfile(filepath=in_path)
 
-    bpy.ops.vrm.model_validate()
+    assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
     actual_path = os.path.join(temp_vrm_dir, vrm)
     if os.path.exists(actual_path):

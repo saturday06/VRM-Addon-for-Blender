@@ -116,7 +116,7 @@ def assert_import_export(
         make_new_texture_folder=extract_textures,
     )
 
-    bpy.ops.vrm.model_validate()
+    assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
     if (
         not extract_textures
