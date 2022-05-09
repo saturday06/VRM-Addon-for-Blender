@@ -3,7 +3,11 @@ from typing import Dict, List, Union
 
 import bpy
 
-from ...common.human_bone import HumanBone, HumanBoneName, HumanBones
+from ...common.human_bone import (
+    HumanBoneName,
+    HumanBoneSpecification,
+    HumanBoneSpecifications,
+)
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
@@ -44,17 +48,17 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
     def update_node_candidates(
         self,
         armature_data: bpy.types.Armature,
-        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone],
+        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
     ) -> None:
         human_bone_name = HumanBoneName.from_str(self.bone)
         if human_bone_name is None:
             print(f"WARNING: bone name '{self.bone}' is invalid")
             return
-        target = HumanBones.get(human_bone_name)
+        target = HumanBoneSpecifications.get(human_bone_name)
         new_candidates = BonePropertyGroup.find_bone_candidates(
             armature_data,
             target,
-            blender_bone_name_to_human_bone_dict,
+            bpy_bone_name_to_human_bone_specification,
         )
         if set(map(lambda n: n.value, self.node_candidates)) == new_candidates:
             return
@@ -72,11 +76,11 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
             candidate.value = bone_name  # for logic
             candidate.name = bone_name  # for view
 
-    def rule(self) -> HumanBone:
+    def specification(self) -> HumanBoneSpecification:
         name = HumanBoneName.from_str(self.bone)
         if name is None:
             raise Exception(f'HumanBone "{self.bone}" is invalid')
-        return HumanBones.get(name)
+        return HumanBoneSpecifications.get(name)
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
@@ -158,8 +162,10 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             bone_name_props = humanoid_props.last_bone_names.add()
             bone_name_props.value = bone_name
 
-        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
-            human_bone.node.value: HumanBones.get(HumanBoneName(human_bone.bone))
+        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
+            human_bone.node.value: HumanBoneSpecifications.get(
+                HumanBoneName(human_bone.bone)
+            )
             for human_bone in humanoid_props.human_bones
             if human_bone.node.value
             and HumanBoneName.from_str(human_bone.bone) is not None
@@ -168,7 +174,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for human_bone in humanoid_props.human_bones:
             human_bone.update_node_candidates(
                 armature_data,
-                blender_bone_name_to_human_bone_dict,
+                bpy_bone_name_to_human_bone_specification,
             )
 
     @staticmethod
@@ -185,7 +191,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         # 存在していないボーンマップを追加
         refresh = False
-        for human_bone_name in HumanBones.all_names:
+        for human_bone_name in HumanBoneSpecifications.all_names:
             if any(
                 human_bone.bone == human_bone_name
                 for human_bone in humanoid.human_bones
@@ -202,7 +208,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             found_bones = []
             for i, human_bone in enumerate(list(humanoid.human_bones)):
                 if (
-                    human_bone.bone in HumanBones.all_names
+                    human_bone.bone in HumanBoneSpecifications.all_names
                     and human_bone.bone not in found_bones
                 ):
                     found_bones.append(human_bone.bone)

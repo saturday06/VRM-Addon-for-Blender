@@ -4,7 +4,11 @@ from typing import Any, Dict, Iterator, Optional, Set, Union
 import bpy
 
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.human_bone import HumanBone, HumanBoneName, HumanBones
+from ..common.human_bone import (
+    HumanBoneName,
+    HumanBoneSpecification,
+    HumanBoneSpecifications,
+)
 
 
 class ObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -98,8 +102,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     @staticmethod
     def find_bone_candidates(
         armature_data: bpy.types.Armature,
-        target_human_bone: HumanBone,
-        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone],
+        target: HumanBoneSpecification,
+        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
     ) -> Set[str]:
         bones: Union[Dict[str, bpy.types.Bone], Dict[str, bpy.types.EditBone]] = {}
         if armature_data.is_editmode:
@@ -111,15 +115,15 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         for (
             blender_bone_name,
-            human_bone,
-        ) in blender_bone_name_to_human_bone_dict.items():
-            if human_bone == target_human_bone:
+            human_bone_specification,
+        ) in bpy_bone_name_to_human_bone_specification.items():
+            if human_bone_specification == target:
                 continue
 
-            if human_bone.is_ancestor_of(target_human_bone):
+            if human_bone_specification.is_ancestor_of(target):
                 remove_ancestors = True
                 remove_ancestor_branches = True
-            elif target_human_bone.is_ancestor_of(human_bone):
+            elif target.is_ancestor_of(human_bone_specification):
                 remove_bones_tree.add(bones[blender_bone_name])
                 remove_ancestors = False
                 remove_ancestor_branches = True
@@ -229,8 +233,12 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(self.link_to_bone.parent)
 
-        vrm0_blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
-            human_bone.node.value: HumanBones.get(HumanBoneName(human_bone.bone))
+        vrm0_bpy_bone_name_to_human_bone_specification: Dict[
+            str, HumanBoneSpecification
+        ] = {
+            human_bone.node.value: HumanBoneSpecifications.get(
+                HumanBoneName(human_bone.bone)
+            )
             for human_bone in ext.vrm0.humanoid.human_bones
             if human_bone.node.value
             and HumanBoneName.from_str(human_bone.bone) is not None
@@ -239,14 +247,16 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for human_bone in ext.vrm0.humanoid.human_bones:
             human_bone.update_node_candidates(
                 armature_data,
-                vrm0_blender_bone_name_to_human_bone_dict,
+                vrm0_bpy_bone_name_to_human_bone_specification,
             )
 
         human_bone_name_to_human_bone_props = (
             ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone_props()
         )
-        vrm1_blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
-            human_bone_props.node.value: HumanBones.get(human_bone_name)
+        vrm1_bpy_bone_name_to_human_bone_specification: Dict[
+            str, HumanBoneSpecification
+        ] = {
+            human_bone_props.node.value: HumanBoneSpecifications.get(human_bone_name)
             for human_bone_name, human_bone_props in human_bone_name_to_human_bone_props.items()
             if human_bone_props.node.value
         }
@@ -257,8 +267,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         ) in human_bone_name_to_human_bone_props.items():
             human_bone.update_node_candidates(
                 armature_data,
-                HumanBones.get(human_bone_name),
-                vrm1_blender_bone_name_to_human_bone_dict,
+                HumanBoneSpecifications.get(human_bone_name),
+                vrm1_bpy_bone_name_to_human_bone_specification,
             )
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]

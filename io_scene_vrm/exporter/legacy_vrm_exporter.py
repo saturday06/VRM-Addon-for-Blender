@@ -27,7 +27,7 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..common import deep, gltf
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.human_bone import HumanBones
+from ..common.human_bone import HumanBoneSpecifications
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
 from ..editor import migration, search
@@ -2113,7 +2113,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         humanoid_dict: Dict[str, Any] = {"humanBones": []}
         vrm_extension_dict["humanoid"] = humanoid_dict
         humanoid_props = self.armature.data.vrm_addon_extension.vrm0.humanoid
-        for human_bone_name in HumanBones.all_names:
+        for human_bone_name in HumanBoneSpecifications.all_names:
             for human_bone_props in humanoid_props.human_bones:
                 if (
                     human_bone_props.bone != human_bone_name

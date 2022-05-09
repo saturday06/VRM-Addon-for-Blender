@@ -2,14 +2,17 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import bpy
 
-from io_scene_vrm.common.human_bone import HumanBone, HumanBones
+from io_scene_vrm.common.human_bone import (
+    HumanBoneSpecification,
+    HumanBoneSpecifications,
+)
 from io_scene_vrm.editor.property_group import BonePropertyGroup
 
 
 def assert_bone_candidates(
     armature: bpy.types.Object,
-    target_human_bone: HumanBone,
-    blender_bone_name_to_human_bone_dict: Dict[str, HumanBone],
+    target_human_bone_specification: HumanBoneSpecification,
+    bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
     expected: Set[str],
     tree: Dict[str, Any],
     edit_mode: bool,
@@ -34,8 +37,8 @@ def assert_bone_candidates(
 
     got = BonePropertyGroup.find_bone_candidates(
         armature.data,
-        target_human_bone,
-        blender_bone_name_to_human_bone_dict,
+        target_human_bone_specification,
+        bpy_bone_name_to_human_bone_specification,
     )
     diffs = got.symmetric_difference(expected)
     if diffs:
@@ -59,21 +62,23 @@ def test(edit_mode: bool) -> None:
             ".editor.property_group.BonePropertyGroup"
         )
 
-    assert_bone_candidates(armature, HumanBones.HIPS, {}, set(), {}, edit_mode)
     assert_bone_candidates(
-        armature, HumanBones.HIPS, {}, {"hips"}, {"hips": {}}, edit_mode
+        armature, HumanBoneSpecifications.HIPS, {}, set(), {}, edit_mode
+    )
+    assert_bone_candidates(
+        armature, HumanBoneSpecifications.HIPS, {}, {"hips"}, {"hips": {}}, edit_mode
     )
     assert_bone_candidates(
         armature,
-        HumanBones.HIPS,
-        {"hips": HumanBones.HIPS},
+        HumanBoneSpecifications.HIPS,
+        {"hips": HumanBoneSpecifications.HIPS},
         {"hips"},
         {"hips": {}},
         edit_mode,
     )
     assert_bone_candidates(
         armature,
-        HumanBones.HIPS,
+        HumanBoneSpecifications.HIPS,
         {},
         {"hips", "spine"},
         {"hips": {"spine": {}}},
@@ -81,18 +86,18 @@ def test(edit_mode: bool) -> None:
     )
     assert_bone_candidates(
         armature,
-        HumanBones.SPINE,
-        {"hips": HumanBones.HIPS},
+        HumanBoneSpecifications.SPINE,
+        {"hips": HumanBoneSpecifications.HIPS},
         {"spine"},
         {"hips": {"spine": {}}},
         edit_mode,
     )
     assert_bone_candidates(
         armature,
-        HumanBones.SPINE,
+        HumanBoneSpecifications.SPINE,
         {
-            "hips": HumanBones.HIPS,
-            "head": HumanBones.HEAD,
+            "hips": HumanBoneSpecifications.HIPS,
+            "head": HumanBoneSpecifications.HEAD,
         },
         {"spine"},
         {"hips": {"spine": {"head": {}}}},
@@ -100,9 +105,9 @@ def test(edit_mode: bool) -> None:
     )
     assert_bone_candidates(
         armature,
-        HumanBones.SPINE,
+        HumanBoneSpecifications.SPINE,
         {
-            "hips": HumanBones.HIPS,
+            "hips": HumanBoneSpecifications.HIPS,
         },
         {"spine", "head"},
         {"hips": {"spine": {"head": {}}}},

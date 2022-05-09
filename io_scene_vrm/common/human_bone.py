@@ -216,7 +216,7 @@ HUMAN_BONE_STRUCTURE: Dict[
 
 
 @dataclass(frozen=True)
-class HumanBone:
+class HumanBoneSpecification:
     name: HumanBoneName
     title: str
     label: str
@@ -226,15 +226,15 @@ class HumanBone:
     parent_name: Optional[HumanBoneName]
     children_names: List[HumanBoneName]
 
-    def parent(self) -> Optional["HumanBone"]:
+    def parent(self) -> Optional["HumanBoneSpecification"]:
         if self.parent_name is None:
             return None
-        return HumanBones.get(self.parent_name)
+        return HumanBoneSpecifications.get(self.parent_name)
 
-    def children(self) -> List["HumanBone"]:
-        return list(map(HumanBones.get, self.children_names))
+    def children(self) -> List["HumanBoneSpecification"]:
+        return list(map(HumanBoneSpecifications.get, self.children_names))
 
-    def connected(self) -> List["HumanBone"]:
+    def connected(self) -> List["HumanBoneSpecification"]:
         children = self.children()
         parent = self.parent()
         if parent is None:
@@ -244,24 +244,24 @@ class HumanBone:
     @staticmethod
     def create(
         human_bone_name: HumanBoneName, vrm0_requirement: bool, vrm1_requirement: bool
-    ) -> "HumanBone":
+    ) -> "HumanBoneSpecification":
         # https://stackoverflow.com/a/1176023
         words = re.sub(r"(?<!^)(?=[A-Z])", "#", human_bone_name.value).split("#")
         title = " ".join(map(str.capitalize, words))
         label = title + ":"
         label_no_left_right = re.sub(r"Right ", "", re.sub(r"^Left ", "", label))
 
-        return HumanBone(
+        return HumanBoneSpecification(
             name=human_bone_name,
             title=title,
             label=label,
             label_no_left_right=label_no_left_right,
             vrm0_requirement=vrm0_requirement,
             vrm1_requirement=vrm1_requirement,
-            parent_name=HumanBone.find_parent_human_bone_name(
+            parent_name=HumanBoneSpecification.find_parent_human_bone_name(
                 human_bone_name, None, HUMAN_BONE_STRUCTURE
             ),
-            children_names=HumanBone.find_children_human_bone_names(
+            children_names=HumanBoneSpecification.find_children_human_bone_names(
                 human_bone_name, HUMAN_BONE_STRUCTURE
             ),
         )
@@ -279,7 +279,7 @@ class HumanBone:
             if child_human_bone_name == next_human_bone_name:
                 return parent_human_bone_name
 
-            name = HumanBone.find_parent_human_bone_name(
+            name = HumanBoneSpecification.find_parent_human_bone_name(
                 child_human_bone_name, next_human_bone_name, next_human_bone_structure
             )
             if name:
@@ -299,7 +299,7 @@ class HumanBone:
             if human_bone_name == next_human_bone_name:
                 return list(next_human_bone_structure.keys())
 
-            children = HumanBone.find_children_human_bone_names(
+            children = HumanBoneSpecification.find_children_human_bone_names(
                 human_bone_name, next_human_bone_structure
             )
             if children:
@@ -307,8 +307,10 @@ class HumanBone:
 
         return []
 
-    def is_ancestor_of(self, human_bone: "HumanBone") -> bool:
-        parent = human_bone.parent()
+    def is_ancestor_of(
+        self, human_bone_specification: "HumanBoneSpecification"
+    ) -> bool:
+        parent = human_bone_specification.parent()
         while parent:
             if parent == self:
                 return True
@@ -316,191 +318,199 @@ class HumanBone:
         return False
 
 
-def create_and_append_human_bone(
-    human_bones: List[HumanBone],
+def create_and_append_human_bone_specification(
+    human_bone_specifications: List[HumanBoneSpecification],
     human_bone_name: HumanBoneName,
     vrm0_requirement: bool,
     vrm1_requirement: bool,
-) -> HumanBone:
-    human_bone = HumanBone.create(human_bone_name, vrm0_requirement, vrm1_requirement)
-    human_bones.append(human_bone)
-    return human_bone
+) -> HumanBoneSpecification:
+    human_bone_specification = HumanBoneSpecification.create(
+        human_bone_name, vrm0_requirement, vrm1_requirement
+    )
+    human_bone_specifications.append(human_bone_specification)
+    return human_bone_specification
 
 
-class HumanBones:
-    all_human_bones: List[HumanBone] = []
+class HumanBoneSpecifications:
+    all_human_bones: List[HumanBoneSpecification] = []
 
     # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/humanoid.md#list-of-humanoid-bones
     # Torso
-    HIPS = create_and_append_human_bone(all_human_bones, HumanBoneName.HIPS, True, True)
-    SPINE = create_and_append_human_bone(
+    HIPS = create_and_append_human_bone_specification(
+        all_human_bones, HumanBoneName.HIPS, True, True
+    )
+    SPINE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.SPINE, True, True
     )
-    CHEST = create_and_append_human_bone(
+    CHEST = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.CHEST, True, False
     )
-    UPPER_CHEST = create_and_append_human_bone(
+    UPPER_CHEST = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.UPPER_CHEST, False, False
     )
-    NECK = create_and_append_human_bone(
+    NECK = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.NECK, True, False
     )
 
     # Head
-    HEAD = create_and_append_human_bone(all_human_bones, HumanBoneName.HEAD, True, True)
-    LEFT_EYE = create_and_append_human_bone(
+    HEAD = create_and_append_human_bone_specification(
+        all_human_bones, HumanBoneName.HEAD, True, True
+    )
+    LEFT_EYE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_EYE, False, False
     )
-    RIGHT_EYE = create_and_append_human_bone(
+    RIGHT_EYE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_EYE, False, False
     )
-    JAW = create_and_append_human_bone(all_human_bones, HumanBoneName.JAW, False, False)
+    JAW = create_and_append_human_bone_specification(
+        all_human_bones, HumanBoneName.JAW, False, False
+    )
 
     # Leg
-    LEFT_UPPER_LEG = create_and_append_human_bone(
+    LEFT_UPPER_LEG = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_UPPER_LEG, True, True
     )
-    LEFT_LOWER_LEG = create_and_append_human_bone(
+    LEFT_LOWER_LEG = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_LOWER_LEG, True, True
     )
-    LEFT_FOOT = create_and_append_human_bone(
+    LEFT_FOOT = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_FOOT, True, True
     )
-    LEFT_TOES = create_and_append_human_bone(
+    LEFT_TOES = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_TOES, False, False
     )
-    RIGHT_UPPER_LEG = create_and_append_human_bone(
+    RIGHT_UPPER_LEG = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_UPPER_LEG, True, True
     )
-    RIGHT_LOWER_LEG = create_and_append_human_bone(
+    RIGHT_LOWER_LEG = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_LOWER_LEG, True, True
     )
-    RIGHT_FOOT = create_and_append_human_bone(
+    RIGHT_FOOT = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_FOOT, True, True
     )
-    RIGHT_TOES = create_and_append_human_bone(
+    RIGHT_TOES = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_TOES, False, False
     )
 
     # Arm
-    LEFT_SHOULDER = create_and_append_human_bone(
+    LEFT_SHOULDER = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_SHOULDER, False, False
     )
-    LEFT_UPPER_ARM = create_and_append_human_bone(
+    LEFT_UPPER_ARM = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_UPPER_ARM, True, True
     )
-    LEFT_LOWER_ARM = create_and_append_human_bone(
+    LEFT_LOWER_ARM = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_LOWER_ARM, True, True
     )
-    LEFT_HAND = create_and_append_human_bone(
+    LEFT_HAND = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_HAND, True, True
     )
-    RIGHT_SHOULDER = create_and_append_human_bone(
+    RIGHT_SHOULDER = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_SHOULDER, False, False
     )
-    RIGHT_UPPER_ARM = create_and_append_human_bone(
+    RIGHT_UPPER_ARM = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_UPPER_ARM, True, True
     )
-    RIGHT_LOWER_ARM = create_and_append_human_bone(
+    RIGHT_LOWER_ARM = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_LOWER_ARM, True, True
     )
-    RIGHT_HAND = create_and_append_human_bone(
+    RIGHT_HAND = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_HAND, True, True
     )
 
     # Finger
-    LEFT_THUMB_PROXIMAL = create_and_append_human_bone(
+    LEFT_THUMB_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_THUMB_PROXIMAL, False, False
     )
-    LEFT_THUMB_INTERMEDIATE = create_and_append_human_bone(
+    LEFT_THUMB_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_THUMB_INTERMEDIATE, False, False
     )
-    LEFT_THUMB_DISTAL = create_and_append_human_bone(
+    LEFT_THUMB_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_THUMB_DISTAL, False, False
     )
-    LEFT_INDEX_PROXIMAL = create_and_append_human_bone(
+    LEFT_INDEX_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_INDEX_PROXIMAL, False, False
     )
-    LEFT_INDEX_INTERMEDIATE = create_and_append_human_bone(
+    LEFT_INDEX_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_INDEX_INTERMEDIATE, False, False
     )
-    LEFT_INDEX_DISTAL = create_and_append_human_bone(
+    LEFT_INDEX_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_INDEX_DISTAL, False, False
     )
-    LEFT_MIDDLE_PROXIMAL = create_and_append_human_bone(
+    LEFT_MIDDLE_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_MIDDLE_PROXIMAL, False, False
     )
-    LEFT_MIDDLE_INTERMEDIATE = create_and_append_human_bone(
+    LEFT_MIDDLE_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_MIDDLE_INTERMEDIATE, False, False
     )
-    LEFT_MIDDLE_DISTAL = create_and_append_human_bone(
+    LEFT_MIDDLE_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_MIDDLE_DISTAL, False, False
     )
-    LEFT_RING_PROXIMAL = create_and_append_human_bone(
+    LEFT_RING_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_RING_PROXIMAL, False, False
     )
-    LEFT_RING_INTERMEDIATE = create_and_append_human_bone(
+    LEFT_RING_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_RING_INTERMEDIATE, False, False
     )
-    LEFT_RING_DISTAL = create_and_append_human_bone(
+    LEFT_RING_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_RING_DISTAL, False, False
     )
-    LEFT_LITTLE_PROXIMAL = create_and_append_human_bone(
+    LEFT_LITTLE_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_LITTLE_PROXIMAL, False, False
     )
-    LEFT_LITTLE_INTERMEDIATE = create_and_append_human_bone(
+    LEFT_LITTLE_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_LITTLE_INTERMEDIATE, False, False
     )
-    LEFT_LITTLE_DISTAL = create_and_append_human_bone(
+    LEFT_LITTLE_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.LEFT_LITTLE_DISTAL, False, False
     )
-    RIGHT_THUMB_PROXIMAL = create_and_append_human_bone(
+    RIGHT_THUMB_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_THUMB_PROXIMAL, False, False
     )
-    RIGHT_THUMB_INTERMEDIATE = create_and_append_human_bone(
+    RIGHT_THUMB_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_THUMB_INTERMEDIATE, False, False
     )
-    RIGHT_THUMB_DISTAL = create_and_append_human_bone(
+    RIGHT_THUMB_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_THUMB_DISTAL, False, False
     )
-    RIGHT_INDEX_PROXIMAL = create_and_append_human_bone(
+    RIGHT_INDEX_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_INDEX_PROXIMAL, False, False
     )
-    RIGHT_INDEX_INTERMEDIATE = create_and_append_human_bone(
+    RIGHT_INDEX_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_INDEX_INTERMEDIATE, False, False
     )
-    RIGHT_INDEX_DISTAL = create_and_append_human_bone(
+    RIGHT_INDEX_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_INDEX_DISTAL, False, False
     )
-    RIGHT_MIDDLE_PROXIMAL = create_and_append_human_bone(
+    RIGHT_MIDDLE_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_MIDDLE_PROXIMAL, False, False
     )
-    RIGHT_MIDDLE_INTERMEDIATE = create_and_append_human_bone(
+    RIGHT_MIDDLE_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE, False, False
     )
-    RIGHT_MIDDLE_DISTAL = create_and_append_human_bone(
+    RIGHT_MIDDLE_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_MIDDLE_DISTAL, False, False
     )
-    RIGHT_RING_PROXIMAL = create_and_append_human_bone(
+    RIGHT_RING_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_RING_PROXIMAL, False, False
     )
-    RIGHT_RING_INTERMEDIATE = create_and_append_human_bone(
+    RIGHT_RING_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_RING_INTERMEDIATE, False, False
     )
-    RIGHT_RING_DISTAL = create_and_append_human_bone(
+    RIGHT_RING_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_RING_DISTAL, False, False
     )
-    RIGHT_LITTLE_PROXIMAL = create_and_append_human_bone(
+    RIGHT_LITTLE_PROXIMAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_LITTLE_PROXIMAL, False, False
     )
-    RIGHT_LITTLE_INTERMEDIATE = create_and_append_human_bone(
+    RIGHT_LITTLE_INTERMEDIATE = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_LITTLE_INTERMEDIATE, False, False
     )
-    RIGHT_LITTLE_DISTAL = create_and_append_human_bone(
+    RIGHT_LITTLE_DISTAL = create_and_append_human_bone_specification(
         all_human_bones, HumanBoneName.RIGHT_LITTLE_DISTAL, False, False
     )
 
-    human_bone_name_to_human_bone: Dict[HumanBoneName, HumanBone] = {
+    human_bone_name_to_human_bone: Dict[HumanBoneName, HumanBoneSpecification] = {
         human_bone.name: human_bone for human_bone in all_human_bones
     }
 
@@ -515,8 +525,8 @@ class HumanBones:
     ]
 
     @staticmethod
-    def get(name: HumanBoneName) -> HumanBone:
-        return HumanBones.human_bone_name_to_human_bone[name]
+    def get(name: HumanBoneName) -> HumanBoneSpecification:
+        return HumanBoneSpecifications.human_bone_name_to_human_bone[name]
 
     center_req = [b.name.value for b in [HIPS, SPINE, CHEST, NECK, HEAD]]
     left_leg_req = [b.name.value for b in [LEFT_UPPER_LEG, LEFT_LOWER_LEG, LEFT_FOOT]]

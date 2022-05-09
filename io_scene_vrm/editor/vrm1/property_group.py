@@ -3,7 +3,11 @@ from typing import Dict
 
 import bpy
 
-from ...common.human_bone import HumanBone, HumanBoneName, HumanBones
+from ...common.human_bone import (
+    HumanBoneName,
+    HumanBoneSpecification,
+    HumanBoneSpecifications,
+)
 from ..property_group import BonePropertyGroup, MeshPropertyGroup, StringPropertyGroup
 
 
@@ -21,13 +25,13 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def update_node_candidates(
         self,
         armature_data: bpy.types.Armature,
-        target: HumanBone,
-        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone],
+        target: HumanBoneSpecification,
+        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
     ) -> None:
         new_candidates = BonePropertyGroup.find_bone_candidates(
             armature_data,
             target,
-            blender_bone_name_to_human_bone_dict,
+            bpy_bone_name_to_human_bone_specification,
         )
         if set(map(lambda n: n.value, self.node_candidates)) == new_candidates:
             return
@@ -310,8 +314,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         for bone_name in bone_names:
             bone_name_props = human_bones_props.last_bone_names.add()
             bone_name_props.value = bone_name
-        blender_bone_name_to_human_bone_dict: Dict[str, HumanBone] = {
-            human_bone_props.node.value: HumanBones.get(human_bone_name)
+        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
+            human_bone_props.node.value: HumanBoneSpecifications.get(human_bone_name)
             for human_bone_name, human_bone_props in human_bones_props.human_bone_name_to_human_bone_props().items()
             if human_bone_props.node.value
         }
@@ -322,8 +326,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         ) in human_bones_props.human_bone_name_to_human_bone_props().items():
             human_bone.update_node_candidates(
                 armature_data,
-                HumanBones.get(human_bone_name),
-                blender_bone_name_to_human_bone_dict,
+                HumanBoneSpecifications.get(human_bone_name),
+                bpy_bone_name_to_human_bone_specification,
             )
 
 

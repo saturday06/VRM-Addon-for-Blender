@@ -6,7 +6,7 @@ from bmesh.types import BMesh
 from bpy.types import Mesh
 from mathutils import Matrix, Vector
 
-from ..common.human_bone import HumanBones
+from ..common.human_bone import HumanBoneSpecifications
 
 
 class IcypTemplateMeshMaker:
@@ -125,7 +125,8 @@ class IcypTemplateMeshMaker:
         # region arm
         left_arm_bones = [
             self.get_humanoid_bone(v)
-            for v in HumanBones.left_arm_req + HumanBones.left_arm_def
+            for v in HumanBoneSpecifications.left_arm_req
+            + HumanBoneSpecifications.left_arm_def
             if self.get_humanoid_bone(v) is not None
         ]
         left_hand_bone = self.get_humanoid_bone("leftHand")
@@ -148,7 +149,8 @@ class IcypTemplateMeshMaker:
         # TODO
         left_leg_bones = [
             self.get_humanoid_bone(v)
-            for v in HumanBones.left_leg_req + HumanBones.left_leg_def
+            for v in HumanBoneSpecifications.left_leg_req
+            + HumanBoneSpecifications.left_leg_def
             if self.get_humanoid_bone(v) is not None
         ]
         for b in left_leg_bones:

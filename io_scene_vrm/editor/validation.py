@@ -7,7 +7,7 @@ from bpy.app.translations import pgettext
 from mathutils import Vector
 
 from ..common import gltf
-from ..common.human_bone import HumanBones
+from ..common.human_bone import HumanBoneSpecifications
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
 from . import migration, search
@@ -87,7 +87,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 pgettext(
                     'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
                     + 'Please confirm "VRM" Panel → "VRM 0.x Humanoid" → {human_bone}.'
-                ).format(bone=human_bone.node.value, human_bone=human_bone.rule().title)
+                ).format(
+                    bone=human_bone.node.value,
+                    human_bone=human_bone.specification().title,
+                )
             )
             break
 
@@ -172,8 +175,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         human_bone_name,
                         human_bone_props,
                     ) in human_bones.human_bone_name_to_human_bone_props().items():
-                        human_bone = HumanBones.get(human_bone_name)
-                        if not human_bone.vrm1_requirement:
+                        human_bone_specification = HumanBoneSpecifications.get(
+                            human_bone_name
+                        )
+                        if not human_bone_specification.vrm1_requirement:
                             continue
                         if (
                             human_bone_props.node
@@ -183,14 +188,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             continue
                         messages.append(
                             pgettext(required_bone_error_format).format(
-                                humanoid_name=human_bone.title
+                                humanoid_name=human_bone_specification.title
                             )
                         )
                 else:
                     humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
                     human_bones_props = humanoid.human_bones
                     all_required_bones_exist = True
-                    for humanoid_name in HumanBones.vrm0_required_names:
+                    for humanoid_name in HumanBoneSpecifications.vrm0_required_names:
                         if any(
                             human_bone_props.bone == humanoid_name
                             and human_bone_props.node

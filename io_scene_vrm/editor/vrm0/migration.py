@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 import bpy
 
 from ...common import convert
-from ...common.human_bone import HumanBones
+from ...common.human_bone import HumanBoneSpecifications
 from .property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
 
 
@@ -395,7 +395,7 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
     )
 
     assigned_blender_bone_names = []
-    for human_bone_name in HumanBones.all_names:
+    for human_bone_name in HumanBoneSpecifications.all_names:
         blender_bone_name = armature.data.get(human_bone_name)
         if (
             not isinstance(blender_bone_name, str)

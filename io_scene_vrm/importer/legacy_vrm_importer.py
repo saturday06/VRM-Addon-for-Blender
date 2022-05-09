@@ -557,7 +557,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         armature.select_set(True)
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
-        hb = human_bone.HumanBones
+        hb = human_bone.HumanBoneSpecifications
         stop_bone_names = set(armature.data.values())
 
         def set_children_roll(bone_name: str, roll: float) -> None:
