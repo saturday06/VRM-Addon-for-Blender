@@ -31,7 +31,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         self.detect_errors_and_warnings(
-            context, self.errors, self.show_successful_message, execute_migration=True
+            context,
+            self.errors,
+            self.show_successful_message,
+            execute_migration=True,
+            readonly=False,
         )
         if any(error.fatal for error in self.errors):
             for index, error in enumerate(self.errors):
@@ -45,7 +49,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
         self.detect_errors_and_warnings(
-            context, self.errors, self.show_successful_message, execute_migration=True
+            context,
+            self.errors,
+            self.show_successful_message,
+            execute_migration=True,
+            readonly=False,
         )
         if (
             not any(error.fatal for error in self.errors)
@@ -62,12 +70,35 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         )
 
     @staticmethod
+    def validate_bone_order(
+        messages: List[str],
+        armature: bpy.types.Object,
+        readonly: bool,
+    ) -> None:
+        humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+        humanoid.check_last_bone_names_and_update(armature.data.name, defer=readonly)
+        for human_bone in humanoid.human_bones:
+            if (
+                not human_bone.node.value
+                or human_bone.node.value in human_bone.node_candidates
+            ):
+                continue
+            messages.append(
+                pgettext(
+                    'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
+                    + 'Please confirm "VRM" Panel → "VRM 0.x Humanoid" → {human_bone}.'
+                ).format(bone=human_bone.node.value, human_bone=human_bone.rule().title)
+            )
+            break
+
+    @staticmethod
     def detect_errors_and_warnings(
         context: bpy.types.Context,
         error_collection: bpy.types.CollectionProperty,
         show_successful_message: bool = True,
         layout: Optional[bpy.types.UILayout] = None,
         execute_migration: bool = False,
+        readonly: bool = True,
     ) -> None:
         messages = []
         warning_messages = []
@@ -156,9 +187,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             )
                         )
                 else:
-                    human_bones_props = (
-                        armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
-                    )
+                    humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+                    human_bones_props = humanoid.human_bones
+                    all_required_bones_exist = True
                     for humanoid_name in HumanBones.vrm0_required_names:
                         if any(
                             human_bone_props.bone == humanoid_name
@@ -168,10 +199,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             for human_bone_props in human_bones_props
                         ):
                             continue
+                        all_required_bones_exist = False
                         messages.append(
                             pgettext(required_bone_error_format).format(
                                 humanoid_name=humanoid_name.capitalize()
                             )
+                        )
+                    if all_required_bones_exist:
+                        WM_OT_vrm_validator.validate_bone_order(
+                            messages, armature, readonly
                         )
 
             if obj.type == "MESH":

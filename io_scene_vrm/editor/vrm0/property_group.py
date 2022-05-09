@@ -72,6 +72,12 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
             candidate.value = bone_name  # for logic
             candidate.name = bone_name  # for view
 
+    def rule(self) -> HumanBone:
+        name = HumanBoneName.from_str(self.bone)
+        if name is None:
+            raise Exception(f'HumanBone "{self.bone}" is invalid')
+        return HumanBones.get(name)
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
 class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
