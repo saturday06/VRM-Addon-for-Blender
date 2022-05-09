@@ -1,5 +1,5 @@
 import functools
-from typing import Dict
+from typing import Dict, List, Union
 
 import bpy
 
@@ -61,7 +61,11 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
 
         self.node_candidates.clear()
         # Preserving list order
-        for bone_name in armature_data.bones.keys():
+        if armature_data.is_editmode:
+            bone_names = armature_data.edit_bones.keys()
+        else:
+            bone_names = armature_data.bones.keys()
+        for bone_name in bone_names:
             if bone_name not in new_candidates:
                 continue
             candidate = self.node_candidates.add()
@@ -116,9 +120,14 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         armature_data = bpy.data.armatures.get(armature_data_name)
         if not armature_data:
             return
+        bones: Union[List[bpy.types.Bone], List[bpy.types.EditBone]] = []
+        if armature_data.is_editmode:
+            bones = armature_data.edit_bones.values()
+        else:
+            bones = armature_data.bones.values()
         humanoid_props = armature_data.vrm_addon_extension.vrm0.humanoid
         bone_names = []
-        for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
+        for bone in sorted(bones, key=lambda b: str(b.name)):
             bone_names.append(bone.name)
             bone_names.append(bone.parent.name if bone.parent else "")
         up_to_date = bone_names == list(

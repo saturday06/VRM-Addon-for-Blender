@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict, Iterator, Optional, Set
+from typing import Any, Dict, Iterator, Optional, Set, Union
 
 import bpy
 
@@ -101,8 +101,13 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         target_human_bone: HumanBone,
         blender_bone_name_to_human_bone_dict: Dict[str, HumanBone],
     ) -> Set[str]:
-        result: Set[str] = set(armature_data.bones.keys())
-        remove_bones_tree: Set[bpy.types.Bone] = set()
+        bones: Union[Dict[str, bpy.types.Bone], Dict[str, bpy.types.EditBone]] = {}
+        if armature_data.is_editmode:
+            bones = armature_data.edit_bones
+        else:
+            bones = armature_data.bones
+        result: Set[str] = set(bones.keys())
+        remove_bones_tree: Union[Set[bpy.types.Bone], Set[bpy.types.EditBone]] = set()
 
         for (
             blender_bone_name,
@@ -115,15 +120,15 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                 remove_ancestors = True
                 remove_ancestor_branches = True
             elif target_human_bone.is_ancestor_of(human_bone):
-                remove_bones_tree.add(armature_data.bones[blender_bone_name])
+                remove_bones_tree.add(bones[blender_bone_name])
                 remove_ancestors = False
                 remove_ancestor_branches = True
             else:
-                remove_bones_tree.add(armature_data.bones[blender_bone_name])
+                remove_bones_tree.add(bones[blender_bone_name])
                 remove_ancestors = True
                 remove_ancestor_branches = False
 
-            parent = armature_data.bones[blender_bone_name]
+            parent = bones[blender_bone_name]
             while True:
                 if remove_ancestors and parent.name in result:
                     result.remove(parent.name)
@@ -132,7 +137,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                     if remove_ancestor_branches:
                         remove_bones_tree.update(
                             bone
-                            for bone in armature_data.bones
+                            for bone in bones.values()
                             if not bone.parent and bone != parent
                         )
                     break
