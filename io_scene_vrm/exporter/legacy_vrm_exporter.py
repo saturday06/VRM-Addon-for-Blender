@@ -361,13 +361,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     has_human_bone = True
                 nodes.append(bone_to_node(child))
                 skin["joints"].append(bone_id_dic[child.name])
-                bone_children += list(child.children)
+                bone_children.extend(list(child.children))
             nodes = sorted(nodes, key=lambda node: bone_id_dic[node["name"]])
             if has_human_bone:
                 skins.append(skin)
 
         for skin in skins:
-            skin_invert_matrix_bin = b""
+            skin_invert_matrix_bin = bytearray()
             f_4x4_packer = struct.Struct("<16f").pack
             for node_id in skin["joints"]:
                 bone_name = nodes[node_id]["name"]
@@ -395,7 +395,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     -bone_glb_world_pos[2],
                     1,
                 ]
-                skin_invert_matrix_bin += f_4x4_packer(*inv_matrix)
+                skin_invert_matrix_bin.extend(f_4x4_packer(*inv_matrix))
 
             im_bin = GlbBin(
                 skin_invert_matrix_bin,
@@ -1584,28 +1584,38 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             }
 
             # endregion  temporary_used
-            primitive_index_bin_dic: Dict[Optional[int], bytes] = OrderedDict(
-                {mat_id_dic[mat.name]: b"" for mat in mesh.material_slots if mat.name}
+            primitive_index_bin_dic: Dict[Optional[int], bytearray] = OrderedDict(
+                {
+                    mat_id_dic[mat.name]: bytearray()
+                    for mat in mesh.material_slots
+                    if mat.name
+                }
             )
             if not primitive_index_bin_dic:
-                primitive_index_bin_dic[None] = b""
+                primitive_index_bin_dic[None] = bytearray()
             primitive_index_vertex_count: Dict[Optional[int], int] = OrderedDict(
                 {mat_id_dic[mat.name]: 0 for mat in mesh.material_slots if mat.name}
             )
             if not primitive_index_vertex_count:
                 primitive_index_vertex_count[None] = 0
 
-            shape_pos_bin_dic: Dict[str, bytes] = {}
-            shape_normal_bin_dic: Dict[str, bytes] = {}
+            shape_pos_bin_dic: Dict[str, bytearray] = {}
+            shape_normal_bin_dic: Dict[str, bytearray] = {}
             shape_min_max_dic: Dict[str, List[List[float]]] = {}
             morph_normal_diff_dic: Dict[str, List[List[float]]] = {}
             if mesh_data.shape_keys is not None:
                 # 0番目Basisは省く
                 shape_pos_bin_dic = OrderedDict(
-                    {shape.name: b"" for shape in mesh_data.shape_keys.key_blocks[1:]}
+                    {
+                        shape.name: bytearray()
+                        for shape in mesh_data.shape_keys.key_blocks[1:]
+                    }
                 )
                 shape_normal_bin_dic = OrderedDict(
-                    {shape.name: b"" for shape in mesh_data.shape_keys.key_blocks[1:]}
+                    {
+                        shape.name: bytearray()
+                        for shape in mesh_data.shape_keys.key_blocks[1:]
+                    }
                 )
                 shape_min_max_dic = OrderedDict(
                     {
@@ -1618,12 +1628,14 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     if vrm_version.startswith("0.")
                     else {}
                 )  # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
-            position_bin = b""
+            position_bin = bytearray()
             position_min_max = [[fmax, fmax, fmax], [fmin, fmin, fmin]]
-            normal_bin = b""
-            joints_bin = b""
-            weights_bin = b""
-            texcoord_bins = {uvlayer_id: b"" for uvlayer_id in uvlayers_dic.keys()}
+            normal_bin = bytearray()
+            joints_bin = bytearray()
+            weights_bin = bytearray()
+            texcoord_bins = {
+                uvlayer_id: bytearray() for uvlayer_id in uvlayers_dic.keys()
+            }
             float_vec4_packer = struct.Struct("<ffff").pack
             float_vec3_packer = struct.Struct("<fff").pack
             float_pair_packer = struct.Struct("<ff").pack
@@ -1712,7 +1724,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     uv_list = []
                     for uvlayer_name in uvlayers_dic.values():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
-                        uv_list += [loop[uv_layer].uv[0], loop[uv_layer].uv[1]]
+                        uv_list.extend([loop[uv_layer].uv[0], loop[uv_layer].uv[1]])
 
                     # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると思うが、
                     # glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
@@ -1727,17 +1739,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         material_slot_name = material_slot_dic.get(material_index)
                         if isinstance(material_slot_name, str):
                             primitive_index = mat_id_dic[material_slot_name]
-                        primitive_index_bin_dic[
-                            primitive_index
-                        ] += unsigned_int_scalar_packer(cached_vert_id)
+                        primitive_index_bin_dic[primitive_index].extend(
+                            unsigned_int_scalar_packer(cached_vert_id)
+                        )
                         primitive_index_vertex_count[primitive_index] += 1
                         continue
                     unique_vertex_dic[vertex_key] = unique_vertex_id
                     for uvlayer_id, uvlayer_name in uvlayers_dic.items():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
                         uv = loop[uv_layer].uv
-                        texcoord_bins[uvlayer_id] += float_pair_packer(
-                            uv[0], 1 - uv[1]
+                        texcoord_bins[uvlayer_id].extend(
+                            float_pair_packer(uv[0], 1 - uv[1])
                         )  # blenderとglbのuvは上下逆
                     for shape_name in shape_pos_bin_dic:
                         shape_layer = bm.verts.layers.shape[shape_name]
@@ -1747,11 +1759,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                 for i in range(3)
                             ]
                         )
-                        shape_pos_bin_dic[shape_name] += float_vec3_packer(*morph_pos)
+                        shape_pos_bin_dic[shape_name].extend(
+                            float_vec3_packer(*morph_pos)
+                        )
                         if vrm_version.startswith("0."):
-                            shape_normal_bin_dic[shape_name] += float_vec3_packer(
-                                *self.axis_blender_to_glb(
-                                    morph_normal_diff_dic[shape_name][loop.vert.index]
+                            shape_normal_bin_dic[shape_name].extend(
+                                float_vec3_packer(
+                                    *self.axis_blender_to_glb(
+                                        morph_normal_diff_dic[shape_name][
+                                            loop.vert.index
+                                        ]
+                                    )
                                 )
                             )
                         min_max(shape_min_max_dic[shape_name], morph_pos)
@@ -1834,22 +1852,22 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         normalized_weights = normalize_weights_compatible_with_gl_float(
                             weights
                         )
-                        joints_bin += unsigned_short_vec4_packer(*joints)
-                        weights_bin += float_vec4_packer(*normalized_weights)
+                        joints_bin.extend(unsigned_short_vec4_packer(*joints))
+                        weights_bin.extend(float_vec4_packer(*normalized_weights))
 
                     vert_location = self.axis_blender_to_glb(loop.vert.co)
-                    position_bin += float_vec3_packer(*vert_location)
+                    position_bin.extend(float_vec3_packer(*vert_location))
                     min_max(position_min_max, vert_location)
-                    normal_bin += float_vec3_packer(
-                        *self.axis_blender_to_glb(vert_normal)
+                    normal_bin.extend(
+                        float_vec3_packer(*self.axis_blender_to_glb(vert_normal))
                     )
                     primitive_index = None
                     material_slot_name = material_slot_dic.get(material_index)
                     if isinstance(material_slot_name, str):
                         primitive_index = mat_id_dic[material_slot_name]
-                    primitive_index_bin_dic[
-                        primitive_index
-                    ] += unsigned_int_scalar_packer(unique_vertex_id)
+                    primitive_index_bin_dic[primitive_index].extend(
+                        unsigned_int_scalar_packer(unique_vertex_id)
+                    )
                     primitive_index_vertex_count[primitive_index] += 1
                     unique_vertex_id += 1  # noqa: SIM113
 
@@ -1866,7 +1884,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         self.glb_bin_collector,
                     )
                     for mat_id, index_bin in primitive_index_bin_dic.items()
-                    if index_bin != b""
+                    if index_bin
                 }
             )
 

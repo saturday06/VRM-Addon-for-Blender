@@ -6,14 +6,14 @@ https://opensource.org/licenses/mit-license.php
 """
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 
 class GlbBinCollection:
     def __init__(self) -> None:
         self.vertex_attribute_bins: List[GlbBin] = []  # Glb_bin list
         self.image_bins: List[ImageBin] = []
-        self.bin = b""
+        self.bin = bytearray()
 
     def pack_all(self) -> Tuple[Dict[str, Any], bytes]:
         bin_dic: Dict[str, Any] = OrderedDict()
@@ -22,7 +22,7 @@ class GlbBinCollection:
         bin_dic["accessors"] = []
 
         for vab in self.vertex_attribute_bins:
-            self.bin += vab.bin
+            self.bin.extend(vab.bin)
             vab_dic = OrderedDict(
                 {
                     "bufferView": self.get_new_buffer_view_id(),
@@ -51,7 +51,7 @@ class GlbBinCollection:
         if len(self.image_bins) > 0:
             bin_dic["images"] = []
             for img in self.image_bins:
-                self.bin += img.bin
+                self.bin.extend(img.bin)
                 bin_dic["images"].append(
                     OrderedDict(
                         {
@@ -75,7 +75,7 @@ class GlbBinCollection:
         bin_dic["buffers"] = [{"byteLength": byte_offset}]
 
         buffer_view_and_accessors_ordered_dic = bin_dic
-        return buffer_view_and_accessors_ordered_dic, self.bin
+        return buffer_view_and_accessors_ordered_dic, bytes(self.bin)
 
     buffer_count = 0
 
@@ -118,13 +118,15 @@ class ImageBin(BaseBin):
 class GlbBin(BaseBin):
     def __init__(
         self,
-        binary: bytes,
+        binary: Union[bytes, bytearray],
         array_type: str,
         component_type: int,
         array_count: int,
         min_max_tuple: Optional[List[List[float]]],
         glb_bin_collection: GlbBinCollection,
     ) -> None:
+        if isinstance(binary, bytearray):
+            binary = bytes(binary)
         super().__init__(binary, glb_bin_collection)
         self.array_type = array_type  # String: scalar, VEC3 etc...
         self.component_type = component_type  # GL_CONSTANTS:FLOAT, uint etc...
