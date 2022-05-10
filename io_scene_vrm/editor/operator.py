@@ -194,7 +194,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
         if not isinstance(obj, dict):
             return {"CANCELLED"}
 
-        for human_bone_name, blender_bone_name in obj.items():
+        for human_bone_name, bpy_bone_name in obj.items():
             if human_bone_name not in HumanBoneSpecifications.all_names:
                 continue
 
@@ -203,7 +203,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
                 human_bone_props
             ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
                 if human_bone_props.bone == human_bone_name:
-                    human_bone_props.node.value = blender_bone_name
+                    human_bone_props.node.value = bpy_bone_name
                     found = True
                     break
             if found:
@@ -213,7 +213,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
                 armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
             )
             human_bone_props.bone = human_bone_name
-            human_bone_props.node.value = blender_bone_name
+            human_bone_props.node.value = bpy_bone_name
 
         return {"FINISHED"}
 

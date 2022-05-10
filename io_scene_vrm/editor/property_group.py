@@ -114,7 +114,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         remove_bones_tree: Union[Set[bpy.types.Bone], Set[bpy.types.EditBone]] = set()
 
         for (
-            blender_bone_name,
+            bpy_bone_name,
             human_bone_specification,
         ) in bpy_bone_name_to_human_bone_specification.items():
             if human_bone_specification == target:
@@ -124,15 +124,15 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                 remove_ancestors = True
                 remove_ancestor_branches = True
             elif target.is_ancestor_of(human_bone_specification):
-                remove_bones_tree.add(bones[blender_bone_name])
+                remove_bones_tree.add(bones[bpy_bone_name])
                 remove_ancestors = False
                 remove_ancestor_branches = True
             else:
-                remove_bones_tree.add(bones[blender_bone_name])
+                remove_bones_tree.add(bones[bpy_bone_name])
                 remove_ancestors = True
                 remove_ancestor_branches = False
 
-            parent = bones[blender_bone_name]
+            parent = bones[bpy_bone_name]
             while True:
                 if remove_ancestors and parent.name in result:
                     result.remove(parent.name)

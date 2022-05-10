@@ -394,20 +394,20 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
         armature,
     )
 
-    assigned_blender_bone_names = []
+    assigned_bpy_bone_names = []
     for human_bone_name in HumanBoneSpecifications.all_names:
-        blender_bone_name = armature.data.get(human_bone_name)
+        bpy_bone_name = armature.data.get(human_bone_name)
         if (
-            not isinstance(blender_bone_name, str)
-            or not blender_bone_name
-            or blender_bone_name in assigned_blender_bone_names
+            not isinstance(bpy_bone_name, str)
+            or not bpy_bone_name
+            or bpy_bone_name in assigned_bpy_bone_names
         ):
             continue
-        assigned_blender_bone_names.append(blender_bone_name)
+        assigned_bpy_bone_names.append(bpy_bone_name)
 
         for human_bone_props in ext.vrm0.humanoid.human_bones:
             if human_bone_props.bone == human_bone_name:
-                human_bone_props.node.value = blender_bone_name
+                human_bone_props.node.value = bpy_bone_name
                 break
 
 
