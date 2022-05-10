@@ -34,12 +34,12 @@ def bone_prop_search(
     layout: bpy.types.UILayout,
     human_bone_specification: HumanBoneSpecification,
     icon: str,
-    humanoid_props: Vrm0HumanoidPropertyGroup,
+    humanoid: Vrm0HumanoidPropertyGroup,
 ) -> None:
     props = None
-    for human_bone_props in humanoid_props.human_bones:
-        if human_bone_props.bone == human_bone_specification.name.value:
-            props = human_bone_props
+    for human_bone in humanoid.human_bones:
+        if human_bone.bone == human_bone_specification.name.value:
+            props = human_bone
             break
     if not props:
         return
@@ -58,7 +58,7 @@ def bone_prop_search(
 def draw_vrm0_humanoid_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
-    humanoid_props: Vrm0HumanoidPropertyGroup,
+    humanoid: Vrm0HumanoidPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(armature.data.name)
@@ -71,17 +71,14 @@ def draw_vrm0_humanoid_layout(
     column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
     column.label(text="Pose Library")
     column.prop_search(
-        humanoid_props, "pose_library", bpy.data, "actions", text="", translate=False
+        humanoid, "pose_library", bpy.data, "actions", text="", translate=False
     )
     column.label(text="Pose")
-    if (
-        humanoid_props.pose_library
-        and humanoid_props.pose_library.name in bpy.data.actions
-    ):
+    if humanoid.pose_library and humanoid.pose_library.name in bpy.data.actions:
         column.prop_search(
-            humanoid_props,
+            humanoid,
             "pose_marker_name",
-            humanoid_props.pose_library,
+            humanoid.pose_library,
             "pose_markers",
             text="",
             translate=False,
@@ -119,11 +116,11 @@ def draw_vrm0_humanoid_layout(
     column.label(text=HumanBoneSpecifications.HIPS.label)
     column = row.column()
     icon = "USER"
-    bone_prop_search(column, HumanBoneSpecifications.HEAD, icon, humanoid_props)
-    bone_prop_search(column, HumanBoneSpecifications.NECK, icon, humanoid_props)
-    bone_prop_search(column, HumanBoneSpecifications.CHEST, icon, humanoid_props)
-    bone_prop_search(column, HumanBoneSpecifications.SPINE, icon, humanoid_props)
-    bone_prop_search(column, HumanBoneSpecifications.HIPS, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.HEAD, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.NECK, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.CHEST, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.SPINE, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.HIPS, icon, humanoid)
 
     row = requires_box.row().split(factor=split_factor)
     column = row.column()
@@ -139,42 +136,26 @@ def draw_vrm0_humanoid_layout(
     column = row.column()
     column.label(text="Right")
     icon = "VIEW_PAN"
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_UPPER_ARM, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_LOWER_ARM, icon, humanoid_props
-    )
-    bone_prop_search(column, HumanBoneSpecifications.RIGHT_HAND, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_UPPER_ARM, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_LOWER_ARM, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_HAND, icon, humanoid)
     column.separator()
     icon = "MOD_DYNAMICPAINT"
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_UPPER_LEG, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_LOWER_LEG, icon, humanoid_props
-    )
-    bone_prop_search(column, HumanBoneSpecifications.RIGHT_FOOT, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_UPPER_LEG, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_LOWER_LEG, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_FOOT, icon, humanoid)
 
     column = row.column()
     column.label(text="Left")
     icon = "VIEW_PAN"
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_UPPER_ARM, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_LOWER_ARM, icon, humanoid_props
-    )
-    bone_prop_search(column, HumanBoneSpecifications.LEFT_HAND, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_UPPER_ARM, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_LOWER_ARM, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_HAND, icon, humanoid)
     column.separator()
     icon = "MOD_DYNAMICPAINT"
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_UPPER_LEG, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_LOWER_LEG, icon, humanoid_props
-    )
-    bone_prop_search(column, HumanBoneSpecifications.LEFT_FOOT, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_UPPER_LEG, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_LOWER_LEG, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_FOOT, icon, humanoid)
 
     defines_box = armature_box.box()
     defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")
@@ -186,10 +167,10 @@ def draw_vrm0_humanoid_layout(
     column.label(text=HumanBoneSpecifications.LEFT_EYE.label_no_left_right)
     column = row.column()
     column.label(text="Right")
-    bone_prop_search(column, HumanBoneSpecifications.RIGHT_EYE, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_EYE, icon, humanoid)
     column = row.column()
     column.label(text="Left")
-    bone_prop_search(column, HumanBoneSpecifications.LEFT_EYE, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_EYE, icon, humanoid)
 
     row = defines_box.row().split(factor=split_factor)
     column = row.column()
@@ -198,8 +179,8 @@ def draw_vrm0_humanoid_layout(
 
     column = row.column()
     icon = "USER"
-    bone_prop_search(column, HumanBoneSpecifications.JAW, icon, humanoid_props)
-    bone_prop_search(column, HumanBoneSpecifications.UPPER_CHEST, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.JAW, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.UPPER_CHEST, icon, humanoid)
 
     split_factor = 0.5
     row = defines_box.row().split(factor=split_factor)
@@ -224,57 +205,49 @@ def draw_vrm0_humanoid_layout(
 
     column = row.column()
     icon = "USER"
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_SHOULDER, icon, humanoid_props
-    )
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_SHOULDER, icon, humanoid)
     icon = "VIEW_PAN"
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_THUMB_PROXIMAL, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_THUMB_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_THUMB_INTERMEDIATE, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_THUMB_INTERMEDIATE, icon, humanoid
+    )
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_THUMB_DISTAL, icon, humanoid)
+    bone_prop_search(
+        column, HumanBoneSpecifications.RIGHT_INDEX_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_THUMB_DISTAL, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_INDEX_INTERMEDIATE, icon, humanoid
+    )
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_INDEX_DISTAL, icon, humanoid)
+    bone_prop_search(
+        column, HumanBoneSpecifications.RIGHT_MIDDLE_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_INDEX_PROXIMAL, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_MIDDLE_INTERMEDIATE, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_INDEX_INTERMEDIATE, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_MIDDLE_DISTAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_INDEX_DISTAL, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_RING_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_MIDDLE_PROXIMAL, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_RING_INTERMEDIATE, icon, humanoid
+    )
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_RING_DISTAL, icon, humanoid)
+    bone_prop_search(
+        column, HumanBoneSpecifications.RIGHT_LITTLE_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_MIDDLE_INTERMEDIATE, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_LITTLE_INTERMEDIATE, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_MIDDLE_DISTAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_RING_PROXIMAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_RING_INTERMEDIATE, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_RING_DISTAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_LITTLE_PROXIMAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_LITTLE_INTERMEDIATE, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_LITTLE_DISTAL, icon, humanoid_props
+        column, HumanBoneSpecifications.RIGHT_LITTLE_DISTAL, icon, humanoid
     )
     icon = "MOD_DYNAMICPAINT"
-    bone_prop_search(column, HumanBoneSpecifications.RIGHT_TOES, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_TOES, icon, humanoid)
 
     row = defines_box.row().split(factor=split_factor)
     column = row.column()
@@ -298,73 +271,59 @@ def draw_vrm0_humanoid_layout(
 
     column = row.column()
     icon = "USER"
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_SHOULDER, icon, humanoid_props
-    )
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_SHOULDER, icon, humanoid)
     icon = "VIEW_PAN"
     bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_THUMB_PROXIMAL, icon, humanoid_props
+        column, HumanBoneSpecifications.LEFT_THUMB_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_THUMB_INTERMEDIATE, icon, humanoid_props
+        column, HumanBoneSpecifications.LEFT_THUMB_INTERMEDIATE, icon, humanoid
+    )
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_THUMB_DISTAL, icon, humanoid)
+    bone_prop_search(
+        column, HumanBoneSpecifications.LEFT_INDEX_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_THUMB_DISTAL, icon, humanoid_props
+        column, HumanBoneSpecifications.LEFT_INDEX_INTERMEDIATE, icon, humanoid
+    )
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_INDEX_DISTAL, icon, humanoid)
+    bone_prop_search(
+        column, HumanBoneSpecifications.LEFT_MIDDLE_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_INDEX_PROXIMAL, icon, humanoid_props
+        column, HumanBoneSpecifications.LEFT_MIDDLE_INTERMEDIATE, icon, humanoid
+    )
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_MIDDLE_DISTAL, icon, humanoid)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_RING_PROXIMAL, icon, humanoid)
+    bone_prop_search(
+        column, HumanBoneSpecifications.LEFT_RING_INTERMEDIATE, icon, humanoid
+    )
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_RING_DISTAL, icon, humanoid)
+    bone_prop_search(
+        column, HumanBoneSpecifications.LEFT_LITTLE_PROXIMAL, icon, humanoid
     )
     bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_INDEX_INTERMEDIATE, icon, humanoid_props
+        column, HumanBoneSpecifications.LEFT_LITTLE_INTERMEDIATE, icon, humanoid
     )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_INDEX_DISTAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_MIDDLE_PROXIMAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_MIDDLE_INTERMEDIATE, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_MIDDLE_DISTAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_RING_PROXIMAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_RING_INTERMEDIATE, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_RING_DISTAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_LITTLE_PROXIMAL, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_LITTLE_INTERMEDIATE, icon, humanoid_props
-    )
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_LITTLE_DISTAL, icon, humanoid_props
-    )
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_LITTLE_DISTAL, icon, humanoid)
     icon = "MOD_DYNAMICPAINT"
-    bone_prop_search(column, HumanBoneSpecifications.LEFT_TOES, icon, humanoid_props)
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_TOES, icon, humanoid)
 
     layout.label(text="Arm", icon="VIEW_PAN", translate=False)  # TODO: 翻訳
     layout.prop(
-        humanoid_props,
+        humanoid,
         "arm_stretch",
     )
-    layout.prop(humanoid_props, "upper_arm_twist")
-    layout.prop(humanoid_props, "lower_arm_twist")
+    layout.prop(humanoid, "upper_arm_twist")
+    layout.prop(humanoid, "lower_arm_twist")
     layout.separator()
     layout.label(text="Leg", icon="MOD_DYNAMICPAINT")
-    layout.prop(humanoid_props, "leg_stretch")
-    layout.prop(humanoid_props, "upper_leg_twist")
-    layout.prop(humanoid_props, "lower_leg_twist")
-    layout.prop(humanoid_props, "feet_spacing")
+    layout.prop(humanoid, "leg_stretch")
+    layout.prop(humanoid, "upper_leg_twist")
+    layout.prop(humanoid, "lower_leg_twist")
+    layout.prop(humanoid, "feet_spacing")
     layout.separator()
-    layout.prop(humanoid_props, "has_translation_dof")
+    layout.prop(humanoid, "has_translation_dof")
 
 
 class VRM_PT_vrm0_humanoid_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
@@ -425,19 +384,17 @@ def draw_vrm0_first_person_layout(
     armature: bpy.types.Object,
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
-    first_person_props: Vrm0FirstPersonPropertyGroup,
+    first_person: Vrm0FirstPersonPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
     blend_data = context.blend_data
-    layout.prop_search(
-        first_person_props.first_person_bone, "value", armature.data, "bones"
-    )
-    layout.prop(first_person_props, "first_person_bone_offset", icon="BONE_DATA")
-    layout.prop(first_person_props, "look_at_type_name")
+    layout.prop_search(first_person.first_person_bone, "value", armature.data, "bones")
+    layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
+    layout.prop(first_person, "look_at_type_name")
     box = layout.box()
     box.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
     for mesh_annotation_index, mesh_annotation in enumerate(
-        first_person_props.mesh_annotations
+        first_person.mesh_annotations
     ):
         row = box.row()
         row.prop_search(mesh_annotation.mesh, "value", blend_data, "meshes")
@@ -455,24 +412,24 @@ def draw_vrm0_first_person_layout(
     add_mesh_annotation_op.armature_name = armature.name
     box = layout.box()
     box.label(text="Look At Horizontal Inner", icon="FULLSCREEN_EXIT")
-    box.prop(first_person_props.look_at_horizontal_inner, "curve")
-    box.prop(first_person_props.look_at_horizontal_inner, "x_range")
-    box.prop(first_person_props.look_at_horizontal_inner, "y_range")
+    box.prop(first_person.look_at_horizontal_inner, "curve")
+    box.prop(first_person.look_at_horizontal_inner, "x_range")
+    box.prop(first_person.look_at_horizontal_inner, "y_range")
     box = layout.box()
     box.label(text="Look At Horizontal Outer", icon="FULLSCREEN_ENTER")
-    box.prop(first_person_props.look_at_horizontal_outer, "curve")
-    box.prop(first_person_props.look_at_horizontal_outer, "x_range")
-    box.prop(first_person_props.look_at_horizontal_outer, "y_range")
+    box.prop(first_person.look_at_horizontal_outer, "curve")
+    box.prop(first_person.look_at_horizontal_outer, "x_range")
+    box.prop(first_person.look_at_horizontal_outer, "y_range")
     box = layout.box()
     box.label(text="Look At Vertical Up", icon="TRIA_UP")
-    box.prop(first_person_props.look_at_vertical_up, "curve")
-    box.prop(first_person_props.look_at_vertical_up, "x_range")
-    box.prop(first_person_props.look_at_vertical_up, "y_range")
+    box.prop(first_person.look_at_vertical_up, "curve")
+    box.prop(first_person.look_at_vertical_up, "x_range")
+    box.prop(first_person.look_at_vertical_up, "y_range")
     box = layout.box()
     box.label(text="Look At Vertical Down", icon="TRIA_DOWN")
-    box.prop(first_person_props.look_at_vertical_down, "curve")
-    box.prop(first_person_props.look_at_vertical_down, "x_range")
-    box.prop(first_person_props.look_at_vertical_down, "y_range")
+    box.prop(first_person.look_at_vertical_down, "curve")
+    box.prop(first_person.look_at_vertical_down, "x_range")
+    box.prop(first_person.look_at_vertical_down, "y_range")
 
 
 class VRM_PT_vrm0_first_person_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
@@ -539,68 +496,62 @@ def draw_vrm0_blend_shape_master_layout(
     armature: bpy.types.Object,
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
-    blend_shape_master_props: Vrm0BlendShapeMasterPropertyGroup,
+    blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
     blend_data = context.blend_data
-    for blend_shape_group_index, blend_shape_group_props in enumerate(
-        blend_shape_master_props.blend_shape_groups
+    for blend_shape_group_index, blend_shape_group in enumerate(
+        blend_shape_master.blend_shape_groups
     ):
         row = layout.row()
         row.alignment = "LEFT"
         row.prop(
-            blend_shape_group_props,
+            blend_shape_group,
             "show_expanded",
-            icon="TRIA_DOWN" if blend_shape_group_props.show_expanded else "TRIA_RIGHT",
+            icon="TRIA_DOWN" if blend_shape_group.show_expanded else "TRIA_RIGHT",
             emboss=False,
-            text=blend_shape_group_props.name
-            + " / "
-            + blend_shape_group_props.preset_name,
+            text=blend_shape_group.name + " / " + blend_shape_group.preset_name,
             translate=False,
         )
-        if not blend_shape_group_props.show_expanded:
+        if not blend_shape_group.show_expanded:
             continue
 
         box = layout.box()
-        box.prop(blend_shape_group_props, "name")
-        box.prop(blend_shape_group_props, "preset_name")
+        box.prop(blend_shape_group, "name")
+        box.prop(blend_shape_group, "preset_name")
 
-        box.prop(blend_shape_group_props, "is_binary", icon="IPO_CONSTANT")
+        box.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
         box.separator()
         row = box.row()
         row.alignment = "LEFT"
         row.prop(
-            blend_shape_group_props,
+            blend_shape_group,
             "show_expanded_binds",
-            icon="TRIA_DOWN"
-            if blend_shape_group_props.show_expanded_binds
-            else "TRIA_RIGHT",
+            icon="TRIA_DOWN" if blend_shape_group.show_expanded_binds else "TRIA_RIGHT",
             emboss=False,
         )
-        if blend_shape_group_props.show_expanded_binds:
-            for bind_index, bind_props in enumerate(blend_shape_group_props.binds):
+        if blend_shape_group.show_expanded_binds:
+            for bind_index, bind in enumerate(blend_shape_group.binds):
                 bind_box = box.box()
                 bind_box.prop_search(
-                    bind_props.mesh, "value", blend_data, "meshes", text="Mesh"
+                    bind.mesh, "value", blend_data, "meshes", text="Mesh"
                 )
                 if (
-                    bind_props.mesh.value
-                    and bind_props.mesh.value in blend_data.meshes
-                    and blend_data.meshes[bind_props.mesh.value]
-                    and blend_data.meshes[bind_props.mesh.value].shape_keys
-                    and blend_data.meshes[bind_props.mesh.value].shape_keys.key_blocks
-                    and blend_data.meshes[
-                        bind_props.mesh.value
-                    ].shape_keys.key_blocks.keys()
+                    bind.mesh.value
+                    and bind.mesh.value in blend_data.meshes
+                    and blend_data.meshes[bind.mesh.value]
+                    and blend_data.meshes[bind.mesh.value].shape_keys
+                    and blend_data.meshes[bind.mesh.value].shape_keys.key_blocks
+                    and blend_data.meshes[bind.mesh.value].shape_keys.key_blocks.keys()
                 ):
                     bind_box.prop_search(
-                        bind_props,
+                        bind,
                         "index",
-                        blend_data.meshes[bind_props.mesh.value].shape_keys,
+                        blend_data.meshes[bind.mesh.value].shape_keys,
                         "key_blocks",
                         text="Shape key",
                     )
-                bind_box.prop(bind_props, "weight")
+                bind_box.prop(bind, "weight")
                 remove_blend_shape_bind_op = bind_box.operator(
                     vrm0_operator.VRM_OT_remove_vrm0_blend_shape_bind.bl_idname,
                     icon="REMOVE",
@@ -619,29 +570,29 @@ def draw_vrm0_blend_shape_master_layout(
         row = box.row()
         row.alignment = "LEFT"
         row.prop(
-            blend_shape_group_props,
+            blend_shape_group,
             "show_expanded_material_values",
             icon="TRIA_DOWN"
-            if blend_shape_group_props.show_expanded_material_values
+            if blend_shape_group.show_expanded_material_values
             else "TRIA_RIGHT",
             emboss=False,
         )
-        if blend_shape_group_props.show_expanded_material_values:
-            for material_value_index, material_value_props in enumerate(
-                blend_shape_group_props.material_values
+        if blend_shape_group.show_expanded_material_values:
+            for material_value_index, material_value in enumerate(
+                blend_shape_group.material_values
             ):
                 material_value_box = box.box()
                 material_value_box.prop_search(
-                    material_value_props, "material", blend_data, "materials"
+                    material_value, "material", blend_data, "materials"
                 )
-                material_value_box.prop(material_value_props, "property_name")
+                material_value_box.prop(material_value, "property_name")
                 for (
                     target_value_index,
-                    target_value_props,
-                ) in enumerate(material_value_props.target_value):
+                    target_value,
+                ) in enumerate(material_value.target_value):
                     target_value_row = material_value_box.split(align=True, factor=0.7)
                     target_value_row.prop(
-                        target_value_props, "value", text=f"Value {target_value_index}"
+                        target_value, "value", text=f"Value {target_value_index}"
                     )
                     remove_target_value_op = target_value_row.operator(
                         vrm0_operator.VRM_OT_remove_vrm0_material_value_bind_target_value.bl_idname,
@@ -756,55 +707,53 @@ def draw_vrm0_secondary_animation_layout(
 
     bone_groups_box = layout.box()
     bone_groups_box.label(text="Spring Bone Groups", icon="GROUP_BONE")
-    for bone_group_index, bone_group_props in enumerate(
-        secondary_animation.bone_groups
-    ):
+    for bone_group_index, bone_group in enumerate(secondary_animation.bone_groups):
         row = bone_groups_box.row()
         row.alignment = "LEFT"
 
         text = ""
-        if bone_group_props.bones:
+        if bone_group.bones:
             text = (
                 "("
-                + ", ".join(map(lambda bone: str(bone.value), bone_group_props.bones))
+                + ", ".join(map(lambda bone: str(bone.value), bone_group.bones))
                 + ")"
             )
 
-        if bone_group_props.center.value:
+        if bone_group.center.value:
             if text:
                 text = " - " + text
-            text = bone_group_props.center.value + text
+            text = bone_group.center.value + text
 
-        if bone_group_props.comment:
+        if bone_group.comment:
             if text:
                 text = " / " + text
-            text = bone_group_props.comment + text
+            text = bone_group.comment + text
 
         if not text:
             text = "(EMPTY)"
 
         row.prop(
-            bone_group_props,
+            bone_group,
             "show_expanded",
-            icon="TRIA_DOWN" if bone_group_props.show_expanded else "TRIA_RIGHT",
+            icon="TRIA_DOWN" if bone_group.show_expanded else "TRIA_RIGHT",
             emboss=False,
             text=text,
             translate=False,
         )
-        if not bone_group_props.show_expanded:
+        if not bone_group.show_expanded:
             continue
 
         box = bone_groups_box.box()
         row = box.row()
-        box.prop(bone_group_props, "comment", icon="BOOKMARKS")
-        box.prop(bone_group_props, "stiffiness", icon="RIGID_BODY_CONSTRAINT")
-        box.prop(bone_group_props, "drag_force", icon="FORCE_DRAG")
+        box.prop(bone_group, "comment", icon="BOOKMARKS")
+        box.prop(bone_group, "stiffiness", icon="RIGID_BODY_CONSTRAINT")
+        box.prop(bone_group, "drag_force", icon="FORCE_DRAG")
         box.separator()
-        box.prop(bone_group_props, "gravity_power", icon="OUTLINER_OB_FORCE_FIELD")
-        box.prop(bone_group_props, "gravity_dir", icon="OUTLINER_OB_FORCE_FIELD")
+        box.prop(bone_group, "gravity_power", icon="OUTLINER_OB_FORCE_FIELD")
+        box.prop(bone_group, "gravity_dir", icon="OUTLINER_OB_FORCE_FIELD")
         box.separator()
         box.prop_search(
-            bone_group_props.center,
+            bone_group.center,
             "value",
             data,
             "bones",
@@ -812,7 +761,7 @@ def draw_vrm0_secondary_animation_layout(
             text="Center Bone",
         )
         box.prop(
-            bone_group_props,
+            bone_group,
             "hit_radius",
             icon="MOD_PHYSICS",
         )
@@ -820,13 +769,13 @@ def draw_vrm0_secondary_animation_layout(
         row = box.row()
         row.alignment = "LEFT"
         row.prop(
-            bone_group_props,
+            bone_group,
             "show_expanded_bones",
-            icon="TRIA_DOWN" if bone_group_props.show_expanded_bones else "TRIA_RIGHT",
+            icon="TRIA_DOWN" if bone_group.show_expanded_bones else "TRIA_RIGHT",
             emboss=False,
         )
-        if bone_group_props.show_expanded_bones:
-            for bone_index, bone in enumerate(bone_group_props.bones):
+        if bone_group.show_expanded_bones:
+            for bone_index, bone in enumerate(bone_group.bones):
                 bone_row = box.split(align=True, factor=0.7)
                 bone_row.prop_search(bone, "value", data, "bones", text="")
                 remove_bone_op = bone_row.operator(
@@ -847,16 +796,16 @@ def draw_vrm0_secondary_animation_layout(
         row = box.row()
         row.alignment = "LEFT"
         row.prop(
-            bone_group_props,
+            bone_group,
             "show_expanded_collider_groups",
             icon="TRIA_DOWN"
-            if bone_group_props.show_expanded_collider_groups
+            if bone_group.show_expanded_collider_groups
             else "TRIA_RIGHT",
             emboss=False,
         )
-        if bone_group_props.show_expanded_collider_groups:
+        if bone_group.show_expanded_collider_groups:
             for collider_group_index, collider_group in enumerate(
-                bone_group_props.collider_groups
+                bone_group.collider_groups
             ):
                 collider_group_row = box.split(align=True, factor=0.7)
                 collider_group_row.prop_search(
@@ -894,36 +843,34 @@ def draw_vrm0_secondary_animation_layout(
 
     collider_groups_box = layout.box()
     collider_groups_box.label(text="Collider Groups", icon="SPHERE")
-    for collider_group_index, collider_group_props in enumerate(
+    for collider_group_index, collider_group in enumerate(
         secondary_animation.collider_groups
     ):
         row = collider_groups_box.row()
         row.alignment = "LEFT"
         row.prop(
-            collider_group_props,
+            collider_group,
             "show_expanded",
-            icon="TRIA_DOWN" if collider_group_props.show_expanded else "TRIA_RIGHT",
+            icon="TRIA_DOWN" if collider_group.show_expanded else "TRIA_RIGHT",
             emboss=False,
-            text=collider_group_props.name,
+            text=collider_group.name,
             translate=False,
         )
-        if not collider_group_props.show_expanded:
+        if not collider_group.show_expanded:
             continue
 
         box = collider_groups_box.box()
         row = box.row()
-        box.label(text=collider_group_props.name)
-        box.prop_search(collider_group_props.node, "value", armature.data, "bones")
+        box.label(text=collider_group.name)
+        box.prop_search(collider_group.node, "value", armature.data, "bones")
 
         box.label(text="Colliders:")
-        for collider_index, collider_props in enumerate(collider_group_props.colliders):
+        for collider_index, collider in enumerate(collider_group.colliders):
             collider_row = box.split(align=True, factor=0.5)
             collider_row.prop(
-                collider_props.blender_object, "name", icon="MESH_UVSPHERE", text=""
+                collider.blender_object, "name", icon="MESH_UVSPHERE", text=""
             )
-            collider_row.prop(
-                collider_props.blender_object, "empty_display_size", text=""
-            )
+            collider_row.prop(collider.blender_object, "empty_display_size", text="")
             remove_collider_op = collider_row.operator(
                 vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider.bl_idname,
                 icon="REMOVE",
@@ -938,7 +885,7 @@ def draw_vrm0_secondary_animation_layout(
         )
         add_collider_op.armature_name = armature.name
         add_collider_op.collider_group_index = collider_group_index
-        add_collider_op.bone_name = collider_group_props.node.value
+        add_collider_op.bone_name = collider_group.node.value
 
         remove_collider_group_op = box.operator(
             vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group.bl_idname,
@@ -1013,34 +960,34 @@ def draw_vrm0_meta_layout(
     armature: bpy.types.Object,
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
-    meta_props: Vrm0MetaPropertyGroup,
+    meta: Vrm0MetaPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
     blend_data = context.blend_data
 
-    layout.prop_search(meta_props, "texture", blend_data, "images", text="Thumbnail")
+    layout.prop_search(meta, "texture", blend_data, "images", text="Thumbnail")
 
-    layout.prop(meta_props, "title", icon="FILE_BLEND")
-    layout.prop(meta_props, "version", icon="LINENUMBERS_ON")
-    layout.prop(meta_props, "author", icon="USER")
-    layout.prop(meta_props, "contact_information", icon="URL")
-    layout.prop(meta_props, "reference", icon="URL")
-    layout.prop(meta_props, "allowed_user_name", icon="MATCLOTH")
+    layout.prop(meta, "title", icon="FILE_BLEND")
+    layout.prop(meta, "version", icon="LINENUMBERS_ON")
+    layout.prop(meta, "author", icon="USER")
+    layout.prop(meta, "contact_information", icon="URL")
+    layout.prop(meta, "reference", icon="URL")
+    layout.prop(meta, "allowed_user_name", icon="MATCLOTH")
     layout.prop(
-        meta_props,
+        meta,
         "violent_ussage_name",
         icon="ORPHAN_DATA",
     )
-    layout.prop(meta_props, "sexual_ussage_name", icon="HEART")
+    layout.prop(meta, "sexual_ussage_name", icon="HEART")
     layout.prop(
-        meta_props,
+        meta,
         "commercial_ussage_name",
         icon="SOLO_OFF",
     )
-    layout.prop(meta_props, "other_permission_url", icon="URL")
-    layout.prop(meta_props, "license_name", icon="COMMUNITY")
-    if meta_props.license_name == Vrm0MetaPropertyGroup.LICENSE_NAME_OTHER:
-        layout.prop(meta_props, "other_license_url", icon="URL")
+    layout.prop(meta, "other_permission_url", icon="URL")
+    layout.prop(meta, "license_name", icon="COMMUNITY")
+    if meta.license_name == Vrm0MetaPropertyGroup.LICENSE_NAME_OTHER:
+        layout.prop(meta, "other_license_url", icon="URL")
 
 
 class VRM_PT_vrm0_meta_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801

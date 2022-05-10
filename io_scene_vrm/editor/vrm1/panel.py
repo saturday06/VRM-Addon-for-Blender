@@ -35,13 +35,13 @@ def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
 
 def draw_vrm1_bone_prop_search(
     layout: bpy.types.UILayout,
-    human_bone_props: Vrm1HumanBonePropertyGroup,
+    human_bone: Vrm1HumanBonePropertyGroup,
     icon: str,
 ) -> None:
     layout.prop_search(
-        human_bone_props.node,
+        human_bone.node,
         "value",
-        human_bone_props,
+        human_bone,
         "node_candidates",
         text="",
         translate=False,
@@ -52,13 +52,13 @@ def draw_vrm1_bone_prop_search(
 def draw_vrm1_humanoid_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
-    humanoid_props: Vrm1HumanoidPropertyGroup,
+    humanoid: Vrm1HumanoidPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(armature.data.name)
 
     data = armature.data
-    human_bones_props = humanoid_props.human_bones
+    human_bones = humanoid.human_bones
 
     armature_box = layout
     t_pose_box = armature_box.box()
@@ -66,17 +66,14 @@ def draw_vrm1_humanoid_layout(
     column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
     column.label(text="Pose Library")
     column.prop_search(
-        humanoid_props, "pose_library", bpy.data, "actions", text="", translate=False
+        humanoid, "pose_library", bpy.data, "actions", text="", translate=False
     )
     column.label(text="Pose")
-    if (
-        humanoid_props.pose_library
-        and humanoid_props.pose_library.name in bpy.data.actions
-    ):
+    if humanoid.pose_library and humanoid.pose_library.name in bpy.data.actions:
         column.prop_search(
-            humanoid_props,
+            humanoid,
             "pose_marker_name",
-            humanoid_props.pose_library,
+            humanoid.pose_library,
             "pose_markers",
             text="",
             translate=False,
@@ -112,9 +109,9 @@ def draw_vrm1_humanoid_layout(
     column.label(text=HumanBoneSpecifications.HIPS.label)
     column = row.column()
     icon = "USER"
-    draw_vrm1_bone_prop_search(column, human_bones_props.head, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.spine, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.hips, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.head, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.spine, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.hips, icon)
 
     row = requires_box.row().split(factor=split_factor)
     column = row.column()
@@ -130,26 +127,26 @@ def draw_vrm1_humanoid_layout(
     column = row.column()
     column.label(text="Right")
     icon = "VIEW_PAN"
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_upper_arm, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_lower_arm, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_hand, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_upper_arm, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_lower_arm, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_hand, icon)
     column.separator()
     icon = "MOD_DYNAMICPAINT"
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_upper_leg, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_lower_leg, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_foot, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_upper_leg, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_lower_leg, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_foot, icon)
 
     column = row.column()
     column.label(text="Left")
     icon = "VIEW_PAN"
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_upper_arm, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_lower_arm, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_hand, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_upper_arm, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_lower_arm, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_hand, icon)
     column.separator()
     icon = "MOD_DYNAMICPAINT"
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_upper_leg, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_lower_leg, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_foot, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_upper_leg, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_lower_leg, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_foot, icon)
 
     defines_box = armature_box.box()
     defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")
@@ -161,10 +158,10 @@ def draw_vrm1_humanoid_layout(
     column.label(text=HumanBoneSpecifications.LEFT_EYE.label_no_left_right)
     column = row.column()
     column.label(text="Right")
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_eye, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_eye, icon)
     column = row.column()
     column.label(text="Left")
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_eye, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_eye, icon)
 
     row = defines_box.row().split(factor=split_factor)
     column = row.column()
@@ -175,10 +172,10 @@ def draw_vrm1_humanoid_layout(
 
     column = row.column()
     icon = "USER"
-    draw_vrm1_bone_prop_search(column, human_bones_props.jaw, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.neck, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.upper_chest, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.chest, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.jaw, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.neck, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.upper_chest, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.chest, icon)
 
     split_factor = 0.5
     row = defines_box.row().split(factor=split_factor)
@@ -203,29 +200,25 @@ def draw_vrm1_humanoid_layout(
 
     column = row.column()
     icon = "USER"
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_shoulder, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_shoulder, icon)
     icon = "VIEW_PAN"
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_thumb_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_thumb_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_thumb_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_index_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_index_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_index_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_middle_proximal, icon)
-    draw_vrm1_bone_prop_search(
-        column, human_bones_props.right_middle_intermediate, icon
-    )
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_middle_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_ring_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_ring_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_ring_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_little_proximal, icon)
-    draw_vrm1_bone_prop_search(
-        column, human_bones_props.right_little_intermediate, icon
-    )
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_little_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_thumb_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_thumb_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_thumb_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_index_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_index_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_index_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_middle_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_middle_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_middle_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_ring_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_ring_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_ring_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_little_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_little_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_little_distal, icon)
     icon = "MOD_DYNAMICPAINT"
-    draw_vrm1_bone_prop_search(column, human_bones_props.right_toes, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.right_toes, icon)
 
     row = defines_box.row().split(factor=split_factor)
     column = row.column()
@@ -249,25 +242,25 @@ def draw_vrm1_humanoid_layout(
 
     column = row.column()
     icon = "USER"
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_shoulder, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_shoulder, icon)
     icon = "VIEW_PAN"
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_thumb_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_thumb_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_thumb_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_index_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_index_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_index_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_middle_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_middle_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_middle_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_ring_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_ring_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_ring_distal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_little_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_little_intermediate, icon)
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_little_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_thumb_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_thumb_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_thumb_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_index_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_index_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_index_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_middle_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_middle_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_middle_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_ring_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_ring_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_ring_distal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_little_proximal, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_little_intermediate, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_little_distal, icon)
     icon = "MOD_DYNAMICPAINT"
-    draw_vrm1_bone_prop_search(column, human_bones_props.left_toes, icon)
+    draw_vrm1_bone_prop_search(column, human_bones.left_toes, icon)
 
 
 class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
@@ -322,14 +315,14 @@ def draw_vrm1_first_person_layout(
     armature: bpy.types.Object,
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
-    first_person_props: Vrm1FirstPersonPropertyGroup,
+    first_person: Vrm1FirstPersonPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
     blend_data = context.blend_data
     box = layout.box()
     box.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
     for mesh_annotation_index, mesh_annotation in enumerate(
-        first_person_props.mesh_annotations
+        first_person.mesh_annotations
     ):
         row = box.row()
         row.prop_search(
@@ -416,29 +409,29 @@ def draw_vrm1_look_at_layout(
     armature: bpy.types.Object,
     _context: bpy.types.Context,
     layout: bpy.types.UILayout,
-    look_at_props: Vrm1LookAtPropertyGroup,
+    look_at: Vrm1LookAtPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
 
-    layout.prop(look_at_props, "offset_from_head_bone", icon="BONE_DATA")
-    layout.prop(look_at_props, "type")
+    layout.prop(look_at, "offset_from_head_bone", icon="BONE_DATA")
+    layout.prop(look_at, "type")
 
     box = layout.box()
     box.label(text="Range Map Horizontal Inner", icon="FULLSCREEN_EXIT")
-    box.prop(look_at_props.range_map_horizontal_inner, "input_max_value")
-    box.prop(look_at_props.range_map_horizontal_inner, "output_scale")
+    box.prop(look_at.range_map_horizontal_inner, "input_max_value")
+    box.prop(look_at.range_map_horizontal_inner, "output_scale")
     box = layout.box()
     box.label(text="Range Map Horizontal Outer", icon="FULLSCREEN_ENTER")
-    box.prop(look_at_props.range_map_horizontal_outer, "input_max_value")
-    box.prop(look_at_props.range_map_horizontal_outer, "output_scale")
+    box.prop(look_at.range_map_horizontal_outer, "input_max_value")
+    box.prop(look_at.range_map_horizontal_outer, "output_scale")
     box = layout.box()
     box.label(text="Range Map Vertical Up", icon="TRIA_UP")
-    box.prop(look_at_props.range_map_vertical_up, "input_max_value")
-    box.prop(look_at_props.range_map_vertical_up, "output_scale")
+    box.prop(look_at.range_map_vertical_up, "input_max_value")
+    box.prop(look_at.range_map_vertical_up, "output_scale")
     box = layout.box()
     box.label(text="Range Map Vertical Down", icon="TRIA_DOWN")
-    box.prop(look_at_props.range_map_vertical_down, "input_max_value")
-    box.prop(look_at_props.range_map_vertical_down, "output_scale")
+    box.prop(look_at.range_map_vertical_down, "input_max_value")
+    box.prop(look_at.range_map_vertical_down, "output_scale")
 
 
 class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
@@ -504,7 +497,7 @@ def draw_vrm1_expression_layout(
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
     name: str,
-    expression_props: Vrm1ExpressionPropertyGroup,
+    expression: Vrm1ExpressionPropertyGroup,
     removable: bool,
 ) -> None:
     blend_data = context.blend_data
@@ -512,51 +505,47 @@ def draw_vrm1_expression_layout(
     row = layout.row()
     row.alignment = "LEFT"
     row.prop(
-        expression_props,
+        expression,
         "show_expanded",
-        icon="TRIA_DOWN" if expression_props.show_expanded else "TRIA_RIGHT",
+        icon="TRIA_DOWN" if expression.show_expanded else "TRIA_RIGHT",
         emboss=False,
         text=name,
         translate=False,
     )
-    if not expression_props.show_expanded:
+    if not expression.show_expanded:
         return
 
     box = layout.box().column()
     row = box.row()
     row.alignment = "LEFT"
     row.prop(
-        expression_props,
+        expression,
         "show_expanded_morph_target_binds",
         icon="TRIA_DOWN"
-        if expression_props.show_expanded_morph_target_binds
+        if expression.show_expanded_morph_target_binds
         else "TRIA_RIGHT",
         emboss=False,
     )
-    if expression_props.show_expanded_morph_target_binds:
-        for bind_index, bind_props in enumerate(expression_props.morph_target_binds):
+    if expression.show_expanded_morph_target_binds:
+        for bind_index, bind in enumerate(expression.morph_target_binds):
             bind_box = box.box().column()
-            bind_box.prop_search(
-                bind_props.node, "value", blend_data, "meshes", text="Mesh"
-            )
+            bind_box.prop_search(bind.node, "value", blend_data, "meshes", text="Mesh")
             if (
-                bind_props.node.value
-                and bind_props.node.value in blend_data.meshes
-                and blend_data.meshes[bind_props.node.value]
-                and blend_data.meshes[bind_props.node.value].shape_keys
-                and blend_data.meshes[bind_props.node.value].shape_keys.key_blocks
-                and blend_data.meshes[
-                    bind_props.node.value
-                ].shape_keys.key_blocks.keys()
+                bind.node.value
+                and bind.node.value in blend_data.meshes
+                and blend_data.meshes[bind.node.value]
+                and blend_data.meshes[bind.node.value].shape_keys
+                and blend_data.meshes[bind.node.value].shape_keys.key_blocks
+                and blend_data.meshes[bind.node.value].shape_keys.key_blocks.keys()
             ):
                 bind_box.prop_search(
-                    bind_props,
+                    bind,
                     "index",
-                    blend_data.meshes[bind_props.node.value].shape_keys,
+                    blend_data.meshes[bind.node.value].shape_keys,
                     "key_blocks",
                     text="Shape key",
                 )
-            bind_box.prop(bind_props, "weight")
+            bind_box.prop(bind, "weight")
 
             remove_bind_op = bind_box.operator(
                 vrm1_operator.VRM_OT_remove_vrm1_expression_morph_target_bind.bl_idname,
@@ -576,19 +565,19 @@ def draw_vrm1_expression_layout(
     row = box.row()
     row.alignment = "LEFT"
     row.prop(
-        expression_props,
+        expression,
         "show_expanded_material_color_binds",
         icon="TRIA_DOWN"
-        if expression_props.show_expanded_material_color_binds
+        if expression.show_expanded_material_color_binds
         else "TRIA_RIGHT",
         emboss=False,
     )
-    if expression_props.show_expanded_material_color_binds:
-        for bind_index, bind_props in enumerate(expression_props.material_color_binds):
+    if expression.show_expanded_material_color_binds:
+        for bind_index, bind in enumerate(expression.material_color_binds):
             bind_box = box.box().column()
-            bind_box.prop_search(bind_props, "material", blend_data, "materials")
-            bind_box.prop(bind_props, "type")
-            bind_box.prop(bind_props, "target_value")
+            bind_box.prop_search(bind, "material", blend_data, "materials")
+            bind_box.prop(bind, "type")
+            bind_box.prop(bind, "target_value")
 
             remove_bind_op = bind_box.operator(
                 vrm1_operator.VRM_OT_remove_vrm1_expression_material_color_bind.bl_idname,
@@ -607,21 +596,19 @@ def draw_vrm1_expression_layout(
     row = box.row()
     row.alignment = "LEFT"
     row.prop(
-        expression_props,
+        expression,
         "show_expanded_texture_transform_binds",
         icon="TRIA_DOWN"
-        if expression_props.show_expanded_texture_transform_binds
+        if expression.show_expanded_texture_transform_binds
         else "TRIA_RIGHT",
         emboss=False,
     )
-    if expression_props.show_expanded_texture_transform_binds:
-        for bind_index, bind_props in enumerate(
-            expression_props.texture_transform_binds
-        ):
+    if expression.show_expanded_texture_transform_binds:
+        for bind_index, bind in enumerate(expression.texture_transform_binds):
             bind_box = box.box().column()
-            bind_box.prop_search(bind_props, "material", blend_data, "materials")
-            bind_box.prop(bind_props, "scale")
-            bind_box.prop(bind_props, "offset")
+            bind_box.prop_search(bind, "material", blend_data, "materials")
+            bind_box.prop(bind, "scale")
+            bind_box.prop(bind, "offset")
 
             remove_bind_op = bind_box.operator(
                 vrm1_operator.VRM_OT_remove_vrm1_expression_texture_transform_bind.bl_idname,
@@ -637,10 +624,10 @@ def draw_vrm1_expression_layout(
         add_bind_op.armature_data_name = armature.data.name
         add_bind_op.expression_name = name
 
-    box.prop(expression_props, "is_binary", icon="IPO_CONSTANT")
-    box.prop(expression_props, "override_blink")
-    box.prop(expression_props, "override_look_at")
-    box.prop(expression_props, "override_mouth")
+    box.prop(expression, "is_binary", icon="IPO_CONSTANT")
+    box.prop(expression, "override_blink")
+    box.prop(expression, "override_look_at")
+    box.prop(expression, "override_mouth")
 
     if removable:
         remove_custom_expression_op = box.operator(
@@ -655,18 +642,18 @@ def draw_vrm1_expressions_layout(
     armature: bpy.types.Object,
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
-    expressions_props: Vrm1ExpressionsPropertyGroup,
+    expressions: Vrm1ExpressionsPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
 
     column = layout.column()
     for (
         name,
-        expression_props,
-    ) in expressions_props.all_name_to_expression_dict().items():
-        removable = name not in expressions_props.preset_name_to_expression_dict()
+        expression,
+    ) in expressions.all_name_to_expression_dict().items():
+        removable = name not in expressions.preset_name_to_expression_dict()
         draw_vrm1_expression_layout(
-            armature, context, column, name, expression_props, removable
+            armature, context, column, name, expression, removable
         )
 
     add_custom_expression_op = layout.operator(
@@ -733,28 +720,26 @@ def draw_vrm1_meta_layout(
     armature: bpy.types.Object,
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
-    meta_props: Vrm1MetaPropertyGroup,
+    meta: Vrm1MetaPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
     blend_data = context.blend_data
 
-    layout.prop_search(meta_props, "thumbnail_image", blend_data, "images")
+    layout.prop_search(meta, "thumbnail_image", blend_data, "images")
 
-    layout.prop(meta_props, "vrm_name", icon="FILE_BLEND")
-    layout.prop(meta_props, "version", icon="LINENUMBERS_ON")
+    layout.prop(meta, "vrm_name", icon="FILE_BLEND")
+    layout.prop(meta, "version", icon="LINENUMBERS_ON")
 
     authors_box = layout.box()
     authors_box.label(text="Authors:")
-    if len(meta_props.authors) > 0:
+    if len(meta.authors) > 0:
         authors_row = authors_box.split(align=True, factor=0.7)
-        authors_prop_column = authors_row.column()
-        for author_props in meta_props.authors:
-            authors_prop_column.prop(
-                author_props, "value", text="", translate=False, icon="USER"
-            )
-    if len(meta_props.authors) > 1:
+        authors_column = authors_row.column()
+        for author in meta.authors:
+            authors_column.prop(author, "value", text="", translate=False, icon="USER")
+    if len(meta.authors) > 1:
         authors_remove_column = authors_row.column()
-        for author_index in range(len(meta_props.authors)):
+        for author_index in range(len(meta.authors)):
             remove_author_op = authors_remove_column.operator(
                 vrm1_operator.VRM_OT_remove_vrm1_meta_author.bl_idname,
                 text="Remove",
@@ -767,21 +752,21 @@ def draw_vrm1_meta_layout(
     )
     add_author_op.armature_data_name = armature.data.name
 
-    layout.prop(meta_props, "copyright_information")
-    layout.prop(meta_props, "contact_information")
+    layout.prop(meta, "copyright_information")
+    layout.prop(meta, "contact_information")
 
     references_box = layout.box()
     references_box.label(text="References:")
-    if len(meta_props.references) > 0:
+    if len(meta.references) > 0:
         references_row = references_box.split(align=True, factor=0.7)
-        references_prop_column = references_row.column()
-        for reference_props in meta_props.references:
-            references_prop_column.prop(
-                reference_props, "value", text="", translate=False, icon="URL"
+        references_column = references_row.column()
+        for reference in meta.references:
+            references_column.prop(
+                reference, "value", text="", translate=False, icon="URL"
             )
-    if len(meta_props.references) > 1:
+    if len(meta.references) > 1:
         references_remove_column = references_row.column()
-        for reference_index in range(len(meta_props.references)):
+        for reference_index in range(len(meta.references)):
             remove_reference_op = references_remove_column.operator(
                 vrm1_operator.VRM_OT_remove_vrm1_meta_reference.bl_idname,
                 text="Remove",
@@ -794,18 +779,18 @@ def draw_vrm1_meta_layout(
     )
     add_reference_op.armature_data_name = armature.data.name
 
-    layout.prop(meta_props, "third_party_licenses")
-    # layout.prop(meta_props, "license_url", icon="URL")
-    layout.prop(meta_props, "avatar_permission", icon="MATCLOTH")
-    layout.prop(meta_props, "commercial_usage", icon="SOLO_OFF")
-    layout.prop(meta_props, "credit_notation")
-    layout.prop(meta_props, "modification")
-    layout.prop(meta_props, "allow_excessively_violent_usage")
-    layout.prop(meta_props, "allow_excessively_sexual_usage")
-    layout.prop(meta_props, "allow_political_or_religious_usage")
-    layout.prop(meta_props, "allow_antisocial_or_hate_usage")
-    layout.prop(meta_props, "allow_redistribution")
-    layout.prop(meta_props, "other_license_url", icon="URL")
+    layout.prop(meta, "third_party_licenses")
+    # layout.prop(meta, "license_url", icon="URL")
+    layout.prop(meta, "avatar_permission", icon="MATCLOTH")
+    layout.prop(meta, "commercial_usage", icon="SOLO_OFF")
+    layout.prop(meta, "credit_notation")
+    layout.prop(meta, "modification")
+    layout.prop(meta, "allow_excessively_violent_usage")
+    layout.prop(meta, "allow_excessively_sexual_usage")
+    layout.prop(meta, "allow_political_or_religious_usage")
+    layout.prop(meta, "allow_antisocial_or_hate_usage")
+    layout.prop(meta, "allow_redistribution")
+    layout.prop(meta, "other_license_url", icon="URL")
 
 
 class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801

@@ -200,20 +200,20 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
 
             found = False
             for (
-                human_bone_props
+                human_bone
             ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
-                if human_bone_props.bone == human_bone_name:
-                    human_bone_props.node.value = bpy_bone_name
+                if human_bone.bone == human_bone_name:
+                    human_bone.node.value = bpy_bone_name
                     found = True
                     break
             if found:
                 continue
 
-            human_bone_props = (
+            human_bone = (
                 armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
             )
-            human_bone_props.bone = human_bone_name
-            human_bone_props.node.value = bpy_bone_name
+            human_bone.bone = human_bone_name
+            human_bone.node.value = bpy_bone_name
 
         return {"FINISHED"}
 

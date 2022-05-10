@@ -89,9 +89,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             yield from bone_group.bones
         for (
             human_bone
-        ) in (
-            ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone_props().values()
-        ):
+        ) in ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone().values():
             yield human_bone.node
         for collider in ext.spring_bone1.colliders:
             yield collider.node
@@ -250,21 +248,21 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                 vrm0_bpy_bone_name_to_human_bone_specification,
             )
 
-        human_bone_name_to_human_bone_props = (
-            ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone_props()
+        human_bone_name_to_human_bone = (
+            ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
         )
         vrm1_bpy_bone_name_to_human_bone_specification: Dict[
             str, HumanBoneSpecification
         ] = {
-            human_bone_props.node.value: HumanBoneSpecifications.get(human_bone_name)
-            for human_bone_name, human_bone_props in human_bone_name_to_human_bone_props.items()
-            if human_bone_props.node.value
+            human_bone.node.value: HumanBoneSpecifications.get(human_bone_name)
+            for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
+            if human_bone.node.value
         }
 
         for (
             human_bone_name,
             human_bone,
-        ) in human_bone_name_to_human_bone_props.items():
+        ) in human_bone_name_to_human_bone.items():
             human_bone.update_node_candidates(
                 armature_data,
                 HumanBoneSpecifications.get(human_bone_name),

@@ -59,54 +59,54 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         return str(obj.name)
 
     @staticmethod
-    def create_meta_dict(meta_props: Vrm1MetaPropertyGroup) -> Dict[str, Any]:
+    def create_meta_dict(meta: Vrm1MetaPropertyGroup) -> Dict[str, Any]:
         meta_dict: Dict[str, Union[str, bool, List[str]]] = {
             "licenseUrl": "https://vrm.dev/licenses/1.0/",
-            "name": meta_props.vrm_name if meta_props.vrm_name else "undefined",
-            "version": meta_props.version if meta_props.version else "undefined",
-            "avatarPermission": meta_props.avatar_permission,
-            "allowExcessivelyViolentUsage": meta_props.allow_excessively_violent_usage,
-            "allowExcessivelySexualUsage": meta_props.allow_excessively_sexual_usage,
-            "commercialUsage": meta_props.commercial_usage,
-            "allowPoliticalOrReligiousUsage": meta_props.allow_political_or_religious_usage,
-            "allowAntisocialOrHateUsage": meta_props.allow_antisocial_or_hate_usage,
-            "creditNotation": meta_props.credit_notation,
-            "allowRedistribution": meta_props.allow_redistribution,
-            "modification": meta_props.modification,
+            "name": meta.vrm_name if meta.vrm_name else "undefined",
+            "version": meta.version if meta.version else "undefined",
+            "avatarPermission": meta.avatar_permission,
+            "allowExcessivelyViolentUsage": meta.allow_excessively_violent_usage,
+            "allowExcessivelySexualUsage": meta.allow_excessively_sexual_usage,
+            "commercialUsage": meta.commercial_usage,
+            "allowPoliticalOrReligiousUsage": meta.allow_political_or_religious_usage,
+            "allowAntisocialOrHateUsage": meta.allow_antisocial_or_hate_usage,
+            "creditNotation": meta.credit_notation,
+            "allowRedistribution": meta.allow_redistribution,
+            "modification": meta.modification,
         }
 
-        authors = [author.value for author in meta_props.authors if author.value]
+        authors = [author.value for author in meta.authors if author.value]
         if not authors:
             authors = ["undefined"]
         meta_dict["authors"] = authors
 
-        if meta_props.copyright_information:
-            meta_dict["copyrightInformation"] = meta_props.copyright_information
+        if meta.copyright_information:
+            meta_dict["copyrightInformation"] = meta.copyright_information
 
         references = [
-            reference.value for reference in meta_props.references if reference.value
+            reference.value for reference in meta.references if reference.value
         ]
         if references:
             meta_dict["references"] = references
 
-        if meta_props.third_party_licenses:
-            meta_dict["thirdPartyLicenses"] = meta_props.third_party_licenses
+        if meta.third_party_licenses:
+            meta_dict["thirdPartyLicenses"] = meta.third_party_licenses
 
-        if meta_props.other_license_url:
-            meta_dict["otherLicenseUrl"] = meta_props.other_license_url
+        if meta.other_license_url:
+            meta_dict["otherLicenseUrl"] = meta.other_license_url
 
         return meta_dict
 
     @staticmethod
     def create_humanoid_dict(
-        humanoid_props: Vrm1HumanoidPropertyGroup,
+        humanoid: Vrm1HumanoidPropertyGroup,
         bone_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         human_bones_dict: Dict[str, Any] = {}
         for (
             human_bone_name,
             human_bone,
-        ) in humanoid_props.human_bones.human_bone_name_to_human_bone_props().items():
+        ) in humanoid.human_bones.human_bone_name_to_human_bone().items():
             index = bone_name_to_index_dict.get(human_bone.node.value)
             if isinstance(index, int):
                 human_bones_dict[human_bone_name.value] = {"node": index}
@@ -117,134 +117,124 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_first_person_dict(
-        first_person_props: Vrm1FirstPersonPropertyGroup,
+        first_person: Vrm1FirstPersonPropertyGroup,
         mesh_name_to_node_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
-        mesh_annotations: List[Dict[str, Any]] = []
-        for mesh_annotation_props in first_person_props.mesh_annotations:
-            if not mesh_annotation_props.node or mesh_annotation_props.node.value:
+        mesh_annotation_dicts: List[Dict[str, Any]] = []
+        for mesh_annotation in first_person.mesh_annotations:
+            if not mesh_annotation.node or mesh_annotation.node.value:
                 continue
-            node_index = mesh_name_to_node_index_dict.get(
-                mesh_annotation_props.node.value
-            )
+            node_index = mesh_name_to_node_index_dict.get(mesh_annotation.node.value)
             if not isinstance(node_index, int):
                 continue
-            mesh_annotations.append(
+            mesh_annotation_dicts.append(
                 {
                     "node": node_index,
-                    "type": mesh_annotation_props.type,
+                    "type": mesh_annotation.type,
                 }
             )
-        if not mesh_annotations:
+        if not mesh_annotation_dicts:
             return {}
-        return {"meshAnnotations": mesh_annotations}
+        return {"meshAnnotations": mesh_annotation_dicts}
 
     @staticmethod
     def create_look_at_dict(
-        look_at_props: Vrm1LookAtPropertyGroup,
+        look_at: Vrm1LookAtPropertyGroup,
     ) -> Dict[str, Any]:
         return {
-            "offsetFromHeadBone": list(look_at_props.offset_from_head_bone),
-            "type": look_at_props.type,
+            "offsetFromHeadBone": list(look_at.offset_from_head_bone),
+            "type": look_at.type,
             "rangeMapHorizontalInner": {
-                "inputMaxValue": look_at_props.range_map_horizontal_inner.input_max_value,
-                "outputScale": look_at_props.range_map_horizontal_inner.output_scale,
+                "inputMaxValue": look_at.range_map_horizontal_inner.input_max_value,
+                "outputScale": look_at.range_map_horizontal_inner.output_scale,
             },
             "rangeMapHorizontalOuter": {
-                "inputMaxValue": look_at_props.range_map_horizontal_outer.input_max_value,
-                "outputScale": look_at_props.range_map_horizontal_outer.output_scale,
+                "inputMaxValue": look_at.range_map_horizontal_outer.input_max_value,
+                "outputScale": look_at.range_map_horizontal_outer.output_scale,
             },
             "rangeMapVerticalDown": {
-                "inputMaxValue": look_at_props.range_map_vertical_down.input_max_value,
-                "outputScale": look_at_props.range_map_vertical_down.output_scale,
+                "inputMaxValue": look_at.range_map_vertical_down.input_max_value,
+                "outputScale": look_at.range_map_vertical_down.output_scale,
             },
             "rangeMapVerticalUp": {
-                "inputMaxValue": look_at_props.range_map_vertical_up.input_max_value,
-                "outputScale": look_at_props.range_map_vertical_up.output_scale,
+                "inputMaxValue": look_at.range_map_vertical_up.input_max_value,
+                "outputScale": look_at.range_map_vertical_up.output_scale,
             },
         }
 
     @staticmethod
     def create_expression_dict(
-        expression_props: Vrm1ExpressionPropertyGroup,
+        expression: Vrm1ExpressionPropertyGroup,
         mesh_name_to_node_index_dict: Dict[str, int],
         mesh_name_to_morph_target_names_dict: Dict[str, List[str]],
         material_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         expression_dict = {
-            "isBinary": expression_props.is_binary,
-            "overrideBlink": expression_props.override_blink,
-            "overrideLookAt": expression_props.override_look_at,
-            "overrideMouth": expression_props.override_mouth,
+            "isBinary": expression.is_binary,
+            "overrideBlink": expression.override_blink,
+            "overrideLookAt": expression.override_look_at,
+            "overrideMouth": expression.override_mouth,
         }
-        morph_target_binds = []
-        for morph_target_bind_props in expression_props.morph_target_binds:
-            if (
-                not morph_target_bind_props.node
-                or not morph_target_bind_props.node.value
-            ):
+        morph_target_bind_dicts = []
+        for morph_target_bind in expression.morph_target_binds:
+            if not morph_target_bind.node or not morph_target_bind.node.value:
                 continue
-            node_index = mesh_name_to_node_index_dict.get(
-                morph_target_bind_props.node.value
-            )
+            node_index = mesh_name_to_node_index_dict.get(morph_target_bind.node.value)
             if not isinstance(node_index, int):
                 continue
             morph_targets = mesh_name_to_morph_target_names_dict.get(
-                morph_target_bind_props.node.value
+                morph_target_bind.node.value
             )
             if not isinstance(morph_targets, list):
                 continue
-            if morph_target_bind_props.index not in morph_targets:
+            if morph_target_bind.index not in morph_targets:
                 continue
-            morph_target_binds.append(
+            morph_target_bind_dicts.append(
                 {
                     "node": node_index,
-                    "index": morph_targets.index(morph_target_bind_props.index),
-                    "weight": morph_target_bind_props.weight,
+                    "index": morph_targets.index(morph_target_bind.index),
+                    "weight": morph_target_bind.weight,
                 }
             )
-        if morph_target_binds:
-            expression_dict["morphTargetBinds"] = morph_target_binds
+        if morph_target_bind_dicts:
+            expression_dict["morphTargetBinds"] = morph_target_bind_dicts
 
-        material_color_binds: List[Dict[str, Any]] = []
-        for material_color_bind_props in expression_props.material_color_binds:
-            if (
-                not material_color_bind_props.material
-                or material_color_bind_props.material.name
-            ):
+        material_color_bind_dicts: List[Dict[str, Any]] = []
+        for material_color_bind in expression.material_color_binds:
+            if not material_color_bind.material or material_color_bind.material.name:
                 continue
             material_index = material_name_to_index_dict.get(
-                material_color_bind_props.material.name
+                material_color_bind.material.name
             )
             if not isinstance(material_index, int):
                 continue
-            material_color_binds.append(
+            material_color_bind_dicts.append(
                 {
                     "material": material_index,
-                    "type": material_color_bind_props.type,
-                    "targetValue": list(material_color_bind_props.target_value),
+                    "type": material_color_bind.type,
+                    "targetValue": list(material_color_bind.target_value),
                 }
             )
-        if material_color_binds:
-            expression_dict["materialColorBinds"] = material_color_binds
+        if material_color_bind_dicts:
+            expression_dict["materialColorBinds"] = material_color_bind_dicts
 
         texture_transform_binds: List[Dict[str, Any]] = []
-        for texture_transform_bind_props in expression_props.texture_transform_binds:
+        for texture_transform_bind in expression.texture_transform_binds:
             if (
-                not texture_transform_bind_props.material
-                or texture_transform_bind_props.material.name
+                not texture_transform_bind.material
+                or texture_transform_bind.material.name
             ):
                 continue
             material_index = material_name_to_index_dict.get(
-                texture_transform_bind_props.material.name
+                texture_transform_bind.material.name
             )
             if not isinstance(material_index, int):
                 continue
             texture_transform_binds.append(
                 {
                     "material": material_index,
-                    "scale": list(texture_transform_bind_props.scale),
-                    "offset": list(texture_transform_bind_props.offset),
+                    "scale": list(texture_transform_bind.scale),
+                    "offset": list(texture_transform_bind.offset),
                 }
             )
         if texture_transform_binds:
@@ -254,7 +244,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_expressions_dict(
-        expressions_props: Vrm1ExpressionsPropertyGroup,
+        expressions: Vrm1ExpressionsPropertyGroup,
         mesh_name_to_node_index_dict: Dict[str, int],
         mesh_name_to_morph_target_names_dict: Dict[str, List[str]],
         material_name_to_index_dict: Dict[str, int],
@@ -262,20 +252,20 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         preset_dict = {}
         for (
             preset_name,
-            expression_props,
-        ) in expressions_props.preset_name_to_expression_dict().items():
+            expression,
+        ) in expressions.preset_name_to_expression_dict().items():
             preset_dict[preset_name] = Gltf2AddonVrmExporter.create_expression_dict(
-                expression_props,
+                expression,
                 mesh_name_to_node_index_dict,
                 mesh_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
             )
         custom_dict = {}
-        for custom_expression_props in expressions_props.custom:
+        for custom_expression in expressions.custom:
             custom_dict[
-                custom_expression_props.custom_name
+                custom_expression.custom_name
             ] = Gltf2AddonVrmExporter.create_expression_dict(
-                custom_expression_props.expression,
+                custom_expression.expression,
                 mesh_name_to_node_index_dict,
                 mesh_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
@@ -292,34 +282,34 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     ) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
         collider_dicts: List[Dict[str, Any]] = []
         collider_uuid_to_index_dict = {}
-        for collider_props in spring_bone.colliders:
+        for collider in spring_bone.colliders:
             collider_dict: Dict[str, Any] = {}
-            node_index = bone_name_to_index_dict.get(collider_props.node.value)
+            node_index = bone_name_to_index_dict.get(collider.node.value)
             if not isinstance(node_index, int):
                 continue
             collider_dict["node"] = node_index
 
-            shape_props = collider_props.shape
-            if shape_props.shape == shape_props.SHAPE_SPHERE:
+            shape = collider.shape
+            if shape.shape == shape.SHAPE_SPHERE:
                 shape_dict = {
                     "sphere": {
-                        "offset": list(shape_props.sphere.offset),
-                        "radius": shape_props.sphere.radius,
+                        "offset": list(shape.sphere.offset),
+                        "radius": shape.sphere.radius,
                     }
                 }
-            elif shape_props.shape == shape_props.SHAPE_CAPSULE:
+            elif shape.shape == shape.SHAPE_CAPSULE:
                 shape_dict = {
                     "capsule": {
-                        "offset": list(shape_props.capsule.offset),
-                        "radius": shape_props.capsule.radius,
-                        "tail": list(shape_props.capsule.tail),
+                        "offset": list(shape.capsule.offset),
+                        "radius": shape.capsule.radius,
+                        "tail": list(shape.capsule.tail),
                     }
                 }
             else:
                 continue
 
             collider_dict["shape"] = shape_dict
-            collider_uuid_to_index_dict[collider_props.uuid] = len(collider_dicts)
+            collider_uuid_to_index_dict[collider.uuid] = len(collider_dicts)
             collider_dicts.append(collider_dict)
 
         return collider_dicts, collider_uuid_to_index_dict
@@ -331,19 +321,19 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     ) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
         collider_group_dicts: List[Dict[str, Any]] = []
         collider_group_uuid_to_index_dict = {}
-        for collider_group_props in spring_bone.collider_groups:
-            collider_group_dict = {"name": collider_group_props.vrm_name}
+        for collider_group in spring_bone.collider_groups:
+            collider_group_dict = {"name": collider_group.vrm_name}
             collider_indices = []
-            for collider_reference_props in collider_group_props.colliders:
+            for collider_reference in collider_group.colliders:
                 collider_index = collider_uuid_to_index_dict.get(
-                    collider_reference_props.collider_uuid
+                    collider_reference.collider_uuid
                 )
                 if isinstance(collider_index, int):
                     collider_indices.append(collider_index)
             if collider_indices:
                 collider_group_dict["colliders"] = collider_indices
 
-            collider_group_uuid_to_index_dict[collider_group_props.uuid] = len(
+            collider_group_uuid_to_index_dict[collider_group.uuid] = len(
                 collider_group_dicts
             )
             collider_group_dicts.append(collider_group_dict)
@@ -357,22 +347,22 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         collider_group_uuid_to_index_dict: Dict[str, int],
     ) -> List[Dict[str, Any]]:
         spring_dicts = []
-        for spring_props in spring_bone.spring_groups:
-            spring_dict = {"name": spring_props.vrm_name}
+        for spring in spring_bone.spring_groups:
+            spring_dict = {"name": spring.vrm_name}
 
             joint_dicts = []
-            for joint_props in spring_props.joints:
-                node_index = bone_name_to_index_dict.get(joint_props.node.value)
+            for joint in spring.joints:
+                node_index = bone_name_to_index_dict.get(joint.node.value)
                 if not isinstance(node_index, int):
                     continue
                 joint_dicts.append(
                     {
                         "node": node_index,
-                        "hitRadius": joint_props.hit_radius,
-                        "stiffness": joint_props.stiffness,
-                        "gravityPower": joint_props.gravity_power,
-                        "gravityDir": list(joint_props.gravity_dir),
-                        "dragForce": joint_props.drag_force,
+                        "hitRadius": joint.hit_radius,
+                        "stiffness": joint.stiffness,
+                        "gravityPower": joint.gravity_power,
+                        "gravityDir": list(joint.gravity_dir),
+                        "dragForce": joint.drag_force,
                     }
                 )
 
@@ -380,9 +370,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 spring_dict["joints"] = joint_dicts
 
             collider_group_indices = []
-            for collider_group_reference_props in spring_props.collider_groups:
+            for collider_group_reference in spring.collider_groups:
                 collider_group_index = collider_group_uuid_to_index_dict.get(
-                    collider_group_reference_props.collider_group_uuid
+                    collider_group_reference.collider_group_uuid
                 )
                 if isinstance(collider_group_index, int):
                     collider_group_indices.append(collider_group_index)
@@ -545,7 +535,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not extras_dict:
                 del mesh_dict["extras"]
 
-        vrm_props = self.armature.data.vrm_addon_extension.vrm1
+        vrm = self.armature.data.vrm_addon_extension.vrm1
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, abc.Iterable):
@@ -560,31 +550,29 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         extensions_used.append("VRMC_vrm")
         extensions["VRMC_vrm"] = {
             "specVersion": self.armature.data.vrm_addon_extension.spec_version,
-            "meta": self.create_meta_dict(vrm_props.meta),
+            "meta": self.create_meta_dict(vrm.meta),
             "humanoid": self.create_humanoid_dict(
-                vrm_props.humanoid, bone_name_to_index_dict
+                vrm.humanoid, bone_name_to_index_dict
             ),
             "firstPerson": self.create_first_person_dict(
-                vrm_props.first_person, mesh_name_to_node_index_dict
+                vrm.first_person, mesh_name_to_node_index_dict
             ),
-            "lookAt": self.create_look_at_dict(vrm_props.look_at),
+            "lookAt": self.create_look_at_dict(vrm.look_at),
             "expressions": self.create_expressions_dict(
-                vrm_props.expressions,
+                vrm.expressions,
                 mesh_name_to_node_index_dict,
                 mesh_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
             ),
         }
 
-        spring_bone_props = self.armature.data.vrm_addon_extension.spring_bone1
+        spring_bone = self.armature.data.vrm_addon_extension.spring_bone1
         spring_bone_dict = {}
 
         (
             spring_bone_collider_dicts,
             collider_uuid_to_index_dict,
-        ) = self.create_spring_bone_collider_dicts(
-            spring_bone_props, bone_name_to_index_dict
-        )
+        ) = self.create_spring_bone_collider_dicts(spring_bone, bone_name_to_index_dict)
         if spring_bone_collider_dicts:
             spring_bone_dict["colliders"] = spring_bone_collider_dicts
 
@@ -592,13 +580,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             spring_bone_collider_group_dicts,
             collider_group_uuid_to_index_dict,
         ) = self.create_spring_bone_collider_group_dicts(
-            spring_bone_props, collider_uuid_to_index_dict
+            spring_bone, collider_uuid_to_index_dict
         )
         if spring_bone_collider_group_dicts:
             spring_bone_dict["colliderGroups"] = spring_bone_collider_group_dicts
 
         spring_bone_spring_dicts = self.create_spring_bone_spring_dicts(
-            spring_bone_props,
+            spring_bone,
             bone_name_to_index_dict,
             collider_group_uuid_to_index_dict,
         )

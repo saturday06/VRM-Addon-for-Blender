@@ -118,10 +118,10 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # t
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        for custom_index, custom_props in enumerate(
+        for custom_index, custom_expression in enumerate(
             list(armature.vrm_addon_extension.vrm1.expressions.custom.values())
         ):
-            if custom_props.custom_name == self.custom_expression_name:
+            if custom_expression.custom_name == self.custom_expression_name:
                 armature.vrm_addon_extension.vrm1.expressions.custom.remove(
                     custom_index
                 )
@@ -322,13 +322,11 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type:
         armature = bpy.data.armatures.get(self.armature_data_name)
         if armature is None:
             return {"CANCELLED"}
-        expressions_props = armature.vrm_addon_extension.vrm1.expressions
-        expression_props = expressions_props.all_name_to_expression_dict().get(
-            self.expression_name
-        )
-        if expression_props is None:
+        expressions = armature.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
             return {"CANCELLED"}
-        expression_props.morph_target_binds.add()
+        expression.morph_target_binds.add()
         return {"FINISHED"}
 
 
@@ -350,15 +348,13 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):  # ty
         armature = bpy.data.armatures.get(self.armature_data_name)
         if armature is None:
             return {"CANCELLED"}
-        expressions_props = armature.vrm_addon_extension.vrm1.expressions
-        expression_props = expressions_props.all_name_to_expression_dict().get(
-            self.expression_name
-        )
-        if expression_props is None:
+        expressions = armature.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
             return {"CANCELLED"}
-        if len(expression_props.morph_target_binds) <= self.bind_index:
+        if len(expression.morph_target_binds) <= self.bind_index:
             return {"CANCELLED"}
-        expression_props.morph_target_binds.remove(self.bind_index)
+        expression.morph_target_binds.remove(self.bind_index)
         return {"FINISHED"}
 
 
@@ -377,12 +373,12 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):  # typ
         armature = bpy.data.armatures.get(self.armature_data_name)
         if armature is None:
             return {"CANCELLED"}
-        expression_props = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
+        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
-        if expression_props is None:
+        if expression is None:
             return {"CANCELLED"}
-        expression_props.material_color_binds.add()
+        expression.material_color_binds.add()
         return {"FINISHED"}
 
 
@@ -404,14 +400,14 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):  # 
         armature = bpy.data.armatures.get(self.armature_data_name)
         if armature is None:
             return {"CANCELLED"}
-        expression_props = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
+        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
-        if expression_props is None:
+        if expression is None:
             return {"CANCELLED"}
-        if len(expression_props.material_color_binds) <= self.bind_index:
+        if len(expression.material_color_binds) <= self.bind_index:
             return {"CANCELLED"}
-        expression_props.material_color_binds.remove(self.bind_index)
+        expression.material_color_binds.remove(self.bind_index)
         return {"FINISHED"}
 
 
@@ -430,12 +426,12 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # 
         armature = bpy.data.armatures.get(self.armature_data_name)
         if armature is None:
             return {"CANCELLED"}
-        expression_props = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
+        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
-        if expression_props is None:
+        if expression is None:
             return {"CANCELLED"}
-        expression_props.texture_transform_binds.add()
+        expression.texture_transform_binds.add()
         return {"FINISHED"}
 
 
@@ -457,12 +453,12 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator): 
         armature = bpy.data.armatures.get(self.armature_data_name)
         if armature is None:
             return {"CANCELLED"}
-        expression_props = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
+        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
-        if expression_props is None:
+        if expression is None:
             return {"CANCELLED"}
-        if len(expression_props.texture_transform_binds) <= self.bind_index:
+        if len(expression.texture_transform_binds) <= self.bind_index:
             return {"CANCELLED"}
-        expression_props.texture_transform_binds.remove(self.bind_index)
+        expression.texture_transform_binds.remove(self.bind_index)
         return {"FINISHED"}

@@ -72,17 +72,17 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
             if not hasattr(armature, "vrm_addon_extension"):
                 continue
 
-            spring_bone_props = armature.vrm_addon_extension.spring_bone1
+            spring_bone = armature.vrm_addon_extension.spring_bone1
 
-            for collider_props in spring_bone_props.colliders:
-                if collider_props.search_one_time_uuid != self.search_one_time_uuid:
+            for collider in spring_bone.colliders:
+                if collider.search_one_time_uuid != self.search_one_time_uuid:
                     continue
 
-                for collider_group_props in spring_bone_props.collider_groups:
-                    for collider_reference_props in collider_group_props.colliders:
-                        if self.uuid != collider_reference_props.collider_uuid:
+                for collider_group in spring_bone.collider_groups:
+                    for collider_reference in collider_group.colliders:
+                        if self.uuid != collider_reference.collider_uuid:
                             continue
-                        collider_reference_props.collider_name = self.name
+                        collider_reference.collider_name = self.name
 
                 return
 
@@ -138,18 +138,18 @@ class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # typ
 
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in bpy.data.armatures:
-            spring_bone_props = armature.vrm_addon_extension.spring_bone1
-            for collider_group_props in spring_bone_props.collider_groups:
-                for collider_reference_props in collider_group_props.colliders:
+            spring_bone = armature.vrm_addon_extension.spring_bone1
+            for collider_group in spring_bone.collider_groups:
+                for collider_reference in collider_group.colliders:
                     if (
-                        collider_reference_props.search_one_time_uuid
+                        collider_reference.search_one_time_uuid
                         != self.search_one_time_uuid
                     ):
                         continue
 
-                    for collider_props in spring_bone_props.colliders:
-                        if collider_props.name == value:
-                            self.collider_uuid = collider_props.uuid
+                    for collider in spring_bone.colliders:
+                        if collider.name == value:
+                            self.collider_uuid = collider.uuid
                     return
 
     collider_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -176,27 +176,19 @@ class SpringBone1ColliderGroupPropertyGroup(
     def fix_index(self) -> None:
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in bpy.data.armatures:
-            spring_bone_props = armature.vrm_addon_extension.spring_bone1
+            spring_bone = armature.vrm_addon_extension.spring_bone1
 
-            for (index, collider_group_props) in enumerate(
-                spring_bone_props.collider_groups
-            ):
-                if (
-                    collider_group_props.search_one_time_uuid
-                    != self.search_one_time_uuid
-                ):
+            for (index, collider_group) in enumerate(spring_bone.collider_groups):
+                if collider_group.search_one_time_uuid != self.search_one_time_uuid:
                     continue
 
                 name = f"{index}: {self.vrm_name}"
                 self.name = name  # pylint: disable=attribute-defined-outside-init
 
-                for spring_props in spring_bone_props.springs:
-                    for collider_group_reference_props in spring_props.collider_groups:
-                        if (
-                            collider_group_reference_props.collider_group_uuid
-                            == self.uuid
-                        ):
-                            collider_group_reference_props.collider_group_name = name
+                for spring in spring_bone.springs:
+                    for collider_group_reference in spring.collider_groups:
+                        if collider_group_reference.collider_group_uuid == self.uuid:
+                            collider_group_reference.collider_group_name = name
 
                 return
 
@@ -250,18 +242,18 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  
 
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in bpy.data.armatures:
-            spring_bone_props = armature.vrm_addon_extension.spring_bone1
-            for spring_props in spring_bone_props.springs:
-                for collider_group_reference_props in spring_props.collider_groups:
+            spring_bone = armature.vrm_addon_extension.spring_bone1
+            for spring in spring_bone.springs:
+                for collider_group_reference in spring.collider_groups:
                     if (
-                        collider_group_reference_props.search_one_time_uuid
+                        collider_group_reference.search_one_time_uuid
                         != self.search_one_time_uuid
                     ):
                         continue
 
-                    for collider_group_props in spring_bone_props.collider_groups:
-                        if collider_group_props.name == value:
-                            self.collider_group_uuid = collider_group_props.uuid
+                    for collider_group in spring_bone.collider_groups:
+                        if collider_group.name == value:
+                            self.collider_group_uuid = collider_group.uuid
                     return
 
     collider_group_name: bpy.props.StringProperty(  # type: ignore[valid-type]

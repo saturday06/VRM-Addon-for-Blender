@@ -173,17 +173,17 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     )
                     for (
                         human_bone_name,
-                        human_bone_props,
-                    ) in human_bones.human_bone_name_to_human_bone_props().items():
+                        human_bone,
+                    ) in human_bones.human_bone_name_to_human_bone().items():
                         human_bone_specification = HumanBoneSpecifications.get(
                             human_bone_name
                         )
                         if not human_bone_specification.vrm1_requirement:
                             continue
                         if (
-                            human_bone_props.node
-                            and human_bone_props.node.value
-                            and human_bone_props.node.value in armature.data.bones
+                            human_bone.node
+                            and human_bone.node.value
+                            and human_bone.node.value in armature.data.bones
                         ):
                             continue
                         messages.append(
@@ -193,15 +193,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         )
                 else:
                     humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
-                    human_bones_props = humanoid.human_bones
+                    human_bones = humanoid.human_bones
                     all_required_bones_exist = True
                     for humanoid_name in HumanBoneSpecifications.vrm0_required_names:
                         if any(
-                            human_bone_props.bone == humanoid_name
-                            and human_bone_props.node
-                            and human_bone_props.node.value
-                            and human_bone_props.node.value in armature.data.bones
-                            for human_bone_props in human_bones_props
+                            human_bone.bone == humanoid_name
+                            and human_bone.node
+                            and human_bone.node.value
+                            and human_bone.node.value in armature.data.bones
+                            for human_bone in human_bones
                         ):
                             continue
                         all_required_bones_exist = False
@@ -364,8 +364,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
         if armature is not None:
             # region first_person
-            first_person_props = armature.data.vrm_addon_extension.vrm0.first_person
-            if not first_person_props.first_person_bone.value:
+            first_person = armature.data.vrm_addon_extension.vrm0.first_person
+            if not first_person.first_person_bone.value:
                 warning_messages.append(
                     pgettext(
                         "firstPersonBone is not found. "
@@ -376,35 +376,35 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
             # region blend_shape_master
             # TODO material value and material existence
-            blend_shape_master_props = (
+            blend_shape_master = (
                 armature.data.vrm_addon_extension.vrm0.blend_shape_master
             )
-            for blend_shape_group_props in blend_shape_master_props.blend_shape_groups:
-                for bind_props in blend_shape_group_props.binds:
-                    if not bind_props.mesh or not bind_props.mesh.name:
+            for blend_shape_group in blend_shape_master.blend_shape_groups:
+                for bind in blend_shape_group.binds:
+                    if not bind.mesh or not bind.mesh.name:
                         continue
 
-                    shape_keys = bind_props.mesh.shape_keys
+                    shape_keys = bind.mesh.shape_keys
                     if not shape_keys:
                         warning_messages.append(
                             pgettext(
                                 'mesh "{mesh_name}" doesn\'t have shape key. '
                                 + 'But blend shape group needs "{shape_key_name}" in its shape key.'
                             ).format(
-                                mesh_name=bind_props.mesh.name,
-                                shape_key_name=bind_props.index,
+                                mesh_name=bind.mesh.name,
+                                shape_key_name=bind.index,
                             )
                         )
                         continue
 
-                    if bind_props.index not in shape_keys.key_blocks:
+                    if bind.index not in shape_keys.key_blocks:
                         warning_messages.append(
                             pgettext(
                                 'mesh "{mesh_name}" doesn\'t have "{shape_key_name}" shape key. '
                                 + "But blend shape group needs it."
                             ).format(
-                                mesh_name=bind_props.mesh.name,
-                                shape_key_name=bind_props.index,
+                                mesh_name=bind.mesh.name,
+                                shape_key_name=bind.index,
                             )
                         )
             # endregion blend_shape_master

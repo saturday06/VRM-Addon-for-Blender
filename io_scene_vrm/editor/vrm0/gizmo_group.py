@@ -19,10 +19,10 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
     def setup(self, context: bpy.types.Context) -> None:
         armature = context.active_object.data
         ext = armature.vrm_addon_extension
-        first_person_props = ext.vrm0.first_person
-        first_person_bone = armature.bones[first_person_props.first_person_bone.value]
+        first_person = ext.vrm0.first_person
+        first_person_bone = armature.bones[first_person.first_person_bone.value]
         gizmo = self.gizmos.new("GIZMO_GT_move_3d")
-        gizmo.target_set_prop("offset", first_person_props, "first_person_bone_offset")
+        gizmo.target_set_prop("offset", first_person, "first_person_bone_offset")
         gizmo.matrix_basis = first_person_bone.matrix_local
         gizmo.draw_style = "CROSS_2D"
         gizmo.draw_options = {"ALIGN_VIEW"}
@@ -40,6 +40,6 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
         armature = context.active_object.data
         ext = armature.vrm_addon_extension
         gizmo = self.first_person_gizmo
-        first_person_props = ext.vrm0.first_person
-        first_person_bone = armature.bones[first_person_props.first_person_bone.value]
+        first_person = ext.vrm0.first_person
+        first_person_bone = armature.bones[first_person.first_person_bone.value]
         gizmo.matrix_basis = first_person_bone.matrix_local

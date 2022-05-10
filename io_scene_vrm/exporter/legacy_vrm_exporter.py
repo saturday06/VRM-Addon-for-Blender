@@ -124,21 +124,21 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         bpy.ops.object.mode_set(mode="POSE")
 
         self.saved_pose_position = self.armature.data.pose_position
-        humanoid_props = self.armature.data.vrm_addon_extension.vrm0.humanoid
+        humanoid = self.armature.data.vrm_addon_extension.vrm0.humanoid
 
         pose_library: Optional[bpy.types.Action] = None
         pose_index: Optional[int] = None
         if (
-            humanoid_props.pose_library
-            and humanoid_props.pose_library.name in bpy.data.actions
-            and humanoid_props.pose_marker_name
+            humanoid.pose_library
+            and humanoid.pose_library.name in bpy.data.actions
+            and humanoid.pose_marker_name
         ):
-            pose_library = humanoid_props.pose_library
+            pose_library = humanoid.pose_library
             if pose_library:
                 for search_pose_index, search_pose_marker in enumerate(
                     pose_library.pose_markers.values()
                 ):
-                    if search_pose_marker.name == humanoid_props.pose_marker_name:
+                    if search_pose_marker.name == humanoid.pose_marker_name:
                         pose_index = search_pose_index
                         self.armature.data.pose_position = "POSE"
                         break
@@ -2053,7 +2053,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     def vrm_meta_to_dic(self) -> None:
         # materialProperties は material_to_dic()で処理する
         # region vrm_extension
-        meta_props = self.armature.data.vrm_addon_extension.vrm0.meta
+        meta = self.armature.data.vrm_addon_extension.vrm0.meta
         vrm_extension_dict: Dict[str, Any] = OrderedDict()
         vrm_version = self.vrm_version
         if vrm_version is None:
@@ -2063,24 +2063,24 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         vrm_extension_dict["specVersion"] = self.vrm_version
         # region meta
         vrm_extension_dict["meta"] = {
-            "title": meta_props.title,
-            "version": meta_props.version,
-            "author": meta_props.author,
-            "contactInformation": meta_props.contact_information,
-            "reference": meta_props.reference,
-            "allowedUserName": meta_props.allowed_user_name,
-            "violentUssageName": meta_props.violent_ussage_name,  # noqa: SC200
-            "sexualUssageName": meta_props.sexual_ussage_name,  # noqa: SC200
-            "commercialUssageName": meta_props.commercial_ussage_name,  # noqa: SC200
-            "otherPermissionUrl": meta_props.other_permission_url,
-            "licenseName": meta_props.license_name,
-            "otherLicenseUrl": meta_props.other_license_url,
+            "title": meta.title,
+            "version": meta.version,
+            "author": meta.author,
+            "contactInformation": meta.contact_information,
+            "reference": meta.reference,
+            "allowedUserName": meta.allowed_user_name,
+            "violentUssageName": meta.violent_ussage_name,  # noqa: SC200
+            "sexualUssageName": meta.sexual_ussage_name,  # noqa: SC200
+            "commercialUssageName": meta.commercial_ussage_name,  # noqa: SC200
+            "otherPermissionUrl": meta.other_permission_url,
+            "licenseName": meta.license_name,
+            "otherLicenseUrl": meta.other_license_url,
         }
-        if meta_props.texture and meta_props.texture.name:
+        if meta.texture and meta.texture.name:
             thumbnail_indices = [
                 index
                 for index, image_bin in enumerate(self.glb_bin_collector.image_bins)
-                if image_bin.name == meta_props.texture.name
+                if image_bin.name == meta.texture.name
             ]
             if thumbnail_indices:
                 if "samplers" not in self.json_dic:
@@ -2112,61 +2112,61 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         }
         humanoid_dict: Dict[str, Any] = {"humanBones": []}
         vrm_extension_dict["humanoid"] = humanoid_dict
-        humanoid_props = self.armature.data.vrm_addon_extension.vrm0.humanoid
+        humanoid = self.armature.data.vrm_addon_extension.vrm0.humanoid
         for human_bone_name in HumanBoneSpecifications.all_names:
-            for human_bone_props in humanoid_props.human_bones:
+            for human_bone in humanoid.human_bones:
                 if (
-                    human_bone_props.bone != human_bone_name
-                    or not human_bone_props.node.value
-                    or human_bone_props.node.value not in node_name_id_dict
+                    human_bone.bone != human_bone_name
+                    or not human_bone.node.value
+                    or human_bone.node.value not in node_name_id_dict
                 ):
                     continue
                 human_bone_dict = {
                     "bone": human_bone_name,
-                    "node": node_name_id_dict[human_bone_props.node.value],
-                    "useDefaultValues": human_bone_props.use_default_values,
+                    "node": node_name_id_dict[human_bone.node.value],
+                    "useDefaultValues": human_bone.use_default_values,
                 }
                 humanoid_dict["humanBones"].append(human_bone_dict)
-                if not human_bone_props.use_default_values:
+                if not human_bone.use_default_values:
                     human_bone_dict.update(
                         {
                             "min": {
-                                "x": human_bone_props.min[0],
-                                "y": human_bone_props.min[1],
-                                "z": human_bone_props.min[2],
+                                "x": human_bone.min[0],
+                                "y": human_bone.min[1],
+                                "z": human_bone.min[2],
                             },
                             "max": {
-                                "x": human_bone_props.max[0],
-                                "y": human_bone_props.max[1],
-                                "z": human_bone_props.max[2],
+                                "x": human_bone.max[0],
+                                "y": human_bone.max[1],
+                                "z": human_bone.max[2],
                             },
                             "center": {
-                                "x": human_bone_props.center[0],
-                                "y": human_bone_props.center[1],
-                                "z": human_bone_props.center[2],
+                                "x": human_bone.center[0],
+                                "y": human_bone.center[1],
+                                "z": human_bone.center[2],
                             },
-                            "axisLength": human_bone_props.axis_length,
+                            "axisLength": human_bone.axis_length,
                         }
                     )
                 break
-        humanoid_dict["armStretch"] = humanoid_props.arm_stretch
-        humanoid_dict["legStretch"] = humanoid_props.leg_stretch
-        humanoid_dict["upperArmTwist"] = humanoid_props.upper_arm_twist
-        humanoid_dict["lowerArmTwist"] = humanoid_props.lower_arm_twist
-        humanoid_dict["upperLegTwist"] = humanoid_props.upper_leg_twist
-        humanoid_dict["lowerLegTwist"] = humanoid_props.lower_leg_twist
-        humanoid_dict["feetSpacing"] = humanoid_props.feet_spacing
-        humanoid_dict["hasTranslationDoF"] = humanoid_props.has_translation_dof
+        humanoid_dict["armStretch"] = humanoid.arm_stretch
+        humanoid_dict["legStretch"] = humanoid.leg_stretch
+        humanoid_dict["upperArmTwist"] = humanoid.upper_arm_twist
+        humanoid_dict["lowerArmTwist"] = humanoid.lower_arm_twist
+        humanoid_dict["upperLegTwist"] = humanoid.upper_leg_twist
+        humanoid_dict["lowerLegTwist"] = humanoid.lower_leg_twist
+        humanoid_dict["feetSpacing"] = humanoid.feet_spacing
+        humanoid_dict["hasTranslationDoF"] = humanoid.has_translation_dof
         # endregion humanoid
 
         # region firstPerson
         first_person_dict: Dict[str, Any] = {}
         vrm_extension_dict["firstPerson"] = first_person_dict
-        first_person_props = self.armature.data.vrm_addon_extension.vrm0.first_person
+        first_person = self.armature.data.vrm_addon_extension.vrm0.first_person
 
-        if first_person_props.first_person_bone.value:
+        if first_person.first_person_bone.value:
             first_person_dict["firstPersonBone"] = node_name_id_dict[
-                first_person_props.first_person_bone.value
+                first_person.first_person_bone.value
             ]
         else:
             name = [
@@ -2178,82 +2178,82 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         first_person_dict["firstPersonBoneOffset"] = {
             # Axis confusing
-            "x": first_person_props.first_person_bone_offset[0],
-            "y": first_person_props.first_person_bone_offset[2],
-            "z": first_person_props.first_person_bone_offset[1],
+            "x": first_person.first_person_bone_offset[0],
+            "y": first_person.first_person_bone_offset[2],
+            "z": first_person.first_person_bone_offset[1],
         }
 
-        mesh_annotations: List[Dict[str, Any]] = []
-        first_person_dict["meshAnnotations"] = mesh_annotations
-        for mesh_annotation_props in first_person_props.mesh_annotations:
-            if not mesh_annotation_props.mesh or not mesh_annotation_props.mesh.value:
+        mesh_annotation_dicts: List[Dict[str, Any]] = []
+        first_person_dict["meshAnnotations"] = mesh_annotation_dicts
+        for mesh_annotation in first_person.mesh_annotations:
+            if not mesh_annotation.mesh or not mesh_annotation.mesh.value:
                 mesh_index = -1
             else:
                 matched_mesh_indices = [
                     i
                     for i, mesh in enumerate(self.json_dic["meshes"])
-                    if mesh["name"] == mesh_annotation_props.mesh.value
+                    if mesh["name"] == mesh_annotation.mesh.value
                 ]
                 mesh_index = (matched_mesh_indices + [-1])[0]
-            mesh_annotations.append(
+            mesh_annotation_dicts.append(
                 {
                     "mesh": mesh_index,
-                    "firstPersonFlag": mesh_annotation_props.first_person_flag,
+                    "firstPersonFlag": mesh_annotation.first_person_flag,
                 }
             )
-        first_person_dict["lookAtTypeName"] = first_person_props.look_at_type_name
-        for (look_at_props, look_at_dict_key) in [
+        first_person_dict["lookAtTypeName"] = first_person.look_at_type_name
+        for (look_at, look_at_dict_key) in [
             (
-                first_person_props.look_at_horizontal_inner,
+                first_person.look_at_horizontal_inner,
                 "lookAtHorizontalInner",
             ),
             (
-                first_person_props.look_at_horizontal_outer,
+                first_person.look_at_horizontal_outer,
                 "lookAtHorizontalOuter",
             ),
             (
-                first_person_props.look_at_vertical_down,
+                first_person.look_at_vertical_down,
                 "lookAtVerticalDown",
             ),
             (
-                first_person_props.look_at_vertical_up,
+                first_person.look_at_vertical_up,
                 "lookAtVerticalUp",
             ),
         ]:
             first_person_dict[look_at_dict_key] = {
-                "curve": list(look_at_props.curve),
-                "xRange": look_at_props.x_range,
-                "yRange": look_at_props.y_range,
+                "curve": list(look_at.curve),
+                "xRange": look_at.x_range,
+                "yRange": look_at.y_range,
             }
         # endregion firstPerson
         # region blendShapeMaster
         vrm_extension_dict["blendShapeMaster"] = {}
         vrm_extension_dict["blendShapeMaster"][
             "blendShapeGroups"
-        ] = blend_shape_groups = []
+        ] = blend_shape_group_dicts = []
 
         # meshを名前からid
         # weightを0-1から0-100に
         # shape_indexを名前からindexに
         for (
-            blend_shape_group_props
+            blend_shape_group
         ) in (
             self.armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         ):
             blend_shape_group_dict = {}
 
-            if not blend_shape_group_props.name:
+            if not blend_shape_group.name:
                 continue
-            blend_shape_group_dict["name"] = blend_shape_group_props.name
+            blend_shape_group_dict["name"] = blend_shape_group.name
 
-            if not blend_shape_group_props.preset_name:
+            if not blend_shape_group.preset_name:
                 continue
-            blend_shape_group_dict["presetName"] = blend_shape_group_props.preset_name
+            blend_shape_group_dict["presetName"] = blend_shape_group.preset_name
 
-            blend_shape_group_dict["binds"] = binds = []
-            for bind_props in blend_shape_group_props.binds:
+            blend_shape_group_dict["binds"] = bind_dicts = []
+            for bind in blend_shape_group.binds:
                 bind_dict: Dict[str, Any] = {}
-                mesh = self.mesh_name_to_index.get(bind_props.mesh.value)
+                mesh = self.mesh_name_to_index.get(bind.mesh.value)
                 if mesh is None:
                     continue
                 bind_dict["mesh"] = mesh
@@ -2264,108 +2264,102 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     [],
                 )
 
-                if bind_props.index not in target_names:
+                if bind.index not in target_names:
                     continue
 
-                bind_dict["index"] = target_names.index(bind_props.index)
-                bind_dict["weight"] = min(max(bind_props.weight * 100, 0), 100)
+                bind_dict["index"] = target_names.index(bind.index)
+                bind_dict["weight"] = min(max(bind.weight * 100, 0), 100)
 
-                binds.append(bind_dict)
+                bind_dicts.append(bind_dict)
 
-            blend_shape_group_dict["materialValues"] = material_values = []
-            for material_value_props in blend_shape_group_props.material_values:
-                if (
-                    not material_value_props.material
-                    or not material_value_props.material.name
-                ):
+            blend_shape_group_dict["materialValues"] = material_value_dicts = []
+            for material_value in blend_shape_group.material_values:
+                if not material_value.material or not material_value.material.name:
                     continue
 
-                material_values.append(
+                material_value_dicts.append(
                     {
-                        "materialName": material_value_props.material.name,
-                        "propertyName": material_value_props.property_name,
+                        "materialName": material_value.material.name,
+                        "propertyName": material_value.property_name,
                         "targetValue": list(
                             map(
                                 lambda v: float(v.value),
-                                material_value_props.target_value,
+                                material_value.target_value,
                             )
                         ),
                     }
                 )
 
-            blend_shape_group_dict["isBinary"] = blend_shape_group_props.is_binary
-            blend_shape_groups.append(blend_shape_group_dict)
+            blend_shape_group_dict["isBinary"] = blend_shape_group.is_binary
+            blend_shape_group_dicts.append(blend_shape_group_dict)
         # endregion blendShapeMaster
 
         # region secondaryAnimation
         secondary_animation_dict: Dict[str, Any] = {}
         vrm_extension_dict["secondaryAnimation"] = secondary_animation_dict
-        collider_groups: List[Dict[str, Any]] = []
-        secondary_animation_dict["colliderGroups"] = collider_groups
-        secondary_animation_props = (
+        collider_group_dicts: List[Dict[str, Any]] = []
+        secondary_animation_dict["colliderGroups"] = collider_group_dicts
+        secondary_animation = (
             self.armature.data.vrm_addon_extension.vrm0.secondary_animation
         )
         filtered_collider_groups = list(
             filter(
-                lambda collider_group_props: collider_group_props.node
-                and collider_group_props.node.value
-                and collider_group_props.node.value in node_name_id_dict,
-                secondary_animation_props.collider_groups,
+                lambda collider_group: collider_group.node
+                and collider_group.node.value
+                and collider_group.node.value in node_name_id_dict,
+                secondary_animation.collider_groups,
             )
         )
         collider_group_names = [
-            collider_group_props.name
-            for collider_group_props in filtered_collider_groups
+            collider_group.name for collider_group in filtered_collider_groups
         ]
 
         # region boneGroup
-        secondary_animation_dict["boneGroups"] = bone_groups = []
-        for bone_group_props in secondary_animation_props.bone_groups:
+        secondary_animation_dict["boneGroups"] = bone_group_dicts = []
+        for bone_group in secondary_animation.bone_groups:
             bone_group_dict = {
-                "comment": bone_group_props.comment,
-                "stiffiness": bone_group_props.stiffiness,  # noqa: SC200
-                "gravityPower": bone_group_props.gravity_power,
+                "comment": bone_group.comment,
+                "stiffiness": bone_group.stiffiness,  # noqa: SC200
+                "gravityPower": bone_group.gravity_power,
                 "gravityDir": {
                     # Axis confusing
-                    "x": bone_group_props.gravity_dir[0],
-                    "y": bone_group_props.gravity_dir[2],
-                    "z": bone_group_props.gravity_dir[1],
+                    "x": bone_group.gravity_dir[0],
+                    "y": bone_group.gravity_dir[2],
+                    "z": bone_group.gravity_dir[1],
                 },
-                "dragForce": bone_group_props.drag_force,
-                "center": node_name_id_dict.get(bone_group_props.center.value, -1),
-                "hitRadius": bone_group_props.hit_radius,
+                "dragForce": bone_group.drag_force,
+                "center": node_name_id_dict.get(bone_group.center.value, -1),
+                "hitRadius": bone_group.hit_radius,
                 "bones": [
                     node_name_id_dict[bone.value]
-                    for bone in bone_group_props.bones
+                    for bone in bone_group.bones
                     if bone.value in node_name_id_dict
                 ],
             }
             collider_group_indices: List[int] = []
-            for collider_group_name_props in bone_group_props.collider_groups:
-                if collider_group_name_props.value not in collider_group_names:
+            for collider_group_name in bone_group.collider_groups:
+                if collider_group_name.value not in collider_group_names:
                     continue
-                index = collider_group_names.index(collider_group_name_props.value)
+                index = collider_group_names.index(collider_group_name.value)
                 collider_group_indices.append(index)
 
             bone_group_dict["colliderGroups"] = collider_group_indices
-            bone_groups.append(bone_group_dict)
+            bone_group_dicts.append(bone_group_dict)
         # endregion boneGroup
 
         # region colliderGroups
-        for collider_group_props in filtered_collider_groups:
+        for collider_group in filtered_collider_groups:
             collider_group_dict: Dict[str, Any] = {}
-            collider_group_dict["colliders"] = colliders = []
-            collider_groups.append(collider_group_dict)
-            collider_group_dict["node"] = node_name_id_dict[
-                collider_group_props.node.value
-            ]
+            collider_group_dict["colliders"] = collider_dicts = []
+            collider_group_dicts.append(collider_group_dict)
+            collider_group_dict["node"] = node_name_id_dict[collider_group.node.value]
 
-            for collider_props in collider_group_props.colliders:
-                collider_object = collider_props.blender_object
+            for collider in collider_group.colliders:
+                collider_object = collider.blender_object
                 if collider_object.parent_bone not in self.armature.pose.bones:
                     continue
 
-                collider: Dict[str, Any] = {}
+                collider_dict: Dict[str, Any] = {}
                 offset = [
                     collider_object.matrix_world.to_translation()[i]
                     - (
@@ -2383,18 +2377,18 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         collider_object.matrix_world.to_scale(),
                     )
                 )
-                collider["radius"] = (
+                collider_dict["radius"] = (
                     collider_object.empty_display_size * object_mean_scale
                 )
 
-                collider["offset"] = OrderedDict(
+                collider_dict["offset"] = OrderedDict(
                     zip(
                         ("x", "y", "z"),
                         self.axis_blender_to_glb(offset),
                     )
                 )
-                collider["offset"]["z"] = collider["offset"]["z"] * -1
-                colliders.append(collider)
+                collider_dict["offset"]["z"] = collider_dict["offset"]["z"] * -1
+                collider_dicts.append(collider_dict)
         # endregion colliderGroups
         # endregion secondaryAnimation
         extension_name = "VRM" if vrm_version.startswith("0.") else "VRMC_vrm"

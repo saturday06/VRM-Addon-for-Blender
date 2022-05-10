@@ -25,7 +25,7 @@ def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
 def draw_vrm1_spring_bone_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
-    spring_bone_props: SpringBone1SpringBonePropertyGroup,
+    spring_bone: SpringBone1SpringBonePropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
 
@@ -33,41 +33,39 @@ def draw_vrm1_spring_bone_layout(
     colliders_row = colliders_box.row()
     colliders_row.alignment = "LEFT"
     colliders_row.prop(
-        spring_bone_props,
+        spring_bone,
         "show_expanded_colliders",
-        icon="TRIA_DOWN" if spring_bone_props.show_expanded_colliders else "TRIA_RIGHT",
+        icon="TRIA_DOWN" if spring_bone.show_expanded_colliders else "TRIA_RIGHT",
         emboss=False,
     )
-    if spring_bone_props.show_expanded_colliders:
-        if spring_bone_props.colliders:
+    if spring_bone.show_expanded_colliders:
+        if spring_bone.colliders:
             colliders_expanded_box = colliders_box.box().column()
-            for collider_index, collider_props in enumerate(
-                spring_bone_props.colliders
-            ):
-                if not collider_props.blender_object:  # TODO: restore
+            for collider_index, collider in enumerate(spring_bone.colliders):
+                if not collider.blender_object:  # TODO: restore
                     continue
 
                 collider_row = colliders_expanded_box.row()
                 collider_row.alignment = "LEFT"
                 collider_row.prop(
-                    collider_props,
+                    collider,
                     "show_expanded",
-                    icon="TRIA_DOWN" if collider_props.show_expanded else "TRIA_RIGHT",
+                    icon="TRIA_DOWN" if collider.show_expanded else "TRIA_RIGHT",
                     emboss=False,
-                    text=collider_props.blender_object.name,
+                    text=collider.blender_object.name,
                     translate=False,
                 )
 
-                if not collider_props.show_expanded:
+                if not collider.show_expanded:
                     continue
 
                 collider_column = colliders_expanded_box.box().column()
                 collider_column.prop(
-                    collider_props.blender_object, "name", icon="MESH_UVSPHERE", text=""
+                    collider.blender_object, "name", icon="MESH_UVSPHERE", text=""
                 )
-                collider_column.prop(collider_props.shape, "shape")
+                collider_column.prop(collider.shape, "shape")
                 collider_column.prop_search(
-                    collider_props.node, "value", armature.data, "bones"
+                    collider.node, "value", armature.data, "bones"
                 )
                 remove_collider_op = collider_column.operator(
                     vrm1_operator.VRM_OT_remove_spring_bone1_collider.bl_idname,
@@ -87,55 +85,51 @@ def draw_vrm1_spring_bone_layout(
     collider_groups_row = collider_groups_box.row()
     collider_groups_row.alignment = "LEFT"
     collider_groups_row.prop(
-        spring_bone_props,
+        spring_bone,
         "show_expanded_collider_groups",
-        icon="TRIA_DOWN"
-        if spring_bone_props.show_expanded_collider_groups
-        else "TRIA_RIGHT",
+        icon="TRIA_DOWN" if spring_bone.show_expanded_collider_groups else "TRIA_RIGHT",
         emboss=False,
     )
-    if spring_bone_props.show_expanded_collider_groups:
-        if spring_bone_props.collider_groups:
+    if spring_bone.show_expanded_collider_groups:
+        if spring_bone.collider_groups:
             collider_groups_expanded_box = collider_groups_box.box().column()
-            for collider_group_index, collider_group_props in enumerate(
-                spring_bone_props.collider_groups
+            for collider_group_index, collider_group in enumerate(
+                spring_bone.collider_groups
             ):
 
                 collider_group_row = collider_groups_expanded_box.row()
                 collider_group_row.alignment = "LEFT"
                 collider_group_row.prop(
-                    collider_group_props,
+                    collider_group,
                     "show_expanded",
-                    icon="TRIA_DOWN"
-                    if collider_group_props.show_expanded
-                    else "TRIA_RIGHT",
+                    icon="TRIA_DOWN" if collider_group.show_expanded else "TRIA_RIGHT",
                     emboss=False,
-                    text=collider_group_props.vrm_name,
+                    text=collider_group.vrm_name,
                     translate=False,
                 )
 
-                if not collider_group_props.show_expanded:
+                if not collider_group.show_expanded:
                     continue
 
                 collider_group_column = collider_groups_expanded_box.box().column()
                 collider_group_column.prop(
-                    collider_group_props,
+                    collider_group,
                     "vrm_name",
                 )
 
                 collider_group_colliders_box = collider_group_column.box()
-                if collider_group_props.colliders:
+                if collider_group.colliders:
                     collider_group_colliders_row = collider_group_colliders_box.split(
                         factor=0.8
                     )
                     collider_group_colliders_names_column = (
                         collider_group_colliders_row.column()
                     )
-                    for collider_props in collider_group_props.colliders:
+                    for collider in collider_group.colliders:
                         collider_group_colliders_names_column.prop_search(
-                            collider_props,
+                            collider,
                             "collider_name",
-                            spring_bone_props,
+                            spring_bone,
                             "colliders",
                             text="",
                             translate=False,
@@ -146,7 +140,7 @@ def draw_vrm1_spring_bone_layout(
                     for (
                         collider_index,
                         _,
-                    ) in enumerate(collider_group_props.colliders):
+                    ) in enumerate(collider_group.colliders):
                         remove_collider_group_collider_op = collider_group_colliders_buttons_column.operator(
                             vrm1_operator.VRM_OT_remove_spring_bone1_collider_group_collider.bl_idname,
                             icon="REMOVE",
@@ -189,62 +183,56 @@ def draw_vrm1_spring_bone_layout(
     springs_row = springs_box.row()
     springs_row.alignment = "LEFT"
     springs_row.prop(
-        spring_bone_props,
+        spring_bone,
         "show_expanded_springs",
-        icon="TRIA_DOWN" if spring_bone_props.show_expanded_springs else "TRIA_RIGHT",
+        icon="TRIA_DOWN" if spring_bone.show_expanded_springs else "TRIA_RIGHT",
         emboss=False,
     )
-    if spring_bone_props.show_expanded_springs:
-        if spring_bone_props.springs:
+    if spring_bone.show_expanded_springs:
+        if spring_bone.springs:
             springs_expanded_box = springs_box.box().column()
-            for spring_index, spring_props in enumerate(spring_bone_props.springs):
+            for spring_index, spring in enumerate(spring_bone.springs):
                 spring_row = springs_expanded_box.row()
                 spring_row.alignment = "LEFT"
                 spring_row.prop(
-                    spring_props,
+                    spring,
                     "show_expanded",
-                    icon="TRIA_DOWN" if spring_props.show_expanded else "TRIA_RIGHT",
+                    icon="TRIA_DOWN" if spring.show_expanded else "TRIA_RIGHT",
                     emboss=False,
-                    text=spring_props.vrm_name,
+                    text=spring.vrm_name,
                     translate=False,
                 )
-                if not spring_props.show_expanded:
+                if not spring.show_expanded:
                     continue
 
                 spring_column = springs_expanded_box.box().column()
                 spring_column.prop(
-                    spring_props,
+                    spring,
                     "vrm_name",
                 )
 
                 spring_joints_box = spring_column.box().column()
-                if spring_props.joints:
-                    for joint_index, joint_props in enumerate(spring_props.joints):
+                if spring.joints:
+                    for joint_index, joint in enumerate(spring.joints):
                         spring_joints_row = spring_joints_box.row()
                         spring_joints_row.alignment = "LEFT"
                         spring_joints_row.prop(
-                            joint_props,
+                            joint,
                             "show_expanded",
-                            icon="TRIA_DOWN"
-                            if joint_props.show_expanded
-                            else "TRIA_RIGHT",
+                            icon="TRIA_DOWN" if joint.show_expanded else "TRIA_RIGHT",
                             emboss=False,
-                            text=joint_props.node.value
-                            if joint_props.node.value
-                            else "(EMPTY)",
+                            text=joint.node.value if joint.node.value else "(EMPTY)",
                             translate=False,
                         )
-                        if not joint_props.show_expanded:
+                        if not joint.show_expanded:
                             continue
                         box = spring_joints_box.box().column()
-                        box.prop_search(
-                            joint_props.node, "value", armature.data, "bones"
-                        )
-                        box.prop(joint_props, "hit_radius")
-                        box.prop(joint_props, "stiffness")
-                        box.prop(joint_props, "gravity_power")
-                        box.prop(joint_props, "gravity_dir")
-                        box.prop(joint_props, "drag_force")
+                        box.prop_search(joint.node, "value", armature.data, "bones")
+                        box.prop(joint, "hit_radius")
+                        box.prop(joint, "stiffness")
+                        box.prop(joint, "gravity_power")
+                        box.prop(joint, "gravity_dir")
+                        box.prop(joint, "drag_force")
 
                         remove_spring_joint_op = box.operator(
                             vrm1_operator.VRM_OT_remove_spring_bone1_spring_joint.bl_idname,
@@ -262,18 +250,18 @@ def draw_vrm1_spring_bone_layout(
                 add_spring_joint_op.spring_index = spring_index
 
                 spring_collider_groups_box = spring_column.box()
-                if spring_props.collider_groups:
+                if spring.collider_groups:
                     spring_collider_groups_row = spring_collider_groups_box.split(
                         factor=0.8
                     )
                     spring_collider_groups_names_column = (
                         spring_collider_groups_row.column()
                     )
-                    for collider_group_props in spring_props.collider_groups:
+                    for collider_group in spring.collider_groups:
                         spring_collider_groups_names_column.prop_search(
-                            collider_group_props,
+                            collider_group,
                             "collider_group_name",
-                            spring_bone_props,
+                            spring_bone,
                             "collider_groups",
                             text="",
                             translate=False,
@@ -284,7 +272,7 @@ def draw_vrm1_spring_bone_layout(
                     for (
                         collider_group_index,
                         _,
-                    ) in enumerate(spring_props.collider_groups):
+                    ) in enumerate(spring.collider_groups):
                         remove_spring_collider_group_op = spring_collider_groups_buttons_column.operator(
                             vrm1_operator.VRM_OT_remove_spring_bone1_spring_collider_group.bl_idname,
                             icon="REMOVE",

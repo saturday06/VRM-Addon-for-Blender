@@ -701,57 +701,57 @@ class AbstractBaseVrmImporter(ABC):
         )
         migration.migrate(armature.name, defer=False)
 
-    def load_vrm0_meta(self, meta_props: Vrm0MetaPropertyGroup, meta_dict: Any) -> None:
+    def load_vrm0_meta(self, meta: Vrm0MetaPropertyGroup, meta_dict: Any) -> None:
         if not isinstance(meta_dict, dict):
             return
 
         title = meta_dict.get("title")
         if isinstance(title, str):
-            meta_props.title = title
+            meta.title = title
 
         version = meta_dict.get("version")
         if isinstance(version, str):
-            meta_props.version = version
+            meta.version = version
 
         author = meta_dict.get("author")
         if isinstance(author, str):
-            meta_props.author = author
+            meta.author = author
 
         contact_information = meta_dict.get("contactInformation")
         if isinstance(contact_information, str):
-            meta_props.contact_information = contact_information
+            meta.contact_information = contact_information
 
         reference = meta_dict.get("reference")
         if isinstance(reference, str):
-            meta_props.reference = reference
+            meta.reference = reference
 
         allowed_user_name = meta_dict.get("allowedUserName")
         if isinstance(allowed_user_name, str):
-            meta_props.allowed_user_name = allowed_user_name
+            meta.allowed_user_name = allowed_user_name
 
         violent_ussage_name = meta_dict.get("violentUssageName")  # noqa: SC200
         if isinstance(violent_ussage_name, str):  # noqa: SC200
-            meta_props.violent_ussage_name = violent_ussage_name  # noqa: SC200
+            meta.violent_ussage_name = violent_ussage_name  # noqa: SC200
 
         sexual_ussage_name = meta_dict.get("sexualUssageName")  # noqa: SC200
         if isinstance(sexual_ussage_name, str):  # noqa: SC200
-            meta_props.sexual_ussage_name = sexual_ussage_name  # noqa: SC200
+            meta.sexual_ussage_name = sexual_ussage_name  # noqa: SC200
 
         commercial_ussage_name = meta_dict.get("commercialUssageName")  # noqa: SC200
         if isinstance(commercial_ussage_name, str):  # noqa: SC200
-            meta_props.commercial_ussage_name = commercial_ussage_name  # noqa: SC200
+            meta.commercial_ussage_name = commercial_ussage_name  # noqa: SC200
 
         other_permission_url = meta_dict.get("otherPermissionUrl")
         if isinstance(other_permission_url, str):
-            meta_props.other_permission_url = other_permission_url
+            meta.other_permission_url = other_permission_url
 
         license_name = meta_dict.get("licenseName")
         if isinstance(license_name, str):
-            meta_props.license_name = license_name
+            meta.license_name = license_name
 
         other_license_url = meta_dict.get("otherLicenseUrl")
         if isinstance(other_license_url, str):
-            meta_props.other_license_url = other_license_url
+            meta.other_license_url = other_license_url
 
         texture = meta_dict.get("texture")
         if (
@@ -763,26 +763,23 @@ class AbstractBaseVrmImporter(ABC):
         ):
             image_index = self.parse_result.json_dict["textures"][texture]["source"]
             if image_index in self.images:
-                meta_props.texture = self.images[image_index]
+                meta.texture = self.images[image_index]
 
     def load_vrm0_humanoid(
-        self, humanoid_props: Vrm0HumanoidPropertyGroup, humanoid_dict: Any
+        self, humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Any
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
-        human_bones = humanoid_dict.get("humanBones")
-        if isinstance(human_bones, abc.Iterable):
-            for human_bone_dict in human_bones:
+        human_bone_dicts = humanoid_dict.get("humanBones")
+        if isinstance(human_bone_dicts, abc.Iterable):
+            for human_bone_dict in human_bone_dicts:
                 if not isinstance(human_bone_dict, dict):
                     continue
 
                 bone = human_bone_dict.get("bone")
                 if bone not in HumanBoneSpecifications.all_names:
                     continue
-                if any(
-                    human_bone_props.bone == bone
-                    for human_bone_props in humanoid_props.human_bones
-                ):
+                if any(human_bone.bone == bone for human_bone in humanoid.human_bones):
                     print(f'Duplicated bone: "{bone}"')
                     continue
 
@@ -790,67 +787,67 @@ class AbstractBaseVrmImporter(ABC):
                 if not isinstance(node, int) or node not in self.bone_names:
                     continue
 
-                human_bone_props = humanoid_props.human_bones.add()
-                human_bone_props.bone = bone
-                human_bone_props.node.value = self.bone_names[node]
+                human_bone = humanoid.human_bones.add()
+                human_bone.bone = bone
+                human_bone.node.value = self.bone_names[node]
 
                 use_default_values = human_bone_dict.get("useDefaultValues")
                 if isinstance(use_default_values, bool):
-                    human_bone_props.use_default_values = use_default_values
+                    human_bone.use_default_values = use_default_values
 
                 min_ = convert.vrm_json_vector3_to_tuple(human_bone_dict.get("min"))
                 if min_ is not None:
-                    human_bone_props.min = min_
+                    human_bone.min = min_
 
                 max_ = convert.vrm_json_vector3_to_tuple(human_bone_dict.get("max"))
                 if max_ is not None:
-                    human_bone_props.max = max_
+                    human_bone.max = max_
 
                 center = convert.vrm_json_vector3_to_tuple(
                     human_bone_dict.get("center")
                 )
                 if center is not None:
-                    human_bone_props.center = center
+                    human_bone.center = center
 
                 axis_length = human_bone_dict.get("axisLength")
                 if isinstance(axis_length, (int, float)):
-                    human_bone_props.axis_length = axis_length
+                    human_bone.axis_length = axis_length
 
         arm_stretch = humanoid_dict.get("armStretch")
         if isinstance(arm_stretch, (int, float)):
-            humanoid_props.arm_stretch = arm_stretch
+            humanoid.arm_stretch = arm_stretch
 
         leg_stretch = humanoid_dict.get("legStretch")
         if isinstance(leg_stretch, (int, float)):
-            humanoid_props.leg_stretch = leg_stretch
+            humanoid.leg_stretch = leg_stretch
 
         upper_arm_twist = humanoid_dict.get("upperArmTwist")
         if isinstance(upper_arm_twist, (int, float)):
-            humanoid_props.upper_arm_twist = upper_arm_twist
+            humanoid.upper_arm_twist = upper_arm_twist
 
         lower_arm_twist = humanoid_dict.get("lowerArmTwist")
         if isinstance(lower_arm_twist, (int, float)):
-            humanoid_props.lower_arm_twist = lower_arm_twist
+            humanoid.lower_arm_twist = lower_arm_twist
 
         upper_leg_twist = humanoid_dict.get("upperLegTwist")
         if isinstance(upper_leg_twist, (int, float)):
-            humanoid_props.upper_leg_twist = upper_leg_twist
+            humanoid.upper_leg_twist = upper_leg_twist
 
         lower_leg_twist = humanoid_dict.get("lowerLegTwist")
         if isinstance(lower_leg_twist, (int, float)):
-            humanoid_props.lower_leg_twist = lower_leg_twist
+            humanoid.lower_leg_twist = lower_leg_twist
 
         feet_spacing = humanoid_dict.get("feetSpacing")
         if isinstance(feet_spacing, (int, float)):
-            humanoid_props.feet_spacing = feet_spacing
+            humanoid.feet_spacing = feet_spacing
 
         has_translation_dof = humanoid_dict.get("hasTranslationDoF")
         if isinstance(has_translation_dof, bool):
-            humanoid_props.has_translation_dof = has_translation_dof
+            humanoid.has_translation_dof = has_translation_dof
 
     def load_vrm0_first_person(
         self,
-        first_person_props: Vrm0FirstPersonPropertyGroup,
+        first_person: Vrm0FirstPersonPropertyGroup,
         first_person_dict: Any,
     ) -> None:
         if not isinstance(first_person_dict, dict):
@@ -858,9 +855,7 @@ class AbstractBaseVrmImporter(ABC):
 
         first_person_bone = first_person_dict.get("firstPersonBone")
         if isinstance(first_person_bone, int) and first_person_bone in self.bone_names:
-            first_person_props.first_person_bone.value = self.bone_names[
-                first_person_bone
-            ]
+            first_person.first_person_bone.value = self.bone_names[first_person_bone]
 
         first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
             first_person_dict.get("firstPersonBoneOffset")
@@ -868,43 +863,43 @@ class AbstractBaseVrmImporter(ABC):
         if first_person_bone_offset is not None:
             # Axis confusing
             (x, y, z) = first_person_bone_offset
-            first_person_props.first_person_bone_offset = (x, z, y)
+            first_person.first_person_bone_offset = (x, z, y)
 
-        mesh_annotations = first_person_dict.get("meshAnnotations")
-        if isinstance(mesh_annotations, abc.Iterable):
-            for mesh_annotation_dict in mesh_annotations:
-                mesh_annotation_props = first_person_props.mesh_annotations.add()
+        mesh_annotation_dicts = first_person_dict.get("meshAnnotations")
+        if isinstance(mesh_annotation_dicts, abc.Iterable):
+            for mesh_annotation_dict in mesh_annotation_dicts:
+                mesh_annotation = first_person.mesh_annotations.add()
 
                 if not isinstance(mesh_annotation_dict, dict):
                     continue
 
                 mesh = mesh_annotation_dict.get("mesh")
                 if isinstance(mesh, int) and mesh in self.meshes:
-                    mesh_annotation_props.mesh.value = self.meshes[mesh].data.name
+                    mesh_annotation.mesh.value = self.meshes[mesh].data.name
 
                 first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
                 if isinstance(first_person_flag, str):
-                    mesh_annotation_props.first_person_flag = first_person_flag
+                    mesh_annotation.first_person_flag = first_person_flag
 
         look_at_type_name = first_person_dict.get("lookAtTypeName")
         if look_at_type_name in ["Bone", "BlendShape"]:
-            first_person_props.look_at_type_name = look_at_type_name
+            first_person.look_at_type_name = look_at_type_name
 
-        for (look_at_props, look_at_dict) in [
+        for (look_at, look_at_dict) in [
             (
-                first_person_props.look_at_horizontal_inner,
+                first_person.look_at_horizontal_inner,
                 first_person_dict.get("lookAtHorizontalInner"),
             ),
             (
-                first_person_props.look_at_horizontal_outer,
+                first_person.look_at_horizontal_outer,
                 first_person_dict.get("lookAtHorizontalOuter"),
             ),
             (
-                first_person_props.look_at_vertical_down,
+                first_person.look_at_vertical_down,
                 first_person_dict.get("lookAtVerticalDown"),
             ),
             (
-                first_person_props.look_at_vertical_up,
+                first_person.look_at_vertical_up,
                 first_person_dict.get("lookAtVerticalUp"),
             ),
         ]:
@@ -913,44 +908,44 @@ class AbstractBaseVrmImporter(ABC):
 
             curve = convert.vrm_json_curve_to_list(look_at_dict.get("curve"))
             if curve is not None:
-                look_at_props.curve = curve
+                look_at.curve = curve
 
             x_range = look_at_dict.get("xRange")
             if isinstance(x_range, (float, int)):
-                look_at_props.x_range = x_range
+                look_at.x_range = x_range
 
             y_range = look_at_dict.get("yRange")
             if isinstance(y_range, (float, int)):
-                look_at_props.y_range = y_range
+                look_at.y_range = y_range
 
     def load_vrm0_blend_shape_master(
         self,
-        blend_shape_master_props: Vrm0BlendShapeMasterPropertyGroup,
+        blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
         blend_shape_master_dict: Any,
     ) -> None:
         if not isinstance(blend_shape_master_dict, dict):
             return
-        blend_shape_groups = blend_shape_master_dict.get("blendShapeGroups")
-        if not isinstance(blend_shape_groups, abc.Iterable):
+        blend_shape_group_dicts = blend_shape_master_dict.get("blendShapeGroups")
+        if not isinstance(blend_shape_group_dicts, abc.Iterable):
             return
 
-        for blend_shape_group_dict in blend_shape_groups:
-            blend_shape_group_props = blend_shape_master_props.blend_shape_groups.add()
+        for blend_shape_group_dict in blend_shape_group_dicts:
+            blend_shape_group = blend_shape_master.blend_shape_groups.add()
 
             if not isinstance(blend_shape_group_dict, dict):
                 continue
 
             name = blend_shape_group_dict.get("name")
             if name is not None:
-                blend_shape_group_props.name = name
+                blend_shape_group.name = name
 
             preset_name = blend_shape_group_dict.get("presetName")
             if preset_name is not None:
-                blend_shape_group_props.preset_name = preset_name
+                blend_shape_group.preset_name = preset_name
 
-            binds = blend_shape_group_dict.get("binds")
-            if isinstance(binds, abc.Iterable):
-                for bind_dict in binds:
+            bind_dicts = blend_shape_group_dict.get("binds")
+            if isinstance(bind_dicts, abc.Iterable):
+                for bind_dict in bind_dicts:
                     if not isinstance(bind_dict, dict):
                         continue
 
@@ -970,17 +965,17 @@ class AbstractBaseVrmImporter(ABC):
                     if not isinstance(weight, (int, float)):
                         weight = 0
 
-                    bind_props = blend_shape_group_props.binds.add()
-                    bind_props.mesh.value = self.meshes[mesh].data.name
-                    bind_props.index = self.meshes[
-                        mesh
-                    ].data.shape_keys.key_blocks.keys()[index + 1]
-                    bind_props.weight = min(max(weight / 100.0, 0), 1)
+                    bind = blend_shape_group.binds.add()
+                    bind.mesh.value = self.meshes[mesh].data.name
+                    bind.index = self.meshes[mesh].data.shape_keys.key_blocks.keys()[
+                        index + 1
+                    ]
+                    bind.weight = min(max(weight / 100.0, 0), 1)
 
-            material_values = blend_shape_group_dict.get("materialValues")
-            if isinstance(material_values, abc.Iterable):
-                for material_value_dict in material_values:
-                    material_value_props = blend_shape_group_props.material_values.add()
+            material_value_dicts = blend_shape_group_dict.get("materialValues")
+            if isinstance(material_value_dicts, abc.Iterable):
+                for material_value_dict in material_value_dicts:
+                    material_value = blend_shape_group.material_values.add()
 
                     if not isinstance(material_value_dict, dict):
                         continue
@@ -990,31 +985,26 @@ class AbstractBaseVrmImporter(ABC):
                         isinstance(material_name, str)
                         and material_name in bpy.data.materials
                     ):
-                        material_value_props.material = bpy.data.materials[
-                            material_name
-                        ]
+                        material_value.material = bpy.data.materials[material_name]
 
                     property_name = material_value_dict.get("propertyName")
                     if isinstance(property_name, str):
-                        material_value_props.property_name = property_name
+                        material_value.property_name = property_name
 
-                    target_value = material_value_dict.get("targetValue")
-                    if isinstance(target_value, abc.Iterable):
-                        for target_value_element in target_value:
-                            if not isinstance(target_value_element, (int, float)):
-                                target_value_element = 0
-                            target_value_element_props = (
-                                material_value_props.target_value.add()
-                            )
-                            target_value_element_props.value = target_value_element
+                    target_value_vector = material_value_dict.get("targetValue")
+                    if isinstance(target_value_vector, abc.Iterable):
+                        for v in target_value_vector:
+                            if not isinstance(v, (int, float)):
+                                v = 0
+                            material_value.target_value.add().value = v
 
             is_binary = blend_shape_group_dict.get("isBinary")
             if isinstance(is_binary, bool):
-                blend_shape_group_props.is_binary = is_binary
+                blend_shape_group.is_binary = is_binary
 
     def load_vrm0_secondary_animation(
         self,
-        secondary_animation_props: Vrm0SecondaryAnimationPropertyGroup,
+        secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
         secondary_animation_dict: Any,
     ) -> None:
         if not isinstance(secondary_animation_dict, dict):
@@ -1023,17 +1013,17 @@ class AbstractBaseVrmImporter(ABC):
         if armature is None:
             raise Exception("armature is None")
 
-        collider_groups = secondary_animation_dict.get("colliderGroups")
-        if not isinstance(collider_groups, abc.Iterable):
-            collider_groups = []
+        collider_group_dicts = secondary_animation_dict.get("colliderGroups")
+        if not isinstance(collider_group_dicts, abc.Iterable):
+            collider_group_dicts = []
 
         bpy.context.view_layer.depsgraph.update()
         bpy.context.scene.view_layers.update()
         collider_objs = []
-        for collider_group_dict in collider_groups:
-            collider_group_props = secondary_animation_props.collider_groups.add()
-            collider_group_props.uuid = uuid.uuid4().hex
-            collider_group_props.refresh(armature)
+        for collider_group_dict in collider_group_dicts:
+            collider_group = secondary_animation.collider_groups.add()
+            collider_group.uuid = uuid.uuid4().hex
+            collider_group.refresh(armature)
 
             if not isinstance(collider_group_dict, dict):
                 continue
@@ -1043,13 +1033,13 @@ class AbstractBaseVrmImporter(ABC):
                 continue
 
             bone_name = self.bone_names[node]
-            collider_group_props.node.value = bone_name
-            colliders = collider_group_dict.get("colliders")
-            if not isinstance(colliders, abc.Iterable):
+            collider_group.node.value = bone_name
+            collider_dicts = collider_group_dict.get("colliders")
+            if not isinstance(collider_dicts, abc.Iterable):
                 continue
 
-            for collider_index, collider_dict in enumerate(colliders):
-                collider_props = collider_group_props.colliders.add()
+            for collider_index, collider_dict in enumerate(collider_dicts):
+                collider = collider_group.colliders.add()
 
                 if not isinstance(collider_dict, dict):
                     continue
@@ -1064,7 +1054,7 @@ class AbstractBaseVrmImporter(ABC):
 
                 collider_name = f"{bone_name}_collider_{collider_index}"
                 obj = bpy.data.objects.new(name=collider_name, object_data=None)
-                collider_props.blender_object = obj
+                collider.blender_object = obj
                 obj.parent = self.armature
                 obj.parent_type = "BONE"
                 obj.parent_bone = bone_name
@@ -1093,31 +1083,31 @@ class AbstractBaseVrmImporter(ABC):
             for collider_obj in collider_objs:
                 colliders_collection.objects.link(collider_obj)
 
-        for collider_group_props in secondary_animation_props.collider_groups:
-            collider_group_props.refresh(armature)
+        for collider_group in secondary_animation.collider_groups:
+            collider_group.refresh(armature)
 
-        bone_groups = secondary_animation_dict.get("boneGroups")
-        if not isinstance(bone_groups, abc.Iterable):
-            bone_groups = []
+        bone_group_dicts = secondary_animation_dict.get("boneGroups")
+        if not isinstance(bone_group_dicts, abc.Iterable):
+            bone_group_dicts = []
 
-        for bone_group_dict in bone_groups:
-            bone_group_props = secondary_animation_props.bone_groups.add()
+        for bone_group_dict in bone_group_dicts:
+            bone_group = secondary_animation.bone_groups.add()
 
             if not isinstance(bone_group_dict, dict):
-                bone_group_props.refresh(armature)
+                bone_group.refresh(armature)
                 continue
 
             comment = bone_group_dict.get("comment")
             if isinstance(comment, str):
-                bone_group_props.comment = comment
+                bone_group.comment = comment
 
             stiffiness = bone_group_dict.get("stiffiness")  # noqa: SC200
             if isinstance(stiffiness, (int, float)):  # noqa: SC200
-                bone_group_props.stiffiness = stiffiness  # noqa: SC200
+                bone_group.stiffiness = stiffiness  # noqa: SC200
 
             gravity_power = bone_group_dict.get("gravityPower")
             if isinstance(gravity_power, (int, float)):
-                bone_group_props.gravity_power = gravity_power
+                bone_group.gravity_power = gravity_power
 
             gravity_dir = convert.vrm_json_vector3_to_tuple(
                 bone_group_dict.get("gravityDir")
@@ -1125,45 +1115,43 @@ class AbstractBaseVrmImporter(ABC):
             if gravity_dir is not None:
                 # Axis confusing
                 (x, y, z) = gravity_dir
-                bone_group_props.gravity_dir = (x, z, y)
+                bone_group.gravity_dir = (x, z, y)
 
             drag_force = bone_group_dict.get("dragForce")
             if isinstance(drag_force, (int, float)):
-                bone_group_props.drag_force = drag_force
+                bone_group.drag_force = drag_force
 
             center = bone_group_dict.get("center")
             if isinstance(center, int) and center in self.bone_names:
-                bone_group_props.center.value = self.bone_names[center]
+                bone_group.center.value = self.bone_names[center]
 
             hit_radius = bone_group_dict.get("hitRadius")
             if isinstance(hit_radius, (int, float)):
-                bone_group_props.hit_radius = hit_radius
+                bone_group.hit_radius = hit_radius
 
             bones = bone_group_dict.get("bones")
             if isinstance(bones, abc.Iterable):
                 for bone in bones:
-                    bone_prop = bone_group_props.bones.add()
+                    bone_prop = bone_group.bones.add()
                     if not isinstance(bone, int) or bone not in self.bone_names:
                         continue
 
                     bone_prop.value = self.bone_names[bone]
 
-            collider_groups = bone_group_dict.get("colliderGroups")
-            if isinstance(collider_groups, abc.Iterable):
-                for collider_group in collider_groups:
+            collider_group_dicts = bone_group_dict.get("colliderGroups")
+            if isinstance(collider_group_dicts, abc.Iterable):
+                for collider_group in collider_group_dicts:
                     if not isinstance(collider_group, int) or not (
-                        0
-                        <= collider_group
-                        < len(secondary_animation_props.collider_groups)
+                        0 <= collider_group < len(secondary_animation.collider_groups)
                     ):
                         continue
-                    collider_group_uuid_props = bone_group_props.collider_groups.add()
-                    collider_group_uuid_props.value = (
-                        secondary_animation_props.collider_groups[collider_group].uuid
-                    )
+                    collider_group_uuid = bone_group.collider_groups.add()
+                    collider_group_uuid.value = secondary_animation.collider_groups[
+                        collider_group
+                    ].uuid
 
-        for bone_group_props in secondary_animation_props.bone_groups:
-            bone_group_props.refresh(armature)
+        for bone_group in secondary_animation.bone_groups:
+            bone_group.refresh(armature)
 
     def cleaning_data(self) -> None:
         # collection setting

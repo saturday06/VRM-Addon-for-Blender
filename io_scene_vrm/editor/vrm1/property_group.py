@@ -219,7 +219,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         type=StringPropertyGroup
     )
 
-    def human_bone_name_to_human_bone_props(
+    def human_bone_name_to_human_bone(
         self,
     ) -> Dict[HumanBoneName, Vrm1HumanBonePropertyGroup]:
         return {
@@ -288,13 +288,13 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         armature_data = bpy.data.armatures.get(armature_data_name)
         if not isinstance(armature_data, bpy.types.Armature):
             return
-        human_bones_props = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         bone_names = []
         for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
             bone_names.append(bone.name)
             bone_names.append(bone.parent.name if bone.parent else "")
         up_to_date = bone_names == list(
-            map(lambda n: str(n.value), human_bones_props.last_bone_names)
+            map(lambda n: str(n.value), human_bones.last_bone_names)
         )
 
         if up_to_date:
@@ -310,20 +310,20 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             )
             return
 
-        human_bones_props.last_bone_names.clear()
+        human_bones.last_bone_names.clear()
         for bone_name in bone_names:
-            bone_name_props = human_bones_props.last_bone_names.add()
-            bone_name_props.value = bone_name
+            last_bone_name = human_bones.last_bone_names.add()
+            last_bone_name.value = bone_name
         bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
-            human_bone_props.node.value: HumanBoneSpecifications.get(human_bone_name)
-            for human_bone_name, human_bone_props in human_bones_props.human_bone_name_to_human_bone_props().items()
-            if human_bone_props.node.value
+            human_bone.node.value: HumanBoneSpecifications.get(human_bone_name)
+            for human_bone_name, human_bone in human_bones.human_bone_name_to_human_bone().items()
+            if human_bone.node.value
         }
 
         for (
             human_bone_name,
             human_bone,
-        ) in human_bones_props.human_bone_name_to_human_bone_props().items():
+        ) in human_bones.human_bone_name_to_human_bone().items():
             human_bone.update_node_candidates(
                 armature_data,
                 HumanBoneSpecifications.get(human_bone_name),
@@ -543,8 +543,8 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
 
     def all_name_to_expression_dict(self) -> Dict[str, Vrm1ExpressionPropertyGroup]:
         result = self.preset_name_to_expression_dict()
-        for custom_props in self.custom:
-            result[custom_props.custom_name] = custom_props.expression
+        for custom_expression in self.custom:
+            result[custom_expression.custom_name] = custom_expression.expression
         return result
 
 

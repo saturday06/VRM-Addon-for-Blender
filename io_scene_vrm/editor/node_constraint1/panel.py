@@ -27,20 +27,20 @@ def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
 def draw_node_constraint1_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
-    node_constraint_props: NodeConstraint1NodeConstraintPropertyGroup,
+    node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
 ) -> None:
     aim_constraints_box = layout.box()
     aim_constraints_row = aim_constraints_box.row()
     aim_constraints_row.alignment = "LEFT"
     aim_constraints_row.prop(
-        node_constraint_props,
+        node_constraint,
         "show_expanded_aim_constraints",
         icon="TRIA_DOWN"
-        if node_constraint_props.show_expanded_aim_constraints
+        if node_constraint.show_expanded_aim_constraints
         else "TRIA_RIGHT",
         emboss=False,
     )
-    if node_constraint_props.show_expanded_aim_constraints:
+    if node_constraint.show_expanded_aim_constraints:
         aim_constraints_column = aim_constraints_box.column()
         aim_constraints: Dict[str, bpy.types.DampedTrackConstraint] = {}
         for bone in armature.pose.bones:

@@ -135,13 +135,13 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             bones = armature_data.edit_bones.values()
         else:
             bones = armature_data.bones.values()
-        humanoid_props = armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
         bone_names = []
         for bone in sorted(bones, key=lambda b: str(b.name)):
             bone_names.append(bone.name)
             bone_names.append(bone.parent.name if bone.parent else "")
         up_to_date = bone_names == list(
-            map(lambda n: str(n.value), humanoid_props.last_bone_names)
+            map(lambda n: str(n.value), humanoid.last_bone_names)
         )
 
         if up_to_date:
@@ -157,21 +157,21 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             )
             return
 
-        humanoid_props.last_bone_names.clear()
+        humanoid.last_bone_names.clear()
         for bone_name in bone_names:
-            bone_name_props = humanoid_props.last_bone_names.add()
-            bone_name_props.value = bone_name
+            last_bone_name = humanoid.last_bone_names.add()
+            last_bone_name.value = bone_name
 
         bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
             human_bone.node.value: HumanBoneSpecifications.get(
                 HumanBoneName(human_bone.bone)
             )
-            for human_bone in humanoid_props.human_bones
+            for human_bone in humanoid.human_bones
             if human_bone.node.value
             and HumanBoneName.from_str(human_bone.bone) is not None
         }
 
-        for human_bone in humanoid_props.human_bones:
+        for human_bone in humanoid.human_bones:
             human_bone.update_node_candidates(
                 armature_data,
                 bpy_bone_name_to_human_bone_specification,
@@ -197,8 +197,8 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                 for human_bone in humanoid.human_bones
             ):
                 continue
-            human_bone_props = humanoid.human_bones.add()
-            human_bone_props.bone = human_bone_name
+            human_bone = humanoid.human_bones.add()
+            human_bone.bone = human_bone_name
             refresh = True
 
         # 二重に入っているボーンマップを削除
@@ -238,10 +238,10 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             return
 
         secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
-        for collider_group_props in secondary_animation.collider_groups:
-            collider_group_props.refresh(obj)
-        for bone_group_props in secondary_animation.bone_groups:
-            bone_group_props.refresh(obj)
+        for collider_group in secondary_animation.collider_groups:
+            collider_group.refresh(obj)
+        for bone_group in secondary_animation.bone_groups:
+            bone_group.refresh(obj)
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22

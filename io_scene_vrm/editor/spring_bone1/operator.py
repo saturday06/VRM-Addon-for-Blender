@@ -53,8 +53,8 @@ class VRM_OT_remove_spring_bone1_collider(  # noqa: N801
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        spring_bone_props = armature.vrm_addon_extension.spring_bone1
-        colliders = spring_bone_props.colliders
+        spring_bone = armature.vrm_addon_extension.spring_bone1
+        colliders = spring_bone.colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
         blender_object = colliders[self.collider_index].blender_object
@@ -63,15 +63,13 @@ class VRM_OT_remove_spring_bone1_collider(  # noqa: N801
             context.scene.collection.objects.unlink(blender_object)
         collider_uuid = colliders[self.collider_index].uuid
         colliders.remove(self.collider_index)
-        for collider_group_props in spring_bone_props.collider_groups:
+        for collider_group in spring_bone.collider_groups:
             while True:
                 removed = False
-                for (index, collider_props) in enumerate(
-                    list(collider_group_props.colliders)
-                ):
-                    if collider_props.collider_uuid != collider_uuid:
+                for (index, collider) in enumerate(list(collider_group.colliders)):
+                    if collider.collider_uuid != collider_uuid:
                         continue
-                    collider_group_props.colliders.remove(index)
+                    collider_group.colliders.remove(index)
                     removed = True
                     break
                 if not removed:
@@ -164,27 +162,25 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):  # type: ig
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
-        spring_bone_props = armature.vrm_addon_extension.spring_bone1
-        collider_groups = spring_bone_props.collider_groups
+        spring_bone = armature.vrm_addon_extension.spring_bone1
+        collider_groups = spring_bone.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group_uuid = collider_groups[self.collider_group_index].uuid
         collider_groups.remove(self.collider_group_index)
-        for spring_props in spring_bone_props.springs:
+        for spring in spring_bone.springs:
             while True:
                 removed = False
-                for (index, collider_group_props) in enumerate(
-                    list(spring_props.collider_groups)
-                ):
-                    if collider_group_props.collider_group_uuid != collider_group_uuid:
+                for (index, collider_group) in enumerate(list(spring.collider_groups)):
+                    if collider_group.collider_group_uuid != collider_group_uuid:
                         continue
-                    spring_props.collider_groups.remove(index)
+                    spring.collider_groups.remove(index)
                     removed = True
                     break
                 if not removed:
                     break
-        for collider_groups_props in collider_groups:
-            collider_groups_props.fix_index()
+        for collider_group in collider_groups:
+            collider_group.fix_index()
 
         return {"FINISHED"}
 
