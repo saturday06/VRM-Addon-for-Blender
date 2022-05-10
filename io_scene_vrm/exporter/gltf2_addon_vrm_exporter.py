@@ -7,8 +7,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import bpy
 
-from ..common import deep, gltf, version
+from ..common import convert, deep, gltf, version
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..editor import search
 from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -23,6 +24,7 @@ from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 
 class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def __init__(self, export_objects: List[bpy.types.Object]) -> None:
+        self.export_objects = export_objects
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
             raise NotImplementedError("アーマチュア無しエクスポートはまだ未対応")
@@ -39,24 +41,113 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             INTERNAL_NAME_PREFIX + self.export_id + "MaterialName"
         )
         self.extras_mesh_name_key = INTERNAL_NAME_PREFIX + self.export_id + "MeshName"
+        self.object_visibility_and_selection: Dict[str, Tuple[bool, bool]] = {}
+        self.mounted_object_names: List[str] = []
+
+    def overwrite_object_visibility_and_selection(self) -> None:
+        self.object_visibility_and_selection.clear()
+        for obj in bpy.context.view_layer.objects:
+            self.object_visibility_and_selection[obj.name] = (
+                obj.hide_get(),
+                obj.select_get(),
+            )
+            enabled = obj in self.export_objects
+            obj.hide_set(not enabled)
+            obj.select_set(enabled)
+
+    def restore_object_visibility_and_selection(self) -> None:
+        for object_name, (
+            hidden,
+            selection,
+        ) in self.object_visibility_and_selection.items():
+            obj = bpy.data.objects.get(object_name)
+            if obj:
+                obj.hide_set(hidden)
+                obj.select_set(selection)
+
+    def mount_skinned_mesh_parent(self) -> None:
+        armature = self.armature
+        if not armature:
+            return
+
+        # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たすとき
+        # inverseBindMatricesが不正なglbが出力される:
+        # - アーマチュアの子孫になっていないメッシュがそのアーマチュアのボーンにスキニングされている
+        # - スキニングされたボーンの子供に別のメッシュが存在する
+        # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアにし、後で戻す
+        for obj in self.export_objects:
+            if obj.type != "MESH" or not filter(
+                lambda m: isinstance(m, bpy.types.ArmatureModifier)
+                and m.object == armature,
+                obj.modifiers,
+            ):
+                continue
+
+            while obj != armature:
+                if obj.parent:
+                    obj = obj.parent
+                    continue
+                self.mounted_object_names.append(obj.name)
+                matrix_world = obj.matrix_world
+                obj.parent = armature
+                obj.matrix_world = matrix_world
+                break
+
+    def restore_skinned_mesh_parent(self) -> None:
+        for mounted_object_name in self.mounted_object_names:
+            obj = bpy.data.objects.get(mounted_object_name)
+            if not obj:
+                continue
+            matrix_world = obj.matrix_world
+            obj.parent = None
+            obj.matrix_world = matrix_world
 
     def create_dummy_skinned_mesh_object(self) -> str:
-        vertices = [
-            (index / 16.0, 0, 0) for index, _ in enumerate(self.armature.pose.bones)
-        ]
-        vertices.append((0, 1, 0))
+        vertices = []
+        edges = []
+        faces = []
+        for index, _ in enumerate(self.armature.pose.bones):
+            vertices.extend(
+                [
+                    (index / 16.0, 0, 0),
+                    ((index + 1) / 16.0, 0, 1 / 16.0),
+                    ((index + 1) / 16.0, 0, 0),
+                ]
+            )
+            edges.extend(
+                [
+                    (index * 3 + 0, index * 3 + 1),
+                    (index * 3 + 1, index * 3 + 2),
+                    (index * 3 + 2, index * 3 + 0),
+                ]
+            )
+            faces.append((index * 3, index * 3 + 1, index * 3 + 2))
+
         mesh = bpy.data.meshes.new(self.export_id + "_mesh")
-        mesh.from_pydata(vertices, [], [])
+        mesh.from_pydata(vertices, edges, faces)
         mesh.update()
+        if mesh.validate():
+            print("INVALID GEOMETRY")
         obj = bpy.data.objects.new(self.export_id + "_mesh_object", mesh)
         for index, bone_name in enumerate(self.armature.data.bones.keys()):
             vertex_group = obj.vertex_groups.new(name=bone_name)
-            vertex_group.add([index], 1.0, "ADD")
+            vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
         modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
         modifier.object = self.armature
         bpy.context.scene.collection.objects.link(obj)
         obj[self.extras_object_name_key] = obj.name
         return str(obj.name)
+
+    @staticmethod
+    def destroy_dummy_skinned_mesh_object(name: str) -> None:
+        dummy_skinned_mesh_object = bpy.data.objects.get(name)
+        if not isinstance(dummy_skinned_mesh_object, bpy.types.Object):
+            return
+        dummy_skinned_mesh_object.modifiers.clear()
+        dummy_skinned_mesh_object.vertex_groups.clear()
+        bpy.context.scene.collection.objects.unlink(  # TODO: remove completely
+            dummy_skinned_mesh_object
+        )
 
     @staticmethod
     def create_meta_dict(meta: Vrm1MetaPropertyGroup) -> Dict[str, Any]:
@@ -332,6 +423,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     collider_indices.append(collider_index)
             if collider_indices:
                 collider_group_dict["colliders"] = collider_indices
+            else:
+                # 空のコライダーグループは仕様Validだが、UniVRM 0.98.0はこれを読み飛ばし
+                # Springからのインデックス参照はそのままでずれるバグがあるので出力しない
+                continue
 
             collider_group_uuid_to_index_dict[collider_group.uuid] = len(
                 collider_group_dicts
@@ -347,7 +442,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         collider_group_uuid_to_index_dict: Dict[str, int],
     ) -> List[Dict[str, Any]]:
         spring_dicts = []
-        for spring in spring_bone.spring_groups:
+        for spring in spring_bone.springs:
             spring_dict = {"name": spring.vrm_name}
 
             joint_dicts = []
@@ -383,6 +478,76 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             spring_dicts.append(spring_dict)
         return spring_dicts
 
+    @staticmethod
+    def search_constraint_target_index(
+        constraint: Union[
+            bpy.types.CopyRotationConstraint, bpy.types.DampedTrackConstraint
+        ],
+        object_name_to_index_dict: Dict[str, int],
+        bone_name_to_index_dict: Dict[str, int],
+    ) -> Optional[int]:
+        if constraint.target.type == "ARMATURE" and constraint.subtarget:
+            return bone_name_to_index_dict.get(constraint.subtarget)
+        return object_name_to_index_dict.get(constraint.target.name)
+
+    @staticmethod
+    def create_constraint_dict(
+        name: str,
+        constraints: search.ExportConstraint,
+        object_name_to_index_dict: Dict[str, int],
+        bone_name_to_index_dict: Dict[str, int],
+    ) -> Dict[str, Any]:
+        roll_constraint = constraints.roll_constraints.get(name)
+        aim_constraint = constraints.aim_constraints.get(name)
+        rotation_constraint = constraints.rotation_constraints.get(name)
+        constraint_dict = {}
+        if roll_constraint:
+            source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
+                roll_constraint,
+                object_name_to_index_dict,
+                bone_name_to_index_dict,
+            )
+            if isinstance(source_index, int):
+                if roll_constraint.use_x:
+                    roll_axis = "X"
+                elif roll_constraint.use_y:
+                    roll_axis = "Y"
+                elif roll_constraint.use_z:
+                    roll_axis = "Z"
+                else:
+                    raise Exception("Unsupported roll axis")
+                constraint_dict["roll"] = {
+                    "source": source_index,
+                    "rollAxis": roll_axis,
+                    "weight": roll_constraint.influence,
+                }
+        elif aim_constraint:
+            source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
+                aim_constraint,
+                object_name_to_index_dict,
+                bone_name_to_index_dict,
+            )
+            if isinstance(source_index, int):
+                constraint_dict["aim"] = {
+                    "source": source_index,
+                    "aimAxis": convert.BPY_TRACK_AXIS_TO_VRM_AIM_AXIS[
+                        aim_constraint.track_axis
+                    ],
+                    "weight": aim_constraint.influence,
+                }
+        elif rotation_constraint:
+            source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
+                rotation_constraint,
+                object_name_to_index_dict,
+                bone_name_to_index_dict,
+            )
+            if isinstance(source_index, int):
+                constraint_dict["rotation"] = {
+                    "source": source_index,
+                    "weight": rotation_constraint.influence,
+                }
+        return constraint_dict
+
     def export_vrm(self) -> Optional[bytes]:
         dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         try:
@@ -401,6 +566,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             for bone in self.armature.data.bones:
                 bone[self.extras_bone_name_key] = bone.name
 
+            self.overwrite_object_visibility_and_selection()
+            self.mount_skinned_mesh_parent()
+
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = os.path.join(temp_dir, "out.glb")
                 bpy.ops.export_scene.gltf(
@@ -409,6 +577,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     export_format="GLB",
                     export_extras=True,
                     export_current_frame=True,
+                    use_selection=True,
+                    use_visible=True,
                 )
                 with open(filepath, "rb") as file:
                     extra_name_assigned_glb = file.read()
@@ -428,20 +598,18 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             for material in bpy.data.materials:
                 if self.extras_material_name_key in material:
                     del material[self.extras_material_name_key]
-            dummy_skinned_mesh_object = bpy.data.objects.get(
-                dummy_skinned_mesh_object_name
-            )
-            if isinstance(dummy_skinned_mesh_object, bpy.types.Object):
-                bpy.context.scene.collection.objects.unlink(  # TODO: remove
-                    dummy_skinned_mesh_object
-                )
+
+            self.restore_object_visibility_and_selection()
+            self.restore_skinned_mesh_parent()
+            self.destroy_dummy_skinned_mesh_object(dummy_skinned_mesh_object_name)
 
         json_dict, body_binary = gltf.parse_glb(extra_name_assigned_glb)
 
         bone_name_to_index_dict: Dict[str, int] = {}
+        object_name_to_index_dict: Dict[str, int] = {}
         nodes = json_dict.get("nodes")
-        if not isinstance(nodes, abc.Iterable):
-            nodes = []
+        if not isinstance(nodes, abc.Sequence):
+            json_dict["nodes"] = nodes = []
         for node_index, node_dict in enumerate(nodes):
             if not isinstance(node_dict, dict):
                 continue
@@ -458,6 +626,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             object_name = extras_dict.get(self.extras_object_name_key)
             if self.extras_object_name_key in extras_dict:
                 del extras_dict[self.extras_object_name_key]
+            if isinstance(object_name, str):
+                object_name_to_index_dict[object_name] = node_index
             if isinstance(object_name, str) and (
                 object_name == dummy_skinned_mesh_object_name
                 or object_name.startswith(INTERNAL_NAME_PREFIX + "VrmAddonLinkTo")
@@ -479,6 +649,55 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             if not extras_dict and "extras" in node_dict:
                 del node_dict["extras"]
+
+        use_node_constraint = False
+        object_constraints = search.export_object_constraints(self.export_objects)
+        for object_name, node_index in object_name_to_index_dict.items():
+            if not 0 <= node_index < len(json_dict["nodes"]):
+                continue
+            if not isinstance(json_dict["nodes"][node_index], dict):
+                json_dict["nodes"][node_index] = {}
+            node_dict = json_dict["nodes"][node_index]
+            constraint_dict = self.create_constraint_dict(
+                object_name,
+                object_constraints,
+                object_name_to_index_dict,
+                bone_name_to_index_dict,
+            )
+            if constraint_dict:
+                extensions = node_dict.get("extensions")
+                if not isinstance(extensions, dict):
+                    node_dict["extensions"] = extensions = {}
+                extensions["VRMC_node_constraint"] = {
+                    "specVersion": "1.0-draft",
+                    "constraint": constraint_dict,
+                }
+                use_node_constraint = True
+
+        bone_constraints = search.export_bone_constraints(
+            self.export_objects, self.armature
+        )
+        for bone_name, node_index in bone_name_to_index_dict.items():
+            if not 0 <= node_index < len(json_dict["nodes"]):
+                continue
+            if not isinstance(json_dict["nodes"][node_index], dict):
+                json_dict["nodes"][node_index] = {}
+            node_dict = json_dict["nodes"][node_index]
+            constraint_dict = self.create_constraint_dict(
+                bone_name,
+                bone_constraints,
+                object_name_to_index_dict,
+                bone_name_to_index_dict,
+            )
+            if constraint_dict:
+                extensions = node_dict.get("extensions")
+                if not isinstance(extensions, dict):
+                    node_dict["extensions"] = extensions = {}
+                extensions["VRMC_node_constraint"] = {
+                    "specVersion": self.armature.data.vrm_addon_extension.spec_version,
+                    "constraint": constraint_dict,
+                }
+                use_node_constraint = True
 
         material_name_to_index_dict: Dict[str, int] = {}
         materials = json_dict.get("materials")
@@ -543,6 +762,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         else:
             extensions_used = list(extensions_used)
 
+        if use_node_constraint:
+            extensions_used.append("VRMC_node_constraint")
+
         extensions = json_dict.get("extensions")
         if not isinstance(extensions, dict):
             extensions = {}
@@ -567,7 +789,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         }
 
         spring_bone = self.armature.data.vrm_addon_extension.spring_bone1
-        spring_bone_dict = {}
+        spring_bone_dict: Dict[str, Any] = {}
 
         (
             spring_bone_collider_dicts,
@@ -595,9 +817,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         if spring_bone_dict:
             extensions_used.append("VRMC_springBone")
-            spring_bone_dict[
-                "specVersion"
-            ] = self.armature.data.vrm_addon_extension.spec_version
+            spring_bone_dict["specVersion"] = "1.0-beta"
             extensions["VRMC_springBone"] = spring_bone_dict
 
         json_dict["extensions"] = extensions

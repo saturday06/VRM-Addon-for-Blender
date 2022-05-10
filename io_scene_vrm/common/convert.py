@@ -28,3 +28,32 @@ def vrm_json_curve_to_list(curve: Any) -> Optional[List[float]]:
     while len(values) > 8:
         values.pop()
     return values
+
+
+def vrm_json_array_to_float_vector(json: Any, defaults: List[float]) -> List[float]:
+    if not isinstance(json, abc.Iterable):
+        return defaults
+
+    input_values = list(json)
+    output_values = []
+    for index, default in enumerate(defaults):
+        if index < len(input_values) and isinstance(input_values[index], (int, float)):
+            output_values.append(float(input_values[index]))
+        else:
+            output_values.append(float(default))
+
+    return output_values
+
+
+BPY_TRACK_AXIS_TO_VRM_AIM_AXIS = {
+    "TRACK_X": "PositiveX",
+    "TRACK_Y": "PositiveY",
+    "TRACK_Z": "PositiveZ",
+    "TRACK_NEGATIVE_X": "NegativeX",
+    "TRACK_NEGATIVE_Y": "NegativeY",
+    "TRACK_NEGATIVE_Z": "NegativeZ",
+}
+
+VRM_AIM_AXIS_TO_BPY_TRACK_AXIS = {
+    v: k for k, v in BPY_TRACK_AXIS_TO_VRM_AIM_AXIS.items()
+}

@@ -1,2 +1,7 @@
 # ソート順が後ろのほうになる文字が望ましい
 INTERNAL_NAME_PREFIX = "\N{FULLWIDTH BROKEN BAR}"
+
+INTERNAL_NAME_PREFIXES = [
+    INTERNAL_NAME_PREFIX,
+    "~",
+]

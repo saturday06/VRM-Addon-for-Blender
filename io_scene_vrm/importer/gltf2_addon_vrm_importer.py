@@ -1,5 +1,6 @@
 import base64
 import contextlib
+import json
 import math
 import os.path
 import re
@@ -7,13 +8,33 @@ import shutil
 import struct
 import tempfile
 import traceback
+from collections import abc
+from typing import Any, Dict, Union
 
 import bgl
 import bpy
 import mathutils
 
-from ..common import gltf
+from .. import common
+from ..common import convert, deep, gltf
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.human_bone import HumanBoneSpecifications
+from ..editor import migration
+from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
+from ..editor.spring_bone1.property_group import (
+    SpringBone1ColliderGroupPropertyGroup,
+    SpringBone1ColliderPropertyGroup,
+    SpringBone1SpringBonePropertyGroup,
+)
+from ..editor.vrm1.property_group import (
+    Vrm1ExpressionPropertyGroup,
+    Vrm1ExpressionsPropertyGroup,
+    Vrm1FirstPersonPropertyGroup,
+    Vrm1HumanoidPropertyGroup,
+    Vrm1LookAtPropertyGroup,
+    Vrm1MetaPropertyGroup,
+    Vrm1PropertyGroup,
+)
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
@@ -36,6 +57,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         )
         self.import_id = Gltf2AddonImporterUserExtension.update_current_import_id()
         self.temp_object_name_count = 0
+        self.object_names: Dict[int, str] = {}
 
     def import_vrm(self) -> None:
         wm = bpy.context.window_manager
@@ -60,7 +82,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             i = prog(i)
             self.make_material()
             i = prog(i)
-            self.load_vrm0_extensions()
+            if self.parse_result.vrm1_extension:
+                self.load_vrm1_extensions()
+            elif self.parse_result.vrm0_extension:
+                self.load_vrm0_extensions()
             i = prog(i)
             self.cleaning_data()
             i = prog(i)
@@ -462,6 +487,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         extras_node_index_key = self.import_id + "Nodes"
         for obj in bpy.context.selectable_objects:
             if extras_node_index_key in obj:
+                if isinstance(obj[extras_node_index_key], int):
+                    self.object_names[obj[extras_node_index_key]] = obj.name
                 del obj[extras_node_index_key]
             data = obj.data
             if isinstance(data, bpy.types.Mesh) and extras_node_index_key in data:
@@ -692,3 +719,649 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "There are more than 100000 images with the same name in the folder."
                         + f" Failed to write file: {image_name}"
                     )
+
+    def load_vrm1_extensions(self) -> None:
+        armature = self.armature
+        if not armature:
+            return
+        addon_extension = armature.data.vrm_addon_extension
+        if not isinstance(addon_extension, VrmAddonArmatureExtensionPropertyGroup):
+            return
+        vrm1 = addon_extension.vrm1
+        if not isinstance(vrm1, Vrm1PropertyGroup):
+            return
+
+        addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
+        vrm1_extension_dict = self.parse_result.vrm1_extension
+
+        addon_extension.addon_version = common.version.version()
+
+        textblock = bpy.data.texts.new(name="vrm.json")
+        textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
+
+        self.load_vrm1_meta(vrm1.meta, vrm1_extension_dict.get("meta"))
+        self.load_vrm1_humanoid(vrm1.humanoid, vrm1_extension_dict.get("humanoid"))
+        self.load_vrm1_first_person(
+            vrm1.first_person, vrm1_extension_dict.get("firstPerson")
+        )
+        self.load_vrm1_expressions(
+            vrm1.expressions, vrm1_extension_dict.get("expressions")
+        )
+        self.load_spring_bone1(
+            addon_extension.spring_bone1, vrm1_extension_dict.get("secondaryAnimation")
+        )
+        self.load_node_constraint1()
+        migration.migrate(armature.name, defer=False)
+
+    def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Any) -> None:
+        if not isinstance(meta_dict, dict):
+            return
+
+        meta.vrm_name = str(meta_dict.get("name"))
+        meta.version = str(meta_dict.get("version"))
+
+        authors = meta_dict.get("authors")
+        if isinstance(authors, abc.Iterable):
+            for author in authors:
+                meta.authors.add().value = str(author)
+
+        meta.copyright_information = str(meta_dict.get("copyrightInformation"))
+        meta.contact_information = str(meta_dict.get("contactInformation"))
+
+        references = meta_dict.get("references")
+        if isinstance(references, abc.Iterable):
+            for reference in references:
+                meta.references.add().value = str(reference)
+
+        meta.third_party_licenses = str(meta_dict.get("thirdPartyLicenses"))
+
+        thumbnail_image_index = meta_dict.get("thumbnailImage")
+        if isinstance(thumbnail_image_index, int):
+            thumbnail_image = self.images.get(thumbnail_image_index)
+            if thumbnail_image:
+                meta.thumbnail_image = thumbnail_image
+
+        meta.avatar_permission = str(meta_dict.get("avatarPermission"))
+        meta.allow_excessively_violent_usage = bool(
+            meta_dict.get("allowExcessivelyViolentUsage")
+        )
+        meta.allow_excessively_sexual_usage = bool(
+            meta_dict.get("allowExcessivelySexualUsage")
+        )
+        meta.commercial_usage = str(meta_dict.get("commercialUsage"))
+        meta.allow_political_or_religious_usage = bool(
+            meta_dict.get("allowPoliticalOrReligiousUsage")
+        )
+        meta.allow_antisocial_or_hate_usage = bool(
+            meta_dict.get("allowAntisocialOrHateUsage")
+        )
+        meta.credit_notation = str(meta_dict.get("creditNotation"))
+        meta.allow_redistribution = bool(meta_dict.get("allowRedistribution"))
+        meta.modification = str(meta_dict.get("modification"))
+        meta.other_license_url = str(meta_dict.get("otherLicenseUrl"))
+
+    def load_vrm1_humanoid(
+        self, humanoid: Vrm1HumanoidPropertyGroup, humanoid_dict: Any
+    ) -> None:
+        if not isinstance(humanoid_dict, dict):
+            return
+
+        human_bones_dict = humanoid_dict.get("humanBones")
+        if not isinstance(human_bones_dict, dict):
+            return
+
+        human_bone_name_to_human_bone = (
+            humanoid.human_bones.human_bone_name_to_human_bone()
+        )
+
+        assigned_bone_names = []
+        for human_bone_name in [
+            human_bone.name for human_bone in HumanBoneSpecifications.all_human_bones
+        ]:
+            human_bone_dict = human_bones_dict.get(human_bone_name.value)
+            if not isinstance(human_bone_dict, dict):
+                continue
+            node_index = human_bone_dict.get("node")
+            if not isinstance(node_index, int):
+                continue
+            bone_name = self.bone_names.get(node_index)
+            if not isinstance(bone_name, str) or bone_name in assigned_bone_names:
+                continue
+            human_bone_name_to_human_bone[human_bone_name].node.value = bone_name
+            assigned_bone_names.append(bone_name)
+
+    def load_vrm1_first_person(
+        self,
+        first_person: Vrm1FirstPersonPropertyGroup,
+        first_person_dict: Any,
+    ) -> None:
+        if not isinstance(first_person_dict, dict):
+            return
+
+        mesh_annotation_dicts = first_person_dict.get("meshAnnotations")
+        if not isinstance(mesh_annotation_dicts, abc.Iterable):
+            mesh_annotation_dicts = []
+
+        for mesh_annotation_dict in mesh_annotation_dicts:
+            mesh_annotation = first_person.mesh_annotations.add()
+            if not isinstance(mesh_annotation_dict, dict):
+                continue
+
+            node = mesh_annotation_dict.get("node")
+            if isinstance(node, int):
+                mesh_obj = self.meshes.get(node)
+                if mesh_obj:
+                    mesh_annotation.node.value = mesh_obj.data.name
+
+            type_ = mesh_annotation_dict.get("type")
+            if type_ in ["auto", "both", "thirdPersonOnly", "firstPersonOnly"]:
+                mesh_annotation.type = type_
+
+    def load_vrm1_look_at(
+        self,
+        look_at: Vrm1LookAtPropertyGroup,
+        look_at_dict: Any,
+    ) -> None:
+        if not isinstance(look_at_dict, dict):
+            return
+
+        offset_from_head_bone = convert.vrm_json_vector3_to_tuple(
+            look_at_dict.get("offsetFromHeadBone")
+        )
+        if offset_from_head_bone is not None:
+            look_at.first_person_bone_offset = offset_from_head_bone
+
+        type_ = look_at_dict.get("type")
+        if type_ in ["bone", "expression"]:
+            look_at.type = type_
+
+        for (range_map, range_map_dict) in [
+            (
+                look_at.range_map_horizontal_inner,
+                look_at_dict.get("rangeMapHorizontalInner"),
+            ),
+            (
+                look_at.range_map_horizontal_outer,
+                look_at_dict.get("rangeMapHorizontalOuter"),
+            ),
+            (
+                look_at.range_map_vertical_down,
+                look_at_dict.get("rangeMapVerticalDown"),
+            ),
+            (
+                look_at.range_map_vertical_up,
+                look_at_dict.get("rangeMapVerticalUp"),
+            ),
+        ]:
+            if not isinstance(range_map_dict, dict):
+                continue
+
+            input_max_value = range_map_dict.get("inputMaxValue")
+            if isinstance(input_max_value, (float, int)):
+                range_map.input_max_value = float(input_max_value)
+
+            output_scale = range_map_dict.get("outputScale")
+            if isinstance(output_scale, (float, int)):
+                range_map.output_scale = float(output_scale)
+
+    def load_vrm1_expression(
+        self,
+        expression: Vrm1ExpressionPropertyGroup,
+        expression_dict: Any,
+    ) -> None:
+        if not isinstance(expression_dict, dict):
+            return
+
+        morph_target_bind_dicts = expression_dict.get("morphTargetBinds")
+        if not isinstance(morph_target_bind_dicts, abc.Iterable):
+            morph_target_bind_dicts = []
+
+        for morph_target_bind_dict in morph_target_bind_dicts:
+            if not isinstance(morph_target_bind_dict, dict):
+                continue
+
+            morph_target_bind = expression.morph_target_binds.add()
+
+            weight = morph_target_bind_dict.get("weight")
+            if not isinstance(weight, (int, float)):
+                weight = 0
+
+            morph_target_bind.weight = weight
+
+            node_index = morph_target_bind_dict.get("node")
+            if not isinstance(node_index, int):
+                continue
+
+            mesh_obj = self.meshes.get(node_index)
+            if not mesh_obj:
+                continue
+
+            morph_target_bind.mesh.value = mesh_obj.name
+            index = morph_target_bind_dict.get("index")
+            if not isinstance(index, int):
+                continue
+
+            if 1 <= (index + 1) < len(mesh_obj.data.shape_keys.key_blocks):
+                morph_target_bind.index = mesh_obj.data.shape_keys.key_blocks.keys()[
+                    index + 1
+                ]
+
+        material_color_bind_dicts = expression_dict.get("materialColorBinds")
+        if not isinstance(material_color_bind_dicts, abc.Iterable):
+            material_color_bind_dicts = []
+
+        for material_color_bind_dict in material_color_bind_dicts:
+            material_color_bind = expression.material_color_binds.add()
+
+            if not isinstance(material_color_bind_dict, dict):
+                continue
+
+            material_index = material_color_bind_dict.get("material")
+            if isinstance(material_index, int):
+                material = self.vrm_materials.get(material_index)
+                if material:
+                    material_color_bind.material = material
+
+            type_ = material_color_bind_dict.get("type")
+            if type_ in [
+                "color",
+                "emissionColor",
+                "shadeColor",
+                "rimColor",
+                "outlineColor",
+            ]:
+                material_color_bind.type = type_
+
+            target_value = material_color_bind_dict.get("targetValue")
+            if not isinstance(target_value, abc.Iterable):
+                target_value = []
+            target_value = list(
+                map(
+                    lambda v: float(v) if isinstance(v, (float, int)) else 0.0,
+                    target_value,
+                )
+            )
+            while len(target_value) < 4:
+                target_value.append(0.0)
+            material_color_bind.target_value = target_value[:4]
+
+        texture_transform_bind_dicts = expression_dict.get("textureTransformBinds")
+        if not isinstance(texture_transform_bind_dicts, abc.Iterable):
+            texture_transform_bind_dicts = []
+        for texture_transform_bind_dict in texture_transform_bind_dicts:
+            texture_transform_bind = expression.texture_transform_binds.add()
+
+            if not isinstance(texture_transform_bind_dict, dict):
+                continue
+
+            material_index = texture_transform_bind_dict.get("material")
+            if isinstance(material_index, int):
+                material = self.vrm_materials.get(material_index)
+                if material:
+                    texture_transform_bind.material = material
+
+            texture_transform_bind.scale = convert.vrm_json_array_to_float_vector(
+                texture_transform_bind_dict.get("scale"), [1, 1]
+            )
+
+            texture_transform_bind.offset = convert.vrm_json_array_to_float_vector(
+                texture_transform_bind_dict.get("offset"), [0, 0]
+            )
+
+        is_binary = expression_dict.get("isBinary")
+        if isinstance(is_binary, bool):
+            expression.is_binary = is_binary
+
+        override_values = ["none", "block", "blend"]
+
+        override_blink = expression_dict.get("overrideBlink")
+        if override_blink in override_values:
+            expression.override_blink = override_blink
+
+        override_look_at = expression_dict.get("overrideLookAt")
+        if override_look_at in override_values:
+            expression.override_look_at = override_look_at
+
+        override_mouth = expression_dict.get("overrideMouth")
+        if override_mouth in override_values:
+            expression.override_mouth = override_mouth
+
+    def load_vrm1_expressions(
+        self,
+        expressions: Vrm1ExpressionsPropertyGroup,
+        expressions_dict: Any,
+    ) -> None:
+        if not isinstance(expressions_dict, dict):
+            return
+
+        for (
+            preset_name,
+            expression,
+        ) in expressions.preset_name_to_expression_dict().items():
+            self.load_vrm1_expression(expression, expressions_dict.get(preset_name))
+
+        custom_dict = expressions_dict.get("custom")
+        if isinstance(custom_dict, dict):
+            for custom_name, expression_dict in custom_dict.items():
+                expression = expressions.custom.add()
+                expression.custom_name = custom_name
+                self.load_vrm1_expression(expression.expression, expression_dict)
+
+    def load_spring_bone1_colliders(
+        self,
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        spring_bone_dict: Dict[str, Any],
+        armature_data_name: str,
+    ) -> Dict[int, SpringBone1ColliderPropertyGroup]:
+        collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup] = {}
+        collider_dicts = spring_bone_dict.get("colliders")
+        if not isinstance(collider_dicts, abc.Iterable):
+            collider_dicts = []
+
+        for collider_index, collider_dict in enumerate(collider_dicts):
+            if bpy.ops.vrm.add_spring_bone1_collider(
+                armature_data_name=armature_data_name
+            ) != {"FINISHED"}:
+                continue
+
+            collider = spring_bone.colliders[-1]
+            collider_index_to_collider[collider_index] = collider
+
+            if not isinstance(collider_dict, dict):
+                continue
+
+            node_index = collider_dict.get("node")
+            if isinstance(node_index, int):
+                bone_name = self.bone_names.get(node_index)
+                if isinstance(bone_name, str):
+                    collider.node.value = bone_name
+
+            shape_dict = collider_dict.get("shape")
+            if not isinstance(shape_dict, dict):
+                continue
+
+            shape = collider.shape
+
+            sphere_dict = shape_dict.get("sphere")
+            if isinstance(sphere_dict, dict):
+                shape.shape = shape.SHAPE_SPHERE
+                shape.sphere.offset = convert.vrm_json_array_to_float_vector(
+                    sphere_dict.get("offset"), [0, 0, 0]
+                )
+                radius = sphere_dict.get("radius")
+                if isinstance(radius, (float, int)):
+                    shape.sphere.radius = float(radius)
+                continue
+
+            capsule_dict = shape_dict.get("capsule")
+            if not isinstance(capsule_dict, dict):
+                continue
+
+            shape.shape = shape.SHAPE_CAPSULE
+
+            shape.capsule.offset = convert.vrm_json_array_to_float_vector(
+                capsule_dict.get("offset"), [0, 0, 0]
+            )
+
+            radius = capsule_dict.get("radius")
+            if isinstance(radius, (float, int)):
+                shape.capsule.radius = float(radius)
+
+            shape.capsule.tail = convert.vrm_json_array_to_float_vector(
+                capsule_dict.get("tail"), [0, 0, 0]
+            )
+
+        return collider_index_to_collider
+
+    def load_spring_bone1_collider_groups(
+        self,
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        spring_bone_dict: Dict[str, Any],
+        armature_data_name: str,
+        collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup],
+    ) -> Dict[int, SpringBone1ColliderGroupPropertyGroup]:
+        collider_group_index_to_collider_group: Dict[
+            int, SpringBone1ColliderGroupPropertyGroup
+        ] = {}
+        collider_group_dicts = spring_bone_dict.get("colliderGroups")
+        if not isinstance(collider_group_dicts, abc.Iterable):
+            collider_group_dicts = []
+
+        for collider_group_index, collider_group_dict in enumerate(
+            collider_group_dicts
+        ):
+            if bpy.ops.vrm.add_spring_bone1_collider_group(
+                armature_data_name=armature_data_name
+            ) != {"FINISHED"} or not isinstance(collider_group_dict, dict):
+                continue
+
+            collider_group = spring_bone.collider_groups[-1]
+            collider_group_index_to_collider_group[
+                collider_group_index
+            ] = collider_group
+
+            name = collider_group_dict.get("name")
+            if isinstance(name, str):
+                collider_group.vrm_name = name
+
+            collider_indices = collider_group_dict.get("colliders")
+            if not isinstance(collider_indices, abc.Iterable):
+                continue
+
+            for collider_index in collider_indices:
+                if bpy.ops.vrm.add_spring_bone1_collider_group_collider(
+                    armature_data_name=armature_data_name,
+                    collider_group_index=len(spring_bone.collider_groups) - 1,
+                ) != {"FINISHED"} or not isinstance(collider_index, int):
+                    continue
+                collider = collider_index_to_collider.get(collider_index)
+                if not collider:
+                    continue
+                collider_reference = collider_group.colliders[-1]
+                collider_reference.collider_name = collider.name
+
+        return collider_group_index_to_collider_group
+
+    def load_spring_bone1_springs(
+        self,
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        spring_bone_dict: Dict[str, Any],
+        armature_data_name: str,
+        collider_group_index_to_collider_group: Dict[
+            int, SpringBone1ColliderGroupPropertyGroup
+        ],
+    ) -> None:
+        spring_dicts = spring_bone_dict.get("springs")
+        if not isinstance(spring_dicts, abc.Iterable):
+            spring_dicts = []
+
+        for spring_dict in spring_dicts:
+            if bpy.ops.vrm.add_spring_bone1_spring(
+                armature_data_name=armature_data_name
+            ) != {"FINISHED"} or not isinstance(spring_dict, dict):
+                continue
+
+            spring = spring_bone.springs[-1]
+
+            name = spring_dict.get("name")
+            if isinstance(name, str):
+                spring.vrm_name = name
+
+            joint_dicts = spring_dict.get("joints")
+            if not isinstance(joint_dicts, abc.Iterable):
+                joint_dicts = []
+            for joint_dict in joint_dicts:
+                if bpy.ops.vrm.add_spring_bone1_spring_joint(
+                    armature_data_name=armature_data_name,
+                    spring_index=len(spring_bone.springs) - 1,
+                ) != {"FINISHED"}:
+                    continue
+                if not isinstance(joint_dict, dict):
+                    continue
+
+                joint = spring.joints[-1]
+
+                node_index = joint_dict.get("node")
+                if isinstance(node_index, int):
+                    bone_name = self.bone_names.get(node_index)
+                    if bone_name:
+                        joint.node.value = bone_name
+
+                hit_radius = joint_dict.get("hitRadius")
+                if isinstance(hit_radius, (int, float)):
+                    joint.hit_radius = hit_radius
+
+                stiffness = joint_dict.get("stiffness")
+                if isinstance(stiffness, (int, float)):
+                    joint.stiffness = stiffness
+
+                gravity_power = joint_dict.get("gravityPower")
+                if isinstance(gravity_power, (int, float)):
+                    joint.gravity_power = gravity_power
+
+                joint.gravity_dir = convert.vrm_json_array_to_float_vector(
+                    joint_dict.get("gravityDir"),
+                    [0.0, -1.0, 0.0],
+                )
+
+                drag_force = joint_dict.get("dragForce")
+                if isinstance(drag_force, (int, float)):
+                    joint.drag_force = drag_force
+
+            collider_group_indices = spring_dict.get("colliderGroups")
+            if not isinstance(collider_group_indices, abc.Iterable):
+                collider_group_indices = []
+            for collider_group_index in collider_group_indices:
+                if bpy.ops.vrm.add_spring_bone1_spring_collider_group(
+                    armature_data_name=armature_data_name,
+                    spring_index=len(spring_bone.springs) - 1,
+                ) != {"FINISHED"}:
+                    continue
+                if not isinstance(collider_group_index, int):
+                    continue
+                collider_group = collider_group_index_to_collider_group.get(
+                    collider_group_index
+                )
+                if not collider_group:
+                    continue
+                collider_group_reference = spring.collider_groups[-1]
+                collider_group_reference.collider_group_name = collider_group.name
+
+    def load_spring_bone1(
+        self,
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        spring_bone_dict: Any,
+    ) -> None:
+        if not isinstance(spring_bone_dict, dict):
+            return
+        armature = self.armature
+        if armature is None:
+            raise Exception("armature is None")
+
+        collider_index_to_collider = self.load_spring_bone1_colliders(
+            spring_bone, spring_bone_dict, armature.data.name
+        )
+        collider_group_index_to_collider_group = self.load_spring_bone1_collider_groups(
+            spring_bone,
+            spring_bone_dict,
+            armature.data.name,
+            collider_index_to_collider,
+        )
+        self.load_spring_bone1_springs(
+            spring_bone,
+            spring_bone_dict,
+            armature.data.name,
+            collider_group_index_to_collider_group,
+        )
+
+    def get_object_or_bone_by_node_index(
+        self, node_index: int
+    ) -> Union[bpy.types.Object, bpy.types.PoseBone, None]:
+        object_name = self.object_names.get(node_index)
+        bone_name = self.bone_names.get(node_index)
+        if object_name is not None:
+            return bpy.data.objects.get(object_name)
+        if self.armature and bone_name is not None:
+            return self.armature.pose.bones.get(bone_name)
+        return None
+
+    def load_node_constraint1(
+        self,
+    ) -> None:
+        armature = self.armature
+        if not armature:
+            return
+
+        nodes = self.parse_result.json_dict.get("nodes")
+        if not isinstance(nodes, abc.Iterable):
+            nodes = []
+        for node_index, node_dict in enumerate(nodes):
+            if not isinstance(node_dict, dict):
+                continue
+
+            constraint_dict = deep.get(
+                node_dict, ["extensions", "VRMC_node_constraint", "constraint"]
+            )
+            if not isinstance(constraint_dict, dict):
+                continue
+
+            roll_dict = constraint_dict.get("roll")
+            aim_dict = constraint_dict.get("aim")
+            rotation_dict = constraint_dict.get("rotation")
+
+            object_or_bone = self.get_object_or_bone_by_node_index(node_index)
+            if not object_or_bone:
+                continue
+
+            if isinstance(roll_dict, dict):
+                constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
+                constraint.mix_mode = "ADD"
+                constraint.owner_space = "LOCAL"
+                constraint.target_space = "LOCAL"
+                roll_axis = roll_dict.get("rollAxis")
+                constraint.use_x = False
+                constraint.use_y = False
+                constraint.use_z = False
+                if roll_axis == "X":
+                    constraint.use_x = True
+                elif roll_axis == "Y":
+                    constraint.use_y = True
+                elif roll_axis == "Z":
+                    constraint.use_z = True
+                weight = roll_dict.get("weight")
+                if isinstance(weight, (int, float)):
+                    constraint.influence = weight
+                source_index = roll_dict.get("source")
+            elif isinstance(aim_dict, dict):
+                constraint = object_or_bone.constraints.new(type="DAMPED_TRACK")
+                aim_axis = aim_dict.get("aimAxis")
+                if isinstance(aim_axis, str):
+                    track_axis = convert.VRM_AIM_AXIS_TO_BPY_TRACK_AXIS.get(aim_axis)
+                    if track_axis:
+                        constraint.track_axis = track_axis
+                weight = aim_dict.get("weight")
+                if isinstance(weight, (int, float)):
+                    constraint.influence = weight
+                source_index = aim_dict.get("source")
+            elif isinstance(rotation_dict, dict):
+                constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
+                constraint.mix_mode = "ADD"
+                constraint.owner_space = "LOCAL"
+                constraint.target_space = "LOCAL"
+                constraint.use_x = True
+                constraint.use_y = True
+                constraint.use_z = True
+                weight = rotation_dict.get("weight")
+                if isinstance(weight, (int, float)):
+                    constraint.influence = weight
+                source_index = rotation_dict.get("source")
+            else:
+                continue
+
+            if isinstance(source_index, int):
+                source = self.get_object_or_bone_by_node_index(source_index)
+                if isinstance(source, bpy.types.Object):
+                    constraint.target = source
+                elif isinstance(source, bpy.types.PoseBone):
+                    constraint.target = armature
+                    constraint.subtarget = source.name

@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from sys import float_info
 from typing import Dict, List, Optional, Sequence, Tuple, cast
 
 import bpy
@@ -219,3 +221,130 @@ def export_objects(
         objects.append(obj)
 
     return objects
+
+
+@dataclass(frozen=True)
+class ExportConstraint:
+    roll_constraints: Dict[str, bpy.types.CopyRotationConstraint]
+    aim_constraints: Dict[str, bpy.types.DampedTrackConstraint]
+    rotation_constraints: Dict[str, bpy.types.CopyRotationConstraint]
+
+
+def is_roll_constraint(
+    constraint: bpy.types.Constraint,
+    objs: List[bpy.types.Object],
+) -> bool:
+    return (
+        isinstance(constraint, bpy.types.CopyRotationConstraint)
+        and constraint.is_valid
+        and not constraint.mute
+        and constraint.target
+        and constraint.target in objs
+        and constraint.mix_mode == "ADD"
+        and (int(constraint.use_x) + int(constraint.use_y) + int(constraint.use_z)) == 1
+        and constraint.owner_space == "LOCAL"
+        and constraint.target_space == "LOCAL"
+        and (
+            constraint.target.type != "ARMATURE"
+            or constraint.subtarget in constraint.target.data.bones
+        )
+    )
+
+
+def is_aim_constraint(
+    constraint: bpy.types.Constraint,
+    objs: List[bpy.types.Object],
+) -> bool:
+    return (
+        isinstance(constraint, bpy.types.DampedTrackConstraint)
+        and constraint.is_valid
+        and not constraint.mute
+        and constraint.target
+        and constraint.target in objs
+        and (
+            constraint.target.type != "ARMATURE"
+            or (
+                constraint.subtarget in constraint.target.data.bones
+                and abs(constraint.head_tail) < float_info.epsilon
+            )
+        )
+    )
+
+
+def is_rotation_constraint(
+    constraint: bpy.types.Constraint,
+    objs: List[bpy.types.Object],
+) -> bool:
+    return (
+        isinstance(constraint, bpy.types.CopyRotationConstraint)
+        and constraint.is_valid
+        and not constraint.mute
+        and constraint.target
+        and constraint.target in objs
+        and not constraint.invert_x
+        and not constraint.invert_y
+        and not constraint.invert_z
+        and constraint.mix_mode == "ADD"
+        and constraint.use_x
+        and constraint.use_y
+        and constraint.use_z
+        and constraint.owner_space == "LOCAL"
+        and constraint.target_space == "LOCAL"
+        and (
+            constraint.target.type != "ARMATURE"
+            or constraint.subtarget in constraint.target.data.bones
+        )
+    )
+
+
+def export_object_constraints(
+    objs: List[bpy.types.Object],
+) -> ExportConstraint:
+    roll_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
+    aim_constraints: Dict[str, bpy.types.DampedTrackConstraint] = {}
+    rotation_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
+
+    for obj in objs:
+        for constraint in obj.constraints:
+            if is_roll_constraint(constraint, objs):
+                roll_constraints[obj.name].append(constraint)
+                break
+            if is_aim_constraint(constraint, objs):
+                aim_constraints[obj.name].append(constraint)
+                break
+            if is_rotation_constraint(constraint, objs):
+                rotation_constraints[obj.name].append(constraint)
+                break
+
+    return ExportConstraint(
+        roll_constraints=roll_constraints,
+        aim_constraints=aim_constraints,
+        rotation_constraints=rotation_constraints,
+    )
+
+
+def export_bone_constraints(
+    objs: List[bpy.types.Object],
+    armature: bpy.types.Object,
+) -> ExportConstraint:
+    roll_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
+    aim_constraints: Dict[str, bpy.types.DampedTrackConstraint] = {}
+    rotation_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
+
+    for bone in armature.pose.bones:
+        for constraint in bone.constraints:
+            if is_roll_constraint(constraint, objs):
+                roll_constraints[bone.name] = constraint
+                break
+            if is_aim_constraint(constraint, objs):
+                aim_constraints[bone.name] = constraint
+                break
+            if is_rotation_constraint(constraint, objs):
+                rotation_constraints[bone.name] = constraint
+                break
+
+    return ExportConstraint(
+        roll_constraints=roll_constraints,
+        aim_constraints=aim_constraints,
+        rotation_constraints=rotation_constraints,
+    )

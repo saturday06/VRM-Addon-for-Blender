@@ -674,6 +674,7 @@ class AbstractBaseVrmImporter(ABC):
         addon_extension = armature.data.vrm_addon_extension
         if not isinstance(addon_extension, VrmAddonArmatureExtensionPropertyGroup):
             return
+        addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM0
         vrm0 = addon_extension.vrm0
         if not isinstance(vrm0, Vrm0PropertyGroup):
             return
