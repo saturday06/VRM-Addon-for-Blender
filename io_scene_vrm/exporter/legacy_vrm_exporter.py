@@ -2440,8 +2440,22 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 primitive_dic["material"] = empty_material_index
                 create_empty_material = True
 
-        if create_empty_material:
-            self.json_dic["materials"].append({})
+        if not create_empty_material:
+            return
+
+        name = "glTF_2_0_default_material"
+        self.json_dic["materials"].append({"name": name})
+        self.json_dic["extensions"]["VRM"]["materialProperties"].append(
+            {
+                "name": name,
+                "shader": "VRM_USE_GLTFSHADER",
+                "keywordMap": {},
+                "tagMap": {},
+                "floatProperties": {},
+                "vectorProperties": {},
+                "textureProperties": {},
+            }
+        )
 
     def pack(self) -> None:
         bin_json, bin_chunk = self.glb_bin_collector.pack_all()
