@@ -65,7 +65,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.export_objects = export_objects
         self.vrm_version: Optional[str] = None
         self.json_dic: Dict[str, Any] = OrderedDict()
-        self.bin = b""
         self.glb_bin_collector = GlbBinCollection()
         self.use_dummy_armature = False
         self.export_id = "BlenderVrmAddonExport" + (
@@ -2445,13 +2444,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             self.json_dic["materials"].append({})
 
     def pack(self) -> None:
-        bin_json, self.bin = self.glb_bin_collector.pack_all()
+        bin_json, bin_chunk = self.glb_bin_collector.pack_all()
         self.json_dic.update(bin_json)
         if not self.json_dic["meshes"]:
             del self.json_dic["meshes"]
         if not self.json_dic["materials"]:
             del self.json_dic["materials"]
-        self.result = gltf.pack_glb(self.json_dic, self.bin)
+        self.result = gltf.pack_glb(self.json_dic, bin_chunk)
 
     def cleanup(self) -> None:
         if self.use_dummy_armature:
