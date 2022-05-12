@@ -3,6 +3,12 @@ locale_key = "ja_JP"
 translation_dictionary = {
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
+    (
+        "*",
+        "VRM 1.0 support is under development.\n"
+        + "It won't work as intended in many situations.",
+    ): "VRM 1.0対応機能は現在開発中のため\n"
+    + "多くの状況で意図通り動作しません。\n",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
     ("*", "VRM Export"): "VRMエクスポート",
     ("*", "Create VRM Model"): "VRMモデルを作成",

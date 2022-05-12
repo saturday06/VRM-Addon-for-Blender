@@ -114,14 +114,27 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         if preferences:
             layout.prop(preferences, "export_invisibles")
             layout.prop(preferences, "export_only_selections")
-            if preferences.enable_dangerous_vrm1_beta_features:
-                armature = search.current_armature(context)
-                if armature:
-                    layout.prop(
-                        armature.data.vrm_addon_extension,
-                        "spec_version",
-                        icon="EXPERIMENTAL",
+
+            armature = search.current_armature(context)
+            if armature:
+                layout.prop(
+                    armature.data.vrm_addon_extension,
+                    "spec_version",
+                    text="",
+                    translate=False,
+                )
+                if armature.data.vrm_addon_extension.is_vrm1():
+                    warning_column = layout.box().column()
+                    warning_message = pgettext(
+                        "VRM 1.0 support is under development.\n"
+                        + "It won't work as intended in many situations."
                     )
+                    for index, warning_line in enumerate(warning_message.splitlines()):
+                        warning_column.label(
+                            text=warning_line,
+                            translate=False,
+                            icon="ERROR" if index == 0 else "NONE",
+                        )
 
         if mode == "OBJECT":
             if GlslDrawObj.draw_objs:

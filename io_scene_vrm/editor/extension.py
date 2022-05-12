@@ -32,8 +32,8 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
     SPEC_VERSION_VRM0 = "0.0"
     SPEC_VERSION_VRM1 = "1.0-beta"
     spec_version_items = [
-        (SPEC_VERSION_VRM0, "0.0", "", 0),
-        (SPEC_VERSION_VRM1, "1.0 Beta (EXPERIMENTAL)", "", 1),
+        (SPEC_VERSION_VRM0, "VRM 0.0", "", "NONE", 0),
+        (SPEC_VERSION_VRM1, "VRM 1.0 Beta (EXPERIMENTAL)", "", "EXPERIMENTAL", 1),
     ]
 
     spec_version: bpy.props.EnumProperty(  # type: ignore[valid-type]
