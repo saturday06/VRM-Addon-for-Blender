@@ -650,7 +650,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not extras_dict and "extras" in node_dict:
                 del node_dict["extras"]
 
-        node_constraint_spec_version = "1.0-draft"
+        node_constraint_spec_version = "1.0-beta"
         use_node_constraint = False
         object_constraints = search.export_object_constraints(self.export_objects)
         for object_name, node_index in object_name_to_index_dict.items():
