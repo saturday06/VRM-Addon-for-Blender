@@ -18,7 +18,7 @@
 !/.github/workflows/*.yml
 !/.github/*.yml
 !/LICENSE
-!/LICENSE.MToon
+!/LICENSE.*
 !/Notice.txt
 !/poetry.lock
 !/pyproject.toml
@@ -32,6 +32,7 @@
 !/whitelist.txt
 !/io_scene_vrm/README.txt
 !/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
+!/io_scene_vrm/external/cats_blender_plugin/LICENSE
 
 *.blend1
 *.pyc
