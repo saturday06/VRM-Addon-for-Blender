@@ -76,7 +76,8 @@ class AbstractBaseVrmImporter(ABC):
     def connect_bones(self) -> None:
         armature = self.armature
         if armature is None:
-            raise Exception("armature is None")
+            print("armature is None")
+            return
 
         # Blender_VRMAutoIKSetup (MIT License)
         # https://booth.pm/ja/items/1697977
@@ -144,13 +145,15 @@ class AbstractBaseVrmImporter(ABC):
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtextureのインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
         json_texture_index = deep.get(
-            self.parse_result.vrm0_extension, ["meta", "texture"], -1
+            self.parse_result.vrm0_extension, ["meta", "texture"]
         )
         if not isinstance(json_texture_index, int):
-            raise Exception('json["extensions"]["VRM"]["meta"]["texture"] is not int')
+            print('json["extensions"]["VRM"]["meta"]["texture"] is not int')
+            return
         json_textures = self.parse_result.json_dict.get("textures", [])
         if not isinstance(json_textures, list):
-            raise Exception('json["textures"] is not list')
+            print('json["textures"] is not list')
+            return
         if json_texture_index not in (-1, None) and (
             "textures" in self.parse_result.json_dict
             and len(json_textures) > json_texture_index
@@ -1169,7 +1172,8 @@ class AbstractBaseVrmImporter(ABC):
     ) -> None:
         armature = self.armature
         if armature is None:
-            raise Exception("armature is None")
+            print("armature is None")
+            return
 
         bpy.ops.object.mode_set(mode="EDIT")
         edit_bones = armature.data.edit_bones
@@ -1216,7 +1220,8 @@ class AbstractBaseVrmImporter(ABC):
     def blend_setup(self) -> None:
         armature = self.armature
         if armature is None:
-            raise Exception("armature is None")
+            print("armature is None")
+            return
         bpy.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
 

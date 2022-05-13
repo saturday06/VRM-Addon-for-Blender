@@ -424,9 +424,6 @@ class VrmParser:
         vrm0_dict = deep.get(self.json_dict, ["extensions", "VRM"])
         if isinstance(vrm0_dict, dict):
             self.vrm0_extension_read(parse_result, vrm0_dict)
-            return
-
-        raise Exception("No VRM extension found")
 
     def vrm0_extension_read(
         self, parse_result: ParseResult, vrm0_dict: Dict[str, Any]
@@ -450,7 +447,8 @@ class VrmParser:
                 hips_node_index = human_bone["node"]
 
         if not isinstance(hips_node_index, int):
-            raise Exception("No hips bone index found")
+            print("No hips bone index found")
+            return
 
         parse_result.hips_node_index = hips_node_index
 
@@ -465,7 +463,8 @@ class VrmParser:
             vrm1_dict, ["humanoid", "humanBones", "hips", "node"]
         )
         if not isinstance(hips_node_index, int):
-            raise Exception("No hips bone index found")
+            print("No hips bone index found")
+            return
         parse_result.hips_node_index = hips_node_index
 
     def texture_rip(

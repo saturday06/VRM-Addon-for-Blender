@@ -433,6 +433,20 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
                 scene["nodes"].append(skin_node_index)
 
+        # glTF 2.0アドオンが未対応のエクステンションが"extensionsRequired"に含まれている場合はエラーになるのを抑止
+        extensions_required = json_dict.get("extensionsRequired")
+        if isinstance(extensions_required, abc.MutableSequence):
+            for supported_extension in [
+                "VRM",
+                "VRMC_vrm",
+                "VRMC_springBone",
+                "VRMC_node_constraint",
+                "VRMC_materials_mtoon",
+                "VRMC_materials_hdr_emissiveMultiplier",
+            ]:
+                while supported_extension in extensions_required:
+                    extensions_required.remove(supported_extension)
+
         if self.parse_result.spec_version_number < (1, 0):
             bone_heuristic = "FORTUNE"
         else:
@@ -602,12 +616,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         for material in list(bpy.data.materials):
             if self.is_temp_object_name(material.name) and material.users == 0:
-                print(material.name)
                 bpy.data.materials.remove(material)
 
-        armature = self.armature
-        if armature is None:
-            raise Exception("Failed to read VRM Humanoid")
+        if self.armature is None:
+            print("Failed to read VRM Humanoid")
 
     def cleanup_gltf2_with_indices(self) -> None:
         if (
