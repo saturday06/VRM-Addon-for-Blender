@@ -66,9 +66,8 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             bool(self.export_invisibles), bool(self.export_only_selections)
         )
         is_vrm1 = any(
-            obj
+            obj.type == "ARMATURE" and obj.data.vrm_addon_extension.is_vrm1()
             for obj in export_objects
-            if obj.type == "ARMATURE" and obj.data.vrm_addon_extension.is_vrm1()
         )
 
         if is_vrm1:
