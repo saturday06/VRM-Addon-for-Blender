@@ -54,7 +54,6 @@ bone_list_with = [
     "EyeTip_",
     "HandDummy_",
     "SleeveShoulderIK_",
-    "Cf_O_Root_",
 ]
 bone_list_parenting = {
     "Spine": "Hips",
@@ -335,9 +334,6 @@ bone_list_conflicting_names: List[Tuple[List[str], str, str]] = [
     (["Leg(L)00"], "Leg(R)00_tmp", "Leg(R)00"),
     (["Torso_1"], "\Left_Foot", "\Left ankle"),
     # (['Shoulder_\L', 'Shoulder_IK_Root_\L'], 'Shoulder1_WayA_\L', '\Left shoulder'),
-    # Fix Koikatsu models
-    (["Cf_D_Shoulder_\L"], "Shoulder_\L", "Cf_D_Shoulder2_\L"),
-    (["Cf_Hit_Waist02", "Leg_\L"], "Shoulder_\L", "Cf_D_Shoulder2_\L"),
     # Just rename those
     ([], "Root_Ground", "Ground_Root"),
     ([], "Root_Hips", "Hips_Root"),
@@ -676,8 +672,6 @@ bone_rename["\Left shoulder"] = [
     "Arm_\Left_Sh_1",
     "Shoulder(\L)_0",
     "\L_Kata",
-    "Cf_D_Shoulder_\L",
-    "Cf_D_Shoulder2_\L",
     "Clavicle\LT_01",
     "J_Bip_\L_Shoulder",
     "J_\L_Collar",
@@ -1363,7 +1357,6 @@ bone_reweight["\Left elbow"] = [
     "\L_Tekubi",
     "Forearm02_\L",
     "Wrist_\L_001",
-    "Cf_D_Hand_\L",
     "Elbo_\L",
     "Forearm01_\L",
     "Elboback_\L",
@@ -1615,7 +1608,6 @@ bone_reweight["\Left knee"] = [
     "Leg_\Left_Knee_Ctrl",
     "Bip_\L_Calf_Rig",
     "Leg(\L)01",
-    "Cf_D_KneeF_\L",
     "Leg02_\L",
     "Leg03_\L",
     "KneeB_\L",
