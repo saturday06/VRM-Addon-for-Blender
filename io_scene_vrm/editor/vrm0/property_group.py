@@ -381,6 +381,13 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     show_expanded_material_values: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Material Values"  # noqa: F722
     )
+    active_bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Bind Index", default=0  # noqa: F722
+    )
+    active_material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Material Value Index", default=0  # noqa: F722
+    )
+
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
@@ -455,7 +462,8 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
         name="Gravity Power"  # noqa: F722
     )
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=3, name="Gravity Direction"  # noqa: F722
+        size=3, name="Gravity Direction",
+        subtype='XYZ'  # noqa: F722
     )
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Drag Force"  # noqa: F722
@@ -585,6 +593,9 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
 class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     blend_shape_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Blend Shape Group", type=Vrm0BlendShapeGroupPropertyGroup  # noqa: F722
+    )    
+    active_blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Blend Shape Group Index", default=0  # noqa: F722
     )
 
 
@@ -598,8 +609,13 @@ class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):  # type: ign
         name="Collider Groups",  # noqa: F722
         type=Vrm0SecondaryAnimationColliderGroupPropertyGroup,
     )
-
-
+    active_bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Bone Group Index", default=0  # noqa: F722
+    )
+    active_collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Collider Group Index", default=0  # noqa: F722
+    )
+    
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_extensions.cs#L8-L48
 class Vrm0PropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     meta: bpy.props.PointerProperty(  # type: ignore[valid-type]

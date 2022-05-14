@@ -278,3 +278,4 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         type=bpy.types.Object  # noqa: F722
     )
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    
