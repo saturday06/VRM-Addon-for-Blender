@@ -443,8 +443,10 @@ bone_rename["Hips"] = [
     "HipMaster_01",
     "J_Bip_C_Hips",
     "J_Hip",
-    "Pelvis_L",
-    "Pelvis_R",
+    # Pelvis_L/Pelvis_RをHips扱いしてもcats-blender-pluginはその後そのボーンをルートに移動する
+    # VRM Add-onはそれをやらないのでmetarigのHumanで問題が発生した。
+    # "Pelvis_L",
+    # "Pelvis_R",
     "Root_Pelvis_1",
     "Root_X",
 ]
