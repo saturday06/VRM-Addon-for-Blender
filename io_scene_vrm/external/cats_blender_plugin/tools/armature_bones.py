@@ -25,7 +25,10 @@
 # Edits by: GiveMeAllYourCats, Hotox
 # Repo: https://github.com/michaeldegroot/cats-blender-plugin
 
+# pylint: disable=anomalous-backslash-in-string
+
 from collections import OrderedDict
+from typing import List, Tuple
 
 bone_list = [
     "ControlNode",
@@ -288,7 +291,7 @@ bone_reweigth_to_parent = [
     "Back_Low",
     "Back_Mid",
 ]
-bone_list_conflicting_names = [
+bone_list_conflicting_names: List[Tuple[List[str], str, str]] = [
     (["\L_Clavicle"], "\L_Shoulder", "Arm_\L"),
     (["\LeftCollar"], "\LeftShoulder", "Arm_\L"),
     (["\Left_Collar"], "\Left Shoulder", "Arm_\L"),

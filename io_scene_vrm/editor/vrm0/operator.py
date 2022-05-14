@@ -3,6 +3,9 @@ from typing import Set
 
 import bpy
 
+from ...external import cats_blender_plugin_support
+from .property_group import Vrm0HumanoidPropertyGroup
+
 
 class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.add_vrm0_first_person_mesh_annotation"
@@ -587,4 +590,48 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
             bone_group
         ) in armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
+        return {"FINISHED"}
+
+
+class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.assign_vrm0_humanoid_human_bones_automatically"
+    bl_label = "Automatic Bone Assignment"
+    bl_description = "Assign VRM 0.x Humanoid Human Bones"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+        humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+        bones = (
+            armature.data.edit_bones
+            if armature.data.is_editmode
+            else armature.data.bones
+        )
+        for (
+            bone_name,
+            human_bone_name,
+        ) in cats_blender_plugin_support.create_human_bone_mapping(
+            armature.data
+        ).items():
+            bone = bones.get(bone_name)
+            if not bone:
+                continue
+
+            for human_bone in humanoid.human_bones:
+                if (
+                    human_bone.bone != human_bone_name.value
+                    or human_bone.node.value in human_bone.node_candidates
+                    or bone_name not in human_bone.node_candidates
+                ):
+                    continue
+                human_bone.node.value = bone_name
+                break
+
         return {"FINISHED"}

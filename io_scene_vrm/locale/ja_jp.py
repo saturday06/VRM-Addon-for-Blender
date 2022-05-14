@@ -130,6 +130,7 @@ translation_dictionary = {
     ("*", "Current Pose"): "現在のポーズ",
     ("*", "Save Bone Mappings"): "ボーンの対応を保存",
     ("*", "Load Bone Mappings"): "ボーンの対応を読み込み",
+    ("Operator", "Automatic Bone Assignment"): "ボーンの自動割り当て",
     ("Operator", "Preview MToon"): "MToonのプレビュー",
     ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
     ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",

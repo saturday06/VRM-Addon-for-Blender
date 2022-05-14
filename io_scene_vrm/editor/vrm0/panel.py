@@ -88,11 +88,17 @@ def draw_vrm0_humanoid_layout(
         pose_marker_name_empty_box.scale_y = 0.5
         pose_marker_name_empty_box.label(text="Current Pose")
 
-    armature_box.operator(
-        operator.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT"
+    bone_operator_column = armature_box.column()
+    bone_operator_column.operator(
+        vrm0_operator.VRM_OT_assign_vrm0_humanoid_human_bones_automatically.bl_idname,
+        icon="ARMATURE_DATA",
+    ).armature_name = armature.name
+    save_load_row = bone_operator_column.split(factor=0.5, align=True)
+    save_load_row.operator(
+        operator.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT", text="Save"
     )
-    armature_box.operator(
-        operator.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT"
+    save_load_row.operator(
+        operator.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT", text="Load"
     )
 
     if operator.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):

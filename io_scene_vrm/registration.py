@@ -147,6 +147,7 @@ classes = [
     vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_group,
     vrm0_operator.VRM_OT_add_vrm0_secondary_animation_collider_group,
     vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group,
+    vrm0_operator.VRM_OT_assign_vrm0_humanoid_human_bones_automatically,
     vrm1_operator.VRM_OT_add_vrm1_meta_author,
     vrm1_operator.VRM_OT_remove_vrm1_meta_author,
     vrm1_operator.VRM_OT_add_vrm1_meta_reference,

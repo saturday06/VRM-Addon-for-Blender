@@ -15,5 +15,8 @@ per-file-ignores =
     tests/base_blender_test_case.py:S404,S602,S603,S607
     # https://github.com/adamchainz/flake8-no-pep420/blob/2.0.0/README.rst#inp001-file-is-part-of-an-implicit-namespace-package
     scripts/*.py:INP001
+    # External sources
+    io_scene_vrm/external/cats_blender_plugin/tools/armature.py:N812,SC100,SC200,W605
+    io_scene_vrm/external/cats_blender_plugin/tools/armature_bones.py:N812,SC100,SC200,W605
 
 dictionaries=en_US,python,technical
