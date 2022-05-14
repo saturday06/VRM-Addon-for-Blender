@@ -130,8 +130,14 @@ translation_dictionary = {
     ("*", "Current Pose"): "現在のポーズ",
     ("*", "Save Bone Mappings"): "ボーンの対応を保存",
     ("*", "Load Bone Mappings"): "ボーンの対応を読み込み",
+    ("*", "All VRM Required Bones have been assigned."): "全てのVRM必須ボーンの割り当てが行われました。",
+    (
+        "*",
+        "There are unassigned VRM Required Bones. Please assign all.",
+    ): "未割り当てのVRM必須ボーンが存在します。全てのVRM必須ボーンを割り当ててください。",
     ("Operator", "Automatic Bone Assignment"): "ボーンの自動割り当て",
     ("Operator", "Preview MToon"): "MToonのプレビュー",
     ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
     ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",
+    ("Operator", "VRM Required Bones Assignment"): "VRM必須ボーンの設定",
 }

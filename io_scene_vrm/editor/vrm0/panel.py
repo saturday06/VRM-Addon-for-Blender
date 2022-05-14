@@ -55,40 +55,11 @@ def bone_prop_search(
     )
 
 
-def draw_vrm0_humanoid_layout(
+def draw_vrm0_humanoid_operators_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
-    humanoid: Vrm0HumanoidPropertyGroup,
 ) -> None:
-    if migrate(armature.name, defer=True):
-        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(armature.data.name)
-
-    data = armature.data
-
-    armature_box = layout
-    t_pose_box = armature_box.box()
-    column = t_pose_box.row().column()
-    column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
-    column.label(text="Pose Library")
-    column.prop_search(
-        humanoid, "pose_library", bpy.data, "actions", text="", translate=False
-    )
-    column.label(text="Pose")
-    if humanoid.pose_library and humanoid.pose_library.name in bpy.data.actions:
-        column.prop_search(
-            humanoid,
-            "pose_marker_name",
-            humanoid.pose_library,
-            "pose_markers",
-            text="",
-            translate=False,
-        )
-    else:
-        pose_marker_name_empty_box = column.box()
-        pose_marker_name_empty_box.scale_y = 0.5
-        pose_marker_name_empty_box.label(text="Current Pose")
-
-    bone_operator_column = armature_box.column()
+    bone_operator_column = layout.column()
     bone_operator_column.operator(
         vrm0_operator.VRM_OT_assign_vrm0_humanoid_human_bones_automatically.bl_idname,
         icon="ARMATURE_DATA",
@@ -101,17 +72,14 @@ def draw_vrm0_humanoid_layout(
         operator.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT", text="Load"
     )
 
-    if operator.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
-        simplify_vroid_bones_op = armature_box.operator(
-            operator.VRM_OT_simplify_vroid_bones.bl_idname,
-            text=pgettext(operator.VRM_OT_simplify_vroid_bones.bl_label),
-            icon="GREASEPENCIL",
-        )
-        simplify_vroid_bones_op.armature_name = armature.name
 
-    split_factor = 0.2
-
-    requires_box = armature_box.box()
+def draw_vrm0_humanoid_required_bones_layout(
+    armature: bpy.types.Object,
+    layout: bpy.types.UILayout,
+    split_factor: float = 0.2,
+) -> None:
+    humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+    requires_box = layout.box()
     requires_box.label(text="VRM Required Bones", icon="ARMATURE_DATA")
     row = requires_box.row().split(factor=split_factor)
     column = row.column()
@@ -162,6 +130,54 @@ def draw_vrm0_humanoid_layout(
     bone_prop_search(column, HumanBoneSpecifications.LEFT_UPPER_LEG, icon, humanoid)
     bone_prop_search(column, HumanBoneSpecifications.LEFT_LOWER_LEG, icon, humanoid)
     bone_prop_search(column, HumanBoneSpecifications.LEFT_FOOT, icon, humanoid)
+
+
+def draw_vrm0_humanoid_layout(
+    armature: bpy.types.Object,
+    layout: bpy.types.UILayout,
+    humanoid: Vrm0HumanoidPropertyGroup,
+) -> None:
+    if migrate(armature.name, defer=True):
+        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(armature.data.name)
+
+    data = armature.data
+
+    armature_box = layout
+    t_pose_box = armature_box.box()
+    column = t_pose_box.row().column()
+    column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
+    column.label(text="Pose Library")
+    column.prop_search(
+        humanoid, "pose_library", bpy.data, "actions", text="", translate=False
+    )
+    column.label(text="Pose")
+    if humanoid.pose_library and humanoid.pose_library.name in bpy.data.actions:
+        column.prop_search(
+            humanoid,
+            "pose_marker_name",
+            humanoid.pose_library,
+            "pose_markers",
+            text="",
+            translate=False,
+        )
+    else:
+        pose_marker_name_empty_box = column.box()
+        pose_marker_name_empty_box.scale_y = 0.5
+        pose_marker_name_empty_box.label(text="Current Pose")
+
+    draw_vrm0_humanoid_operators_layout(armature, armature_box)
+
+    if operator.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
+        simplify_vroid_bones_op = armature_box.operator(
+            operator.VRM_OT_simplify_vroid_bones.bl_idname,
+            text=pgettext(operator.VRM_OT_simplify_vroid_bones.bl_label),
+            icon="GREASEPENCIL",
+        )
+        simplify_vroid_bones_op.armature_name = armature.name
+
+    split_factor = 0.2
+
+    draw_vrm0_humanoid_required_bones_layout(armature, armature_box, split_factor)
 
     defines_box = armature_box.box()
     defines_box.label(text="VRM Optional Bones", icon="BONE_DATA")

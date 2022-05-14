@@ -125,6 +125,15 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         default=True
     )
 
+    def all_required_bones_are_assigned(self) -> bool:
+        for name in HumanBoneSpecifications.vrm0_required_names:
+            for human_bone in self.human_bones:
+                if human_bone.bone != name:
+                    continue
+                if human_bone.node.value not in human_bone.node_candidates:
+                    return False
+        return True
+
     @staticmethod
     def check_last_bone_names_and_update(
         armature_data_name: str,

@@ -5,6 +5,11 @@ from bpy_extras.io_utils import ExportHelper
 
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import search, validation
+from ..editor.vrm0.panel import (
+    draw_vrm0_humanoid_operators_layout,
+    draw_vrm0_humanoid_required_bones_layout,
+)
+from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .gltf2_addon_vrm_exporter import Gltf2AddonVrmExporter
 from .legacy_vrm_exporter import LegacyVrmExporter
@@ -94,6 +99,36 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                     "INVOKE_DEFAULT",
                 ),
             )
+
+        export_objects = search.export_objects(
+            bool(self.export_invisibles), bool(self.export_only_selections)
+        )
+
+        armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
+        is_vrm0 = any(
+            armature.data.vrm_addon_extension.is_vrm0() for armature in armatures
+        )
+        if len(armatures) == 1 and is_vrm0:
+            armature = armatures[0]
+            Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+            Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+                armature.data.name,
+                defer=False,
+            )
+            humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+            if all(b.node.value not in b.node_candidates for b in humanoid.human_bones):
+                bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
+                    armature_name=armature.name
+                )
+            if not humanoid.all_required_bones_are_assigned():
+                bpy.ops.wm.vrm_export_human_bones_assignment("INVOKE_DEFAULT")
+                return {"CANCELLED"}
+
+        if bpy.ops.vrm.model_validate(
+            "INVOKE_DEFAULT", show_successful_message=False
+        ) != {"FINISHED"}:
+            return {"CANCELLED"}
+
         return cast(Set[str], ExportHelper.invoke(self, context, event))
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -131,3 +166,77 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
 
 def menu_export(export_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
     export_op.layout.operator(EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
+
+
+class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_label = "VRM Required Bones Assignment"
+    bl_idname = "wm.vrm_export_human_bones_assignment"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        preferences = get_preferences(context)
+        if preferences:
+            export_invisibles = bool(preferences.export_invisibles)
+            export_only_selections = bool(preferences.export_only_selections)
+        else:
+            export_invisibles = False
+            export_only_selections = False
+        export_objects = search.export_objects(
+            export_invisibles, export_only_selections
+        )
+        armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
+        if len(armatures) != 1:
+            return {"CANCELLED"}
+        armature = armatures[0]
+        if not armature.data.vrm_addon_extension.is_vrm0():
+            return {"CANCELLED"}
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+            armature.data.name,
+            defer=False,
+        )
+        humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+        if not humanoid.all_required_bones_are_assigned():
+            return {"CANCELLED"}
+        bpy.ops.export_scene.vrm("INVOKE_DEFAULT")
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+        return cast(
+            Set[str], context.window_manager.invoke_props_dialog(self, width=550)
+        )
+
+    def draw(self, context: bpy.types.Context) -> None:
+        preferences = get_preferences(context)
+        if preferences:
+            export_invisibles = bool(preferences.export_invisibles)
+            export_only_selections = bool(preferences.export_only_selections)
+        else:
+            export_invisibles = False
+            export_only_selections = False
+
+        armatures = [
+            obj
+            for obj in search.export_objects(export_invisibles, export_only_selections)
+            if obj.type == "ARMATURE"
+        ]
+        if not armatures:
+            return
+        armature = armatures[0]
+
+        layout = self.layout
+        humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+        if humanoid.all_required_bones_are_assigned():
+            alert_row = layout.box()
+            alert_row.label(
+                text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
+            )
+        else:
+            alert_row = layout.box()
+            alert_row.alert = True
+            alert_row.label(
+                text="There are unassigned VRM Required Bones. Please assign all.",
+                icon="ERROR",
+            )
+        draw_vrm0_humanoid_operators_layout(armature, layout)
+        draw_vrm0_humanoid_required_bones_layout(armature, layout)
