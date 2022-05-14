@@ -409,6 +409,8 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
 
 
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
+    if vrm0.humanoid.initial_automatic_bone_assignment:
+        return False
     return vrm0.first_person.first_person_bone.value or all(
         (human_bone.bone != "head" or not human_bone.node.value)
         for human_bone in vrm0.humanoid.human_bones
@@ -436,3 +438,10 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
         armature.data.name,
         defer=False,
     )
+
+    if vrm0.humanoid.initial_automatic_bone_assignment:
+        vrm0.humanoid.initial_automatic_bone_assignment = False
+        if all(not b.node.value for b in vrm0.humanoid.human_bones):
+            bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
+                armature_name=armature.name
+            )

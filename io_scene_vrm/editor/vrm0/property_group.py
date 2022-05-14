@@ -121,6 +121,9 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     last_bone_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
+    initial_automatic_bone_assignment: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        default=True
+    )
 
     @staticmethod
     def check_last_bone_names_and_update(
