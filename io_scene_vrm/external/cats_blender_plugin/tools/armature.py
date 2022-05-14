@@ -26,31 +26,32 @@
 # Repo: https://github.com/netri/blender_neitri_tools
 # Edits by: GiveMeAllYourCats, Hotox
 
-import bpy
 import copy
 import math
-import platform
+
+import bpy
 from mathutils import Matrix
 
+# Only load mmd_tools if it's not on linux and 2.90 or higher since it causes Blender to crash
+from mmd_tools_local.operators import morph as Morph
+
+from . import armature_bones as Bones
 from . import common as Common
 from . import translate as Translate
-from . import armature_bones as Bones
 from .common import version_2_79_or_older
 from .register import register_wrap
 from .translations import t
 
-# Only load mmd_tools if it's not on linux and 2.90 or higher since it causes Blender to crash
-from mmd_tools_local.operators import morph as Morph
 mmd_tools_installed = True
 
 
 @register_wrap
 class FixArmature(bpy.types.Operator):
-    bl_idname = 'cats_armature.fix'
-    bl_label = t('FixArmature.label')
-    bl_description = t('FixArmature.desc')
+    bl_idname = "cats_armature.fix"
+    bl_label = t("FixArmature.label")
+    bl_description = t("FixArmature.desc")
 
-    bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
+    bl_options = {"REGISTER", "UNDO", "INTERNAL"}
 
     @classmethod
     def poll(cls, context):
@@ -81,13 +82,13 @@ class FixArmature(bpy.types.Operator):
         is_vrm = False
         if len(Common.get_meshes_objects()) == 0:
             for mesh in Common.get_meshes_objects(mode=2):
-                if mesh.name.endswith(('.baked', '.baked0')):
+                if mesh.name.endswith((".baked", ".baked0")):
                     is_vrm = True  # TODO
             if not is_vrm:
-                Common.show_error(3.8, t('FixArmature.error.noMesh'))
-                return {'CANCELLED'}
+                Common.show_error(3.8, t("FixArmature.error.noMesh"))
+                return {"CANCELLED"}
 
-        print('\nFixing Model:\n')
+        print("\nFixing Model:\n")
 
         wm = bpy.context.window_manager
         armature = Common.set_default_stage()
@@ -105,7 +106,7 @@ class FixArmature(bpy.types.Operator):
             temp_rename_bones[key] = value
 
         for key, value in temp_rename_bones.items():
-            if key == 'Spine':
+            if key == "Spine":
                 continue
             list = temp_reweight_bones.get(key)
             if not list:
@@ -118,20 +119,20 @@ class FixArmature(bpy.types.Operator):
         # Count objects for loading bar
         steps = 0
         for key, value in temp_rename_bones.items():
-            if '\Left' in key or '\L' in key:
+            if "\Left" in key or "\L" in key:
                 steps += 2 * len(value)
             else:
                 steps += len(value)
         for key, value in temp_reweight_bones.items():
-            if '\Left' in key or '\L' in key:
+            if "\Left" in key or "\L" in key:
                 steps += 2 * len(value)
             else:
                 steps += len(value)
         steps += len(temp_list_reweight_bones)  # + len(Bones.bone_list_parenting)
 
         # Get Double Entries
-        print('DOUBLE ENTRIES:')
-        print('RENAME:')
+        print("DOUBLE ENTRIES:")
+        print("RENAME:")
         list = []
         for key, value in temp_rename_bones.items():
             for name in value:
@@ -139,7 +140,7 @@ class FixArmature(bpy.types.Operator):
                     list.append(name.lower())
                 else:
                     print(key + " | " + name)
-        print('REWEIGHT:')
+        print("REWEIGHT:")
         list = []
         for key, value in temp_reweight_bones.items():
             for name in value:
@@ -147,7 +148,7 @@ class FixArmature(bpy.types.Operator):
                     list.append(name.lower())
                 else:
                     print(key + " | " + name)
-        print('DOUBLES END')
+        print("DOUBLES END")
 
         # Check if model is mmd model
         if mmd_tools_installed:
@@ -165,12 +166,12 @@ class FixArmature(bpy.types.Operator):
                 mmd_root.use_sphere_texture = False
 
                 # Convert mmd bone morphs into shape keys
-                if hasattr(mmd_root, 'bone_morphs') and len(mmd_root.bone_morphs) > 0:
+                if hasattr(mmd_root, "bone_morphs") and len(mmd_root.bone_morphs) > 0:
 
                     current_step = 0
                     wm.progress_begin(current_step, len(mmd_root.bone_morphs))
 
-                    armature.data.pose_position = 'POSE'
+                    armature.data.pose_position = "POSE"
                     for index, morph in enumerate(mmd_root.bone_morphs):
                         current_step += 1
                         wm.progress_update(current_step)
@@ -181,7 +182,7 @@ class FixArmature(bpy.types.Operator):
                         mesh = Common.get_meshes_objects()[0]
                         Common.set_active(mesh)
 
-                        mod = mesh.modifiers.new(morph.name, 'ARMATURE')
+                        mod = mesh.modifiers.new(morph.name, "ARMATURE")
                         mod.object = armature
                         Common.apply_modifier(mod, as_shapekey=True)
                     wm.progress_end()
@@ -190,18 +191,22 @@ class FixArmature(bpy.types.Operator):
         # Check if model is source engine model
         source_engine = False
         for bone in armature.pose.bones:
-            if bone.name.startswith('ValveBiped'):
+            if bone.name.startswith("ValveBiped"):
                 source_engine = True
                 break
 
         # Remove unused animation data
-        if armature.animation_data and armature.animation_data.action and armature.animation_data.action.name == 'ragdoll':
+        if (
+            armature.animation_data
+            and armature.animation_data.action
+            and armature.animation_data.action.name == "ragdoll"
+        ):
             armature.animation_data_clear()
             source_engine = True
 
         # Delete unused VTA mesh
         for mesh in Common.get_meshes_objects(mode=1):
-            if mesh.name == 'VTA vertices':
+            if mesh.name == "VTA vertices":
                 Common.delete_hierarchy(mesh)
                 source_engine = True
                 break
@@ -211,7 +216,9 @@ class FixArmature(bpy.types.Operator):
             for mesh in Common.get_meshes_objects():
                 if len(Common.get_meshes_objects()) == 1:
                     break
-                if mesh.name.endswith(('_physics', '_lod1', '_lod2', '_lod3', '_lod4', '_lod5', '_lod6')):
+                if mesh.name.endswith(
+                    ("_physics", "_lod1", "_lod2", "_lod3", "_lod4", "_lod5", "_lod6")
+                ):
                     Common.delete_hierarchy(mesh)
 
         # Reset to default
@@ -220,7 +227,7 @@ class FixArmature(bpy.types.Operator):
         # Find 3D view
         view_area = None
         for area in bpy.context.screen.areas:
-            if area.type == 'VIEW_3D':
+            if area.type == "VIEW_3D":
                 view_area = area.spaces[0]
                 break
 
@@ -230,20 +237,22 @@ class FixArmature(bpy.types.Operator):
 
         if version_2_79_or_older():
             # Set better bone view
-            armature.data.draw_type = 'OCTAHEDRAL'
-            armature.draw_type = 'WIRE'
+            armature.data.draw_type = "OCTAHEDRAL"
+            armature.draw_type = "WIRE"
             armature.show_x_ray = True
             armature.data.show_bone_custom_shapes = False
             armature.layers[0] = True
 
             # Disable backface culling
-            area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
-            space = next(space for space in area.spaces if space.type == 'VIEW_3D')
+            area = next(
+                area for area in bpy.context.screen.areas if area.type == "VIEW_3D"
+            )
+            space = next(space for space in area.spaces if space.type == "VIEW_3D")
             space.show_backface_culling = True  # set the viewport shading
         else:
-            armature.data.display_type = 'OCTAHEDRAL'
-            if hasattr(armature, 'draw_type'):
-                armature.draw_type = 'WIRE'
+            armature.data.display_type = "OCTAHEDRAL"
+            if hasattr(armature, "draw_type"):
+                armature.draw_type = "WIRE"
             armature.show_in_front = True
             armature.data.show_bone_custom_shapes = False
             # context.space_data.overlay.show_transparent_bones = True
@@ -252,7 +261,7 @@ class FixArmature(bpy.types.Operator):
 
             # Set the Color Management View Transform to "Standard" instead of the Blender default "Filmic"
             try:
-                context.scene.view_settings.view_transform = 'Standard'
+                context.scene.view_settings.view_transform = "Standard"
             except TypeError:
                 print('Color Management View Transform "Standard" not found!')
 
@@ -263,11 +272,19 @@ class FixArmature(bpy.types.Operator):
         if context.scene.remove_rigidbodies_joints:
             to_delete = []
             for child in Common.get_top_parent(armature).children:
-                if 'rigidbodies' in child.name or 'joints' in child.name and child.name not in to_delete:
+                if (
+                    "rigidbodies" in child.name
+                    or "joints" in child.name
+                    and child.name not in to_delete
+                ):
                     to_delete.append(child.name)
                     continue
                 for child2 in child.children:
-                    if 'rigidbodies' in child2.name or 'joints' in child2.name and child2.name not in to_delete:
+                    if (
+                        "rigidbodies" in child2.name
+                        or "joints" in child2.name
+                        and child2.name not in to_delete
+                    ):
                         to_delete.append(child2.name)
                         continue
             for obj_name in to_delete:
@@ -275,7 +292,7 @@ class FixArmature(bpy.types.Operator):
 
         # Remove objects from different layers and things that are not meshes
         get_current_layers = []
-        if hasattr(bpy.context.scene, 'layers'):
+        if hasattr(bpy.context.scene, "layers"):
             for i, layer in enumerate(bpy.context.scene.layers):
                 if layer:
                     get_current_layers.append(i)
@@ -283,7 +300,7 @@ class FixArmature(bpy.types.Operator):
         if len(armature.children) > 1:
             for child in armature.children:
                 for child2 in child.children:
-                    if child2.type != 'MESH':
+                    if child2.type != "MESH":
                         Common.delete(child2)
                         continue
                     in_layer = False
@@ -293,14 +310,14 @@ class FixArmature(bpy.types.Operator):
                     if not in_layer:
                         Common.delete(child2)
 
-                if child.type != 'MESH':
+                if child.type != "MESH":
                     Common.delete(child)
                     continue
                 in_layer = False
                 for i in get_current_layers:
                     if child.layers[i]:
                         in_layer = True
-                if not in_layer and hasattr(bpy.context.scene, 'layers'):
+                if not in_layer and hasattr(bpy.context.scene, "layers"):
                     Common.delete(child)
 
         # Unlock all transforms
@@ -328,14 +345,18 @@ class FixArmature(bpy.types.Operator):
         # Fix VRM meshes being outside of the armature
         if is_vrm:
             for mesh in Common.get_meshes_objects(mode=2):
-                if mesh.name.endswith(('.baked', '.baked0')):
+                if mesh.name.endswith((".baked", ".baked0")):
                     mesh.parent = armature  # TODO
 
         # Check if weird FBX model
-        print('CHECK TRANSFORMS:', armature.scale[0], armature.scale[1], armature.scale[2])
-        if round(armature.scale[0], 2) == 0.01 \
-                and round(armature.scale[1], 2) == 0.01 \
-                and round(armature.scale[2], 2) == 0.01:
+        print(
+            "CHECK TRANSFORMS:", armature.scale[0], armature.scale[1], armature.scale[2]
+        )
+        if (
+            round(armature.scale[0], 2) == 0.01
+            and round(armature.scale[1], 2) == 0.01
+            and round(armature.scale[2], 2) == 0.01
+        ):
 
             # Delete keyframes
             Common.set_active(armature)
@@ -370,7 +391,7 @@ class FixArmature(bpy.types.Operator):
                 mesh.lock_scale[i] = False
 
             # Set layer of mesh to 0
-            if hasattr(mesh, 'layers'):
+            if hasattr(mesh, "layers"):
                 mesh.layers[0] = True
 
             # Fix Source Shapekeys
@@ -381,11 +402,15 @@ class FixArmature(bpy.types.Operator):
             if is_vrm and Common.has_shapekeys(mesh):
                 shapekeys = mesh.data.shape_keys.key_blocks
                 for shapekey in shapekeys:
-                    shapekey.name = shapekey.name.replace('_', ' ').replace('Face.M F00 000 Fcl ', '').replace('Face.M F00 000 00 Fcl ', '')
+                    shapekey.name = (
+                        shapekey.name.replace("_", " ")
+                        .replace("Face.M F00 000 Fcl ", "")
+                        .replace("Face.M F00 000 00 Fcl ", "")
+                    )
 
                 # Sort shapekeys in categories
                 shapekey_order = []
-                for categorie in ['MTH', 'EYE', 'BRW', 'ALL', 'HA']:
+                for categorie in ["MTH", "EYE", "BRW", "ALL", "HA"]:
                     for shapekey in shapekeys:
                         if shapekey.name.startswith(categorie):
                             shapekey_order.append(shapekey.name)
@@ -403,7 +428,7 @@ class FixArmature(bpy.types.Operator):
             if version_2_79_or_older():
                 all_transparent = True
                 for mat_slot in mesh.material_slots:
-                    mat_slot.material.transparency_method = 'Z_TRANSPARENCY'
+                    mat_slot.material.transparency_method = "Z_TRANSPARENCY"
                     if mat_slot.material.alpha > 0:
                         all_transparent = False
                 if all_transparent:
@@ -452,13 +477,13 @@ class FixArmature(bpy.types.Operator):
         Common.set_active(armature)
 
         # Reset pose position
-        Common.switch('POSE')
+        Common.switch("POSE")
         bpy.ops.pose.rot_clear()
         bpy.ops.pose.scale_clear()
         bpy.ops.pose.transforms_clear()
 
         # Enter edit mode
-        Common.switch('EDIT')
+        Common.switch("EDIT")
 
         # Show all hidden verts and faces
         if bpy.ops.mesh.reveal.poll():
@@ -478,7 +503,9 @@ class FixArmature(bpy.types.Operator):
         # Count steps for loading bar again and reset the layers
         steps += len(armature.data.edit_bones)
         for bone in armature.data.edit_bones:
-            if bone.name in Bones.bone_list or bone.name.startswith(tuple(Bones.bone_list_with)):
+            if bone.name in Bones.bone_list or bone.name.startswith(
+                tuple(Bones.bone_list_with)
+            ):
                 if bone.parent is not None:
                     steps += 1
                 else:
@@ -491,53 +518,53 @@ class FixArmature(bpy.types.Operator):
 
         # List of chars to replace if they are at the start of a bone name
         starts_with = [
-            ('_', ''),
-            ('ValveBiped_', ''),
-            ('Valvebiped_', ''),
-            ('Bip1_', 'Bip_'),
-            ('Bip01_', 'Bip_'),
-            ('Bip001_', 'Bip_'),
-            ('Bip01', ''),
-            ('Bip02_', 'Bip_'),
-            ('Character1_', ''),
-            ('HLP_', ''),
-            ('JD_', ''),
-            ('JU_', ''),
-            ('Armature|', ''),
-            ('Bone_', ''),
-            ('C_', ''),
-            ('Cf_S_', ''),
-            ('Cf_J_', ''),
-            ('G_', ''),
-            ('Joint_', ''),
-            ('Def_C_', ''),
-            ('Def_', ''),
-            ('DEF_', ''),
-            ('Chr_', ''),
-            ('Chr_', ''),
-            ('B_', ''),
+            ("_", ""),
+            ("ValveBiped_", ""),
+            ("Valvebiped_", ""),
+            ("Bip1_", "Bip_"),
+            ("Bip01_", "Bip_"),
+            ("Bip001_", "Bip_"),
+            ("Bip01", ""),
+            ("Bip02_", "Bip_"),
+            ("Character1_", ""),
+            ("HLP_", ""),
+            ("JD_", ""),
+            ("JU_", ""),
+            ("Armature|", ""),
+            ("Bone_", ""),
+            ("C_", ""),
+            ("Cf_S_", ""),
+            ("Cf_J_", ""),
+            ("G_", ""),
+            ("Joint_", ""),
+            ("Def_C_", ""),
+            ("Def_", ""),
+            ("DEF_", ""),
+            ("Chr_", ""),
+            ("Chr_", ""),
+            ("B_", ""),
         ]
         # List of chars to replace if they are at the end of a bone name
         ends_with = [
-            ('_Bone', ''),
-            ('_Bn', ''),
-            ('_Le', '_L'),
-            ('_Ri', '_R'),
-            ('_', ''),
+            ("_Bone", ""),
+            ("_Bn", ""),
+            ("_Le", "_L"),
+            ("_Ri", "_R"),
+            ("_", ""),
         ]
         # List of chars to replace
         replaces = [
-            (' ', '_'),
-            ('-', '_'),
-            ('.', '_'),
-            (':', '_'),
-            ('____', '_'),
-            ('___', '_'),
-            ('__', '_'),
-            ('_Le_', '_L_'),
-            ('_Ri_', '_R_'),
-            ('LEFT', 'Left'),
-            ('RIGHT', 'Right'),
+            (" ", "_"),
+            ("-", "_"),
+            (".", "_"),
+            (":", "_"),
+            ("____", "_"),
+            ("___", "_"),
+            ("__", "_"),
+            ("_Le_", "_L_"),
+            ("_Ri_", "_R_"),
+            ("LEFT", "Left"),
+            ("RIGHT", "Right"),
         ]
 
         # Standardize names
@@ -548,10 +575,10 @@ class FixArmature(bpy.types.Operator):
             name = bone.name
 
             # Always uppercase at the start and after an underscore
-            upper_name = ''
-            for i, s in enumerate(name.split('_')):
+            upper_name = ""
+            for i, s in enumerate(name.split("_")):
                 if i != 0:
-                    upper_name += '_'
+                    upper_name += "_"
                 upper_name += s[:1].upper() + s[1:]
             name = upper_name
 
@@ -562,15 +589,15 @@ class FixArmature(bpy.types.Operator):
             # Replace if name starts with specified chars
             for replacement in starts_with:
                 if name.startswith(replacement[0]):
-                    name = replacement[1] + name[len(replacement[0]):]
+                    name = replacement[1] + name[len(replacement[0]) :]
 
             # Replace if name ends with specified chars
             for replacement in ends_with:
                 if name.endswith(replacement[0]):
-                    name = name[:-len(replacement[0])] + replacement[1]
+                    name = name[: -len(replacement[0])] + replacement[1]
 
             # Remove digits from the start
-            name_split = name.split('_')
+            name_split = name.split("_")
             if len(name_split) > 1 and name_split[0].isdigit():
                 name = name_split[1]
 
@@ -580,18 +607,18 @@ class FixArmature(bpy.types.Operator):
                 name = name_split[1]
 
             # Another specific condition
-            if ':' in name:
-                for i, split in enumerate(name.split(':')):
+            if ":" in name:
+                for i, split in enumerate(name.split(":")):
                     if i == 0:
-                        name = ''
+                        name = ""
                     else:
                         name += split
 
             # Remove S0 from the end
-            if name[-2:] == 'S0':
+            if name[-2:] == "S0":
                 name = name[:-2]
 
-            if name[-4:] == '_Jnt':
+            if name[-4:] == "_Jnt":
                 name = name[:-4]
 
             bone.name = name
@@ -599,27 +626,61 @@ class FixArmature(bpy.types.Operator):
         # Add conflicting bone names to new list
         conflicting_bones = []
         for names in Bones.bone_list_conflicting_names:
-            if '\Left' not in names[1] and '\L' not in names[1]:
+            if "\Left" not in names[1] and "\L" not in names[1]:
                 conflicting_bones.append(names)
                 continue
 
             names0 = []
-            name1 = ''
-            name2 = ''
+            name1 = ""
+            name2 = ""
             for name0 in names[0]:
-                names0.append(name0.replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l'))
-            if '\Left' in names[1] or '\L' in names[1]:
-                name1 = names[1].replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l')
-            if '\Left' in names[2] or '\L' in names[2]:
-                name2 = names[2].replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l')
+                names0.append(
+                    name0.replace("\Left", "Left")
+                    .replace("\left", "left")
+                    .replace("\L", "L")
+                    .replace("\l", "l")
+                )
+            if "\Left" in names[1] or "\L" in names[1]:
+                name1 = (
+                    names[1]
+                    .replace("\Left", "Left")
+                    .replace("\left", "left")
+                    .replace("\L", "L")
+                    .replace("\l", "l")
+                )
+            if "\Left" in names[2] or "\L" in names[2]:
+                name2 = (
+                    names[2]
+                    .replace("\Left", "Left")
+                    .replace("\left", "left")
+                    .replace("\L", "L")
+                    .replace("\l", "l")
+                )
             conflicting_bones.append((names0, name1, name2))
 
             for name0 in names[0]:
-                names0.append(name0.replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r'))
-            if '\Left' in names[1] or '\L' in names[1]:
-                name1 = names[1].replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r')
-            if '\Left' in names[2] or '\L' in names[2]:
-                name2 = names[2].replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r')
+                names0.append(
+                    name0.replace("\Left", "Right")
+                    .replace("\left", "right")
+                    .replace("\L", "R")
+                    .replace("\l", "r")
+                )
+            if "\Left" in names[1] or "\L" in names[1]:
+                name1 = (
+                    names[1]
+                    .replace("\Left", "Right")
+                    .replace("\left", "right")
+                    .replace("\L", "R")
+                    .replace("\l", "r")
+                )
+            if "\Left" in names[2] or "\L" in names[2]:
+                name2 = (
+                    names[2]
+                    .replace("\Left", "Right")
+                    .replace("\left", "right")
+                    .replace("\L", "R")
+                    .replace("\l", "r")
+                )
             conflicting_bones.append((names0, name1, name2))
 
         # Resolve conflicting bone names
@@ -654,21 +715,45 @@ class FixArmature(bpy.types.Operator):
 
         # Standardize bone names again (new duplicate bones have ".001" in it)
         for bone in armature.data.edit_bones:
-            bone.name = bone.name.replace('.', '_')
+            bone.name = bone.name.replace(".", "_")
 
         # Rename all the bones
         spines = []
         spine_parts = []
         for bone_new, bones_old in temp_rename_bones.items():
-            if '\Left' in bone_new or '\L' in bone_new:
-                bones = [[bone_new.replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l'), ''],
-                         [bone_new.replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r'), '']]
+            if "\Left" in bone_new or "\L" in bone_new:
+                bones = [
+                    [
+                        bone_new.replace("\Left", "Left")
+                        .replace("\left", "left")
+                        .replace("\L", "L")
+                        .replace("\l", "l"),
+                        "",
+                    ],
+                    [
+                        bone_new.replace("\Left", "Right")
+                        .replace("\left", "right")
+                        .replace("\L", "R")
+                        .replace("\l", "r"),
+                        "",
+                    ],
+                ]
             else:
-                bones = [[bone_new, '']]
+                bones = [[bone_new, ""]]
             for bone_old in bones_old:
-                if '\Left' in bone_new or '\L' in bone_new:
-                    bones[0][1] = bone_old.replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l')
-                    bones[1][1] = bone_old.replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r')
+                if "\Left" in bone_new or "\L" in bone_new:
+                    bones[0][1] = (
+                        bone_old.replace("\Left", "Left")
+                        .replace("\left", "left")
+                        .replace("\L", "L")
+                        .replace("\l", "l")
+                    )
+                    bones[1][1] = (
+                        bone_old.replace("\Left", "Right")
+                        .replace("\left", "right")
+                        .replace("\L", "R")
+                        .replace("\l", "r")
+                    )
                 else:
                     bones[0][1] = bone_old
 
@@ -688,7 +773,7 @@ class FixArmature(bpy.types.Operator):
                         continue
 
                     # If spine bone, then don't rename for now, and ignore spines with no children
-                    if bone_new == 'Spine':
+                    if bone_new == "Spine":
                         if len(bone_final.children) > 0:
                             spines.append(bone_final.name)
                         else:
@@ -703,7 +788,7 @@ class FixArmature(bpy.types.Operator):
         # Check if it is a mixamo model
         mixamo = False
         for bone in armature.data.edit_bones:
-            if not mixamo and 'Mixamo' in bone.name:
+            if not mixamo and "Mixamo" in bone.name:
                 mixamo = True
                 break
 
@@ -714,27 +799,29 @@ class FixArmature(bpy.types.Operator):
                 if parent is None:
                     continue
                 if parent.name == key or parent.name == key.lower():
-                    if 'right' in bone.name.lower():
-                        parent.name = 'Right ' + value
+                    if "right" in bone.name.lower():
+                        parent.name = "Right " + value
                         break
-                    elif 'left' in bone.name.lower():
-                        parent.name = 'Left ' + value
+                    elif "left" in bone.name.lower():
+                        parent.name = "Left " + value
                         break
 
                 parent = parent.parent
                 if parent is None:
                     continue
                 if parent.name == key or parent.name == key.lower():
-                    if 'right' in bone.name.lower():
-                        parent.name = 'Right ' + value
+                    if "right" in bone.name.lower():
+                        parent.name = "Right " + value
                         break
-                    elif 'left' in bone.name.lower():
-                        parent.name = 'Left ' + value
+                    elif "left" in bone.name.lower():
+                        parent.name = "Left " + value
                         break
 
         # Remove un-needed bones, disconnect them and set roll to 0
         for bone in armature.data.edit_bones:
-            if bone.name in Bones.bone_list or bone.name.startswith(tuple(Bones.bone_list_with)):
+            if bone.name in Bones.bone_list or bone.name.startswith(
+                tuple(Bones.bone_list_with)
+            ):
                 if bone.parent:
                     temp_list_reweight_bones[bone.name] = bone.parent.name
                 else:
@@ -744,8 +831,8 @@ class FixArmature(bpy.types.Operator):
                 bone.roll = 0
 
         # Make Hips top parent and reparent other top bones to hips
-        if 'Hips' in armature.data.edit_bones:
-            hips = armature.data.edit_bones.get('Hips')
+        if "Hips" in armature.data.edit_bones:
+            hips = armature.data.edit_bones.get("Hips")
             hips.parent = None
             for bone in armature.data.edit_bones:
                 if bone.parent is None:
@@ -757,9 +844,9 @@ class FixArmature(bpy.types.Operator):
         spine_count = len(spines)
 
         # Fix spines from armatures with no upper body (like skirts)
-        if len(spine_parts) == 1 and not armature.data.edit_bones.get('Neck'):
+        if len(spine_parts) == 1 and not armature.data.edit_bones.get("Neck"):
             if spine_count == 0:
-                armature.data.edit_bones.get(spine_parts[0]).name = 'Spine'
+                armature.data.edit_bones.get(spine_parts[0]).name = "Spine"
             else:
                 spines.append(spine_parts[0])
 
@@ -767,10 +854,10 @@ class FixArmature(bpy.types.Operator):
             pass
 
         elif spine_count == 1:  # Create missing Chest
-            print('BONE CREATION')
+            print("BONE CREATION")
             spine = armature.data.edit_bones.get(spines[0])
-            chest = armature.data.edit_bones.new('Chest')
-            neck = armature.data.edit_bones.get('Neck')
+            chest = armature.data.edit_bones.new("Chest")
+            neck = armature.data.edit_bones.get("Neck")
 
             # Check for neck
             if neck:
@@ -779,14 +866,18 @@ class FixArmature(bpy.types.Operator):
                 chest_top = spine.tail
 
             # Correct the names
-            spine.name = 'Spine'
-            chest.name = 'Chest'
+            spine.name = "Spine"
+            chest.name = "Chest"
 
             # Set new Chest bone to new position
             chest.tail = chest_top
             chest.head = spine.head
-            chest.head[z_cord] = spine.head[z_cord] + (chest_top[z_cord] - spine.head[z_cord]) / 2
-            chest.head[y_cord] = spine.head[y_cord] + (chest_top[y_cord] - spine.head[y_cord]) / 2
+            chest.head[z_cord] = (
+                spine.head[z_cord] + (chest_top[z_cord] - spine.head[z_cord]) / 2
+            )
+            chest.head[y_cord] = (
+                spine.head[y_cord] + (chest_top[y_cord] - spine.head[y_cord]) / 2
+            )
 
             # Adjust spine bone position
             spine.tail = chest.head
@@ -799,54 +890,54 @@ class FixArmature(bpy.types.Operator):
                     bone.parent = chest
 
         elif spine_count == 2:  # Everything correct, just rename them
-            print('NORMAL')
-            armature.data.edit_bones.get(spines[0]).name = 'Spine'
-            armature.data.edit_bones.get(spines[1]).name = 'Chest'
+            print("NORMAL")
+            armature.data.edit_bones.get(spines[0]).name = "Spine"
+            armature.data.edit_bones.get(spines[1]).name = "Chest"
 
         elif spine_count == 3:  # Everything correct, just rename them
-            print('NORMAL')
-            armature.data.edit_bones.get(spines[0]).name = 'Spine'
-            armature.data.edit_bones.get(spines[1]).name = 'Chest'
-            armature.data.edit_bones.get(spines[2]).name = 'Upper Chest'
+            print("NORMAL")
+            armature.data.edit_bones.get(spines[0]).name = "Spine"
+            armature.data.edit_bones.get(spines[1]).name = "Chest"
+            armature.data.edit_bones.get(spines[2]).name = "Upper Chest"
 
         elif spine_count == 4 and source_engine:  # SOURCE ENGINE SPECIFIC
-            print('SOURCE ENGINE')
+            print("SOURCE ENGINE")
             spine = armature.data.edit_bones.get(spines[0])
             chest = armature.data.edit_bones.get(spines[2])
 
-            chest.name = 'Chest'
-            spine.name = 'Spine'
+            chest.name = "Chest"
+            spine.name = "Spine"
 
             spine.tail = chest.head
 
-            temp_list_reweight_bones[spines[1]] = 'Spine'
-            temp_list_reweight_bones[spines[3]] = 'Chest'
+            temp_list_reweight_bones[spines[1]] = "Spine"
+            temp_list_reweight_bones[spines[3]] = "Chest"
 
         elif spine_count > 2:  # Merge spines
-            print('MASS MERGING')
+            print("MASS MERGING")
             print(spines)
             spine = armature.data.edit_bones.get(spines[0])
             chest = armature.data.edit_bones.get(spines[spine_count - 1])
 
             # Correct names
-            spine.name = 'Spine'
-            chest.name = 'Chest'
+            spine.name = "Spine"
+            chest.name = "Chest"
 
             # Adjust spine bone position
             spine.tail = chest.head
 
             # Add all redundant spines to the merge list
-            for spine in spines[1:spine_count-1]:
+            for spine in spines[1 : spine_count - 1]:
                 print(spine)
-                temp_list_reweight_bones[spine] = 'Spine'
+                temp_list_reweight_bones[spine] = "Spine"
 
         # Fix missing neck
-        if 'Neck' not in armature.data.edit_bones:
-            if 'Chest' in armature.data.edit_bones:
-                if 'Head' in armature.data.edit_bones:
-                    neck = armature.data.edit_bones.new('Neck')
-                    chest = armature.data.edit_bones.get('Chest')
-                    head = armature.data.edit_bones.get('Head')
+        if "Neck" not in armature.data.edit_bones:
+            if "Chest" in armature.data.edit_bones:
+                if "Head" in armature.data.edit_bones:
+                    neck = armature.data.edit_bones.new("Neck")
+                    chest = armature.data.edit_bones.get("Chest")
+                    head = armature.data.edit_bones.get("Head")
                     neck.head = chest.tail
                     neck.tail = head.head
 
@@ -854,8 +945,8 @@ class FixArmature(bpy.types.Operator):
                         neck.tail[z_cord] += 0.1
 
         # Straighten up the head bone
-        if 'Head' in armature.data.edit_bones:
-            head = armature.data.edit_bones.get('Head')
+        if "Head" in armature.data.edit_bones:
+            head = armature.data.edit_bones.get("Head")
             head.tail[x_cord] = head.head[x_cord]
             head.tail[y_cord] = head.head[y_cord]
             if head.tail[z_cord] < head.head[z_cord]:
@@ -866,22 +957,27 @@ class FixArmature(bpy.types.Operator):
 
         # Hips bone should be fixed as per specification from the SDK code
         if not mixamo:
-            if 'Hips' in armature.data.edit_bones:
-                if 'Spine' in armature.data.edit_bones:
-                    if 'Left leg' in armature.data.edit_bones:
-                        if 'Right leg' in armature.data.edit_bones:
-                            hips = armature.data.edit_bones.get('Hips')
-                            spine = armature.data.edit_bones.get('Spine')
-                            left_leg = armature.data.edit_bones.get('Left leg')
-                            right_leg = armature.data.edit_bones.get('Right leg')
+            if "Hips" in armature.data.edit_bones:
+                if "Spine" in armature.data.edit_bones:
+                    if "Left leg" in armature.data.edit_bones:
+                        if "Right leg" in armature.data.edit_bones:
+                            hips = armature.data.edit_bones.get("Hips")
+                            spine = armature.data.edit_bones.get("Spine")
+                            left_leg = armature.data.edit_bones.get("Left leg")
+                            right_leg = armature.data.edit_bones.get("Right leg")
 
                             # Fixing the hips
 
                             # Put Hips in the center of the leg bones
-                            hips.head[x_cord] = (right_leg.head[x_cord] + left_leg.head[x_cord]) / 2
+                            hips.head[x_cord] = (
+                                right_leg.head[x_cord] + left_leg.head[x_cord]
+                            ) / 2
 
                             # Put Hips at 33% between spine and legs
-                            hips.head[z_cord] = left_leg.head[z_cord] + (spine.head[z_cord] - left_leg.head[z_cord]) * 0.33
+                            hips.head[z_cord] = (
+                                left_leg.head[z_cord]
+                                + (spine.head[z_cord] - left_leg.head[z_cord]) * 0.33
+                            )
 
                             # If Hips are below or at the leg bones, put them above
                             if hips.head[z_cord] <= right_leg.head[z_cord]:
@@ -896,16 +992,22 @@ class FixArmature(bpy.types.Operator):
                                 hips.tail[z_cord] = hips.tail[z_cord] + 0.1
 
                             # Make legs bend very slightly forward
-                            right_knee = armature.data.edit_bones.get('Right knee')
-                            left_knee = armature.data.edit_bones.get('Left knee')
+                            right_knee = armature.data.edit_bones.get("Right knee")
+                            left_knee = armature.data.edit_bones.get("Left knee")
                             if left_knee:
-                                if round(left_leg.head[x_cord], 4) == round(left_knee.head[x_cord], 4) \
-                                        and round(left_leg.head[y_cord], 4) == round(left_knee.head[y_cord], 4):
-                                    print('FIXING LEG')
+                                if round(left_leg.head[x_cord], 4) == round(
+                                    left_knee.head[x_cord], 4
+                                ) and round(left_leg.head[y_cord], 4) == round(
+                                    left_knee.head[y_cord], 4
+                                ):
+                                    print("FIXING LEG")
                                     left_knee.head[y_cord] -= 0.001
                             if right_knee:
-                                if round(right_leg.head[x_cord], 4) == round(right_knee.head[x_cord], 4) \
-                                        and round(right_leg.head[y_cord], 4) == round(right_knee.head[y_cord], 45):
+                                if round(right_leg.head[x_cord], 4) == round(
+                                    right_knee.head[x_cord], 4
+                                ) and round(right_leg.head[y_cord], 4) == round(
+                                    right_knee.head[y_cord], 45
+                                ):
                                     right_knee.head[y_cord] -= 0.001
 
         # Function: Reweight all eye children into the eyes
@@ -915,15 +1017,15 @@ class FixArmature(bpy.types.Operator):
                 add_eye_children(eye, parent_name)
 
         # Reweight all eye children into the eyes
-        for eye_name in ['Eye_L', 'Eye_R']:
+        for eye_name in ["Eye_L", "Eye_R"]:
             if eye_name in armature.data.edit_bones:
                 eye = armature.data.edit_bones.get(eye_name)
                 add_eye_children(eye, eye.name)
 
         # Rotate if on head and not fbx (Unreal engine model)
-        if 'Hips' in armature.data.edit_bones:
+        if "Hips" in armature.data.edit_bones:
 
-            hips = armature.pose.bones.get('Hips')
+            hips = armature.pose.bones.get("Hips")
 
             obj = hips.id_data
             matrix_final = Common.matmul(obj.matrix_world, hips.matrix)
@@ -934,8 +1036,10 @@ class FixArmature(bpy.types.Operator):
             if not fbx and matrix_final[2][3] < 0:
                 # print(hips.head[0], hips.head[1], hips.head[2])
                 # Rotation of -180 around the X-axis
-                rot_x_neg180 = Matrix.Rotation(-math.pi, 4, 'X')
-                armature.matrix_world = Common.matmul(rot_x_neg180, armature.matrix_world)
+                rot_x_neg180 = Matrix.Rotation(-math.pi, 4, "X")
+                armature.matrix_world = Common.matmul(
+                    rot_x_neg180, armature.matrix_world
+                )
 
                 for mesh in meshes:
                     mesh.rotation_euler = (math.radians(180), 0, 0)
@@ -949,7 +1053,7 @@ class FixArmature(bpy.types.Operator):
         # Mixing the weights
         for mesh in meshes:
             Common.unselect_all()
-            Common.switch('OBJECT')
+            Common.switch("OBJECT")
             Common.set_active(mesh)
 
             # for bone_name in temp_rename_bones.keys():
@@ -960,20 +1064,28 @@ class FixArmature(bpy.types.Operator):
 
             # Temporarily remove armature modifier to avoid errors in console
             for mod in mesh.modifiers:
-                if mod.type == 'ARMATURE':
+                if mod.type == "ARMATURE":
                     bpy.ops.object.modifier_remove(modifier=mod.name)
 
             # Fix MMD twist bones
-            print('FIX TWIST BONES')
+            print("FIX TWIST BONES")
             print(bones_to_delete)
             Common.fix_twist_bones(mesh, bones_to_delete)
             print(bones_to_delete)
 
             # Add bones to parent reweight list
             for name in Bones.bone_reweigth_to_parent:
-                if '\Left' in name or '\L' in name:
-                    bones = [name.replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l'),
-                             name.replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r')]
+                if "\Left" in name or "\L" in name:
+                    bones = [
+                        name.replace("\Left", "Left")
+                        .replace("\left", "left")
+                        .replace("\L", "L")
+                        .replace("\l", "l"),
+                        name.replace("\Left", "Right")
+                        .replace("\left", "right")
+                        .replace("\L", "R")
+                        .replace("\l", "r"),
+                    ]
                 else:
                     bones = [name]
 
@@ -988,10 +1100,18 @@ class FixArmature(bpy.types.Operator):
                     if not bone_child or not bone_parent:
                         continue
 
-                    if context.scene.keep_twist_bones and 'twist' in bone_child.name.lower():
+                    if (
+                        context.scene.keep_twist_bones
+                        and "twist" in bone_child.name.lower()
+                    ):
                         continue
-                    if context.scene.fix_twist_bones and bone_child.name.lower() in ['handtwist_l', 'handtwist_r', 'armtwist_l', 'armtwist_r']:
-                        print('TWIST FOUND!')
+                    if context.scene.fix_twist_bones and bone_child.name.lower() in [
+                        "handtwist_l",
+                        "handtwist_r",
+                        "armtwist_l",
+                        "armtwist_r",
+                    ]:
+                        print("TWIST FOUND!")
                         continue
 
                     # search for next parent that is not in the "reweight to parent" list
@@ -999,8 +1119,19 @@ class FixArmature(bpy.types.Operator):
                     while parent_in_list:
                         parent_in_list = False
                         for name_tmp in Bones.bone_reweigth_to_parent:
-                            if bone_parent.name == name_tmp.replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l') \
-                                    or bone_parent.name == name_tmp.replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r'):
+                            if bone_parent.name == name_tmp.replace(
+                                "\Left", "Left"
+                            ).replace("\left", "left").replace("\L", "L").replace(
+                                "\l", "l"
+                            ) or bone_parent.name == name_tmp.replace(
+                                "\Left", "Right"
+                            ).replace(
+                                "\left", "right"
+                            ).replace(
+                                "\L", "R"
+                            ).replace(
+                                "\l", "r"
+                            ):
                                 bone_parent = bone_parent.parent
                                 parent_in_list = True
                                 break
@@ -1032,15 +1163,39 @@ class FixArmature(bpy.types.Operator):
 
             # Merge weights
             for bone_new, bones_old in temp_reweight_bones.items():
-                if '\Left' in bone_new or '\L' in bone_new:
-                    bones = [[bone_new.replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l'), ''],
-                             [bone_new.replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r'), '']]
+                if "\Left" in bone_new or "\L" in bone_new:
+                    bones = [
+                        [
+                            bone_new.replace("\Left", "Left")
+                            .replace("\left", "left")
+                            .replace("\L", "L")
+                            .replace("\l", "l"),
+                            "",
+                        ],
+                        [
+                            bone_new.replace("\Left", "Right")
+                            .replace("\left", "right")
+                            .replace("\L", "R")
+                            .replace("\l", "r"),
+                            "",
+                        ],
+                    ]
                 else:
-                    bones = [[bone_new, '']]
+                    bones = [[bone_new, ""]]
                 for bone_old in bones_old:
-                    if '\Left' in bone_new or '\L' in bone_new:
-                        bones[0][1] = bone_old.replace('\Left', 'Left').replace('\left', 'left').replace('\L', 'L').replace('\l', 'l')
-                        bones[1][1] = bone_old.replace('\Left', 'Right').replace('\left', 'right').replace('\L', 'R').replace('\l', 'r')
+                    if "\Left" in bone_new or "\L" in bone_new:
+                        bones[0][1] = (
+                            bone_old.replace("\Left", "Left")
+                            .replace("\left", "left")
+                            .replace("\L", "L")
+                            .replace("\l", "l")
+                        )
+                        bones[1][1] = (
+                            bone_old.replace("\Left", "Right")
+                            .replace("\left", "right")
+                            .replace("\L", "R")
+                            .replace("\l", "r")
+                        )
                     else:
                         bones[0][1] = bone_old
 
@@ -1063,20 +1218,33 @@ class FixArmature(bpy.types.Operator):
                             continue
 
                         if bone[0] == vg.name:
-                            print('BUG: ' + bone[0] + ' tried to mix weights with itself!')
+                            print(
+                                "BUG: " + bone[0] + " tried to mix weights with itself!"
+                            )
                             continue
 
-                        if context.scene.keep_twist_bones and 'twist' in bone[1].lower():
+                        if (
+                            context.scene.keep_twist_bones
+                            and "twist" in bone[1].lower()
+                        ):
                             continue
-                        if context.scene.fix_twist_bones and bone[1].lower() in ['handtwist_l', 'handtwist_r', 'armtwist_l', 'armtwist_r']:
-                            print('TWIST FOUND!')
+                        if context.scene.fix_twist_bones and bone[1].lower() in [
+                            "handtwist_l",
+                            "handtwist_r",
+                            "armtwist_l",
+                            "armtwist_r",
+                        ]:
+                            print("TWIST FOUND!")
                             continue
 
                         # print(bone[1] + " to1 " + bone[0])
 
                         # If important vertex group is not there create it
                         if mesh.vertex_groups.get(bone[0]) is None:
-                            if bone[0] in Bones.dont_delete_these_bones and bone[0] in armature.data.bones:
+                            if (
+                                bone[0] in Bones.dont_delete_these_bones
+                                and bone[0] in armature.data.bones
+                            ):
                                 bpy.ops.object.vertex_group_add()
                                 mesh.vertex_groups.active.name = bone[0]
                                 if mesh.vertex_groups.get(bone[0]) is None:
@@ -1126,10 +1294,15 @@ class FixArmature(bpy.types.Operator):
                 if not vg_to:
                     continue
 
-                if context.scene.keep_twist_bones and 'twist' in vg_from.name.lower():
+                if context.scene.keep_twist_bones and "twist" in vg_from.name.lower():
                     continue
-                if context.scene.fix_twist_bones and vg_from.name.lower() in ['handtwist_l', 'handtwist_r', 'armtwist_l', 'armtwist_r']:
-                    print('TWIST FOUND!')
+                if context.scene.fix_twist_bones and vg_from.name.lower() in [
+                    "handtwist_l",
+                    "handtwist_r",
+                    "armtwist_l",
+                    "armtwist_r",
+                ]:
+                    print("TWIST FOUND!")
                     continue
 
                 bone_tmp = armature.data.bones.get(vg_from.name)
@@ -1139,7 +1312,7 @@ class FixArmature(bpy.types.Operator):
                             temp_list_reparent_bones[child.name] = vg_to.name
 
                 if vg_from.name == vg_to.name:
-                    print('BUG: ' + vg_to.name + ' tried to mix weights with itself!')
+                    print("BUG: " + vg_to.name + " tried to mix weights with itself!")
                     continue
 
                 # Mix the weights
@@ -1151,21 +1324,24 @@ class FixArmature(bpy.types.Operator):
                     bones_to_delete.append(vg_from.name)
 
             # Put back armature modifier
-            mod = mesh.modifiers.new("Armature", 'ARMATURE')
+            mod = mesh.modifiers.new("Armature", "ARMATURE")
             mod.object = armature
 
             # Delete Upper Chest, if selected
             if not context.scene.keep_upper_chest:
-                if 'Upper Chest' in mesh.vertex_groups and 'Chest' in mesh.vertex_groups:
-                    Common.mix_weights(mesh, 'Upper Chest', 'Chest')
+                if (
+                    "Upper Chest" in mesh.vertex_groups
+                    and "Chest" in mesh.vertex_groups
+                ):
+                    Common.mix_weights(mesh, "Upper Chest", "Chest")
 
                     # Add bone to delete list
-                    if 'Upper Chest' not in bones_to_delete:
-                        bones_to_delete.append('Upper Chest')
+                    if "Upper Chest" not in bones_to_delete:
+                        bones_to_delete.append("Upper Chest")
 
         Common.unselect_all()
         Common.set_active(armature)
-        Common.switch('EDIT')
+        Common.switch("EDIT")
 
         # Delete all the leftover bones from the merging process
         for bone_name in bones_to_delete:
@@ -1174,11 +1350,13 @@ class FixArmature(bpy.types.Operator):
 
         # Reparent all bones to be correct for unity mapping and vrc itself
         for key, value in temp_list_reparent_bones.items():
-            if value == 'Upper Chest' and 'Upper Chest' not in armature.data.edit_bones:
-                value = 'Chest'
+            if value == "Upper Chest" and "Upper Chest" not in armature.data.edit_bones:
+                value = "Chest"
 
             if key in armature.data.edit_bones and value in armature.data.edit_bones:
-                armature.data.edit_bones.get(key).parent = armature.data.edit_bones.get(value)
+                armature.data.edit_bones.get(key).parent = armature.data.edit_bones.get(
+                    value
+                )
 
         # Fix MMD twist bone names
         Common.fix_twist_bone_names(armature)
@@ -1205,13 +1383,16 @@ class FixArmature(bpy.types.Operator):
         # At this point, everything should be fixed and now we validate and give errors if needed
 
         # The bone hierarchy needs to be validated
-        hierarchy_check_hips = check_hierarchy(False, [
-            ['Hips', 'Spine', 'Chest', 'Neck', 'Head'],
-            ['Hips', 'Left leg', 'Left knee', 'Left ankle'],
-            ['Hips', 'Right leg', 'Right knee', 'Right ankle'],
-            ['Chest', 'Left shoulder', 'Left arm', 'Left elbow', 'Left wrist'],
-            ['Chest', 'Right shoulder', 'Right arm', 'Right elbow', 'Right wrist']
-        ])
+        hierarchy_check_hips = check_hierarchy(
+            False,
+            [
+                ["Hips", "Spine", "Chest", "Neck", "Head"],
+                ["Hips", "Left leg", "Left knee", "Left ankle"],
+                ["Hips", "Right leg", "Right knee", "Right ankle"],
+                ["Chest", "Left shoulder", "Left arm", "Left elbow", "Left wrist"],
+                ["Chest", "Right shoulder", "Right arm", "Right elbow", "Right wrist"],
+            ],
+        )
 
         # Armature should be named correctly (has to be at the end because of multiple armatures)
         Common.fix_armature_names()
@@ -1229,56 +1410,63 @@ class FixArmature(bpy.types.Operator):
 
         wm.progress_end()
 
-        if not hierarchy_check_hips['result']:
-            self.report({'ERROR'}, hierarchy_check_hips['message'])
+        if not hierarchy_check_hips["result"]:
+            self.report({"ERROR"}, hierarchy_check_hips["message"])
             saved_data.load()
-            return {'FINISHED'}
+            return {"FINISHED"}
 
         if fixed_uv_coords:
             saved_data.load()
-            Common.show_error(6.2, [t('FixArmature.error.faultyUV1', uvcoord=str(fixed_uv_coords)),
-                                          t('FixArmature.error.faultyUV2'),
-                                          t('FixArmature.error.faultyUV3')])
-            return {'FINISHED'}
+            Common.show_error(
+                6.2,
+                [
+                    t("FixArmature.error.faultyUV1", uvcoord=str(fixed_uv_coords)),
+                    t("FixArmature.error.faultyUV2"),
+                    t("FixArmature.error.faultyUV3"),
+                ],
+            )
+            return {"FINISHED"}
 
         saved_data.load()
 
-        self.report({'INFO'}, t('FixArmature.fixedSuccess'))
-        return {'FINISHED'}
+        self.report({"INFO"}, t("FixArmature.fixedSuccess"))
+        return {"FINISHED"}
 
 
 def check_hierarchy(check_parenting, correct_hierarchy_array):
     armature = Common.set_default_stage()
 
     missing_bones = []
-    missing2 = [t('FixArmature.bonesNotFound'), '']
+    missing2 = [t("FixArmature.bonesNotFound"), ""]
 
     for correct_hierarchy in correct_hierarchy_array:  # For each hierarchy array
-        line = ' - '
+        line = " - "
 
         for index, bone in enumerate(correct_hierarchy):  # For each hierarchy bone item
             if bone not in missing_bones and bone not in armature.data.bones:
                 missing_bones.append(bone)
                 if len(line) > 3:
-                    line += ', '
+                    line += ", "
                 line += bone
 
         if len(line) > 3:
             missing2.append(line)
 
     if len(missing2) > 2 and not check_parenting:
-        missing2.append('')
-        missing2.append(t('FixArmature.cantFix1'))
-        missing2.append(t('FixArmature.cantFix2'))
-        missing2.append(t('FixArmature.cantFix3'))
+        missing2.append("")
+        missing2.append(t("FixArmature.cantFix1"))
+        missing2.append(t("FixArmature.cantFix2"))
+        missing2.append(t("FixArmature.cantFix3"))
 
         Common.show_error(6.4, missing2)
-        return {'result': True, 'message': ''}
+        return {"result": True, "message": ""}
 
     if check_parenting:
         for correct_hierarchy in correct_hierarchy_array:  # For each hierachy array
             previous = None
-            for index, bone in enumerate(correct_hierarchy):  # For each hierarchy bone item
+            for index, bone in enumerate(
+                correct_hierarchy
+            ):  # For each hierarchy bone item
                 if index > 0:
                     previous = correct_hierarchy[index - 1]
 
@@ -1289,21 +1477,32 @@ def check_hierarchy(check_parenting, correct_hierarchy_array):
                     if previous is not None:
                         # And there is no parent, then we have a problem mkay
                         if bone.parent is None:
-                            return {'result': False, 'message': bone.name + t('FixArmature.notParent')}
+                            return {
+                                "result": False,
+                                "message": bone.name + t("FixArmature.notParent"),
+                            }
                         # Previous needs to be the parent of the current item
                         if previous != bone.parent.name:
-                            return {'result': False, 'message': bone.name + t('FixArmature.notParentTo1') + previous + t('FixArmature.notParentTo2')}
+                            return {
+                                "result": False,
+                                "message": bone.name
+                                + t("FixArmature.notParentTo1")
+                                + previous
+                                + t("FixArmature.notParentTo2"),
+                            }
 
-    return {'result': True}
+    return {"result": True}
 
 
 def set_material_shading():
     # Set shading to 3D view
     for area in bpy.context.screen.areas:  # iterate through areas in current screen
-        if area.type == 'VIEW_3D':
+        if area.type == "VIEW_3D":
             for space in area.spaces:  # iterate through spaces in current VIEW_3D area
-                if space.type == 'VIEW_3D':  # check if space is a 3D view
-                    space.shading.type = 'MATERIAL'  # set the viewport shading to rendered
-                    space.shading.studio_light = 'forest.exr'
+                if space.type == "VIEW_3D":  # check if space is a 3D view
+                    space.shading.type = (
+                        "MATERIAL"  # set the viewport shading to rendered
+                    )
+                    space.shading.studio_light = "forest.exr"
                     space.shading.studiolight_rotate_z = 0.0
                     space.shading.studiolight_background_alpha = 0.0
