@@ -409,7 +409,7 @@ def draw_vrm0_first_person_layout(
 ) -> None:
     migrate(armature.name, defer=True)
     blend_data = context.blend_data
-    row = layout.row()
+    row = layout.row()    
     # row.alignment = "LEFT"
     row.prop(first_person, "page", expand=True)
     layout.separator()
@@ -446,8 +446,8 @@ def draw_vrm0_first_person_layout(
     if first_person.page == "page2":        
         layout.label(text="Look At", icon="HIDE_OFF")
         layout.prop(first_person, "look_at_type_name", text="Type")
+        layout.separator()        
         box = layout.column()
-        layout.separator()
         box.label(text="Look At Horizontal Inner", icon="FULLSCREEN_EXIT")
         box.prop(first_person.look_at_horizontal_inner, "curve")
         box.prop(first_person.look_at_horizontal_inner, "x_range")
@@ -580,6 +580,8 @@ def draw_vrm0_blend_shape_master_layout(
 
         box.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
         layout.separator()
+        layout.prop(blend_shape_group, "preview", icon="PLAY")        
+        layout.separator()
         # row = box.row()
         # row.alignment = "LEFT"
         # row.prop(
@@ -589,7 +591,7 @@ def draw_vrm0_blend_shape_master_layout(
         #     emboss=False,
         # )
         box = layout.column()
-        box.label(text="Binds", icon="MESH_DATA")
+        box.label(text="Binds", icon="OUTLINER_OB_MESH")
         box.label(text="Binds to the shape key of the meshs")
         # row = box.row()
         # row.template_list(VRM_UL_vrm0_blend_shape_bind.bl_idname, "",
@@ -824,16 +826,18 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         blend_shape_master = data
         blend_shape_group = item
-        _icon = blend_shape_group.bl_rna.properties['preset_name'].enum_items[blend_shape_group.preset_name].icon 
+        _icon = "NONE"
+        if blend_shape_group:
+            _icon = blend_shape_group.bl_rna.properties['preset_name'].enum_items[blend_shape_group.preset_name].icon 
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            if blend_shape_group:   
+            if blend_shape_group:
                 layout.label(text=blend_shape_group.name,  icon=_icon)
                 # layout.prop(blend_shape_group, "preset_name", text="")
             else:
                 layout.label(text="", translate=False, icon_value=icon)
         elif self.layout_type in {'GRID'}:
             layout.alignment = 'CENTER'
-            layout.label(text="", icon_value=icon)
+            layout.label(text="", icon=_icon)
 
 
 class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):

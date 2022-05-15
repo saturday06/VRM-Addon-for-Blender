@@ -2,6 +2,7 @@ import functools
 from typing import Dict, List, Union
 
 import bpy
+import bl_math
 
 from ...common.human_bone import (
     HumanBoneName,
@@ -275,8 +276,8 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
     )
     first_person_flag_items = [
         ("Auto", "Auto", "Auto restrict render", 0),
-        ("FirstPersonOnly", "First-Person Only", "Restrict render in the third person camera for face, hairs or hat", 1),
-        ("ThirdPersonOnly", "Third-Person Only", "(Maybe needless) Restrict render in the first person camera", 2),
+        ("FirstPersonOnly", "First-Person Only", "(Maybe needless) Restrict render in the third person camera", 1),
+        ("ThirdPersonOnly", "Third-Person Only", "Restrict render in the first person camera for face, hairs or hat", 2),
         ("Both", "Both", "No restrict render for body, arms or legs", 3),
     ]
     first_person_flag: bpy.props.EnumProperty(  # type: ignore[valid-type]
@@ -417,6 +418,26 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         name="Active Material Value Index", default=0  # noqa: F722
     )
 
+    def update_preview(self, context):
+        for bind in self.binds:
+            if bind.mesh.link_to_mesh is None:
+                continue
+            if bind.mesh.link_to_mesh.parent is None:
+                continue
+            if bind.mesh.link_to_mesh.parent.data is None:
+                continue
+            mesh = bind.mesh.link_to_mesh.parent.data
+            index = bind.index
+            weight = bind.weight
+            ret = bl_math.lerp(0.0, weight, self.preview)
+            mesh.shape_keys.key_blocks[index].value = ret
+
+    preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Preview", min=0, max=1,
+        subtype="FACTOR",
+        update=update_preview  # noqa: F821
+    )
+
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
@@ -486,11 +507,11 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
         description='Comment about the purpose of the springs'  # noqa: F821
     )
     stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type] # noqa: SC200
-        name="Stiffness",
+        name="Stiffness", min=0.0, max=4.0, subtype='FACTOR',
         description='Stiffness of the springs'  # noqa: F821
     )
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Gravity Power",
+        name="Gravity Power", min=0.0, max=2.0, subtype='FACTOR',
         description='Gravity power of the springs'  # noqa: F722
     )
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -499,7 +520,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
         description='Gravity direction of the springs'  # noqa: F722
     )
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Drag Force",
+        name="Drag Force", min=0.0, max=1.0, subtype='FACTOR',
         description='Drag Force of the springs'  # noqa: F722
     )
     center: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -507,7 +528,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
         description='Origin of Physics simulation to stop the springs on moving'  # noqa: F821
     )
     hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Hit Radius",
+        name="Hit Radius", min=0.0, max=0.5, subtype='DISTANCE',
         description='Hit Radius of the springs'  # noqa: F722
     )
     bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
