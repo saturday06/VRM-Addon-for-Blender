@@ -2,7 +2,6 @@ import functools
 from typing import Dict, List, Union
 
 import bpy
-import bl_math
 
 from ...common.human_bone import (
     HumanBoneName,
@@ -429,7 +428,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
             mesh = bind.mesh.link_to_mesh.parent.data
             index = bind.index
             weight = bind.weight
-            ret = bl_math.lerp(0.0, weight, self.preview)
+            ret = weight * self.preview # Lerp 0.0 * (1 - a) + weight * a
             mesh.shape_keys.key_blocks[index].value = ret
 
     preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
