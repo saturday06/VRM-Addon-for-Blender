@@ -3,6 +3,7 @@ import os
 import platform
 import subprocess
 import tempfile
+from typing import Optional
 from unittest import TestCase
 
 
@@ -60,7 +61,10 @@ class BaseBlenderTestCase(TestCase):
 
         raise Exception(f"Failed to detect Blender Version:\n---\n{stdout_str}\n---")
 
-    def process_output_to_str(self, process_output: bytes) -> str:
+    @staticmethod
+    def process_output_to_str(process_output: Optional[bytes]) -> str:
+        if process_output is None:
+            return ""
         output = ""
         for line_bytes in process_output.splitlines():
             line = None

@@ -13,6 +13,7 @@ per-file-ignores =
     tests/blender_test_*.py:S101
     # TODO: Use new blender process execution
     tests/base_blender_test_case.py:S404,S602,S603,S607
+    tests/base_blender_gui_test_case.py:S404,S602,S603,S607
     # https://github.com/adamchainz/flake8-no-pep420/blob/2.0.0/README.rst#inp001-file-is-part-of-an-implicit-namespace-package
     scripts/*.py:INP001
     # External sources

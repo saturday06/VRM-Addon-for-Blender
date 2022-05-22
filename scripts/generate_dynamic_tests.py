@@ -36,6 +36,14 @@ def render_multiple_test(method_name: str, args_str: str) -> str:
 """
 
 
+def render_gui_test(method_name: str, file_name: str) -> str:
+    file_name = rf"{file_name}".replace('"', '\\"')
+    return f"""
+    def test_{method_name}(self) -> None:
+        self.run_gui_test("{file_name}")
+"""
+
+
 def render_missing_required_directory_test(name: str) -> str:
     return f"""
     def test_dynamic_test_case_generation_failed(self) -> None:
@@ -63,6 +71,24 @@ from .base_blender_test_case import BaseBlenderTestCase
 
 
 class Blender{class_name}TestCase(BaseBlenderTestCase):
+    def __init__(self, *args: str, **kwargs: str) -> None:
+        # https://stackoverflow.com/a/19102520
+        super().__init__(*args, **kwargs)
+
+    def test_health_check(self) -> None:
+        self.assertTrue(True)
+"""
+
+
+def render_gui_test_header() -> str:
+    return """#
+# This source file is machine generated. Please don't edit it
+#
+
+from .base_blender_gui_test_case import BaseBlenderGuiTestCase
+
+
+class BlenderGuiTestCase(BaseBlenderGuiTestCase):
     def __init__(self, *args: str, **kwargs: str) -> None:
         # https://stackoverflow.com/a/19102520
         super().__init__(*args, **kwargs)
@@ -153,5 +179,32 @@ def generate_dynamic_tests() -> None:
         generate_dynamic_test(test_src_dir, path)
 
 
+def generate_dynamic_gui_tests() -> None:
+    test_src_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tests")
+    gui_test_src_dir = os.path.join(
+        test_src_dir, "resources", "gui", "blender", "vrm_addon"
+    )
+
+    content = render_gui_test_header()
+
+    for path in map(str.strip, sorted(os.listdir(gui_test_src_dir))):
+        if not path.endswith(".sikuli"):
+            continue
+        path_without_ext = re.sub("\\.sikuli$", "", path)
+        method_name = to_function_component_literal(path_without_ext)
+        content += render_gui_test(method_name, path)
+
+    content_bytes = content.replace("\r\n", "\n").encode()
+    out_path = os.path.join(test_src_dir, "test_GENERATED_gui.py")
+    if os.path.exists(out_path) and content_bytes == Path(out_path).read_bytes():
+        return
+
+    # It should be an atomic operation
+    temp_out_path = f"{out_path}.{uuid.uuid4().hex}.temp"
+    Path(temp_out_path).write_bytes(content_bytes)
+    os.replace(temp_out_path, out_path)
+
+
 if __name__ in ["__main__", "blender_vrm_addon_run_scripts_generate_dynamic_tests"]:
     generate_dynamic_tests()
+    generate_dynamic_gui_tests()

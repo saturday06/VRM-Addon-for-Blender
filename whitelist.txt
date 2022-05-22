@@ -160,6 +160,7 @@ shadernodegroup
 shaders
 shadowmap
 shapekey
+sikuli
 skinnedmesh
 splitext
 splitnormals

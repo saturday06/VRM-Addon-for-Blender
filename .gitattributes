@@ -1,6 +1,7 @@
 * -text
 *.bat text eol=crlf
 *.css text eol=lf
+*.dockerfile text eol=lf
 *.glsl text eol=lf
 *.ini text eol=lf
 *.json text eol=lf

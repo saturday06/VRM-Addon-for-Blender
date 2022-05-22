@@ -14,6 +14,8 @@ jobs:
           - https://download.blender.org/release/Blender2.83/blender-2.83.12-windows64.zip
           - https://download.blender.org/release/Blender2.93/blender-2.93.9-windows-x64.zip
           - https://download.blender.org/release/Blender3.1/blender-3.1.2-windows-x64.zip
+    env:
+      BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v2
         with:
@@ -47,6 +49,8 @@ jobs:
           - https://download.blender.org/release/Blender2.83/blender-2.83.12-macOS.dmg
           - https://download.blender.org/release/Blender2.93/blender-2.93.9-macos-x64.dmg
           - https://download.blender.org/release/Blender3.1/blender-3.1.2-macos-x64.dmg
+    env:
+      BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v2
         with:
@@ -74,6 +78,21 @@ jobs:
           name: VRMs
           path: ./tests/vrm/temp
 
+  test-linux-gui:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Test
+        run: |
+          ./scripts/generate_dynamic_tests.py
+          python3 -m unittest tests.test_GENERATED_gui
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: Captured Video
+          path: tmp/latest_capture.ogv
   lint:
     runs-on: ubuntu-20.04
     steps:
