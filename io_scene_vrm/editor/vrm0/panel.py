@@ -888,6 +888,8 @@ def draw_vrm0_secondary_animation_layout(
 
         box.label(text="Colliders:")
         for collider_index, collider in enumerate(collider_group.colliders):
+            if not collider.blender_object:
+                continue
             collider_row = box.split(align=True, factor=0.5)
             collider_row.prop(
                 collider.blender_object, "name", icon="MESH_UVSPHERE", text=""

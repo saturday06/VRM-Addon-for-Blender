@@ -2373,7 +2373,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             for collider in collider_group.colliders:
                 collider_object = collider.blender_object
-                if collider_object.parent_bone not in self.armature.pose.bones:
+                if (
+                    not collider_object
+                    or collider_object.parent_bone not in self.armature.pose.bones
+                ):
                     continue
 
                 collider_dict: Dict[str, Any] = {}
