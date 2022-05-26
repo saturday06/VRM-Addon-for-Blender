@@ -11,12 +11,6 @@ from ..common.human_bone import (
 )
 
 
-class ObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    value: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Object Value", type=bpy.types.Object  # noqa: F722
-    )
-
-
 class StringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="String Value"  # noqa: F722

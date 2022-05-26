@@ -53,7 +53,6 @@ else:
 
 classes = [
     io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,
-    property_group.ObjectPropertyGroup,
     property_group.StringPropertyGroup,
     property_group.FloatPropertyGroup,
     property_group.BonePropertyGroup,
