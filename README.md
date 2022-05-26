@@ -12,6 +12,12 @@ VRM Add-on for Blender is an add-on that adds VRM-related functions to Blender.
 
 Please note that the add-on name (ex-VRM_IMPORTER_for_Blender) and its [installation method](https://vrm-addon-for-blender.info/en/installation?locale_redirection) have changed since the release on February 7, 2021. Please remove the old add-on when updating.
 
+# Tutorials / チュートリアル
+
+| [Installation / インストール方法](https://vrm-addon-for-blender.info/en/installation?locale_redirection) | [Create Simple VRM / 単純なVRMを作る](https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection) | [Create Humanoid VRM / 人型のVRMを作る](https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection) |
+| :---: | :---: | :---: |
+| <a href="https://vrm-addon-for-blender.info/en/installation?locale_redirection"><img width="200" src="docs/website/static/en/images/installation.png"></a> | <a href="https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection"><img width="200" src="docs/website/static/images/simple.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection"><img width="200" src="docs/website/static/images/humanoid.gif"></a> |
+
 # Development / 開発するには
 
 `io_scene_vrm` フォルダがBlenderアドオンの本体になります。そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
