@@ -87,7 +87,7 @@ class BaseBlenderGuiTestCase(TestCase):
             "sikulixide.jar",
             "-c",
             "-r",
-            "tests/" + sikuli_test_path,
+            "tests/test.sikuli/" + sikuli_test_path,
         ]
         completed_process = subprocess.run(
             commands,

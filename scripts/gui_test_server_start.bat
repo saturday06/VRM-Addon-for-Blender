@@ -26,7 +26,7 @@ call docker run ^
   --detach ^
   --publish 127.0.0.1:6080:6080/tcp ^
   --volume "%cd%\logs":/root/logs ^
-  --volume "%cd%\tests\resources\gui\blender\vrm_addon":/root/tests ^
+  --volume "%cd%\tests\resources\gui":/root/tests ^
   --volume "%cd%\io_scene_vrm":/root/io_scene_vrm ^
   --rm ^
   --name %container_name% ^

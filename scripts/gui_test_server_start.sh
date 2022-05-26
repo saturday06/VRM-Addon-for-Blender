@@ -29,14 +29,14 @@ if [ "$CI" = "true" ]; then
     --rm \
     --name "$container_name" \
     "$tag_name"
-  docker cp tests/resources/gui/blender/vrm_addon/. "$container_name:/root/tests"
+  docker cp tests/resources/gui/. "$container_name:/root/tests"
   docker cp io_scene_vrm/. "$container_name:/root/io_scene_vrm"
 else
   docker run \
     --detach \
     --publish "$publish" \
     --volume logs:/root/logs \
-    --volume tests/resources/gui/blender/vrm_addon:tests \
+    --volume tests/resources/gui:tests \
     --volume io_scene_vrm:/root/io_scene_vrm \
     --rm \
     --name "$container_name" \

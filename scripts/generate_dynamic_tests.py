@@ -181,16 +181,14 @@ def generate_dynamic_tests() -> None:
 
 def generate_dynamic_gui_tests() -> None:
     test_src_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tests")
-    gui_test_src_dir = os.path.join(
-        test_src_dir, "resources", "gui", "blender", "vrm_addon"
-    )
+    gui_test_src_dir = os.path.join(test_src_dir, "resources", "gui", "test.sikuli")
 
     content = render_gui_test_header()
 
     for path in map(str.strip, sorted(os.listdir(gui_test_src_dir))):
-        if not path.endswith(".sikuli"):
+        if not path.endswith(".py") or path in ["__init__.py", "test.py"]:
             continue
-        path_without_ext = re.sub("\\.sikuli$", "", path)
+        path_without_ext = re.sub("\\.py$", "", path)
         method_name = to_function_component_literal(path_without_ext)
         content += render_gui_test(method_name, path)
 
