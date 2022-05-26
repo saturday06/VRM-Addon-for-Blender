@@ -213,7 +213,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     ) -> Dict[str, Any]:
         mesh_annotation_dicts: List[Dict[str, Any]] = []
         for mesh_annotation in first_person.mesh_annotations:
-            if not mesh_annotation.node or mesh_annotation.node.value:
+            if not mesh_annotation.node or not mesh_annotation.node.value:
                 continue
             node_index = mesh_name_to_node_index_dict.get(mesh_annotation.node.value)
             if not isinstance(node_index, int):
