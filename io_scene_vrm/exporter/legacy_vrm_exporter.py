@@ -2025,9 +2025,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         "targetNames": list(shape_pos_bin_dic.keys())
                     }
                 primitive_list.append(primitive)
-            if mesh.name not in self.mesh_name_to_index:
-                self.mesh_name_to_index[mesh.name] = mesh_index
-            self.mesh_name_to_index[mesh.data.name] = mesh_index
+            self.mesh_name_to_index[mesh.name] = mesh_index
             self.json_dic["meshes"].append(
                 OrderedDict(
                     {
@@ -2203,15 +2201,21 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         mesh_annotation_dicts: List[Dict[str, Any]] = []
         first_person_dict["meshAnnotations"] = mesh_annotation_dicts
         for mesh_annotation in first_person.mesh_annotations:
-            if not mesh_annotation.mesh or not mesh_annotation.mesh.value:
-                mesh_index = -1
-            else:
+            if (
+                mesh_annotation.mesh
+                and mesh_annotation.mesh.value
+                and mesh_annotation.mesh.value in bpy.data.objects
+                and bpy.data.objects[mesh_annotation.mesh.value].type == "MESH"
+            ):
                 matched_mesh_indices = [
                     i
                     for i, mesh in enumerate(self.json_dic["meshes"])
-                    if mesh["name"] == mesh_annotation.mesh.value
+                    if mesh["name"]
+                    == bpy.data.objects[mesh_annotation.mesh.value].data.name
                 ]
                 mesh_index = (matched_mesh_indices + [-1])[0]
+            else:
+                mesh_index = -1
             mesh_annotation_dicts.append(
                 {
                     "mesh": mesh_index,
@@ -2272,6 +2276,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 bind_dict: Dict[str, Any] = {}
                 mesh = self.mesh_name_to_index.get(bind.mesh.value)
                 if mesh is None:
+                    print(f"{bind.mesh.value} => None")
                     continue
                 bind_dict["mesh"] = mesh
 

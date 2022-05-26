@@ -11,7 +11,7 @@ from ...common.human_bone import (
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
-    MeshPropertyGroup,
+    MeshObjectPropertyGroup,
     StringPropertyGroup,
 )
 
@@ -272,7 +272,7 @@ class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L32-L41
 class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Mesh", type=MeshPropertyGroup  # noqa: F821
+        name="Mesh", type=MeshObjectPropertyGroup  # noqa: F821
     )
     first_person_flag_items = [
         ("Auto", "Auto", "", 0),
@@ -324,7 +324,7 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Mesh", type=MeshPropertyGroup  # noqa: F821
+        name="Mesh", type=MeshObjectPropertyGroup  # noqa: F821
     )
     index: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Index"  # noqa: F821

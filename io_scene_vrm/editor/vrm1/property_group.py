@@ -8,7 +8,11 @@ from ...common.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
-from ..property_group import BonePropertyGroup, MeshPropertyGroup, StringPropertyGroup
+from ..property_group import (
+    BonePropertyGroup,
+    MeshObjectPropertyGroup,
+    StringPropertyGroup,
+)
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
@@ -378,7 +382,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json
 class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=MeshPropertyGroup  # noqa: F821
+        type=MeshObjectPropertyGroup  # noqa: F821
     )
     type_items = [
         ("auto", "Auto", "", 0),
@@ -401,7 +405,7 @@ class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
 class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=MeshPropertyGroup  # noqa: F821
+        type=MeshObjectPropertyGroup  # noqa: F821
     )
     index: bpy.props.StringProperty(  # type: ignore[valid-type]
         # noqa: F821

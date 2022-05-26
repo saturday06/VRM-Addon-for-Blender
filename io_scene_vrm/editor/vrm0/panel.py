@@ -3,7 +3,10 @@ from bpy.app.translations import pgettext
 
 from ...common.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 from .. import operator, search
-from ..extension import VrmAddonArmatureExtensionPropertyGroup
+from ..extension import (
+    VrmAddonArmatureExtensionPropertyGroup,
+    VrmAddonSceneExtensionPropertyGroup,
+)
 from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
 from . import operator as vrm0_operator
@@ -408,8 +411,8 @@ def draw_vrm0_first_person_layout(
     layout: bpy.types.UILayout,
     first_person: Vrm0FirstPersonPropertyGroup,
 ) -> None:
-    migrate(armature.name, defer=True)
-    blend_data = context.blend_data
+    if migrate(armature.name, defer=True):
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
     layout.prop_search(first_person.first_person_bone, "value", armature.data, "bones")
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
@@ -419,7 +422,12 @@ def draw_vrm0_first_person_layout(
         first_person.mesh_annotations
     ):
         row = box.row()
-        row.prop_search(mesh_annotation.mesh, "value", blend_data, "meshes")
+        row.prop_search(
+            mesh_annotation.mesh,
+            "value",
+            context.scene.vrm_addon_extension,
+            "mesh_object_names",
+        )
         row.prop(mesh_annotation, "first_person_flag")
         remove_mesh_annotation_op = row.operator(
             vrm0_operator.VRM_OT_remove_vrm0_first_person_mesh_annotation.bl_idname,
@@ -520,7 +528,8 @@ def draw_vrm0_blend_shape_master_layout(
     layout: bpy.types.UILayout,
     blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
 ) -> None:
-    migrate(armature.name, defer=True)
+    if migrate(armature.name, defer=True):
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
     blend_data = context.blend_data
     for blend_shape_group_index, blend_shape_group in enumerate(
         blend_shape_master.blend_shape_groups
@@ -556,20 +565,26 @@ def draw_vrm0_blend_shape_master_layout(
             for bind_index, bind in enumerate(blend_shape_group.binds):
                 bind_box = box.box()
                 bind_box.prop_search(
-                    bind.mesh, "value", blend_data, "meshes", text="Mesh"
+                    bind.mesh,
+                    "value",
+                    context.scene.vrm_addon_extension,
+                    "mesh_object_names",
+                    text="Mesh",
                 )
                 if (
                     bind.mesh.value
-                    and bind.mesh.value in blend_data.meshes
-                    and blend_data.meshes[bind.mesh.value]
-                    and blend_data.meshes[bind.mesh.value].shape_keys
-                    and blend_data.meshes[bind.mesh.value].shape_keys.key_blocks
-                    and blend_data.meshes[bind.mesh.value].shape_keys.key_blocks.keys()
+                    and bind.mesh.value in blend_data.objects
+                    and blend_data.objects[bind.mesh.value].data
+                    and blend_data.objects[bind.mesh.value].data.shape_keys
+                    and blend_data.objects[bind.mesh.value].data.shape_keys.key_blocks
+                    and blend_data.objects[
+                        bind.mesh.value
+                    ].data.shape_keys.key_blocks.keys()
                 ):
                     bind_box.prop_search(
                         bind,
                         "index",
-                        blend_data.meshes[bind.mesh.value].shape_keys,
+                        blend_data.objects[bind.mesh.value].data.shape_keys,
                         "key_blocks",
                         text="Shape key",
                     )

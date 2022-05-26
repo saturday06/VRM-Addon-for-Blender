@@ -1,6 +1,7 @@
 import os
 import pathlib
 import platform
+import re
 import shutil
 import sys
 from typing import List
@@ -38,6 +39,8 @@ def test() -> None:
     if not os.path.exists(in_path):
         in_path = os.path.join(blend_dir, major_minor, blend)
 
+    if blend.endswith(".merge.blend"):
+        blend = re.sub(r"\.merge\.blend$", "", blend) + ".blend"
     vrm = os.path.splitext(blend)[0] + ".vrm"
     blend_vrm_path = os.path.join(vrm_dir, major_minor, "out", blend + ".vrm")
     expected_path = blend_vrm_path

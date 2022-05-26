@@ -40,7 +40,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.extras_material_name_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MaterialName"
         )
-        self.extras_mesh_name_key = INTERNAL_NAME_PREFIX + self.export_id + "MeshName"
         self.object_visibility_and_selection: Dict[str, Tuple[bool, bool]] = {}
         self.mounted_object_names: List[str] = []
 
@@ -209,13 +208,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_first_person_dict(
         first_person: Vrm1FirstPersonPropertyGroup,
-        mesh_name_to_node_index_dict: Dict[str, int],
+        mesh_object_name_to_node_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         mesh_annotation_dicts: List[Dict[str, Any]] = []
         for mesh_annotation in first_person.mesh_annotations:
             if not mesh_annotation.node or not mesh_annotation.node.value:
                 continue
-            node_index = mesh_name_to_node_index_dict.get(mesh_annotation.node.value)
+            node_index = mesh_object_name_to_node_index_dict.get(
+                mesh_annotation.node.value
+            )
             if not isinstance(node_index, int):
                 continue
             mesh_annotation_dicts.append(
@@ -256,8 +257,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_expression_dict(
         expression: Vrm1ExpressionPropertyGroup,
-        mesh_name_to_node_index_dict: Dict[str, int],
-        mesh_name_to_morph_target_names_dict: Dict[str, List[str]],
+        mesh_object_name_to_node_index_dict: Dict[str, int],
+        mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]],
         material_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         expression_dict = {
@@ -270,10 +271,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         for morph_target_bind in expression.morph_target_binds:
             if not morph_target_bind.node or not morph_target_bind.node.value:
                 continue
-            node_index = mesh_name_to_node_index_dict.get(morph_target_bind.node.value)
+            node_index = mesh_object_name_to_node_index_dict.get(
+                morph_target_bind.node.value
+            )
             if not isinstance(node_index, int):
                 continue
-            morph_targets = mesh_name_to_morph_target_names_dict.get(
+            morph_targets = mesh_object_name_to_morph_target_names_dict.get(
                 morph_target_bind.node.value
             )
             if not isinstance(morph_targets, list):
@@ -336,8 +339,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_expressions_dict(
         expressions: Vrm1ExpressionsPropertyGroup,
-        mesh_name_to_node_index_dict: Dict[str, int],
-        mesh_name_to_morph_target_names_dict: Dict[str, List[str]],
+        mesh_object_name_to_node_index_dict: Dict[str, int],
+        mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]],
         material_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         preset_dict = {}
@@ -347,8 +350,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         ) in expressions.preset_name_to_expression_dict().items():
             preset_dict[preset_name] = Gltf2AddonVrmExporter.create_expression_dict(
                 expression,
-                mesh_name_to_node_index_dict,
-                mesh_name_to_morph_target_names_dict,
+                mesh_object_name_to_node_index_dict,
+                mesh_object_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
             )
         custom_dict = {}
@@ -357,8 +360,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 custom_expression.custom_name
             ] = Gltf2AddonVrmExporter.create_expression_dict(
                 custom_expression.expression,
-                mesh_name_to_node_index_dict,
-                mesh_name_to_morph_target_names_dict,
+                mesh_object_name_to_node_index_dict,
+                mesh_object_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
             )
         return {
@@ -556,8 +559,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 obj[self.extras_object_name_key] = obj.name
             for material in bpy.data.materials:
                 material[self.extras_material_name_key] = material.name
-            for mesh in bpy.data.meshes:
-                mesh[self.extras_mesh_name_key] = mesh.name
 
             # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると書いてあるが、実際にはBoneのカスタムプロパティを参照している。
             # そのため、いちおう両方に書いておく
@@ -592,9 +593,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             for obj in bpy.data.objects:
                 if self.extras_object_name_key in obj:
                     del obj[self.extras_object_name_key]
-            for mesh in bpy.data.meshes:
-                if self.extras_mesh_name_key in mesh:
-                    del mesh[self.extras_mesh_name_key]
             for material in bpy.data.materials:
                 if self.extras_material_name_key in material:
                     del material[self.extras_material_name_key]
@@ -607,6 +605,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         bone_name_to_index_dict: Dict[str, int] = {}
         object_name_to_index_dict: Dict[str, int] = {}
+        mesh_object_name_to_node_index_dict: Dict[str, int] = {}
+        mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]] = {}
+
         nodes = json_dict.get("nodes")
         if not isinstance(nodes, abc.Sequence):
             json_dict["nodes"] = nodes = []
@@ -628,6 +629,25 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 del extras_dict[self.extras_object_name_key]
             if isinstance(object_name, str):
                 object_name_to_index_dict[object_name] = node_index
+            mesh_index = node_dict.get("mesh")
+            mesh_dicts = json_dict.get("meshes")
+            if isinstance(mesh_dicts, abc.Iterable):
+                mesh_dicts = list(mesh_dicts)
+            else:
+                mesh_dicts = []
+            if (
+                isinstance(object_name, str)
+                and isinstance(mesh_index, int)
+                and 0 <= mesh_index < len(mesh_dicts)
+            ):
+                mesh_object_name_to_node_index_dict[object_name] = node_index
+                target_names = deep.get(
+                    mesh_dicts, [mesh_index, "extras", "targetNames"]
+                )
+                if isinstance(target_names, abc.Iterable):
+                    mesh_object_name_to_morph_target_names_dict[object_name] = [
+                        str(target_name) for target_name in target_names
+                    ]
             if isinstance(object_name, str) and (
                 object_name == dummy_skinned_mesh_object_name
                 or object_name.startswith(INTERNAL_NAME_PREFIX + "VrmAddonLinkTo")
@@ -721,40 +741,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not extras_dict:
                 del material_dict["extras"]
 
-        mesh_name_to_node_index_dict: Dict[str, int] = {}
-        mesh_name_to_morph_target_names_dict: Dict[str, List[str]] = {}
-        meshes = json_dict.get("meshes")
-        if not isinstance(meshes, abc.Iterable):
-            meshes = []
-        for mesh_index, mesh_dict in enumerate(meshes):
-            if not isinstance(mesh_dict, dict):
-                continue
-            extras_dict = mesh_dict.get("extras")
-            if not isinstance(extras_dict, dict):
-                continue
-
-            mesh_name = extras_dict.get(self.extras_mesh_name_key)
-            if self.extras_mesh_name_key in extras_dict:
-                del extras_dict[self.extras_mesh_name_key]
-            if not isinstance(mesh_name, str):
-                continue
-
-            target_names = extras_dict.get("targetNames")
-            if isinstance(target_names, abc.Iterable):
-                mesh_name_to_morph_target_names_dict[mesh_name] = list(target_names)
-
-            for node_index, node_dict in enumerate(nodes):
-                if not isinstance(node_dict, dict):
-                    continue
-                if node_dict.get("mesh") == mesh_index:
-                    # FIXME: 複数のオブジェクトが同一のメッシュを参照している場合やばい
-                    mesh_name_to_node_index_dict[mesh_name] = node_index
-                    break
-
-            mesh_name_to_node_index_dict[mesh_name] = mesh_index
-            if not extras_dict:
-                del mesh_dict["extras"]
-
         vrm = self.armature.data.vrm_addon_extension.vrm1
 
         extensions_used = json_dict.get("extensionsUsed")
@@ -778,13 +764,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 vrm.humanoid, bone_name_to_index_dict
             ),
             "firstPerson": self.create_first_person_dict(
-                vrm.first_person, mesh_name_to_node_index_dict
+                vrm.first_person, mesh_object_name_to_node_index_dict
             ),
             "lookAt": self.create_look_at_dict(vrm.look_at),
             "expressions": self.create_expressions_dict(
                 vrm.expressions,
-                mesh_name_to_node_index_dict,
-                mesh_name_to_morph_target_names_dict,
+                mesh_object_name_to_node_index_dict,
+                mesh_object_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
             ),
         }

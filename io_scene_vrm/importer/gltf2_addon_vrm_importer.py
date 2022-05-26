@@ -863,7 +863,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(node, int):
                 mesh_obj = self.meshes.get(node)
                 if mesh_obj:
-                    mesh_annotation.node.value = mesh_obj.data.name
+                    mesh_annotation.node.value = mesh_obj.name
 
             type_ = mesh_annotation_dict.get("type")
             if type_ in ["auto", "both", "thirdPersonOnly", "firstPersonOnly"]:

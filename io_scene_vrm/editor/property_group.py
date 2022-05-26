@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict, Iterator, Optional, Set, Union
+from typing import Any, Dict, Iterator, Set, Union
 
 import bpy
 
@@ -23,46 +23,31 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
 
-class MeshPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def __get_value(self) -> str:
         if (
-            not self.link_to_mesh
-            or not self.link_to_mesh.name
-            or not self.link_to_mesh.parent
-            or self.link_to_mesh.parent.type != "MESH"
-            or not self.link_to_mesh.parent.data
-            or not self.link_to_mesh.parent.data.name
+            not self.bpy_object
+            or not self.bpy_object.name
+            or self.bpy_object.type != "MESH"
         ):
             return ""
-        return str(self.link_to_mesh.parent.data.name)
+        return str(self.bpy_object.name)
 
     def __set_value(self, value: Any) -> None:
-        if not isinstance(value, str) or value not in bpy.data.meshes:
+        if (
+            not isinstance(value, str)
+            or value not in bpy.data.objects
+            or bpy.data.objects[value].type != "MESH"
+        ):
+            self.bpy_object = None
             return
-        mesh = bpy.data.meshes[value]
-        mesh_obj: Optional[bpy.types.Object] = None
-        for obj in bpy.data.objects:
-            if obj.data == mesh:
-                mesh_obj = obj
-                break
-        if mesh_obj is None:
-            return
-
-        if not self.link_to_mesh or not self.link_to_mesh.name:
-            uuid_str = uuid.uuid4().hex
-            self.link_to_mesh = bpy.data.objects.new(
-                name=INTERNAL_NAME_PREFIX + "VrmAddonLinkToMesh" + uuid_str,
-                object_data=None,
-            )
-            self.link_to_mesh.hide_render = True
-            self.link_to_mesh.hide_select = True
-            self.link_to_mesh.hide_viewport = True
-        self.link_to_mesh.parent = mesh_obj
+        self.bpy_object = bpy.data.objects[value]
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
         get=__get_value, set=__set_value
     )
-    link_to_mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
+
+    bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
 

@@ -3,7 +3,10 @@ from bpy.app.translations import pgettext
 
 from ...common.human_bone import HumanBoneSpecifications
 from .. import operator, search
-from ..extension import VrmAddonArmatureExtensionPropertyGroup
+from ..extension import (
+    VrmAddonArmatureExtensionPropertyGroup,
+    VrmAddonSceneExtensionPropertyGroup,
+)
 from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
 from . import operator as vrm1_operator
@@ -317,8 +320,8 @@ def draw_vrm1_first_person_layout(
     layout: bpy.types.UILayout,
     first_person: Vrm1FirstPersonPropertyGroup,
 ) -> None:
-    migrate(armature.name, defer=True)
-    blend_data = context.blend_data
+    if migrate(armature.name, defer=True):
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
     box = layout.box()
     box.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
     for mesh_annotation_index, mesh_annotation in enumerate(
@@ -328,8 +331,8 @@ def draw_vrm1_first_person_layout(
         row.prop_search(
             mesh_annotation.node,
             "value",
-            blend_data,
-            "meshes",
+            context.scene.vrm_addon_extension,
+            "mesh_object_names",
             text="",
             translate=False,
         )
@@ -527,21 +530,30 @@ def draw_vrm1_expression_layout(
         emboss=False,
     )
     if expression.show_expanded_morph_target_binds:
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
         for bind_index, bind in enumerate(expression.morph_target_binds):
             bind_box = box.box().column()
-            bind_box.prop_search(bind.node, "value", blend_data, "meshes", text="Mesh")
+            bind_box.prop_search(
+                bind.node,
+                "value",
+                context.scene.vrm_addon_extension,
+                "mesh_object_names",
+                text="Mesh",
+            )
             if (
                 bind.node.value
-                and bind.node.value in blend_data.meshes
-                and blend_data.meshes[bind.node.value]
-                and blend_data.meshes[bind.node.value].shape_keys
-                and blend_data.meshes[bind.node.value].shape_keys.key_blocks
-                and blend_data.meshes[bind.node.value].shape_keys.key_blocks.keys()
+                and bind.node.value in blend_data.objects
+                and blend_data.objects[bind.node.value].data
+                and blend_data.objects[bind.node.value].data.shape_keys
+                and blend_data.objects[bind.node.value].data.shape_keys.key_blocks
+                and blend_data.objects[
+                    bind.node.value
+                ].data.shape_keys.key_blocks.keys()
             ):
                 bind_box.prop_search(
                     bind,
                     "index",
-                    blend_data.meshes[bind.node.value].shape_keys,
+                    blend_data.objects[bind.node.value].data.shape_keys,
                     "key_blocks",
                     text="Shape key",
                 )

@@ -56,7 +56,7 @@ classes = [
     property_group.StringPropertyGroup,
     property_group.FloatPropertyGroup,
     property_group.BonePropertyGroup,
-    property_group.MeshPropertyGroup,
+    property_group.MeshObjectPropertyGroup,
     vrm0_property_group.Vrm0MaterialValueBindPropertyGroup,
     vrm0_property_group.Vrm0BlendShapeBindPropertyGroup,
     vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup,
@@ -197,6 +197,7 @@ classes = [
     # importer.blend_model.ICYP_OT_select_helper,
     preferences.VrmAddonPreferences,
     extension.VrmAddonArmatureExtensionPropertyGroup,
+    extension.VrmAddonSceneExtensionPropertyGroup,
 ]
 
 
@@ -214,6 +215,10 @@ def register(init_version: Any) -> None:
 
     for cls in classes:
         bpy.utils.register_class(cls)
+
+    bpy.types.Scene.vrm_addon_extension = bpy.props.PointerProperty(
+        type=extension.VrmAddonSceneExtensionPropertyGroup
+    )
 
     bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(
         type=extension.VrmAddonArmatureExtensionPropertyGroup
@@ -238,6 +243,9 @@ def unregister() -> None:
 
     if hasattr(bpy.types.Armature, "vrm_addon_extension"):
         del bpy.types.Armature.vrm_addon_extension
+
+    if hasattr(bpy.types.Scene, "vrm_addon_extension"):
+        del bpy.types.Scene.vrm_addon_extension
 
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)

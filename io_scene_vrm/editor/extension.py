@@ -1,9 +1,47 @@
+import functools
+
 import bpy
 
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
+from .property_group import StringPropertyGroup
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from .vrm0.property_group import Vrm0PropertyGroup
 from .vrm1.property_group import Vrm1PropertyGroup
+
+
+class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    mesh_object_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup
+    )
+
+    @staticmethod
+    def check_mesh_object_names_and_update(
+        defer: bool = True,
+    ) -> None:
+        mesh_object_names = [obj.name for obj in bpy.data.objects if obj.type == "MESH"]
+
+        up_to_date = (
+            mesh_object_names
+            == bpy.context.scene.vrm_addon_extension.mesh_object_names[:]
+        )
+
+        if up_to_date:
+            return
+
+        if defer:
+            bpy.app.timers.register(
+                functools.partial(
+                    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update,
+                    False,
+                )
+            )
+            return
+
+        bpy.context.scene.vrm_addon_extension.mesh_object_names.clear()
+        for mesh_object_name in mesh_object_names:
+            n = bpy.context.scene.vrm_addon_extension.mesh_object_names.add()
+            n.value = mesh_object_name
+            n.name = mesh_object_name  # for UI
 
 
 class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]

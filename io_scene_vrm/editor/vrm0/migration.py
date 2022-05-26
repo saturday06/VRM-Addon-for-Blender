@@ -155,7 +155,10 @@ def migrate_vrm0_first_person(
 
             mesh = mesh_annotation_dict.get("mesh")
             if isinstance(mesh, str) and mesh in bpy.data.meshes:
-                mesh_annotation.mesh.value = bpy.data.meshes[mesh].name
+                for obj in bpy.data.objects:
+                    if obj.data == bpy.data.meshes[mesh]:
+                        mesh_annotation.mesh.value = obj.name
+                        break
 
             first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
             if isinstance(first_person_flag, str):
@@ -231,7 +234,10 @@ def migrate_vrm0_blend_shape_groups(
                 mesh = bind_dict.get("mesh")
                 if isinstance(mesh, str) and mesh in bpy.data.meshes:
                     mesh = bpy.data.meshes[mesh]
-                    bind.mesh.value = mesh.name
+                    for obj in bpy.data.objects:
+                        if obj.data == mesh:
+                            bind.mesh.value = obj.name
+                            break
                     index = bind_dict.get("index")
                     if isinstance(index, str) and index in mesh.shape_keys.key_blocks:
                         bind.index = index
@@ -408,6 +414,34 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
                 break
 
 
+def migrate_mesh_object_property_group(armature: bpy.types.Object) -> None:
+    ext = armature.data.vrm_addon_extension
+    if tuple(ext.addon_version) >= (2, 3, 23):
+        return
+
+    meshes = [
+        mesh_annotation.mesh
+        for mesh_annotation in ext.vrm0.first_person.mesh_annotations
+    ] + [
+        bind.mesh
+        for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups
+        for bind in blend_shape_group.binds
+    ]
+
+    for mesh in meshes:
+        if not mesh:
+            continue
+        link_to_mesh = mesh.get("link_to_mesh")
+        if (
+            not isinstance(link_to_mesh, bpy.types.Object)
+            or not link_to_mesh.parent
+            or not link_to_mesh.parent.name
+            or link_to_mesh.parent.type != "MESH"
+        ):
+            continue
+        mesh.value = link_to_mesh.parent.name
+
+
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
@@ -432,6 +466,7 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
                 break
 
     migrate_legacy_custom_properties(armature)
+    migrate_mesh_object_property_group(armature)
 
     vrm0.humanoid.last_bone_names.clear()
     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(

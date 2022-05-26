@@ -879,7 +879,7 @@ class AbstractBaseVrmImporter(ABC):
 
                 mesh = mesh_annotation_dict.get("mesh")
                 if isinstance(mesh, int) and mesh in self.meshes:
-                    mesh_annotation.mesh.value = self.meshes[mesh].data.name
+                    mesh_annotation.mesh.value = self.meshes[mesh].name
 
                 first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
                 if isinstance(first_person_flag, str):
@@ -970,7 +970,7 @@ class AbstractBaseVrmImporter(ABC):
                         weight = 0
 
                     bind = blend_shape_group.binds.add()
-                    bind.mesh.value = self.meshes[mesh].data.name
+                    bind.mesh.value = self.meshes[mesh].name
                     bind.index = self.meshes[mesh].data.shape_keys.key_blocks.keys()[
                         index + 1
                     ]
