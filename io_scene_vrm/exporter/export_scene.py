@@ -158,7 +158,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
 
-        validation.WM_OT_vrm_validator.detect_errors_and_warnings(
+        validation.WM_OT_vrm_validator.detect_errors(
             context, operator.errors, False, layout
         )
 

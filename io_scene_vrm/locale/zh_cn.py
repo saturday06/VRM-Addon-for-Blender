@@ -79,9 +79,9 @@ translation_dictionary = {
     + "按照权重缩减到4。",
     (
         "*",
-        '"{material_name}" needs to connect {groups} to "Surface" directly. '
-        + "Empty material will be exported.",
-    ): "「{material_name}」需要通过{groups}直接指定到面。"
+        '"{material_name}" needs to connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE'
+        + ' to "Surface" directly. Empty material will be exported.',
+    ): "「{material_name}」需要通过Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE直接指定到面。"
     + "空材质会被导出。",
     (
         "*",

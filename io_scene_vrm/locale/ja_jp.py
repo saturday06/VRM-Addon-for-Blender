@@ -10,6 +10,11 @@ translation_dictionary = {
     ): "VRM 1.0対応機能は現在開発中のため\n"
     + "多くの状況で意図通り動作しません。\n",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
+    (
+        "*",
+        "No error. But there're {warning_count} warning(s)."
+        + " The output may not be what you expected.",
+    ): "エラーはありませんでしたが、{warning_count}件の警告があります。期待通りの出力にはならないかもしれません。",
     ("*", "VRM Export"): "VRMエクスポート",
     ("*", "Create VRM Model"): "VRMモデルを作成",
     ("*", "Validate VRM Model"): "VRMモデルのチェック",
@@ -91,9 +96,10 @@ translation_dictionary = {
     + "重い順に4つまでエクスポートされます。",
     (
         "*",
-        '"{material_name}" needs to connect {groups} to "Surface" directly. '
-        + "Empty material will be exported.",
-    ): "マテリアル「{material_name}」には{groups}のいずれかを直接「サーフェス」に指定してください。"
+        '"{material_name}" needs to connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE'
+        + ' to "Surface" directly. Empty material will be exported.',
+    ): "マテリアル「{material_name}」には「プリンシプルBSDF」「MToon_unversioned」「GLTF」「TRANSPARENT_ZWRITE」の"
+    + "いずれかを直接「サーフェス」に指定してください。"
     + "空のマテリアルを出力します。",
     (
         "*",

@@ -15,7 +15,7 @@ from . import migration, search
 
 class VrmValidationError(bpy.types.PropertyGroup):  # type: ignore[misc]
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
-    fatal: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    severity: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
 
 
 class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -30,25 +30,27 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
     errors: bpy.props.CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        self.detect_errors_and_warnings(
+        self.detect_errors(
             context,
             self.errors,
             self.show_successful_message,
             execute_migration=True,
             readonly=False,
         )
-        if any(error.fatal for error in self.errors):
-            for index, error in enumerate(self.errors):
-                if index > 10:
-                    print("ERROR: ... truncated ...")
-                    break
-                if error.fatal:
-                    print("ERROR: " + error.message)
+        fatal_error_count = 0
+        for error in self.errors:
+            if fatal_error_count > 10:
+                print("ERROR: ... truncated ...")
+                break
+            if error.severity == 0:
+                print("ERROR: " + error.message)
+                fatal_error_count += 1
+        if fatal_error_count > 0:
             return {"CANCELLED"}
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
-        self.detect_errors_and_warnings(
+        self.detect_errors(
             context,
             self.errors,
             self.show_successful_message,
@@ -56,7 +58,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             readonly=False,
         )
         if (
-            not any(error.fatal for error in self.errors)
+            not any(error.severity == 0 for error in self.errors)
             and not self.show_successful_message
         ):
             return {"FINISHED"}
@@ -65,7 +67,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         )
 
     def draw(self, context: bpy.types.Context) -> None:
-        self.detect_errors_and_warnings(
+        self.detect_errors(
             context, self.errors, self.show_successful_message, self.layout
         )
 
@@ -95,7 +97,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             break
 
     @staticmethod
-    def detect_errors_and_warnings(
+    def detect_errors(
         context: bpy.types.Context,
         error_collection: bpy.types.CollectionProperty,
         show_successful_message: bool = True,
@@ -103,8 +105,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         execute_migration: bool = False,
         readonly: bool = True,
     ) -> None:
-        messages = []
+        error_messages = []
         warning_messages = []
+        info_messages = []
         armature_count = 0
         armature: Optional[bpy.types.Object] = None
         node_names = []
@@ -123,7 +126,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         for obj in export_objects:
             if obj.type not in ["ARMATURE", "EMPTY"]:
                 if obj.name in node_names:
-                    messages.append(
+                    error_messages.append(
                         pgettext(
                             "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated."
                         ).format(name=obj.name)
@@ -136,7 +139,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 and obj.parent.type != "ARMATURE"
                 and obj.location != Vector([0.0, 0.0, 0.0])
             ):  # mesh and armature origin is on [0,0,0]
-                warning_messages.append(
+                info_messages.append(
                     pgettext('There are not an object on the origin "{name}"').format(
                         name=obj.name
                     )
@@ -147,14 +150,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     migration.migrate(armature.name, defer=False)
                 armature_count += 1
                 if armature_count >= 2:  # only one armature
-                    messages.append(
+                    error_messages.append(
                         pgettext(
                             "Only one armature is required for VRM export. Multiple armatures found."
                         )
                     )
                 for bone in obj.data.bones:
                     if bone.name in node_names:  # nodes name is unique
-                        messages.append(
+                        error_messages.append(
                             pgettext(
                                 "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",
                             ).format(name=obj.name)
@@ -168,7 +171,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
                 )
                 if armature.data.vrm_addon_extension.is_vrm1():
-                    warning_messages.append(
+                    info_messages.append(
                         pgettext(
                             "VRM 1.0 support is under development.\n"
                             + "It won't work as intended in many situations."
@@ -192,7 +195,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             and human_bone.node.value in armature.data.bones
                         ):
                             continue
-                        messages.append(
+                        error_messages.append(
                             pgettext(required_bone_error_format).format(
                                 humanoid_name=human_bone_specification.title
                             )
@@ -211,20 +214,20 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         ):
                             continue
                         all_required_bones_exist = False
-                        messages.append(
+                        error_messages.append(
                             pgettext(required_bone_error_format).format(
                                 humanoid_name=humanoid_name.capitalize()
                             )
                         )
                     if all_required_bones_exist:
                         WM_OT_vrm_validator.validate_bone_order(
-                            messages, armature, readonly
+                            error_messages, armature, readonly
                         )
 
             if obj.type == "MESH":
                 for poly in obj.data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle
-                        warning_messages.append(
+                        info_messages.append(
                             pgettext(
                                 'Faces must be Triangle, but not face in "{name}" or '
                                 + "it will be triangulated automatically.",
@@ -235,7 +238,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
         # endregion export object seeking
         if armature_count == 0:
-            warning_messages.append(pgettext("Please add ARMATURE to selections"))
+            info_messages.append(pgettext("Please add ARMATURE to selections"))
 
         used_images: List[bpy.types.Image] = []
         used_materials = []
@@ -253,7 +256,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 if len(v.groups) == 0 and mesh.parent_bone == "":
                     if vertex_error_count > 5:
                         continue
-                    warning_messages.append(
+                    info_messages.append(
                         pgettext(
                             'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
                             + "Add weight to parent bone automatically."
@@ -269,44 +272,44 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         ):
                             weight_count += 1
                     if weight_count > 4 and vertex_error_count < 5:
-                        warning_messages.append(
+                        info_messages.append(
                             pgettext(
                                 'vertex index "{vertex_index}" has too many(over 4) weight in "{mesh_name}". '
                                 + "It will be truncated to 4 descending order by its weight."
                             ).format(vertex_index=v.index, mesh_name=mesh.name)
                         )
                         vertex_error_count = vertex_error_count + 1
-        if bpy.app.version < (2, 83):
-            for mat in used_materials:
-                if not mat.node_tree:
+
+        for mat in used_materials:
+            if not mat.node_tree:
+                continue
+            for node in mat.node_tree.nodes:
+                if node.type != "OUTPUT_MATERIAL":
                     continue
-                for node in mat.node_tree.nodes:
-                    if node.type == "OUTPUT_MATERIAL" and (
-                        not node.inputs["Surface"].links
-                        or node.inputs["Surface"].links[0].from_node.type != "GROUP"
-                        or node.inputs["Surface"]
-                        .links[0]
-                        .from_node.node_tree.get("SHADER")
-                        is None
-                    ):
-                        groups = [
-                            "GLTF",
-                            "MToon_unversioned",
-                            "TRANSPARENT_ZWRITE",
-                        ]
-                        if (
-                            bpy.app.translations
-                            and bpy.app.translations.locale == "ja_JP"
-                        ):
-                            groups_str = "".join(f"「{group}」" for group in groups)
-                        else:
-                            groups_str = "/".join(groups)
-                        warning_messages.append(
-                            pgettext(
-                                '"{material_name}" needs to connect {groups} to "Surface" directly. '
-                                + "Empty material will be exported."
-                            ).format(material_name=mat.name, groups=groups_str)
-                        )
+
+                links = node.inputs["Surface"].links
+                groups = [
+                    "MToon_unversioned",
+                    "GLTF",
+                    "TRANSPARENT_ZWRITE",
+                ]
+
+                if links and links[0].from_node.type == "BSDF_PRINCIPLED":
+                    continue
+
+                if (
+                    links
+                    and links[0].from_node.type == "GROUP"
+                    and links[0].from_node.node_tree.get("SHADER") in groups
+                ):
+                    continue
+
+                warning_messages.append(
+                    pgettext(
+                        '"{material_name}" needs to connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE'
+                        + ' to "Surface" directly. Empty material will be exported.'
+                    ).format(material_name=mat.name)
+                )
 
         for node, material in search.shader_nodes_and_materials(used_materials):
             # MToon
@@ -315,13 +318,18 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     if texture_val == "ReceiveShadow_Texture":
                         texture_val += "_alpha"
                     node_material_input_check(
-                        node, material, "TEX_IMAGE", texture_val, messages, used_images
+                        node,
+                        material,
+                        "TEX_IMAGE",
+                        texture_val,
+                        error_messages,
+                        used_images,
                     )
                 for float_val in MaterialMtoon.float_props_exchange_dic.values():
                     if float_val is None:
                         continue
                     node_material_input_check(
-                        node, material, "VALUE", float_val, messages, used_images
+                        node, material, "VALUE", float_val, error_messages, used_images
                     )
                 for k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
                     node_material_input_check(
@@ -329,27 +337,32 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         material,
                         "RGB",
                         MaterialMtoon.vector_props_exchange_dic[k],
-                        messages,
+                        error_messages,
                         used_images,
                     )
             # GLTF
             elif node.node_tree["SHADER"] == "GLTF":
                 for k in gltf.TEXTURE_INPUT_NAMES:
                     node_material_input_check(
-                        node, material, "TEX_IMAGE", k, messages, used_images
+                        node, material, "TEX_IMAGE", k, error_messages, used_images
                     )
                 for k in gltf.VAL_INPUT_NAMES:
                     node_material_input_check(
-                        node, material, "VALUE", k, messages, used_images
+                        node, material, "VALUE", k, error_messages, used_images
                     )
                 for k in gltf.RGBA_INPUT_NAMES:
                     node_material_input_check(
-                        node, material, "RGB", k, messages, used_images
+                        node, material, "RGB", k, error_messages, used_images
                     )
             # Transparent_Zwrite
             elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
                 node_material_input_check(
-                    node, material, "TEX_IMAGE", "Main_Texture", messages, used_images
+                    node,
+                    material,
+                    "TEX_IMAGE",
+                    "Main_Texture",
+                    error_messages,
+                    used_images,
                 )
 
         for image in used_images:
@@ -359,7 +372,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 and image.packed_file is None
                 and not os.path.exists(image.filepath_from_user())
             ):
-                messages.append(
+                error_messages.append(
                     pgettext(
                         '"{image_name}" is not found in file path "{image_filepath}". '
                         + "Please load file of it in Blender."
@@ -372,7 +385,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             # region first_person
             first_person = armature.data.vrm_addon_extension.vrm0.first_person
             if not first_person.first_person_bone.value:
-                warning_messages.append(
+                info_messages.append(
                     pgettext(
                         "firstPersonBone is not found. "
                         + 'Set VRM HumanBone "head" instead automatically.'
@@ -392,7 +405,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
                     shape_keys = bind.mesh.shape_keys
                     if not shape_keys:
-                        warning_messages.append(
+                        info_messages.append(
                             pgettext(
                                 'mesh "{mesh_name}" doesn\'t have shape key. '
                                 + 'But blend shape group needs "{shape_key_name}" in its shape key.'
@@ -404,7 +417,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         continue
 
                     if bind.index not in shape_keys.key_blocks:
-                        warning_messages.append(
+                        info_messages.append(
                             pgettext(
                                 'mesh "{mesh_name}" doesn\'t have "{shape_key_name}" shape key. '
                                 + "But blend shape group needs it."
@@ -419,43 +432,69 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
         error_collection.clear()
 
-        errors = []
-        warnings = []
-        for index, message in enumerate(messages):
-            error = error_collection.add()
-            error.name = f"VrmModelError{index}"
-            error.fatal = True
-            error.message = message
-            errors.append(error)
-        for index, message in enumerate(warning_messages):
-            warning = error_collection.add()
-            warning.name = f"VrmModelWarning{index}"
-            warning.fatal = False
-            warning.message = message
-            warnings.append(warning)
+        if layout and not error_messages:
+            if warning_messages:
+                row = layout.row()
+                row.emboss = "NONE"
+                row.box().label(
+                    text=pgettext(
+                        "No error. But there're {warning_count} warning(s)."
+                        + " The output may not be what you expected."
+                    ).format(
+                        warning_count=len(warning_messages),
+                    ),
+                    translate=False,
+                )
+            elif show_successful_message:
+                row = layout.row()
+                row.emboss = "NONE"
+                row.box().label(text="No error. Ready for export VRM")
 
-        if layout is None:
-            return
-        if not errors and show_successful_message:
-            layout.label(text="No error. Ready for export VRM")
-        if errors:
-            layout.label(text="Error", icon="ERROR")
-            for error in errors:
-                layout.prop(
-                    error,
-                    "message",
-                    text="",
-                    translate=False,
-                )
-        if warnings:
-            layout.label(text="Info", icon="INFO")
-            for warning in warnings:
-                layout.prop(
-                    warning,
-                    "message",
-                    text="",
-                    translate=False,
-                )
+        if error_messages:
+            if layout:
+                layout.label(text="Error", icon="ERROR")
+            for message in error_messages:
+                error = error_collection.add()
+                error.name = f"VrmModelError{len(error_collection)}"
+                error.severity = 0
+                error.message = message
+                if layout:
+                    layout.prop(
+                        error,
+                        "message",
+                        text="",
+                        translate=False,
+                    )
+        if warning_messages:
+            if layout:
+                layout.label(text="Warning", icon="CANCEL")
+            for message in warning_messages:
+                error = error_collection.add()
+                error.name = f"VrmModelError{len(error_collection)}"
+                error.severity = 1
+                error.message = message
+                if layout:
+                    layout.prop(
+                        error,
+                        "message",
+                        text="",
+                        translate=False,
+                    )
+        if info_messages:
+            if layout:
+                layout.label(text="Info", icon="INFO")
+            for message in info_messages:
+                error = error_collection.add()
+                error.name = f"VrmModelError{len(error_collection)}"
+                error.severity = 2
+                error.message = message
+                if layout:
+                    layout.prop(
+                        error,
+                        "message",
+                        text="",
+                        translate=False,
+                    )
 
 
 def node_material_input_check(
