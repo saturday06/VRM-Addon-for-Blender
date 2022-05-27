@@ -427,6 +427,7 @@ def draw_vrm0_first_person_layout(
             "value",
             context.scene.vrm_addon_extension,
             "mesh_object_names",
+            icon="OUTLINER_OB_MESH",
         )
         row.prop(mesh_annotation, "first_person_flag")
         remove_mesh_annotation_op = row.operator(
@@ -570,6 +571,7 @@ def draw_vrm0_blend_shape_master_layout(
                     context.scene.vrm_addon_extension,
                     "mesh_object_names",
                     text="Mesh",
+                    icon="OUTLINER_OB_MESH",
                 )
                 if (
                     bind.mesh.value

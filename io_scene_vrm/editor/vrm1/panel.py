@@ -335,6 +335,7 @@ def draw_vrm1_first_person_layout(
             "mesh_object_names",
             text="",
             translate=False,
+            icon="OUTLINER_OB_MESH",
         )
         row.prop(mesh_annotation, "type", text="", translate=False)
         remove_mesh_annotation_op = row.operator(
@@ -539,6 +540,7 @@ def draw_vrm1_expression_layout(
                 context.scene.vrm_addon_extension,
                 "mesh_object_names",
                 text="Mesh",
+                icon="OUTLINER_OB_MESH",
             )
             if (
                 bind.node.value
