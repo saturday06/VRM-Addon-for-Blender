@@ -78,11 +78,20 @@ class BaseBlenderGuiTestCase(TestCase):
         with open("tmp/repository_root_path_hash.txt", "rt", encoding="ascii") as f:
             container_hash = f.read().strip()
 
+        if platform.machine() in [
+            "AMD64",  # Windows
+            "x86_64",  # Linux
+        ]:
+            java_opts = []
+        else:
+            java_opts = ["-Xint"]
+
         commands = [
             "docker",
             "exec",
             "vrm_addon_for_blender_gui_test_container_" + container_hash,
             "java",
+            *java_opts,
             "-jar",
             "sikulixide.jar",
             "-c",
