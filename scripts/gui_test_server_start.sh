@@ -36,9 +36,9 @@ else
   docker run \
     --detach \
     --publish "$publish" \
-    --volume logs:/root/logs \
-    --volume tests/resources/gui:tests \
-    --volume io_scene_vrm:/root/io_scene_vrm \
+    --volume "$PWD/logs:/root/logs" \
+    --volume "$PWD/tests/resources/gui:/root/tests" \
+    --volume "$PWD/io_scene_vrm:/root/io_scene_vrm" \
     --rm \
     --name "$container_name" \
     "$tag_name"
