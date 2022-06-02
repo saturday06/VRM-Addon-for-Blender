@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM --platform=linux/amd64 ubuntu:jammy
 ARG CI
 ENV CI=$CI
 
