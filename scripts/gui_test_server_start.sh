@@ -1,12 +1,25 @@
 #!/bin/sh
 
 set -eux
-shellcheck "$0"
+
+if ! command -v shellcheck && [ "$(uname -s)" = "Darwin" ] && [ -x /opt/homebrew/bin/shellcheck ]; then
+  /opt/homebrew/bin/shellcheck "$0"
+else
+  shellcheck "$0"
+fi
 
 cd "$(dirname "$0")/.."
 mkdir -p logs tmp
-echo "$PWD" | sha256sum - | awk '{print $1}' > tmp/repository_root_path_hash.txt
-docker_hash=$(cat tmp/repository_root_path_hash.txt)
+docker_hash_path=tmp/repository_root_path_hash.txt
+if command -v sha256sum; then
+  echo "$PWD" | sha256sum - | awk '{print $1}' > "$docker_hash_path"
+elif command -v shasum; then
+  echo "$PWD" | shasum -a 256 - | awk '{print $1}' > "$docker_hash_path"
+else
+  echo "No hash command"
+  exit 1
+fi
+docker_hash=$(cat "$docker_hash_path")
 tag_name="vrm_addon_for_blender_gui_test_$docker_hash"
 container_name="vrm_addon_for_blender_gui_test_container_$docker_hash"
 CI=$(set +u; echo "$CI")
