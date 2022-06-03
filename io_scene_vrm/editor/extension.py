@@ -5,8 +5,8 @@ import bpy
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .property_group import StringPropertyGroup
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
-from .vrm0.property_group import Vrm0PropertyGroup
-from .vrm1.property_group import Vrm1PropertyGroup
+from .vrm0.property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
+from .vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
 
 
 class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -84,3 +84,14 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
 
     def is_vrm1(self) -> bool:
         return str(self.spec_version) == self.SPEC_VERSION_VRM1
+
+
+def update_internal_cache() -> None:
+    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(defer=False)
+    for armature in bpy.data.armatures:
+        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+            armature.name, defer=False
+        )
+        Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+            armature.name, defer=False
+        )

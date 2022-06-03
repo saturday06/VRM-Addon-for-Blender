@@ -45,9 +45,18 @@ if persistent:  # for fake-bpy-modules
         migration.migrate_all_objects()
         migration.setup_subscription(load_post=True)
 
+    @persistent  # type: ignore[misc]
+    def save_pre(_dummy: Any) -> None:
+        # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
+        migration.migrate_all_objects()
+        extension.update_internal_cache()
+
 else:
 
     def load_post(_dummy: Any) -> None:
+        raise NotImplementedError
+
+    def save_pre(_dummy: Any) -> None:
         raise NotImplementedError
 
 
@@ -230,10 +239,12 @@ def register(init_version: Any) -> None:
     # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
     bpy.app.handlers.load_post.append(load_post)
+    bpy.app.handlers.save_pre.append(save_pre)
 
 
 def unregister() -> None:
     migration.teardown_subscription()  # migration.setup_subscription()はload_postで呼ばれる
+    bpy.app.handlers.save_pre.remove(save_pre)
     bpy.app.handlers.load_post.remove(load_post)
 
     # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)
