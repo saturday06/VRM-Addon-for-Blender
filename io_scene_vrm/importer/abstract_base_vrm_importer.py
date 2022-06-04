@@ -27,9 +27,11 @@ from ..common.shader import shader_node_group_import
 from ..editor import migration, operator, panel
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
 from ..editor.vrm0.property_group import (
+    Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
     Vrm0HumanoidPropertyGroup,
+    Vrm0MeshAnnotationPropertyGroup,
     Vrm0MetaPropertyGroup,
     Vrm0PropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
@@ -730,19 +732,34 @@ class AbstractBaseVrmImporter(ABC):
             meta.reference = reference
 
         allowed_user_name = meta_dict.get("allowedUserName")
-        if isinstance(allowed_user_name, str):
+        if (
+            isinstance(allowed_user_name, str)
+            and allowed_user_name in Vrm0MetaPropertyGroup.ALLOWED_USER_NAME_VALUES
+        ):
             meta.allowed_user_name = allowed_user_name
 
         violent_ussage_name = meta_dict.get("violentUssageName")  # noqa: SC200
-        if isinstance(violent_ussage_name, str):  # noqa: SC200
+        if (
+            isinstance(violent_ussage_name, str)  # noqa: SC200
+            and violent_ussage_name  # noqa: SC200
+            in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES  # noqa: SC200
+        ):
             meta.violent_ussage_name = violent_ussage_name  # noqa: SC200
 
         sexual_ussage_name = meta_dict.get("sexualUssageName")  # noqa: SC200
-        if isinstance(sexual_ussage_name, str):  # noqa: SC200
+        if (
+            isinstance(sexual_ussage_name, str)  # noqa: SC200
+            and sexual_ussage_name  # noqa: SC200
+            in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES  # noqa: SC200
+        ):
             meta.sexual_ussage_name = sexual_ussage_name  # noqa: SC200
 
         commercial_ussage_name = meta_dict.get("commercialUssageName")  # noqa: SC200
-        if isinstance(commercial_ussage_name, str):  # noqa: SC200
+        if (
+            isinstance(commercial_ussage_name, str)  # noqa: SC200
+            and commercial_ussage_name  # noqa: SC200
+            in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES  # noqa: SC200
+        ):
             meta.commercial_ussage_name = commercial_ussage_name  # noqa: SC200
 
         other_permission_url = meta_dict.get("otherPermissionUrl")
@@ -750,7 +767,10 @@ class AbstractBaseVrmImporter(ABC):
             meta.other_permission_url = other_permission_url
 
         license_name = meta_dict.get("licenseName")
-        if isinstance(license_name, str):
+        if (
+            isinstance(license_name, str)
+            and license_name in Vrm0MetaPropertyGroup.LICENSE_NAME_VALUES
+        ):
             meta.license_name = license_name
 
         other_license_url = meta_dict.get("otherLicenseUrl")
@@ -882,11 +902,19 @@ class AbstractBaseVrmImporter(ABC):
                     mesh_annotation.mesh.value = self.meshes[mesh].name
 
                 first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
-                if isinstance(first_person_flag, str):
+                if (
+                    isinstance(first_person_flag, str)
+                    and first_person_flag
+                    in Vrm0MeshAnnotationPropertyGroup.FIRST_PERSON_FLAG_VALUES
+                ):
                     mesh_annotation.first_person_flag = first_person_flag
 
         look_at_type_name = first_person_dict.get("lookAtTypeName")
-        if look_at_type_name in ["Bone", "BlendShape"]:
+        if (
+            isinstance(look_at_type_name, str)
+            and look_at_type_name
+            in Vrm0FirstPersonPropertyGroup.LOOK_AT_TYPE_NAME_VALUES
+        ):
             first_person.look_at_type_name = look_at_type_name
 
         for (look_at, look_at_dict) in [
@@ -944,7 +972,10 @@ class AbstractBaseVrmImporter(ABC):
                 blend_shape_group.name = name
 
             preset_name = blend_shape_group_dict.get("presetName")
-            if preset_name is not None:
+            if (
+                isinstance(preset_name, str)
+                and preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
+            ):
                 blend_shape_group.preset_name = preset_name
 
             bind_dicts = blend_shape_group_dict.get("binds")

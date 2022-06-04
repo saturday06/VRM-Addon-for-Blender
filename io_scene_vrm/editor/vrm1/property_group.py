@@ -469,6 +469,10 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         ("block", "Block", "", 1),
         ("blend", "Blend", "", 2),
     ]
+    EXPRESSION_OVERRIDE_TYPE_VALUES = [
+        expression_override_type_item[0]
+        for expression_override_type_item in expression_override_type_items
+    ]
 
     override_blink: bpy.props.EnumProperty(  # type: ignore[valid-type]
         name="Override Blink", items=expression_override_type_items  # noqa: F722
@@ -559,20 +563,36 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
         ("onlySeparatelyLicensedPerson", "Only Separately Licensed Person", "", 1),
         ("everyone", "Everyone", "", 2),
     ]
+    AVATAR_PERMISSION_VALUES = [
+        avatar_permission_item[0] for avatar_permission_item in avatar_permission_items
+    ]
+
     commercial_usage_items = [
         ("personalNonProfit", "Personal Non-Profit", "", 0),
         ("personalProfit", "Personal Profit", "", 1),
         ("corporation", "Corporation", "", 2),
     ]
+    COMMERCIAL_USAGE_VALUES = [
+        commercial_usage_item[0] for commercial_usage_item in commercial_usage_items
+    ]
+
     credit_notation_items = [
         ("required", "Required", "", 0),
         ("unnecessary", "Unnecessary", "", 1),
     ]
+    CREDIT_NOTATION_VALUES = [
+        credit_notation_item[0] for credit_notation_item in credit_notation_items
+    ]
+
     modification_items = [
         ("prohibited", "Prohibited", "", 0),
         ("allowModification", "Allow Modification", "", 1),
         ("allowModificationRedistribution", "Allow Modification Redistribution", "", 2),
     ]
+    MODIFICATION_VALUES = [
+        modification_item[0] for modification_item in modification_items
+    ]
+
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name"  # noqa: F821
     )

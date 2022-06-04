@@ -280,6 +280,9 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
         ("ThirdPersonOnly", "Third-Person Only", "", 2),
         ("Both", "Both", "", 3),
     ]
+    FIRST_PERSON_FLAG_VALUES = [
+        first_person_flag_item[0] for first_person_flag_item in first_person_flag_items
+    ]
     first_person_flag: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=first_person_flag_items, name="First Person Flag"  # noqa: F722
     )
@@ -303,6 +306,9 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
     look_at_type_name_items = [
         ("Bone", "Bone", "Bone", "BONE_DATA", 0),
         ("BlendShape", "Blend Shape", "Blend Shape", "SHAPEKEY_DATA", 1),
+    ]
+    LOOK_AT_TYPE_NAME_VALUES = [
+        look_at_type_name_item[0] for look_at_type_name_item in look_at_type_name_items
     ]
     look_at_type_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=look_at_type_name_items, name="Look At Type Name"  # noqa: F722
@@ -372,6 +378,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         ("blink_l", "blink_l", "", "HIDE_ON", 16),
         ("blink_r", "blink_r", "", "HIDE_ON", 17),
     ]
+    PRESET_NAME_VALUES = [preset_name_item[0] for preset_name_item in preset_name_items]
     preset_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=preset_name_items, name="Preset"  # noqa: F821
     )
@@ -521,17 +528,35 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
         ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", 1),
         ("Everyone", "Everyone", "", 2),
     ]
+    ALLOWED_USER_NAME_VALUES = [
+        allowed_user_name_item[0] for allowed_user_name_item in allowed_user_name_items
+    ]
+
     violent_ussage_name_items = [  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     ]
+    VIOLENT_USSAGE_NAME_VALUES = [  # noqa: SC200
+        violent_ussage_name_item[0]  # noqa: SC200
+        for violent_ussage_name_item in violent_ussage_name_items  # noqa: SC200
+    ]
+
     sexual_ussage_name_items = [  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     ]
+    SEXUAL_USSAGE_NAME_VALUES = [  # noqa: SC200
+        sexual_ussage_name_item[0]  # noqa: SC200
+        for sexual_ussage_name_item in sexual_ussage_name_items  # noqa: SC200
+    ]
+
     commercial_ussage_name_items = [  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
+    ]
+    COMMERCIAL_USSAGE_NAME_VALUES = [  # noqa: SC200
+        commercial_ussage_name_item[0]  # noqa: SC200
+        for commercial_ussage_name_item in commercial_ussage_name_items  # noqa: SC200
     ]
 
     LICENSE_NAME_OTHER = "Other"
@@ -545,6 +570,9 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # no
         ("CC_BY_ND", "CC BY ND", "", 6),
         ("CC_BY_NC_ND", "CC BY NC ND", "", 7),
         (LICENSE_NAME_OTHER, "Other", "", 8),
+    ]
+    LICENSE_NAME_VALUES = [
+        license_name_item[0] for license_name_item in license_name_items
     ]
 
     title: bpy.props.StringProperty(  # type: ignore[valid-type]

@@ -9,7 +9,14 @@ import bpy
 
 from ...common import convert
 from ...common.human_bone import HumanBoneSpecifications
-from .property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
+from .property_group import (
+    Vrm0BlendShapeGroupPropertyGroup,
+    Vrm0FirstPersonPropertyGroup,
+    Vrm0HumanoidPropertyGroup,
+    Vrm0MeshAnnotationPropertyGroup,
+    Vrm0MetaPropertyGroup,
+    Vrm0PropertyGroup,
+)
 
 
 def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Optional[Any]:
@@ -35,7 +42,10 @@ def migrate_vrm0_meta(
     meta: bpy.types.PropertyGroup, armature: bpy.types.Object
 ) -> None:
     allowed_user_name = armature.get("allowedUserName")
-    if isinstance(allowed_user_name, str):
+    if (
+        isinstance(allowed_user_name, str)
+        and allowed_user_name in Vrm0MetaPropertyGroup.ALLOWED_USER_NAME_VALUES
+    ):
         meta.allowed_user_name = allowed_user_name
 
     author = armature.get("author")
@@ -43,7 +53,11 @@ def migrate_vrm0_meta(
         meta.author = author
 
     commercial_ussage_name = armature.get("commercialUssageName")  # noqa: SC200
-    if isinstance(commercial_ussage_name, str):  # noqa: SC200
+    if (
+        isinstance(commercial_ussage_name, str)  # noqa: SC200
+        and commercial_ussage_name  # noqa: SC200
+        in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES  # noqa: SC200
+    ):
         meta.commercial_ussage_name = commercial_ussage_name  # noqa: SC200
 
     contact_information = armature.get("contactInformation")
@@ -51,7 +65,10 @@ def migrate_vrm0_meta(
         meta.contact_information = contact_information
 
     license_name = armature.get("licenseName")
-    if isinstance(license_name, str):
+    if (
+        isinstance(license_name, str)
+        and license_name in Vrm0MetaPropertyGroup.LICENSE_NAME_VALUES
+    ):
         meta.license_name = license_name
 
     other_license_url = armature.get("otherLicenseUrl")
@@ -67,7 +84,11 @@ def migrate_vrm0_meta(
         meta.reference = reference
 
     sexual_ussage_name = armature.get("sexualUssageName")  # noqa: SC200
-    if isinstance(sexual_ussage_name, str):  # noqa: SC200
+    if (
+        isinstance(sexual_ussage_name, str)  # noqa: SC200
+        and sexual_ussage_name  # noqa: SC200
+        in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES  # noqa: SC200
+    ):
         meta.sexual_ussage_name = sexual_ussage_name  # noqa: SC200
 
     title = armature.get("title")
@@ -79,7 +100,11 @@ def migrate_vrm0_meta(
         meta.version = version
 
     violent_ussage_name = armature.get("violentUssageName")  # noqa: SC200
-    if isinstance(violent_ussage_name, str):  # noqa: SC200
+    if (
+        isinstance(violent_ussage_name, str)  # noqa: SC200
+        and violent_ussage_name  # noqa: SC200
+        in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES  # noqa: SC200
+    ):
         meta.violent_ussage_name = violent_ussage_name  # noqa: SC200
 
     texture = armature.get("texture")
@@ -161,11 +186,18 @@ def migrate_vrm0_first_person(
                         break
 
             first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
-            if isinstance(first_person_flag, str):
+            if (
+                isinstance(first_person_flag, str)
+                and first_person_flag
+                in Vrm0MeshAnnotationPropertyGroup.FIRST_PERSON_FLAG_VALUES
+            ):
                 mesh_annotation.first_person_flag = first_person_flag
 
     look_at_type_name = first_person_dict.get("lookAtTypeName")
-    if look_at_type_name in ["Bone", "BlendShape"]:
+    if (
+        isinstance(look_at_type_name, str)
+        and look_at_type_name in Vrm0FirstPersonPropertyGroup.LOOK_AT_TYPE_NAME_VALUES
+    ):
         first_person.look_at_type_name = look_at_type_name
 
     for (look_at, look_at_dict) in [
@@ -220,7 +252,10 @@ def migrate_vrm0_blend_shape_groups(
             blend_shape_group.name = name
 
         preset_name = blend_shape_group_dict.get("presetName")
-        if preset_name is not None:
+        if (
+            isinstance(preset_name, str)
+            and preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
+        ):
             blend_shape_group.preset_name = preset_name
 
         bind_dicts = blend_shape_group_dict.get("binds")

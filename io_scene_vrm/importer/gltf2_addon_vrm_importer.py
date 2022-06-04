@@ -793,23 +793,43 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if thumbnail_image:
                 meta.thumbnail_image = thumbnail_image
 
-        meta.avatar_permission = str(meta_dict.get("avatarPermission"))
+        avatar_permission = meta_dict.get("avatarPermission")
+        if (
+            isinstance(avatar_permission, str)
+            and avatar_permission in Vrm1MetaPropertyGroup.AVATAR_PERMISSION_VALUES
+        ):
+            meta.avatar_permission = avatar_permission
         meta.allow_excessively_violent_usage = bool(
             meta_dict.get("allowExcessivelyViolentUsage")
         )
         meta.allow_excessively_sexual_usage = bool(
             meta_dict.get("allowExcessivelySexualUsage")
         )
-        meta.commercial_usage = str(meta_dict.get("commercialUsage"))
+        commercial_usage = meta_dict.get("commercialUsage")
+        if (
+            isinstance(commercial_usage, str)
+            and commercial_usage in Vrm1MetaPropertyGroup.COMMERCIAL_USAGE_VALUES
+        ):
+            meta.commercial_usage = commercial_usage
         meta.allow_political_or_religious_usage = bool(
             meta_dict.get("allowPoliticalOrReligiousUsage")
         )
         meta.allow_antisocial_or_hate_usage = bool(
             meta_dict.get("allowAntisocialOrHateUsage")
         )
-        meta.credit_notation = str(meta_dict.get("creditNotation"))
+        credit_notation = meta_dict.get("creditNotation")
+        if (
+            isinstance(credit_notation, str)
+            and credit_notation in Vrm1MetaPropertyGroup.CREDIT_NOTATION_VALUES
+        ):
+            meta.credit_notation = credit_notation
         meta.allow_redistribution = bool(meta_dict.get("allowRedistribution"))
-        meta.modification = str(meta_dict.get("modification"))
+        modification = meta_dict.get("modification")
+        if (
+            isinstance(modification, str)
+            and modification in Vrm1MetaPropertyGroup.MODIFICATION_VALUES
+        ):
+            meta.modification = modification
         meta.other_license_url = str(meta_dict.get("otherLicenseUrl"))
 
     def load_vrm1_humanoid(
@@ -1024,18 +1044,28 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if isinstance(is_binary, bool):
             expression.is_binary = is_binary
 
-        override_values = ["none", "block", "blend"]
-
         override_blink = expression_dict.get("overrideBlink")
-        if override_blink in override_values:
+        if (
+            isinstance(override_blink, str)
+            and override_blink
+            in Vrm1ExpressionPropertyGroup.EXPRESSION_OVERRIDE_TYPE_VALUES
+        ):
             expression.override_blink = override_blink
 
         override_look_at = expression_dict.get("overrideLookAt")
-        if override_look_at in override_values:
+        if (
+            isinstance(override_look_at, str)
+            and override_look_at
+            in Vrm1ExpressionPropertyGroup.EXPRESSION_OVERRIDE_TYPE_VALUES
+        ):
             expression.override_look_at = override_look_at
 
         override_mouth = expression_dict.get("overrideMouth")
-        if override_mouth in override_values:
+        if (
+            isinstance(override_mouth, str)
+            and override_mouth
+            in Vrm1ExpressionPropertyGroup.EXPRESSION_OVERRIDE_TYPE_VALUES
+        ):
             expression.override_mouth = override_mouth
 
     def load_vrm1_expressions(
