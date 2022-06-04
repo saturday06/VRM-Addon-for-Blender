@@ -144,6 +144,19 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         name=obj.name
                     )
                 )
+            if (
+                obj.type == "MESH"
+                and obj.data.shape_keys is not None
+                and len(obj.data.shape_keys.key_blocks)
+                >= 2  # Exclude a "Basis" shape key
+                and any(map(lambda m: m.type != "ARMATURE", obj.modifiers))
+            ):
+                warning_messages.append(
+                    pgettext(
+                        'The "{name}" mesh has both a non-armature modifier and a shape key. '
+                        + "However, they cannot coexist, so shape keys may not be export correctly."
+                    ).format(name=obj.name)
+                )
             if obj.type == "ARMATURE":
                 armature = obj
                 if execute_migration:

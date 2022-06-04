@@ -54,6 +54,12 @@ translation_dictionary = {
     ("*", 'There are not an object on the origin "{name}"'): "「{name}」が原点座標にありません",
     (
         "*",
+        'The "{name}" mesh has both a non-armature modifier and a shape key. '
+        + "However, they cannot coexist, so shape keys may not be export correctly.",
+    ): "メッシュ「{name}」にアーマチュア以外のモディファイアとシェイプキーが両方設定されていますが、"
+    + "それらは共存できないためシェイプキーが正しく出力されないことがあります。",
+    (
+        "*",
         "Only one armature is required for VRM export. Multiple armatures found.",
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
