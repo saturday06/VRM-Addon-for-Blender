@@ -6,6 +6,7 @@ from mathutils import Matrix
 
 from . import migration
 from .template_mesh_maker import IcypTemplateMeshMaker
+from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 
 
 class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -505,10 +506,14 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
     def setup_as_vrm(
         self, armature: bpy.types.Object, compare_dict: Dict[str, str]
     ) -> None:
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         for vrm_bone_name, bpy_bone_name in compare_dict.items():
-            props = armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
-            props.bone = vrm_bone_name
-            props.node.value = bpy_bone_name
+            for (
+                human_bone
+            ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
+                if human_bone.bone == vrm_bone_name:
+                    human_bone.node.value = bpy_bone_name
+                    break
         self.make_extension_setting_and_metas(armature)
         migration.migrate(armature.name, defer=False)
 
