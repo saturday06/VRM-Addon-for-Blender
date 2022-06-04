@@ -179,11 +179,14 @@ def migrate_vrm0_first_person(
                 continue
 
             mesh = mesh_annotation_dict.get("mesh")
-            if isinstance(mesh, str) and mesh in bpy.data.meshes:
-                for obj in bpy.data.objects:
-                    if obj.data == bpy.data.meshes[mesh]:
-                        mesh_annotation.mesh.value = obj.name
-                        break
+            if isinstance(mesh, str):
+                if mesh in bpy.data.meshes:
+                    for obj in bpy.data.objects:
+                        if obj.data == bpy.data.meshes[mesh]:
+                            mesh_annotation.mesh.value = obj.name
+                            break
+                elif mesh in bpy.data.objects and bpy.data.objects[mesh].type == "MESH":
+                    mesh_annotation.mesh.value = bpy.data.objects[mesh].name
 
             first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
             if (
@@ -266,16 +269,31 @@ def migrate_vrm0_blend_shape_groups(
                 if not isinstance(bind_dict, dict):
                     continue
 
-                mesh = bind_dict.get("mesh")
-                if isinstance(mesh, str) and mesh in bpy.data.meshes:
-                    mesh = bpy.data.meshes[mesh]
-                    for obj in bpy.data.objects:
-                        if obj.data == mesh:
-                            bind.mesh.value = obj.name
-                            break
-                    index = bind_dict.get("index")
-                    if isinstance(index, str) and index in mesh.shape_keys.key_blocks:
-                        bind.index = index
+                mesh_name = bind_dict.get("mesh")
+                if isinstance(mesh_name, str):
+                    if mesh_name in bpy.data.meshes:
+                        mesh = bpy.data.meshes[mesh_name]
+                        for obj in bpy.data.objects:
+                            if obj.data == mesh:
+                                bind.mesh.value = obj.name
+                                break
+                    elif (
+                        mesh_name in bpy.data.objects
+                        and bpy.data.objects[mesh_name].type == "MESH"
+                    ):
+                        obj = bpy.data.objects[mesh_name]
+                        bind.mesh.value = obj.name
+                        mesh = obj.data
+                    else:
+                        mesh = None
+
+                    if mesh:
+                        index = bind_dict.get("index")
+                        if (
+                            isinstance(index, str)
+                            and index in mesh.shape_keys.key_blocks
+                        ):
+                            bind.index = index
 
                 weight = bind_dict.get("weight")
                 if isinstance(weight, (int, float)):
