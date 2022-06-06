@@ -1,14 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 
-set -eux
-
-if ! command -v shellcheck && [ "$(uname -s)" = "Darwin" ] && [ -x /opt/homebrew/bin/shellcheck ]; then
-  /opt/homebrew/bin/shellcheck "$0"
-else
-  shellcheck "$0"
-fi
+set -eux -o pipefail
 
 cd "$(dirname "$0")/.."
+
+if ! command -v timeout; then
+  timeout() (
+    seconds=$1
+    shift
+    "$@" &
+    wait_pid=$!
+
+    for _ in $(seq "$seconds"); do
+      if ! kill -0 "$wait_pid"; then
+        exit 0
+      fi
+      sleep 1
+    done
+
+    kill "$wait_pid"
+    exit 124
+  )
+fi
+
 mkdir -p logs tmp
 docker_hash_path=tmp/repository_root_path_hash.txt
 if command -v sha256sum; then
@@ -26,6 +40,7 @@ CI=$(set +u; echo "$CI")
 
 running_container=$(docker ps --quiet --filter "name=$container_name")
 if [ -n "$running_container" ]; then
+  timeout 60 sh -c "until nc -z 127.0.0.1 6080; do sleep 0.1; done"
   exit 0
 fi
 
@@ -43,6 +58,7 @@ if [ "$CI" = "true" ]; then
     --rm \
     --name "$container_name" \
     "$tag_name"
+  timeout 30 sh -c "until docker exec '$container_name' glxinfo > /dev/null; do sleep 0.5; done"
   docker cp tests/resources/gui/. "$container_name:/root/tests"
   docker cp io_scene_vrm/. "$container_name:/root/io_scene_vrm"
 else
@@ -55,4 +71,5 @@ else
     --rm \
     --name "$container_name" \
     "$tag_name"
+  timeout 30 sh -c "until curl --silent --show-error --fail http://127.0.0.1:6080/vnc.html -o logs/vnc.html; do sleep 0.5; done"
 fi
