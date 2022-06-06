@@ -5,8 +5,8 @@ md tmp
 cd > tmp\repository_root_path.txt
 
 set powershell_command=powershell
-WHERE pwsh
-if %ERRORLEVEL% EQU 0 set powershell_command=pwsh
+where pwsh
+if %errorlevel% equ 0 set powershell_command=pwsh
 %powershell_command% -Command "Write-Output (Get-FileHash 'tmp/repository_root_path.txt').Hash.ToLower()" > tmp\repository_root_path_hash.txt
 for /f "usebackq delims=" %%A in (`type tmp\repository_root_path_hash.txt`) do set hash=%%A
 
