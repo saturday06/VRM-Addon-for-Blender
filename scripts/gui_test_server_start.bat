@@ -2,7 +2,7 @@ cd /d "%~dp0.."
 md logs
 md tmp
 
-cd > tmp\repository_root_path.txt
+echo "%cd%" > tmp\repository_root_path.txt
 
 set powershell_command=powershell
 where pwsh
