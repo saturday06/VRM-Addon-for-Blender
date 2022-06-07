@@ -8,8 +8,10 @@ timeout 5 sh -c "until glxinfo > /dev/null; do sleep 0.1; done"
 fvwm > var/log/fvwm.log 2>&1 &
 
 if [ "$(uname -m)" = "aarch64" ] && ! java -jar sikulixide.jar -c -r tests/test.sikuli; then
-  cp /usr/lib/jni/libopencv_java451.so /root/.Sikulix/SikulixLibs/libopencv_java430.so
-  cp /usr/lib/aarch64-linux-gnu/jni/libJXGrabKey.so /root/.Sikulix/SikulixLibs/libJXGrabKey.so
+  rm /root/.Sikulix/SikulixLibs/libopencv_java430.so
+  ln -s /usr/lib/jni/libopencv_java451.so /root/.Sikulix/SikulixLibs/libopencv_java430.so
+  rm /root/.Sikulix/SikulixLibs/libJXGrabKey.so
+  ln -s /usr/lib/aarch64-linux-gnu/jni/libJXGrabKey.so /root/.Sikulix/SikulixLibs/libJXGrabKey.so
 fi
 
 if [ "$CI" = "true" ]; then
