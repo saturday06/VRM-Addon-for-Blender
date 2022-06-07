@@ -109,7 +109,7 @@ class BaseBlenderGuiTestCase(TestCase):
             + container_hash
             + ":"
             + "/root/latest_capture.ogv",
-            "tmp/",
+            ".",
         ]
         collect_artifact_completed_process = subprocess.run(
             collect_artifact_commands,
@@ -130,9 +130,7 @@ class BaseBlenderGuiTestCase(TestCase):
                 + "\n"
             )
         else:
-            collect_artifact_message = (
-                "See latest capture file: tmp/latest_capture.ogv\n"
-            )
+            collect_artifact_message = "See latest capture file: latest_capture.ogv\n"
 
         message = (
             "\nFailed to execute command:\n"

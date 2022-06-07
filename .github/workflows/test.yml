@@ -92,7 +92,7 @@ jobs:
         if: failure()
         with:
           name: Captured Video
-          path: tmp/latest_capture.ogv
+          path: latest_capture.ogv
   lint:
     runs-on: ubuntu-20.04
     steps:
