@@ -18,6 +18,8 @@ RUN apt-get update -qq \
         mesa-utils \
         netcat \
         openjdk-17-jre \
+        procps \
+        python3-numpy \
         recordmydesktop \
         x11-xserver-utils \
         x11vnc \
