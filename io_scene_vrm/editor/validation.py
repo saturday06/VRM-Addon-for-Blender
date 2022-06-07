@@ -33,7 +33,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         self.detect_errors(
             context,
             self.errors,
-            self.show_successful_message,
             execute_migration=True,
             readonly=False,
         )
@@ -53,7 +52,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         self.detect_errors(
             context,
             self.errors,
-            self.show_successful_message,
             execute_migration=True,
             readonly=False,
         )
@@ -66,10 +64,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             Set[str], context.window_manager.invoke_props_dialog(self, width=800)
         )
 
-    def draw(self, context: bpy.types.Context) -> None:
-        self.detect_errors(
-            context, self.errors, self.show_successful_message, self.layout
-        )
+    def draw(self, _context: bpy.types.Context) -> None:
+        self.draw_errors(self.errors, self.show_successful_message, self.layout)
 
     @staticmethod
     def validate_bone_order(
@@ -100,8 +96,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
     def detect_errors(
         context: bpy.types.Context,
         error_collection: bpy.types.CollectionProperty,
-        show_successful_message: bool = True,
-        layout: Optional[bpy.types.UILayout] = None,
         execute_migration: bool = False,
         readonly: bool = True,
     ) -> None:
@@ -445,69 +439,91 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
         error_collection.clear()
 
-        if layout and not error_messages:
-            if warning_messages:
-                row = layout.row()
-                row.emboss = "NONE"
-                row.box().label(
-                    text=pgettext(
-                        "No error. But there're {warning_count} warning(s)."
-                        + " The output may not be what you expected."
-                    ).format(
-                        warning_count=len(warning_messages),
-                    ),
+        for message in error_messages:
+            error = error_collection.add()
+            error.name = f"VrmModelError{len(error_collection)}"
+            error.severity = 0
+            error.message = message
+
+        for message in warning_messages:
+            error = error_collection.add()
+            error.name = f"VrmModelError{len(error_collection)}"
+            error.severity = 1
+            error.message = message
+
+        for message in info_messages:
+            error = error_collection.add()
+            error.name = f"VrmModelError{len(error_collection)}"
+            error.severity = 2
+            error.message = message
+
+    @staticmethod
+    def draw_errors(
+        error_collection: bpy.types.CollectionProperty,
+        show_successful_message: bool,
+        layout: bpy.types.UILayout,
+    ) -> None:
+        error_errors = []
+        warning_errors = []
+        info_errors = []
+
+        for error in error_collection:
+            if error.severity == 0:
+                error_errors.append(error)
+            elif error.severity == 1:
+                warning_errors.append(error)
+            else:
+                info_errors.append(error)
+
+        if warning_errors:
+            row = layout.row()
+            row.emboss = "NONE"
+            row.box().label(
+                text=pgettext(
+                    "No error. But there're {warning_count} warning(s)."
+                    + " The output may not be what you expected."
+                ).format(
+                    warning_count=len(warning_errors),
+                ),
+                translate=False,
+            )
+        elif show_successful_message:
+            row = layout.row()
+            row.emboss = "NONE"
+            row.box().label(text="No error. Ready for export VRM")
+
+        if error_errors:
+            layout.label(text="Error", icon="ERROR")
+            column = layout.column()
+            for error in error_errors:
+                column.prop(
+                    error,
+                    "message",
+                    text="",
                     translate=False,
                 )
-            elif show_successful_message:
-                row = layout.row()
-                row.emboss = "NONE"
-                row.box().label(text="No error. Ready for export VRM")
 
-        if error_messages:
-            if layout:
-                layout.label(text="Error", icon="ERROR")
-            for message in error_messages:
-                error = error_collection.add()
-                error.name = f"VrmModelError{len(error_collection)}"
-                error.severity = 0
-                error.message = message
-                if layout:
-                    layout.prop(
-                        error,
-                        "message",
-                        text="",
-                        translate=False,
-                    )
-        if warning_messages:
-            if layout:
-                layout.label(text="Warning", icon="CANCEL")
-            for message in warning_messages:
-                error = error_collection.add()
-                error.name = f"VrmModelError{len(error_collection)}"
-                error.severity = 1
-                error.message = message
-                if layout:
-                    layout.prop(
-                        error,
-                        "message",
-                        text="",
-                        translate=False,
-                    )
-        if info_messages:
-            if layout:
-                layout.label(text="Info", icon="INFO")
-            for message in info_messages:
-                error = error_collection.add()
-                error.name = f"VrmModelError{len(error_collection)}"
-                error.severity = 2
-                error.message = message
-                if layout:
-                    layout.prop(
-                        error,
-                        "message",
-                        text="",
-                        translate=False,
-                    )
+        if warning_errors:
+            layout.label(text="Warning", icon="CANCEL")
+            column = layout.column()
+            for error in warning_errors:
+                column.prop(
+                    error,
+                    "message",
+                    text="",
+                    translate=False,
+                )
+
+        if info_errors:
+            layout.label(text="Info", icon="INFO")
+            column = layout.column()
+            for error in info_errors:
+                column.prop(
+                    error,
+                    "message",
+                    text="",
+                    translate=False,
+                )
 
 
 def node_material_input_check(

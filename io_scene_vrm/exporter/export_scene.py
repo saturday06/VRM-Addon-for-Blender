@@ -128,6 +128,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         ) != {"FINISHED"}:
             return {"CANCELLED"}
 
+        validation.WM_OT_vrm_validator.detect_errors(context, self.errors)
         return cast(Set[str], ExportHelper.invoke(self, context, event))
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -158,9 +159,10 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
 
-        validation.WM_OT_vrm_validator.detect_errors(
-            context, operator.errors, False, layout
-        )
+        if operator.errors:
+            validation.WM_OT_vrm_validator.draw_errors(
+                operator.errors, False, layout.box()
+            )
 
 
 def menu_export(export_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
