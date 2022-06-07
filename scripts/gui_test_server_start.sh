@@ -23,8 +23,8 @@ if ! command -v timeout; then
   )
 fi
 
-mkdir -p logs tmp
-docker_hash_path=tmp/repository_root_path_hash.txt
+mkdir -p var/log var/tmp
+docker_hash_path=var/repository_root_path_hash.txt
 if command -v sha256sum; then
   echo "$PWD" | sha256sum - | awk '{print $1}' > "$docker_hash_path"
 elif command -v shasum; then
@@ -65,11 +65,11 @@ else
   docker run \
     --detach \
     --publish "$publish" \
-    --volume "$PWD/logs:/root/logs" \
     --volume "$PWD/tests/resources/gui:/root/tests" \
+    --volume "$PWD/var:/root/var" \
     --volume "$PWD/io_scene_vrm:/root/io_scene_vrm" \
     --rm \
     --name "$container_name" \
     "$tag_name"
-  timeout 30 sh -c "until curl --silent --show-error --fail http://127.0.0.1:6080/vnc.html -o logs/vnc.html; do sleep 0.5; done"
+  timeout 30 sh -c "until curl --silent --show-error --fail http://127.0.0.1:6080/vnc.html -o var/vnc.html; do sleep 0.5; done"
 fi

@@ -75,7 +75,7 @@ class BaseBlenderGuiTestCase(TestCase):
             else:
                 self.skipTest(message)
             return
-        with open("tmp/repository_root_path_hash.txt", "rt", encoding="ascii") as f:
+        with open("var/repository_root_path_hash.txt", "rt", encoding="ascii") as f:
             container_hash = f.read().strip()
 
         commands = [

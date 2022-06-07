@@ -1,14 +1,14 @@
 cd /d "%~dp0.."
-md logs
-md tmp
+md var\log
+md var\tmp
 
-echo "%cd%" > tmp\repository_root_path.txt
+echo "%cd%" > var\tmp\repository_root_path.txt
 
 set powershell_command=powershell
 where pwsh
 if %errorlevel% equ 0 set powershell_command=pwsh
-%powershell_command% -Command "Write-Output (Get-FileHash 'tmp/repository_root_path.txt').Hash.ToLower()" > tmp\repository_root_path_hash.txt
-for /f "usebackq delims=" %%A in (`type tmp\repository_root_path_hash.txt`) do set hash=%%A
+%powershell_command% -Command "Write-Output (Get-FileHash 'var/tmp/repository_root_path.txt').Hash.ToLower()" > var\repository_root_path_hash.txt
+for /f "usebackq delims=" %%A in (`type var\repository_root_path_hash.txt`) do set hash=%%A
 
 set container_name=vrm_addon_for_blender_gui_test_container_%hash%
 set tag_name=vrm_addon_for_blender_gui_test_%hash%
@@ -26,7 +26,7 @@ if %errorlevel% neq 0 goto error
 call docker run ^
   --detach ^
   --publish 127.0.0.1:6080:6080/tcp ^
-  --volume "%cd%\logs":/root/logs ^
+  --volume "%cd%\var":/root/var ^
   --volume "%cd%\tests\resources\gui":/root/tests ^
   --volume "%cd%\io_scene_vrm":/root/io_scene_vrm ^
   --rm ^
