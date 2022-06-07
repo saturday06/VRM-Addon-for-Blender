@@ -178,7 +178,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
                 )
                 if armature.data.vrm_addon_extension.is_vrm1():
-                    info_messages.append(
+                    warning_messages.append(
                         pgettext(
                             "VRM 1.0 support is under development.\n"
                             + "It won't work as intended in many situations."
