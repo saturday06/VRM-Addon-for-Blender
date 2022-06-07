@@ -185,12 +185,15 @@ def generate_dynamic_gui_tests() -> None:
 
     content = render_gui_test_header()
 
-    for path in map(str.strip, sorted(os.listdir(gui_test_src_dir))):
-        if not path.endswith(".py") or path in ["__init__.py", "test.py"]:
-            continue
-        path_without_ext = re.sub("\\.py$", "", path)
-        method_name = to_function_component_literal(path_without_ext)
-        content += render_gui_test(method_name, path)
+    if os.path.exists(gui_test_src_dir):
+        for path in map(str.strip, sorted(os.listdir(gui_test_src_dir))):
+            if not path.endswith(".py"):
+                continue
+            path_without_ext = re.sub("\\.py$", "", path)
+            method_name = to_function_component_literal(path_without_ext)
+            content += render_gui_test(method_name, path)
+    else:
+        content += render_missing_required_directory_test("./resources/gui/test.sikuli")
 
     content_bytes = content.replace("\r\n", "\n").encode()
     out_path = os.path.join(test_src_dir, "test_GENERATED_gui.py")
