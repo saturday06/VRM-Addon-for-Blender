@@ -492,8 +492,17 @@ def migrate_link_to_bone_object(armature: bpy.types.Object) -> None:
             bone_property_group.bone_uuid = bone.vrm_addon_extension.uuid
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
+        link_to_bone = bone_property_group.get("link_to_bone")
         if "link_to_bone" in bone_property_group:
             del bone_property_group["link_to_bone"]
+        if not isinstance(link_to_bone, bpy.types.Object):
+            continue
+        if link_to_bone.parent_type != "OBJECT":
+            link_to_bone.parent_type = "OBJECT"
+        if link_to_bone.parent_bone:
+            link_to_bone.parent_bone = ""
+        if link_to_bone.parent is not None:
+            link_to_bone.parent = None
 
     armature.data.vrm_addon_extension.vrm0.humanoid.last_bone_names.clear()
     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
@@ -547,8 +556,17 @@ def remove_link_to_mesh_object(armature: bpy.types.Object) -> None:
     for mesh in meshes:
         if not mesh:
             continue
+        link_to_mesh = mesh.get("link_to_mesh")
         if "link_to_mesh" in mesh:
             del mesh["link_to_mesh"]
+        if not isinstance(link_to_mesh, bpy.types.Object):
+            continue
+        if link_to_mesh.parent_type != "OBJECT":
+            link_to_mesh.parent_type = "OBJECT"
+        if link_to_mesh.parent_bone:
+            link_to_mesh.parent_bone = ""
+        if link_to_mesh.parent is not None:
+            link_to_mesh.parent = None
 
 
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
