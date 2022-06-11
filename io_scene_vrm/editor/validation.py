@@ -475,7 +475,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             else:
                 info_errors.append(error)
 
-        if warning_errors:
+        if not error_errors and warning_errors:
             row = layout.row()
             row.emboss = "NONE"
             row.box().label(
@@ -487,7 +487,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 ),
                 translate=False,
             )
-        elif show_successful_message:
+        elif not error_errors and show_successful_message:
             row = layout.row()
             row.emboss = "NONE"
             row.box().label(text="No error. Ready for export VRM")
