@@ -467,7 +467,7 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
                 break
 
 
-def migrate_mesh_object_property_group(armature: bpy.types.Object) -> None:
+def migrate_link_to_bone_object(armature: bpy.types.Object) -> None:
     ext = armature.data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 23):
         return
@@ -495,6 +495,27 @@ def migrate_mesh_object_property_group(armature: bpy.types.Object) -> None:
         mesh.value = link_to_mesh.parent.name
 
 
+def remove_link_to_mesh_object(armature: bpy.types.Object) -> None:
+    ext = armature.data.vrm_addon_extension
+    if tuple(ext.addon_version) >= (2, 3, 27):
+        return
+
+    meshes = [
+        mesh_annotation.mesh
+        for mesh_annotation in ext.vrm0.first_person.mesh_annotations
+    ] + [
+        bind.mesh
+        for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups
+        for bind in blend_shape_group.binds
+    ]
+
+    for mesh in meshes:
+        if not mesh:
+            continue
+        if "link_to_mesh" in mesh:
+            del mesh["link_to_mesh"]
+
+
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
@@ -519,7 +540,8 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
                 break
 
     migrate_legacy_custom_properties(armature)
-    migrate_mesh_object_property_group(armature)
+    migrate_link_to_mesh_object(armature)
+    remove_link_to_mesh_object(armature)
 
     vrm0.humanoid.last_bone_names.clear()
     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
