@@ -609,11 +609,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
             return {"CANCELLED"}
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
-        bones = (
-            armature.data.edit_bones
-            if armature.data.is_editmode
-            else armature.data.bones
-        )
+        bones = armature.data.bones
         for (
             bone_name,
             human_bone_name,

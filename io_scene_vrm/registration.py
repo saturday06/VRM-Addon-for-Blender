@@ -221,6 +221,7 @@ classes = [
     # importer.blend_model.ICYP_OT_select_helper,
     preferences.VrmAddonPreferences,
     extension.VrmAddonArmatureExtensionPropertyGroup,
+    extension.VrmAddonBoneExtensionPropertyGroup,
     extension.VrmAddonSceneExtensionPropertyGroup,
 ]
 
@@ -242,6 +243,10 @@ def register(init_version: Any) -> None:
 
     bpy.types.Scene.vrm_addon_extension = bpy.props.PointerProperty(
         type=extension.VrmAddonSceneExtensionPropertyGroup
+    )
+
+    bpy.types.Bone.vrm_addon_extension = bpy.props.PointerProperty(
+        type=extension.VrmAddonBoneExtensionPropertyGroup
     )
 
     bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(
@@ -273,6 +278,9 @@ def unregister() -> None:
 
     if hasattr(bpy.types.Armature, "vrm_addon_extension"):
         del bpy.types.Armature.vrm_addon_extension
+
+    if hasattr(bpy.types.Bone, "vrm_addon_extension"):
+        del bpy.types.Bone.vrm_addon_extension
 
     if hasattr(bpy.types.Scene, "vrm_addon_extension"):
         del bpy.types.Scene.vrm_addon_extension

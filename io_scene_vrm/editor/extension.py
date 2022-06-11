@@ -44,6 +44,10 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
             n.name = mesh_object_name  # for UI
 
 
+class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+
 class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
         size=3  # noqa: F722

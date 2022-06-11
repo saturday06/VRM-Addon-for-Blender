@@ -87,13 +87,7 @@ class CatsArmature:
             )
         )
         child_name_to_parent: Dict[str, CatsArmatureDataEditBone] = {}
-        bones = [
-            bone
-            for bone in (
-                armature.edit_bones if armature.is_editmode else armature.bones
-            )
-            if not bone.parent
-        ]
+        bones = [bone for bone in armature.bones if not bone.parent]
         cats_bones = []
         while bones:
             bone = bones.pop()

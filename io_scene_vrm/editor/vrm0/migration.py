@@ -9,6 +9,7 @@ import bpy
 
 from ...common import convert
 from ...common.human_bone import HumanBoneSpecifications
+from ..property_group import BonePropertyGroup
 from .property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
@@ -469,6 +470,40 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
 
 def migrate_link_to_bone_object(armature: bpy.types.Object) -> None:
     ext = armature.data.vrm_addon_extension
+    if tuple(ext.addon_version) >= (2, 3, 27):
+        return
+
+    for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
+        bone_property_group.armature_data_name = armature.data.name
+
+        link_to_bone = bone_property_group.get("link_to_bone")
+        if (
+            isinstance(link_to_bone, bpy.types.Object)
+            and link_to_bone
+            and link_to_bone.parent_bone
+            and link_to_bone.parent
+            and link_to_bone.parent.name
+            and link_to_bone.parent.type == "ARMATURE"
+            and link_to_bone.parent_bone in link_to_bone.parent.data.bones
+        ):
+            bone = link_to_bone.parent.data.bones[link_to_bone.parent_bone]
+            if not bone.vrm_addon_extension.uuid:
+                bone.vrm_addon_extension.uuid = uuid.uuid4().hex
+            bone_property_group.bone_uuid = bone.vrm_addon_extension.uuid
+
+    for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
+        if "link_to_bone" in bone_property_group:
+            del bone_property_group["link_to_bone"]
+
+    armature.data.vrm_addon_extension.vrm0.humanoid.last_bone_names.clear()
+    Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+        armature.data.name,
+        defer=False,
+    )
+
+
+def migrate_link_to_mesh_object(armature: bpy.types.Object) -> None:
+    ext = armature.data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 23):
         return
 
@@ -526,6 +561,7 @@ def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
 
 
 def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
+    migrate_link_to_bone_object(armature)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
 
     for collider_group in vrm0.secondary_animation.collider_groups:

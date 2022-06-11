@@ -15,7 +15,6 @@ def assert_bone_candidates(
     bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
     expected: Set[str],
     tree: Dict[str, Any],
-    edit_mode: bool,
 ) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
     for bone in list(armature.data.edit_bones):
@@ -32,8 +31,7 @@ def assert_bone_candidates(
                 child.parent = parent
             parent_and_trees.append((child, child_tree))
 
-    if not edit_mode:
-        bpy.ops.object.mode_set(mode="OBJECT")
+    bpy.ops.object.mode_set(mode="OBJECT")
 
     got = BonePropertyGroup.find_bone_candidates(
         armature.data,
@@ -45,7 +43,7 @@ def assert_bone_candidates(
         raise AssertionError("Unexpected diff:\n" + ",".join(diffs))
 
 
-def test(edit_mode: bool) -> None:
+def test() -> None:
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
@@ -62,11 +60,9 @@ def test(edit_mode: bool) -> None:
             ".editor.property_group.BonePropertyGroup"
         )
 
+    assert_bone_candidates(armature, HumanBoneSpecifications.HIPS, {}, set(), {})
     assert_bone_candidates(
-        armature, HumanBoneSpecifications.HIPS, {}, set(), {}, edit_mode
-    )
-    assert_bone_candidates(
-        armature, HumanBoneSpecifications.HIPS, {}, {"hips"}, {"hips": {}}, edit_mode
+        armature, HumanBoneSpecifications.HIPS, {}, {"hips"}, {"hips": {}}
     )
     assert_bone_candidates(
         armature,
@@ -74,7 +70,6 @@ def test(edit_mode: bool) -> None:
         {"hips": HumanBoneSpecifications.HIPS},
         {"hips"},
         {"hips": {}},
-        edit_mode,
     )
     assert_bone_candidates(
         armature,
@@ -82,7 +77,6 @@ def test(edit_mode: bool) -> None:
         {},
         {"hips", "spine"},
         {"hips": {"spine": {}}},
-        edit_mode,
     )
     assert_bone_candidates(
         armature,
@@ -90,7 +84,6 @@ def test(edit_mode: bool) -> None:
         {"hips": HumanBoneSpecifications.HIPS},
         {"spine"},
         {"hips": {"spine": {}}},
-        edit_mode,
     )
     assert_bone_candidates(
         armature,
@@ -101,7 +94,6 @@ def test(edit_mode: bool) -> None:
         },
         {"spine"},
         {"hips": {"spine": {"head": {}}}},
-        edit_mode,
     )
     assert_bone_candidates(
         armature,
@@ -111,10 +103,8 @@ def test(edit_mode: bool) -> None:
         },
         {"spine", "head"},
         {"hips": {"spine": {"head": {}}}},
-        edit_mode,
     )
 
 
 if __name__ == "__main__":
-    test(edit_mode=True)
-    test(edit_mode=False)
+    test()

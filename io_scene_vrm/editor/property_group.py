@@ -1,9 +1,8 @@
 import uuid
-from typing import Any, Dict, Iterator, Set, Union
+from typing import Any, Dict, Iterator, Optional, Set, Union
 
 import bpy
 
-from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
@@ -82,11 +81,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         target: HumanBoneSpecification,
         bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
     ) -> Set[str]:
-        bones: Union[Dict[str, bpy.types.Bone], Dict[str, bpy.types.EditBone]] = {}
-        if armature_data.is_editmode:
-            bones = armature_data.edit_bones
-        else:
-            bones = armature_data.bones
+        bones = armature_data.bones
         result: Set[str] = set(bones.keys())
         remove_bones_tree: Union[Set[bpy.types.Bone], Set[bpy.types.EditBone]] = set()
 
@@ -97,19 +92,22 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             if human_bone_specification == target:
                 continue
 
+            parent = bones.get(bpy_bone_name)
+            if not parent:
+                continue
+
             if human_bone_specification.is_ancestor_of(target):
                 remove_ancestors = True
                 remove_ancestor_branches = True
             elif target.is_ancestor_of(human_bone_specification):
-                remove_bones_tree.add(bones[bpy_bone_name])
+                remove_bones_tree.add(parent)
                 remove_ancestors = False
                 remove_ancestor_branches = True
             else:
-                remove_bones_tree.add(bones[bpy_bone_name])
+                remove_bones_tree.add(parent)
                 remove_ancestors = True
                 remove_ancestor_branches = False
 
-            parent = bones[bpy_bone_name]
             while True:
                 if remove_ancestors and parent.name in result:
                     result.remove(parent.name)
@@ -138,77 +136,71 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         return result
 
-    def refresh(self, armature: bpy.types.Object) -> None:
-        if (
-            self.link_to_bone
-            and self.link_to_bone.parent
-            and self.link_to_bone.parent == armature
-        ):
-            return
-
-        value = self.value
-        uuid_str = uuid.uuid4().hex
-        self.link_to_bone = bpy.data.objects.new(
-            name=INTERNAL_NAME_PREFIX + "VrmAddonLinkToBone" + uuid_str,
-            object_data=None,
-        )
-        self.link_to_bone.hide_render = True
-        self.link_to_bone.hide_select = True
-        self.link_to_bone.hide_viewport = True
-        self.link_to_bone.parent = armature
-        self.value = value
-
     def __get_value(self) -> str:
-        if (
-            self.link_to_bone
-            and self.link_to_bone.parent_bone
-            and self.link_to_bone.parent
-            and self.link_to_bone.parent.name
-            and self.link_to_bone.parent.type == "ARMATURE"
-            and self.link_to_bone.parent_bone in self.link_to_bone.parent.data.bones
-        ):
-            return str(self.link_to_bone.parent_bone)
+        if not self.bone_uuid:
+            return ""
+        if not self.armature_data_name:
+            return ""
+        armature_data = bpy.data.armatures.get(self.armature_data_name)
+        if not armature_data:
+            return ""
+
+        # TODO: Optimization
+        for bone in armature_data.bones:
+            if bone.vrm_addon_extension.uuid == self.bone_uuid:
+                return str(bone.name)
+
         return ""
 
     def __set_value(self, value: Any) -> None:
-        if not self.link_to_bone or not self.link_to_bone.parent:
-            # Armatureごとコピーされた場合UUIDもコピーされるため毎回生成しなおす必要がある
-            self.search_one_time_uuid = uuid.uuid4().hex
-            for armature in bpy.data.objects:
-                if armature.type != "ARMATURE":
-                    continue
-                if all(
-                    bone_property_group.search_one_time_uuid
-                    != self.search_one_time_uuid
-                    for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(
-                        armature
-                    )
-                ):
-                    continue
-                self.refresh(armature)
-                break
-        if not self.link_to_bone or not self.link_to_bone.parent:
-            print("WARNING: No armature found")
+        armature: Optional[bpy.types.Armature] = None
+
+        # アーマチュアの複製が行われた場合を考えてself.armature_data_nameの振り直しをする
+        self.search_one_time_uuid = uuid.uuid4().hex
+        for found_armature in bpy.data.objects:
+            if found_armature.type != "ARMATURE":
+                continue
+            if all(
+                bone_property_group.search_one_time_uuid != self.search_one_time_uuid
+                for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(
+                    found_armature
+                )
+            ):
+                continue
+            armature = found_armature
+            break
+        if not armature:
+            self.armature_data_name = ""
+            self.bone_uuid = ""
             return
+        self.armature_data_name = armature.data.name
+
+        # ボーンの複製が行われた場合を考えてUUIDの重複がある場合再割り当てを行う
+        found_uuids = set()
+        for bone in armature.data.bones:
+            found_uuid = bone.vrm_addon_extension.uuid
+            if not found_uuid or found_uuid in found_uuids:
+                bone.vrm_addon_extension.uuid = uuid.uuid4().hex
+            found_uuids.add(bone.vrm_addon_extension.uuid)
 
         value_str = str(value)
-        if not value_str or value_str not in self.link_to_bone.parent.data.bones:
-            if self.link_to_bone.parent_type != "OBJECT":
-                self.link_to_bone.parent_type = "OBJECT"
-            if not self.link_to_bone.parent_bone:
+        if not value_str or value_str not in armature.data.bones:
+            if not self.bone_uuid:
                 return
-            self.link_to_bone.parent_bone = ""
-        elif self.link_to_bone.parent_bone == value_str:
+            self.bone_uuid = ""
+        elif (
+            self.bone_uuid
+            and self.bone_uuid
+            == armature.data.bones[value_str].vrm_addon_extension.uuid
+        ):
             return
         else:
-            if self.link_to_bone.parent_type != "BONE":
-                self.link_to_bone.parent_type = "BONE"
-            self.link_to_bone.parent_bone = value_str
+            bone = armature.data.bones[value_str]
+            self.bone_uuid = bone.vrm_addon_extension.uuid
 
-        armature_data = self.link_to_bone.parent.data
-        ext = armature_data.vrm_addon_extension
+        ext = armature.data.vrm_addon_extension
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
-            collider_group.refresh(self.link_to_bone.parent)
+            collider_group.refresh(armature)
 
         vrm0_bpy_bone_name_to_human_bone_specification: Dict[
             str, HumanBoneSpecification
@@ -223,7 +215,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         for human_bone in ext.vrm0.humanoid.human_bones:
             human_bone.update_node_candidates(
-                armature_data,
+                armature.data,
                 vrm0_bpy_bone_name_to_human_bone_specification,
             )
 
@@ -243,7 +235,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             human_bone,
         ) in human_bone_name_to_human_bone.items():
             human_bone.update_node_candidates(
-                armature_data,
+                armature.data,
                 HumanBoneSpecifications.get(human_bone_name),
                 vrm1_bpy_bone_name_to_human_bone_specification,
             )
@@ -253,7 +245,6 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         get=__get_value,
         set=__set_value,
     )
-    link_to_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object  # noqa: F722
-    )
+    bone_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
