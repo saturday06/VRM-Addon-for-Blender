@@ -87,8 +87,10 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         preferences = get_preferences(context)
         if preferences:
-            self.export_invisibles = bool(preferences.export_invisibles)
-            self.export_only_selections = bool(preferences.export_only_selections)
+            (self.export_invisibles, self.export_only_selections) = (
+                bool(preferences.export_invisibles),
+                bool(preferences.export_only_selections),
+            )
         if not use_legacy_importer_exporter() and "gltf" not in dir(
             bpy.ops.export_scene
         ):
