@@ -268,7 +268,7 @@ def draw_vrm1_humanoid_layout(
 
 class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_humanoid_armature_object_property"
-    bl_label = "VRM 1.0-Beta Humanoid"
+    bl_label = "Humanoid"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -292,7 +292,7 @@ class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):  # type: i
 
 class VRM_PT_vrm1_humanoid_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_humanoid_ui"
-    bl_label = "VRM 1.0-Beta Humanoid"
+    bl_label = "Humanoid"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
@@ -353,7 +353,7 @@ def draw_vrm1_first_person_layout(
 
 class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_first_person_armature_object_property"
-    bl_label = "VRM 1.0-Beta First Person"
+    bl_label = "First Person"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -378,7 +378,7 @@ class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):  # typ
 
 class VRM_PT_vrm1_first_person_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_first_person_ui"
-    bl_label = "VRM 1.0-Beta First Person"
+    bl_label = "First Person"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
@@ -440,7 +440,7 @@ def draw_vrm1_look_at_layout(
 
 class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_look_at_armature_object_property"
-    bl_label = "VRM 1.0-Beta Look at"
+    bl_label = "Look At"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -465,7 +465,7 @@ class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):  # type: ig
 
 class VRM_PT_vrm1_look_at_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_look_at_ui"
-    bl_label = "VRM 1.0-Beta Look At"
+    bl_label = "Look At"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
@@ -680,7 +680,7 @@ def draw_vrm1_expressions_layout(
 
 class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_expressions_armature_object_property"
-    bl_label = "VRM 1.0-Beta Expressions"
+    bl_label = "Expressions"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -705,7 +705,7 @@ class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):  # type
 
 class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_expressions_ui"
-    bl_label = "VRM 1.0-Beta Expressions"
+    bl_label = "Expressions"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
@@ -809,7 +809,7 @@ def draw_vrm1_meta_layout(
 
 class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_meta_armature_object_property"
-    bl_label = "VRM 1.0-Beta Meta"
+    bl_label = "Meta"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -833,7 +833,7 @@ class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):  # type: ignor
 
 class VRM_PT_vrm1_meta_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm1_meta_ui"
-    bl_label = "VRM 1.0-Beta Meta"
+    bl_label = "Meta"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"

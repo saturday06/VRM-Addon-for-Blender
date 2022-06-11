@@ -238,7 +238,7 @@ def draw_node_constraint1_layout(
 
 class VRM_PT_node_constraint1_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_node_constraint1_armature_object_property"
-    bl_label = "Node Constraint 1.0-Beta"
+    bl_label = "Node Constraint"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -263,7 +263,7 @@ class VRM_PT_node_constraint1_armature_object_property(bpy.types.Panel):  # type
 
 class VRM_PT_node_constraint1_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_node_constraint1_ui"
-    bl_label = "Node Constraint 1.0-Beta"
+    bl_label = "Node Constraint"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
