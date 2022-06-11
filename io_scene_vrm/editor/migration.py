@@ -95,7 +95,10 @@ def __on_change_bpy_armature_name() -> None:
 
 def setup_subscription(load_post: bool) -> None:
     # 本来なら一度しか処理しないが、load_postから呼ばれた場合は強制的に処理する
-    if __setup_once and not load_post:
+    if load_post:
+        if __setup_once:
+            teardown_subscription()
+    elif __setup_once:
         return
     __setup_once.append(True)
 
@@ -130,3 +133,6 @@ def setup_subscription(load_post: bool) -> None:
 
 def teardown_subscription() -> None:
     __setup_once.clear()
+    bpy.msgbus.clear_by_owner(__armature_name_subscription_owner)
+    bpy.msgbus.clear_by_owner(__bone_name_subscription_owner)
+    bpy.msgbus.clear_by_owner(__object_name_subscription_owner)
