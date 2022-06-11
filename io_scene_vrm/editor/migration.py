@@ -80,12 +80,12 @@ def __on_change_bpy_object_name() -> None:
 def __on_change_bpy_bone_name() -> None:
     for armature in bpy.data.armatures:
         if not hasattr(armature, "vrm_addon_extension") or not isinstance(
-            armature.data.vrm_addon_extension, VrmAddonArmatureExtensionPropertyGroup
+            armature.vrm_addon_extension, VrmAddonArmatureExtensionPropertyGroup
         ):
             continue
 
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            armature.data.name, defer=False
+            armature.name, defer=False
         )
 
 
