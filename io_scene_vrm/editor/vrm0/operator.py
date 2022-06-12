@@ -274,7 +274,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(  # noqa: N801
         obj = bpy.data.objects.new(
             name=f"{self.armature_name}_{self.bone_name}_collider", object_data=None
         )
-        collider.blender_object = obj
+        collider.bpy_object = obj
         obj.parent = armature
         obj.empty_display_type = "SPHERE"
         obj.empty_display_size = 0.25
@@ -317,10 +317,10 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(  # noqa: N
         colliders = collider_groups[self.collider_group_index].colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
-        blender_object = colliders[self.collider_index].blender_object
-        if blender_object and blender_object.name in context.scene.collection.objects:
-            blender_object.parent_type = "OBJECT"
-            context.scene.collection.objects.unlink(blender_object)
+        bpy_object = colliders[self.collider_index].bpy_object
+        if bpy_object and bpy_object.name in context.scene.collection.objects:
+            bpy_object.parent_type = "OBJECT"
+            context.scene.collection.objects.unlink(bpy_object)
         colliders.remove(self.collider_index)
         return {"FINISHED"}
 

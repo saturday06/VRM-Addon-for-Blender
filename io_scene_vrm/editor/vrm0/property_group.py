@@ -396,27 +396,27 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
 class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    blender_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
 
     def refresh(self, armature: bpy.types.Object, bone_name: str) -> None:
-        if not self.blender_object or not self.blender_object.name:
+        if not self.bpy_object or not self.bpy_object.name:
             return
 
-        if self.blender_object.parent != armature:
-            self.blender_object.parent = armature
-        if self.blender_object.empty_display_type != "SPHERE":
-            self.blender_object.empty_display_type = "SPHERE"
+        if self.bpy_object.parent != armature:
+            self.bpy_object.parent = armature
+        if self.bpy_object.empty_display_type != "SPHERE":
+            self.bpy_object.empty_display_type = "SPHERE"
 
         if bone_name:
-            if self.blender_object.parent_type != "BONE":
-                self.blender_object.parent_type = "BONE"
-            if self.blender_object.parent_bone != bone_name:
-                self.blender_object.parent_bone = bone_name
+            if self.bpy_object.parent_type != "BONE":
+                self.bpy_object.parent_type = "BONE"
+            if self.bpy_object.parent_bone != bone_name:
+                self.bpy_object.parent_bone = bone_name
         else:
-            if self.blender_object.parent_type != "OBJECT":
-                self.blender_object.parent_type = "OBJECT"
+            if self.bpy_object.parent_type != "OBJECT":
+                self.bpy_object.parent_type = "OBJECT"
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
@@ -437,7 +437,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
             str(self.node.value) if self.node and self.node.value else ""
         ) + f"#{self.uuid}"
         for index, collider in reversed(list(enumerate(list(self.colliders)))):
-            if not collider.blender_object or not collider.blender_object.name:
+            if not collider.bpy_object or not collider.bpy_object.name:
                 self.colliders.remove(index)
             else:
                 collider.refresh(armature, self.node.value)

@@ -57,14 +57,14 @@ class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):  # type: i
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
 class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def broadcast_blender_object_name(self) -> None:
-        if not self.blender_object or not self.blender_object.name:
+    def broadcast_bpy_object_name(self) -> None:
+        if not self.bpy_object or not self.bpy_object.name:
             self.name = ""  # pylint: disable=attribute-defined-outside-init
             return
-        if self.name == self.blender_object.name:
+        if self.name == self.bpy_object.name:
             return
         self.name = (  # pylint: disable=attribute-defined-outside-init
-            self.blender_object.name
+            self.bpy_object.name
         )
 
         self.search_one_time_uuid = uuid.uuid4().hex
@@ -93,7 +93,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     # for View3D
-    blender_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
 
@@ -102,22 +102,22 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
     def refresh(self, armature: bpy.types.Object, bone_name: str) -> None:
-        if not self.blender_object or not self.blender_object.name:
+        if not self.bpy_object or not self.bpy_object.name:
             return
 
-        if self.blender_object.parent != armature:
-            self.blender_object.parent = armature
-        if self.blender_object.empty_display_type != "SPHERE":
-            self.blender_object.empty_display_type = "SPHERE"
+        if self.bpy_object.parent != armature:
+            self.bpy_object.parent = armature
+        if self.bpy_object.empty_display_type != "SPHERE":
+            self.bpy_object.empty_display_type = "SPHERE"
 
         if bone_name:
-            if self.blender_object.parent_type != "BONE":
-                self.blender_object.parent_type = "BONE"
-            if self.blender_object.parent_bone != bone_name:
-                self.blender_object.parent_bone = bone_name
+            if self.bpy_object.parent_type != "BONE":
+                self.bpy_object.parent_type = "BONE"
+            if self.bpy_object.parent_bone != bone_name:
+                self.bpy_object.parent_bone = bone_name
         else:
-            if self.blender_object.parent_type != "OBJECT":
-                self.blender_object.parent_type = "OBJECT"
+            if self.bpy_object.parent_type != "OBJECT":
+                self.bpy_object.parent_type = "OBJECT"
 
         self.node.refresh(armature)
         self.node.value = bone_name

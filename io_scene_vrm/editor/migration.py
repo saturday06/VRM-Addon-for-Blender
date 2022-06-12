@@ -74,7 +74,7 @@ def __on_change_bpy_object_name() -> None:
 
         # FIXME: Needs optimization!
         for collider in armature.vrm_addon_extension.spring_bone1.colliders:
-            collider.broadcast_blender_object_name()
+            collider.broadcast_bpy_object_name()
 
 
 def __on_change_bpy_bone_name() -> None:

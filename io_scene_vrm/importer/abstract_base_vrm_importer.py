@@ -1089,7 +1089,7 @@ class AbstractBaseVrmImporter(ABC):
 
                 collider_name = f"{bone_name}_collider_{collider_index}"
                 obj = bpy.data.objects.new(name=collider_name, object_data=None)
-                collider.blender_object = obj
+                collider.bpy_object = obj
                 obj.parent = self.armature
                 obj.parent_type = "BONE"
                 obj.parent_bone = bone_name

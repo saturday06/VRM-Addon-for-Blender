@@ -42,7 +42,7 @@ def draw_vrm1_spring_bone_layout(
         if spring_bone.colliders:
             colliders_expanded_box = colliders_box.box().column()
             for collider_index, collider in enumerate(spring_bone.colliders):
-                if not collider.blender_object:  # TODO: restore
+                if not collider.bpy_object:  # TODO: restore
                     continue
 
                 collider_row = colliders_expanded_box.row()
@@ -52,7 +52,7 @@ def draw_vrm1_spring_bone_layout(
                     "show_expanded",
                     icon="TRIA_DOWN" if collider.show_expanded else "TRIA_RIGHT",
                     emboss=False,
-                    text=collider.blender_object.name,
+                    text=collider.bpy_object.name,
                     translate=False,
                 )
 
@@ -61,7 +61,7 @@ def draw_vrm1_spring_bone_layout(
 
                 collider_column = colliders_expanded_box.box().column()
                 collider_column.prop(
-                    collider.blender_object, "name", icon="MESH_UVSPHERE", text=""
+                    collider.bpy_object, "name", icon="MESH_UVSPHERE", text=""
                 )
                 collider_column.prop(collider.shape, "shape")
                 collider_column.prop_search(

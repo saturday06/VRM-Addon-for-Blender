@@ -2377,7 +2377,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             collider_group_dict["node"] = node_name_id_dict[collider_group.node.value]
 
             for collider in collider_group.colliders:
-                collider_object = collider.blender_object
+                collider_object = collider.bpy_object
                 if (
                     not collider_object
                     or collider_object.parent_bone not in self.armature.pose.bones

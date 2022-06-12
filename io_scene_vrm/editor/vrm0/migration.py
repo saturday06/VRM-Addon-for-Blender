@@ -357,7 +357,7 @@ def migrate_vrm0_secondary_animation(
         collider_group.node.value = bone_name
         for collider_object in collider_objects:
             collider_prop = collider_group.colliders.add()
-            collider_prop.blender_object = collider_object
+            collider_prop.bpy_object = collider_object
 
     for collider_group in secondary_animation.collider_groups:
         collider_group.refresh(armature)

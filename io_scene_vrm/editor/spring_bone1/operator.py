@@ -26,10 +26,10 @@ class VRM_OT_add_spring_bone1_collider(  # noqa: N801
         obj = bpy.data.objects.new(
             name=f"{self.armature_data_name} Collider", object_data=None
         )
-        collider.blender_object = obj
+        collider.bpy_object = obj
         obj.empty_display_type = "SPHERE"
         obj.empty_display_size = 0.25
-        collider.broadcast_blender_object_name()
+        collider.broadcast_bpy_object_name()
         context.scene.collection.objects.link(obj)
         return {"FINISHED"}
 
@@ -57,10 +57,10 @@ class VRM_OT_remove_spring_bone1_collider(  # noqa: N801
         colliders = spring_bone.colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
-        blender_object = colliders[self.collider_index].blender_object
-        if blender_object and blender_object.name in context.scene.collection.objects:
-            blender_object.parent_type = "OBJECT"
-            context.scene.collection.objects.unlink(blender_object)
+        bpy_object = colliders[self.collider_index].bpy_object
+        if bpy_object and bpy_object.name in context.scene.collection.objects:
+            bpy_object.parent_type = "OBJECT"
+            context.scene.collection.objects.unlink(bpy_object)
         collider_uuid = colliders[self.collider_index].uuid
         colliders.remove(self.collider_index)
         for collider_group in spring_bone.collider_groups:
