@@ -468,6 +468,20 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
                 break
 
 
+def migrate_blender_object(armature: bpy.types.Object) -> None:
+    ext = armature.data.vrm_addon_extension
+    if tuple(ext.addon_version) >= (2, 3, 27):
+        return
+
+    for collider_group in ext.vrm0.secondary_animation.collider_groups:
+        for collider in collider_group.colliders:
+            bpy_object = collider.get("blender_object")
+            if isinstance(bpy_object, bpy.types.Object):
+                collider.bpy_object = bpy_object
+            if "blender_object" in collider:
+                del collider["blender_object"]
+
+
 def migrate_link_to_bone_object(armature: bpy.types.Object) -> None:
     ext = armature.data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
@@ -579,6 +593,7 @@ def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
 
 
 def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
+    migrate_blender_object(armature)
     migrate_link_to_bone_object(armature)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
 

@@ -6,6 +6,7 @@ import bpy
 from ..common import version
 from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .property_group import BonePropertyGroup
+from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 
@@ -46,6 +47,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
         bone_property_group.armature_data_name = armature.data.name
 
     vrm0_migration.migrate(ext.vrm0, armature)
+    spring_bone1_migration.migrate(armature)
 
     ext.addon_version = version.version()
 
