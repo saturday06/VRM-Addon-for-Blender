@@ -3,6 +3,11 @@ locale_key = "ja_JP"
 translation_dictionary = {
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
+    ("*", "Show Experimetal Features"): "実験中の機能を表示する",
+    (
+        "*",
+        "Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
+    ): "開発中のFB_ngon_encodingエクステンションを試してみる(エクスポートされるメッシュが壊れることがあります)",
     (
         "*",
         "VRM 1.0 support is under development.\n"
@@ -47,6 +52,11 @@ translation_dictionary = {
         "*",
         'The VRM is licensed by "{license_name}". No derivative works are allowed.',
     ): "指定されたVRMには改変不可ライセンス「{license_name}」が設定されています。改変することはできません。",
+    (
+        "*",
+        "The FB_ngon_encoding extension under development will be used. "
+        + "The exported mesh may be corrupted.",
+    ): "開発中のFB_ngon_encodingエクステンションが有効です。エクスポートされるメッシュが壊れることがあります。",
     (
         "*",
         "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 import bpy
 
@@ -32,11 +32,33 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
         name="Export Only Selections",  # noqa: F722
         default=False,
     )
+    show_experimental_features: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Show Experimetal Features",  # noqa: F722
+        default=False,
+    )
+
+    def __get_export_fb_ngon_encoding(self) -> bool:
+        return bool(self.show_experimental_features) and bool(
+            self.get("hooked_export_fb_ngon_encoding")
+        )
+
+    def __set_export_fb_ngon_encoding(self, value: Any) -> None:
+        self["hooked_export_fb_ngon_encoding"] = bool(value)
+
+    export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
+        get=__get_export_fb_ngon_encoding,
+        set=__set_export_fb_ngon_encoding,
+    )
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.prop(self, "export_invisibles")
         layout.prop(self, "export_only_selections")
+        layout.prop(self, "show_experimental_features")
+        if self.show_experimental_features:
+            experimental_features_box = layout.box()
+            experimental_features_box.prop(self, "export_fb_ngon_encoding")
 
 
 def use_legacy_importer_exporter() -> bool:

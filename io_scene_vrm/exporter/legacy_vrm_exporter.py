@@ -61,8 +61,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         "SURFACE",
     ]
 
-    def __init__(self, export_objects: List[bpy.types.Object]) -> None:
+    def __init__(
+        self, export_objects: List[bpy.types.Object], export_fb_ngon_encoding: bool
+    ) -> None:
         self.export_objects = export_objects
+        self.export_fb_ngon_encoding = export_fb_ngon_encoding
         self.vrm_version: Optional[str] = None
         self.json_dic: Dict[str, Any] = OrderedDict()
         self.glb_bin_collector = GlbBinCollection()
@@ -1658,14 +1661,14 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             def tessface_fan(
                 bm: bmesh.types.BMesh,
             ) -> List[Tuple[int, List[bmesh.types.BMLoop]]]:
-                return [
-                    (loops[0].face.material_index, loops)
-                    for loops in bm.calc_loop_triangles()
-                    if len(loops) > 0
-                ]
+                if not self.export_fb_ngon_encoding:
+                    return [
+                        (loops[0].face.material_index, loops)
+                        for loops in bm.calc_loop_triangles()
+                        if len(loops) > 0
+                    ]
 
                 # TODO: 凹や穴の空いたNゴンに対応
-                # pylint: disable=unreachable
                 faces = bm.faces
                 sorted_faces = sorted(
                     faces,
@@ -2026,17 +2029,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     }
                 primitive_list.append(primitive)
             self.mesh_name_to_index[mesh.name] = mesh_index
-            self.json_dic["meshes"].append(
-                OrderedDict(
-                    {
-                        "name": mesh.data.name,
-                        "primitives": primitive_list,
-                        # "extensions": {
-                        #    "FB_ngon_encoding": {},
-                        # },
-                    }
-                )
-            )
+
+            mesh_dict = {
+                "name": mesh.data.name,
+                "primitives": primitive_list,
+            }
+            if self.export_fb_ngon_encoding:
+                mesh_dict["extensions"] = {"FB_ngon_encoding": {}}
+
+            self.json_dic["meshes"].append(mesh_dict)
             bm.free()
             # endregion hell
 

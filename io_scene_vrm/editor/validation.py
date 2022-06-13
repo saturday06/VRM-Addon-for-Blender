@@ -109,10 +109,21 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         # region export object seeking
         export_invisibles = False
         export_only_selections = False
+        export_fb_ngon_encoding = False
         preferences = get_preferences(context)
         if preferences:
             export_invisibles = bool(preferences.export_invisibles)
             export_only_selections = bool(preferences.export_only_selections)
+            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+
+        if export_fb_ngon_encoding:
+            warning_messages.append(
+                pgettext(
+                    "The FB_ngon_encoding extension under development will be used. "
+                    + "The exported mesh may be corrupted."
+                )
+            )
+
         export_objects = search.export_objects(
             export_invisibles, export_only_selections
         )

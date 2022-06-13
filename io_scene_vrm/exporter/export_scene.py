@@ -21,12 +21,27 @@ def export_vrm_update_addon_preferences(
     preferences = get_preferences(context)
     if not preferences:
         return
+
+    changed = False
+
     if bool(preferences.export_invisibles) != bool(export_op.export_invisibles):
         preferences.export_invisibles = export_op.export_invisibles
+        changed = True
+
     if bool(preferences.export_only_selections) != bool(
         export_op.export_only_selections
     ):
         preferences.export_only_selections = export_op.export_only_selections
+        changed = True
+
+    if bool(preferences.export_fb_ngon_encoding) != bool(
+        export_op.export_fb_ngon_encoding
+    ):
+        preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
+        changed = True
+
+    if changed:
+        validation.WM_OT_vrm_validator.detect_errors(context, export_op.errors)
 
 
 class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[misc] # noqa: N801
@@ -49,10 +64,14 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         name="Export Only Selections",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
+    export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+    )
 
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.filepath:
             return {"CANCELLED"}
         filepath: str = self.filepath
@@ -62,8 +81,18 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         ) != {"FINISHED"}:
             return {"CANCELLED"}
 
+        preferences = get_preferences(context)
+        if preferences:
+            export_invisibles = bool(preferences.export_invisibles)
+            export_only_selections = bool(preferences.export_only_selections)
+            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+        else:
+            export_invisibles = False
+            export_only_selections = False
+            export_fb_ngon_encoding = False
+
         export_objects = search.export_objects(
-            bool(self.export_invisibles), bool(self.export_only_selections)
+            export_invisibles, export_only_selections
         )
         is_vrm1 = any(
             obj.type == "ARMATURE" and obj.data.vrm_addon_extension.is_vrm1()
@@ -75,7 +104,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                 export_objects
             )
         else:
-            vrm_exporter = LegacyVrmExporter(export_objects)
+            vrm_exporter = LegacyVrmExporter(export_objects, export_fb_ngon_encoding)
 
         vrm_bin = vrm_exporter.export_vrm()
         if vrm_bin is None:
@@ -87,9 +116,14 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         preferences = get_preferences(context)
         if preferences:
-            (self.export_invisibles, self.export_only_selections) = (
+            (
+                self.export_invisibles,
+                self.export_only_selections,
+                self.export_fb_ngon_encoding,
+            ) = (
                 bool(preferences.export_invisibles),
                 bool(preferences.export_only_selections),
+                bool(preferences.export_fb_ngon_encoding),
             )
         if not use_legacy_importer_exporter() and "gltf" not in dir(
             bpy.ops.export_scene
@@ -153,13 +187,15 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False  # No animation.
 
         operator = context.space_data.active_operator
 
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
+
+        preferences = get_preferences(context)
+        if preferences and preferences.show_experimental_features:
+            layout.prop(operator, "export_fb_ngon_encoding")
 
         if operator.errors:
             validation.WM_OT_vrm_validator.draw_errors(
@@ -230,14 +266,14 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
         layout = self.layout
         humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
         if humanoid.all_required_bones_are_assigned():
-            alert_row = layout.box()
-            alert_row.label(
+            alert_box = layout.box()
+            alert_box.label(
                 text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
             )
         else:
-            alert_row = layout.box()
-            alert_row.alert = True
-            alert_row.label(
+            alert_box = layout.box()
+            alert_box.alert = True
+            alert_box.label(
                 text="There are unassigned VRM Required Bones. Please assign all.",
                 icon="ERROR",
             )
