@@ -2043,13 +2043,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, v))
 
     def gltf_meta_to_dict(self) -> None:
+        extensions_used = [
+            "VRM",
+            "KHR_materials_unlit",
+            "KHR_texture_transform",
+            "VRMC_materials_mtoon",
+        ]
+        if self.export_fb_ngon_encoding:
+            extensions_used.append("FB_ngon_encoding")
         gltf_meta_dict = {
-            "extensionsUsed": [
-                "VRM",
-                "KHR_materials_unlit",
-                "KHR_texture_transform",
-                "VRMC_materials_mtoon",
-            ],
+            "extensionsUsed": extensions_used,
             "asset": {
                 "generator": self.exporter_name(),
                 "version": "2.0",  # glTF version
