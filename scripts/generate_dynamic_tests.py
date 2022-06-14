@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import contextlib
-import importlib
+import importlib.util
 import os
 import re
 import uuid
@@ -109,16 +109,21 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
 
     test_command_args_list: Any = None
     try:
-        # pylint: disable=no-value-for-parameter,deprecated-method
-        m = importlib.machinery.SourceFileLoader(
+        spec = importlib.util.spec_from_file_location(
             "blender_vrm_addon_base_blender_test_case_generate_blender_test_case__"
             + path_without_ext,
             os.path.join(test_src_dir, path),
-        ).load_module()
-        # pylint: enable=no-value-for-parameter,deprecated-method
+        )
+        if spec is None:
+            raise Exception("Failed to create module spec")
+        mod = importlib.util.module_from_spec(spec)
+        if spec.loader is None:
+            raise Exception("Failed to create module spec loader")
+        spec.loader.exec_module(mod)
+
         func: Any = None
         with contextlib.suppress(AttributeError):
-            func = getattr(m, "get_test_command_args")  # noqa: B009
+            func = getattr(mod, "get_test_command_args")  # noqa: B009
         if callable(func):
             test_command_args_list = func()
     except BaseException as e:
