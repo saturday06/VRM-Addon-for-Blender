@@ -20,9 +20,9 @@ Please note that the add-on name (ex-VRM_IMPORTER_for_Blender) and its [installa
 
 # Development / 開発するには
 
-開発用のソースコードは `main` ブランチにあります。そちらの `io_scene_vrm` フォルダがBlenderアドオンの本体になります。そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
+開発用のソースコードは<a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main">`main`</a>ブランチにあります。そちらの <a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> フォルダがBlenderアドオンの本体になります。そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
-The source code for development is in the `main` branch. Its `io_scene_vrm` folder is the main body of the Blender add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
+The source code for development is in the <a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main">`main`</a> branch. Its <a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> folder is the main body of the Blender add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
 
 ```
 git checkout main
