@@ -27,22 +27,20 @@ googleAnalytics = 'G-L4E126M2JR'
   isoCode = 'ja'
 
 [[languages.en.menu.main]]
+  name = "Download"
+  url = "https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip"
+
+[[languages.en.menu.main]]
   name = "Report Bugs"
   url = "https://github.com/saturday06/VRM_Addon_for_Blender/issues"
 
-[[languages.en.menu.main]]
-  name = "Source Code"
-  url = "https://github.com/saturday06/VRM_Addon_for_Blender"
+[[languages.ja.menu.main]]
+  name = "ダウンロード"
+  url = "https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip"
 
 [[languages.ja.menu.main]]
   name = "バグを報告"
   url = "https://github.com/saturday06/VRM_Addon_for_Blender/issues"
-  weight = 1
-
-[[languages.ja.menu.main]]
-  name = "ソースコード"
-  url = "https://github.com/saturday06/VRM_Addon_for_Blender"
-  weight = 2
 
 [author]
   # name = "author"
