@@ -48,9 +48,9 @@ class MtoonGlsl:
     main_node: Optional[bpy.types.Node] = None
     alpha_method = None
 
-    float_dic: Dict[str, float]
-    vector_dic: Dict[str, List[float]]
-    texture_dic: Dict[str, bpy.types.Image]
+    float_dict: Dict[str, float]
+    vector_dict: Dict[str, List[float]]
+    texture_dict: Dict[str, bpy.types.Image]
     cull_mode = "BACK"
 
     def make_small_image(
@@ -150,27 +150,27 @@ class MtoonGlsl:
             if node.type == "OUTPUT_MATERIAL":
                 self.main_node = node.inputs["Surface"].links[0].from_node
 
-        self.float_dic: Dict[str, float] = {}
-        self.vector_dic = {}
-        self.texture_dic = {}
-        for k in MaterialMtoon.float_props_exchange_dic.values():
+        self.float_dict: Dict[str, float] = {}
+        self.vector_dict = {}
+        self.texture_dict = {}
+        for k in MaterialMtoon.float_props_exchange_dict.values():
             if k is not None:
-                self.float_dic[k] = self.get_value(k)
-        for k in MaterialMtoon.vector_base_props_exchange_dic.values():
+                self.float_dict[k] = self.get_value(k)
+        for k in MaterialMtoon.vector_base_props_exchange_dict.values():
             if k is not None:
-                self.vector_dic[k] = self.get_color(k)
-        for k in MaterialMtoon.texture_kind_exchange_dic.values():
+                self.vector_dict[k] = self.get_color(k)
+        for k in MaterialMtoon.texture_kind_exchange_dict.values():
             if k is not None:
                 if k == "SphereAddTexture":
-                    self.texture_dic[k] = self.get_texture(k, "black")
+                    self.texture_dict[k] = self.get_texture(k, "black")
                 elif (
                     # Support old version that had typo
                     k
                     in ["NormalmapTexture", "NomalmapTexture"]
                 ):
-                    self.texture_dic[k] = self.get_texture(k, "normal")
+                    self.texture_dict[k] = self.get_texture(k, "normal")
                 else:
-                    self.texture_dic[k] = self.get_texture(k)
+                    self.texture_dict[k] = self.get_texture(k)
 
 
 @dataclass
@@ -521,7 +521,7 @@ class GlslDrawObj:
                 toon_shader.bind()
                 mat = bat[0]
 
-                if is_outline == 1 and mat.float_dic["OutlineWidthMode"] == 0:
+                if is_outline == 1 and mat.float_dict["OutlineWidthMode"] == 0:
                     continue
                 # mat.update() #already in depth path
                 bgl.glEnable(bgl.GL_BLEND)
@@ -585,9 +585,9 @@ class GlslDrawObj:
                 ]
 
                 for k in float_keys:
-                    toon_shader.uniform_float(k, mat.float_dic[k])
+                    toon_shader.uniform_float(k, mat.float_dict[k])
 
-                for k, v in mat.vector_dic.items():
+                for k, v in mat.vector_dict.items():
                     toon_shader.uniform_float(k, v)
 
                 bgl.glActiveTexture(bgl.GL_TEXTURE0)
@@ -600,9 +600,9 @@ class GlslDrawObj:
                 )
                 toon_shader.uniform_int("depth_image", 0)
 
-                for i, k in enumerate(mat.texture_dic.keys()):
+                for i, k in enumerate(mat.texture_dict.keys()):
                     bgl.glActiveTexture(bgl.GL_TEXTURE1 + i)
-                    texture = mat.texture_dic[k]
+                    texture = mat.texture_dict[k]
                     bgl.glBindTexture(bgl.GL_TEXTURE_2D, texture.bindcode)
                     bgl.glTexParameteri(
                         bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE

@@ -31,7 +31,6 @@ constraint1
 cullmode
 customdata
 depsgraph
-dic
 dicts
 dirname
 dof

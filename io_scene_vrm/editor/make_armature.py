@@ -132,7 +132,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
 
-        bone_dic = {}
+        bone_dict = {}
 
         def bone_add(
             name: str,
@@ -151,7 +151,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
             added_bone.roll = radians(roll)
             if parent_bone is not None:
                 added_bone.parent = parent_bone
-            bone_dic.update({name: added_bone})
+            bone_dict.update({name: added_bone})
             return added_bone
 
         # bone_type = "leg" or "arm" for roll setting

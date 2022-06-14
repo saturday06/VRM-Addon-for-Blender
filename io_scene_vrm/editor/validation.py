@@ -332,7 +332,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         for node, material in search.shader_nodes_and_materials(used_materials):
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
-                for texture_val in MaterialMtoon.texture_kind_exchange_dic.values():
+                for texture_val in MaterialMtoon.texture_kind_exchange_dict.values():
                     if texture_val == "ReceiveShadow_Texture":
                         texture_val += "_alpha"
                     node_material_input_check(
@@ -343,7 +343,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         error_messages,
                         used_images,
                     )
-                for float_val in MaterialMtoon.float_props_exchange_dic.values():
+                for float_val in MaterialMtoon.float_props_exchange_dict.values():
                     if float_val is None:
                         continue
                     node_material_input_check(
@@ -354,7 +354,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         node,
                         material,
                         "RGB",
-                        MaterialMtoon.vector_props_exchange_dic[k],
+                        MaterialMtoon.vector_props_exchange_dict[k],
                         error_messages,
                         used_images,
                     )
@@ -548,7 +548,7 @@ def node_material_input_check(
     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
     #
     # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".  # noqa: SC100
-    # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dic, can be "NormalmapTexture".
+    # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dict, can be "NormalmapTexture".
     # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
     # So change it to "NomalmapTexture" which is typo but points to the same thing  # noqa: SC100
     # in those models.

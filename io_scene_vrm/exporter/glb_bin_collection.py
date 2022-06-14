@@ -16,14 +16,14 @@ class GlbBinCollection:
         self.bin = bytearray()
 
     def pack_all(self) -> Tuple[Dict[str, Any], bytes]:
-        bin_dic: Dict[str, Any] = OrderedDict()
+        bin_dict: Dict[str, Any] = OrderedDict()
         byte_offset = 0
-        bin_dic["bufferViews"] = []
-        bin_dic["accessors"] = []
+        bin_dict["bufferViews"] = []
+        bin_dict["accessors"] = []
 
         for vab in self.vertex_attribute_bins:
             self.bin.extend(vab.bin)
-            vab_dic = OrderedDict(
+            vab_dict = OrderedDict(
                 {
                     "bufferView": self.get_new_buffer_view_id(),
                     "byteOffset": 0,
@@ -34,10 +34,10 @@ class GlbBinCollection:
                 }
             )
             if vab.min_max:
-                vab_dic["min"] = vab.min_max[0]
-                vab_dic["max"] = vab.min_max[1]
-            bin_dic["accessors"].append(vab_dic)
-            bin_dic["bufferViews"].append(
+                vab_dict["min"] = vab.min_max[0]
+                vab_dict["max"] = vab.min_max[1]
+            bin_dict["accessors"].append(vab_dict)
+            bin_dict["bufferViews"].append(
                 OrderedDict(
                     {
                         "buffer": 0,
@@ -49,10 +49,10 @@ class GlbBinCollection:
             byte_offset += vab.bin_length
 
         if len(self.image_bins) > 0:
-            bin_dic["images"] = []
+            bin_dict["images"] = []
             for img in self.image_bins:
                 self.bin.extend(img.bin)
-                bin_dic["images"].append(
+                bin_dict["images"].append(
                     OrderedDict(
                         {
                             "name": img.name,
@@ -61,7 +61,7 @@ class GlbBinCollection:
                         }
                     )
                 )
-                bin_dic["bufferViews"].append(
+                bin_dict["bufferViews"].append(
                     OrderedDict(
                         {
                             "buffer": 0,
@@ -72,10 +72,10 @@ class GlbBinCollection:
                 )
                 byte_offset += img.bin_length
 
-        bin_dic["buffers"] = [{"byteLength": byte_offset}]
+        bin_dict["buffers"] = [{"byteLength": byte_offset}]
 
-        buffer_view_and_accessors_ordered_dic = bin_dic
-        return buffer_view_and_accessors_ordered_dic, bytes(self.bin)
+        buffer_view_and_accessors_ordered_dict = bin_dict
+        return buffer_view_and_accessors_ordered_dict, bytes(self.bin)
 
     buffer_count = 0
 

@@ -93,13 +93,13 @@ class PyMaterialGltf(PyMaterial):
 class PyMaterialTransparentZWrite(PyMaterial):
     def __init__(self) -> None:
         super().__init__()
-        self.float_props_dic: Dict[str, Optional[float]] = {
+        self.float_props_dict: Dict[str, Optional[float]] = {
             prop: None for prop in MaterialTransparentZWrite.float_props
         }
-        self.vector_props_dic: Dict[str, Optional[List[float]]] = {
+        self.vector_props_dict: Dict[str, Optional[List[float]]] = {
             prop: None for prop in MaterialTransparentZWrite.vector_props
         }
-        self.texture_index_dic: Dict[str, Optional[int]] = {
+        self.texture_index_dict: Dict[str, Optional[int]] = {
             tex: None for tex in MaterialTransparentZWrite.texture_index_list
         }
 
@@ -107,19 +107,19 @@ class PyMaterialTransparentZWrite(PyMaterial):
 class PyMaterialMtoon(PyMaterial):
     def __init__(self) -> None:
         super().__init__()
-        self.float_props_dic: Dict[str, Optional[float]] = {
-            prop: None for prop in MaterialMtoon.float_props_exchange_dic
+        self.float_props_dict: Dict[str, Optional[float]] = {
+            prop: None for prop in MaterialMtoon.float_props_exchange_dict
         }
-        self.vector_props_dic: Dict[str, Optional[Sequence[float]]] = {
-            prop: None for prop in MaterialMtoon.vector_props_exchange_dic
+        self.vector_props_dict: Dict[str, Optional[Sequence[float]]] = {
+            prop: None for prop in MaterialMtoon.vector_props_exchange_dict
         }
-        self.texture_index_dic: Dict[str, Optional[int]] = {
-            prop: None for prop in MaterialMtoon.texture_kind_exchange_dic
+        self.texture_index_dict: Dict[str, Optional[int]] = {
+            prop: None for prop in MaterialMtoon.texture_kind_exchange_dict
         }
-        self.keyword_dic: Dict[str, bool] = {
+        self.keyword_dict: Dict[str, bool] = {
             kw: False for kw in MaterialMtoon.keyword_list
         }
-        self.tag_dic: Dict[str, Optional[str]] = {
+        self.tag_dict: Dict[str, Optional[str]] = {
             tag: None for tag in MaterialMtoon.tagmap_list
         }
 
@@ -251,12 +251,12 @@ def create_py_material(
         # region check unknown props exist
         subset = {
             "float": ext_mat.get("floatProperties", {}).keys()
-            - mtoon.float_props_dic.keys(),
+            - mtoon.float_props_dict.keys(),
             "vector": ext_mat.get("vectorProperties", {}).keys()
-            - mtoon.vector_props_dic.keys(),
+            - mtoon.vector_props_dict.keys(),
             "texture": ext_mat.get("textureProperties", {}).keys()
-            - mtoon.texture_index_dic.keys(),
-            "keyword": ext_mat.get("keywordMap", {}).keys() - mtoon.keyword_dic.keys(),
+            - mtoon.texture_index_dict.keys(),
+            "keyword": ext_mat.get("keywordMap", {}).keys() - mtoon.keyword_dict.keys(),
         }
         for k, _subset in subset.items():
             if _subset:
@@ -264,20 +264,20 @@ def create_py_material(
                 print(f"unknown {k} properties {_subset} in {ext_mat_name}")
         # endregion check unknown props exit
 
-        mtoon.float_props_dic.update(ext_mat.get("floatProperties", {}))
-        mtoon.vector_props_dic.update(ext_mat.get("vectorProperties", {}))
-        mtoon.texture_index_dic.update(ext_mat.get("textureProperties", {}))
-        mtoon.keyword_dic.update(ext_mat.get("keywordMap", {}))
-        mtoon.tag_dic.update(ext_mat.get("tagMap", {}))
+        mtoon.float_props_dict.update(ext_mat.get("floatProperties", {}))
+        mtoon.vector_props_dict.update(ext_mat.get("vectorProperties", {}))
+        mtoon.texture_index_dict.update(ext_mat.get("textureProperties", {}))
+        mtoon.keyword_dict.update(ext_mat.get("keywordMap", {}))
+        mtoon.tag_dict.update(ext_mat.get("tagMap", {}))
         return mtoon
 
     if shader == "VRM/UnlitTransparentZWrite":
         transparent_z_write = PyMaterialTransparentZWrite()
         transparent_z_write.name = ext_mat.get("name", "")
         transparent_z_write.shader_name = ext_mat.get("shader", "")
-        transparent_z_write.float_props_dic = ext_mat.get("floatProperties", {})
-        transparent_z_write.vector_props_dic = ext_mat.get("vectorProperties", {})
-        transparent_z_write.texture_index_dic = ext_mat.get("textureProperties", {})
+        transparent_z_write.float_props_dict = ext_mat.get("floatProperties", {})
+        transparent_z_write.vector_props_dict = ext_mat.get("vectorProperties", {})
+        transparent_z_write.texture_index_dict = ext_mat.get("textureProperties", {})
         return transparent_z_write
 
     # ここには入らないはず

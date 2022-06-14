@@ -341,14 +341,14 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                                 ),
                             )
 
-                            normalized_joint_dic: Dict[int, float] = {
+                            normalized_joint_dict: Dict[int, float] = {
                                 joint_id: 0 for joint_id in sorted_joint_ids
                             }
 
                             for i, k in enumerate(joint_ids):
-                                normalized_joint_dic[k] += weights[i]
+                                normalized_joint_dict[k] += weights[i]
                             # endregion VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
-                            for joint_id, weight in normalized_joint_dic.items():
+                            for joint_id, weight in normalized_joint_dict.items():
                                 node_id = nodes_index_list[joint_id]
                                 # TODO bone名の不具合などでリネームが発生してるとうまくいかない
                                 vg_dict[

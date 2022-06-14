@@ -234,7 +234,7 @@ class AbstractBaseVrmImporter(ABC):
         elif transparent_mode == "CUTOUT":
             b_mat.blend_method = "CLIP"
             if isinstance(pymat, PyMaterialMtoon):  # TODO: TransparentZWrite?
-                b_mat.alpha_threshold = pymat.float_props_dic.get("_Cutoff", 0.5)
+                b_mat.alpha_threshold = pymat.float_props_dict.get("_Cutoff", 0.5)
             else:
                 b_mat.alpha_threshold = getattr(pymat, "alphaCutoff", 0.5)
 
@@ -391,13 +391,13 @@ class AbstractBaseVrmImporter(ABC):
                 b_mat, pymat.normal_texture_index, principled_node.inputs["Normal"]
             )
 
-        transparent_exchange_dic = {
+        transparent_exchange_dict = {
             "OPAQUE": "OPAQUE",
             "MASK": "CUTOUT",
             "Z_TRANSPARENCY": "Z_TRANSPARENCY",
         }
         self.set_material_transparent(
-            b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode]
+            b_mat, pymat, transparent_exchange_dict[pymat.alpha_mode]
         )
         b_mat.use_backface_culling = not pymat.double_sided
 
@@ -444,13 +444,13 @@ class AbstractBaseVrmImporter(ABC):
             )
         self.connect_value_node(b_mat, pymat.shadeless, sg.inputs["unlit"])
 
-        transparent_exchange_dic = {
+        transparent_exchange_dict = {
             "OPAQUE": "OPAQUE",
             "MASK": "CUTOUT",
             "Z_TRANSPARENCY": "Z_TRANSPARENCY",
         }
         self.set_material_transparent(
-            b_mat, pymat, transparent_exchange_dic[pymat.alpha_mode]
+            b_mat, pymat, transparent_exchange_dict[pymat.alpha_mode]
         )
         b_mat.use_backface_culling = not pymat.double_sided
 
@@ -470,41 +470,41 @@ class AbstractBaseVrmImporter(ABC):
             sg.outputs["Emission"],
         )
 
-        float_prop_exchange_dic = MaterialMtoon.float_props_exchange_dic
-        for k, v in pymat.float_props_dic.items():
+        float_prop_exchange_dict = MaterialMtoon.float_props_exchange_dict
+        for k, v in pymat.float_props_dict.items():
             if k == "_CullMode":
                 if v == 2:  # 0: no cull 1:front cull 2:back cull
                     b_mat.use_backface_culling = True
                 elif v == 0:
                     b_mat.use_backface_culling = False
             if k in [
-                key for key, val in float_prop_exchange_dic.items() if val is not None
+                key for key, val in float_prop_exchange_dict.items() if val is not None
             ]:
                 if v is not None:
                     self.connect_value_node(
-                        b_mat, v, sg.inputs[float_prop_exchange_dic[k]]
+                        b_mat, v, sg.inputs[float_prop_exchange_dict[k]]
                     )
             else:
                 b_mat[k] = v
 
-        for k, v in pymat.keyword_dic.items():
+        for k, v in pymat.keyword_dict.items():
             b_mat[k] = v
 
         uv_offset_tiling_value: Sequence[float] = [0, 0, 1, 1]
-        vector_props_dic = MaterialMtoon.vector_props_exchange_dic
-        for k, vec in pymat.vector_props_dic.items():
+        vector_props_dict = MaterialMtoon.vector_props_exchange_dict
+        for k, vec in pymat.vector_props_dict.items():
             if k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
                 self.connect_rgb_node(
                     b_mat,
                     vec,
-                    sg.inputs[vector_props_dic[k]],
+                    sg.inputs[vector_props_dict[k]],
                     default_color=[1, 1, 1, 1],
                 )
             elif k == "_RimColor":
                 self.connect_rgb_node(
                     b_mat,
                     vec,
-                    sg.inputs[vector_props_dic[k]],
+                    sg.inputs[vector_props_dict[k]],
                     default_color=[0, 0, 0, 1],
                 )
             elif k == "_MainTex" and vec is not None:
@@ -542,15 +542,15 @@ class AbstractBaseVrmImporter(ABC):
                 texture_node.inputs[0], uv_offset_tiling_node.outputs[0]
             )
 
-        tex_dic = MaterialMtoon.texture_kind_exchange_dic
+        tex_dict = MaterialMtoon.texture_kind_exchange_dict
 
-        for tex_name, tex_index in pymat.texture_index_dic.items():
+        for tex_name, tex_index in pymat.texture_index_dict.items():
             if tex_index is None:
                 continue
             image_index = self.parse_result.json_dict["textures"][tex_index]["source"]
             if image_index not in self.images:
                 continue
-            if tex_name not in tex_dic:
+            if tex_name not in tex_dict:
                 if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
                 b_mat["unknown_texture"].update(
@@ -565,17 +565,17 @@ class AbstractBaseVrmImporter(ABC):
                 main_tex_node = self.connect_texture_node(
                     b_mat,
                     tex_index,
-                    sg.inputs[tex_dic[tex_name]],
-                    sg.inputs[tex_dic[tex_name] + "Alpha"],
+                    sg.inputs[tex_dict[tex_name]],
+                    sg.inputs[tex_dict[tex_name] + "Alpha"],
                 )
                 connect_uv_map_to_texture(main_tex_node)
             elif tex_name == "_BumpMap":
                 # If .blend file already has VRM that is imported by older version,
                 # 'sg' has old 'MToon_unversioned', which has 'inputs["NomalmapTexture"]'. # noqa: SC100
-                # But 'tex_dic' holds name that is corrected, and it causes KeyError to reference 'sg' with it
+                # But 'tex_dict' holds name that is corrected, and it causes KeyError to reference 'sg' with it
                 color_socket_name = "NomalmapTexture"
-                if tex_dic[tex_name] in sg.inputs:
-                    color_socket_name = tex_dic[tex_name]
+                if tex_dict[tex_name] in sg.inputs:
+                    color_socket_name = tex_dict[tex_name]
 
                 normalmap_node = self.connect_texture_node(
                     b_mat,
@@ -593,14 +593,14 @@ class AbstractBaseVrmImporter(ABC):
                 rs_tex_node = self.connect_texture_node(
                     b_mat,
                     tex_index,
-                    alpha_socket_to_connect=sg.inputs[tex_dic[tex_name] + "_alpha"],
+                    alpha_socket_to_connect=sg.inputs[tex_dict[tex_name] + "_alpha"],
                 )
                 connect_uv_map_to_texture(rs_tex_node)
             elif tex_name == "_SphereAdd":
                 tex_node = self.connect_texture_node(
                     b_mat,
                     tex_index,
-                    color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
+                    color_socket_to_connect=sg.inputs[tex_dict[tex_name]],
                 )
                 b_mat.node_tree.links.new(
                     tex_node.inputs["Vector"],
@@ -609,17 +609,17 @@ class AbstractBaseVrmImporter(ABC):
                     ).outputs["Vector"],
                 )
             else:
-                if tex_dic.get(tex_name) is not None:  # Shade,Emissive,Rim,UVanimMask
+                if tex_dict.get(tex_name) is not None:  # Shade,Emissive,Rim,UVanimMask
                     other_tex_node = self.connect_texture_node(
                         b_mat,
                         tex_index,
-                        color_socket_to_connect=sg.inputs[tex_dic[tex_name]],
+                        color_socket_to_connect=sg.inputs[tex_dict[tex_name]],
                     )
                     connect_uv_map_to_texture(other_tex_node)
                 else:
                     print(f"{tex_name} is unknown texture")
 
-        transparent_mode_float = pymat.float_props_dic["_BlendMode"]
+        transparent_mode_float = pymat.float_props_dict["_BlendMode"]
         # Z-WriteかどうかはMToon 1.0風のValue Nodeに保存する
         # https://github.com/vrm-c/UniVRM/blob/master/Assets/VRMShaders/VRM10/MToon10/Resources/VRM10/vrmc_materials_mtoon.shader#L7
         transparent_with_z_write_value = 0.0
@@ -656,11 +656,11 @@ class AbstractBaseVrmImporter(ABC):
             sg.outputs["Emission"],
         )
 
-        for k, float_value in pymat.float_props_dic.items():
+        for k, float_value in pymat.float_props_dict.items():
             b_mat[k] = float_value
-        for k, vec_value in pymat.vector_props_dic.items():
+        for k, vec_value in pymat.vector_props_dict.items():
             b_mat[k] = vec_value
-        for tex_name, tex_index_value in pymat.texture_index_dic.items():
+        for tex_name, tex_index_value in pymat.texture_index_dict.items():
             if tex_name == "_MainTex" and tex_index_value is not None:
                 self.connect_texture_node(
                     b_mat,
