@@ -1,6 +1,5 @@
 import json
 import struct
-from collections import OrderedDict
 from typing import Any, Dict, Optional, Tuple
 
 from .binary_reader import BinaryReader
@@ -65,7 +64,7 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     if not json_str:
         raise Exception("failed to read json chunk")
 
-    json_obj = json.loads(json_str, object_pairs_hook=OrderedDict)
+    json_obj = json.loads(json_str)
     if not isinstance(json_obj, dict):
         raise Exception("VRM has invalid json: " + str(json_obj))
     return json_obj, body if body else bytes()

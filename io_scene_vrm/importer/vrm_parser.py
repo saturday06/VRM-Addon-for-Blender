@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import tempfile
-from collections import OrderedDict
 from dataclasses import dataclass, field
 from itertools import repeat
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
@@ -614,7 +613,7 @@ class VrmParser:
 
                 # ここからモーフターゲット vrmのtargetは相対位置 normalは無視する
                 if "targets" in primitive:
-                    morph_target_point_list_and_accessor_index_dict = OrderedDict()
+                    morph_target_point_list_and_accessor_index_dict = {}
                     for i, morph_target in enumerate(primitive["targets"]):
                         pos_array = self.decoded_binary[morph_target["POSITION"]]
                         if "extra" in morph_target:  # for old AliciaSolid

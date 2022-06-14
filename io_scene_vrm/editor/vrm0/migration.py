@@ -1,4 +1,3 @@
-import collections
 import contextlib
 import json
 import uuid
@@ -32,10 +31,7 @@ def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Option
             return None
     textblock_str = "".join([line.body for line in textblock.lines])
     with contextlib.suppress(json.JSONDecodeError):
-        return json.loads(
-            textblock_str,
-            object_pairs_hook=collections.OrderedDict,
-        )
+        return json.loads(textblock_str)
     return None
 
 

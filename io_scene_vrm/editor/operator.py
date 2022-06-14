@@ -7,7 +7,6 @@ https://opensource.org/licenses/mit-license.php
 import json
 import os
 import re
-from collections import OrderedDict
 from typing import Set, cast
 
 import bpy
@@ -243,7 +242,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
         )
         recipe = None
         with open(recipe_uri, "rt", encoding="utf-8") as raw_recipe:
-            recipe = json.loads(raw_recipe.read(), object_pairs_hook=OrderedDict)
+            recipe = json.loads(raw_recipe.read())
         for shapekey_name, based_values in recipe["shapekeys"].items():
             for k in bpy.context.active_object.data.shape_keys.key_blocks:
                 k.value = 0.0

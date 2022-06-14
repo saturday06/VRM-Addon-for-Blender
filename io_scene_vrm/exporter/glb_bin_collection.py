@@ -4,7 +4,6 @@ Released under the MIT license
 https://opensource.org/licenses/mit-license.php
 
 """
-from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -16,35 +15,31 @@ class GlbBinCollection:
         self.bin = bytearray()
 
     def pack_all(self) -> Tuple[Dict[str, Any], bytes]:
-        bin_dict: Dict[str, Any] = OrderedDict()
+        bin_dict: Dict[str, Any] = {}
         byte_offset = 0
         bin_dict["bufferViews"] = []
         bin_dict["accessors"] = []
 
         for vab in self.vertex_attribute_bins:
             self.bin.extend(vab.bin)
-            vab_dict = OrderedDict(
-                {
-                    "bufferView": self.get_new_buffer_view_id(),
-                    "byteOffset": 0,
-                    "type": vab.array_type,
-                    "componentType": vab.component_type,
-                    "count": vab.array_count,
-                    "normalized": False,
-                }
-            )
+            vab_dict = {
+                "bufferView": self.get_new_buffer_view_id(),
+                "byteOffset": 0,
+                "type": vab.array_type,
+                "componentType": vab.component_type,
+                "count": vab.array_count,
+                "normalized": False,
+            }
             if vab.min_max:
                 vab_dict["min"] = vab.min_max[0]
                 vab_dict["max"] = vab.min_max[1]
             bin_dict["accessors"].append(vab_dict)
             bin_dict["bufferViews"].append(
-                OrderedDict(
-                    {
-                        "buffer": 0,
-                        "byteOffset": byte_offset,
-                        "byteLength": vab.bin_length,
-                    }
-                )
+                {
+                    "buffer": 0,
+                    "byteOffset": byte_offset,
+                    "byteLength": vab.bin_length,
+                }
             )
             byte_offset += vab.bin_length
 
@@ -53,22 +48,18 @@ class GlbBinCollection:
             for img in self.image_bins:
                 self.bin.extend(img.bin)
                 bin_dict["images"].append(
-                    OrderedDict(
-                        {
-                            "name": img.name,
-                            "bufferView": self.get_new_buffer_view_id(),
-                            "mimeType": img.image_type,
-                        }
-                    )
+                    {
+                        "name": img.name,
+                        "bufferView": self.get_new_buffer_view_id(),
+                        "mimeType": img.image_type,
+                    }
                 )
                 bin_dict["bufferViews"].append(
-                    OrderedDict(
-                        {
-                            "buffer": 0,
-                            "byteOffset": byte_offset,
-                            "byteLength": img.bin_length,
-                        }
-                    )
+                    {
+                        "buffer": 0,
+                        "byteOffset": byte_offset,
+                        "byteLength": img.bin_length,
+                    }
                 )
                 byte_offset += img.bin_length
 
