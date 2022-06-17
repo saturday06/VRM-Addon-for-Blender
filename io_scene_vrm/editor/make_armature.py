@@ -559,7 +559,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
 
 
 def connect_parent_tail_and_child_head_if_same_position(
-    armature: bpy.types.Object,
+    armature: bpy.types.Armature,
 ) -> None:
     for bone in armature.edit_bones:
         # 親ボーンがある場合かつ、ボーンのヘッドと親ボーンのテールが一致していたら
