@@ -1,0 +1,45 @@
+name: readme-update
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy
+        run: |
+          set -x
+
+          target_branch_name=$(printf "README\xc2\xa0/\xc2\xa0This_is_not_an_add-on_file._Please_download_from_vrm-addon-for-blender.info_website")
+
+          git fetch --depth=1 origin main website "$target_branch_name"
+
+          mkdir readme
+          cd readme
+          cp -fr ../.git .git
+          git checkout "$target_branch_name"
+          cp -fr ../.github .
+          cp ../README.md .
+          git add .
+          if git diff --cached --exit-code; then
+            exit 0
+          fi
+          git status
+
+          git config --global user.email "isamu@leafytree.jp"
+          git config --global user.name "Isamu Mogi (BOT)"
+          git commit -m "[BOT] Update README"
+
+          case "$GITHUB_SHA" in
+            "$(git rev-parse origin/main)");;
+            "$(git rev-parse origin/website)");;
+            *) exit 0;;
+          esac
+
+          git push origin "$target_branch_name"
