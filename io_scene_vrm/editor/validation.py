@@ -129,7 +129,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         )
 
         for obj in export_objects:
-            if obj.type not in ["ARMATURE", "EMPTY"]:
+            if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES:
                 if obj.name in node_names:
                     error_messages.append(
                         pgettext(
@@ -139,7 +139,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 if obj.name not in node_names:
                     node_names.append(obj.name)
             if (
-                obj.type == "MESH"
+                obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
                 and obj.parent is not None
                 and obj.parent.type != "ARMATURE"
                 and obj.location != Vector([0.0, 0.0, 0.0])
@@ -258,17 +258,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         if armature_count == 0:
             info_messages.append(pgettext("Please add ARMATURE to selections"))
 
+        used_materials = search.materials(export_objects)
         used_images: List[bpy.types.Image] = []
-        used_materials = []
         bones_name = []
         if armature is not None:
             bones_name = [b.name for b in armature.data.bones]
         vertex_error_count = 0
+
         for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
-            for mat in mesh.data.materials:
-                if mat and mat not in used_materials:
-                    used_materials.append(mat)
 
             for v in mesh.data.vertices:
                 if len(v.groups) == 0 and mesh.parent_bone == "":

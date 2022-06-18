@@ -53,14 +53,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
             )
 
-    MESH_CONVERTIBLE_OBJECT_TYPES = [
-        "CURVE",
-        "FONT",
-        "MESH",
-        # "META",  # Disable until the glTF 2.0 add-on supports it
-        "SURFACE",
-    ]
-
     def __init__(
         self, export_objects: List[bpy.types.Object], export_fb_ngon_encoding: bool
     ) -> None:
@@ -187,17 +179,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     def image_to_bin(self) -> None:
         # collect used image
         used_images = []
-        used_materials = []
-        for mesh in [
-            obj
-            for obj in self.export_objects
-            if obj.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
-        ]:
-            for mat in mesh.data.materials:
-                if mat and mat not in used_materials:
-                    if "vrm_shader" in mat:
-                        del mat["vrm_shader"]
-                    used_materials.append(mat)
+        used_materials = search.materials(self.export_objects)
+        for mat in used_materials:
+            if "vrm_shader" in mat:
+                del mat["vrm_shader"]
 
         # image fetching
         for node, mat in search.shader_nodes_and_materials(used_materials):
@@ -1306,17 +1291,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         # endregion function separate by shader
 
-        used_materials = []
-        for mesh in [
-            obj
-            for obj in self.export_objects
-            if obj.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
-        ]:
-            for mat in mesh.data.materials:
-                if mat and mat not in used_materials:
-                    used_materials.append(mat)
-
-        for b_mat in used_materials:
+        for b_mat in search.materials(self.export_objects):
             material_properties_dict: Dict[str, Any] = {}
             pbr_dict: Dict[str, Any] = {}
             if not b_mat.node_tree:
@@ -1442,7 +1417,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 return False
             if (
                 mesh.parent_type != "OBJECT"
-                or mesh.parent.type not in self.MESH_CONVERTIBLE_OBJECT_TYPES
+                or mesh.parent.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES
             ):
                 return True
             mesh = mesh.parent
@@ -1457,7 +1432,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         meshes = [
             obj
             for obj in self.export_objects
-            if obj.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
+            if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
         ]
         while True:
             swapped = False
@@ -1465,7 +1440,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if (
                     mesh.parent_type == "OBJECT"
                     and mesh.parent
-                    and mesh.parent.type in self.MESH_CONVERTIBLE_OBJECT_TYPES
+                    and mesh.parent.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
                     and meshes.index(mesh) < meshes.index(mesh.parent)
                 ):
                     meshes.remove(mesh)
@@ -1813,7 +1788,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             while (
                                 mesh_parent
                                 and mesh_parent.type
-                                in self.MESH_CONVERTIBLE_OBJECT_TYPES
+                                in search.MESH_CONVERTIBLE_OBJECT_TYPES
                                 and mesh_parent != mesh
                             ):
                                 if (
