@@ -42,6 +42,6 @@ mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\V
 
 For more advanced development, such as running tests, please use Poetry https://python-poetry.org/ .
 
-# Documentation / ドキュメント
+# Website / ウェブサイト
 
 [https://vrm-addon-for-blender.info](https://vrm-addon-for-blender.info)
