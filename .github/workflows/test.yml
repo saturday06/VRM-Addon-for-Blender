@@ -1,0 +1,221 @@
+name: test
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-windows:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        archive_url:
+          - https://download.blender.org/release/Blender2.83/blender-2.83.12-windows64.zip
+          - https://download.blender.org/release/Blender2.93/blender-2.93.9-windows-x64.zip
+          - https://download.blender.org/release/Blender3.2/blender-3.2.0-windows-x64.zip
+    env:
+      BLENDER_VRM_EXCLUDE_GUI_TEST: true
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@v2
+        with:
+          path: blender.zip
+          key: ${{ matrix.archive_url }}-archive-3
+      - name: Download archive
+        if: steps.cache-archive.outputs.cache-hit != 'true'
+        run: Invoke-WebRequest -Uri "${{ matrix.archive_url }}" -OutFile blender.zip
+      - name: Test
+        run: |
+          Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
+          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\generate_dynamic_tests.py
+          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\unittest_discover.py
+      - name: Archive failed io test result
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: VRMs
+          path: tests/vrm/temp
+
+  test-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        archive_url:
+          - https://download.blender.org/release/Blender2.83/blender-2.83.12-macOS.dmg
+          - https://download.blender.org/release/Blender2.93/blender-2.93.9-macos-x64.dmg
+          - https://download.blender.org/release/Blender3.2/blender-3.2.0-macos-x64.dmg
+    env:
+      BLENDER_VRM_EXCLUDE_GUI_TEST: true
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@v2
+        with:
+          path: blender.dmg
+          key: ${{ matrix.archive_url }}-archive-3
+      - name: Download archive
+        if: steps.cache-archive.outputs.cache-hit != 'true'
+        run: curl -fsLS "${{ matrix.archive_url }}" -o blender.dmg
+      - name: Test
+        run: |
+          hdiutil attach blender.dmg
+          cp -fr /Volumes/Blender/Blender.app /Applications
+          hdiutil detach $(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')
+          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/generate_dynamic_tests.py
+          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/unittest_discover.py
+      - name: Archive failed io test result
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: VRMs
+          path: tests/vrm/temp
+
+  test-linux-gui:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Test
+        run: |
+          ./scripts/generate_dynamic_tests.py
+          python3 -m unittest tests.test_GENERATED_gui
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: Captured Video
+          path: latest_capture.ogv
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install deb packages
+        run: |
+          sudo apt-get update -qq || true
+          sudo apt-get install -y clang-format-12 glslang-tools python3 shellcheck uchardet
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Disable git config core.quotepath
+        run: git config core.quotepath off
+      - name: Check file permissions
+        run: |
+          git ls-files ':!scripts/*.sh' ':!scripts/*.py' ':!tests/resources' | while read -r f; do
+            echo $f
+            if [ -x "$f" ]; then
+              echo "$f has unnecessary executable permission."
+              exit 1
+            fi
+          done
+          git ls-files 'scripts/*.sh' 'scripts/*.py' | while read -r f; do
+            echo $f
+            if [ ! -x "$f" ]; then
+              echo "$f has no executable permission."
+              exit 1
+            fi
+          done
+      - name: Check file name characters
+        run: |
+          git ls-files | while read -r f; do
+            encoding=$(echo "$f" | uchardet)
+            if [ "$encoding" != "ASCII" ]; then
+              echo "$f is not ascii file name but $encoding."
+              exit 1
+            fi
+          done
+
+          git ls-files "*.py" | while read -r f; do
+            if [ "$f" != "$(echo "$f" | LC_ALL=C tr "[:upper:]" "[:lower:]")" ]; then
+              echo "$f contains uppercase character"
+              exit 1
+            fi
+          done
+      - name: Check file content character encoding
+        run: |
+          git ls-files | while read -r f; do
+            encoding=$(file --brief --mime-encoding "$f")
+            case "$encoding" in
+              binary | us-ascii | utf-8)
+                file "$f"
+                ;;
+              *)
+                echo "$f is not ascii nor utf-8 but $encoding."
+                exit 1
+                ;;
+            esac
+          done
+          git diff --exit-code
+      - name: Check whitelist.txt contents
+        run: |
+          LC_ALL=C tr '[:upper:]' '[:lower:]' < whitelist.txt | diff -u whitelist.txt -
+
+          result=0
+          for word in $(cat whitelist.txt); do
+            if ! git grep -i "$word" "*.py" > /dev/null; then
+              >&2 echo whitelist.txt:$word is no longer necessary
+              result=1
+            fi
+          done
+          exit $result
+      - name: Check whitelist.txt ordering
+        run: LC_ALL=C sort whitelist.txt | diff -u whitelist.txt -
+      - name: Validate GLSL
+        run: |
+          git ls-files "**.glsl" | while read -r orig; do
+            echo "$orig"
+            versioned="/tmp/$(basename "$orig")"
+            echo "#version 330" > "$versioned"
+            cat "$orig" >> "$versioned"
+            glslangValidator "$versioned"
+          done
+      - name: Shellcheck
+        run: shellcheck $(git ls-files "*.sh")
+      - name: Format GLSL (May break syntax!)
+        run: |
+          clang-format-12 -i $(git ls-files "**.glsl")
+          git diff --exit-code
+      - name: editorconfig-checker
+        run: |
+          version="2.4.0"
+          os="linux"
+          arch="amd64"
+          ec_dir=$(mktemp -d)
+          pushd "$ec_dir"
+            curl -O -L -C - "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$version/ec-$os-$arch.tar.gz"
+            tar xzf ec-$os-$arch.tar.gz
+          popd
+          "$ec_dir/bin/ec-$os-$arch"
+      - name: Install poetry
+        run: |
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+      - name: Check pyproject.toml format
+        run: poetry check
+      - name: Install poetry dependencies
+        run: poetry install
+      - name: Check source code formatting
+        run: poetry run black --check --diff $(git ls-files "*.py")
+      - name: Pylint
+        run: |
+          poetry remove fake-bpy-module-2.82 # pylint and fake-bpy-module are incompatible
+          poetry run pylint --rcfile .pylintrc.ci $(git ls-files "*.py")
+          git checkout .
+          poetry install
+      - name: Mypy
+        run: poetry run mypy --show-error-code $(git ls-files "*.py")
+      - name: Flake8
+        run: poetry run flake8 --count --show-source --statistics $(git ls-files "*.py")
+      - name: Check import sorting order
+        run: |
+          poetry run isort $(git ls-files "*.py")
+          poetry run black $(git ls-files "*.py")
+          git diff --exit-code
