@@ -61,38 +61,34 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def import_vrm(self) -> None:
         wm = bpy.context.window_manager
-
-        def prog(z: int) -> int:
-            wm.progress_update(z)
-            return z + 1
-
-        wm.progress_begin(0, 11)
+        wm.progress_begin(0, 9)
         try:
-            i = 1
             affected_object = self.scene_init()
-            i = prog(i)
+            wm.progress_update(1)
             self.import_gltf2_with_indices()
+            wm.progress_update(2)
             if self.extract_textures_into_folder:
-                i = prog(i)
                 self.extract_textures()
-            i = prog(i)
+            wm.progress_update(3)
             self.use_fake_user_for_thumbnail()
-            i = prog(i)
+            wm.progress_update(4)
             self.connect_bones()
-            i = prog(i)
+            wm.progress_update(5)
             self.make_material()
-            i = prog(i)
+            wm.progress_update(6)
             if self.parse_result.vrm1_extension:
                 self.load_vrm1_extensions()
             elif self.parse_result.vrm0_extension:
                 self.load_vrm0_extensions()
-            i = prog(i)
+            wm.progress_update(7)
             self.cleaning_data()
-            i = prog(i)
+            wm.progress_update(8)
             self.finishing(affected_object)
         finally:
-            wm.progress_end()
-            Gltf2AddonImporterUserExtension.clear_current_import_id()
+            try:
+                Gltf2AddonImporterUserExtension.clear_current_import_id()
+            finally:
+                wm.progress_end()
 
     def import_gltf2_with_indices(self) -> None:
         with open(self.parse_result.filepath, "rb") as f:

@@ -89,21 +89,34 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.result: Optional[bytes] = None
 
     def export_vrm(self) -> Optional[bytes]:
-        self.vrm_version = "0.0"
+        wm = bpy.context.window_manager
+        wm.progress_begin(0, 9)
         try:
+            self.vrm_version = "0.0"
             self.setup_pose()
+            wm.progress_update(1)
             self.image_to_bin()
+            wm.progress_update(2)
             self.armature_to_node_and_scenes_dict()
+            wm.progress_update(3)
             self.material_to_dict()
+            wm.progress_update(4)
             self.mesh_to_bin_and_dict()
+            wm.progress_update(5)
             self.json_dict["scene"] = 0
             self.gltf_meta_to_dict()
+            wm.progress_update(6)
             self.vrm_meta_to_dict()  # colliderとかmetaとか....
+            wm.progress_update(7)
             self.fill_empty_material()
+            wm.progress_update(8)
             self.pack()
         finally:
-            self.restore_pose()
-            self.cleanup()
+            try:
+                self.restore_pose()
+                self.cleanup()
+            finally:
+                wm.progress_end()
         return self.result
 
     @staticmethod
