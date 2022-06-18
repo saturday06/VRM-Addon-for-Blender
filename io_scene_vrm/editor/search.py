@@ -21,15 +21,13 @@ def materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material]:
         obj.data for obj in objects if obj.type in MESH_CONVERTIBLE_OBJECT_TYPES
     ]:
         if isinstance(mesh_convertible, (bpy.types.Curve, bpy.types.Mesh)):
-            materials = mesh_convertible.materials
+            for material in mesh_convertible.materials:
+                if isinstance(material, bpy.types.Material) and material not in result:
+                    result.append(material)
         else:
             print(
                 f"WARNING: Unexpected mesh convertible object type: {type(mesh_convertible)}"
             )
-            continue
-        for material in materials:
-            if isinstance(material, bpy.types.Material) and material not in result:
-                result.append(material)
     return result
 
 
