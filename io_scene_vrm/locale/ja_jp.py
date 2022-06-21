@@ -64,6 +64,12 @@ translation_dictionary = {
     ("*", 'There are not an object on the origin "{name}"'): "「{name}」が原点座標にありません",
     (
         "*",
+        "The same name cannot be used for a mesh object and a bone. "
+        + 'Rename either one whose name is "{name}".',
+    ): "メッシュオブジェクトとボーンで同じ名前を使うことができません。"
+    + "名前が「{name}」のどちらかの名前を変更してください。",
+    (
+        "*",
         'The "{name}" mesh has both a non-armature modifier and a shape key. '
         + "However, they cannot coexist, so shape keys may not be export correctly.",
     ): "メッシュ「{name}」にアーマチュア以外のモディファイアとシェイプキーが両方設定されていますが、"

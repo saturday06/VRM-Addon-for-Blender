@@ -177,7 +177,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     if bone.name in node_names:  # nodes name is unique
                         error_messages.append(
                             pgettext(
-                                "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",
+                                "The same name cannot be used for a mesh object and a bone. "
+                                + 'Rename either one whose name is "{name}".'
                             ).format(name=bone.name)
                         )
                     if bone.name not in node_names:
