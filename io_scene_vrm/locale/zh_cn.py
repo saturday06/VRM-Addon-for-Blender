@@ -97,17 +97,6 @@ translation_dictionary = {
     + "firstPersonBone 设置 VRM HumanBone「head」取代自动设定。",
     (
         "*",
-        'mesh "{mesh_name}" doesn\'t have shape key. '
-        + 'But blend shape group needs "{shape_key_name}" in its shape key.',
-    ): "blend shape groupが参照しているメッシュ「{mesh_name}」のシェイプキー「{shape_key_name}」が存在しません。",
-    (
-        "*",
-        'mesh "{mesh_name}" doesn\'t have "{shape_key_name}" shape key. '
-        + "But blend shape group needs it.",
-    ): "メッシュ「{mesh_name}」无「{shape_key_name}」形态键。"
-    + " 但是blend shape group 需要它。",
-    (
-        "*",
         'need "{expect_node_type}" input in "{shader_val}" of "{material_name}"',
     ): "需要在「{material_name}」的「{shader_val}」中输入、「{expect_node_type}」请直接连接。 ",
     (
@@ -115,7 +104,6 @@ translation_dictionary = {
         'image in material "{material_name}" is not put. Please set image.',
     ): "「{material_name}」有一个没有设置纹理的图像节点。请删除或设置图片。",
     ("*", "Simplify VRoid Bones"): "简化VRoid骨骼名",
-    ("*", "Current Pose"): "現在のポーズ",
     ("*", "Save Bone Mappings"): "保存映射文件",
     ("*", "Load Bone Mappings"): "加载映射文件",
     ("Operator", "Preview MToon"): "预览MToon",
