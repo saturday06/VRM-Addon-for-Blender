@@ -207,7 +207,7 @@ class GlslDrawObj:
     light = None
     offscreen = None
     materials: Dict[str, MtoonGlsl] = {}
-    myinstance: Optional[Any] = None
+    instance: Optional[Any] = None
     draw_objs: List[bpy.types.Object] = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
@@ -215,7 +215,7 @@ class GlslDrawObj:
     bounding_size = [1, 1, 1]
 
     def __init__(self) -> None:
-        GlslDrawObj.myinstance = self
+        GlslDrawObj.instance = self
         self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
         self.materials = {}
         self.main_executor = (  # pylint: disable=R1732 # noqa: SC100
@@ -230,10 +230,10 @@ class GlslDrawObj:
     @staticmethod
     def build_scene(_dummy: None = None) -> None:
         glsl_draw_obj: Optional[GlslDrawObj] = None
-        if GlslDrawObj.myinstance is None and GlslDrawObj.draw_func is None:
+        if GlslDrawObj.instance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()
         else:
-            glsl_draw_obj = GlslDrawObj.myinstance
+            glsl_draw_obj = GlslDrawObj.instance
         if glsl_draw_obj is None:
             return
         glsl_draw_obj.objs = [obj for obj in glsl_draw_obj.draw_objs if obj is not None]
@@ -414,11 +414,11 @@ class GlslDrawObj:
 
     def glsl_draw(self) -> None:
         glsl_draw_obj: Optional[GlslDrawObj] = None
-        if GlslDrawObj.myinstance is None and GlslDrawObj.draw_func is None:
+        if GlslDrawObj.instance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()
             glsl_draw_obj.build_scene()
         else:
-            glsl_draw_obj = GlslDrawObj.myinstance
+            glsl_draw_obj = GlslDrawObj.instance
         if glsl_draw_obj is None:
             raise Exception("glsl draw obj is None")
         light = glsl_draw_obj.light
@@ -626,13 +626,13 @@ class GlslDrawObj:
             for obj in search.export_objects(invisibles, only_selections)
             if obj.type == "MESH"
         ]
-        if GlslDrawObj.myinstance is None or GlslDrawObj.draw_func is None:
-            GlslDrawObj.myinstance = GlslDrawObj()
+        if GlslDrawObj.instance is None or GlslDrawObj.draw_func is None:
+            GlslDrawObj.instance = GlslDrawObj()
         GlslDrawObj.build_scene()
         if GlslDrawObj.draw_func is not None:
             GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_func = bpy.types.SpaceView3D.draw_handler_add(
-            GlslDrawObj.myinstance.glsl_draw, (), "WINDOW", "POST_PIXEL"
+            GlslDrawObj.instance.glsl_draw, (), "WINDOW", "POST_PIXEL"
         )
 
         if (

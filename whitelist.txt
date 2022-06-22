@@ -112,7 +112,6 @@ morphname
 msgbus
 msgctxt
 mtoon
-myinstance
 ngon
 normalmap
 normals
