@@ -130,7 +130,6 @@ class AbstractBaseVrmImporter(ABC):
         previous_active = bpy.context.view_layer.objects.active
         try:
             bpy.context.view_layer.objects.active = armature
-            bpy.ops.object.mode_set(mode="EDIT")
 
             bone_name_to_human_bone_name: Dict[str, HumanBoneName] = {}
             humanoid = addon_extension.vrm0.humanoid
@@ -141,6 +140,14 @@ class AbstractBaseVrmImporter(ABC):
                 if not name:
                     continue
                 bone_name_to_human_bone_name[human_bone.node.value] = name
+
+            bpy.ops.object.mode_set(mode="EDIT")
+
+            for bone_name in bone_name_to_human_bone_name:
+                bone = armature.data.edit_bones.get(bone_name)
+                while bone:
+                    bone.roll = 0.0
+                    bone = bone.parent
 
             for (
                 bone_name,
