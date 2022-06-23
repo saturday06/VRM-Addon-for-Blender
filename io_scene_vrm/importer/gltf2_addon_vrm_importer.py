@@ -457,6 +457,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     filepath=indexed_vrm_filepath,
                     import_pack_images=True,
                     bone_heuristic=bone_heuristic,
+                    guess_original_bind_pose=False,
                 )
                 full_vrm_import_success = True
             except RuntimeError:
@@ -481,6 +482,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         filepath=indexed_vrm_filepath,
                         import_pack_images=True,
                         bone_heuristic=bone_heuristic,
+                        guess_original_bind_pose=False,
                     )
                 except RuntimeError as e:
                     traceback.print_exc()
