@@ -30,8 +30,6 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             i = prog(i)
             self.use_fake_user_for_thumbnail()
             i = prog(i)
-            self.connect_bones()
-            i = prog(i)
             self.make_material()
             i = prog(i)
             self.make_primitive_mesh_objects(wm, i)
@@ -184,6 +182,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             for index, py_bone in self.parse_result.nodes_dict.items()
             if py_bone.blend_bone
         }
+
+        self.save_bone_child_object_world_matrices(self.armature)
 
     def make_primitive_mesh_objects(
         self, wm: bpy.types.WindowManager, progress: int

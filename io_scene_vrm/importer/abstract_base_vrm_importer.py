@@ -21,10 +21,10 @@ from mathutils import Matrix
 from .. import common
 from ..common import convert, deep
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.human_bone import HumanBoneSpecifications
+from ..common.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
-from ..editor import migration, operator, panel
+from ..editor import make_armature, migration, operator, panel
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
 from ..editor.vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
@@ -66,6 +66,7 @@ class AbstractBaseVrmImporter(ABC):
         self.vrm_materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
+        self.bone_child_object_world_matrices: Dict[str, Matrix] = {}
 
     @abstractmethod
     def import_vrm(self) -> None:
@@ -75,49 +76,186 @@ class AbstractBaseVrmImporter(ABC):
     def axis_glb_to_blender(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
-    def connect_bones(self) -> None:
+    def save_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
+        for obj in bpy.data.objects:
+            if (
+                obj.parent_type == "BONE"
+                and obj.parent == armature
+                and obj.parent_bone in armature.data.bones
+            ):
+                self.bone_child_object_world_matrices[
+                    obj.name
+                ] = obj.matrix_world.copy()
+
+    def load_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
+        for obj in bpy.data.objects:
+            if (
+                obj.parent_type == "BONE"
+                and obj.parent == armature
+                and obj.parent_bone in armature.data.bones
+                and obj.name in self.bone_child_object_world_matrices
+            ):
+                obj.matrix_world = self.bone_child_object_world_matrices[obj.name]
+
+    def setup_humanoid_bones(self) -> None:
         armature = self.armature
-        if armature is None:
-            print("armature is None")
+        if not armature:
+            return
+        addon_extension = armature.data.vrm_addon_extension
+        if not isinstance(addon_extension, VrmAddonArmatureExtensionPropertyGroup):
             return
 
-        # Blender_VRMAutoIKSetup (MIT License)
-        # https://booth.pm/ja/items/1697977
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+            armature.data.name, defer=False
+        )
+
+        humanoid = addon_extension.vrm0.humanoid
+        for human_bone in humanoid.human_bones:
+            if (
+                human_bone.node.value
+                and human_bone.node.value not in human_bone.node_candidates
+            ):
+                # has error
+                return
+
+        for humanoid_name in HumanBoneSpecifications.vrm0_required_names:
+            if not any(
+                human_bone.bone == humanoid_name and human_bone.node.value
+                for human_bone in humanoid.human_bones
+            ):
+                # has error
+                return
+
         previous_active = bpy.context.view_layer.objects.active
         try:
-            bpy.context.view_layer.objects.active = self.armature  # アーマチャーをアクティブに
-            bpy.ops.object.mode_set(mode="EDIT")  # エディットモードに入る
-            disconnected_bone_names = []  # 結合されてないボーンのリスト
-            vrm0_extension = self.parse_result.vrm0_extension
-            if vrm0_extension is not None and str(
-                vrm0_extension.get("exporterVersion")
-            ).startswith("VRoidStudio-"):
-                disconnected_bone_names = [
-                    "J_Bip_R_Hand",
-                    "J_Bip_L_Hand",
-                    "J_Bip_L_LowerLeg",
-                    "J_Bip_R_LowerLeg",
-                ]
-            bpy.ops.armature.select_all(action="SELECT")  # 全てのボーンを選択
-            for bone in bpy.context.selected_bones:  # 選択しているボーンに対して繰り返し処理
-                for (
-                    disconnected_bone_name
-                ) in disconnected_bone_names:  # 結合されてないボーンのリスト分繰り返し処理
-                    # リストに該当するオブジェクトがシーン中にあったら処理
-                    if bone.name == disconnected_bone_name:
-                        # disconnected_bone変数に処理ボーンを代入
-                        disconnected_bone = armature.data.edit_bones[
-                            disconnected_bone_name
-                        ]
-                        # 処理対象の親ボーンのTailと処理対象のHeadを一致させる
-                        disconnected_bone.parent.tail = disconnected_bone.head
+            bpy.context.view_layer.objects.active = armature
+            bpy.ops.object.mode_set(mode="EDIT")
 
-            panel.make_armature.connect_parent_tail_and_child_head_if_same_position(
+            bone_name_to_human_bone_name: Dict[str, HumanBoneName] = {}
+            humanoid = addon_extension.vrm0.humanoid
+            for human_bone in humanoid.human_bones:
+                if not human_bone.node.value:
+                    continue
+                name = HumanBoneName.from_str(human_bone.bone)
+                if not name:
+                    continue
+                bone_name_to_human_bone_name[human_bone.node.value] = name
+
+            for (
+                bone_name,
+                human_bone_name,
+            ) in bone_name_to_human_bone_name.items():
+                # 現在のアルゴリズムでは
+                #
+                #   head ---- node ---- leftEye
+                #                   \
+                #                    -- rightEye
+                #
+                # を上手く扱えないので、leftEyeとrightEyeは処理しない
+                if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
+                    continue
+
+                bone = armature.data.edit_bones.get(bone_name)
+                if not bone:
+                    continue
+                last_human_bone_name = human_bone_name
+                while True:
+                    parent = bone.parent
+                    if not parent:
+                        break
+                    parent_human_bone_name = bone_name_to_human_bone_name.get(
+                        parent.name
+                    )
+
+                    if parent_human_bone_name in [
+                        HumanBoneName.RIGHT_HAND,
+                        HumanBoneName.LEFT_HAND,
+                    ]:
+                        break
+
+                    if (
+                        parent_human_bone_name == HumanBoneName.UPPER_CHEST
+                        and last_human_bone_name
+                        not in [HumanBoneName.HEAD, HumanBoneName.NECK]
+                    ):
+                        break
+
+                    if (
+                        parent_human_bone_name == HumanBoneName.CHEST
+                        and last_human_bone_name
+                        not in [
+                            HumanBoneName.HEAD,
+                            HumanBoneName.NECK,
+                            HumanBoneName.UPPER_CHEST,
+                        ]
+                    ):
+                        break
+
+                    if (
+                        parent_human_bone_name == HumanBoneName.SPINE
+                        and last_human_bone_name
+                        not in [
+                            HumanBoneName.HEAD,
+                            HumanBoneName.NECK,
+                            HumanBoneName.UPPER_CHEST,
+                            HumanBoneName.CHEST,
+                        ]
+                    ):
+                        break
+
+                    if (
+                        parent_human_bone_name == HumanBoneName.HIPS
+                        and last_human_bone_name != HumanBoneName.SPINE
+                    ):
+                        break
+
+                    if parent_human_bone_name:
+                        last_human_bone_name = parent_human_bone_name
+
+                    if (
+                        parent.head - bone.head
+                    ).length >= make_armature.MIN_BONE_LENGTH:
+                        parent.tail = bone.head
+
+                    bone = parent
+
+            for human_bone in humanoid.human_bones:
+                if (
+                    human_bone.bone
+                    not in [HumanBoneName.LEFT_EYE.value, HumanBoneName.RIGHT_EYE.value]
+                    or not human_bone.node.value
+                ):
+                    continue
+
+                bone = armature.data.edit_bones.get(human_bone.node.value)
+                if not bone:
+                    continue
+
+                world_head = (
+                    armature.matrix_world @ Matrix.Translation(bone.head)
+                ).to_translation()
+
+                world_tail = list(world_head)
+                world_tail[1] -= 0.03125
+
+                world_inv = armature.matrix_world.inverted()
+                if not world_inv:
+                    continue
+                bone.tail = (
+                    Matrix.Translation(world_tail) @ world_inv
+                ).to_translation()
+
+            panel.make_armature.connect_parent_tail_and_child_head_if_very_close_position(
                 armature.data
             )
             bpy.ops.object.mode_set(mode="OBJECT")
         finally:
+            if bpy.context.view_layer.objects.active.mode != "OBJECT":
+                bpy.ops.object.mode_set(mode="OBJECT")
             bpy.context.view_layer.objects.active = previous_active
+
+        self.load_bone_child_object_world_matrices(armature)
 
     def scene_init(self) -> bpy.types.Object:
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るのでその回避と、それを元に戻す
@@ -696,6 +834,7 @@ class AbstractBaseVrmImporter(ABC):
 
         self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
         self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
+        self.setup_humanoid_bones()
         self.load_vrm0_first_person(
             vrm0.first_person, vrm0_extension.get("firstPerson")
         )

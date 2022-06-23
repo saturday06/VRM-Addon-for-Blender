@@ -1,4 +1,5 @@
 from math import radians
+from sys import float_info
 from typing import Any, Dict, Optional, Set, Tuple
 
 import bpy
@@ -7,6 +8,9 @@ from mathutils import Matrix
 from . import migration
 from .template_mesh_maker import IcypTemplateMeshMaker
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
+
+MIN_BONE_LENGTH = 0.00001  # 10μm
+AUTO_BONE_CONNECTION_DISTANCE = 0.000001  # 1μm
 
 
 class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -496,7 +500,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         bone_name_all_dict.update(left_right_body_dict)
         bone_name_all_dict.update(fingers_dict)
 
-        connect_parent_tail_and_child_head_if_same_position(armature.data)
+        connect_parent_tail_and_child_head_if_very_close_position(armature.data)
 
         context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -558,14 +562,30 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
             blend_shape_group.preset_name = preset_name
 
 
-def connect_parent_tail_and_child_head_if_same_position(
+def connect_parent_tail_and_child_head_if_very_close_position(
     armature: bpy.types.Armature,
 ) -> None:
-    for bone in armature.edit_bones:
-        # 親ボーンがある場合かつ、ボーンのヘッドと親ボーンのテールが一致していたら
-        if (
-            bone.parent is not None
-            and (bone.head - bone.parent.tail).length < 0.000001  # 1μm
-        ):
-            # ボーンの関係の接続を有効に
-            bone.use_connect = True
+    bones = [bone for bone in armature.edit_bones if not bone.parent]
+    while bones:
+        bone = bones.pop()
+
+        children_by_distance = sorted(
+            bone.children, key=lambda child: float((bone.tail - child.head).length)
+        )
+        for child in children_by_distance:
+            if (bone.tail - child.head).length < AUTO_BONE_CONNECTION_DISTANCE and (
+                bone.head - child.head
+            ).length >= MIN_BONE_LENGTH:
+                bone.tail = child.head
+            break
+
+        for child in bone.children:
+            bones.append(child)
+
+    bones = [bone for bone in armature.edit_bones if not bone.parent]
+    while bones:
+        bone = bones.pop()
+        for child in bone.children:
+            if (bone.tail - child.head).length < float_info.epsilon:
+                child.use_connect = True
+            bones.append(child)

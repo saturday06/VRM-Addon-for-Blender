@@ -61,7 +61,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def import_vrm(self) -> None:
         wm = bpy.context.window_manager
-        wm.progress_begin(0, 9)
+        wm.progress_begin(0, 8)
         try:
             affected_object = self.scene_init()
             wm.progress_update(1)
@@ -72,17 +72,15 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             wm.progress_update(3)
             self.use_fake_user_for_thumbnail()
             wm.progress_update(4)
-            self.connect_bones()
-            wm.progress_update(5)
             self.make_material()
-            wm.progress_update(6)
+            wm.progress_update(5)
             if self.parse_result.vrm1_extension:
                 self.load_vrm1_extensions()
             elif self.parse_result.vrm0_extension:
                 self.load_vrm0_extensions()
-            wm.progress_update(7)
+            wm.progress_update(6)
             self.cleaning_data()
-            wm.progress_update(8)
+            wm.progress_update(7)
             self.finishing(affected_object)
         finally:
             try:
@@ -523,26 +521,30 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     or bone_node_index != self.parse_result.hips_node_index
                 ):
                     continue
-                if (
-                    self.parse_result.spec_version_number < (1, 0)
-                    and obj.rotation_mode == "QUATERNION"
-                ):
-                    obj.rotation_quaternion.rotate(
-                        mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
-                    )
-                    if bpy.context.object is not None:
-                        bpy.ops.object.mode_set(mode="OBJECT")
-                    bpy.ops.object.select_all(action="DESELECT")
-                    obj.select_set(True)
-                    previous_active = bpy.context.view_layer.objects.active
-                    try:
-                        bpy.context.view_layer.objects.active = obj
-                        bpy.ops.object.transform_apply(
-                            location=False, rotation=True, scale=False, properties=False
-                        )
-                    finally:
-                        bpy.context.view_layer.objects.active = previous_active
                 self.armature = obj
+
+        if (
+            self.armature is not None
+            and self.parse_result.spec_version_number < (1, 0)
+            and self.armature.rotation_mode == "QUATERNION"
+        ):
+            obj = self.armature
+            obj.rotation_quaternion.rotate(mathutils.Euler((0.0, 0.0, math.pi), "XYZ"))
+            if bpy.context.object is not None:
+                bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            previous_active = bpy.context.view_layer.objects.active
+            try:
+                bpy.context.view_layer.objects.active = obj
+
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=False, properties=False
+                )
+
+                self.save_bone_child_object_world_matrices(obj)
+            finally:
+                bpy.context.view_layer.objects.active = previous_active
 
         extras_mesh_index_key = self.import_id + "Meshes"
         for obj in bpy.context.selectable_objects:
