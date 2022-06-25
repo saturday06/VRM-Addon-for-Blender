@@ -1,8 +1,10 @@
 from typing import Set, cast
 
 import bpy
+from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ExportHelper
 
+from ..common import version
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import search, validation
 from ..editor.vrm0.panel import (
@@ -187,6 +189,20 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
+
+        if not version.supported():
+            box = layout.box()
+            warning_column = box.column()
+            warning_message = pgettext(
+                "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
+                + "Please upgrade the add-on."
+            ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+            for index, warning_line in enumerate(warning_message.splitlines()):
+                warning_column.label(
+                    text=warning_line,
+                    translate=False,
+                    icon="NONE" if index else "ERROR",
+                )
 
         operator = context.space_data.active_operator
 

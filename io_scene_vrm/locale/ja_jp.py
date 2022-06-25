@@ -1,6 +1,21 @@
 locale_key = "ja_JP"
 
 translation_dictionary = {
+    (
+        "*",
+        "The installed VRM add-on is not compatible with Blender {blender_version}. "
+        + "Please upgrade the add-on.",
+    ): "インストールされているVRMアドオンはBlender {blender_version}には未対応です。\nアドオンをバージョンアップしてください。",
+    (
+        "*",
+        "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
+        + "Please upgrade the add-on.",
+    ): "インストールされている\nVRMアドオンはBlender {blender_version}には\n未対応です。アドオンを\nバージョンアップしてください。",
+    (
+        "*",
+        "The installed VRM add-on is not compatible with Blender {blender_version}. "
+        + " The VRM may not be exported correctly.",
+    ): "インストールされているVRMアドオンはBlender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
     ("*", "Show Experimetal Features"): "実験中の機能を表示する",

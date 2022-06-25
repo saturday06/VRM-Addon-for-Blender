@@ -1,6 +1,9 @@
 from typing import Any, Optional
 
 import bpy
+from bpy.app.translations import pgettext
+
+from . import version
 
 addon_package_name_temp = ".".join(__name__.split(".")[:-2])
 if not addon_package_name_temp:
@@ -53,6 +56,21 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
+
+        if not version.supported():
+            box = layout.box()
+            warning_column = box.column()
+            warning_message = pgettext(
+                "The installed VRM add-on is not compatible with Blender {blender_version}. "
+                + "Please upgrade the add-on."
+            ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+            for index, warning_line in enumerate(warning_message.splitlines()):
+                warning_column.label(
+                    text=warning_line,
+                    translate=False,
+                    icon="NONE" if index else "ERROR",
+                )
+
         layout.prop(self, "export_invisibles")
         layout.prop(self, "export_only_selections")
         layout.prop(self, "show_experimental_features")

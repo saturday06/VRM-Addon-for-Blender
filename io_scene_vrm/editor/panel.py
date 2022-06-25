@@ -1,6 +1,7 @@
 import bpy
 from bpy.app.translations import pgettext
 
+from ..common import version
 from ..common.preferences import get_preferences
 from . import (
     detail_mesh_maker,
@@ -35,7 +36,21 @@ class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc
         )
 
     def draw(self, _context: bpy.types.Context) -> None:
-        pass
+        if version.supported():
+            return
+
+        box = self.layout.box()
+        warning_column = box.column()
+        warning_message = pgettext(
+            "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
+            + "Please upgrade the add-on."
+        ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+        for index, warning_line in enumerate(warning_message.splitlines()):
+            warning_column.label(
+                text=warning_line,
+                translate=False,
+                icon="NONE" if index else "ERROR",
+            )
 
 
 def add_armature(
@@ -164,3 +179,30 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         if mode == "EDIT_MESH":
             layout.operator(bpy.ops.mesh.symmetry_snap.idname_py(), icon="MOD_MIRROR")
         # endregion draw_main
+
+
+class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_idname = "VRM_PT_controller_unsupported_blender_version_warning"
+    bl_label = "Unsupported Blender Version Warning"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "VRM"
+    bl_options = {"HIDE_HEADER"}
+
+    @classmethod
+    def poll(cls, _context: bpy.types.Context) -> bool:
+        return not version.supported()
+
+    def draw(self, _context: bpy.types.Context) -> None:
+        box = self.layout.box()
+        warning_column = box.column()
+        warning_message = pgettext(
+            "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
+            + "Please upgrade the add-on."
+        ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+        for index, warning_line in enumerate(warning_message.splitlines()):
+            warning_column.label(
+                text=warning_line,
+                translate=False,
+                icon="NONE" if index else "ERROR",
+            )

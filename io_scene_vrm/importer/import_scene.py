@@ -6,6 +6,7 @@ import bpy
 from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ImportHelper
 
+from ..common import version
 from ..common.preferences import use_legacy_importer_exporter
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
@@ -80,6 +81,36 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
                 ),
             )
         return cast(Set[str], ImportHelper.invoke(self, context, event))
+
+
+class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_idname = "VRM_PT_import_unsupported_blender_version_warning"
+    bl_space_type = "FILE_BROWSER"
+    bl_region_type = "TOOL_PROPS"
+    bl_parent_id = "FILE_PT_operator"
+    bl_label = ""
+    bl_options = {"HIDE_HEADER"}
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return (
+            str(context.space_data.active_operator.bl_idname) == "IMPORT_SCENE_OT_vrm"
+            and not version.supported()
+        )
+
+    def draw(self, _context: bpy.types.Context) -> None:
+        box = self.layout.box()
+        warning_column = box.column()
+        warning_message = pgettext(
+            "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
+            + "Please upgrade the add-on."
+        ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+        for index, warning_line in enumerate(warning_message.splitlines()):
+            warning_column.label(
+                text=warning_line,
+                translate=False,
+                icon="NONE" if index else "ERROR",
+            )
 
 
 def create_blend_model(
