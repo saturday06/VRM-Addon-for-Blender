@@ -506,6 +506,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             if not isinstance(data, bpy.types.Armature):
                 continue
+
+            for pose_bone in obj.pose.bones:
+                if extras_node_index_key in pose_bone:
+                    del pose_bone[extras_node_index_key]
+
             for bone_name, bone in data.bones.items():
                 bone_node_index = bone.get(extras_node_index_key)
                 if extras_node_index_key in bone:
