@@ -67,6 +67,6 @@ jobs:
             exit 0
           fi
           git config --global user.email "isamu@leafytree.jp"
-          git config --global user.name "Isamu Mogi (BOT)"
-          git commit -m "(BOT) Update"
+          git config --global user.name "[BOT] Isamu Mogi"
+          git commit -m "[BOT] Update"
           git push origin gh-pages

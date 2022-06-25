@@ -73,7 +73,7 @@ cp "${prefix_name}-${release_postfix}.zip" "${archive_dir}/"
   cd "${archive_dir}"
   git add "${prefix_name}-${release_postfix}.zip"
   git config --global user.email "isamu@leafytree.jp"
-  git config --global user.name "Isamu Mogi (BOT)"
+  git config --global user.name "[BOT] Isamu Mogi"
   git commit -m "Version $version"
   git push origin HEAD
 )
