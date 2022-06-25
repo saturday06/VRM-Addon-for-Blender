@@ -66,14 +66,42 @@ if ! curl \
   exit 1
 fi
 
-archive_dir=$(mktemp -d)
-git worktree add "${archive_dir}" release-archive
-cp "${prefix_name}-${release_postfix}.zip" "${archive_dir}/"
+readme_unzip_dir=$(mktemp -d)
+unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
+readme_base="${readme_unzip_dir}/${prefix_name}-${release_postfix}"
+rm "$readme_base/__init__.py"
+readme_zip_abs_path="${PWD}/${tag_name}.zip"
+(cd "$readme_base" && zip -rT "$readme_zip_abs_path" .)
+advzip --recompress --shrink-insane --iter 20 "$readme_zip_abs_path"
+
+archive_branch_dir=$(mktemp -d)
+git worktree add "${archive_branch_dir}" release-archive
+rm -fr "${archive_branch_dir}/tmp"
+mkdir -p "${archive_branch_dir}/tmp"
+cp "${prefix_name}-${release_postfix}.zip" "${archive_branch_dir}/"
+cp "$readme_zip_abs_path" "${archive_branch_dir}/tmp/"
 (
-  cd "${archive_dir}"
-  git add "${prefix_name}-${release_postfix}.zip"
+  cd "${archive_branch_dir}"
+  git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
   git commit -m "Version $version"
   git push origin HEAD
+)
+
+readme_branch_dir=$(mktemp -d)
+git worktree add "${readme_branch_dir}" README
+readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
+rm -fr "$readme_addon_dir"
+mkdir -p "$readme_addon_dir"
+cp "${tag_name}.zip" "${readme_addon_dir}/"
+(
+  cd "$readme_branch_dir"
+  git add .
+  git config --global user.email "isamu@leafytree.jp"
+  git config --global user.name "[BOT] Isamu Mogi"
+  git commit -m "Version $version"
+  if [ "$release_postfix" = "release" ]; then
+    git push origin HEAD
+  fi
 )
