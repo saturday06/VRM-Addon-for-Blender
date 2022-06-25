@@ -25,6 +25,7 @@ jobs:
           cp -fr ../.git .git
           git checkout "$target_branch_name"
           cp -fr ../.github .
+          rm .github/workflows/gh-pages.yml
           cp ../README.md .
           git add .
           if git diff --cached --exit-code; then
