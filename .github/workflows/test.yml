@@ -39,7 +39,7 @@ jobs:
         if: failure()
         with:
           name: VRMs
-          path: tests/vrm/temp
+          path: tests/resources/vrm/*/temp
 
   test-macos:
     runs-on: macos-latest
@@ -76,7 +76,7 @@ jobs:
         if: failure()
         with:
           name: VRMs
-          path: tests/vrm/temp
+          path: tests/resources/vrm/*/temp
 
   test-linux-gui:
     runs-on: ubuntu-20.04
