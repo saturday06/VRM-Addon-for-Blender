@@ -28,6 +28,8 @@ bl_info = {
 
 
 def register() -> None:
+    import os
+
     import bpy
 
     if bpy.app.version < bl_info["blender"]:
@@ -35,6 +37,25 @@ def register() -> None:
             f"This add-on doesn't support Blender version less than {bl_info['blender']} "
             + f"but the current version is {bpy.app.version}"
         )
+
+    # For users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.
+    github_code_download_zip_path = os.path.join(
+        os.path.dirname(__file__),
+        ".github",
+        "vrm_addon_for_blender_private",
+        "_".join(map(str, bl_info["version"])) + ".zip",
+    )
+    registration_py_path = os.path.join(
+        os.path.dirname(__file__),
+        "registration.py",
+    )
+    if os.path.exists(github_code_download_zip_path) and not os.path.exists(
+        registration_py_path
+    ):
+        import zipfile
+
+        with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
+            z.extractall(os.path.dirname(__file__))
 
     # Lazy import to minimize initialization before blender version checking.
     from . import registration

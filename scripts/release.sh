@@ -94,8 +94,7 @@ fi
 readme_branch_dir=$(mktemp -d)
 git worktree add "${readme_branch_dir}" README
 readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
-rm -fr "$readme_addon_dir"
-mkdir -p "$readme_addon_dir"
+rm -fr "$readme_addon_dir/*.zip"
 cp "${tag_name}.zip" "${readme_addon_dir}/"
 cp io_scene_vrm/__init__.py "$readme_branch_dir/"
 (
