@@ -16,15 +16,16 @@ jobs:
         run: |
           set -x
 
-          target_branch_name=$(printf "README\xc2\xa0/\xc2\xa0This_is_not_an_add-on_file._Please_download_from_vrm-addon-for-blender.info_website")
-
-          git fetch --depth=1 origin main website "$target_branch_name"
+          git fetch --depth=1 origin main website README
 
           mkdir readme
           cd readme
           cp -fr ../.git .git
-          git checkout "$target_branch_name"
+          git checkout README
           cp -fr ../.github .
+          rm .github/workflows/gh-pages.yml
+          rm .github/workflows/test.yml
+          rm .github/workflows/release.yml
           cp ../README.md .
           git add .
           if git diff --cached --exit-code; then
@@ -33,7 +34,7 @@ jobs:
           git status
 
           git config --global user.email "isamu@leafytree.jp"
-          git config --global user.name "Isamu Mogi (BOT)"
+          git config --global user.name "[BOT] Isamu Mogi"
           git commit -m "[BOT] Update README"
 
           case "$GITHUB_SHA" in
@@ -42,4 +43,4 @@ jobs:
             *) exit 0;;
           esac
 
-          git push origin "$target_branch_name"
+          git push origin README
