@@ -89,7 +89,6 @@ fi
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
   git commit -m "Version $version"
-  git push origin HEAD
 )
 
 readme_branch_dir=$(mktemp -d)
@@ -133,6 +132,11 @@ addon_check_unzip_dir=$(mktemp -d)
 unzip -d "$addon_check_unzip_dir" "${prefix_name}-${release_postfix}.zip"
 
 diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
+
+(
+  cd "${archive_branch_dir}"
+  git push origin HEAD
+)
 
 if [ "$release_postfix" = "release" ]; then
   (
