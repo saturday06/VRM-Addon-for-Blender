@@ -49,6 +49,11 @@ def register() -> None:
         import contextlib
         import zipfile
 
+        print(
+            "Extracting the partial add-on zip archive for "
+            + 'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.'
+        )
+
         with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
             z.extractall(os.path.dirname(__file__))
         with contextlib.suppress(FileNotFoundError, PermissionError):

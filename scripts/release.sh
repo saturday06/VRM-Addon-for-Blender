@@ -70,7 +70,8 @@ readme_unzip_dir=$(mktemp -d)
 unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
 readme_base="${readme_unzip_dir}/${prefix_name}-${release_postfix}"
 rm "$readme_base/__init__.py"
-readme_zip_abs_path="${PWD}/${tag_name}.zip"
+readme_zip_version=$(ruby -e "puts ARGV[0].split('.', 3).join('_')" "$bl_info_version")
+readme_zip_abs_path="${PWD}/${readme_zip_version}.zip"
 (cd "$readme_base" && zip -rT "$readme_zip_abs_path" .)
 advzip --recompress --shrink-insane --iter 20 "$readme_zip_abs_path"
 
@@ -95,7 +96,7 @@ readme_branch_dir=$(mktemp -d)
 git worktree add "${readme_branch_dir}" README
 readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
 find "$readme_addon_dir" -name "*.zip" -exec rm -v {} \;
-cp "${tag_name}.zip" "${readme_addon_dir}/${bl_info_version}.zip"
+cp "${readme_zip_abs_path}" "${readme_addon_dir}/"
 cp io_scene_vrm/__init__.py "$readme_branch_dir/"
 readme_zip_path="${PWD}/readme.zip"
 (
@@ -107,13 +108,23 @@ readme_zip_path="${PWD}/readme.zip"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$readme_zip_path"
 )
 
-BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
+addon_dir="$HOME/.config/blender/2.82/scripts/addons/${prefix_name}-README"
+if ! BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
   --background \
   -noaudio \
   --python-exit-code 1 \
-  --python scripts/github_code_archive.py -- "$readme_zip_path"
+  --python scripts/github_code_archive.py -- "$readme_zip_path" \
+  ; then
+  find "$addon_dir"
+  exit 1
+fi
 
-addon_dir="$HOME/.config/blender/2.82/scripts/addons/${prefix_name}-README"
+installed_readme_zip_path="${addon_dir}/.github/vrm_addon_for_blender_private/${readme_zip_version}.zip"
+if [ -e "$installed_readme_zip_path" ]; then
+  echo Failed to remove "$installed_readme_zip_path"
+  exit 1
+fi
+
 rm -fr "$addon_dir/.github"
 rm "$addon_dir/README.md"
 find "$addon_dir" -name "__pycache__" -type d -print0 | xargs --null rm -fr
