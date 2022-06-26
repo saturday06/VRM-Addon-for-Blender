@@ -102,7 +102,7 @@ cp io_scene_vrm/__init__.py "$readme_branch_dir/"
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
-  git commit -m "Version $version"
+  git commit -m "[BOT] Update README"
   if [ "$release_postfix" = "release" ]; then
     git push origin HEAD
   fi
