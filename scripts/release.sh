@@ -76,10 +76,12 @@ advzip --recompress --shrink-insane --iter 20 "$readme_zip_abs_path"
 
 archive_branch_dir=$(mktemp -d)
 git worktree add "${archive_branch_dir}" release-archive
-rm -fr "${archive_branch_dir}/tmp"
-mkdir -p "${archive_branch_dir}/tmp"
+rm -fr "${archive_branch_dir}/debug"
+mkdir -p "${archive_branch_dir}/debug"
 cp "${prefix_name}-${release_postfix}.zip" "${archive_branch_dir}/"
-cp "$readme_zip_abs_path" "${archive_branch_dir}/tmp/"
+if [ "$release_postfix" != "release" ]; then
+  cp "$readme_zip_abs_path" "${archive_branch_dir}/debug/"
+fi
 (
   cd "${archive_branch_dir}"
   git add .
