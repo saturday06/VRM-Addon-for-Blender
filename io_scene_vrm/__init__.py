@@ -45,17 +45,14 @@ def register() -> None:
         "vrm_addon_for_blender_private",
         "_".join(map(str, bl_info["version"])) + ".zip",
     )
-    registration_py_path = os.path.join(
-        os.path.dirname(__file__),
-        "registration.py",
-    )
-    if os.path.exists(github_code_download_zip_path) and not os.path.exists(
-        registration_py_path
-    ):
+    if os.path.exists(github_code_download_zip_path):
+        import contextlib
         import zipfile
 
         with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
             z.extractall(os.path.dirname(__file__))
+        with contextlib.suppress(FileNotFoundError, PermissionError):
+            os.remove(github_code_download_zip_path)
 
     # Lazy import to minimize initialization before blender version checking.
     from . import registration

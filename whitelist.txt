@@ -25,6 +25,7 @@ bugyyyyyyyyyyyyyyyyy
 calc
 cn
 colorspace
+commonpath
 compat
 const
 constraint1
@@ -49,6 +50,7 @@ fabs
 failfast
 fb
 filedialog
+filelist
 fileno
 filepath
 filetype

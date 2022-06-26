@@ -97,13 +97,35 @@ readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
 rm -fr "$readme_addon_dir/*.zip"
 cp "${tag_name}.zip" "${readme_addon_dir}/"
 cp io_scene_vrm/__init__.py "$readme_branch_dir/"
+readme_zip_path="${PWD}/readme.zip"
 (
   cd "$readme_branch_dir"
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
   git commit -m "[BOT] Update README"
-  if [ "$release_postfix" = "release" ]; then
-    git push origin HEAD
-  fi
+  git archive HEAD --prefix=${prefix_name}-README/ --output="$readme_zip_path"
 )
+
+BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
+  --background \
+  -noaudio \
+  --python-exit-code 1 \
+  --python scripts/github_code_archive.py -- "$readme_zip_path"
+
+addon_dir="$HOME/.config/blender/2.82/scripts/addons/${prefix_name}-README"
+rm -fr "$addon_dir/.github"
+rm "$addon_dir/README.md"
+find "$addon_dir" -name "__pycache__" -type d -print0 | xargs --null rm -fr
+
+addon_check_unzip_dir=$(mktemp -d)
+unzip -d "$addon_check_unzip_dir" "${prefix_name}-${release_postfix}.zip"
+
+diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
+
+if [ "$release_postfix" = "release" ]; then
+  (
+    cd "$readme_branch_dir"
+    git push origin HEAD
+  )
+fi
