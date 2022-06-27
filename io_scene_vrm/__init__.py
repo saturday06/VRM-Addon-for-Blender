@@ -7,7 +7,7 @@ https://opensource.org/licenses/mit-license.php
 
 #
 #
-# Please don't import anything in global scope to detect script reloading and minimize initialization.
+# Please don't import anything in global scope to minimize initialization.
 #
 #
 
@@ -50,7 +50,7 @@ def register() -> None:
         import zipfile
 
         print(
-            "Extracting the partial add-on zip archive for "
+            "Unzipping the partial add-on archive for "
             + 'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.'
         )
 
@@ -59,7 +59,8 @@ def register() -> None:
         with contextlib.suppress(FileNotFoundError, PermissionError):
             os.remove(github_code_download_zip_path)
 
-    # Lazy import to minimize initialization before blender version checking.
+    # Lazy import to minimize initialization before blender version checking and
+    # unzipping the partial add-on archive.
     from . import registration
 
     registration.register(bl_info["version"])
