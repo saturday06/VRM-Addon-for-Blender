@@ -236,7 +236,7 @@ class AbstractBaseVrmImporter(ABC):
                     continue
 
                 bone = armature.data.edit_bones.get(human_bone.node.value)
-                if not bone:
+                if not bone or bone.children:
                     continue
 
                 world_head = (
