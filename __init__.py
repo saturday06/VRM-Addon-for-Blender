@@ -7,14 +7,14 @@ https://opensource.org/licenses/mit-license.php
 
 #
 #
-# Please don't import anything in global scope to detect script reloading and minimize initialization.
+# Please don't import anything in global scope to minimize initialization.
 #
 #
 
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 4, 2),
+    "version": (2, 4, 3),
     "blender": (2, 80, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -49,12 +49,18 @@ def register() -> None:
         import contextlib
         import zipfile
 
+        print(
+            "Unzipping the partial add-on archive for "
+            + 'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.'
+        )
+
         with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
             z.extractall(os.path.dirname(__file__))
         with contextlib.suppress(FileNotFoundError, PermissionError):
             os.remove(github_code_download_zip_path)
 
-    # Lazy import to minimize initialization before blender version checking.
+    # Lazy import to minimize initialization before blender version checking and
+    # unzipping the partial add-on archive.
     from . import registration
 
     registration.register(bl_info["version"])
