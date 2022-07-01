@@ -18,7 +18,7 @@ import mathutils
 from .. import common
 from ..common import convert, deep, gltf
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.human_bone import HumanBoneSpecifications
+from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..editor import migration
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
 from ..editor.spring_bone1.property_group import (
@@ -869,7 +869,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         assigned_bone_names = []
         for human_bone_name in [
-            human_bone.name for human_bone in HumanBoneSpecifications.all_human_bones
+            human_bone.name
+            for human_bone in vrm1_human_bone.HumanBoneSpecifications.all_human_bones
         ]:
             human_bone_dict = human_bones_dict.get(human_bone_name.value)
             if not isinstance(human_bone_dict, dict):

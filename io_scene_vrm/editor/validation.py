@@ -7,9 +7,10 @@ from bpy.app.translations import pgettext
 from mathutils import Vector
 
 from ..common import gltf, version
-from ..common.human_bone import HumanBoneSpecifications
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
+from ..common.vrm0 import human_bone as vrm0_human_bone
+from ..common.vrm1 import human_bone as vrm1_human_bone
 from . import migration, search
 
 
@@ -211,10 +212,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         human_bone_name,
                         human_bone,
                     ) in human_bones.human_bone_name_to_human_bone().items():
-                        human_bone_specification = HumanBoneSpecifications.get(
-                            human_bone_name
+                        human_bone_specification = (
+                            vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
                         )
-                        if not human_bone_specification.vrm1_requirement:
+                        if not human_bone_specification.requirement:
                             continue
                         if (
                             human_bone.node
@@ -231,7 +232,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
                     human_bones = humanoid.human_bones
                     all_required_bones_exist = True
-                    for humanoid_name in HumanBoneSpecifications.vrm0_required_names:
+                    for (
+                        humanoid_name
+                    ) in vrm0_human_bone.HumanBoneSpecifications.required_names:
                         if any(
                             human_bone.bone == humanoid_name
                             and human_bone.node

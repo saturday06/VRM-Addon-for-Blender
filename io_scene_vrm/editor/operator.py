@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 import bpy
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
-from ..common.human_bone import HumanBoneSpecifications
+from ..common.vrm0.human_bone import HumanBoneSpecifications
 from . import search
 from .make_armature import ICYP_OT_make_armature
 
@@ -109,7 +109,7 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # typ
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
-        for bone_name in HumanBoneSpecifications.vrm0_required_names:
+        for bone_name in HumanBoneSpecifications.required_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
         return {"FINISHED"}
@@ -124,7 +124,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures[bpy.context.active_object.data.name]
-        for bone_name in HumanBoneSpecifications.vrm0_optional_names:
+        for bone_name in HumanBoneSpecifications.optional_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
         return {"FINISHED"}

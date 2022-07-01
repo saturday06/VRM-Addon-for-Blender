@@ -1,12 +1,15 @@
 import uuid
-from typing import Any, Dict, Iterator, Optional, Set, Union
+from typing import Any, Dict, Iterator, Optional, Set, TypeVar, Union
 
 import bpy
 
-from ..common.human_bone import (
-    HumanBoneName,
-    HumanBoneSpecification,
-    HumanBoneSpecifications,
+from ..common.vrm0 import human_bone as vrm0_human_bone
+from ..common.vrm1 import human_bone as vrm1_human_bone
+
+HumanBoneSpecification = TypeVar(
+    "HumanBoneSpecification",
+    vrm0_human_bone.HumanBoneSpecification,
+    vrm1_human_bone.HumanBoneSpecification,
 )
 
 
@@ -203,14 +206,14 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             collider_group.refresh(armature)
 
         vrm0_bpy_bone_name_to_human_bone_specification: Dict[
-            str, HumanBoneSpecification
+            str, vrm0_human_bone.HumanBoneSpecification
         ] = {
-            human_bone.node.value: HumanBoneSpecifications.get(
-                HumanBoneName(human_bone.bone)
+            human_bone.node.value: vrm0_human_bone.HumanBoneSpecifications.get(
+                vrm0_human_bone.HumanBoneName(human_bone.bone)
             )
             for human_bone in ext.vrm0.humanoid.human_bones
             if human_bone.node.value
-            and HumanBoneName.from_str(human_bone.bone) is not None
+            and vrm0_human_bone.HumanBoneName.from_str(human_bone.bone) is not None
         }
 
         for human_bone in ext.vrm0.humanoid.human_bones:
@@ -223,9 +226,11 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
         )
         vrm1_bpy_bone_name_to_human_bone_specification: Dict[
-            str, HumanBoneSpecification
+            str, vrm1_human_bone.HumanBoneSpecification
         ] = {
-            human_bone.node.value: HumanBoneSpecifications.get(human_bone_name)
+            human_bone.node.value: vrm1_human_bone.HumanBoneSpecifications.get(
+                human_bone_name
+            )
             for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
             if human_bone.node.value
         }
@@ -236,7 +241,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         ) in human_bone_name_to_human_bone.items():
             human_bone.update_node_candidates(
                 armature.data,
-                HumanBoneSpecifications.get(human_bone_name),
+                vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name),
                 vrm1_bpy_bone_name_to_human_bone_specification,
             )
 

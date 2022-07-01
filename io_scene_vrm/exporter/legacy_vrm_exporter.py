@@ -27,9 +27,9 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..common import deep, gltf
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.human_bone import HumanBoneSpecifications
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
+from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..editor import migration, search
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin

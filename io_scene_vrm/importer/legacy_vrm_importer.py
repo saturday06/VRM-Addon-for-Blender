@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Sequence, Set, Tuple
 import bpy
 from mathutils import Matrix, Vector
 
-from ..common import human_bone
+from ..common.vrm0 import human_bone
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .vrm_parser import PyMesh
 

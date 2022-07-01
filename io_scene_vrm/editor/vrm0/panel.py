@@ -1,7 +1,7 @@
 import bpy
 from bpy.app.translations import pgettext
 
-from ...common.human_bone import HumanBoneSpecification, HumanBoneSpecifications
+from ...common.vrm0.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 from .. import operator, search
 from ..extension import (
     VrmAddonArmatureExtensionPropertyGroup,

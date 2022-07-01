@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import bpy
 
-from io_scene_vrm.common.human_bone import (
+from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )

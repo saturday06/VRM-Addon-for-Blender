@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 import bpy
 
 from ...common import convert
-from ...common.human_bone import HumanBoneSpecifications
+from ...common.vrm0.human_bone import HumanBoneSpecifications
 from ..property_group import BonePropertyGroup
 from .property_group import (
     Vrm0BlendShapeGroupPropertyGroup,

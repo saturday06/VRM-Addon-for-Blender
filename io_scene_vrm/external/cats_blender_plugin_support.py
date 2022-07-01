@@ -3,7 +3,7 @@ from typing import Dict
 
 import bpy
 
-from ..common.human_bone import HumanBoneName
+from ..common.vrm0.human_bone import HumanBoneName
 from .cats_blender_plugin.tools.armature import FixArmature
 from .cats_blender_plugin_armature import CatsArmature
 

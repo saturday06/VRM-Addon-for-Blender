@@ -3,7 +3,7 @@ from typing import Dict
 
 import bpy
 
-from ...common.human_bone import (
+from ...common.vrm0.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
     HumanBoneSpecifications,
@@ -122,7 +122,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
     def all_required_bones_are_assigned(self) -> bool:
-        for name in HumanBoneSpecifications.vrm0_required_names:
+        for name in HumanBoneSpecifications.required_names:
             for human_bone in self.human_bones:
                 if human_bone.bone != name:
                     continue

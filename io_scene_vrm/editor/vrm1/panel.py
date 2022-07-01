@@ -1,7 +1,7 @@
 import bpy
 from bpy.app.translations import pgettext
 
-from ...common.human_bone import HumanBoneSpecifications
+from ...common.vrm1.human_bone import HumanBoneSpecifications
 from .. import operator, search
 from ..extension import (
     VrmAddonArmatureExtensionPropertyGroup,
@@ -184,8 +184,8 @@ def draw_vrm1_humanoid_layout(
     row = defines_box.row().split(factor=split_factor)
     column = row.column()
     column.label(text=HumanBoneSpecifications.RIGHT_SHOULDER.label)
+    column.label(text=HumanBoneSpecifications.RIGHT_THUMB_METACARPAL.label)
     column.label(text=HumanBoneSpecifications.RIGHT_THUMB_PROXIMAL.label)
-    column.label(text=HumanBoneSpecifications.RIGHT_THUMB_INTERMEDIATE.label)
     column.label(text=HumanBoneSpecifications.RIGHT_THUMB_DISTAL.label)
     column.label(text=HumanBoneSpecifications.RIGHT_INDEX_PROXIMAL.label)
     column.label(text=HumanBoneSpecifications.RIGHT_INDEX_INTERMEDIATE.label)
@@ -205,8 +205,8 @@ def draw_vrm1_humanoid_layout(
     icon = "USER"
     draw_vrm1_bone_prop_search(column, human_bones.right_shoulder, icon)
     icon = "VIEW_PAN"
+    draw_vrm1_bone_prop_search(column, human_bones.right_thumb_metacarpal, icon)
     draw_vrm1_bone_prop_search(column, human_bones.right_thumb_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones.right_thumb_intermediate, icon)
     draw_vrm1_bone_prop_search(column, human_bones.right_thumb_distal, icon)
     draw_vrm1_bone_prop_search(column, human_bones.right_index_proximal, icon)
     draw_vrm1_bone_prop_search(column, human_bones.right_index_intermediate, icon)
@@ -226,8 +226,8 @@ def draw_vrm1_humanoid_layout(
     row = defines_box.row().split(factor=split_factor)
     column = row.column()
     column.label(text=HumanBoneSpecifications.LEFT_SHOULDER.label)
+    column.label(text=HumanBoneSpecifications.LEFT_THUMB_METACARPAL.label)
     column.label(text=HumanBoneSpecifications.LEFT_THUMB_PROXIMAL.label)
-    column.label(text=HumanBoneSpecifications.LEFT_THUMB_INTERMEDIATE.label)
     column.label(text=HumanBoneSpecifications.LEFT_THUMB_DISTAL.label)
     column.label(text=HumanBoneSpecifications.LEFT_INDEX_PROXIMAL.label)
     column.label(text=HumanBoneSpecifications.LEFT_INDEX_INTERMEDIATE.label)
@@ -247,8 +247,8 @@ def draw_vrm1_humanoid_layout(
     icon = "USER"
     draw_vrm1_bone_prop_search(column, human_bones.left_shoulder, icon)
     icon = "VIEW_PAN"
+    draw_vrm1_bone_prop_search(column, human_bones.left_thumb_metacarpal, icon)
     draw_vrm1_bone_prop_search(column, human_bones.left_thumb_proximal, icon)
-    draw_vrm1_bone_prop_search(column, human_bones.left_thumb_intermediate, icon)
     draw_vrm1_bone_prop_search(column, human_bones.left_thumb_distal, icon)
     draw_vrm1_bone_prop_search(column, human_bones.left_index_proximal, icon)
     draw_vrm1_bone_prop_search(column, human_bones.left_index_intermediate, icon)

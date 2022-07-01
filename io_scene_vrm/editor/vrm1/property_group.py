@@ -3,7 +3,7 @@ from typing import Dict
 
 import bpy
 
-from ...common.human_bone import (
+from ...common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
     HumanBoneSpecifications,
@@ -127,10 +127,10 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
     right_hand: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup  # noqa: F722
     )
-    left_thumb_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    left_thumb_metacarpal: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup  # noqa: F722
     )
-    left_thumb_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    left_thumb_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup  # noqa: F722
     )
     left_thumb_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -172,10 +172,10 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
     left_little_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup  # noqa: F722
     )
-    right_thumb_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    right_thumb_metacarpal: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup  # noqa: F722
     )
-    right_thumb_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    right_thumb_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup  # noqa: F722
     )
     right_thumb_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -252,8 +252,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             HumanBoneName.RIGHT_UPPER_ARM: self.right_upper_arm,
             HumanBoneName.RIGHT_LOWER_ARM: self.right_lower_arm,
             HumanBoneName.RIGHT_HAND: self.right_hand,
+            HumanBoneName.LEFT_THUMB_METACARPAL: self.left_thumb_metacarpal,
             HumanBoneName.LEFT_THUMB_PROXIMAL: self.left_thumb_proximal,
-            HumanBoneName.LEFT_THUMB_INTERMEDIATE: self.left_thumb_intermediate,
             HumanBoneName.LEFT_THUMB_DISTAL: self.left_thumb_distal,
             HumanBoneName.LEFT_INDEX_PROXIMAL: self.left_index_proximal,
             HumanBoneName.LEFT_INDEX_INTERMEDIATE: self.left_index_intermediate,
@@ -267,8 +267,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             HumanBoneName.LEFT_LITTLE_PROXIMAL: self.left_little_proximal,
             HumanBoneName.LEFT_LITTLE_INTERMEDIATE: self.left_little_intermediate,
             HumanBoneName.LEFT_LITTLE_DISTAL: self.left_little_distal,
+            HumanBoneName.RIGHT_THUMB_METACARPAL: self.right_thumb_metacarpal,
             HumanBoneName.RIGHT_THUMB_PROXIMAL: self.right_thumb_proximal,
-            HumanBoneName.RIGHT_THUMB_INTERMEDIATE: self.right_thumb_intermediate,
             HumanBoneName.RIGHT_THUMB_DISTAL: self.right_thumb_distal,
             HumanBoneName.RIGHT_INDEX_PROXIMAL: self.right_index_proximal,
             HumanBoneName.RIGHT_INDEX_INTERMEDIATE: self.right_index_intermediate,

@@ -21,9 +21,9 @@ from mathutils import Matrix
 from .. import common
 from ..common import convert, deep
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
+from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration, operator, panel
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
 from ..editor.vrm0.property_group import (
@@ -119,7 +119,7 @@ class AbstractBaseVrmImporter(ABC):
                 # has error
                 return
 
-        for humanoid_name in HumanBoneSpecifications.vrm0_required_names:
+        for humanoid_name in HumanBoneSpecifications.required_names:
             if not any(
                 human_bone.bone == humanoid_name and human_bone.node.value
                 for human_bone in humanoid.human_bones
