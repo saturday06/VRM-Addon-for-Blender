@@ -209,6 +209,7 @@ classes = [
     operator.VRM_OT_add_required_human_bone_custom_property,  # deprecated
     operator.VRM_OT_simplify_vroid_bones,
     operator.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
+    operator.VRM_OT_open_url_in_web_browser,
     operator.VRM_OT_save_human_bone_mappings,
     operator.VRM_OT_load_human_bone_mappings,
     validation.VrmValidationError,

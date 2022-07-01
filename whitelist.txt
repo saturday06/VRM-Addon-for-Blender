@@ -228,6 +228,7 @@ vroid064
 vroid2vrc
 vtype
 w0201
+webbrowser
 winapi
 wip
 writedir

@@ -8,6 +8,7 @@ from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
 from ..common.preferences import use_legacy_importer_exporter
+from ..editor.operator import VRM_OT_open_url_in_web_browser
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
 from .license_validation import LicenseConfirmationRequired
@@ -207,10 +208,22 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
                 box.label(
                     text=pgettext("For more information please check following URL.")
                 )
-                box.prop(
-                    license_confirmation,
-                    "url",
-                    text=license_confirmation.json_key,
-                    translate=False,
-                )
+                if VRM_OT_open_url_in_web_browser.supported(license_confirmation.url):
+                    split = box.split(factor=0.85)
+                    split.prop(
+                        license_confirmation,
+                        "url",
+                        text=license_confirmation.json_key,
+                        translate=False,
+                    )
+                    op = split.operator(VRM_OT_open_url_in_web_browser.bl_idname)
+                    op.url = license_confirmation.url
+                else:
+                    box.prop(
+                        license_confirmation,
+                        "url",
+                        text=license_confirmation.json_key,
+                        translate=False,
+                    )
+
         layout.prop(self, "import_anyway")

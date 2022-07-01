@@ -7,7 +7,9 @@ https://opensource.org/licenses/mit-license.php
 import json
 import os
 import re
-from typing import Set, cast
+import webbrowser
+from typing import Any, Set, cast
+from urllib.parse import urlparse
 
 import bpy
 from bpy_extras.io_utils import ExportHelper, ImportHelper
@@ -264,4 +266,33 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
             ].name = shapekey_name
         for k in bpy.context.active_object.data.shape_keys.key_blocks:
             k.value = 0.0
+        return {"FINISHED"}
+
+
+class VRM_OT_open_url_in_web_browser(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.open_url_in_web_browser"
+    bl_label = "Open"
+    bl_description = "Open the URL in the default web browser"
+    bl_options = {"REGISTER", "UNDO"}
+
+    url: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F722,F821
+    )
+
+    @staticmethod
+    def supported(url_any: Any) -> bool:
+        if not isinstance(url_any, str):
+            return False
+        try:
+            url = urlparse(url_any)
+        except ValueError:
+            return False
+        if url.scheme not in ["http", "https"]:
+            return False
+        return True
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        if not self.supported(self.url):
+            return {"CANCELLED"}
+        webbrowser.open(self.url)
         return {"FINISHED"}
