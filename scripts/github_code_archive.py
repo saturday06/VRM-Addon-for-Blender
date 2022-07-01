@@ -18,7 +18,7 @@ bpy.ops.preferences.addon_install(filepath=addon_path)
 bpy.ops.preferences.addon_enable(module=module_name)
 
 input_path = os.path.join("tests", "resources", "vrm", "in", "triangle.vrm")
-expected_path = os.path.join("tests", "resources", "vrm", "2.82", "out", "triangle.vrm")
+expected_path = os.path.join("tests", "resources", "vrm", "2.83", "out", "triangle.vrm")
 actual_path = os.path.join("out.vrm")
 
 bpy.ops.object.select_all(action="SELECT")

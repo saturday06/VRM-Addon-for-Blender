@@ -107,7 +107,7 @@ readme_zip_path="${PWD}/readme.zip"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$readme_zip_path"
 )
 
-addon_dir="$HOME/.config/blender/2.82/scripts/addons/${prefix_name}-README"
+addon_dir="$HOME/.config/blender/2.83/scripts/addons/${prefix_name}-README"
 if ! BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
   --background \
   -noaudio \

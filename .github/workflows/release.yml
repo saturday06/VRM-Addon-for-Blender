@@ -8,11 +8,13 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
     steps:
       - name: Install package
         run: |
-          sudo apt-get update -qq || true
-          sudo apt-get install -y advancecomp curl git python3 ruby shellcheck blender
+          apt-get update -qq || true
+          apt-get install -y advancecomp blender curl git python3 python3-numpy ruby shellcheck
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0

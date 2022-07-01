@@ -6,7 +6,7 @@ images: ["ja/images/top.png"]
 
 ![](images/top.png)
 
-VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.82以降のBlenderに対応しています。
+VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.83以降のBlenderに対応しています。
 
 **[最新版のダウンロード {{< release_ja >}}](https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**<small> / [過去のバージョン一覧](https://github.com/saturday06/VRM_Addon_for_Blender/releases)</small>
 
