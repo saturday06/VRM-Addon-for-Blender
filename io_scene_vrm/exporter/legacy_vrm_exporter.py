@@ -1853,7 +1853,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         unsigned_int_scalar_packer(unique_vertex_id)
                     )
                     primitive_index_vertex_count[primitive_index] += 1
-                    unique_vertex_id += 1  # noqa: SIM113
+                    unique_vertex_id += 1
 
             # DONE :index position, uv, normal, position morph,JOINT WEIGHT
             # TODO: morph_normal, v_color...?
