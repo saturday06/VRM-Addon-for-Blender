@@ -504,7 +504,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 for base_pos, morph_pos in zip(base_points, morph_target_pos):
                     shape_key_positions.append(
                         self.axis_glb_to_blender(
-                            [base_pos[i] + morph_pos[i] for i in range(3)]
+                            [base_pos[i] + morph_pos[i] for i in range(3)]  # noqa: B023
                         )
                     )
                 morph_cache_dict[

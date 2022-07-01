@@ -1,3 +1,4 @@
+import functools
 from math import radians
 from sys import float_info
 from typing import Any, Dict, Optional, Set, Tuple
@@ -570,7 +571,10 @@ def connect_parent_tail_and_child_head_if_very_close_position(
         bone = bones.pop()
 
         children_by_distance = sorted(
-            bone.children, key=lambda child: float((bone.tail - child.head).length)
+            bone.children,
+            key=functools.partial(
+                lambda parent, child: float((parent.tail - child.head).length), bone
+            ),
         )
         for child in children_by_distance:
             if (bone.tail - child.head).length < AUTO_BONE_CONNECTION_DISTANCE and (

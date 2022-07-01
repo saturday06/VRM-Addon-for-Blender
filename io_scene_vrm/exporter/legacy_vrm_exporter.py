@@ -1436,6 +1436,81 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             mesh = mesh.parent
         return True
 
+    @staticmethod
+    def min_max(minmax: List[List[float]], position: List[float]) -> None:
+        for i in range(3):
+            minmax[0][i] = position[i] if position[i] < minmax[0][i] else minmax[0][i]
+            minmax[1][i] = position[i] if position[i] > minmax[1][i] else minmax[1][i]
+
+    # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
+    # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを再生できる
+    # メリット：ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、拡張非対応であればそのまま読めば普通に三角として表示できる
+    # 欠点：ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
+    # また、ngonが凸包ポリゴンで無い場合、見た目が破綻する(例：鈍角三角形の底辺を接合した4角形)
+    @staticmethod
+    def tessface_fan(
+        bm: bmesh.types.BMesh, export_fb_ngon_encoding: bool
+    ) -> List[Tuple[int, List[bmesh.types.BMLoop]]]:
+        if not export_fb_ngon_encoding:
+            return [
+                (loops[0].face.material_index, loops)
+                for loops in bm.calc_loop_triangles()
+                if len(loops) > 0
+            ]
+
+        # TODO: 凹や穴の空いたNゴンに対応
+        faces = bm.faces
+        sorted_faces = sorted(
+            faces,
+            key=lambda f: int(  # material_indexの型をintとして明示的に指定しないとmypyがエラーになる
+                f.material_index
+            ),
+        )
+        polys: List[Tuple[int, List[bmesh.types.BMLoop]]] = []
+        for face in sorted_faces:
+            if len(face.loops) <= 3:
+                if (
+                    len(polys) > 0
+                    and face.loops[0].vert.index == polys[-1][1][0].vert.index
+                ):
+                    polys.append(
+                        (
+                            face.material_index,
+                            [face.loops[n] for n in [1, 2, 0]],
+                        )
+                    )
+                else:
+                    polys.append((face.material_index, face.loops[:]))
+            else:
+                if (
+                    len(polys) > 0
+                    and face.loops[0].vert.index == polys[-1][1][0].vert.index
+                ):
+                    for i in range(0, len(face.loops) - 2):
+                        polys.append(
+                            (
+                                face.material_index,
+                                [
+                                    face.loops[-1],
+                                    face.loops[i],
+                                    face.loops[i + 1],
+                                ],
+                            )
+                        )
+                else:
+                    for i in range(1, len(face.loops) - 1):
+                        polys.append(
+                            (
+                                face.material_index,
+                                [
+                                    face.loops[0],
+                                    face.loops[i],
+                                    face.loops[i + 1],
+                                ],
+                            )
+                        )
+        return polys
+
     def mesh_to_bin_and_dict(self) -> None:
         self.json_dict["meshes"] = []
         vrm_version = self.vrm_version
@@ -1626,84 +1701,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             unsigned_int_scalar_packer = struct.Struct("<I").pack
             unsigned_short_vec4_packer = struct.Struct("<HHHH").pack
 
-            def min_max(minmax: List[List[float]], position: List[float]) -> None:
-                for i in range(3):
-                    minmax[0][i] = (
-                        position[i] if position[i] < minmax[0][i] else minmax[0][i]
-                    )
-                    minmax[1][i] = (
-                        position[i] if position[i] > minmax[1][i] else minmax[1][i]
-                    )
-
-            # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
-            # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを再生できる
-            # メリット：ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、拡張非対応であればそのまま読めば普通に三角として表示できる
-            # 欠点：ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
-            # また、ngonが凸包ポリゴンで無い場合、見た目が破綻する(例：鈍角三角形の底辺を接合した4角形)
-            def tessface_fan(
-                bm: bmesh.types.BMesh,
-            ) -> List[Tuple[int, List[bmesh.types.BMLoop]]]:
-                if not self.export_fb_ngon_encoding:
-                    return [
-                        (loops[0].face.material_index, loops)
-                        for loops in bm.calc_loop_triangles()
-                        if len(loops) > 0
-                    ]
-
-                # TODO: 凹や穴の空いたNゴンに対応
-                faces = bm.faces
-                sorted_faces = sorted(
-                    faces,
-                    key=lambda f: int(  # material_indexの型をintとして明示的に指定しないとmypyがエラーになる
-                        f.material_index
-                    ),
-                )
-                polys: List[Tuple[int, List[bmesh.types.BMLoop]]] = []
-                for face in sorted_faces:
-                    if len(face.loops) <= 3:
-                        if (
-                            len(polys) > 0
-                            and face.loops[0].vert.index == polys[-1][1][0].vert.index
-                        ):
-                            polys.append(
-                                (
-                                    face.material_index,
-                                    [face.loops[n] for n in [1, 2, 0]],
-                                )
-                            )
-                        else:
-                            polys.append((face.material_index, face.loops[:]))
-                    else:
-                        if (
-                            len(polys) > 0
-                            and face.loops[0].vert.index == polys[-1][1][0].vert.index
-                        ):
-                            for i in range(0, len(face.loops) - 2):
-                                polys.append(
-                                    (
-                                        face.material_index,
-                                        [
-                                            face.loops[-1],
-                                            face.loops[i],
-                                            face.loops[i + 1],
-                                        ],
-                                    )
-                                )
-                        else:
-                            for i in range(1, len(face.loops) - 1):
-                                polys.append(
-                                    (
-                                        face.material_index,
-                                        [
-                                            face.loops[0],
-                                            face.loops[i],
-                                            face.loops[i + 1],
-                                        ],
-                                    )
-                                )
-                return polys
-
-            for material_index, loops in tessface_fan(bm):
+            for material_index, loops in self.tessface_fan(
+                bm, self.export_fb_ngon_encoding
+            ):
                 for loop in loops:
                     uv_list = []
                     for uvlayer_name in uvlayers_dict.values():
@@ -1756,7 +1756,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                     )
                                 )
                             )
-                        min_max(shape_min_max_dict[shape_name], morph_pos)
+                        self.min_max(shape_min_max_dict[shape_name], morph_pos)
                     if is_skin_mesh:
                         weight_and_joint_list: List[Tuple[float, int]] = []
                         for v_group in mesh_data.vertices[loop.vert.index].groups:
@@ -1841,7 +1841,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
                     vert_location = self.axis_blender_to_glb(loop.vert.co)
                     position_bin.extend(float_vec3_packer(*vert_location))
-                    min_max(position_min_max, vert_location)
+                    self.min_max(position_min_max, vert_location)
                     normal_bin.extend(
                         float_vec3_packer(*self.axis_blender_to_glb(vert_normal))
                     )
