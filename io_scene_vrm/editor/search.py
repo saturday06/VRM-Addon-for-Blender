@@ -240,6 +240,8 @@ def export_objects(
     for obj in selected_objects:
         if obj.type in exclusion_types:
             continue
+        if obj.name not in bpy.context.view_layer.objects:
+            continue
         if not export_invisibles and not obj.visible_get():
             continue
         objects.append(obj)
