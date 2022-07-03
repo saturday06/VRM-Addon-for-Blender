@@ -69,7 +69,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         self.draw_errors(self.errors, self.show_successful_message, self.layout)
 
     @staticmethod
-    def validate_bone_order(
+    def validate_bone_order_vrm0(
         messages: List[str],
         armature: bpy.types.Object,
         readonly: bool,
@@ -92,6 +92,42 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 )
             )
             break
+
+    @staticmethod
+    def validate_bone_order_vrm1(
+        messages: List[str],
+        armature: bpy.types.Object,
+        readonly: bool,
+    ) -> None:
+        humanoid = armature.data.vrm_addon_extension.vrm1.humanoid
+        humanoid.check_last_bone_names_and_update(armature.data.name, defer=readonly)
+        for human_bone in humanoid.human_bone_name_to_human_bone.values():
+            if (
+                not human_bone.node.value
+                or human_bone.node.value in human_bone.node_candidates
+            ):
+                continue
+            messages.append(
+                pgettext(
+                    'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
+                    + 'Please confirm "VRM" Panel → "Humanoid" → {human_bone}.'
+                ).format(
+                    bone=human_bone.node.value,
+                    human_bone=human_bone.specification().title,
+                )
+            )
+            break
+
+    @staticmethod
+    def validate_bone_order(
+        messages: List[str],
+        armature: bpy.types.Object,
+        readonly: bool,
+    ) -> None:
+        if armature.data.vrm_addon_extension.is_vrm0():
+            WM_OT_vrm_validator.validate_bone_order_vrm0(messages, armature, readonly)
+        else:
+            WM_OT_vrm_validator.validate_bone_order_vrm1(messages, armature, readonly)
 
     @staticmethod
     def detect_errors(
@@ -194,10 +230,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         node_names.append(bone.name)
 
                 # TODO: T_POSE,
-                required_bone_error_format = (
-                    'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
-                    + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
-                )
                 if armature.data.vrm_addon_extension.is_vrm1():
                     warning_messages.append(
                         pgettext(
@@ -224,9 +256,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         ):
                             continue
                         error_messages.append(
-                            pgettext(required_bone_error_format).format(
-                                humanoid_name=human_bone_specification.title
-                            )
+                            pgettext(
+                                'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
+                                + ' "VRM" Panel → "Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
+                            ).format(humanoid_name=human_bone_specification.title)
                         )
                 else:
                     humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
@@ -245,9 +278,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             continue
                         all_required_bones_exist = False
                         error_messages.append(
-                            pgettext(required_bone_error_format).format(
-                                humanoid_name=humanoid_name.capitalize()
-                            )
+                            pgettext(
+                                'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
+                                + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
+                            ).format(humanoid_name=humanoid_name.capitalize())
                         )
                     if all_required_bones_exist:
                         WM_OT_vrm_validator.validate_bone_order(

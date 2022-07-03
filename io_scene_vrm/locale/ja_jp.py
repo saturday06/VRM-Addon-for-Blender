@@ -115,6 +115,18 @@ translation_dictionary = {
     + "「VRM」パネルの「VRM 0.x Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
     (
         "*",
+        'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
+        + ' "VRM" Panel → "Humanoid" → "VRM Required Bones" → "{humanoid_name}".',
+    ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
+    + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
+    (
+        "*",
+        'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
+        + 'Please confirm "VRM" Panel → "Humanoid" → {human_bone}.',
+    ): "ボーン「{bone}」をVRMボーン「{human_bone}」に割り当てることができませんでした。"
+    + "「VRM」パネルの「Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
+    (
+        "*",
         'Faces must be Triangle, but not face in "{name}" or '
         + "it will be triangulated automatically.",
     ): "「{name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
