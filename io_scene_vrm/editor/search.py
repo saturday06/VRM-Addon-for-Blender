@@ -333,13 +333,13 @@ def export_object_constraints(
     for obj in objs:
         for constraint in obj.constraints:
             if is_roll_constraint(constraint, objs):
-                roll_constraints[obj.name].append(constraint)
+                roll_constraints[obj.name] = constraint
                 break
             if is_aim_constraint(constraint, objs):
-                aim_constraints[obj.name].append(constraint)
+                aim_constraints[obj.name] = constraint
                 break
             if is_rotation_constraint(constraint, objs):
-                rotation_constraints[obj.name].append(constraint)
+                rotation_constraints[obj.name] = constraint
                 break
 
     return ExportConstraint(

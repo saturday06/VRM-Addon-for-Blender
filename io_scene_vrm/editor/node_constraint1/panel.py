@@ -47,15 +47,14 @@ def draw_roll_constraint_layout(
     constraints_column = constraints_box.column()
     if object_constraints or bone_constraints:
         constraints_expanded_column = constraints_column.column()
-        for object_name, constraints in object_constraints.items():
-            for constraint in constraints:
-                constraint_row = constraints_expanded_column.row()
-                constraint_row.alignment = "LEFT"
-                constraint_row.label(
-                    text=object_name + ": " + constraint.name,
-                    icon="CONSTRAINT",
-                    translate=False,
-                )
+        for object_name, constraint in object_constraints.items():
+            constraint_row = constraints_expanded_column.row()
+            constraint_row.alignment = "LEFT"
+            constraint_row.label(
+                text=object_name + ": " + constraint.name,
+                icon="CONSTRAINT",
+                translate=False,
+            )
         for bone_name, constraint in bone_constraints.items():
             constraint_row = constraints_expanded_column.row()
             constraint_row.alignment = "LEFT"
@@ -108,15 +107,14 @@ def draw_aim_constraint_layout(
     constraints_column = constraints_box.column()
     if object_constraints or bone_constraints:
         constraints_expanded_column = constraints_column.column()
-        for object_name, constraints in object_constraints.items():
-            for constraint in constraints:
-                constraint_row = constraints_expanded_column.row()
-                constraint_row.alignment = "LEFT"
-                constraint_row.label(
-                    text=object_name + ": " + constraint.name,
-                    icon="CONSTRAINT",
-                    translate=False,
-                )
+        for object_name, constraint in object_constraints.items():
+            constraint_row = constraints_expanded_column.row()
+            constraint_row.alignment = "LEFT"
+            constraint_row.label(
+                text=object_name + ": " + constraint.name,
+                icon="CONSTRAINT",
+                translate=False,
+            )
         for bone_name, constraint in bone_constraints.items():
             constraint_row = constraints_expanded_column.row()
             constraint_row.alignment = "LEFT"
@@ -164,15 +162,14 @@ def draw_rotation_constraint_layout(
     constraints_column = constraints_box.column()
     if object_constraints or bone_constraints:
         constraints_expanded_column = constraints_column.column()
-        for object_name, constraints in object_constraints.items():
-            for constraint in constraints:
-                constraint_row = constraints_expanded_column.row()
-                constraint_row.alignment = "LEFT"
-                constraint_row.label(
-                    text=object_name + ": " + constraint.name,
-                    icon="CONSTRAINT",
-                    translate=False,
-                )
+        for object_name, constraint in object_constraints.items():
+            constraint_row = constraints_expanded_column.row()
+            constraint_row.alignment = "LEFT"
+            constraint_row.label(
+                text=object_name + ": " + constraint.name,
+                icon="CONSTRAINT",
+                translate=False,
+            )
         for bone_name, constraint in bone_constraints.items():
             constraint_row = constraints_expanded_column.row()
             constraint_row.alignment = "LEFT"
