@@ -67,17 +67,17 @@ def draw_roll_constraint_layout(
 
     constraints_help_column = constraints_column.box().column()
     help_message = pgettext(
-        "Roll Constraintになる条件\n"
-        " - 回転コピー\n"
-        " - 有効状態\n"
-        " - 順序はデフォルト ???\n"
-        " - 頂点グループの指定無し\n"
-        " - 座標軸はXYZのどれか一つを指定\n"
-        " - ミックスは追加\n"
-        " - 反転は無し\n"
-        " - ターゲットはローカル空間\n"
-        " - オーナーはローカル空間\n"
-        " - 複数が条件を満たす場合は一番上にあるもの\n"
+        "Conditions exported as Roll Constraint\n"
+        + " - Copy Rotation\n"
+        + " - Enabled\n"
+        + " - Order is Default ???\n"
+        + " - No Vertex Group\n"
+        + " - Axis is one of X, Y and Z\n"
+        + " - Mix is Add\n"
+        + " - No Inverted\n"
+        + " - Target is Local Space\n"
+        + " - Owner is Local Space\n"
+        + " - The one at the top of the list of those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
@@ -128,12 +128,12 @@ def draw_aim_constraint_layout(
 
     constraints_help_column = constraints_column.box().column()
     help_message = pgettext(
-        "Aim Constraintになる条件\n"
-        " - 減衰トラック\n"
-        " - 有効状態\n"
-        " - ボーンの場合、ヘッド/テールが0\n"
-        " - ボーンの場合、Bボーンに従わない\n"
-        " - 複数が条件を満たす場合は一番上にあるもの\n"
+        "Conditions exported as Aim Constraint\n"
+        + " - Damped Track\n"
+        + " - Enabled\n"
+        + " - Target Bone Head/Tail is 0\n"
+        + " - No Follow Target Bone B-Bone\n"
+        + " - The one at the top of the list of those that meet all the conditions\n",
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
@@ -184,17 +184,17 @@ def draw_rotation_constraint_layout(
 
     constraints_help_column = constraints_column.box().column()
     help_message = pgettext(
-        "Rotation Constraintになる条件\n"
-        " - 回転コピー\n"
-        " - 有効状態\n"
-        " - 順序はデフォルト ???\n"
-        " - 頂点グループの指定無し\n"
-        " - 座標軸はXYZ全て指定\n"
-        " - 反転は無し\n"
-        " - ミックスは追加\n"
-        " - ターゲットはローカル空間\n"
-        " - オーナーはローカル空間\n"
-        " - 複数が条件を満たす場合は一番上にあるもの\n"
+        "Conditions exported as Rotation Constraint\n"
+        + " - Copy Rotation\n"
+        + " - Enabled\n"
+        + " - Order is Default ???\n"
+        + " - No Vertex Group\n"
+        + " - Axis is X, Y and Z\n"
+        + " - Mix is Add\n"
+        + " - No Inverted\n"
+        + " - Target is Local Space\n"
+        + " - Owner is Local Space\n"
+        + " - The one at the top of the list of those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
