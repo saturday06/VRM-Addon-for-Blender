@@ -42,20 +42,30 @@ def object_candidates(context: bpy.types.Context) -> Sequence[bpy.types.Object]:
     return cast(Sequence[bpy.types.Object], objects)
 
 
+def vrm_shader_node(material: bpy.types.Material) -> Optional[bpy.types.Node]:
+    if not material.node_tree or not material.node_tree.nodes:
+        return None
+    for node in material.node_tree.nodes:
+        if (
+            node.type == "OUTPUT_MATERIAL"
+            and node.inputs["Surface"].links
+            and node.inputs["Surface"].links[0].from_node.type == "GROUP"
+            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
+            is not None
+        ):
+            return node.inputs["Surface"].links[0].from_node
+    return None
+
+
 def shader_nodes_and_materials(
-    used_materials: List[bpy.types.Material],
+    materials: List[bpy.types.Material],
 ) -> List[Tuple[bpy.types.Node, bpy.types.Material]]:
-    return [
-        (node.inputs["Surface"].links[0].from_node, mat)
-        for mat in used_materials
-        if mat.node_tree is not None
-        for node in mat.node_tree.nodes
-        if node.type == "OUTPUT_MATERIAL"
-        and node.inputs["Surface"].links
-        and node.inputs["Surface"].links[0].from_node.type == "GROUP"
-        and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
-        is not None
-    ]
+    result = []
+    for material in materials:
+        node = vrm_shader_node(material)
+        if node:
+            result.append((node, material))
+    return result
 
 
 def object_distance(

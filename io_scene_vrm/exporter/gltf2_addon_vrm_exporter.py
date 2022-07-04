@@ -551,6 +551,54 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 }
         return constraint_dict
 
+    @staticmethod
+    def create_mtoon_unversioned_material_dict(
+        material: bpy.types.Material, shader_node: bpy.types.Node
+    ) -> Dict[str, Any]:
+        return {}
+
+    @staticmethod
+    def save_vrm_materials(
+        json_dict: Dict[str, Any], material_name_to_index_dict: Dict[str, int]
+    ) -> None:
+        material_dicts = json_dict.get("materials")
+        if not isinstance(material_dicts, abc.Iterable):
+            material_dicts = []
+        else:
+            material_dicts = list(material_dicts)
+
+        for material_name, index in material_name_to_index_dict.items():
+            material = bpy.data.materials.get(material_name)
+            if not isinstance(material, bpy.types.Material) or not (
+                0 <= index < len(material_dicts)
+            ):
+                continue
+            material_dict = material_dicts[index]
+            if not isinstance(material_dict, dict):
+                continue
+            node = search.vrm_shader_node(material)
+            if not isinstance(node, bpy.types.Node):
+                continue
+            extensions_dict = material_dict.get("extensions")
+            if not isinstance(extensions_dict, dict):
+                extensions_dict = {}
+            if node.node_tree["SHADER"] == "MToon_unversioned":
+                mtoon_dict = (
+                    Gltf2AddonVrmExporter.create_mtoon_unversioned_material_dict(
+                        material, node
+                    )
+                )
+            else:
+                mtoon_dict = {}
+            if mtoon_dict:
+                mtoon_dict["specVersion"] = "1.0-beta"
+                extensions_dict["VRMC_materials_mtoon"] = mtoon_dict
+            if extensions_dict:
+                material_dict["extensions"] = extensions_dict
+
+        if material_dicts:
+            json_dict["materials"] = material_dicts
+
     def export_vrm(self) -> Optional[bytes]:
         dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         try:
@@ -740,6 +788,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             material_name_to_index_dict[material_name] = material_index
             if not extras_dict:
                 del material_dict["extras"]
+
+        self.save_vrm_materials(json_dict, material_name_to_index_dict)
 
         vrm = self.armature.data.vrm_addon_extension.vrm1
 
