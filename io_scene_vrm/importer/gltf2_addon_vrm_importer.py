@@ -780,8 +780,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.load_vrm1_expressions(
             vrm1.expressions, vrm1_extension_dict.get("expressions")
         )
+
         self.load_spring_bone1(
-            addon_extension.spring_bone1, vrm1_extension_dict.get("secondaryAnimation")
+            addon_extension.spring_bone1,
+            deep.get(self.parse_result.json_dict, ["extensions", "VRMC_springBone"]),
         )
         self.load_node_constraint1()
         migration.migrate(armature.name, defer=False)
