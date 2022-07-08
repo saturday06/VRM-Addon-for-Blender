@@ -792,23 +792,37 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if not isinstance(meta_dict, dict):
             return
 
-        meta.vrm_name = str(meta_dict.get("name"))
-        meta.version = str(meta_dict.get("version"))
+        name = meta_dict.get("name")
+        if name is not None:
+            meta.vrm_name = str(name)
+
+        version = meta_dict.get("version")
+        if version is not None:
+            meta.version = str(version)
 
         authors = meta_dict.get("authors")
         if isinstance(authors, abc.Iterable):
             for author in authors:
-                meta.authors.add().value = str(author)
+                if author is not None:
+                    meta.authors.add().value = str(author)
 
-        meta.copyright_information = str(meta_dict.get("copyrightInformation"))
-        meta.contact_information = str(meta_dict.get("contactInformation"))
+        copyright_information = meta_dict.get("copyrightInformation")
+        if copyright_information is not None:
+            meta.copyright_information = str(copyright_information)
+
+        contact_information = meta_dict.get("contactInformation")
+        if contact_information is not None:
+            meta.contact_information = str(contact_information)
 
         references = meta_dict.get("references")
         if isinstance(references, abc.Iterable):
             for reference in references:
-                meta.references.add().value = str(reference)
+                if reference is not None:
+                    meta.references.add().value = str(reference)
 
-        meta.third_party_licenses = str(meta_dict.get("thirdPartyLicenses"))
+        third_party_licenses = meta_dict.get("thirdPartyLicenses")
+        if third_party_licenses is not None:
+            meta.third_party_licenses = str(third_party_licenses)
 
         thumbnail_image_index = meta_dict.get("thumbnailImage")
         if isinstance(thumbnail_image_index, int):
@@ -822,38 +836,49 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             and avatar_permission in Vrm1MetaPropertyGroup.AVATAR_PERMISSION_VALUES
         ):
             meta.avatar_permission = avatar_permission
+
         meta.allow_excessively_violent_usage = bool(
             meta_dict.get("allowExcessivelyViolentUsage")
         )
+
         meta.allow_excessively_sexual_usage = bool(
             meta_dict.get("allowExcessivelySexualUsage")
         )
+
         commercial_usage = meta_dict.get("commercialUsage")
         if (
             isinstance(commercial_usage, str)
             and commercial_usage in Vrm1MetaPropertyGroup.COMMERCIAL_USAGE_VALUES
         ):
             meta.commercial_usage = commercial_usage
+
         meta.allow_political_or_religious_usage = bool(
             meta_dict.get("allowPoliticalOrReligiousUsage")
         )
+
         meta.allow_antisocial_or_hate_usage = bool(
             meta_dict.get("allowAntisocialOrHateUsage")
         )
+
         credit_notation = meta_dict.get("creditNotation")
         if (
             isinstance(credit_notation, str)
             and credit_notation in Vrm1MetaPropertyGroup.CREDIT_NOTATION_VALUES
         ):
             meta.credit_notation = credit_notation
+
         meta.allow_redistribution = bool(meta_dict.get("allowRedistribution"))
+
         modification = meta_dict.get("modification")
         if (
             isinstance(modification, str)
             and modification in Vrm1MetaPropertyGroup.MODIFICATION_VALUES
         ):
             meta.modification = modification
-        meta.other_license_url = str(meta_dict.get("otherLicenseUrl"))
+
+        other_license_url = meta_dict.get("otherLicenseUrl")
+        if other_license_url is not None:
+            meta.other_license_url = str(other_license_url)
 
     def load_vrm1_humanoid(
         self, humanoid: Vrm1HumanoidPropertyGroup, humanoid_dict: Any
