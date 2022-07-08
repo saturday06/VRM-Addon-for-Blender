@@ -448,6 +448,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         for spring in spring_bone.springs:
             spring_dict = {"name": spring.vrm_name}
 
+            center_index = bone_name_to_index_dict.get(spring.center.value)
+            if isinstance(center_index, int):
+                spring_dict["center"] = center_index
+
             joint_dicts = []
             for joint in spring.joints:
                 node_index = bone_name_to_index_dict.get(joint.node.value)

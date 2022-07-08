@@ -75,6 +75,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for collider in ext.spring_bone1.colliders:
             yield collider.node
         for spring in ext.spring_bone1.springs:
+            yield spring.center
             for joint in spring.joints:
                 yield joint.node
 

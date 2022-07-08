@@ -210,6 +210,9 @@ def draw_vrm1_spring_bone_layout(
                     spring,
                     "vrm_name",
                 )
+                spring_column.prop_search(
+                    spring.center, "value", armature.data, "bones"
+                )
 
                 spring_joints_box = spring_column.box().column()
                 if spring.joints:

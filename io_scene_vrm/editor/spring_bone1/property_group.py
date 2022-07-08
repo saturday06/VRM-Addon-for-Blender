@@ -274,6 +274,9 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
     collider_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=SpringBone1ColliderGroupReferencePropertyGroup,
     )
+    center: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=BonePropertyGroup,
+    )
 
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]

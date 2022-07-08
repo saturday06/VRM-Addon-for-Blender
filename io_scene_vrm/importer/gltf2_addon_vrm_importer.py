@@ -1278,6 +1278,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(name, str):
                 spring.vrm_name = name
 
+            center_index = spring_dict.get("center")
+            if isinstance(center_index, int):
+                bone_name = self.bone_names.get(center_index)
+                if bone_name:
+                    spring.center.value = bone_name
+
             joint_dicts = spring_dict.get("joints")
             if not isinstance(joint_dicts, abc.Iterable):
                 joint_dicts = []
