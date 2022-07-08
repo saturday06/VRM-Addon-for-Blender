@@ -557,7 +557,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_mtoon_unversioned_material_dict(
-        material: bpy.types.Material, shader_node: bpy.types.Node
+        _material: bpy.types.Material, _shader_node: bpy.types.Node
     ) -> Dict[str, Any]:
         return {}
 
