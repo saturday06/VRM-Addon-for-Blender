@@ -192,7 +192,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     def image_to_bin(self) -> None:
         # collect used image
         used_images = []
-        used_materials = search.materials(self.export_objects)
+        used_materials = search.export_materials(self.export_objects)
         for mat in used_materials:
             if "vrm_shader" in mat:
                 del mat["vrm_shader"]
@@ -1304,7 +1304,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         # endregion function separate by shader
 
-        for b_mat in search.materials(self.export_objects):
+        for b_mat in search.export_materials(self.export_objects):
             material_properties_dict: Dict[str, Any] = {}
             pbr_dict: Dict[str, Any] = {}
             if not b_mat.node_tree:

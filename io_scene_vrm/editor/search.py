@@ -15,7 +15,7 @@ MESH_CONVERTIBLE_OBJECT_TYPES = [
 ]
 
 
-def materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material]:
+def export_materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material]:
     result = []
     for mesh_convertible in [
         obj.data for obj in objects if obj.type in MESH_CONVERTIBLE_OBJECT_TYPES

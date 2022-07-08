@@ -304,7 +304,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         if armature_count == 0:
             info_messages.append(pgettext("Please add ARMATURE to selections"))
 
-        used_materials = search.materials(export_objects)
+        used_materials = search.export_materials(export_objects)
         used_images: List[bpy.types.Image] = []
         bones_name = []
         if armature is not None:
