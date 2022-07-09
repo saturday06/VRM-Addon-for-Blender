@@ -2,6 +2,10 @@ name: test
 
 on:
   push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*_*_*'
   pull_request:
     types: [opened, synchronize, reopened]
 
