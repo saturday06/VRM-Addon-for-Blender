@@ -173,6 +173,18 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             export_invisibles, export_only_selections
         )
 
+        armature_count = len(
+            list(filter(lambda obj: obj.type == "ARMATURE", export_objects))
+        )
+        if armature_count >= 2:  # only one armature
+            error_messages.append(
+                pgettext(
+                    "Only one armature is required for VRM export. Multiple armatures found."
+                )
+            )
+        if armature_count == 0:
+            info_messages.append(pgettext("Please add ARMATURE to selections"))
+
         for obj in export_objects:
             if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES:
                 if obj.name in node_names:
@@ -207,17 +219,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         + "However, they cannot coexist, so shape keys may not be export correctly."
                     ).format(name=obj.name)
                 )
-            if obj.type == "ARMATURE":
+            if obj.type == "ARMATURE" and armature_count == 1:
                 armature = obj
                 if execute_migration:
                     migration.migrate(armature.name, defer=False)
-                armature_count += 1
-                if armature_count >= 2:  # only one armature
-                    error_messages.append(
-                        pgettext(
-                            "Only one armature is required for VRM export. Multiple armatures found."
-                        )
-                    )
                 for bone in obj.data.bones:
                     if bone.name in node_names:  # nodes name is unique
                         error_messages.append(
@@ -301,8 +306,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
         # endregion export object seeking
-        if armature_count == 0:
-            info_messages.append(pgettext("Please add ARMATURE to selections"))
 
         used_materials = search.export_materials(export_objects)
         used_images: List[bpy.types.Image] = []
