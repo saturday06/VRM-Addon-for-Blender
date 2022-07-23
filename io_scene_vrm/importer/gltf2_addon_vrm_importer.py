@@ -444,7 +444,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if self.parse_result.spec_version_number < (1, 0):
             bone_heuristic = "FORTUNE"
         else:
-            bone_heuristic = "TEMPERANCE"
+            bone_heuristic = "BLENDER"
         full_vrm_import_success = False
         with tempfile.TemporaryDirectory() as temp_dir:
             indexed_vrm_filepath = os.path.join(temp_dir, "indexed.vrm")
