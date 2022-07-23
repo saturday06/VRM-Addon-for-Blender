@@ -1056,12 +1056,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             target_value = material_color_bind_dict.get("targetValue")
             if not isinstance(target_value, abc.Iterable):
                 target_value = []
-            target_value = list(
-                map(
-                    lambda v: float(v) if isinstance(v, (float, int)) else 0.0,
-                    target_value,
-                )
-            )
+            target_value = [
+                float(v) if isinstance(v, (float, int)) else 0.0 for v in target_value
+            ]
             while len(target_value) < 4:
                 target_value.append(0.0)
             material_color_bind.target_value = target_value[:4]

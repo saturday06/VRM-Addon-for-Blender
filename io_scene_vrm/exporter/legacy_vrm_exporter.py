@@ -2287,12 +2287,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     {
                         "materialName": material_value.material.name,
                         "propertyName": material_value.property_name,
-                        "targetValue": list(
-                            map(
-                                lambda v: float(v.value),
-                                material_value.target_value,
-                            )
-                        ),
+                        "targetValue": [
+                            float(v.value) for v in material_value.target_value
+                        ],
                     }
                 )
 
@@ -2308,14 +2305,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         secondary_animation = (
             self.armature.data.vrm_addon_extension.vrm0.secondary_animation
         )
-        filtered_collider_groups = list(
-            filter(
-                lambda collider_group: collider_group.node
-                and collider_group.node.value
-                and collider_group.node.value in node_name_id_dict,
-                secondary_animation.collider_groups,
-            )
-        )
+        filtered_collider_groups = [
+            collider_group
+            for collider_group in secondary_animation.collider_groups
+            if collider_group.node
+            and collider_group.node.value
+            and collider_group.node.value in node_name_id_dict
+        ]
         collider_group_names = [
             collider_group.name for collider_group in filtered_collider_groups
         ]
@@ -2381,10 +2377,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 ]
 
                 object_mean_scale = statistics.mean(
-                    map(
-                        lambda s: abs(float(s)),  # floatキャストはmypy対策
-                        collider_object.matrix_world.to_scale(),
-                    )
+                    abs(s) for s in collider_object.matrix_world.to_scale()
                 )
                 collider_dict["radius"] = (
                     collider_object.empty_display_size * object_mean_scale

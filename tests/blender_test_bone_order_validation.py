@@ -9,8 +9,8 @@ def test() -> None:
     humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    spine_bone = next(filter(lambda b: b.bone == "spine", humanoid.human_bones))
-    chest_bone = next(filter(lambda b: b.bone == "chest", humanoid.human_bones))
+    spine_bone = [b for b in humanoid.human_bones if b.bone == "spine"][0]
+    chest_bone = [b for b in humanoid.human_bones if b.bone == "chest"][0]
     spine_bone.node.value = "chest"
     chest_bone.node.value = "spine"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
@@ -18,9 +18,9 @@ def test() -> None:
     chest_bone.node.value = "chest"
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    right_little_distal_bone = next(
-        filter(lambda b: b.bone == "rightLittleDistal", humanoid.human_bones)
-    )
+    right_little_distal_bone = [
+        b for b in humanoid.human_bones if b.bone == "rightLittleDistal"
+    ][0]
     right_little_distal_bone.node.value = "spine"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
     right_little_distal_bone.node.value = "hips"

@@ -37,7 +37,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             target,
             bpy_bone_name_to_human_bone_specification,
         )
-        if set(map(lambda n: n.value, self.node_candidates)) == new_candidates:
+        if set(n.value for n in self.node_candidates) == new_candidates:
             return
 
         self.node_candidates.clear()
@@ -297,9 +297,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
             bone_names.append(bone.name)
             bone_names.append(bone.parent.name if bone.parent else "")
-        up_to_date = bone_names == list(
-            map(lambda n: str(n.value), human_bones.last_bone_names)
-        )
+        up_to_date = bone_names == [str(n.value) for n in human_bones.last_bone_names]
 
         if up_to_date:
             return

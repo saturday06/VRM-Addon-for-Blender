@@ -16,16 +16,12 @@ class TestDeep(TestCase):
 
 class TestVrm0HumanBone(TestCase):
     def test_all(self) -> None:
-        all_human_bone_names = sorted(
-            map(lambda n: n.value, vrm0_human_bone.HumanBoneName)
-        )
+        all_human_bone_names = sorted(n.value for n in vrm0_human_bone.HumanBoneName)
         self.assertEqual(
             all_human_bone_names,
             sorted(
-                map(
-                    lambda b: b.name.value,
-                    vrm0_human_bone.HumanBoneSpecifications.all_human_bones,
-                )
+                b.name.value
+                for b in vrm0_human_bone.HumanBoneSpecifications.all_human_bones
             ),
         )
         self.assertEqual(
@@ -130,16 +126,12 @@ class TestVrm0HumanBone(TestCase):
 
 class TestVrm1HumanBone(TestCase):
     def test_all(self) -> None:
-        all_human_bone_names = sorted(
-            map(lambda n: n.value, vrm1_human_bone.HumanBoneName)
-        )
+        all_human_bone_names = sorted(n.value for n in vrm1_human_bone.HumanBoneName)
         self.assertEqual(
             all_human_bone_names,
             sorted(
-                map(
-                    lambda b: b.name.value,
-                    vrm1_human_bone.HumanBoneSpecifications.all_human_bones,
-                )
+                b.name.value
+                for b in vrm1_human_bone.HumanBoneSpecifications.all_human_bones
             ),
         )
         self.assertEqual(

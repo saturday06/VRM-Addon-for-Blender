@@ -752,11 +752,7 @@ def draw_vrm0_secondary_animation_layout(
 
         text = ""
         if bone_group.bones:
-            text = (
-                "("
-                + ", ".join(map(lambda bone: str(bone.value), bone_group.bones))
-                + ")"
-            )
+            text = "(" + ", ".join(str(bone.value) for bone in bone_group.bones) + ")"
 
         if bone_group.center.value:
             if text:

@@ -13,11 +13,9 @@ from typing import Any
 def to_function_component_literal(s: str) -> str:
     permitted = "abcdefghijklmnopqrstuvwxyz0123456789"
     return "".join(
-        map(
-            lambda c: c if c in permitted else "_",
-            # str.lower() is locale dependent. bytes.lower() is locale independent.
-            s.encode().lower().decode(),
-        )
+        c if c in permitted else "_"
+        # str.lower() is locale dependent. bytes.lower() is locale independent.
+        for c in s.encode().lower().decode()
     )
 
 
@@ -146,7 +144,7 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
             raise Exception(f"Test method name {method_name}_index is duplicated")
         existing_method_names.append(method_name)
 
-        escaped = list(map(lambda a: rf"{a}", [path] + args))
+        escaped = [rf"{a}" for a in [path] + args]
         args_str = '"' + '", "'.join(escaped) + '"'
         content += render_multiple_test(method_name, args_str)
     return content

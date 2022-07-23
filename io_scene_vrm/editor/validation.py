@@ -172,9 +172,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             export_invisibles, export_only_selections
         )
 
-        armature_count = len(
-            list(filter(lambda obj: obj.type == "ARMATURE", export_objects))
-        )
+        armature_count = len([True for obj in export_objects if obj.type == "ARMATURE"])
         if armature_count >= 2:  # only one armature
             error_messages.append(
                 pgettext(

@@ -75,11 +75,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         # - スキニングされたボーンの子供に別のメッシュが存在する
         # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアにし、後で戻す
         for obj in self.export_objects:
-            if obj.type != "MESH" or not filter(
-                lambda m: isinstance(m, bpy.types.ArmatureModifier)
-                and m.object == armature,
-                obj.modifiers,
-            ):
+            if obj.type != "MESH" or not [
+                True
+                for m in obj.modifiers
+                if isinstance(m, bpy.types.ArmatureModifier) and m.object == armature
+            ]:
                 continue
 
             while obj != armature:

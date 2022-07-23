@@ -12,7 +12,7 @@ import bpy
 addon_path = sys.argv[sys.argv.index("--") + 1]
 
 with zipfile.ZipFile(addon_path) as z:
-    module_name = os.path.commonpath(list(map(lambda f: f.filename, z.filelist)))
+    module_name = os.path.commonpath([f.filename for f in z.filelist])
 
 bpy.ops.preferences.addon_install(filepath=addon_path)
 bpy.ops.preferences.addon_enable(module=module_name)
