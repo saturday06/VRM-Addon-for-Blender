@@ -213,7 +213,7 @@ classes = [
     operator.VRM_OT_save_human_bone_mappings,
     operator.VRM_OT_load_human_bone_mappings,
     validation.VrmValidationError,
-    export_scene.validation.WM_OT_vrm_validator,
+    validation.WM_OT_vrm_validator,
     export_scene.VRM_PT_export_error_messages,
     export_scene.WM_OT_export_human_bones_assignment,
     export_scene.EXPORT_SCENE_OT_vrm,

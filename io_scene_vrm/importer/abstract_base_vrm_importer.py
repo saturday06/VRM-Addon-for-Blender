@@ -24,7 +24,7 @@ from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
-from ..editor import make_armature, migration, operator, panel
+from ..editor import make_armature, migration, operator
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
 from ..editor.vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
@@ -253,7 +253,7 @@ class AbstractBaseVrmImporter(ABC):
                     Matrix.Translation(world_tail) @ world_inv
                 ).to_translation()
 
-            panel.make_armature.connect_parent_tail_and_child_head_if_very_close_position(
+            make_armature.connect_parent_tail_and_child_head_if_very_close_position(
                 armature.data
             )
             bpy.ops.object.mode_set(mode="OBJECT")
