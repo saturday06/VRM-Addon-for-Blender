@@ -624,25 +624,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = os.path.join(temp_dir, "out.glb")
-                if bpy.app.version <= (2, 93):
-                    bpy.ops.export_scene.gltf(
-                        filepath=filepath,
-                        check_existing=False,
-                        export_format="GLB",
-                        export_extras=True,
-                        export_current_frame=True,
-                        use_selection=True,
-                    )
-                else:
-                    bpy.ops.export_scene.gltf(
-                        filepath=filepath,
-                        check_existing=False,
-                        export_format="GLB",
-                        export_extras=True,
-                        export_current_frame=True,
-                        use_selection=True,
-                        use_visible=True,
-                    )
+                bpy.ops.export_scene.gltf(
+                    filepath=filepath,
+                    check_existing=False,
+                    export_format="GLB",
+                    export_extras=True,
+                    export_current_frame=True,
+                    use_selection=True,
+                )
                 with open(filepath, "rb") as file:
                     extra_name_assigned_glb = file.read()
         finally:
