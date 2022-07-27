@@ -28,7 +28,10 @@ bl_info = {
 
 
 def register() -> None:
+    import contextlib
     import os
+    import sys
+    import zipfile
 
     import bpy
 
@@ -46,18 +49,19 @@ def register() -> None:
         "_".join(map(str, bl_info["version"])) + ".zip",
     )
     if os.path.exists(github_code_download_zip_path):
-        import contextlib
-        import zipfile
-
-        print(
-            "Unzipping the partial add-on archive for "
-            + 'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.'
+        sys.stdout.write(
+            "[VRM Add-on] Unzipping the partial add-on archive for "
+            + 'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub... '
         )
+        sys.stdout.flush()
 
         with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
             z.extractall(os.path.dirname(__file__))
         with contextlib.suppress(FileNotFoundError, PermissionError):
             os.remove(github_code_download_zip_path)
+
+        sys.stdout.write("ok\n")
+        sys.stdout.flush()
 
     # Lazy import to minimize initialization before blender version checking and
     # unzipping the partial add-on archive.
