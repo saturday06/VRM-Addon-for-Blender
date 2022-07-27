@@ -9,6 +9,15 @@ indent_style = space
 tab_width = 4
 trim_trailing_whitespace = true
 
+[*.{blend,gif,ico,jpg,png,pptx}]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
 [*.bat]
 end_of_line = crlf
 indent_size = 2
