@@ -12,7 +12,7 @@ python = "^3.7"
 [tool.poetry.dev-dependencies]
 autoflake = "*"
 black = "*"
-flake8 = "*"
+flake8 = "4.0.1" # https://github.com/tylerwince/flake8-bandit/pull/35
 flake8-bandit = "*"
 flake8-bugbear = "*"
 flake8-no-pep420 = "*"
