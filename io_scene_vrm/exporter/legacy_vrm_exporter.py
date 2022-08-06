@@ -13,7 +13,6 @@ import secrets
 import statistics
 import string
 import struct
-import tempfile
 import traceback
 from collections import abc
 from math import floor
@@ -25,7 +24,7 @@ import bmesh
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
-from ..common import deep, gltf
+from ..common import convert, deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
@@ -259,47 +258,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             else len(bpy.data.images) + used_images.index(used_image)
         )
         for image in sorted(used_images, key=image_to_image_index):
-            if (
-                image.source == "FILE"
-                and not image.is_dirty
-                and image.file_format in ["PNG", "JPEG"]
-            ):
-                if image.packed_file is not None:
-                    image_bin = image.packed_file.data
-                else:
-                    with open(image.filepath_from_user(), "rb") as f:
-                        image_bin = f.read()
-                filetype = "image/" + image.file_format.lower()
-            else:
-                filetype = "image/png"
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    export_image: Optional[bpy.types.Image] = None
-                    try:
-                        if image.size[0] > 0 and image.size[1] > 0:
-                            export_image = image.copy()
-                            # https://github.com/KhronosGroup/glTF-Blender-IO/issues/894#issuecomment-579094775
-                            export_image.update()
-                            # https://github.com/KhronosGroup/glTF-Blender-IO/commit/0ea9e74c40977a36bbccb7b823fe8bf5955fc528
-                            export_image.pixels = image.pixels[:]
-                        else:
-                            print('Failed to load image "{image.name}"')
-                            export_image = bpy.data.images.new(
-                                INTERNAL_NAME_PREFIX + "TempVrmExport-" + image.name,
-                                width=1,
-                                height=1,
-                            )
-                        filepath = os.path.join(temp_dir, "image.png")
-                        export_image.filepath_raw = filepath
-                        export_image.file_format = "PNG"
-                        export_image.save()
-                    finally:
-                        if export_image is not None:
-                            bpy.data.images.remove(export_image)
-                    with open(filepath, "rb") as f:
-                        image_bin = f.read()
-
-            name = image.name
-            ImageBin(image_bin, name, filetype, self.glb_bin_collector)
+            image_bin, filetype = convert.image_to_image_bytes(image)
+            ImageBin(image_bin, image.name, filetype, self.glb_bin_collector)
 
     def armature_to_node_and_scenes_dict(self) -> None:
         nodes = []
@@ -557,83 +517,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             fallback_dict["doubleSided"] = double_sided
             return fallback_dict
 
-        # region util func
-        def get_texture_name_and_sampler_type(
-            shader_node: bpy.types.Node, input_socket_name: str
-        ) -> Optional[Tuple[str, int, int]]:
-            if (
-                input_socket_name == "NormalmapTexture"
-                and "NormalmapTexture" not in shader_node.inputs
-                and "NomalmapTexture" in shader_node.inputs
-            ):
-                input_socket_name = "NomalmapTexture"
-            if (
-                not shader_node.inputs.get(input_socket_name)
-                or not shader_node.inputs.get(input_socket_name).links
-            ):
-                return None
-
-            tex_name = (
-                shader_node.inputs.get(input_socket_name).links[0].from_node.image.name
-            )
-            # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
-            if (
-                shader_node.inputs.get(input_socket_name)
-                .links[0]
-                .from_node.interpolation
-                == "Closest"
-            ):
-                filter_type = bgl.GL_NEAREST
-            else:
-                filter_type = bgl.GL_LINEAR
-            # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-            if (
-                shader_node.inputs.get(input_socket_name).links[0].from_node.extension
-                == "REPEAT"
-            ):
-                wrap_type = bgl.GL_REPEAT
-            else:
-                wrap_type = bgl.GL_CLAMP_TO_EDGE
-            return tex_name, wrap_type, filter_type
-
-        def get_float_value(
-            shader_node: bpy.types.Node, input_socket_name: str
-        ) -> Optional[float]:
-            float_val = None
-            if shader_node.inputs.get(input_socket_name):
-                if shader_node.inputs.get(input_socket_name).links:
-                    float_val = (
-                        shader_node.inputs.get(input_socket_name)
-                        .links[0]
-                        .from_node.outputs[0]
-                        .default_value
-                    )
-                else:
-                    float_val = shader_node.inputs.get(input_socket_name).default_value
-            return float_val
-
-        def get_rgba_val(
-            shader_node: bpy.types.Node, input_socket_name: str
-        ) -> Optional[List[float]]:
-            rgba_val = None
-            if shader_node.inputs.get(input_socket_name):
-                if shader_node.inputs.get(input_socket_name).links:
-                    rgba_val = [
-                        shader_node.inputs.get(input_socket_name)
-                        .links[0]
-                        .from_node.outputs[0]
-                        .default_value[i]
-                        for i in range(4)
-                    ]
-                else:
-                    rgba_val = [
-                        shader_node.inputs.get(input_socket_name).default_value[i]
-                        for i in range(4)
-                    ]
-            return rgba_val
-
-        # endregion util func
-
         def make_mtoon_unversioned_extension_dict(
             b_mat: bpy.types.Material, mtoon_shader_node: bpy.types.Node
         ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
@@ -658,7 +541,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for k, val in MaterialMtoon.float_props_exchange_dict.items()
                 if val is not None
             ]:
-                float_val = get_float_value(mtoon_shader_node, float_prop)
+                float_val = shader.get_float_value(mtoon_shader_node, float_prop)
                 if float_val is not None:
                     mtoon_float_dict[float_key] = float_val
                     if float_key == "_OutlineWidthMode":
@@ -709,7 +592,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for k, v in MaterialMtoon.vector_props_exchange_dict.items()
                 if v in vec_props
             ]:
-                vector_val = get_rgba_val(mtoon_shader_node, vector_prop)
+                vector_val = shader.get_rgba_val(mtoon_shader_node, vector_prop)
                 if vector_val is not None:
                     mtoon_vector_dict[vector_key] = vector_val
 
@@ -725,7 +608,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 texture_key,
                 texture_prop,
             ) in MaterialMtoon.texture_kind_exchange_dict.items():
-                tex = get_texture_name_and_sampler_type(mtoon_shader_node, texture_prop)
+                tex = shader.get_image_name_and_sampler_type(
+                    mtoon_shader_node, texture_prop
+                )
                 if tex is None:
                     continue
 
@@ -812,7 +697,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 material_prop_setter(1, 1, 0, 1, True, 2450, "TransparentCutout")
                 mtoon_float_dict["_Cutoff"] = b_mat.alpha_threshold
             else:  # transparent and Z_TRANSPARENCY or Raytrace
-                transparent_with_z_write = get_float_value(
+                transparent_with_z_write = shader.get_float_value(
                     mtoon_shader_node, "TransparentWithZWrite"
                 )
                 if (
@@ -1002,20 +887,20 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 transparent_method = "BLEND"
                 transparency_cutoff = None
 
-            unlit_value = get_float_value(gltf_shader_node, "unlit")
+            unlit_value = shader.get_float_value(gltf_shader_node, "unlit")
             if unlit_value is None:
                 unlit = None
             else:
                 unlit = unlit_value > 0.5
             pbr_dict = pbr_fallback(
                 b_mat,
-                base_color=get_rgba_val(gltf_shader_node, "base_Color"),
-                metalness=get_float_value(gltf_shader_node, "metallic"),
-                roughness=get_float_value(gltf_shader_node, "roughness"),
-                base_color_texture=get_texture_name_and_sampler_type(
+                base_color=shader.get_rgba_val(gltf_shader_node, "base_Color"),
+                metalness=shader.get_float_value(gltf_shader_node, "metallic"),
+                roughness=shader.get_float_value(gltf_shader_node, "roughness"),
+                base_color_texture=shader.get_image_name_and_sampler_type(
                     gltf_shader_node, "color_texture"
                 ),
-                metallic_roughness_texture=get_texture_name_and_sampler_type(
+                metallic_roughness_texture=shader.get_image_name_and_sampler_type(
                     gltf_shader_node, "metallic_roughness_texture"
                 ),
                 transparent_method=transparent_method,
@@ -1025,7 +910,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             )
 
             def pbr_tex_add(texture_type: str, socket_name: str) -> None:
-                img = get_texture_name_and_sampler_type(gltf_shader_node, socket_name)
+                img = shader.get_image_name_and_sampler_type(
+                    gltf_shader_node, socket_name
+                )
                 if img is not None:
                     pbr_dict[texture_type] = {"index": add_texture(*img), "texCoord": 0}
                 else:
@@ -1034,7 +921,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pbr_tex_add("normalTexture", "normal")
             pbr_tex_add("emissiveTexture", "emissive_texture")
             pbr_tex_add("occlusionTexture", "occlusion_texture")
-            emissive_factor = get_rgba_val(gltf_shader_node, "emissive_color")
+            emissive_factor = shader.get_rgba_val(gltf_shader_node, "emissive_color")
             if emissive_factor is None:
                 emissive_factor = [0, 0, 0]
             else:
@@ -1055,7 +942,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             zw_dict["floatProperties"] = {}
             zw_dict["vectorProperties"] = {}
             zw_dict["textureProperties"] = {}
-            color_tex = get_texture_name_and_sampler_type(
+            color_tex = shader.get_image_name_and_sampler_type(
                 transzw_shader_node, "Main_Texture"
             )
             if color_tex is not None:
