@@ -139,10 +139,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     mesh["extras"]["targetNames"] = primitive["extras"]["targetNames"]
                     break
 
-        if (
-            isinstance(json_dict.get("textures"), list)
-            and len(json_dict["textures"]) > 0
-        ):
+        if isinstance(json_dict.get("textures"), list) and json_dict["textures"]:
             primitives = []
 
             for texture_index, _ in enumerate(json_dict["textures"]):

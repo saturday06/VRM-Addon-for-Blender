@@ -1342,7 +1342,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             return [
                 (loops[0].face.material_index, loops)
                 for loops in bm.calc_loop_triangles()
-                if len(loops) > 0
+                if loops
             ]
 
         # TODO: 凹や穴の空いたNゴンに対応
@@ -1356,10 +1356,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         polys: List[Tuple[int, List[bmesh.types.BMLoop]]] = []
         for face in sorted_faces:
             if len(face.loops) <= 3:
-                if (
-                    len(polys) > 0
-                    and face.loops[0].vert.index == polys[-1][1][0].vert.index
-                ):
+                if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
                     polys.append(
                         (
                             face.material_index,
@@ -1369,10 +1366,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 else:
                     polys.append((face.material_index, face.loops[:]))
             else:
-                if (
-                    len(polys) > 0
-                    and face.loops[0].vert.index == polys[-1][1][0].vert.index
-                ):
+                if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
                     for i in range(0, len(face.loops) - 2):
                         polys.append(
                             (
@@ -1817,7 +1811,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             morph_pos_glbs = None
             morph_normal_glbs = None
-            if len(shape_pos_bin_dict.keys()) != 0:
+            if shape_pos_bin_dict:
                 morph_pos_glbs = [
                     GlbBin(
                         morph_pos_bin,
@@ -1871,7 +1865,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         for i, uv_glb in enumerate(uv_glbs)
                     }
                 )
-                if len(shape_pos_bin_dict.keys()) != 0:
+                if shape_pos_bin_dict:
                     vrm_version = self.vrm_version
                     if vrm_version is None:
                         raise Exception("vrm version is None")

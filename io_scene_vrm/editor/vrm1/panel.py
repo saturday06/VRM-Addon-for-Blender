@@ -746,7 +746,7 @@ def draw_vrm1_meta_layout(
 
     authors_box = layout.box()
     authors_box.label(text="Authors:")
-    if len(meta.authors) > 0:
+    if meta.authors:
         authors_row = authors_box.split(align=True, factor=0.7)
         authors_column = authors_row.column()
         for author in meta.authors:
@@ -771,7 +771,7 @@ def draw_vrm1_meta_layout(
 
     references_box = layout.box()
     references_box.label(text="References:")
-    if len(meta.references) > 0:
+    if meta.references:
         references_row = references_box.split(align=True, factor=0.7)
         references_column = references_row.column()
         for reference in meta.references:

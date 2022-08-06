@@ -315,7 +315,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
 
             for v in mesh.data.vertices:
-                if len(v.groups) == 0 and mesh.parent_bone == "":
+                if not v.groups and mesh.parent_bone == "":
                     if vertex_error_count > 5:
                         continue
                     info_messages.append(

@@ -363,7 +363,7 @@ class GlslDrawObj:
         for mesh in meshes:
             unneeded_mat = []
             for k in mesh.index_per_mat.keys():
-                if len(mesh.index_per_mat[k]) == 0:
+                if not mesh.index_per_mat[k]:
                     unneeded_mat.append(k)
             for k in unneeded_mat:
                 del mesh.index_per_mat[k]

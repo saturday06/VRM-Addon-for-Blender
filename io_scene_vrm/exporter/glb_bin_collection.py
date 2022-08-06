@@ -43,7 +43,7 @@ class GlbBinCollection:
             )
             byte_offset += vab.bin_length
 
-        if len(self.image_bins) > 0:
+        if self.image_bins:
             bin_dict["images"] = []
             for img in self.image_bins:
                 self.bin.extend(img.bin)
