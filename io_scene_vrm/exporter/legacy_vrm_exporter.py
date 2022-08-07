@@ -1089,6 +1089,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L176-L184
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L530
                 "gltf_keep_original_textures": False,
+                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/bfe4ff8b1b5c26ba17b0531b67798376147d9fa7/addons/io_scene_gltf2/__init__.py
+                "gltf_original_specular": False,
             }
             try:
                 if bpy.app.version >= (3, 2):
