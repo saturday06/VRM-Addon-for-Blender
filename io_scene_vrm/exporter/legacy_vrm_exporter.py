@@ -24,12 +24,13 @@ import bmesh
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
-from ..common import convert, deep, gltf, shader
+from ..common import deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..editor import migration, search
+from ..external import io_scene_gltf2_support
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
@@ -258,7 +259,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             else len(bpy.data.images) + used_images.index(used_image)
         )
         for image in sorted(used_images, key=image_to_image_index):
-            image_bin, filetype = convert.image_to_image_bytes(image)
+            image_bin, filetype = io_scene_gltf2_support.image_to_image_bytes(image)
             ImageBin(image_bin, image.name, filetype, self.glb_bin_collector)
 
     def armature_to_node_and_scenes_dict(self) -> None:

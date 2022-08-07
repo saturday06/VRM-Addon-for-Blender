@@ -40,6 +40,7 @@ module = [
     "gpu",
     "gpu_extras.*",
     "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials",
+    "io_scene_gltf2.blender.exp.gltf2_blender_image",
     "mathutils",
 ]
 ignore_missing_imports = true

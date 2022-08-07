@@ -163,6 +163,7 @@ shadowmap
 shapekey
 sikuli
 skinnedmesh
+specular
 splitext
 splitnormals
 sqrt
@@ -177,6 +178,7 @@ texcoord
 textblock
 texture0
 texture1
+tga
 tkinter
 tlx
 tly
