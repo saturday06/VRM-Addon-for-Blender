@@ -1,36 +1,32 @@
 ---
-name: Bug report / バグ報告
+name: Bug report
 about: Create a report to help us improve
-title: 'Bug report / バグ報告: '
+title: 'Bug report: '
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug / バグについて**
+**Describe the bug**
 A clear and concise description of what the bug is.
-どのようなバグが起きているのか書いてください。
 
-**To Reproduce / バグの再現方法**
+**To Reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
-バグが発生する手順を書いてください。
-バグが発生するモデルのファイルやそのURL、エラーメッセージを添付してもらえると助かります。
 
-**Expected behavior / 期待する動作**
+**Expected behavior**
 A clear and concise description of what you expected to happen.
-どうのようにバグを直してほしいか書いてください。
-**Screenshots / スクリーンショット**
+
+**Screenshots**
 If applicable, add screenshots to help explain your problem.
-何か参考になりそうなスクショがあれば添付してください。
-**Desktop (please complete the following information) / PC環境情報**
+
+**Desktop (please complete the following information)**
 - OS: [e.g. Windows, macOS, Ubuntu Linux, ...]
 - Blender [e.g. 2.93.5, 3.1.2, ...]
-- Addon Version [e.g. 2.3.8]
+- Addon Version [e.g. 2.4.7, 2.3.8, ...]
 
-
-**Additional context / なにか他に書いておきたいことはこちらへ**
+**Additional context**
 Add any other context about the problem here.
