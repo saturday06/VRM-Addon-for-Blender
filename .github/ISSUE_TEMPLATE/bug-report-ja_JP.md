@@ -1,6 +1,6 @@
 ---
 name: バグ報告
-about: Create a report to help us improve
+about: バグ報告向けテンプレ
 title: 'バグ報告: '
 labels: ''
 assignees: ''
