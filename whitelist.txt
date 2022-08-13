@@ -1,3 +1,4 @@
+0x
 10cm
 1mm
 2d
@@ -88,6 +89,7 @@ ja
 keyblock
 khr
 ld
+lerp
 lfd
 lipsync
 listdir
@@ -100,6 +102,7 @@ makedir
 maketrans
 mat4
 mataballs
+matcap
 materialmtoon
 mathutils
 maxsplit
@@ -115,6 +118,8 @@ morphname
 msgbus
 msgctxt
 mtoon
+mtoon0
+mtoon1
 ngon
 normalmap
 normals
@@ -186,6 +191,7 @@ tlz
 tmp
 tmpfunc
 toon
+toony
 topbar
 tpos
 transzw

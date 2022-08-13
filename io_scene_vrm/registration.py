@@ -21,6 +21,8 @@ from .editor import (
     property_group,
     validation,
 )
+from .editor.mtoon1 import panel as mtoon1_panel
+from .editor.mtoon1 import property_group as mtoon1_property_group
 from .editor.node_constraint1 import panel as node_constraint1_panel
 from .editor.node_constraint1 import property_group as node_constraint1_property_group
 from .editor.spring_bone1 import operator as spring_bone1_operator
@@ -123,6 +125,60 @@ classes = [
     spring_bone1_property_group.SpringBone1JointPropertyGroup,
     spring_bone1_property_group.SpringBone1SpringPropertyGroup,
     spring_bone1_property_group.SpringBone1SpringBonePropertyGroup,
+    mtoon1_property_group.MaterialTraceablePropertyGroup,
+    mtoon1_property_group.Mtoon1SamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1BaseColorSamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadeMultiplySamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1NormalSamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadingShiftSamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1EmissiveSamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1RimMultiplySamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1MatcapSamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1OutlineWidthMultiplySamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1UvAnimationMaskSamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1KhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1BaseColorKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1NormalKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadingShiftKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1EmissiveKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1RimMultiplyKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1MatcapKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup,
+    mtoon1_property_group.Mtoon1TexturePropertyGroup,
+    mtoon1_property_group.Mtoon1BaseColorTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1ShadeMultiplyTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1NormalTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1ShadingShiftTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1EmissiveTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1RimMultiplyTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1MatcapTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1OutlineWidthMultiplyTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1UvAnimationMaskTexturePropertyGroup,
+    mtoon1_property_group.Mtoon1BaseColorTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1NormalTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1EmissiveTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1MatcapTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1BaseColorTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadeMultiplyTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1NormalTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1ShadingShiftTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1EmissiveTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1RimMultiplyTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1MatcapTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1UvAnimationMaskTextureInfoPropertyGroup,
+    mtoon1_property_group.Mtoon1PbrMetallicRoughnessPropertyGroup,
+    mtoon1_property_group.Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup,
+    mtoon1_property_group.Mtoon1MaterialExtensionsPropertyGroup,
+    mtoon1_property_group.Mtoon1MaterialPropertyGroup,
+    mtoon1_panel.VRM_PT_vrm_material_property,
     panel.VRM_PT_current_selected_armature,
     panel.VRM_PT_controller_unsupported_blender_version_warning,
     panel.VRM_PT_controller,
@@ -226,6 +282,7 @@ classes = [
     extension.VrmAddonArmatureExtensionPropertyGroup,
     extension.VrmAddonBoneExtensionPropertyGroup,
     extension.VrmAddonSceneExtensionPropertyGroup,
+    extension.VrmAddonMaterialExtensionPropertyGroup,
 ]
 
 
@@ -243,6 +300,10 @@ def register(init_version: Any) -> None:
 
     for cls in classes:
         bpy.utils.register_class(cls)
+
+    bpy.types.Material.vrm_addon_extension = bpy.props.PointerProperty(
+        type=extension.VrmAddonMaterialExtensionPropertyGroup
+    )
 
     bpy.types.Scene.vrm_addon_extension = bpy.props.PointerProperty(
         type=extension.VrmAddonSceneExtensionPropertyGroup
@@ -287,6 +348,9 @@ def unregister() -> None:
 
     if hasattr(bpy.types.Scene, "vrm_addon_extension"):
         del bpy.types.Scene.vrm_addon_extension
+
+    if hasattr(bpy.types.Material, "vrm_addon_extension"):
+        del bpy.types.Material.vrm_addon_extension
 
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)

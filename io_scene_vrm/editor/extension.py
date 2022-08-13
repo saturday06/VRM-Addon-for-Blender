@@ -2,6 +2,7 @@ import functools
 
 import bpy
 
+from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .property_group import StringPropertyGroup
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
@@ -99,3 +100,13 @@ def update_internal_cache() -> None:
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
             armature.name, defer=False
         )
+
+
+class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    use_vrm_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Use VRM Material"  # noqa: F722
+    )
+
+    mtoon1: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1MaterialPropertyGroup  # noqa: F722
+    )

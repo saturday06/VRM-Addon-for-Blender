@@ -16,11 +16,17 @@ import bpy
 import mathutils
 
 from .. import common
-from ..common import convert, deep, gltf
+from ..common import convert, deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..editor import migration
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
+from ..editor.mtoon1.property_group import (
+    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1SamplerPropertyGroup,
+    Mtoon1TextureInfoPropertyGroup,
+    Mtoon1TexturePropertyGroup,
+)
 from ..editor.spring_bone1.property_group import (
     SpringBone1ColliderGroupPropertyGroup,
     SpringBone1ColliderPropertyGroup,
@@ -72,7 +78,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             wm.progress_update(3)
             self.use_fake_user_for_thumbnail()
             wm.progress_update(4)
-            self.make_material()
+            if self.parse_result.vrm1_extension:
+                self.make_mtoon1_materials()
+            elif self.parse_result.vrm0_extension:
+                self.make_material()
             wm.progress_update(5)
             if self.parse_result.vrm1_extension:
                 self.load_vrm1_extensions()
@@ -87,6 +96,304 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 Gltf2AddonImporterUserExtension.clear_current_import_id()
             finally:
                 wm.progress_end()
+
+    def assign_texture(
+        self,
+        texture: Mtoon1TexturePropertyGroup,
+        texture_dict: Dict[str, Any],
+    ) -> None:
+        source = texture_dict.get("source")
+        if isinstance(source, int):
+            image = self.images.get(source)
+            if image:
+                texture.source = image
+
+        sampler = texture_dict.get("sampler")
+        samplers = self.parse_result.json_dict.get("samplers")
+        if not isinstance(sampler, int) or not isinstance(samplers, abc.Iterable):
+            return
+        samplers = list(samplers)
+        if not 0 <= len(samplers) < sampler:
+            return
+
+        sampler_dict = samplers[sampler]
+        if not isinstance(sampler_dict, dict):
+            return
+
+        mag_filter = sampler_dict.get("magFilter")
+        if isinstance(mag_filter, int):
+            mag_filter_id = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
+                mag_filter
+            )
+            if isinstance(mag_filter_id, str):
+                texture.sampler.mag_filter = mag_filter_id
+
+        min_filter = sampler_dict.get("minFilter")
+        if isinstance(min_filter, int):
+            min_filter_id = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
+                min_filter
+            )
+            if isinstance(min_filter_id, str):
+                texture.sampler.min_filter = min_filter_id
+
+        wrap_s = sampler_dict.get("wrapS")
+        if isinstance(wrap_s, int):
+            wrap_s_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_s)
+            if isinstance(wrap_s_id, str):
+                texture.sampler.wrap_s = wrap_s_id
+
+        wrap_t = sampler_dict.get("wrapT")
+        if isinstance(wrap_t, int):
+            wrap_t_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_t)
+            if isinstance(wrap_t_id, str):
+                texture.sampler.wrap_t = wrap_t_id
+
+    def assign_khr_texture_transform(
+        self,
+        khr_texture_transform: Mtoon1KhrTextureTransformPropertyGroup,
+        khr_texture_transform_dict: Dict[str, Any],
+    ) -> None:
+        offset = khr_texture_transform_dict.get("offset")
+        if isinstance(offset, abc.Iterable):
+            offset = list(offset)[:2]
+            if len(offset) == 2:
+                khr_texture_transform.offset = offset
+
+        scale = khr_texture_transform_dict.get("scale")
+        if isinstance(scale, abc.Iterable):
+            scale = list(scale)[:2]
+            if len(scale) == 2:
+                khr_texture_transform.scale = scale
+
+    def assign_texture_info(
+        self,
+        texture_info: Mtoon1TextureInfoPropertyGroup,
+        texture_info_dict: Dict[str, Any],
+    ) -> None:
+        index = texture_info_dict.get("index")
+        if isinstance(index, int):
+            textures = self.parse_result.json_dict.get("textures")
+            if isinstance(textures, abc.Iterable):
+                textures = list(textures)
+                if 0 <= index < len(textures):
+                    texture_dict = textures[index]
+                    if isinstance(texture_dict, dict):
+                        self.assign_texture(texture_info.index, texture_dict)
+
+        khr_texture_transform_dict = deep.get(
+            texture_info_dict, ["extensions", "KHR_texture_transform"]
+        )
+        if isinstance(khr_texture_transform_dict, dict):
+            self.assign_khr_texture_transform(
+                texture_info.extensions.khr_texture_transform,
+                khr_texture_transform_dict,
+            )
+
+    def make_mtoon1_material(
+        self, material_index: int, gltf_dict: Dict[str, Any]
+    ) -> None:
+        mtoon_dict = deep.get(gltf_dict, ["extensions", "VRMC_materials_mtoon"])
+        if not isinstance(mtoon_dict, dict):
+            return
+        name = gltf_dict.get("name")
+        if not isinstance(name, str):
+            name = "Material"
+        material = bpy.data.materials.new(name)
+        ext = material.vrm_addon_extension
+        ext.use_vrm_material = True
+        root = ext.mtoon1
+        mtoon = root.extensions.vrmc_materials_mtoon
+
+        pbr_metallic_roughness_dict = gltf_dict.get("pbrMetallicRoughness")
+        if isinstance(pbr_metallic_roughness_dict, dict):
+            base_color_factor = shader.rgba_or_none(
+                pbr_metallic_roughness_dict.get("baseColorFactor")
+            )
+            if base_color_factor:
+                root.pbr_metallic_roughness.base_color_factor = base_color_factor
+
+            base_color_texture_dict = pbr_metallic_roughness_dict.get(
+                "baseColorTexture"
+            )
+            if isinstance(base_color_texture_dict, dict):
+                self.assign_texture_info(
+                    root.pbr_metallic_roughness.base_color_texture,
+                    base_color_texture_dict,
+                )
+
+        alpha_mode = gltf_dict.get("alphaMode")
+        if alpha_mode in root.ALPHA_MODE_IDS:
+            root.alpha_mode = alpha_mode
+
+        alpha_cutoff = gltf_dict.get("alphaCutoff")
+        if isinstance(alpha_cutoff, (float, int)):
+            root.alpha_cutoff = float(alpha_cutoff)
+
+        double_sided = gltf_dict.get("doubleSided")
+        if isinstance(double_sided, bool):
+            root.double_sided = double_sided
+
+        normal_texture_dict = gltf_dict.get("normalTexture")
+        if isinstance(normal_texture_dict, dict):
+            self.assign_texture_info(
+                root.normal_texture,
+                normal_texture_dict,
+            )
+            normal_texture_scale = normal_texture_dict.get("scale")
+            if isinstance(normal_texture_scale, (float, int)):
+                root.normal_texture.scale = float(normal_texture_scale)
+
+        normal_texture_dict = gltf_dict.get("normalTexture")
+        if isinstance(normal_texture_dict, dict):
+            self.assign_texture_info(
+                root.normal_texture,
+                normal_texture_dict,
+            )
+
+        emissive_factor = shader.rgb_or_none(gltf_dict.get("emissiveFactor"))
+        if emissive_factor:
+            root.emissive_factor = emissive_factor
+
+        emissive_texture_dict = gltf_dict.get("emissiveTexture")
+        if isinstance(emissive_texture_dict, dict):
+            self.assign_texture_info(
+                root.emissive_texture,
+                emissive_texture_dict,
+            )
+
+        shade_color_factor = shader.rgb_or_none(mtoon_dict.get("shadeColorFactor"))
+        if shade_color_factor:
+            mtoon.shade_color_factor = shade_color_factor
+
+        shade_multiply_texture_dict = mtoon_dict.get("shadeMultiplyTexture")
+        if isinstance(shade_multiply_texture_dict, dict):
+            self.assign_texture_info(
+                mtoon.shade_multiply_texture,
+                shade_multiply_texture_dict,
+            )
+
+        transparent_with_z_write = mtoon_dict.get("transparentWithZWrite")
+        if isinstance(transparent_with_z_write, bool):
+            mtoon.transparent_with_z_write = transparent_with_z_write
+
+        render_queue_offset_number = mtoon_dict.get("renderQueueOffsetNumber")
+        if isinstance(render_queue_offset_number, (float, int)):
+            mtoon.render_queue_offset_number = max(
+                -9, min(9, int(render_queue_offset_number))
+            )
+
+        shading_shift_factor = mtoon_dict.get("shadingShiftFactor")
+        if isinstance(shading_shift_factor, (float, int)):
+            mtoon.shading_shift_factor = float(shading_shift_factor)
+
+        shading_toony_factor = mtoon_dict.get("shadingToonyFactor")
+        if isinstance(shading_toony_factor, (float, int)):
+            mtoon.shading_toony_factor = float(shading_toony_factor)
+
+        gi_equalization_factor = mtoon_dict.get("giEqualizationFactor")
+        if isinstance(gi_equalization_factor, (float, int)):
+            mtoon.gi_equalization_factor = float(gi_equalization_factor)
+
+        matcap_texture_dict = mtoon_dict.get("matcapTexture")
+        if isinstance(matcap_texture_dict, dict):
+            self.assign_texture_info(
+                mtoon.matcap_texture,
+                matcap_texture_dict,
+            )
+
+        parametric_rim_color_factor = mtoon_dict.get("parametricRimColorFactor")
+        if isinstance(parametric_rim_color_factor, (float, int)):
+            mtoon.parametric_rim_color_factor = float(parametric_rim_color_factor)
+
+        parametric_rim_fresnel_power_factor = mtoon_dict.get(
+            "parametricRimFresnelPowerFactor"
+        )
+        if isinstance(parametric_rim_fresnel_power_factor, (float, int)):
+            mtoon.parametric_rim_fresnel_power_factor = float(
+                parametric_rim_fresnel_power_factor
+            )
+
+        parametric_rim_lift_factor = mtoon_dict.get("parametricRimLiftFactor")
+        if isinstance(parametric_rim_lift_factor, (float, int)):
+            mtoon.parametric_rim_lift_factor = float(parametric_rim_lift_factor)
+
+        rim_multiply_texture_dict = mtoon_dict.get("rimMultiplyTexture")
+        if isinstance(rim_multiply_texture_dict, dict):
+            self.assign_texture_info(
+                mtoon.rim_multiply_texture,
+                rim_multiply_texture_dict,
+            )
+
+        rim_lighting_mix_factor = mtoon_dict.get("rimLightingMixFactor")
+        if isinstance(rim_lighting_mix_factor, (float, int)):
+            mtoon.rim_lighting_mix_factor = float(rim_lighting_mix_factor)
+
+        outline_width_mode = mtoon_dict.get("outlineWidthMode")
+        if outline_width_mode in mtoon.OUTLINE_WIDTH_MODE_IDS:
+            mtoon.outline_width_mode = outline_width_mode
+
+        outline_width_factor = mtoon_dict.get("outlineWidthFactor")
+        if isinstance(outline_width_factor, (float, int)):
+            mtoon.outline_width_factor = float(outline_width_factor)
+
+        outline_width_multiply_texture_dict = mtoon_dict.get(
+            "outlineWidthMultiplyTexture"
+        )
+        if isinstance(outline_width_multiply_texture_dict, dict):
+            self.assign_texture_info(
+                mtoon.outline_width_multiply_texture,
+                outline_width_multiply_texture_dict,
+            )
+
+        outline_color_factor = shader.rgb_or_none(mtoon_dict.get("outlineColorFactor"))
+        if outline_color_factor:
+            mtoon.outline_color_factor = outline_color_factor
+
+        outline_lighting_mix_factor = mtoon_dict.get("outlineLightingMixFactor")
+        if isinstance(outline_lighting_mix_factor, (float, int)):
+            mtoon.outline_lighting_mix_factor = float(outline_lighting_mix_factor)
+
+        uv_animation_mask_texture_dict = mtoon_dict.get("uvAnimationMaskTexture")
+        if isinstance(uv_animation_mask_texture_dict, dict):
+            self.assign_texture_info(
+                mtoon.uv_animation_mask_texture,
+                uv_animation_mask_texture_dict,
+            )
+
+        uv_animation_rotation_speed_factor = mtoon_dict.get(
+            "uvAnimationRotationSpeedFactor"
+        )
+        if isinstance(uv_animation_rotation_speed_factor, (float, int)):
+            mtoon.uv_animation_rotation_speed_factor = float(
+                uv_animation_rotation_speed_factor
+            )
+
+        uv_animation_scroll_x_speed_factor = mtoon_dict.get(
+            "uvAnimationScrollXSpeedFactor"
+        )
+        if isinstance(uv_animation_scroll_x_speed_factor, (float, int)):
+            mtoon.uv_animation_scroll_x_speed_factor = float(
+                uv_animation_scroll_x_speed_factor
+            )
+
+        uv_animation_scroll_y_speed_factor = mtoon_dict.get(
+            "uvAnimationScrollYSpeedFactor"
+        )
+        if isinstance(uv_animation_scroll_y_speed_factor, (float, int)):
+            mtoon.uv_animation_scroll_y_speed_factor = float(
+                uv_animation_scroll_y_speed_factor
+            )
+
+        self.vrm_materials[material_index] = material
+
+    def make_mtoon1_materials(self) -> None:
+        material_dicts = self.parse_result.json_dict.get("materials")
+        if not isinstance(material_dicts, abc.Iterable):
+            return
+        for index, material_dict in enumerate(material_dicts):
+            if isinstance(material_dict, dict):
+                self.make_mtoon1_material(index, material_dict)
+        self.override_gltf_materials()
 
     def import_gltf2_with_indices(self) -> None:
         with open(self.parse_result.filepath, "rb") as f:

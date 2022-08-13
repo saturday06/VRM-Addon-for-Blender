@@ -1,15 +1,18 @@
+import math
 import os
 import secrets
 import string
 import tempfile
 from collections import abc
+from sys import float_info
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import bpy
 
-from ..common import convert, deep, gltf, version
+from ..common import convert, deep, gltf, shader, version
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..editor import search
+from ..editor.mtoon1.property_group import Mtoon1TextureInfoPropertyGroup
 from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -19,7 +22,8 @@ from ..editor.vrm1.property_group import (
     Vrm1LookAtPropertyGroup,
     Vrm1MetaPropertyGroup,
 )
-from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
+from ..external.io_scene_gltf2_support import image_to_image_bytes
+from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 
 
 class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
@@ -556,20 +560,617 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         return constraint_dict
 
     @staticmethod
-    def create_mtoon_unversioned_material_dict(
-        _material: bpy.types.Material, _shader_node: bpy.types.Node
+    def create_mtoon0_khr_texture_transform(
+        node: bpy.types.Node, texture_input_name: str
     ) -> Dict[str, Any]:
-        return {}
+        default = {
+            "offset": [0, 0],
+            "scale": [1, 1],
+        }
+
+        texture_input = node.inputs.get(texture_input_name)
+        if not texture_input:
+            return default
+
+        texture_input_links = texture_input.links
+        if not texture_input_links:
+            return default
+
+        x_from_node = texture_input_links[0].from_node
+        if not x_from_node:
+            return default
+
+        x_inputs = x_from_node.inputs
+        if not x_inputs:
+            return default
+
+        x_links = x_inputs[0].links
+        if not x_links:
+            return default
+
+        uv_offset_scaling_node = x_links[0].from_node
+        if not uv_offset_scaling_node or uv_offset_scaling_node.type != "MAPPING'":
+            return default
+
+        location_input = uv_offset_scaling_node.inputs["Location"]
+        scale_input = uv_offset_scaling_node.inputs["Scale"]
+        return {
+            "offset": [
+                location_input.default_value[0],
+                location_input.default_value[1],
+            ],
+            "scale": [
+                scale_input.default_value[0],
+                scale_input.default_value[1],
+            ],
+        }
+
+    @staticmethod
+    def create_mtoon1_texture_info_dict(
+        json_dict: Dict[str, Any],
+        body_binary: bytearray,
+        texture_info: Mtoon1TextureInfoPropertyGroup,
+    ) -> Optional[Dict[str, Any]]:
+        # TODO: Verify alignment requirement and optimize
+        while len(body_binary) % 32 == 0:
+            body_binary.append(0)
+
+        image = texture_info.index.source
+        if not image:
+            return None
+
+        image_bytes, mime = image_to_image_bytes(image)
+        image_buffer_view_index = len(json_dict["bufferViews"])
+        json_dict["bufferViews"].append(
+            {
+                "buffer": 0,
+                "byteOffset": len(body_binary),
+                "byteLength": len(image_bytes),
+            }
+        )
+
+        image_index = len(json_dict["images"])
+        json_dict["images"].append(
+            {
+                "bufferView": image_buffer_view_index,
+                "mimeType": mime,
+            }
+        )
+
+        if "samplers" not in json_dict:
+            json_dict["samplers"] = []
+        sampler_index = len(json_dict["samplers"])
+        json_dict["samplers"].append(
+            {
+                "magFilter": texture_info.index.sampler.mag_filter,
+                "minFilter": texture_info.index.sampler.min_filter,
+                "wrapS": texture_info.index.sampler.wrap_type,
+                "wrapT": texture_info.index.sampler.wrap_type,
+            }
+        )
+
+        if "textures" not in json_dict:
+            json_dict["textures"] = []
+        texture_index = len(json_dict["textures"])
+        json_dict["textures"].append(
+            {
+                "sampler": sampler_index,
+                "source": image_index,
+            },
+        )
+
+        body_binary.extend(image_bytes)
+        # TODO: Verify alignment requirement and optimize
+        while len(body_binary) % 32 == 0:
+            body_binary.append(0)
+
+        extensions_used = json_dict["extensionsUsed"]
+
+        if "KHR_texture_transform" not in extensions_used:
+            extensions_used.append("KHR_texture_transform")
+        json_dict["extensionsUsed"] = extensions_used
+
+        khr_texture_transform = texture_info.extensions.khr_texture_transform
+        khr_texture_transform_dict = {
+            "offset": list(khr_texture_transform.offset),
+            "scale": list(khr_texture_transform.scale),
+        }
+
+        return {
+            "index": texture_index,
+            "extensions": {"KHR_texture_transform": khr_texture_transform_dict},
+        }
+
+    @staticmethod
+    def create_mtoon0_texture_info_dict(
+        json_dict: Dict[str, Any],
+        body_binary: bytearray,
+        node: bpy.types.Node,
+        texture_input_name: str,
+    ) -> Optional[Dict[str, Any]]:
+        image_name_and_sampler_type = shader.get_image_name_and_sampler_type(
+            node, texture_input_name
+        )
+        if image_name_and_sampler_type is None:
+            return None
+
+        # TODO: Verify alignment requirement and optimize
+        while len(body_binary) % 32 == 0:
+            body_binary.append(0)
+
+        image_name, wrap_type, filter_type = image_name_and_sampler_type
+        image_bytes, mime = image_to_image_bytes(bpy.data.images[image_name])
+
+        image_buffer_view_index = len(json_dict["bufferViews"])
+        json_dict["bufferViews"].append(
+            {
+                "buffer": 0,
+                "byteOffset": len(body_binary),
+                "byteLength": len(image_bytes),
+            }
+        )
+
+        image_index = len(json_dict["images"])
+        json_dict["images"].append(
+            {
+                "bufferView": image_buffer_view_index,
+                "mimeType": mime,
+            }
+        )
+
+        if "samplers" not in json_dict:
+            json_dict["samplers"] = []
+        sampler_index = len(json_dict["samplers"])
+        json_dict["samplers"].append(
+            {
+                "magFilter": filter_type,
+                "minFilter": filter_type,
+                "wrapS": wrap_type,
+                "wrapT": wrap_type,
+            }
+        )
+
+        if "textures" not in json_dict:
+            json_dict["textures"] = []
+        texture_index = len(json_dict["textures"])
+        json_dict["textures"].append(
+            {
+                "sampler": sampler_index,
+                "source": image_index,
+            },
+        )
+
+        body_binary.extend(image_bytes)
+        # TODO: Verify alignment requirement and optimize
+        while len(body_binary) % 32 == 0:
+            body_binary.append(0)
+
+        extensions_used = json_dict["extensionsUsed"]
+
+        if "KHR_texture_transform" not in extensions_used:
+            extensions_used.append("KHR_texture_transform")
+        json_dict["extensionsUsed"] = extensions_used
+
+        khr_texture_transform_dict = (
+            Gltf2AddonVrmExporter.create_mtoon0_khr_texture_transform(
+                node, texture_input_name
+            )
+        )
+
+        return {
+            "index": texture_index,
+            "extensions": {"KHR_texture_transform": khr_texture_transform_dict},
+        }
+
+    @staticmethod
+    def lerp(a: float, b: float, t: float) -> float:
+        return (1 - t) * a + t * b
+
+    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L10-L19
+    @staticmethod
+    def migrate_to_shading_toony(
+        shading_toony_0x: float, shading_shift_0x: float
+    ) -> float:
+        (range_min, range_max) = Gltf2AddonVrmExporter.get_shading_range_0x(
+            shading_toony_0x, shading_shift_0x
+        )
+        return max(0, min(1, (2 - (range_max - range_min)) * 0.5))
+
+    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L21-L30
+    @staticmethod
+    def migrate_to_shading_shift(
+        shading_toony_0x: float, shading_shift_0x: float
+    ) -> float:
+        (range_min, range_max) = Gltf2AddonVrmExporter.get_shading_range_0x(
+            shading_toony_0x, shading_shift_0x
+        )
+        return max(-1, min(1, ((range_max + range_min) * 0.5 * -1)))
+
+    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L32-L38
+    @staticmethod
+    def migrate_to_gi_equalization(gi_intensity_0x: float) -> float:
+        return max(0, min(1, 1 - gi_intensity_0x))
+
+    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L40-L46
+    @staticmethod
+    def get_shading_range_0x(
+        shading_toony_0x: float, shading_shift_0x: float
+    ) -> Tuple[float, float]:
+        range_min = shading_shift_0x
+        range_max = (1 - shading_toony_0x) + shading_toony_0x * shading_shift_0x
+        return (range_min, range_max)
+
+    @staticmethod
+    def create_mtoon1_material_dict(
+        json_dict: Dict[str, Any],
+        body_binary: bytearray,
+        material: bpy.types.Material,
+    ) -> Dict[str, Any]:
+        extensions_used = json_dict["extensionsUsed"]
+
+        if "KHR_materials_unlit" not in extensions_used:
+            extensions_used.append("KHR_materials_unlit")
+        if "VRMC_materials_mtoon" not in extensions_used:
+            extensions_used.append("VRMC_materials_mtoon")
+
+        # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs
+        mtoon_dict: Dict[str, Any] = {
+            "specVersion": "1.0-beta",
+        }
+        extensions_dict = {
+            "KHR_materials_unlit": {},
+            "VRMC_materials_mtoon": mtoon_dict,
+        }
+
+        root = material.vrm_addon_extension.mtoon1
+        mtoon = root.extensions.vrmc_materials_mtoon
+
+        material_dict: Dict[str, Any] = {}
+        pbr_metallic_roughness_dict: Dict[str, Any] = {}
+
+        material_dict["alphaMode"] = root.alpha_mode
+        mtoon_dict["transparentWithZWrite"] = mtoon.transparent_with_z_write
+        mtoon_dict["renderQueueOffsetNumber"] = mtoon.render_queue_offset_number
+        material_dict["alphaCutoff"] = root.alpha_cutoff
+        material_dict["doubleSided"] = root.double_sided
+        pbr_metallic_roughness_dict["baseColorFactor"] = list(
+            root.pbr_metallic_roughness.base_color_factor
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict,
+            "baseColorTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, root.pbr_metallic_roughness.base_color_texture
+            ),
+        )
+        mtoon_dict["shadeColorFactor"] = list(mtoon.shade_color_factor)
+        assign_dict(
+            mtoon_dict,
+            "shadeMultiplyTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, mtoon.shade_color_texture
+            ),
+        )
+        if assign_dict(
+            material_dict,
+            "normalTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, root.normal_texture
+            ),
+        ):
+            material_dict["normalTexture"]["scale"] = root.normal_texture.scale
+        mtoon_dict["shadingShiftFactor"] = mtoon.shading_shift_factor
+        mtoon_dict["shadingToonyFactor"] = mtoon.shading_toony_factor
+        mtoon_dict["giEqualizationFactor"] = mtoon.gi_equalization_factor
+        material_dict["emissiveFactor"] = root.emissive_factor
+        assign_dict(
+            material_dict,
+            "emissiveTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, root.emissive_texture
+            ),
+        )
+        assign_dict(
+            mtoon_dict,
+            "matcapTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, mtoon.matcap_Texture
+            ),
+        )
+        mtoon_dict["parametricRimColorFactor"] = list(mtoon.parametric_rim_color_factor)
+        mtoon_dict[
+            "parametricRimFresnelPowerFactor"
+        ] = mtoon.parametric_rim_fresnel_power_factor
+        mtoon_dict["parametricRimLiftFactor"] = mtoon.parametric_rim_lift_factor
+        assign_dict(
+            mtoon_dict,
+            "rimMultiplyTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, mtoon.rim_multiply_texture
+            ),
+        )
+        mtoon_dict["rimLightingMixFactor"] = mtoon.rim_lighting_mix_factor
+        mtoon_dict["outlineWidthMode"] = mtoon.outline_width_mode
+        mtoon_dict["outlineWidthFactor"] = mtoon.outline_width_factor
+        assign_dict(
+            mtoon_dict,
+            "outlineWidthMultiplyTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, mtoon.outline_width_multiply_texture
+            ),
+        )
+        mtoon_dict["outlineColorFactor"] = mtoon.outline_color_factor
+        mtoon_dict["outlineLightingMixFactor"] = mtoon.outline_lighting_mix_factor
+        assign_dict(
+            mtoon_dict,
+            "uvAnimationMaskTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict, body_binary, mtoon.uv_animation_mask_texture
+            ),
+        )
+        mtoon_dict[
+            "uvAnimationRotationSpeedFactor"
+        ] = mtoon.uv_animation_rotation_speed_factor
+        mtoon_dict[
+            "uvAnimationScrollXSpeedFactor"
+        ] = mtoon.uv_animation_scroll_x_speed_factor
+        mtoon_dict[
+            "uvAnimationScrollYSpeedFactor"
+        ] = mtoon.uv_animation_scroll_y_speed_factor
+
+        if pbr_metallic_roughness_dict:
+            material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+
+        extensions_dict["VRMC_materials_mtoon"] = mtoon_dict
+        material_dict["extensions"] = extensions_dict
+
+        return material_dict
+
+    @staticmethod
+    def create_mtoon_unversioned_material_dict(
+        json_dict: Dict[str, Any],
+        body_binary: bytearray,
+        material: bpy.types.Material,
+        node: bpy.types.Node,
+    ) -> Dict[str, Any]:
+        extensions_used = json_dict["extensionsUsed"]
+
+        if "KHR_materials_unlit" not in extensions_used:
+            extensions_used.append("KHR_materials_unlit")
+        if "VRMC_materials_mtoon" not in extensions_used:
+            extensions_used.append("VRMC_materials_mtoon")
+
+        # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs
+        mtoon_dict: Dict[str, Any] = {
+            "specVersion": "1.0-beta",
+        }
+        extensions_dict = {
+            "KHR_materials_unlit": {},
+            "VRMC_materials_mtoon": mtoon_dict,
+        }
+
+        material_dict: Dict[str, Any] = {}
+        pbr_metallic_roughness_dict: Dict[str, Any] = {}
+
+        if material.blend_method == "OPAQUE":
+            material_dict["alphaMode"] = "OPAQUE"
+            mtoon_dict["transparentWithZWrite"] = False
+            mtoon_dict["renderQueueOffsetNumber"] = 0
+        elif material.blend_method == "CLIP":
+            alpha_cutoff = shader.get_float_value(node, "CutoffRate")
+            if alpha_cutoff is not None:
+                material_dict["alphaCutoff"] = alpha_cutoff
+            else:
+                material_dict["alphaCutoff"] = 0.5
+            material_dict["alphaMode"] = "MASK"
+            mtoon_dict["transparentWithZWrite"] = False
+            mtoon_dict["renderQueueOffsetNumber"] = 0
+        else:
+            material_dict["alphaMode"] = "BLEND"
+            transparent_with_z_write = shader.get_float_value(
+                node, "TransparentWithZWrite"
+            )
+            if (
+                transparent_with_z_write is None
+                or math.fabs(transparent_with_z_write) < float_info.epsilon
+            ):
+                mtoon_dict["transparentWithZWrite"] = False
+            else:
+                mtoon_dict["transparentWithZWrite"] = True
+        mtoon_dict["renderQueueOffsetNumber"] = 0
+        assign_dict(
+            material_dict, "doubleSided", not material.use_backface_culling, False
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict,
+            "baseColorFactor",
+            shader.get_rgba_val(node, "DiffuseColor"),
+        )
+        base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            json_dict, body_binary, node, "MainTexture"
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
+        )
+        assign_dict(
+            mtoon_dict, "shadeColorFactor", shader.get_rgb_val(node, "ShadeColor")
+        )
+        shade_multiply_texture_dict = (
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict, body_binary, node, "ShadeTexture"
+            )
+        )
+        if shade_multiply_texture_dict is not None:
+            mtoon_dict["shadeMultiplyTexture"] = shade_multiply_texture_dict
+        elif base_color_texture_dict is not None:
+            # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L185-L204
+            mtoon_dict["shadeMultiplyTexture"] = base_color_texture_dict
+        normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            json_dict, body_binary, node, "NormalmapTexture"
+        )
+        if assign_dict(
+            material_dict, "normalTexture", normal_texture_dict
+        ) and isinstance(normal_texture_dict, dict):
+            assign_dict(
+                normal_texture_dict, "scale", shader.get_float_value(node, "BumpScale")
+            )
+
+        shading_shift_0x = shader.get_float_value(node, "ShadeShift")
+        if shading_shift_0x is None:
+            shading_shift_0x = 0.0
+
+        shading_toony_0x = shader.get_float_value(node, "ShadeToony")
+        if shading_toony_0x is None:
+            shading_toony_0x = 0.0
+
+        mtoon_dict[
+            "shadingShiftFactor"
+        ] = Gltf2AddonVrmExporter.migrate_to_shading_shift(
+            shading_toony_0x, shading_shift_0x
+        )
+
+        mtoon_dict[
+            "shadingToonyFactor"
+        ] = Gltf2AddonVrmExporter.migrate_to_shading_toony(
+            shading_toony_0x, shading_shift_0x
+        )
+
+        gi_equalization_0x = shader.get_float_value(node, "IndirectLightIntensity")
+        if gi_equalization_0x is not None:
+            mtoon_dict[
+                "giEqualizationFactor"
+            ] = Gltf2AddonVrmExporter.migrate_to_gi_equalization(gi_equalization_0x)
+
+        assign_dict(
+            material_dict, "emissiveFactor", shader.get_rgb_val(node, "EmissionColor")
+        )
+        assign_dict(
+            material_dict,
+            "emissiveTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict, body_binary, node, "Emission_Texture"
+            ),
+        )
+        assign_dict(
+            mtoon_dict,
+            "matcapTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict, body_binary, node, "SphereAddTexture"
+            ),
+        )
+        assign_dict(
+            mtoon_dict, "parametricRimColorFactor", shader.get_rgb_val(node, "RimColor")
+        )
+        assign_dict(
+            mtoon_dict,
+            "parametricRimFresnelPowerFactor",
+            shader.get_float_value(node, "RimFresnelPower"),
+        )
+        assign_dict(
+            mtoon_dict,
+            "parametricRimLiftFactor",
+            shader.get_float_value(node, "RimLift"),
+        )
+        assign_dict(
+            mtoon_dict,
+            "rimMultiplyTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict, body_binary, node, "RimTexture"
+            ),
+        )
+        assign_dict(
+            mtoon_dict,
+            "rimLightingMixFactor",
+            shader.get_float_value(node, "RimLightingMix"),
+        )
+
+        centimeter_to_meter = 0.01
+        one_hundredth = 0.01
+
+        outline_width_mode = shader.get_float_value(node, "OutlineWidthMode")
+        if outline_width_mode is not None:
+            outline_width_mode = int(round(outline_width_mode))
+        else:
+            outline_width_mode = 0
+
+        outline_width = shader.get_float_value(node, "OutlineWidth")
+        if outline_width is None:
+            outline_width = 0.0
+
+        if outline_width_mode == 1:
+            mtoon_dict["outlineWidthMode"] = "worldCoordinates"
+            mtoon_dict["outlineWidthFactor"] = outline_width * centimeter_to_meter
+        elif outline_width_mode == 2:
+            mtoon_dict["outlineWidthMode"] = "screenCoordinates"
+            mtoon_dict["outlineWidthFactor"] = outline_width * one_hundredth * 0.5
+        else:
+            mtoon_dict["outlineWidthMode"] = "none"
+
+        assign_dict(
+            mtoon_dict,
+            "outlineWidthMultiplyTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict, body_binary, node, "OutlineWidthTexture"
+            ),
+        )
+        assign_dict(
+            mtoon_dict, "outlineColorFactor", shader.get_rgb_val(node, "OutlineColor")
+        )
+
+        outline_color_mode = shader.get_float_value(node, "OutlineColorMode")
+        if outline_color_mode is not None:
+            outline_color_mode = int(round(outline_color_mode))
+        else:
+            outline_color_mode = 0
+
+        mtoon_dict["outlineLightingMixFactor"] = 0.0
+        if outline_color_mode == 1:
+            assign_dict(
+                mtoon_dict,
+                "outlineLightingMixFactor",
+                shader.get_float_value(node, "OutlineLightingMix"),
+            )
+
+        assign_dict(
+            mtoon_dict,
+            "uvAnimationMaskTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict, body_binary, node, "UV_Animation_Mask_Texture"
+            ),
+        )
+        assign_dict(
+            mtoon_dict,
+            "uvAnimationRotationSpeedFactor",
+            shader.get_float_value(node, "UV_Scroll_Rotation"),
+        )
+        assign_dict(
+            mtoon_dict,
+            "uvAnimationScrollXSpeedFactor",
+            shader.get_float_value(node, "UV_Scroll_X"),
+        )
+
+        invert_y = -1
+        uv_animation_scroll_y_speed_factor = shader.get_float_value(node, "UV_Scroll_Y")
+        if uv_animation_scroll_y_speed_factor is not None:
+            mtoon_dict["uvAnimationScrollYSpeedFactor"] = (
+                uv_animation_scroll_y_speed_factor * invert_y
+            )
+
+        if pbr_metallic_roughness_dict:
+            material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+
+        extensions_dict["VRMC_materials_mtoon"] = mtoon_dict
+        material_dict["extensions"] = extensions_dict
+
+        return material_dict
 
     @staticmethod
     def save_vrm_materials(
-        json_dict: Dict[str, Any], material_name_to_index_dict: Dict[str, int]
+        json_dict: Dict[str, Any],
+        body_binary: bytearray,
+        material_name_to_index_dict: Dict[str, int],
     ) -> None:
-        material_dicts = json_dict.get("materials")
-        if not isinstance(material_dicts, abc.Iterable):
-            material_dicts = []
-        else:
-            material_dicts = list(material_dicts)
+        material_dicts = json_dict["materials"]
 
         for material_name, index in material_name_to_index_dict.items():
             material = bpy.data.materials.get(material_name)
@@ -577,28 +1178,25 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 0 <= index < len(material_dicts)
             ):
                 continue
-            material_dict = material_dicts[index]
-            if not isinstance(material_dict, dict):
+
+            if material.vrm_addon_extension.use_vrm_material:
+                material_dicts[
+                    index
+                ] = Gltf2AddonVrmExporter.create_mtoon1_material_dict(
+                    json_dict, body_binary, material
+                )
                 continue
+
+            # MToon_unversioned (MToon for VRM 0.0)
             node = search.vrm_shader_node(material)
             if not isinstance(node, bpy.types.Node):
                 continue
-            extensions_dict = material_dict.get("extensions")
-            if not isinstance(extensions_dict, dict):
-                extensions_dict = {}
             if node.node_tree["SHADER"] == "MToon_unversioned":
-                mtoon_dict = (
-                    Gltf2AddonVrmExporter.create_mtoon_unversioned_material_dict(
-                        material, node
-                    )
+                material_dicts[
+                    index
+                ] = Gltf2AddonVrmExporter.create_mtoon_unversioned_material_dict(
+                    json_dict, body_binary, material, node
                 )
-            else:
-                mtoon_dict = {}
-            if mtoon_dict:
-                mtoon_dict["specVersion"] = "1.0-beta"
-                extensions_dict["VRMC_materials_mtoon"] = mtoon_dict
-            if extensions_dict:
-                material_dict["extensions"] = extensions_dict
 
         if material_dicts:
             json_dict["materials"] = material_dicts
@@ -654,15 +1252,40 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             self.destroy_dummy_skinned_mesh_object(dummy_skinned_mesh_object_name)
 
         json_dict, body_binary = gltf.parse_glb(extra_name_assigned_glb)
+        body_binary = bytearray(body_binary)
 
         bone_name_to_index_dict: Dict[str, int] = {}
         object_name_to_index_dict: Dict[str, int] = {}
         mesh_object_name_to_node_index_dict: Dict[str, int] = {}
         mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]] = {}
 
-        nodes = json_dict.get("nodes")
-        if not isinstance(nodes, abc.Sequence):
-            json_dict["nodes"] = nodes = []
+        # https://github.com/KhronosGroup/glTF/blob/b6e0fcc6d8e9f83347aa8b2e3df085b81590a65c/specification/2.0/schema/glTF.schema.json
+        gltf_root_non_empty_array_keys = [
+            "extensionsUsed",
+            "extensionsRequired",
+            "accessors",
+            "animations",
+            "buffers",
+            "bufferViews",
+            "cameras",
+            "images",
+            "materials",
+            "meshes",
+            "nodes",
+            "samplers",
+            "scenes",
+            "skins",
+            "textures",
+        ]
+
+        for key in gltf_root_non_empty_array_keys:
+            list_value = json_dict.get(key)
+            json_dict[key] = (
+                list(list_value) if isinstance(list_value, abc.Iterable) else []
+            )
+
+        nodes = json_dict["nodes"]
+
         for node_index, node_dict in enumerate(nodes):
             if not isinstance(node_dict, dict):
                 continue
@@ -682,11 +1305,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if isinstance(object_name, str):
                 object_name_to_index_dict[object_name] = node_index
             mesh_index = node_dict.get("mesh")
-            mesh_dicts = json_dict.get("meshes")
-            if isinstance(mesh_dicts, abc.Iterable):
-                mesh_dicts = list(mesh_dicts)
-            else:
-                mesh_dicts = []
+            mesh_dicts = json_dict["meshes"]
             if (
                 isinstance(object_name, str)
                 and isinstance(mesh_index, int)
@@ -773,9 +1392,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 use_node_constraint = True
 
         material_name_to_index_dict: Dict[str, int] = {}
-        materials = json_dict.get("materials")
-        if not isinstance(materials, abc.Iterable):
-            materials = []
+        materials = json_dict["materials"]
         for material_index, material_dict in enumerate(materials):
             if not isinstance(material_dict, dict):
                 continue
@@ -793,22 +1410,18 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not extras_dict:
                 del material_dict["extras"]
 
-        self.save_vrm_materials(json_dict, material_name_to_index_dict)
+        self.save_vrm_materials(json_dict, body_binary, material_name_to_index_dict)
 
         vrm = self.armature.data.vrm_addon_extension.vrm1
 
-        extensions_used = json_dict.get("extensionsUsed")
-        if not isinstance(extensions_used, abc.Iterable):
-            extensions_used = []
-        else:
-            extensions_used = list(extensions_used)
+        extensions_used = json_dict["extensionsUsed"]
 
         if use_node_constraint:
             extensions_used.append("VRMC_node_constraint")
 
         extensions = json_dict.get("extensions")
         if not isinstance(extensions, dict):
-            extensions = {}
+            json_dict["extensions"] = extensions = {}
 
         extensions_used.append("VRMC_vrm")
         extensions["VRMC_vrm"] = {
@@ -875,5 +1488,16 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             generator += " with " + base_generator
 
         json_dict["asset"]["generator"] = generator
+
+        if len(body_binary):
+            if not json_dict["buffers"]:
+                json_dict["buffers"] = [{}]
+            if not isinstance(json_dict["buffers"][0], dict):
+                json_dict["buffers"][0] = {}
+            json_dict["buffers"][0]["byteLength"] = len(body_binary)
+
+        for key in gltf_root_non_empty_array_keys:
+            if not json_dict[key]:
+                del json_dict[key]
 
         return gltf.pack_glb(json_dict, body_binary)

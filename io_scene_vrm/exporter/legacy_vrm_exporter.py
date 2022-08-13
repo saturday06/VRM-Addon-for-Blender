@@ -30,8 +30,9 @@ from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..editor import migration, search
+from ..editor.mtoon1.property_group import Mtoon1TextureInfoPropertyGroup
 from ..external import io_scene_gltf2_support
-from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
+from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
 
@@ -244,6 +245,20 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 # ?
                 pass
 
+        # MToon 1.0 downgraded
+        for mat in used_materials:
+            ext = mat.vrm_addon_extension
+            if not ext.use_vrm_material:
+                continue
+            for texture_info in [
+                ext.mtoon1.pbr_metallic_roughness.base_color_texture,
+                ext.mtoon1.normal_texture,
+                ext.mtoon1.emissive_texture,
+            ]:
+                source = texture_info.index.source
+                if source and source not in used_images:
+                    used_images.append(source)
+
         # thumbnail
         ext = self.armature.data.vrm_addon_extension
         if (
@@ -383,8 +398,23 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         # region texture func
 
-        def add_texture(image_name: str, wrap_type: int, filter_type: int) -> int:
-            sampler_dict_key = (wrap_type, wrap_type, filter_type, filter_type)
+        def add_texture(
+            image_name: str,
+            wrap_s_type: int,
+            mag_filter_type: int,
+            wrap_t_type: Optional[int] = None,
+            min_filter_type: Optional[int] = None,
+        ) -> int:
+            if wrap_t_type is None:
+                wrap_t_type = wrap_s_type
+            if min_filter_type is None:
+                min_filter_type = mag_filter_type
+            sampler_dict_key = (
+                wrap_s_type,
+                wrap_t_type,
+                mag_filter_type,
+                min_filter_type,
+            )
             if sampler_dict_key not in sampler_dict:
                 sampler_dict.update({sampler_dict_key: len(sampler_dict)})
             if (
@@ -1192,12 +1222,80 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             return vrm_dict, pbr_dict
 
+        def add_mtoon1_downgraded_texture(
+            texture_info: Mtoon1TextureInfoPropertyGroup,
+        ) -> Optional[Dict[str, Any]]:
+            if not texture_info.index.source:
+                return None
+
+            return {
+                "index": add_texture(
+                    texture_info.index.source.name,
+                    texture_info.index.sampler.wrap_s,
+                    texture_info.index.sampler.mag_filter,
+                    texture_info.index.sampler.wrap_t,
+                    texture_info.index.sampler.min_filter,
+                ),
+                "texCoord": 0,  # TODO:
+                "extensions": {
+                    "KHR_texture_transform": {
+                        "offset": list(
+                            texture_info.extensions.khr_texture_transform.offset
+                        ),
+                        "scale": list(
+                            texture_info.extensions.khr_texture_transform.scale
+                        ),
+                    }
+                },
+            }
+
+        def make_mtoon1_downgraded_mat_dict(
+            b_mat: bpy.types.Material,
+        ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+            vrm_dict: Dict[str, Any] = {}
+            material_dict: Dict[str, Any] = {}
+            pbr_metallic_roughness_dict: Dict[str, Any] = {}
+            root = b_mat.vrm_addon_extension.mtoon1
+            pbr_dict["alphaMode"] = root.alpha_mode
+            material_dict["alphaCutoff"] = root.alpha_cutoff
+            material_dict["doubleSided"] = root.double_sided
+            pbr_metallic_roughness_dict["baseColorFactor"] = list(
+                root.pbr_metallic_roughness.base_color_factor
+            )
+            assign_dict(
+                pbr_metallic_roughness_dict,
+                "baseColorTexture",
+                add_mtoon1_downgraded_texture(
+                    root.pbr_metallic_roughness.base_color_texture
+                ),
+            )
+            if assign_dict(
+                material_dict,
+                "normalTexture",
+                add_mtoon1_downgraded_texture(root.normal_texture),
+            ):
+                material_dict["normalTexture"]["scale"] = root.normal_texture.scale
+            material_dict["emissiveFactor"] = root.emissive_factor
+            assign_dict(
+                material_dict,
+                "emissiveTexture",
+                add_mtoon1_downgraded_texture(root.emissive_texture),
+            )
+            if pbr_metallic_roughness_dict:
+                material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+
+            return vrm_dict, pbr_dict
+
         # endregion function separate by shader
 
         for b_mat in search.export_materials(self.export_objects):
             material_properties_dict: Dict[str, Any] = {}
             pbr_dict: Dict[str, Any] = {}
-            if not b_mat.node_tree:
+            if b_mat.vrm_addon_extension.use_vrm_material:
+                material_properties_dict, pbr_dict = make_mtoon1_downgraded_mat_dict(
+                    b_mat
+                )
+            elif not b_mat.node_tree:
                 material_properties_dict, pbr_dict = make_non_vrm_mat_dict(b_mat)
             elif b_mat.get("vrm_shader") == "MToon_unversioned":
                 for node in b_mat.node_tree.nodes:

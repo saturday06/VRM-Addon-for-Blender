@@ -339,7 +339,9 @@ class AbstractBaseVrmImporter(ABC):
                 print(f"unknown material {mat.name}")
             self.node_placer(self.find_material_output_node(b_mat))
             self.vrm_materials[index] = b_mat
+        self.override_gltf_materials()
 
+    def override_gltf_materials(self) -> None:
         gltf_material_original_names = {
             vrm_material_index: self.gltf_materials[vrm_material_index].name
             for vrm_material_index in self.vrm_materials
