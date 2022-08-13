@@ -207,9 +207,7 @@ class IcypTemplateMeshMaker:
         rot_matrix: Optional[Matrix] = None,
     ) -> None:
         points = self.cubic_points(xyz, translation, rot_matrix)
-        verts = []
-        for p in points:
-            verts.append(bm.verts.new(p))
+        verts = [bm.verts.new(p) for p in points]
         for poly in self.cube_loop:
             bm.faces.new([verts[i] for i in poly])
 
@@ -217,9 +215,7 @@ class IcypTemplateMeshMaker:
         self, bm: BMesh, xyz: List[float], translation: List[float]
     ) -> None:
         points = self.half_cubic_points(xyz, translation)
-        verts = []
-        for p in points:
-            verts.append(bm.verts.new(p))
+        verts = [bm.verts.new(p) for p in points]
         for poly in self.cube_loop_half:
             bm.faces.new([verts[i] for i in poly])
 
@@ -307,9 +303,7 @@ class IcypTemplateMeshMaker:
         matrix: Matrix,
     ) -> None:
         points = self.half_trapezoid_points(head_xz, tail_xz, height, matrix)
-        verts = []
-        for p in points:
-            verts.append(bm.verts.new(p))
+        verts = [bm.verts.new(p) for p in points]
         for poly in self.half_trapezoid_loop:
             bm.faces.new([verts[i] for i in poly])
 
@@ -359,9 +353,7 @@ class IcypTemplateMeshMaker:
         points = self.trapezoid_points(
             head_xz, tail_xz, height, translation, rot_matrix
         )
-        verts = []
-        for p in points:
-            verts.append(bm.verts.new(p))
+        verts = [bm.verts.new(p) for p in points]
         for poly in self.trapezoid_poly_indices:
             bm.faces.new([verts[i] for i in poly])
 
