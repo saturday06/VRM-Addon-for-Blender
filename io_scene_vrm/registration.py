@@ -50,7 +50,7 @@ if persistent:  # for fake-bpy-modules
     @persistent  # type: ignore[misc]
     def depsgraph_update_pre(_dummy: Any) -> None:
         # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
-        # Blender起動時のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
+        # Blender起動直後のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
         if depsgraph_update_pre not in bpy.app.handlers.depsgraph_update_pre:
             return
         bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
