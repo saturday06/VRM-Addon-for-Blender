@@ -427,6 +427,19 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     used_images,
                 )
 
+        for mat in used_materials:
+            ext = mat.vrm_addon_extension
+            if not ext.use_vrm_material:
+                continue
+            for texture_info in [
+                ext.mtoon1.pbr_metallic_roughness.base_color_texture,
+                ext.mtoon1.normal_texture,
+                ext.mtoon1.emissive_texture,
+            ]:
+                source = texture_info.index.source
+                if source and source not in used_images:
+                    used_images.append(source)
+
         for image in used_images:
             if (
                 image.source == "FILE"
