@@ -306,7 +306,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 # "scale":[1,1,1],
                 "children": [bone_id_dict[ch.name] for ch in b_bone.children],
             }
-            if len(node["children"]) == 0:
+            if not node["children"]:
                 del node["children"]
             return node
 
@@ -1406,7 +1406,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def is_skin_mesh(self, mesh: bpy.types.Object) -> bool:
         while mesh:
-            if len([m for m in mesh.modifiers if m.type == "ARMATURE"]) > 0:
+            if [True for m in mesh.modifiers if m.type == "ARMATURE"]:
                 return True
             if not mesh.parent:
                 return True
