@@ -13,7 +13,8 @@ jobs:
     steps:
       - name: Install package
         run: |
-          apt-get update -qq || true
+          apt-get update -qq
+          apt-get dist-upgrade -y
           apt-get install -y advancecomp blender curl git python3 python3-numpy ruby shellcheck
       - uses: actions/checkout@v2
         with:
