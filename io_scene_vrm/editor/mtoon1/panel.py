@@ -50,8 +50,8 @@ class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noq
     def draw(self, context: bpy.types.Context) -> None:
         ext = context.material.vrm_addon_extension
         layout = self.layout.column()
-        layout.prop(ext, "use_vrm_material")
-        if not ext.use_vrm_material:
+        layout.prop(ext.mtoon1, "enabled")
+        if not ext.mtoon1.enabled:
             return
 
         gltf = ext.mtoon1

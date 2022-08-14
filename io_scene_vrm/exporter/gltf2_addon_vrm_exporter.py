@@ -1179,7 +1179,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ):
                 continue
 
-            if material.vrm_addon_extension.use_vrm_material:
+            if material.vrm_addon_extension.mtoon1.enabled:
                 material_dicts[
                     index
                 ] = Gltf2AddonVrmExporter.create_mtoon1_material_dict(

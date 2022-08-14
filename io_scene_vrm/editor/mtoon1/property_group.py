@@ -929,3 +929,24 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MaterialExtensionsPropertyGroup  # noqa: F722
     )
+
+    def __get_enabled(self) -> bool:
+        material = self.find_material()
+        if not material.use_nodes:
+            return False
+        enabled = self.get("enabled")
+        if isinstance(enabled, bool):
+            return enabled
+        return False
+
+    def __set_enabled(self, value: bool) -> None:
+        if value:
+            material = self.find_material()
+            material.use_nodes = True
+        self["enabled"] = bool(value)
+
+    enabled: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Use VRM Material",  # noqa: F722
+        get=__get_enabled,
+        set=__set_enabled,
+    )

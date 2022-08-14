@@ -247,13 +247,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         # MToon 1.0 downgraded
         for mat in used_materials:
-            ext = mat.vrm_addon_extension
-            if not ext.use_vrm_material:
+            mtoon1 = mat.vrm_addon_extension.mtoon1
+            if not mtoon1.enabled:
                 continue
             for texture_info in [
-                ext.mtoon1.pbr_metallic_roughness.base_color_texture,
-                ext.mtoon1.normal_texture,
-                ext.mtoon1.emissive_texture,
+                mtoon1.pbr_metallic_roughness.base_color_texture,
+                mtoon1.normal_texture,
+                mtoon1.emissive_texture,
             ]:
                 source = texture_info.index.source
                 if source and source not in used_images:
@@ -1291,7 +1291,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         for b_mat in search.export_materials(self.export_objects):
             material_properties_dict: Dict[str, Any] = {}
             pbr_dict: Dict[str, Any] = {}
-            if b_mat.vrm_addon_extension.use_vrm_material:
+            if b_mat.vrm_addon_extension.mtoon1.enabled:
                 material_properties_dict, pbr_dict = make_mtoon1_downgraded_mat_dict(
                     b_mat
                 )

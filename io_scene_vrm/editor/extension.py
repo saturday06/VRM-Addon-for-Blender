@@ -103,10 +103,6 @@ def update_internal_cache() -> None:
 
 
 class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    use_vrm_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Use VRM Material"  # noqa: F722
-    )
-
     mtoon1: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MaterialPropertyGroup  # noqa: F722
     )

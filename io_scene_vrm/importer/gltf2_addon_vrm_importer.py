@@ -199,9 +199,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if not isinstance(name, str):
             name = "Material"
         material = bpy.data.materials.new(name)
-        ext = material.vrm_addon_extension
-        ext.use_vrm_material = True
-        root = ext.mtoon1
+        root = material.vrm_addon_extension.mtoon1
+        root.enabled = True
         mtoon = root.extensions.vrmc_materials_mtoon
 
         pbr_metallic_roughness_dict = gltf_dict.get("pbrMetallicRoughness")
