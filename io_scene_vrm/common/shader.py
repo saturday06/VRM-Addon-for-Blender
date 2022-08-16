@@ -6,7 +6,7 @@ import bgl
 import bpy
 
 __file_names = [
-    "mtoon_unversioned.blend",
+    "mtoon0.blend",
     "transparent_z_write.blend",
     "gltf.blend",
 ]
