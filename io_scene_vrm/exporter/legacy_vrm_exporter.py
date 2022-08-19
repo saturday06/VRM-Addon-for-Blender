@@ -561,7 +561,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict["floatProperties"] = {}
             mtoon_float_dict: Dict[str, float] = mtoon_dict["floatProperties"]
             mtoon_dict["vectorProperties"] = {}
-            mtoon_vector_dict: Dict[str, List[float]] = mtoon_dict["vectorProperties"]
+            mtoon_vector_dict: Dict[str, Sequence[float]] = mtoon_dict[
+                "vectorProperties"
+            ]
             mtoon_dict["textureProperties"] = {}
             mtoon_texture_dict = mtoon_dict["textureProperties"]
 
@@ -952,11 +954,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pbr_tex_add("normalTexture", "normal")
             pbr_tex_add("emissiveTexture", "emissive_texture")
             pbr_tex_add("occlusionTexture", "occlusion_texture")
-            emissive_factor = shader.get_rgba_val(gltf_shader_node, "emissive_color")
+            emissive_factor = shader.get_rgb_val(gltf_shader_node, "emissive_color")
             if emissive_factor is None:
-                emissive_factor = [0, 0, 0]
-            else:
-                emissive_factor = emissive_factor[0:3]
+                emissive_factor = (0, 0, 0)
             pbr_dict["emissiveFactor"] = emissive_factor
 
             return gltf_dict, pbr_dict

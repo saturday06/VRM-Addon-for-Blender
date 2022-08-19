@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Sequence, Union
 
 
 class AbstractBaseVrmExporter(ABC):
@@ -11,7 +11,7 @@ class AbstractBaseVrmExporter(ABC):
 def assign_dict(
     target: Dict[str, Any],
     key: str,
-    value: Optional[Union[int, float, Dict[str, Any], List[Any]]],
+    value: Optional[Union[int, float, Dict[str, Any], Sequence[Any]]],
     default_value: Any = None,
 ) -> bool:
     if value is None or value == default_value:

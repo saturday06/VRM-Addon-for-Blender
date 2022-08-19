@@ -1,6 +1,6 @@
 from collections import abc
 from os.path import dirname, join
-from typing import Any, List, Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import bgl
 import bpy
@@ -112,7 +112,7 @@ def get_float_value(
     return float_or_none(outputs[0].default_value)
 
 
-def rgba_or_none(vs: Any) -> Optional[List[float]]:
+def rgba_or_none(vs: Any) -> Optional[Tuple[float, float, float, float]]:
     if not isinstance(vs, abc.Iterable):
         return None
 
@@ -130,12 +130,12 @@ def rgba_or_none(vs: Any) -> Optional[List[float]]:
     if len(rgba) != 4:
         return None
 
-    return rgba
+    return (rgba[0], rgba[1], rgba[2], rgba[3])
 
 
 def get_rgba_val(
     shader_node: bpy.types.Node, input_socket_name: str
-) -> Optional[List[float]]:
+) -> Optional[Tuple[float, float, float, float]]:
     socket = shader_node.inputs.get(input_socket_name)
     if not socket:
         return None
@@ -157,7 +157,7 @@ def get_rgba_val(
     return rgba_or_none(outputs[0].default_value)
 
 
-def rgb_or_none(vs: Any) -> Optional[List[float]]:
+def rgb_or_none(vs: Any) -> Optional[Tuple[float, float, float]]:
     if not isinstance(vs, abc.Iterable):
         return None
 
@@ -175,17 +175,17 @@ def rgb_or_none(vs: Any) -> Optional[List[float]]:
     if len(rgb) != 3:
         return None
 
-    return rgb
+    return (rgb[0], rgb[1], rgb[2])
 
 
 def get_rgb_val(
     shader_node: bpy.types.Node, input_socket_name: str
-) -> Optional[List[float]]:
+) -> Optional[Tuple[float, float, float]]:
     socket = shader_node.inputs.get(input_socket_name)
     if not socket:
         return None
 
-    default_value = rgba_or_none(socket.default_value)
+    default_value = rgb_or_none(socket.default_value)
 
     links = socket.links
     if not links:
