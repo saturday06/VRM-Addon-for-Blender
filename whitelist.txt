@@ -8,7 +8,9 @@ accessor
 accessors
 addon
 addons
+albedo
 alphatest
+anisotropic
 arcus
 array4
 askopenfilename
@@ -22,7 +24,9 @@ bmesh
 bone1
 bone2
 bpy
+bsdf
 bugyyyyyyyyyyyyyyyyy
+bytecode
 calc
 cn
 colorspace
@@ -30,6 +34,7 @@ commonpath
 compat
 const
 constraint1
+coord
 cullmode
 customdata
 depsgraph
@@ -79,10 +84,12 @@ hrad
 hx
 icyp
 idname
+ies
 ih
 ik
 ikc
 img
+instancer
 inv
 invisibles
 ja
@@ -120,6 +127,7 @@ msgctxt
 mtoon
 mtoon0
 mtoon1
+musgrave
 ngon
 normalmap
 normals
@@ -131,6 +139,7 @@ otogai
 ou
 out2
 parameteri
+parametrization
 pathsep
 pbr
 pbrmat
@@ -226,6 +235,7 @@ vid
 view3
 view3d
 viewport
+voronoi
 vrm
 vrm0
 vrm0firstpersonboneoffsetgizmogroup
@@ -239,6 +249,7 @@ w0201
 webbrowser
 winapi
 wip
+wireframe
 writedir
 writejsonpath
 xy

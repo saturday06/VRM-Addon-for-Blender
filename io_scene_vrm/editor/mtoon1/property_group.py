@@ -1,8 +1,10 @@
 import functools
 from collections import abc
-from typing import List
+from typing import Any, List, Optional, Tuple
 
 import bpy
+
+from ...common import shader
 
 
 class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -19,6 +21,52 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
                 return material
 
         raise Exception(f"No matching material: {type(self)} {chain}")
+
+    def get_rgba(
+        self,
+        name: str,
+        default_value: Optional[Tuple[float, float, float, float]] = None,
+    ) -> Tuple[float, float, float, float]:
+        if not default_value:
+            default_value = (0, 0, 0, 0)
+        node = self.find_material().node_tree.nodes.get(name)
+        if not isinstance(node, bpy.types.ShaderNodeRGB):
+            return default_value
+        v = shader.rgba_or_none(node.outputs[0].default_value)
+        if not v:
+            return default_value
+        return v
+
+    def set_rgba(
+        self,
+        value: Any,
+        name: str,
+        default_value: Optional[Tuple[float, float, float, float]] = None,
+    ) -> None:
+        if not default_value:
+            default_value = (0, 0, 0, 0)
+
+        node = self.find_material().node_tree.nodes.get(name)
+        if not isinstance(node, bpy.types.ShaderNodeRGB):
+            return
+
+        if not isinstance(value, abc.Iterable):
+            node.outputs[0].default_value = default_value
+            return
+
+        value = list(value)
+        if len(value) < 4:
+            node.outputs[0].default_value = default_value
+            return
+
+        value = value[0:4]
+        node.outputs[0].default_value = value
+
+    def update_image(self, image: Optional[bpy.types.Image], name: str) -> None:
+        node = self.find_material().node_tree.nodes.get(name)
+        if not isinstance(node, bpy.types.ShaderNodeTexImage):
+            return
+        node.image = image
 
 
 class Mtoon1KhrTextureTransformPropertyGroup(MaterialTraceablePropertyGroup):
@@ -663,15 +711,32 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.pbrMetallicRoughness.schema.json#L9-L26
 class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
+    material_property_chain = ["pbr_metallic_roughness"]
+
+    def __get_base_color_factor(self) -> Tuple[float, float, float, float]:
+        return self.get_rgba("pbrMetallicRoughness.baseColorFactor")
+
+    def __set_base_color_factor(self, value: Any) -> None:
+        self.set_rgba(value, "pbrMetallicRoughness.baseColorFactor")
+
+    def __update_base_color_texture(self, _context: bpy.types.Context) -> None:
+        self.update_image(
+            self.base_color_texture, "pbrMetallicRoughness.baseColorTexture"
+        )
+
     base_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=4,
         subtype="COLOR",  # noqa: F821
         default=(0, 0, 0, 0),
         min=0,
         max=1,
+        get=__get_base_color_factor,
+        set=__set_base_color_factor,
     )
+
     base_color_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1BaseColorTextureInfoPropertyGroup,  # noqa: F722
+        update=__update_base_color_texture,
     )
 
 
@@ -768,8 +833,9 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
         soft_max=1,
     )
 
+    OUTLINE_WIDTH_MODE_NONE = "none"
     outline_width_mode_items = [
-        ("none", "None", ""),
+        (OUTLINE_WIDTH_MODE_NONE, "None", ""),
         ("worldCoordinates", "World Coordinates", ""),
         ("screenCoordinates", "Screen Coordinates", ""),
     ]
@@ -934,16 +1000,33 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         material = self.find_material()
         if not material.use_nodes:
             return False
-        enabled = self.get("enabled")
-        if isinstance(enabled, bool):
-            return enabled
-        return False
+        return bool(self.get("enabled"))
 
     def __set_enabled(self, value: bool) -> None:
-        if value:
-            material = self.find_material()
+        material = self.find_material()
+
+        if not value:
+            if self.get("enabled") and material.use_nodes:
+                material.node_tree.links.clear()
+                material.node_tree.nodes.clear()
+                material.node_tree.inputs.clear()
+                material.node_tree.outputs.clear()
+                shader_node = material.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+                output_node = material.node_tree.nodes.new("ShaderNodeOutputMaterial")
+                material.node_tree.links.new(
+                    output_node.inputs["Surface"], shader_node.outputs["BSDF"]
+                )
+            self["enabled"] = False
+            return
+
+        if not material.use_nodes:
             material.use_nodes = True
-        self["enabled"] = bool(value)
+        if self.get("enabled"):
+            return
+
+        shader.load_mtoon1_shader(material)
+
+        self["enabled"] = True
 
     enabled: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Use VRM Material",  # noqa: F722
