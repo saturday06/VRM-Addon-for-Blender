@@ -2,6 +2,8 @@ from typing import Optional
 
 import bpy
 
+from .property_group import Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup
+
 
 def draw_texture_info(
     name: str,
@@ -123,14 +125,18 @@ class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noq
         layout.label(text="Outline", translate=False)
         outline_box = layout.box().column()
         outline_box.prop(mtoon1, "outline_width_mode")
-        outline_width_multiply_texture_layout = draw_texture_info(
-            "Outline Width", outline_box, mtoon1, "outline_width_multiply_texture"
-        )
-        outline_width_multiply_texture_layout.prop(
-            mtoon1, "outline_width_factor", slider=True, text=""
-        )
-        outline_box.row().prop(mtoon1, "outline_color_factor")
-        outline_box.prop(mtoon1, "outline_lighting_mix_factor", slider=True)
+        if (
+            mtoon1.outline_width_mode
+            != Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
+        ):
+            outline_width_multiply_texture_layout = draw_texture_info(
+                "Outline Width", outline_box, mtoon1, "outline_width_multiply_texture"
+            )
+            outline_width_multiply_texture_layout.prop(
+                mtoon1, "outline_width_factor", slider=True, text=""
+            )
+            outline_box.row().prop(mtoon1, "outline_color_factor")
+            outline_box.prop(mtoon1, "outline_lighting_mix_factor", slider=True)
 
         layout.label(text="UV Animation", translate=False)
         uv_animation_box = layout.box().column()
