@@ -103,7 +103,7 @@ def copy_node(
         to_output = to_node.outputs[index]
         copy_socket(from_output, to_output)
     if from_node.parent:
-        to_node.parent = from_to[from_node.parent]
+        to_node.parent = from_to.get(from_node.parent)
     to_node.select = from_node.select
     to_node.show_options = from_node.show_options
     to_node.show_preview = from_node.show_preview
@@ -310,23 +310,31 @@ def copy_node_tree(
         if not from_link.is_valid:
             continue
 
-        input_socket_index = [
-            i
+        input_socket_index = {
+            0: i
             for i, s in enumerate(from_link.to_node.inputs)
             if s == from_link.to_socket
-        ][0]
-        input_node = from_to[from_link.to_node]
+        }.get(0)
+        if input_socket_index is None:
+            continue
+        input_node = from_to.get(from_link.to_node)
+        if input_node is None:
+            continue
         input_socket = input_node.inputs[input_socket_index]
         if not input_socket:
             print(f"[VRM Add-on] No input socket: {from_link.to_socket.name}")
             continue
 
-        output_socket_index = [
-            i
+        output_socket_index = {
+            0: i
             for i, s in enumerate(from_link.from_node.outputs)
             if s == from_link.from_socket
-        ][0]
-        output_node = from_to[from_link.from_node]
+        }.get(0)
+        if output_socket_index is None:
+            continue
+        output_node = from_to.get(from_link.from_node)
+        if output_node is None:
+            continue
         output_socket = output_node.outputs[output_socket_index]
         if not output_socket:
             print(f"[VRM Add-on] No output socket: {from_link.from_socket.name}")
