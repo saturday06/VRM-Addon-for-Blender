@@ -182,7 +182,7 @@ def copy_node(
         # to_node.image = from_node.image
         if from_node.image:
             print(
-                "[VRM Add-on] Importing SHaderNodeTexImage.image doesn't be supported yet"
+                "[VRM Add-on] Importing ShaderNodeTexImage.image doesn't be supported yet"
             )
         to_node.interpolation = from_node.interpolation
         to_node.projection = from_node.projection
