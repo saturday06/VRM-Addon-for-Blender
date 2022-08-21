@@ -59,6 +59,11 @@ def copy_socket(
     to_socket.show_expanded = from_socket.show_expanded
     to_socket.type = from_socket.type
 
+
+def copy_socket_default_value(
+    from_socket: bpy.types.NodeSocket,
+    to_socket: bpy.types.NodeSocket,
+) -> None:
     if isinstance(
         from_socket,
         (
@@ -86,6 +91,18 @@ def copy_socket(
         ),
     ):
         to_socket.default_value = from_socket.default_value
+
+
+def copy_node_socket_default_value(
+    from_node: bpy.types.Node,
+    to_node: bpy.types.Node,
+) -> None:
+    for index, from_input in enumerate(from_node.inputs):
+        to_input = to_node.inputs[index]
+        copy_socket_default_value(from_input, to_input)
+    for index, from_output in enumerate(from_node.outputs):
+        to_output = to_node.outputs[index]
+        copy_socket_default_value(from_output, to_output)
 
 
 def copy_node(
@@ -341,6 +358,9 @@ def copy_node_tree(
             continue
 
         to_node_tree.links.new(input_socket, output_socket)
+
+    for from_node, to_node in from_to.items():
+        copy_node_socket_default_value(from_node, to_node)
 
     # 親子関係の辻褄が合った状態でもう一度場所を設定することで完全にノードの位置を復元できる
     for from_node, to_node in from_to.items():

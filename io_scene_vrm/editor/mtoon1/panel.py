@@ -49,6 +49,10 @@ class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noq
     bl_region_type = "WINDOW"
     bl_context = "material"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return bool(context.material)
+
     def draw(self, context: bpy.types.Context) -> None:
         ext = context.material.vrm_addon_extension
         layout = self.layout.column()
@@ -115,7 +119,10 @@ class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noq
         rim_lighting_box = layout.box().column()
         draw_texture_info("Rim Color", rim_lighting_box, mtoon1, "rim_multiply_texture")
         rim_lighting_box.prop(mtoon1, "rim_lighting_mix_factor", slider=True)
-        draw_texture_info("Matcap Rim", rim_lighting_box, mtoon1, "matcap_texture")
+        matcap_texture_layout = draw_texture_info(
+            "Matcap Rim", rim_lighting_box, mtoon1, "matcap_texture"
+        )
+        matcap_texture_layout.prop(mtoon1, "matcap_factor", text="")
         rim_lighting_box.row().prop(mtoon1, "parametric_rim_color_factor")
         rim_lighting_box.prop(
             mtoon1, "parametric_rim_fresnel_power_factor", slider=True
