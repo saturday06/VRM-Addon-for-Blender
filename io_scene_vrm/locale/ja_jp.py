@@ -257,4 +257,8 @@ translation_dictionary = {
     + " - ターゲットはローカル空間\n"
     + " - オーナーはローカル空間\n"
     + " - 複数が条件を満たす場合は一番上にあるもの\n",
+    (
+        "*",
+        "This VRM uses Draco compression. Unable to decompress.",
+    ): "Draco圧縮されたVRMは未対応です",
 }

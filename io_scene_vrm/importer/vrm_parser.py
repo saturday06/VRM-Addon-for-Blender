@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import bgl
 import bpy
+from bpy.app.translations import pgettext
 
 from ..common import deep
 from ..common.binary_reader import BinaryReader
@@ -397,7 +398,7 @@ class VrmParser:
             and "KHR_DRACO_MESH_COMPRESSION" in self.json_dict["extensionsRequired"]
         ):
             raise ValueError(
-                "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
+                pgettext("This VRM uses Draco compression. Unable to decompress.")
             )
 
         if self.license_validation:
