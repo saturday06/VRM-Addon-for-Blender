@@ -184,10 +184,6 @@ def copy_node(
     if isinstance(from_node, bpy.types.ShaderNodeTexImage):
         to_node.extension = from_node.extension
         # to_node.image = from_node.image
-        if from_node.image:
-            print(
-                "[VRM Add-on] Importing ShaderNodeTexImage.image doesn't be supported yet"
-            )
         to_node.interpolation = from_node.interpolation
         to_node.projection = from_node.projection
         to_node.projection_blend = from_node.projection_blend
