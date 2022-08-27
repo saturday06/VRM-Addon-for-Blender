@@ -31,7 +31,7 @@ def load_mtoon1_shader(material: bpy.types.Material) -> None:
         directory=path,
     )
     if append_result != {"FINISHED"}:
-        raise Exception(
+        raise RuntimeError(
             f"Failed to append MToon 1.0 template material: {append_result}"
         )
 

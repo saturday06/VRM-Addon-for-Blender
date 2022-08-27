@@ -122,7 +122,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
     def float_prop(self, name: str) -> float:
         prop = getattr(self, name)
         if not isinstance(prop, float):
-            raise Exception(f"prop {name} is not float")
+            raise ValueError(f"prop {name} is not float")
         return prop
 
     def head_size(self) -> float:

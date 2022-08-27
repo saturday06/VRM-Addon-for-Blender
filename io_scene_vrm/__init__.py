@@ -36,7 +36,7 @@ def register() -> None:
     import bpy
 
     if bpy.app.version < bl_info["blender"]:
-        raise Exception(
+        raise NotImplementedError(
             f"This add-on doesn't support Blender version less than {bl_info['blender']} "
             + f"but the current version is {bpy.app.version}"
         )

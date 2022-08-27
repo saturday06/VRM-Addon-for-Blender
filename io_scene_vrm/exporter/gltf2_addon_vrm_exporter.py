@@ -130,7 +130,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         mesh.from_pydata(vertices, edges, faces)
         mesh.update()
         if mesh.validate():
-            print("INVALID GEOMETRY")
+            raise ValueError("Invalid geometry")
         obj = bpy.data.objects.new(self.export_id + "_mesh_object", mesh)
         for index, bone_name in enumerate(self.armature.data.bones.keys()):
             vertex_group = obj.vertex_groups.new(name=bone_name)
@@ -526,7 +526,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 elif roll_constraint.use_z:
                     roll_axis = "Z"
                 else:
-                    raise Exception("Unsupported roll axis")
+                    raise ValueError("Unsupported roll axis")
                 constraint_dict["roll"] = {
                     "source": source_index,
                     "rollAxis": roll_axis,

@@ -33,42 +33,42 @@ class BinaryReader:
         # unpackは内容の個数に関わらずタプルで返すので[0]が必要
         result = struct.unpack("<I", self.data[self.pos : self.pos + 4])[0]
         if not isinstance(result, int):
-            raise Exception()
+            raise ValueError()
         self.pos += 4
         return result
 
     def read_int(self) -> int:
         result = struct.unpack("<i", self.data[self.pos : self.pos + 4])[0]
         if not isinstance(result, int):
-            raise Exception()
+            raise ValueError()
         self.pos += 4
         return result
 
     def read_unsigned_short(self) -> int:
         result = struct.unpack("<H", self.data[self.pos : self.pos + 2])[0]
         if not isinstance(result, int):
-            raise Exception()
+            raise ValueError()
         self.pos += 2
         return result
 
     def read_short(self) -> int:
         result = struct.unpack("<h", self.data[self.pos : self.pos + 2])[0]
         if not isinstance(result, int):
-            raise Exception()
+            raise ValueError()
         self.pos += 2
         return result
 
     def read_float(self) -> float:
         result = struct.unpack("<f", self.data[self.pos : self.pos + 4])[0]
         if not isinstance(result, float):
-            raise Exception()
+            raise ValueError()
         self.pos += 4
         return result
 
     def read_unsigned_byte(self) -> int:
         result = struct.unpack("<B", self.data[self.pos : self.pos + 1])[0]
         if not isinstance(result, int):
-            raise Exception()
+            raise ValueError()
         self.pos += 1
         return result
 
@@ -85,8 +85,7 @@ class BinaryReader:
             return self.read_float()
         if data_type == bgl.GL_UNSIGNED_BYTE:
             return self.read_unsigned_byte()
-        print(f"unsupported type : {data_type}")
-        raise Exception
+        raise ValueError(f"Unsupported type : {data_type}")
 
 
 if __name__ == "__main__":

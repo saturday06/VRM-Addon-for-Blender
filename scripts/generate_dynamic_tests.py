@@ -113,10 +113,10 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
             os.path.join(test_src_dir, path),
         )
         if spec is None:
-            raise Exception("Failed to create module spec")
+            raise RuntimeError("Failed to create module spec")
         mod = importlib.util.module_from_spec(spec)
         if spec.loader is None:
-            raise Exception("Failed to create module spec loader")
+            raise RuntimeError("Failed to create module spec loader")
         spec.loader.exec_module(mod)
 
         func: Any = None
@@ -141,7 +141,7 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
             if method_name not in existing_method_names:
                 break
         if method_name in existing_method_names:
-            raise Exception(f"Test method name {method_name}_index is duplicated")
+            raise ValueError(f"Test method name {method_name}_index is duplicated")
         existing_method_names.append(method_name)
 
         escaped = [rf"{a}" for a in [path] + args]
@@ -158,7 +158,7 @@ def generate_dynamic_test(test_src_dir: str, path: str) -> None:
     )
     path_without_ext = re.sub("\\.py$", "", path)
     if not re.match("^[A-Za-z0-9_]+$", path_without_ext):
-        raise Exception(f"Invalid file name: {path}")
+        raise ValueError(f"Invalid file name: {path}")
     class_name = "".join(
         word.title()
         for word in re.sub("blender_test_", "", path_without_ext).split("_")

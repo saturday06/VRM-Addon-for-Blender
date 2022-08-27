@@ -190,7 +190,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
     ) -> None:
         armature = self.armature
         if armature is None:
-            raise Exception("armature is None")
+            raise ValueError("armature is None")
         self.primitive_obj_dict = {
             pymesh[0].object_id: [] for pymesh in self.parse_result.meshes
         }
@@ -550,7 +550,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
     def set_bone_roll(self) -> None:
         armature = self.armature
         if armature is None:
-            raise Exception("armature is None")
+            raise ValueError("armature is None")
 
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -563,7 +563,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         def set_children_roll(bone_name: str, roll: float) -> None:
             armature = self.armature
             if armature is None:
-                raise Exception("armature is None")
+                raise ValueError("armature is None")
 
             if bone_name in armature.data and armature.data[bone_name] != "":
                 bone = armature.data.edit_bones[armature.data[bone_name]]

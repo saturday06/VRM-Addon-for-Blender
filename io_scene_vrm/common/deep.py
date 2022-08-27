@@ -117,4 +117,4 @@ def diff(
             ]
         return []
 
-    raise Exception(f"{path}: unexpected type left={type(left)} right={type(right)}")
+    raise ValueError(f"{path}: unexpected type left={type(left)} right={type(right)}")

@@ -51,7 +51,7 @@ class BaseBlenderTestCase(TestCase):
             + "=================="
         )
         if completed_process.returncode != 0:
-            raise Exception("Failed to execute command:\n" + output)
+            raise RuntimeError("Failed to execute command:\n" + output)
 
         for line in stdout_str.splitlines():
             if not line.startswith("Blender"):
@@ -59,7 +59,7 @@ class BaseBlenderTestCase(TestCase):
             self.major_minor = ".".join(line.split(" ")[1].split(".")[:2])
             return
 
-        raise Exception(f"Failed to detect Blender Version:\n---\n{stdout_str}\n---")
+        raise RuntimeError(f"Failed to detect Blender Version:\n---\n{stdout_str}\n---")
 
     @staticmethod
     def process_output_to_str(process_output: Optional[bytes]) -> str:
@@ -110,7 +110,7 @@ class BaseBlenderTestCase(TestCase):
             default_path = "/Applications/Blender.app/Contents/MacOS/Blender"
             if os.path.exists(default_path):
                 return default_path
-        raise Exception(
+        raise RuntimeError(
             "Failed to discover blender executable. "
             + "Please set blender executable location to "
             + 'environment variable "BLENDER_VRM_TEST_BLENDER_PATH"'

@@ -75,7 +75,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
     def specification(self) -> HumanBoneSpecification:
         name = HumanBoneName.from_str(self.bone)
         if name is None:
-            raise Exception(f'HumanBone "{self.bone}" is invalid')
+            raise ValueError(f'HumanBone "{self.bone}" is invalid')
         return HumanBoneSpecifications.get(name)
 
 

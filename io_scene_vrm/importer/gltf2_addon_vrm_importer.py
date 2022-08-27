@@ -1653,7 +1653,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
         armature = self.armature
         if armature is None:
-            raise Exception("armature is None")
+            raise ValueError("armature is None")
 
         collider_index_to_collider = self.load_spring_bone1_colliders(
             spring_bone, spring_bone_dict, armature.data.name

@@ -90,7 +90,7 @@ class MtoonGlsl:
             tex_name += "_alpha"
         main_node = self.main_node
         if main_node is None:
-            raise Exception("main node is None")
+            raise ValueError("main node is None")
         links = main_node.inputs[tex_name].links
         if links and links[0].from_node.image is not None:
             if (
@@ -109,12 +109,12 @@ class MtoonGlsl:
         if default_color == "normal":
             self.normal_texture.gl_load()
             return self.normal_texture
-        raise Exception
+        raise ValueError
 
     def get_value(self, val_name: str) -> float:
         main_node = self.main_node
         if main_node is None:
-            raise Exception("main node is None")
+            raise ValueError("main node is None")
         if val_name not in main_node.inputs:
             return 0.0
         if main_node.inputs[val_name].links:
@@ -126,7 +126,7 @@ class MtoonGlsl:
     def get_color(self, vec_name: str) -> List[float]:
         main_node = self.main_node
         if main_node is None:
-            raise Exception("main node is None")
+            raise ValueError("main node is None")
         if vec_name not in main_node.inputs:
             return [0.0, 0.0, 0.0, 0.0]
         if main_node.inputs[vec_name].links:
@@ -240,7 +240,7 @@ class GlslDrawObj:
         lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
         if not lights:
             GlslDrawObj.draw_func_remove()
-            raise Exception("Please add a light to scene")
+            raise ValueError("Please add a light to scene")
         glsl_draw_obj.light = lights[0]
         for obj in glsl_draw_obj.objs:
             for mat_slot in obj.material_slots:
@@ -270,7 +270,7 @@ class GlslDrawObj:
 
         def build_mesh(obj: bpy.types.Object) -> GlMesh:
             if glsl_draw_obj is None:
-                raise Exception("glsl draw obj is None")
+                raise ValueError("glsl draw obj is None")
 
             scene_mesh = GlMesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
@@ -294,7 +294,7 @@ class GlslDrawObj:
 
             def job_pos() -> Dict[Any, Any]:
                 if scene_mesh.index_per_mat is None:
-                    raise Exception("scene mesh index per mat is None")
+                    raise ValueError("scene mesh index per mat is None")
                 return {
                     k: [
                         tmp_mesh.vertices[vid].co
@@ -420,11 +420,11 @@ class GlslDrawObj:
         else:
             glsl_draw_obj = GlslDrawObj.instance
         if glsl_draw_obj is None:
-            raise Exception("glsl draw obj is None")
+            raise ValueError("glsl draw obj is None")
         light = glsl_draw_obj.light
         if light is None:
             GlslDrawObj.draw_func_remove()
-            raise Exception("no light exists")
+            raise ValueError("no light exists")
 
         model_offset = Matrix.Translation((glsl_draw_obj.draw_x_offset, 0, 0))
         light_pos = [
@@ -432,16 +432,16 @@ class GlslDrawObj:
         ]
         batches = glsl_draw_obj.batches
         if batches is None:
-            raise Exception("batches is None")
+            raise ValueError("batches is None")
         depth_shader = glsl_draw_obj.depth_shader
         if depth_shader is None:
-            raise Exception("depth shader is None")
+            raise ValueError("depth shader is None")
         toon_shader = glsl_draw_obj.toon_shader
         if toon_shader is None:
-            raise Exception("toon shader is None")
+            raise ValueError("toon shader is None")
         offscreen = glsl_draw_obj.offscreen
         if offscreen is None:
-            raise Exception("offscreen is None")
+            raise ValueError("offscreen is None")
         # need bone etc changed only update
         depth_matrix = None
 

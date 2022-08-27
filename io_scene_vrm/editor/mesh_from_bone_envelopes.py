@@ -37,7 +37,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
         for node in material.node_tree.nodes:
             if node.bl_idname == "ShaderNodeOutputMaterial":
                 return node
-        raise Exception(f'No "ShaderNodeOutputMaterial" node in {material}')
+        raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
 
     def build_mesh(self, context: bpy.types.Context) -> None:
         if bpy.context.active_object.type != "ARMATURE":

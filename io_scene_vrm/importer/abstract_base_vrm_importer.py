@@ -316,7 +316,7 @@ class AbstractBaseVrmImporter(ABC):
             for node in material.node_tree.nodes:
                 if node.bl_idname == "ShaderNodeOutputMaterial":
                     return node
-        raise Exception(f'No "ShaderNodeOutputMaterial" node in {material}')
+        raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
 
     def make_material(self) -> None:
         # 適当なので要調整
@@ -1194,7 +1194,7 @@ class AbstractBaseVrmImporter(ABC):
             return
         armature = self.armature
         if armature is None:
-            raise Exception("armature is None")
+            raise ValueError("armature is None")
 
         collider_group_dicts = secondary_animation_dict.get("colliderGroups")
         if not isinstance(collider_group_dicts, abc.Iterable):

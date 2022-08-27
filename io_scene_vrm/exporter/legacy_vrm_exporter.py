@@ -80,7 +80,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     self.export_objects.append(obj)
                     self.armature = obj
             if not self.armature:
-                raise Exception("Failed to generate default armature")
+                raise RuntimeError("Failed to generate default armature")
             self.use_dummy_armature = True
         migration.migrate(self.armature.name, defer=False)
 
@@ -782,7 +782,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             )
             vrm_version = self.vrm_version
             if vrm_version is None:
-                raise Exception("vrm version is None")
+                raise ValueError("vrm version is None")
             if vrm_version.startswith("1."):
                 mtoon_ext_dict: Dict[str, Any] = {}
                 mtoon_ext_dict["properties"] = {}
@@ -1334,7 +1334,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.json_dict.update({"materials": glb_material_list})
         vrm_version = self.vrm_version
         if vrm_version is None:
-            raise Exception("vrm version is None")
+            raise ValueError("vrm version is None")
         if vrm_version.startswith("0."):
             self.json_dict.update(
                 {"extensions": {"VRM": {"materialProperties": vrm_material_props_list}}}
@@ -1347,7 +1347,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             node_id = node_id_dict[node_name]
             joints = self.json_dict["skins"][0]["joints"]
             if not isinstance(joints, list):
-                raise Exception("joints is not list")
+                raise RuntimeError("joints is not list")
             return joints.index(node_id)
         except (ValueError, KeyError):
             print(f"{node_name} bone may be not exist")
@@ -1497,7 +1497,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.json_dict["meshes"] = []
         vrm_version = self.vrm_version
         if vrm_version is None:
-            raise Exception("vrm version is None")
+            raise ValueError("vrm version is None")
 
         meshes = [
             obj
@@ -1806,7 +1806,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                     bone_name is None
                                     or bone_name not in self.armature.data.bones
                                 ):
-                                    raise Exception("No hips bone found")
+                                    raise ValueError("No hips bone found")
                             bone_index = next(
                                 index
                                 for index, node in enumerate(self.json_dict["nodes"])
@@ -1951,9 +1951,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
                 if is_skin_mesh:
                     if joints_glb is None:
-                        raise Exception("joints glb is None")
+                        raise ValueError("joints glb is None")
                     if weights_glb is None:
-                        raise Exception("weights glb is None")
+                        raise ValueError("weights glb is None")
                     primitive["attributes"].update(
                         {
                             "JOINTS_0": joints_glb.accessor_id,
@@ -1969,7 +1969,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if shape_pos_bin_dict:
                     vrm_version = self.vrm_version
                     if vrm_version is None:
-                        raise Exception("vrm version is None")
+                        raise ValueError("vrm version is None")
                     if vrm_version.startswith("0."):
                         if morph_pos_glbs and morph_normal_glbs:
                             primitive["targets"] = [
@@ -2038,7 +2038,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         vrm_extension_dict: Dict[str, Any] = {}
         vrm_version = self.vrm_version
         if vrm_version is None:
-            raise Exception("vrm version is None")
+            raise ValueError("vrm version is None")
         if vrm_version.startswith("0."):
             vrm_extension_dict["exporterVersion"] = self.exporter_name()
         vrm_extension_dict["specVersion"] = self.vrm_version

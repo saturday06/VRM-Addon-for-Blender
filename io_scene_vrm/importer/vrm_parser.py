@@ -393,7 +393,7 @@ class VrmParser:
             and "extensionsRequired" in self.json_dict
             and "KHR_DRACO_MESH_COMPRESSION" in self.json_dict["extensionsRequired"]
         ):
-            raise Exception(
+            raise ValueError(
                 "This VRM uses Draco compression. Unable to decompress. Draco圧縮されたVRMは未対応です"
             )
 
@@ -434,7 +434,7 @@ class VrmParser:
 
         human_bones = deep.get(vrm0_dict, ["humanoid", "humanBones"], [])
         if not isinstance(human_bones, list):
-            raise Exception()
+            raise ValueError("No human bones")
 
         hips_node_index: Optional[int] = None
         for human_bone in human_bones:
@@ -557,9 +557,7 @@ class VrmParser:
                 if primitive.get("mode", 4) != bgl.GL_TRIANGLES:
                     # TODO その他メッシュタイプ対応
                     primitive_mode = primitive.get("mode")
-                    raise Exception(
-                        f"Unsupported polygon type(:{primitive_mode}) Exception"
-                    )
+                    raise ValueError(f"Unsupported polygon type(:{primitive_mode})")
                 scalar_face_indices = self.decoded_binary[primitive["indices"]]
                 while len(scalar_face_indices) % 3 != 0:
                     print(f"meshes[{n}]primitives[{j}] length is not a multiple of 3")

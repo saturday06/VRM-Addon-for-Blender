@@ -15,7 +15,7 @@ def version() -> Tuple[int, int, int]:
         or not isinstance(v[1], int)
         or not isinstance(v[2], int)
     ):
-        raise Exception(f"{v} is not valid type")
+        raise RuntimeError(f"{v} is not valid type")
     return (v[0], v[1], v[2])
 
 

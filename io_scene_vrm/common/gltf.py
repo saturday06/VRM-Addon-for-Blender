@@ -22,11 +22,11 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     reader = BinaryReader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
-        raise Exception(f"glTF header signature not found: #{magic}")
+        raise ValueError(f"glTF header signature not found: #{magic}")
 
     version = reader.read_unsigned_int()
     if version != 2:
-        raise Exception(
+        raise ValueError(
             f"version #{version} found. This plugin only supports version 2"
         )
 
@@ -39,7 +39,7 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
         # print(size)
 
         if json_str is not None and body is not None:
-            raise Exception(
+            raise ValueError(
                 "This VRM has multiple chunks, this plugin reads one chunk only."
             )
 
@@ -59,14 +59,14 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
             json_str = chunk_data.decode("utf-8")  # blenderのpythonが古く自前decode要す
             continue
 
-        raise Exception(f"unknown chunk_type: {chunk_type}")
+        raise ValueError(f"unknown chunk_type: {chunk_type}")
 
     if not json_str:
-        raise Exception("failed to read json chunk")
+        raise ValueError("failed to read json chunk")
 
     json_obj = json.loads(json_str)
     if not isinstance(json_obj, dict):
-        raise Exception("VRM has invalid json: " + str(json_obj))
+        raise ValueError("VRM has invalid json: " + str(json_obj))
     return json_obj, body if body else bytes()
 
 

@@ -288,7 +288,7 @@ classes = [
 def register(init_version: Any) -> None:
     # Sanity check
     if init_version != version.version():
-        raise Exception(
+        raise AssertionError(
             f"Sanity error: version mismatch: {init_version} != {version.version()}"
         )
 

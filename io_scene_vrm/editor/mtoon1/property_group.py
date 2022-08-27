@@ -20,7 +20,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             if functools.reduce(getattr, chain, ext) == self:
                 return material
 
-        raise Exception(f"No matching material: {type(self)} {chain}")
+        raise RuntimeError(f"No matching material: {type(self)} {chain}")
 
     def get_rgba(
         self,
@@ -924,7 +924,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             return self.ALPHA_MODE_MASK_VALUE
         if blend_method in ["HASHED", "BLEND"]:
             return self.ALPHA_MODE_BLEND_VALUE
-        raise Exception(f"Unexpected blend_method: {blend_method}")
+        raise ValueError(f"Unexpected blend_method: {blend_method}")
 
     def __set_alpha_mode(self, value: int) -> None:
         material = self.find_material()
