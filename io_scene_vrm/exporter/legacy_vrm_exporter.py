@@ -26,6 +26,7 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..common import deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
@@ -34,6 +35,8 @@ from ..editor.mtoon1.property_group import Mtoon1TextureInfoPropertyGroup
 from ..external import io_scene_gltf2_support
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
+
+logger = get_logger(__name__)
 
 
 class LegacyVrmExporter(AbstractBaseVrmExporter):
@@ -949,7 +952,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if img is not None:
                     pbr_dict[texture_type] = {"index": add_texture(*img), "texCoord": 0}
                 else:
-                    print(socket_name)
+                    logger.info(f"No image: {socket_name}")
 
             pbr_tex_add("normalTexture", "normal")
             pbr_tex_add("emissiveTexture", "emissive_texture")
@@ -1094,7 +1097,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     gather_material,
                 )  # pyright: reportMissingImports=false
             except ImportError as e:
-                print(f"Failed to import glTF 2.0 Add-on: {e}")
+                logger.error(f"Failed to import glTF 2.0 Add-on: {e}")
                 return fallback
 
             gltf2_io_material: Optional[Any] = None
@@ -1208,16 +1211,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         ] = gltf2_io_material.pbr_metallic_roughness.roughness_factor
                     pbr_dict["pbrMetallicRoughness"] = pbr_metallic_roughness
             except KeyError as e:
-                traceback.print_exc()
-                print(f"glTF Material KeyError: {e}")
+                logger.info(f"glTF Material KeyError: {e}\n" + traceback.format_exc())
                 return fallback
             except TypeError as e:
-                traceback.print_exc()
-                print(f"glTF Material TypeError: {e}")
+                logger.info(f"glTF Material TypeError: {e}\n" + traceback.format_exc())
                 return fallback
             except Exception as e:
-                traceback.print_exc()
-                print(f"glTF Material Exception: {e}")
+                logger.info(f"glTF Material Exception: {e}\n" + traceback.format_exc())
                 return fallback
 
             return vrm_dict, pbr_dict
@@ -1350,7 +1350,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 raise RuntimeError("joints is not list")
             return joints.index(node_id)
         except (ValueError, KeyError):
-            print(f"{node_name} bone may be not exist")
+            logger.info(f"{node_name} bone may be not exist")
             return -1  # 存在しないボーンを指してる場合は-1を返す
 
     @staticmethod
@@ -1764,7 +1764,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         weight_and_joint_list.sort(reverse=True)
 
                         if len(weight_and_joint_list) > 4:
-                            print(
+                            logger.info(
                                 f"Joints on vertex id:{loop.vert.index} in: {mesh.name} are truncated"
                             )
                             weight_and_joint_list = weight_and_joint_list[:4]
@@ -1773,7 +1773,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         joints = [joint for _, joint in weight_and_joint_list]
 
                         if sum(weights) < float_info.epsilon:
-                            print(
+                            logger.info(
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
                             )
 
@@ -2242,7 +2242,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 bind_dict: Dict[str, Any] = {}
                 mesh = self.mesh_name_to_index.get(bind.mesh.value)
                 if mesh is None:
-                    print(f"{bind.mesh.value} => None")
+                    logger.info(f"{bind.mesh.value} => None")
                     continue
                 bind_dict["mesh"] = mesh
 

@@ -4,7 +4,10 @@ from typing import Dict, List, Optional, Sequence, Tuple, cast
 
 import bpy
 
+from ..common.logging import get_logger
 from ..common.preferences import VrmAddonPreferences, get_preferences
+
+logger = get_logger(__name__)
 
 MESH_CONVERTIBLE_OBJECT_TYPES = [
     "CURVE",
@@ -25,8 +28,8 @@ def export_materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material
                 if isinstance(material, bpy.types.Material) and material not in result:
                     result.append(material)
         else:
-            print(
-                f"WARNING: Unexpected mesh convertible object type: {type(mesh_convertible)}"
+            logger.error(
+                f"Unexpected mesh convertible object type: {type(mesh_convertible)}"
             )
     return result
 

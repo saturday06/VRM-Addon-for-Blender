@@ -4,17 +4,20 @@ import bpy
 from bpy.app.translations import pgettext
 
 from . import version
+from .logging import get_logger
+
+logger = get_logger(__name__)
 
 addon_package_name_temp = ".".join(__name__.split(".")[:-2])
 if not addon_package_name_temp:
     addon_package_name_temp = "VRM_Addon_for_Blender_fallback_key"
-    print(f"VRM Add-on: Failed to detect add-on package name from __name__={__name__}")
+    logger.warning(f"Failed to detect add-on package name from __name__={__name__}")
 
 if "addon_package_name" not in globals():
     addon_package_name = addon_package_name_temp
 elif globals()["addon_package_name"] != addon_package_name_temp:
-    print(
-        "VRM Add-on: Accidentally package name is changed? addon_package_name: "
+    logger.warning(
+        "Accidentally package name is changed? addon_package_name: "
         + str(globals()["addon_package_name"])
         + f" => {addon_package_name_temp}, __name__: "
         + str(globals().get("previous_package_name"))
@@ -87,5 +90,5 @@ def get_preferences(context: bpy.types.Context) -> Optional[bpy.types.AddonPrefe
     addon = context.preferences.addons.get(addon_package_name)
     if addon:
         return addon.preferences
-    print(f"WARNING: Failed to read add-on preferences for {addon_package_name}")
+    logger.warning(f"Failed to read add-on preferences for {addon_package_name}")
     return None

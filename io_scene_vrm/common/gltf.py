@@ -36,8 +36,6 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     json_str: Optional[str] = None
     body: Optional[bytes] = None
     while size > 0:
-        # print(size)
-
         if json_str is not None and body is not None:
             raise ValueError(
                 "This VRM has multiple chunks, this plugin reads one chunk only."

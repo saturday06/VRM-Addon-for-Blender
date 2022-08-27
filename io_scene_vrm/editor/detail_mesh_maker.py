@@ -5,7 +5,10 @@ import bmesh
 import bpy
 from mathutils import Matrix, Vector
 
+from ..common.logging import get_logger
 from .template_mesh_maker import IcypTemplateMeshMaker
+
+logger = get_logger(__name__)
 
 
 class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -135,10 +138,10 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noq
             else:
                 axis_n = (2, 0)
             if divide < 3:
-                print("wrong divide set")
+                logger.error("Wrong divide set")
                 divide = 3
             if angle == 0:
-                print("wrong angle set")
+                logger.error("Wrong angle set")
                 angle = 180
             verts = []
             for i in range(divide + 1):

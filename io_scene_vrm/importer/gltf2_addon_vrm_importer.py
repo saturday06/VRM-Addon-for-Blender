@@ -18,6 +18,7 @@ import mathutils
 from .. import common
 from ..common import convert, deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.logging import get_logger
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..editor import migration
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
@@ -44,6 +45,8 @@ from ..editor.vrm1.property_group import (
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
+
+logger = get_logger(__name__)
 
 
 class RetryUsingLegacyVrmImporter(Exception):
@@ -762,10 +765,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 full_vrm_import_success = True
             except RuntimeError:
-                traceback.print_exc()
-                print(
-                    f'ERROR: Failed to import "{indexed_vrm_filepath}"'
+                logger.info(
+                    f'Failed to import "{indexed_vrm_filepath}"'
                     + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
+                    + traceback.format_exc()
                 )
                 self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
@@ -786,11 +789,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         guess_original_bind_pose=False,
                     )
                 except RuntimeError as e:
-                    traceback.print_exc()
-                    print(
+                    logger.info(
                         f'ERROR: Failed to import "{indexed_vrm_filepath}"'
                         + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
                         + " without animations key"
+                        + traceback.format_exc()
                     )
                     self.cleanup_gltf2_with_indices()
                     if self.parse_result.spec_version_number >= (1, 0):
@@ -943,7 +946,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bpy.data.materials.remove(material)
 
         if self.armature is None:
-            print("Failed to read VRM Humanoid")
+            logger.info("Failed to read VRM Humanoid")
 
     def cleanup_gltf2_with_indices(self) -> None:
         if (
@@ -1022,7 +1025,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             image_type = image.file_format.lower()
             if len(image_name) >= 100:
                 new_image_name = "texture_too_long_name_" + str(image_index)
-                print(f"too long name image: {image_name} is named {new_image_name}")
+                logger.warning(
+                    f"too long name image: {image_name} is named {new_image_name}"
+                )
                 image_name = new_image_name
 
             image_name = remove_unsafe_path_chars(image_name)
@@ -1051,7 +1056,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         written_flag = True
                         break
                 if not written_flag:
-                    print(
+                    logger.info(
                         "There are more than 100000 images with the same name in the folder."
                         + f" Failed to write file: {image_name}"
                     )

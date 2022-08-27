@@ -7,12 +7,15 @@ from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
+from ..common.logging import get_logger
 from ..common.preferences import use_legacy_importer_exporter
 from ..editor.operator import VRM_OT_open_url_in_web_browser
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
 from .license_validation import LicenseConfirmationRequired
 from .vrm_parser import VrmParser
+
+logger = get_logger(__name__)
 
 
 class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -51,7 +54,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         except LicenseConfirmationRequired as e:
             license_error = e  # Prevent traceback dump on another exception
 
-        print(license_error.description())
+        logger.info(license_error.description())
 
         execution_context = "INVOKE_DEFAULT"
         import_anyway = False

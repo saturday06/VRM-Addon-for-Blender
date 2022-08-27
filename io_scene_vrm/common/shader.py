@@ -5,6 +5,10 @@ from typing import Any, Dict, Optional, Tuple
 import bgl
 import bpy
 
+from .logging import get_logger
+
+logger = get_logger(__name__)
+
 __file_names = [
     "mtoon0.blend",
     "transparent_z_write.blend",
@@ -118,7 +122,7 @@ def copy_node(
         to_node.text = from_node.text
     if isinstance(from_node, bpy.types.NodeGroup):
         # to_node.node_tree = from_node.node_tree
-        print("[VRM Add-on] Importing NodeGroup doesn't be supported yet")
+        logger.error("Importing NodeGroup doesn't be supported yet")
     if isinstance(from_node, bpy.types.NodeGroupOutput):
         to_node.is_active_output = from_node.is_active_output
     if isinstance(from_node, bpy.types.ShaderNodeWireframe):
@@ -252,12 +256,12 @@ def copy_node(
         to_node.interpolation_type = from_node.interpolation_type
     if isinstance(from_node, bpy.types.ShaderNodeGroup):
         # to_node.node_tree = from_node.node_tree
-        print("[VRM Add-on] Importing ShaderNodeGroup doesn't be supported yet")
+        logger.error("Importing ShaderNodeGroup doesn't be supported yet")
     if isinstance(from_node, bpy.types.ShaderNodeDisplacement):
         to_node.space = from_node.space
     if isinstance(from_node, bpy.types.ShaderNodeCustomGroup):
         # to_node.node_tree = from_node.node_tree
-        print("[VRM Add-on] Importing ShaderNodeCustomGroup doesn't be supported yet")
+        logger.error("Importing ShaderNodeCustomGroup doesn't be supported yet")
     if isinstance(from_node, bpy.types.ShaderNodeClamp):
         to_node.clamp_type = from_node.clamp_type
     if isinstance(from_node, bpy.types.ShaderNodeBump):
@@ -322,7 +326,7 @@ def copy_node_tree(
             continue
         input_socket = input_node.inputs[input_socket_index]
         if not input_socket:
-            print(f"[VRM Add-on] No input socket: {from_link.to_socket.name}")
+            logger.error(f"No input socket: {from_link.to_socket.name}")
             continue
 
         output_socket_index = {
@@ -337,7 +341,7 @@ def copy_node_tree(
             continue
         output_socket = output_node.outputs[output_socket_index]
         if not output_socket:
-            print(f"[VRM Add-on] No output socket: {from_link.from_socket.name}")
+            logger.error(f"No output socket: {from_link.from_socket.name}")
             continue
 
         to_node_tree.links.new(input_socket, output_socket)

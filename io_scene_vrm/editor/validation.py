@@ -7,11 +7,14 @@ from bpy.app.translations import pgettext
 from mathutils import Vector
 
 from ..common import gltf, version
+from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from . import migration, search
+
+logger = get_logger(__name__)
 
 
 class VrmValidationError(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -39,10 +42,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         fatal_error_count = 0
         for error in self.errors:
             if fatal_error_count > 10:
-                print("ERROR: ... truncated ...")
+                logger.info("Validation error: truncated ...")
                 break
             if error.severity == 0:
-                print("ERROR: " + error.message)
+                logger.info("Validation error: " + error.message)
                 fatal_error_count += 1
         if fatal_error_count > 0:
             return {"CANCELLED"}

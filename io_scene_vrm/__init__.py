@@ -50,7 +50,7 @@ def register() -> None:
     )
     if os.path.exists(github_code_download_zip_path):
         sys.stdout.write(
-            "[VRM Add-on] Unzipping the partial add-on archive for "
+            "[VRM Add-on:Info] Unzipping the partial add-on archive for "
             + 'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub... '
         )
         sys.stdout.flush()

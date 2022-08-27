@@ -21,6 +21,7 @@ from mathutils import Matrix
 from .. import common
 from ..common import convert, deep
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.shader import shader_node_group_import
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
@@ -43,6 +44,8 @@ from .vrm_parser import (
     PyMaterialMtoon,
     PyMaterialTransparentZWrite,
 )
+
+logger = get_logger(__name__)
 
 
 class AbstractBaseVrmImporter(ABC):
@@ -295,11 +298,11 @@ class AbstractBaseVrmImporter(ABC):
             self.parse_result.vrm0_extension, ["meta", "texture"]
         )
         if not isinstance(json_texture_index, int):
-            print('json["extensions"]["VRM"]["meta"]["texture"] is not int')
+            logger.info('json["extensions"]["VRM"]["meta"]["texture"] is not int')
             return
         json_textures = self.parse_result.json_dict.get("textures", [])
         if not isinstance(json_textures, list):
-            print('json["textures"] is not list')
+            logger.info('json["textures"] is not list')
             return
         if json_texture_index not in (-1, None) and (
             "textures" in self.parse_result.json_dict
@@ -336,7 +339,7 @@ class AbstractBaseVrmImporter(ABC):
             elif isinstance(mat, PyMaterialTransparentZWrite):
                 self.build_material_from_transparent_z_write(b_mat, mat)
             else:
-                print(f"unknown material {mat.name}")
+                logger.info(f"Unknown material {mat.name}")
             self.node_placer(self.find_material_output_node(b_mat))
             self.vrm_materials[index] = b_mat
         self.override_gltf_materials()
@@ -707,7 +710,7 @@ class AbstractBaseVrmImporter(ABC):
                         ]
                     }
                 )
-                print(f"unknown texture {tex_name}")
+                logger.info(f"Unknown texture {tex_name}")
             elif tex_name == "_MainTex":
                 main_tex_node = self.connect_texture_node(
                     b_mat,
@@ -764,7 +767,7 @@ class AbstractBaseVrmImporter(ABC):
                     )
                     connect_uv_map_to_texture(other_tex_node)
                 else:
-                    print(f"{tex_name} is unknown texture")
+                    logger.info(f"{tex_name} is unknown texture")
 
         transparent_mode_float = pymat.float_props_dict["_BlendMode"]
         # Z-WriteかどうかはMToon 1.0風のValue Nodeに保存する
@@ -952,7 +955,7 @@ class AbstractBaseVrmImporter(ABC):
                 if bone not in HumanBoneSpecifications.all_names:
                     continue
                 if any(human_bone.bone == bone for human_bone in humanoid.human_bones):
-                    print(f'Duplicated bone: "{bone}"')
+                    logger.info(f'Duplicated bone: "{bone}"')
                     continue
 
                 node = human_bone_dict.get("node")
@@ -1351,7 +1354,7 @@ class AbstractBaseVrmImporter(ABC):
     ) -> None:
         armature = self.armature
         if armature is None:
-            print("armature is None")
+            logger.info("armature is None")
             return
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -1399,7 +1402,7 @@ class AbstractBaseVrmImporter(ABC):
     def blend_setup(self) -> None:
         armature = self.armature
         if armature is None:
-            print("armature is None")
+            logger.info("armature is None")
             return
         bpy.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")

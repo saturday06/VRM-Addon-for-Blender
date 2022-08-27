@@ -20,8 +20,11 @@ import bpy
 from ..common import deep
 from ..common.binary_reader import BinaryReader
 from ..common.gltf import parse_glb
+from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon, MaterialTransparentZWrite
 from .license_validation import validate_license
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -260,7 +263,7 @@ def create_py_material(
         for k, _subset in subset.items():
             if _subset:
                 ext_mat_name = ext_mat.get("name")
-                print(f"unknown {k} properties {_subset} in {ext_mat_name}")
+                logger.info(f"Unknown {k} properties {_subset} in {ext_mat_name}")
         # endregion check unknown props exit
 
         mtoon.float_props_dict.update(ext_mat.get("floatProperties", {}))
@@ -280,7 +283,7 @@ def create_py_material(
         return transparent_z_write
 
     # ここには入らないはず
-    print(
+    logger.error(
         f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}"
     )
     return None
@@ -349,8 +352,8 @@ def decode_bin(json_dict: Dict[str, Any], binary: bytes) -> List[Any]:
     for accessor_index, accessor in enumerate(accessors):
         type_num = type_num_dict[accessor["type"]]
         if "bufferView" not in accessor:
-            print(
-                f"WARNING: accessors[{accessor_index}] doesn't have bufferView that is not implemented yet"
+            logger.warning(
+                f"accessors[{accessor_index}] doesn't have bufferView that is not implemented yet"
             )
             decoded_binary.append([])
             continue
@@ -446,7 +449,7 @@ class VrmParser:
                 hips_node_index = human_bone["node"]
 
         if not isinstance(hips_node_index, int):
-            print("No hips bone index found")
+            logger.info("No hips bone index found")
             return
 
         parse_result.hips_node_index = hips_node_index
@@ -462,7 +465,7 @@ class VrmParser:
             vrm1_dict, ["humanoid", "humanBones", "hips", "node"]
         )
         if not isinstance(hips_node_index, int):
-            print("No hips bone index found")
+            logger.info("No hips bone index found")
             return
         parse_result.hips_node_index = hips_node_index
 
@@ -500,10 +503,12 @@ class VrmParser:
             image_type = image_prop["mimeType"].split("/")[-1]
             if image_name == "":
                 image_name = "texture_" + str(image_id)
-                print(f"no name image is named {image_name}")
+                logger.warning(f"No name image is named {image_name}")
             elif len(image_name) >= 50:
                 new_image_name = "tex_2longname_" + str(image_id)
-                print(f"too long name image: {image_name} is named {new_image_name}")
+                logger.warning(
+                    f"Too long name image: {image_name} is named {new_image_name}"
+                )
                 image_name = new_image_name
 
             image_name = remove_unsafe_path_chars(image_name)
@@ -529,12 +534,14 @@ class VrmParser:
                         written_flag = True
                         break
                 if not written_flag:
-                    print(
+                    logger.warning(
                         "There are more than 100000 images with the same name in the folder."
                         + f" Failed to write file: {image_name}"
                     )
             else:
-                print(image_name + " Image already exists. Was not overwritten.")
+                logger.warning(
+                    image_name + " Image already exists. Was not overwritten."
+                )
             image_property = ImageProperties(image_name, image_path, image_type)
             parse_result.image_properties.append(image_property)
 
@@ -560,7 +567,9 @@ class VrmParser:
                     raise ValueError(f"Unsupported polygon type(:{primitive_mode})")
                 scalar_face_indices = self.decoded_binary[primitive["indices"]]
                 while len(scalar_face_indices) % 3 != 0:
-                    print(f"meshes[{n}]primitives[{j}] length is not a multiple of 3")
+                    logger.warning(
+                        f"meshes[{n}]primitives[{j}] length is not a multiple of 3"
+                    )
                     scalar_face_indices.append(0)
 
                 # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
@@ -672,7 +681,7 @@ class VrmParser:
                 if "skin" in node:
                     parse_result.origin_nodes_dict[i].append(node["skin"])
                 else:
-                    print(node["name"] + "is not have skin")
+                    logger.info(f"{node.get('name')} is not have skin")
 
 
 if __name__ == "__main__":

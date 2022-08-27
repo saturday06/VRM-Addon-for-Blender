@@ -7,7 +7,10 @@ from typing import List, Optional
 
 import bpy
 
+from io_scene_vrm.common.logging import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
+
+logger = get_logger(__name__)
 
 repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 vrm_dir = os.path.join(
@@ -75,7 +78,7 @@ def test() -> None:
         return
 
     if os.path.exists(os.path.join(out2_vrm_dir, vrm + ".TO_BE_SUPPORTED.txt")):
-        print(f"WARNING: Second import-export assertion for {vrm} is skipped.")
+        logger.warning(f"Second import-export assertion for {vrm} is skipped.")
         return
 
     if not os.path.exists(os.path.join(out2_vrm_dir, vrm)) and not update_failed_vrm:

@@ -5,6 +5,9 @@ from typing import Any, List, Optional, Tuple
 import bpy
 
 from ...common import shader
+from ...common.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -940,7 +943,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         elif value == self.ALPHA_MODE_BLEND_VALUE:
             material.blend_method = "BLEND"
         else:
-            print("Unexpected alpha mode: {value}")
+            logger.error("Unexpected alpha mode: {value}")
             material.blend_method = "OPAQUE"
 
     alpha_mode: bpy.props.EnumProperty(  # type: ignore[valid-type]

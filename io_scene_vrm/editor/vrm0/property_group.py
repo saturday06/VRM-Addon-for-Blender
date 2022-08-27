@@ -3,6 +3,7 @@ from typing import Dict
 
 import bpy
 
+from ...common.logging import get_logger
 from ...common.vrm0.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
@@ -14,6 +15,8 @@ from ..property_group import (
     MeshObjectPropertyGroup,
     StringPropertyGroup,
 )
+
+logger = get_logger(__name__)
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L70-L164
@@ -52,7 +55,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
     ) -> None:
         human_bone_name = HumanBoneName.from_str(self.bone)
         if human_bone_name is None:
-            print(f"WARNING: bone name '{self.bone}' is invalid")
+            logger.warning(f"Bone name '{self.bone}' is invalid")
             return
         target = HumanBoneSpecifications.get(human_bone_name)
         new_candidates = BonePropertyGroup.find_bone_candidates(

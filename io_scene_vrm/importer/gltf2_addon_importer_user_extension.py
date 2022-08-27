@@ -5,6 +5,10 @@ from typing import Any, Optional
 
 import bpy
 
+from ..common.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 class Gltf2AddonImporterUserExtension:
     __current_import_id: Optional[str] = None
@@ -33,13 +37,13 @@ class Gltf2AddonImporterUserExtension:
             or not hasattr(gltf_importer.data, "images")
             or not isinstance(gltf_importer.data.images, abc.Sequence)
         ):
-            print(
-                f"WARNING: gather_import_image_after_hook: gltf_importer is unexpected structure: {gltf_importer}"
+            logger.warning(
+                f"gather_import_image_after_hook: gltf_importer is unexpected structure: {gltf_importer}"
             )
             return
         if img not in gltf_importer.data.images:
-            print(
-                f"WARNING: gather_import_image_after_hook: {img} not in {gltf_importer.data.images}"
+            logger.warning(
+                f"gather_import_image_after_hook: {img} not in {gltf_importer.data.images}"
             )
             return
         index = gltf_importer.data.images.index(img)

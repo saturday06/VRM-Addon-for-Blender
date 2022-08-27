@@ -1,6 +1,10 @@
 import math
 from typing import Any, Dict, List, Optional, Union
 
+from .logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def make_return_value(
     v: Any,
@@ -20,7 +24,7 @@ def make_return_value(
     if isinstance(v, dict):
         return v
 
-    print(f"WARNING: {v} is unrecognized type")
+    logger.warning(f"{v} is unrecognized type")
     return None
 
 
