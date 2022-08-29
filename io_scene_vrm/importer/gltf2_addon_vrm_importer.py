@@ -765,7 +765,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 full_vrm_import_success = True
             except RuntimeError:
-                logger.info(
+                logger.warning(
                     f'Failed to import "{indexed_vrm_filepath}"'
                     + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
                     + traceback.format_exc()
@@ -789,8 +789,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         guess_original_bind_pose=False,
                     )
                 except RuntimeError as e:
-                    logger.info(
-                        f'ERROR: Failed to import "{indexed_vrm_filepath}"'
+                    logger.warning(
+                        f'Failed to import "{indexed_vrm_filepath}"'
                         + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
                         + " without animations key"
                         + traceback.format_exc()
@@ -946,7 +946,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bpy.data.materials.remove(material)
 
         if self.armature is None:
-            logger.info("Failed to read VRM Humanoid")
+            logger.warning("Failed to read VRM Humanoid")
 
     def cleanup_gltf2_with_indices(self) -> None:
         if (
@@ -1056,7 +1056,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         written_flag = True
                         break
                 if not written_flag:
-                    logger.info(
+                    logger.warning(
                         "There are more than 100000 images with the same name in the folder."
                         + f" Failed to write file: {image_name}"
                     )

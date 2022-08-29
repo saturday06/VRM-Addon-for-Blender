@@ -952,7 +952,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if img is not None:
                     pbr_dict[texture_type] = {"index": add_texture(*img), "texCoord": 0}
                 else:
-                    logger.info(f"No image: {socket_name}")
+                    logger.warning(f"No image: {socket_name}")
 
             pbr_tex_add("normalTexture", "normal")
             pbr_tex_add("emissiveTexture", "emissive_texture")
@@ -1211,13 +1211,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         ] = gltf2_io_material.pbr_metallic_roughness.roughness_factor
                     pbr_dict["pbrMetallicRoughness"] = pbr_metallic_roughness
             except KeyError as e:
-                logger.info(f"glTF Material KeyError: {e}\n" + traceback.format_exc())
+                logger.error(f"glTF Material KeyError: {e}\n" + traceback.format_exc())
                 return fallback
             except TypeError as e:
-                logger.info(f"glTF Material TypeError: {e}\n" + traceback.format_exc())
+                logger.error(f"glTF Material TypeError: {e}\n" + traceback.format_exc())
                 return fallback
             except Exception as e:
-                logger.info(f"glTF Material Exception: {e}\n" + traceback.format_exc())
+                logger.error(f"glTF Material Exception: {e}\n" + traceback.format_exc())
                 return fallback
 
             return vrm_dict, pbr_dict
@@ -1350,7 +1350,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 raise RuntimeError("joints is not list")
             return joints.index(node_id)
         except (ValueError, KeyError):
-            logger.info(f"{node_name} bone may be not exist")
+            logger.warning(f"{node_name} bone may be not exist")
             return -1  # 存在しないボーンを指してる場合は-1を返す
 
     @staticmethod
@@ -1764,7 +1764,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         weight_and_joint_list.sort(reverse=True)
 
                         if len(weight_and_joint_list) > 4:
-                            logger.info(
+                            logger.warning(
                                 f"Joints on vertex id:{loop.vert.index} in: {mesh.name} are truncated"
                             )
                             weight_and_joint_list = weight_and_joint_list[:4]
@@ -1773,7 +1773,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         joints = [joint for _, joint in weight_and_joint_list]
 
                         if sum(weights) < float_info.epsilon:
-                            logger.info(
+                            logger.warning(
                                 f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
                             )
 
@@ -2242,7 +2242,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 bind_dict: Dict[str, Any] = {}
                 mesh = self.mesh_name_to_index.get(bind.mesh.value)
                 if mesh is None:
-                    logger.info(f"{bind.mesh.value} => None")
+                    logger.warning(f"{bind.mesh.value} => None")
                     continue
                 bind_dict["mesh"] = mesh
 

@@ -264,7 +264,7 @@ def create_py_material(
         for k, _subset in subset.items():
             if _subset:
                 ext_mat_name = ext_mat.get("name")
-                logger.info(f"Unknown {k} properties {_subset} in {ext_mat_name}")
+                logger.warning(f"Unknown {k} properties {_subset} in {ext_mat_name}")
         # endregion check unknown props exit
 
         mtoon.float_props_dict.update(ext_mat.get("floatProperties", {}))
@@ -450,7 +450,7 @@ class VrmParser:
                 hips_node_index = human_bone["node"]
 
         if not isinstance(hips_node_index, int):
-            logger.info("No hips bone index found")
+            logger.warning("No hips bone index found")
             return
 
         parse_result.hips_node_index = hips_node_index
@@ -466,7 +466,7 @@ class VrmParser:
             vrm1_dict, ["humanoid", "humanBones", "hips", "node"]
         )
         if not isinstance(hips_node_index, int):
-            logger.info("No hips bone index found")
+            logger.warning("No hips bone index found")
             return
         parse_result.hips_node_index = hips_node_index
 
@@ -682,7 +682,7 @@ class VrmParser:
                 if "skin" in node:
                     parse_result.origin_nodes_dict[i].append(node["skin"])
                 else:
-                    logger.info(f"{node.get('name')} is not have skin")
+                    logger.warning(f"{node.get('name')} is not have skin")
 
 
 if __name__ == "__main__":

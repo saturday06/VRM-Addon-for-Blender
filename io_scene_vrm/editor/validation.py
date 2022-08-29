@@ -42,10 +42,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         fatal_error_count = 0
         for error in self.errors:
             if fatal_error_count > 10:
-                logger.info("Validation error: truncated ...")
+                logger.warning("Validation error: truncated ...")
                 break
             if error.severity == 0:
-                logger.info("Validation error: " + error.message)
+                logger.warning("Validation error: " + error.message)
                 fatal_error_count += 1
         if fatal_error_count > 0:
             return {"CANCELLED"}

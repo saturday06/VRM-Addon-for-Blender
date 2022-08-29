@@ -54,7 +54,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         except LicenseConfirmationRequired as e:
             license_error = e  # Prevent traceback dump on another exception
 
-        logger.info(license_error.description())
+        logger.warning(license_error.description())
 
         execution_context = "INVOKE_DEFAULT"
         import_anyway = False
