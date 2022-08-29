@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   dependabot:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Enable auto-merge for Dependabot PRs
