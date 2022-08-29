@@ -42,7 +42,7 @@ def register() -> None:
             + f"but the current version is {bpy.app.version}"
         )
 
-    # https://github.com/saturday06/VRM_Addon_for_Blender/blob/e630c9c160321f7e51ccadf13827c44fbc8c7f94/io_scene_vrm/common/logging.py#L6
+    # https://github.com/saturday06/VRM_Addon_for_Blender/blob/c44773da5e6232a5dc06ae768978844258fc0712/io_scene_vrm/common/logging.py#L5-L7
     log_warning_prefix = "[VRM Add-on:Warning]"
 
     # For users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.
