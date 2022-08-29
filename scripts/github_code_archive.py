@@ -1,25 +1,30 @@
 #!/usr/bin/env python3
 
 import importlib
-import os
 import pathlib
 import platform
 import sys
 import zipfile
+from os import path
 
 import bpy
 
 addon_path = sys.argv[sys.argv.index("--") + 1]
 
 with zipfile.ZipFile(addon_path) as z:
-    module_name = os.path.commonpath([f.filename for f in z.filelist])
+    module_name = path.commonpath([f.filename for f in z.filelist])
 
 bpy.ops.preferences.addon_install(filepath=addon_path)
 bpy.ops.preferences.addon_enable(module=module_name)
 
-input_path = os.path.join("tests", "resources", "vrm", "in", "triangle.vrm")
-expected_path = os.path.join("tests", "resources", "vrm", "2.83", "out", "triangle.vrm")
-actual_path = os.path.join("out.vrm")
+repository_root_dir = path.dirname(path.dirname(__file__))
+input_path = path.join(
+    repository_root_dir, "tests", "resources", "vrm", "in", "triangle.vrm"
+)
+expected_path = path.join(
+    repository_root_dir, "tests", "resources", "vrm", "2.83", "out", "triangle.vrm"
+)
+actual_path = path.join(repository_root_dir, "out.vrm")
 
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.object.delete()
