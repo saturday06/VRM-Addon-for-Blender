@@ -17,6 +17,9 @@ class Logger:
     def error(self, message: str) -> None:
         self.logger.error(self.log_prefix("Error") + message)
 
+    def exception(self, message: str) -> None:
+        self.logger.exception(self.log_prefix("Exception") + message)
+
 
 def get_logger(name: str) -> Logger:
     return Logger(name)

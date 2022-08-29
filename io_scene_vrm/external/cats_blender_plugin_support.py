@@ -1,11 +1,13 @@
-import traceback
 from typing import Dict
 
 import bpy
 
+from ..common.logging import get_logger
 from ..common.vrm0.human_bone import HumanBoneName
 from .cats_blender_plugin.tools.armature import FixArmature
 from .cats_blender_plugin_armature import CatsArmature
+
+logger = get_logger(__name__)
 
 __cats_bone_name_to_human_bone_name = {
     # Order by priority
@@ -71,9 +73,8 @@ def create_human_bone_mapping(armature: bpy.types.Armature) -> Dict[str, HumanBo
     cats_armature = CatsArmature.create(armature)
     try:
         FixArmature.create_cats_bone_name_mapping(cats_armature)
-    except Exception as e:
-        traceback.print_exc()
-        print(f"Human Bone Name Auto Detection: {e}")
+    except Exception:
+        logger.exception("Human Bone Name Auto Detection Failure")
 
     mapping = {}
     cats_name_to_original_name = cats_armature.cats_name_to_original_name()

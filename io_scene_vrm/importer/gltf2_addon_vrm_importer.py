@@ -7,7 +7,6 @@ import re
 import shutil
 import struct
 import tempfile
-import traceback
 from collections import abc
 from typing import Any, Dict, Union
 
@@ -765,10 +764,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 full_vrm_import_success = True
             except RuntimeError:
-                logger.warning(
+                logger.exception(
                     f'Failed to import "{indexed_vrm_filepath}"'
                     + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
-                    + traceback.format_exc()
                 )
                 self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
@@ -789,11 +787,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         guess_original_bind_pose=False,
                     )
                 except RuntimeError as e:
-                    logger.warning(
+                    logger.exception(
                         f'Failed to import "{indexed_vrm_filepath}"'
                         + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
                         + " without animations key"
-                        + traceback.format_exc()
                     )
                     self.cleanup_gltf2_with_indices()
                     if self.parse_result.spec_version_number >= (1, 0):

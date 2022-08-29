@@ -13,7 +13,6 @@ import secrets
 import statistics
 import string
 import struct
-import traceback
 from collections import abc
 from math import floor
 from sys import float_info
@@ -1096,8 +1095,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 from io_scene_gltf2.blender.exp.gltf2_blender_gather_materials import (
                     gather_material,
                 )  # pyright: reportMissingImports=false
-            except ImportError as e:
-                logger.error(f"Failed to import glTF 2.0 Add-on: {e}")
+            except ImportError:
+                logger.exception("Failed to import glTF 2.0 Add-on")
                 return fallback
 
             gltf2_io_material: Optional[Any] = None
@@ -1210,14 +1209,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             "roughnessFactor"
                         ] = gltf2_io_material.pbr_metallic_roughness.roughness_factor
                     pbr_dict["pbrMetallicRoughness"] = pbr_metallic_roughness
-            except KeyError as e:
-                logger.error(f"glTF Material KeyError: {e}\n" + traceback.format_exc())
-                return fallback
-            except TypeError as e:
-                logger.error(f"glTF Material TypeError: {e}\n" + traceback.format_exc())
-                return fallback
-            except Exception as e:
-                logger.error(f"glTF Material Exception: {e}\n" + traceback.format_exc())
+            except Exception:
+                logger.exception(
+                    "Failed to generate glTF Material using glTF 2.0 add-on"
+                )
                 return fallback
 
             return vrm_dict, pbr_dict

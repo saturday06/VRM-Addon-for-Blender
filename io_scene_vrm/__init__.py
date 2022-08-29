@@ -28,7 +28,6 @@ bl_info = {
 
 
 def register() -> None:
-    import contextlib
     import os
     import zipfile
     from logging import getLogger
@@ -62,8 +61,15 @@ def register() -> None:
 
         with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
             z.extractall(os.path.dirname(__file__))
-        with contextlib.suppress(FileNotFoundError, PermissionError):
+
+        try:
             os.remove(github_code_download_zip_path)
+        except (FileNotFoundError, PermissionError):
+            logger.exception(
+                "%s Failed to remove the partial add-on archive: %s",
+                log_warning_prefix,
+                github_code_download_zip_path,
+            )
 
         logger.warning("%s ...OK", log_warning_prefix)
 
