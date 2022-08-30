@@ -11,6 +11,7 @@ import bpy
 from bpy.app.handlers import persistent
 
 from .common import preferences, shader, version
+from .common.logging import get_logger
 from .editor import (
     extension,
     glsl_drawer,
@@ -37,6 +38,8 @@ from .exporter import export_scene
 from .external import io_scene_gltf2_support
 from .importer import import_scene
 from .locale.translation_dictionary import translation_dictionary
+
+logger = get_logger(__name__)
 
 if persistent:  # for fake-bpy-modules
 
@@ -352,6 +355,9 @@ def unregister() -> None:
         del bpy.types.Material.vrm_addon_extension
 
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        try:
+            bpy.utils.unregister_class(cls)
+        except RuntimeError:
+            logger.exception("Failed to Unregister {cls}")
 
     bpy.app.translations.unregister(preferences.addon_package_name)
