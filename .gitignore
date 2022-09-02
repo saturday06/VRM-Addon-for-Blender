@@ -19,7 +19,6 @@
 !/.github/*.yml
 !/LICENSE
 !/LICENSE.*
-!/Notice.txt
 !/poetry.lock
 !/pyproject.toml
 !/scripts/*.bat
