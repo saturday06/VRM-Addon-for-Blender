@@ -88,8 +88,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.use_fake_user_for_thumbnail()
             wm.progress_update(4)
             if self.parse_result.vrm1_extension:
-                # self.make_mtoon1_materials()
-                pass
+                self.make_mtoon1_materials()
             elif self.parse_result.vrm0_extension:
                 self.make_material()
             wm.progress_update(5)
