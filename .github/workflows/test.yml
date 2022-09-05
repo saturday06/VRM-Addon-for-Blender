@@ -200,8 +200,8 @@ jobs:
           "$ec_dir/bin/ec-$os-$arch"
       - name: Install poetry
         run: |
-          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
-          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Check pyproject.toml format
         run: poetry check
       - name: Install poetry dependencies
