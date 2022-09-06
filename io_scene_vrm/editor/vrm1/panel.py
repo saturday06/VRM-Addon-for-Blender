@@ -1,6 +1,7 @@
 import bpy
 from bpy.app.translations import pgettext
 
+from ...common.logging import get_logger
 from ...common.vrm1.human_bone import HumanBoneSpecifications
 from .. import operator, search
 from ..extension import (
@@ -20,6 +21,8 @@ from .property_group import (
     Vrm1LookAtPropertyGroup,
     Vrm1MetaPropertyGroup,
 )
+
+logger = get_logger(__name__)
 
 
 def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
@@ -860,3 +863,28 @@ class VRM_PT_vrm1_meta_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
             self.layout,
             armature.data.vrm_addon_extension.vrm1.meta,
         )
+
+
+class VRM_PT_vrm1_bone_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_idname = "VRM_PT_vrm1_bone_property"
+    bl_label = "VRM"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "bone"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        if (
+            not context.active_object
+            or context.active_object.type != "ARMATURE"
+            or not context.active_object.data.bones.active
+        ):
+            return False
+        return search.current_armature_is_vrm1(context)
+
+    def draw(self, context: bpy.types.Context) -> None:
+        # context.active_bone is a EditBone
+        bone = context.active_object.data.bones.active
+        ext = bone.vrm_addon_extension
+        layout = self.layout
+        layout.prop(ext, "axis_translation")

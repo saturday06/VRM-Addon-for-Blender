@@ -100,7 +100,7 @@ class AbstractBaseVrmImporter(ABC):
             ):
                 obj.matrix_world = self.bone_child_object_world_matrices[obj.name]
 
-    def setup_humanoid_bones(self) -> None:
+    def setup_vrm0_humanoid_bones(self) -> None:
         armature = self.armature
         if not armature:
             return
@@ -113,8 +113,8 @@ class AbstractBaseVrmImporter(ABC):
             armature.data.name, defer=False
         )
 
-        humanoid = addon_extension.vrm0.humanoid
-        for human_bone in humanoid.human_bones:
+        human_bones = addon_extension.vrm0.humanoid.human_bones
+        for human_bone in human_bones:
             if (
                 human_bone.node.value
                 and human_bone.node.value not in human_bone.node_candidates
@@ -125,7 +125,7 @@ class AbstractBaseVrmImporter(ABC):
         for humanoid_name in HumanBoneSpecifications.required_names:
             if not any(
                 human_bone.bone == humanoid_name and human_bone.node.value
-                for human_bone in humanoid.human_bones
+                for human_bone in human_bones
             ):
                 # has error
                 return
@@ -135,8 +135,7 @@ class AbstractBaseVrmImporter(ABC):
             self.context.view_layer.objects.active = armature
 
             bone_name_to_human_bone_name: Dict[str, HumanBoneName] = {}
-            humanoid = addon_extension.vrm0.humanoid
-            for human_bone in humanoid.human_bones:
+            for human_bone in human_bones:
                 if not human_bone.node.value:
                     continue
                 name = HumanBoneName.from_str(human_bone.bone)
@@ -230,7 +229,7 @@ class AbstractBaseVrmImporter(ABC):
 
                     bone = parent
 
-            for human_bone in humanoid.human_bones:
+            for human_bone in human_bones:
                 if (
                     human_bone.bone
                     not in [HumanBoneName.LEFT_EYE.value, HumanBoneName.RIGHT_EYE.value]
@@ -845,7 +844,7 @@ class AbstractBaseVrmImporter(ABC):
 
         self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
         self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
-        self.setup_humanoid_bones()
+        self.setup_vrm0_humanoid_bones()
         self.load_vrm0_first_person(
             vrm0.first_person, vrm0_extension.get("firstPerson")
         )

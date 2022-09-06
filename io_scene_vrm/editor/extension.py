@@ -1,6 +1,9 @@
 import functools
+import math
+from typing import Optional
 
 import bpy
+from mathutils import Matrix, Quaternion
 
 from ..common.logging import get_logger
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
@@ -54,6 +57,157 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
 
 class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    AXIS_TRANSLATION_AUTO_ID = "AUTO"
+    AXIS_TRANSLATION_NONE_ID = "NONE"
+    AXIS_TRANSLATION_X_TO_Y_ID = "X_TO_Y"
+    AXIS_TRANSLATION_MINUS_X_TO_Y_ID = "MINUS_X_TO_Y"
+    AXIS_TRANSLATION_Z_TO_Y_ID = "Z_TO_Y"
+    AXIS_TRANSLATION_MINUS_Z_TO_Y_ID = "MINUS_Z_TO_Y"
+    AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID = "MINUS_Y_TO_Y_AROUND_Z"
+
+    @classmethod
+    def reverse_axis_translation(cls, axis_translation: str) -> str:
+        return {
+            cls.AXIS_TRANSLATION_AUTO_ID: cls.AXIS_TRANSLATION_AUTO_ID,
+            cls.AXIS_TRANSLATION_NONE_ID: cls.AXIS_TRANSLATION_NONE_ID,
+            cls.AXIS_TRANSLATION_X_TO_Y_ID: cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID,
+            cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID: cls.AXIS_TRANSLATION_X_TO_Y_ID,
+            cls.AXIS_TRANSLATION_Z_TO_Y_ID: cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
+            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID: cls.AXIS_TRANSLATION_Z_TO_Y_ID,
+            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID,
+        }[axis_translation]
+
+    @classmethod
+    def node_constraint_roll_axis_translation(
+        cls, axis_translation: str, roll_axis: Optional[str]
+    ) -> Optional[str]:
+        if roll_axis is None:
+            return None
+        return {
+            cls.AXIS_TRANSLATION_AUTO_ID: {"X": "X", "Y": "Y", "Z": "Z"},
+            cls.AXIS_TRANSLATION_NONE_ID: {"X": "X", "Y": "Y", "Z": "Z"},
+            cls.AXIS_TRANSLATION_X_TO_Y_ID: {"X": "Y", "Y": "X", "Z": "Z"},
+            cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID: {"X": "Y", "Y": "X", "Z": "Z"},
+            cls.AXIS_TRANSLATION_Z_TO_Y_ID: {"X": "X", "Y": "Z", "Z": "Y"},
+            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID: {"X": "X", "Y": "Z", "Z": "Y"},
+            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: {
+                "X": "X",
+                "Y": "Y",
+                "Z": "Z",
+            },
+        }[axis_translation][roll_axis]
+
+    @classmethod
+    def node_constraint_aim_axis_translation(
+        cls, axis_translation: str, aim_axis: Optional[str]
+    ) -> Optional[str]:
+        if aim_axis is None:
+            return None
+        return {
+            cls.AXIS_TRANSLATION_AUTO_ID: {
+                "PositiveX": "PositiveX",
+                "PositiveY": "PositiveY",
+                "PositiveZ": "PositiveZ",
+                "NegativeX": "NegativeX",
+                "NegativeY": "NegativeY",
+                "NegativeZ": "NegativeZ",
+            },
+            cls.AXIS_TRANSLATION_NONE_ID: {
+                "PositiveX": "PositiveX",
+                "PositiveY": "PositiveY",
+                "PositiveZ": "PositiveZ",
+                "NegativeX": "NegativeX",
+                "NegativeY": "NegativeY",
+                "NegativeZ": "NegativeZ",
+            },
+            cls.AXIS_TRANSLATION_X_TO_Y_ID: {
+                "PositiveX": "PositiveY",
+                "PositiveY": "NegativeX",
+                "PositiveZ": "PositiveZ",
+                "NegativeX": "NegativeY",
+                "NegativeY": "PositiveX",
+                "NegativeZ": "NegativeZ",
+            },
+            cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID: {
+                "PositiveY": "PositiveX",
+                "NegativeX": "PositiveY",
+                "PositiveZ": "PositiveZ",
+                "NegativeY": "NegativeX",
+                "PositiveX": "NegativeY",
+                "NegativeZ": "NegativeZ",
+            },
+            cls.AXIS_TRANSLATION_Z_TO_Y_ID: {
+                "PositiveX": "PositiveX",
+                "PositiveY": "NegativeZ",
+                "PositiveZ": "PositiveY",
+                "NegativeX": "NegativeX",
+                "NegativeY": "PositiveZ",
+                "NegativeZ": "NegativeY",
+            },
+            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID: {
+                "PositiveX": "PositiveX",
+                "NegativeZ": "PositiveY",
+                "PositiveY": "PositiveZ",
+                "NegativeX": "NegativeX",
+                "PositiveZ": "NegativeY",
+                "NegativeY": "NegativeZ",
+            },
+            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: {
+                "PositiveX": "NegativeX",
+                "PositiveY": "NegativeY",
+                "PositiveZ": "PositiveZ",
+                "NegativeX": "PositiveX",
+                "NegativeY": "PositiveY",
+                "NegativeZ": "NegativeZ",
+            },
+        }[axis_translation][aim_axis]
+
+    @classmethod
+    def translate_axis(cls, matrix: Matrix, axis_translation: str) -> Matrix:
+        location, rotation, scale = matrix.decompose()
+
+        if axis_translation == cls.AXIS_TRANSLATION_X_TO_Y_ID:
+            rotation @= Quaternion((0, 0, 1), -math.pi / 2)
+        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID:
+            rotation @= Quaternion((0, 0, 1), math.pi / 2)
+        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID:
+            rotation @= Quaternion((0, 0, 1), math.pi)
+        elif axis_translation == cls.AXIS_TRANSLATION_Z_TO_Y_ID:
+            rotation @= Quaternion((1, 0, 0), math.pi / 2)
+        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID:
+            rotation @= Quaternion((1, 0, 0), -math.pi / 2)
+
+        # return Matrix.LocRotScale(location, rotation, scale)
+        return (
+            Matrix.Translation(location)
+            @ rotation.to_matrix().to_4x4()
+            @ Matrix.Scale(scale[0], 4, (1, 0, 0))
+            @ Matrix.Scale(scale[1], 4, (0, 1, 0))
+            @ Matrix.Scale(scale[2], 4, (0, 0, 1))
+        )
+
+    axis_translation_items = [
+        (AXIS_TRANSLATION_AUTO_ID, "Auto", "", "NONE", 0),
+        (AXIS_TRANSLATION_NONE_ID, "None", "", "NONE", 1),
+        (AXIS_TRANSLATION_X_TO_Y_ID, "X,Y to Y,-X", "", "NONE", 2),
+        (AXIS_TRANSLATION_MINUS_X_TO_Y_ID, "X,Y to -Y,X", "", "NONE", 3),
+        (AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID, "X,Y to -X,-Y", "", "NONE", 4),
+        (AXIS_TRANSLATION_Z_TO_Y_ID, "Y,Z to -Z,Y", "", "NONE", 5),
+        (AXIS_TRANSLATION_MINUS_Z_TO_Y_ID, "Y,Z to Z,-Y", "", "NONE", 6),
+    ]
+
+    axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=axis_translation_items,
+        name="Axis Translation on Export",  # noqa: F722
+    )
+
+
+class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=VrmAddonBoneExtensionPropertyGroup.axis_translation_items,
+        name="Axis Translation on Export",  # noqa: F722
+    )
 
 
 class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]

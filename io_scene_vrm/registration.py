@@ -285,6 +285,7 @@ classes = [
     extension.VrmAddonBoneExtensionPropertyGroup,
     extension.VrmAddonSceneExtensionPropertyGroup,
     extension.VrmAddonMaterialExtensionPropertyGroup,
+    extension.VrmAddonObjectExtensionPropertyGroup,
 ]
 
 
@@ -319,6 +320,10 @@ def register(init_version: Any) -> None:
         type=extension.VrmAddonArmatureExtensionPropertyGroup
     )
 
+    bpy.types.Object.vrm_addon_extension = bpy.props.PointerProperty(
+        type=extension.VrmAddonObjectExtensionPropertyGroup
+    )
+
     bpy.types.TOPBAR_MT_file_import.append(import_scene.menu_import)
     bpy.types.TOPBAR_MT_file_export.append(export_scene.menu_export)
     bpy.types.VIEW3D_MT_armature_add.append(panel.add_armature)
@@ -341,6 +346,9 @@ def unregister() -> None:
     bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)
     bpy.types.TOPBAR_MT_file_export.remove(export_scene.menu_export)
     bpy.types.TOPBAR_MT_file_import.remove(import_scene.menu_import)
+
+    if hasattr(bpy.types.Object, "vrm_addon_extension"):
+        del bpy.types.Object.vrm_addon_extension
 
     if hasattr(bpy.types.Armature, "vrm_addon_extension"):
         del bpy.types.Armature.vrm_addon_extension

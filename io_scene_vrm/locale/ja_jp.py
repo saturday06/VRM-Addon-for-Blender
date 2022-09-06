@@ -261,4 +261,5 @@ translation_dictionary = {
         "*",
         "This VRM uses Draco compression. Unable to decompress.",
     ): "Draco圧縮されたVRMは未対応です",
+    ("*", "Axis Translation on Export"): "エクスポート時の軸の変換",
 }
