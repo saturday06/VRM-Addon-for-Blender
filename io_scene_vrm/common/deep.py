@@ -1,5 +1,5 @@
 import math
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 from .logging import get_logger
 
@@ -29,9 +29,9 @@ def make_return_value(
 
 
 def get(
-    json: Optional[Union[Dict[str, Any], List[Any]]],
+    json: Union[Dict[str, Any], List[Any], None],
     attrs: List[Union[int, str]],
-    default: Optional[Union[int, float, str, List[Any], Dict[str, Any]]] = None,
+    default: Union[int, float, str, List[Any], Dict[str, Any], None] = None,
 ) -> Union[int, bool, float, str, List[Any], Dict[str, Any], None]:
     if json is None:
         return default
@@ -52,7 +52,7 @@ def get(
 
 
 def get_list(
-    json: Optional[Union[Dict[str, Any], List[Any]]],
+    json: Union[Dict[str, Any], List[Any], None],
     attrs: List[Union[int, str]],
     default: List[Any],
 ) -> List[Any]:

@@ -19,7 +19,7 @@ class AbstractBaseVrmExporter(ABC):
 def assign_dict(
     target: Dict[str, Any],
     key: str,
-    value: Optional[Union[int, float, Dict[str, Any], Sequence[Any]]],
+    value: Union[int, float, Dict[str, Any], Sequence[Any], None],
     default_value: Any = None,
 ) -> bool:
     if value is None or value == default_value:
