@@ -40,10 +40,10 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
         raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
 
     def build_mesh(self, context: bpy.types.Context) -> None:
-        if bpy.context.active_object.type != "ARMATURE":
+        if context.active_object.type != "ARMATURE":
             return
         bpy.ops.object.mode_set(mode="OBJECT")
-        armature = bpy.context.active_object
+        armature = context.active_object
         mball = bpy.data.metaballs.new(f"{armature.name}_mball")
         mball.threshold = 0.001
         is_vrm_humanoid = False

@@ -107,8 +107,8 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # typ
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures[bpy.context.active_object.data.name]
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures[context.active_object.data.name]
         for bone_name in HumanBoneSpecifications.required_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
@@ -122,8 +122,8 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures[bpy.context.active_object.data.name]
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.armatures[context.active_object.data.name]
         for bone_name in HumanBoneSpecifications.optional_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
@@ -238,7 +238,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
             and obj.data.shape_keys.key_blocks
         )
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         recipe_uri = os.path.join(
             os.path.dirname(__file__), "vroid2vrc_lipsync_recipe.json"
         )
@@ -246,25 +246,23 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
         with open(recipe_uri, "rt", encoding="utf-8") as raw_recipe:
             recipe = json.loads(raw_recipe.read())
         for shapekey_name, based_values in recipe["shapekeys"].items():
-            for k in bpy.context.active_object.data.shape_keys.key_blocks:
+            for k in context.active_object.data.shape_keys.key_blocks:
                 k.value = 0.0
             for based_shapekey_name, based_val in based_values.items():
                 # if M_F00_000+_00
                 if (
                     based_shapekey_name
-                    not in bpy.context.active_object.data.shape_keys.key_blocks
+                    not in context.active_object.data.shape_keys.key_blocks
                 ):
                     based_shapekey_name = based_shapekey_name.replace(
                         "M_F00_000", "M_F00_000_00"
                     )  # Vroid064から命名が変わった
-                bpy.context.active_object.data.shape_keys.key_blocks[
+                context.active_object.data.shape_keys.key_blocks[
                     based_shapekey_name
                 ].value = based_val
             bpy.ops.object.shape_key_add(from_mix=True)
-            bpy.context.active_object.data.shape_keys.key_blocks[
-                -1
-            ].name = shapekey_name
-        for k in bpy.context.active_object.data.shape_keys.key_blocks:
+            context.active_object.data.shape_keys.key_blocks[-1].name = shapekey_name
+        for k in context.active_object.data.shape_keys.key_blocks:
             k.value = 0.0
         return {"FINISHED"}
 

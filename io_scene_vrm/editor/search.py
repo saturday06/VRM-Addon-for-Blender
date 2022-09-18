@@ -197,7 +197,7 @@ def multiple_armatures_exist(context: bpy.types.Object) -> bool:
     return False
 
 
-def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
+def current_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
     objects = [obj for obj in object_candidates(context) if obj.type == "ARMATURE"]
     if not objects:
         return None
@@ -213,9 +213,9 @@ def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
 
     collection_child_to_parent: Dict[
         bpy.types.Collection, Optional[bpy.types.Collection]
-    ] = {bpy.context.scene.collection: None}
+    ] = {context.scene.collection: None}
 
-    collections = [bpy.context.scene.collection]
+    collections = [context.scene.collection]
     while collections:
         parent = collections.pop()
         for child in parent.children:
@@ -238,22 +238,22 @@ def current_armature(context: bpy.types.Object) -> Optional[bpy.types.Object]:
 
 
 def export_objects(
-    export_invisibles: bool, export_only_selections: bool
+    context: bpy.types.Context, export_invisibles: bool, export_only_selections: bool
 ) -> List[bpy.types.Object]:
     selected_objects = []
     if export_only_selections:
-        selected_objects = list(bpy.context.selected_objects)
+        selected_objects = list(context.selected_objects)
     elif export_invisibles:
         selected_objects = list(bpy.data.objects)
     else:
-        selected_objects = list(bpy.context.selectable_objects)
+        selected_objects = list(context.selectable_objects)
 
     exclusion_types = ["LIGHT", "CAMERA"]
     objects = []
     for obj in selected_objects:
         if obj.type in exclusion_types:
             continue
-        if obj.name not in bpy.context.view_layer.objects:
+        if obj.name not in context.view_layer.objects:
             continue
         if not export_invisibles and not obj.visible_get():
             continue

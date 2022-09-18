@@ -116,7 +116,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
         if self.custom_property_name:
             self.armature_obj[self.custom_property_name] = True
         if self.WIP_with_template_mesh:
-            IcypTemplateMeshMaker(self)
+            IcypTemplateMeshMaker(context, self)
         return {"FINISHED"}
 
     def float_prop(self, name: str) -> float:

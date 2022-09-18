@@ -57,8 +57,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             )
 
     def __init__(
-        self, export_objects: List[bpy.types.Object], export_fb_ngon_encoding: bool
+        self,
+        context: bpy.types.Context,
+        export_objects: List[bpy.types.Object],
+        export_fb_ngon_encoding: bool,
     ) -> None:
+        super().__init__(context)
         self.export_objects = export_objects
         self.export_fb_ngon_encoding = export_fb_ngon_encoding
         self.vrm_version: Optional[str] = None
@@ -77,7 +81,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             bpy.ops.icyp.make_basic_armature(
                 "EXEC_DEFAULT", custom_property_name=dummy_armature_key
             )
-            for obj in bpy.context.selectable_objects:
+            for obj in self.context.selectable_objects:
                 if obj.type == "ARMATURE" and dummy_armature_key in obj:
                     self.export_objects.append(obj)
                     self.armature = obj
@@ -92,7 +96,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.result: Optional[bytes] = None
 
     def export_vrm(self) -> Optional[bytes]:
-        wm = bpy.context.window_manager
+        wm = self.context.window_manager
         wm.progress_begin(0, 9)
         try:
             self.vrm_version = "0.0"
@@ -127,10 +131,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
     def setup_pose(self) -> None:
-        if bpy.context.view_layer.objects.active is not None:
+        if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
-        bpy.context.view_layer.objects.active = self.armature
+        self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="POSE")
 
         self.saved_pose_position = self.armature.data.pose_position
@@ -168,10 +172,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             bpy.ops.poselib.apply_pose(pose_index=pose_index)
 
     def restore_pose(self) -> None:
-        if bpy.context.view_layer.objects.active is not None:
+        if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
-        bpy.context.view_layer.objects.active = self.armature
+        self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="POSE")
 
         if self.saved_current_pose_library:
@@ -1574,11 +1578,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             # region hell
             # Check added to resolve https://github.com/saturday06/VRM_Addon_for_Blender/issues/70
-            if bpy.context.view_layer.objects.active is not None:
+            if self.context.view_layer.objects.active is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
 
             # https://docs.blender.org/api/2.80/bpy.types.Depsgraph.html
-            depsgraph = bpy.context.evaluated_depsgraph_get()
+            depsgraph = self.context.evaluated_depsgraph_get()
             mesh_owner = mesh.evaluated_get(depsgraph)
             mesh_from_mesh_owner = mesh_owner.to_mesh(
                 preserve_all_data_layers=True, depsgraph=depsgraph
@@ -1591,7 +1595,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             mesh.hide_viewport = False
             mesh.hide_select = False
-            bpy.context.view_layer.objects.active = mesh
+            self.context.view_layer.objects.active = mesh
             bpy.ops.object.mode_set(mode="EDIT")
 
             mesh_data_transform = Matrix.Identity(4)

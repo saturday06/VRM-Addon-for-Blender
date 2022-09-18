@@ -321,7 +321,9 @@ def draw_vrm1_first_person_layout(
     first_person: Vrm1FirstPersonPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
+            context.scene.name
+        )
     box = layout.box()
     box.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
     for mesh_annotation_index, mesh_annotation in enumerate(
@@ -531,7 +533,9 @@ def draw_vrm1_expression_layout(
         emboss=False,
     )
     if expression.show_expanded_morph_target_binds:
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
+            context.scene.name
+        )
         for bind_index, bind in enumerate(expression.morph_target_binds):
             bind_box = box.box().column()
             bind_box.prop_search(

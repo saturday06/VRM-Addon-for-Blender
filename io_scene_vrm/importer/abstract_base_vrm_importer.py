@@ -130,9 +130,9 @@ class AbstractBaseVrmImporter(ABC):
                 # has error
                 return
 
-        previous_active = bpy.context.view_layer.objects.active
+        previous_active = self.context.view_layer.objects.active
         try:
-            bpy.context.view_layer.objects.active = armature
+            self.context.view_layer.objects.active = armature
 
             bone_name_to_human_bone_name: Dict[str, HumanBoneName] = {}
             humanoid = addon_extension.vrm0.humanoid
@@ -261,9 +261,9 @@ class AbstractBaseVrmImporter(ABC):
             )
             bpy.ops.object.mode_set(mode="OBJECT")
         finally:
-            if bpy.context.view_layer.objects.active.mode != "OBJECT":
+            if self.context.view_layer.objects.active.mode != "OBJECT":
                 bpy.ops.object.mode_set(mode="OBJECT")
-            bpy.context.view_layer.objects.active = previous_active
+            self.context.view_layer.objects.active = previous_active
 
         self.load_bone_child_object_world_matrices(armature)
 
@@ -286,7 +286,7 @@ class AbstractBaseVrmImporter(ABC):
         if affected_object is not None:
             affected_object.hide_viewport = True
 
-        for obj in bpy.context.selected_objects:
+        for obj in self.context.selected_objects:
             obj.select_set(False)
 
         # image_path_to Texture
@@ -1202,8 +1202,8 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(collider_group_dicts, abc.Iterable):
             collider_group_dicts = []
 
-        bpy.context.view_layer.depsgraph.update()
-        bpy.context.scene.view_layers.update()
+        self.context.view_layer.depsgraph.update()
+        self.context.scene.view_layers.update()
         collider_objs = []
         for collider_group_dict in collider_group_dicts:
             collider_group = secondary_animation.collider_groups.add()
@@ -1376,8 +1376,8 @@ class AbstractBaseVrmImporter(ABC):
 
         pole_name = copy.copy(pole.name)
         ik_foot_name = copy.copy(ik_foot.name)
-        bpy.context.view_layer.depsgraph.update()
-        bpy.context.scene.view_layers.update()
+        self.context.view_layer.depsgraph.update()
+        self.context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="POSE")
         ikc = armature.pose.bones[lower_leg_name].constraints.new("IK")
         ikc.target = armature
@@ -1395,15 +1395,15 @@ class AbstractBaseVrmImporter(ABC):
 
         ikc.pole_target = self.armature
         ikc.pole_subtarget = pole_name
-        bpy.context.view_layer.depsgraph.update()
-        bpy.context.scene.view_layers.update()
+        self.context.view_layer.depsgraph.update()
+        self.context.scene.view_layers.update()
 
     def blend_setup(self) -> None:
         armature = self.armature
         if armature is None:
             logger.error("armature is None")
             return
-        bpy.context.view_layer.objects.active = self.armature
+        self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
 
         right_upper_leg_name = armature.data["rightUpperLeg"]
@@ -1422,9 +1422,9 @@ class AbstractBaseVrmImporter(ABC):
         )
 
         bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.context.view_layer.depsgraph.update()
-        bpy.context.scene.view_layers.update()
-        operator.VRM_OT_simplify_vroid_bones(bpy.context)
+        self.context.view_layer.depsgraph.update()
+        self.context.scene.view_layers.update()
+        operator.VRM_OT_simplify_vroid_bones(self.context)
 
 
 # DeprecationWarning
@@ -1436,10 +1436,10 @@ class ICYP_OT_select_helper(bpy.types.Operator):  # type: ignore[misc] # noqa: N
 
     bpy.types.Scene.icyp_select_helper_select_list = []
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         bpy.ops.object.mode_set(mode="OBJECT")
         for vid in bpy.types.Scene.icyp_select_helper_select_list:
-            bpy.context.active_object.data.vertices[vid].select = True
+            context.active_object.data.vertices[vid].select = True
         bpy.ops.object.mode_set(mode="EDIT")
         bpy.types.Scene.icyp_select_helper_select_list = []
         return {"FINISHED"}

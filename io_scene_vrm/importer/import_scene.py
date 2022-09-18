@@ -126,7 +126,7 @@ def create_blend_model(
     has_ui_localization = bpy.app.version < (2, 83)
     ui_localization = False
     if has_ui_localization:
-        ui_localization = bpy.context.preferences.view.use_international_fonts
+        ui_localization = context.preferences.view.use_international_fonts
     try:
         if not legacy_importer:
             with contextlib.suppress(RetryUsingLegacyVrmImporter):
@@ -160,7 +160,7 @@ def create_blend_model(
         ).import_vrm()
     finally:
         if has_ui_localization and ui_localization:
-            bpy.context.preferences.view.use_international_fonts = ui_localization
+            context.preferences.view.use_international_fonts = ui_localization
 
     return {"FINISHED"}
 

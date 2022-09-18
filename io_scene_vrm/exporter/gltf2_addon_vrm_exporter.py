@@ -27,7 +27,10 @@ from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 
 
 class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
-    def __init__(self, export_objects: List[bpy.types.Object]) -> None:
+    def __init__(
+        self, context: bpy.types.Context, export_objects: List[bpy.types.Object]
+    ) -> None:
+        super().__init__(context)
         self.export_objects = export_objects
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
@@ -49,7 +52,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     def overwrite_object_visibility_and_selection(self) -> None:
         self.object_visibility_and_selection.clear()
-        for obj in bpy.context.view_layer.objects:
+        for obj in self.context.view_layer.objects:
             self.object_visibility_and_selection[obj.name] = (
                 obj.hide_get(),
                 obj.select_get(),
@@ -137,18 +140,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
         modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
         modifier.object = self.armature
-        bpy.context.scene.collection.objects.link(obj)
+        self.context.scene.collection.objects.link(obj)
         obj[self.extras_object_name_key] = obj.name
         return str(obj.name)
 
-    @staticmethod
-    def destroy_dummy_skinned_mesh_object(name: str) -> None:
+    def destroy_dummy_skinned_mesh_object(self, name: str) -> None:
         dummy_skinned_mesh_object = bpy.data.objects.get(name)
         if not isinstance(dummy_skinned_mesh_object, bpy.types.Object):
             return
         dummy_skinned_mesh_object.modifiers.clear()
         dummy_skinned_mesh_object.vertex_groups.clear()
-        bpy.context.scene.collection.objects.unlink(  # TODO: remove completely
+        self.context.scene.collection.objects.unlink(  # TODO: remove completely
             dummy_skinned_mesh_object
         )
 

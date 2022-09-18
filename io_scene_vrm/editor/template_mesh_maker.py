@@ -11,22 +11,22 @@ from ..common.vrm0.human_bone import HumanBoneSpecifications
 
 class IcypTemplateMeshMaker:
     def make_mesh_obj(
-        self, name: str, method: Callable[[Mesh], None]
+        self, context: bpy.types.Context, name: str, method: Callable[[Mesh], None]
     ) -> bpy.types.Object:
         mesh = bpy.data.meshes.new(name)
         method(mesh)
         obj = bpy.data.objects.new(name, mesh)
-        scene = bpy.context.scene
+        scene = context.scene
         scene.collection.objects.link(obj)
-        bpy.context.view_layer.objects.active = obj
+        context.view_layer.objects.active = obj
         bpy.ops.object.modifier_add(type="MIRROR")
         return obj
 
-    def __init__(self, args: bpy.types.Operator) -> None:
+    def __init__(self, context: bpy.types.Context, args: bpy.types.Operator) -> None:
         self.args = args
         self.head_size = args.tall / args.head_ratio
-        self.make_mesh_obj("Head", self.make_head)
-        self.make_mesh_obj("Body", self.make_humanoid)
+        self.make_mesh_obj(context, "Head", self.make_head)
+        self.make_mesh_obj(context, "Body", self.make_humanoid)
 
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
         tmp_dict = {

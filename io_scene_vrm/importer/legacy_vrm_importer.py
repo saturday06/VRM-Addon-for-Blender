@@ -13,7 +13,7 @@ from .vrm_parser import PyMesh
 
 class LegacyVrmImporter(AbstractBaseVrmImporter):
     def import_vrm(self) -> None:
-        wm = bpy.context.window_manager
+        wm = self.context.window_manager
 
         def prog(z: int) -> int:
             wm.progress_update(z)
@@ -57,7 +57,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         armature_data = bpy.data.armatures.new("Armature")
         self.armature = bpy.data.objects.new(armature_data.name, armature_data)
         self.context.scene.collection.objects.link(self.armature)
-        bpy.context.view_layer.objects.active = self.armature
+        self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
         bones: Dict[int, bpy.types.Bone] = {}
         armature_edit_bones: Dict[int, bpy.types.Bone] = {}

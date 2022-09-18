@@ -94,7 +94,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             export_fb_ngon_encoding = False
 
         export_objects = search.export_objects(
-            export_invisibles, export_only_selections
+            context, export_invisibles, export_only_selections
         )
         is_vrm1 = any(
             obj.type == "ARMATURE" and obj.data.vrm_addon_extension.is_vrm1()
@@ -103,10 +103,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
 
         if is_vrm1:
             vrm_exporter: AbstractBaseVrmExporter = Gltf2AddonVrmExporter(
-                export_objects
+                context, export_objects
             )
         else:
-            vrm_exporter = LegacyVrmExporter(export_objects, export_fb_ngon_encoding)
+            vrm_exporter = LegacyVrmExporter(
+                context, export_objects, export_fb_ngon_encoding
+            )
 
         vrm_bin = vrm_exporter.export_vrm()
         if vrm_bin is None:
@@ -138,7 +140,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             )
 
         export_objects = search.export_objects(
-            bool(self.export_invisibles), bool(self.export_only_selections)
+            context, bool(self.export_invisibles), bool(self.export_only_selections)
         )
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
@@ -237,7 +239,7 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
             export_invisibles = False
             export_only_selections = False
         export_objects = search.export_objects(
-            export_invisibles, export_only_selections
+            context, export_invisibles, export_only_selections
         )
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) != 1:
@@ -272,7 +274,9 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
 
         armatures = [
             obj
-            for obj in search.export_objects(export_invisibles, export_only_selections)
+            for obj in search.export_objects(
+                context, export_invisibles, export_only_selections
+            )
             if obj.type == "ARMATURE"
         ]
         if not armatures:

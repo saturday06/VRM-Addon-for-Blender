@@ -68,7 +68,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.object_names: Dict[int, str] = {}
 
     def import_vrm(self) -> None:
-        wm = bpy.context.window_manager
+        wm = self.context.window_manager
         wm.progress_begin(0, 8)
         try:
             affected_object = self.scene_init()
@@ -799,7 +799,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     raise RetryUsingLegacyVrmImporter() from e
 
         extras_node_index_key = self.import_id + "Nodes"
-        for obj in bpy.context.selectable_objects:
+        for obj in self.context.selectable_objects:
             if extras_node_index_key in obj:
                 if isinstance(obj[extras_node_index_key], int):
                     self.object_names[obj[extras_node_index_key]] = obj.name
@@ -839,13 +839,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         ):
             obj = self.armature
             obj.rotation_quaternion.rotate(mathutils.Euler((0.0, 0.0, math.pi), "XYZ"))
-            if bpy.context.object is not None:
+            if self.context.object is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.object.select_all(action="DESELECT")
             obj.select_set(True)
-            previous_active = bpy.context.view_layer.objects.active
+            previous_active = self.context.view_layer.objects.active
             try:
-                bpy.context.view_layer.objects.active = obj
+                self.context.view_layer.objects.active = obj
 
                 bone_name_to_roll = {}
                 bpy.ops.object.mode_set(mode="EDIT")
@@ -869,10 +869,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     bones.extend(bone.children)
                 bpy.ops.object.mode_set(mode="OBJECT")
             finally:
-                bpy.context.view_layer.objects.active = previous_active
+                self.context.view_layer.objects.active = previous_active
 
         extras_mesh_index_key = self.import_id + "Meshes"
-        for obj in bpy.context.selectable_objects:
+        for obj in self.context.selectable_objects:
             data = obj.data
             if not isinstance(data, bpy.types.Mesh):
                 continue
@@ -931,7 +931,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             self.images[image_index] = image
 
-        if bpy.context.object is not None and bpy.context.object.mode == "EDIT":
+        if self.context.object is not None and self.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
         for obj in list(bpy.data.objects):

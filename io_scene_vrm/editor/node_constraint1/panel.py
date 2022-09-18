@@ -210,7 +210,9 @@ def draw_node_constraint1_layout(
         export_invisibles = pref.export_invisibles
     else:
         export_invisibles = False
-    objs = search.export_objects(export_invisibles, export_only_selections=False)
+    objs = search.export_objects(
+        context, export_invisibles, export_only_selections=False
+    )
     object_constraints = search.export_object_constraints(objs)
     bone_constraints = search.export_bone_constraints(objs, armature)
     draw_roll_constraint_layout(

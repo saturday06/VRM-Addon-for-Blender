@@ -65,7 +65,7 @@ if persistent:  # for fake-bpy-modules
         # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
         depsgraph_update_pre(None)
         migration.migrate_all_objects()
-        extension.update_internal_cache()
+        extension.update_internal_cache(bpy.context)
 
 else:
 

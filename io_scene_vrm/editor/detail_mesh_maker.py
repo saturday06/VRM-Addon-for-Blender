@@ -22,11 +22,11 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noq
     # pylint: disable=W0201
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
         self.base_armature_name = [
-            o for o in bpy.context.selected_objects if o.type == "ARMATURE"
+            o for o in context.selected_objects if o.type == "ARMATURE"
         ][0].name
-        self.face_mesh_name = [
-            o for o in bpy.context.selected_objects if o.type == "MESH"
-        ][0].name
+        self.face_mesh_name = [o for o in context.selected_objects if o.type == "MESH"][
+            0
+        ].name
         face_mesh = bpy.data.objects[self.face_mesh_name]
         face_mesh.display_type = "WIRE"
         rfd = face_mesh.bound_box[4]
@@ -54,9 +54,9 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noq
         self.mesh = bpy.data.meshes.new("template_face")
         self.make_face(context, self.mesh)
         obj = bpy.data.objects.new("template_face", self.mesh)
-        scene = bpy.context.scene
+        scene = context.scene
         scene.collection.objects.link(obj)
-        bpy.context.view_layer.objects.active = obj
+        context.view_layer.objects.active = obj
         obj.matrix_local = head_matrix
         bpy.ops.object.modifier_add(type="MIRROR")
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -65,7 +65,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc] # noq
         obj.scale[2] = -1
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
         obj.select_set(False)
-        bpy.context.view_layer.objects.active = self.face_mesh
+        context.view_layer.objects.active = self.face_mesh
         return {"FINISHED"}
 
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:

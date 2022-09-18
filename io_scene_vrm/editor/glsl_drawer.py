@@ -29,7 +29,7 @@ class ICYP_OT_draw_model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
         if preferences:
             invisibles = bool(preferences.export_invisibles)
             only_selections = bool(preferences.export_only_selections)
-        GlslDrawObj.draw_func_add(invisibles, only_selections)
+        GlslDrawObj.draw_func_add(context, invisibles, only_selections)
         return {"FINISHED"}
 
 
@@ -619,11 +619,13 @@ class GlslDrawObj:
     build_mesh_func: Optional[bpy.types.Object] = None
 
     @staticmethod
-    def draw_func_add(invisibles: bool, only_selections: bool) -> None:
+    def draw_func_add(
+        context: bpy.types.Context, invisibles: bool, only_selections: bool
+    ) -> None:
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [
             obj
-            for obj in search.export_objects(invisibles, only_selections)
+            for obj in search.export_objects(context, invisibles, only_selections)
             if obj.type == "MESH"
         ]
         if GlslDrawObj.instance is None or GlslDrawObj.draw_func is None:

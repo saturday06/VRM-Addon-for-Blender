@@ -2,12 +2,15 @@ import functools
 
 import bpy
 
+from ..common.logging import get_logger
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .property_group import StringPropertyGroup
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
 from .vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
+
+logger = get_logger(__name__)
 
 
 class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -17,14 +20,17 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
 
     @staticmethod
     def check_mesh_object_names_and_update(
+        scene_name: str,
         defer: bool = True,
     ) -> None:
-        mesh_object_names = [obj.name for obj in bpy.data.objects if obj.type == "MESH"]
+        scene = bpy.data.scenes.get(scene_name)
+        if not scene:
+            logger.error(f'No scene "{scene_name}"')
+            return
+        ext = scene.vrm_addon_extension
 
-        up_to_date = (
-            mesh_object_names
-            == bpy.context.scene.vrm_addon_extension.mesh_object_names[:]
-        )
+        mesh_object_names = [obj.name for obj in bpy.data.objects if obj.type == "MESH"]
+        up_to_date = mesh_object_names == ext.mesh_object_names[:]
 
         if up_to_date:
             return
@@ -33,14 +39,15 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
             bpy.app.timers.register(
                 functools.partial(
                     VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update,
+                    scene_name,
                     False,
                 )
             )
             return
 
-        bpy.context.scene.vrm_addon_extension.mesh_object_names.clear()
+        ext.mesh_object_names.clear()
         for mesh_object_name in mesh_object_names:
-            n = bpy.context.scene.vrm_addon_extension.mesh_object_names.add()
+            n = ext.mesh_object_names.add()
             n.value = mesh_object_name
             n.name = mesh_object_name  # for UI
 
@@ -91,8 +98,11 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
         return str(self.spec_version) == self.SPEC_VERSION_VRM1
 
 
-def update_internal_cache() -> None:
-    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(defer=False)
+def update_internal_cache(context: bpy.types.Context) -> None:
+    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
+        context.scene.name,
+        defer=False,
+    )
     for armature in bpy.data.armatures:
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
             armature.name, defer=False

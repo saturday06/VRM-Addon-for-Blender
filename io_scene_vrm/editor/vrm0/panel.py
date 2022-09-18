@@ -412,7 +412,9 @@ def draw_vrm0_first_person_layout(
     first_person: Vrm0FirstPersonPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
+            context.scene.name
+        )
     layout.prop_search(first_person.first_person_bone, "value", armature.data, "bones")
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
@@ -530,7 +532,9 @@ def draw_vrm0_blend_shape_master_layout(
     blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update()
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
+            context.scene.name
+        )
     blend_data = context.blend_data
     for blend_shape_group_index, blend_shape_group in enumerate(
         blend_shape_master.blend_shape_groups
