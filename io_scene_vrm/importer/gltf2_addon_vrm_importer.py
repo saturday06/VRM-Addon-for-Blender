@@ -1322,13 +1322,19 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         bone.name
                     ] = VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_NONE_ID
                     continue
+                elif bone_name_to_human_bone_name.get(bone.name) in [
+                    HumanBoneName.RIGHT_EYE,
+                    HumanBoneName.LEFT_EYE,
+                    HumanBoneName.RIGHT_FOOT,
+                    HumanBoneName.LEFT_FOOT,
+                ]:
+                    target_vector = Vector((0, -1, 0))
                 else:
                     target_translation = (
                         armature.matrix_world @ Matrix.Translation(bone.head)
                     ).to_translation()
                     base_translation = (
-                        armature.matrix_world
-                        @ Matrix.Translation((bone.parent.head + bone.parent.tail) / 2)
+                        armature.matrix_world @ Matrix.Translation(bone.parent.head)
                     ).to_translation()
                     target_vector = target_translation - base_translation
 
