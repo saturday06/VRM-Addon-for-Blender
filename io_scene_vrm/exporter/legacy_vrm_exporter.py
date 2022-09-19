@@ -1372,7 +1372,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         split_normals[loop_index * 3 + 1],
                         split_normals[loop_index * 3 + 2],
                     ]
-                )
+                ).normalized()
                 vertex_normal_vectors[loop.vertex_index] = (
                     vertex_normal_vectors[loop.vertex_index] + v
                 )
@@ -1380,12 +1380,19 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             vertex_normals = [0.0] * len(vertex_normal_vectors) * 3
             for index, _ in enumerate(vertex_normal_vectors):
                 n = vertex_normal_vectors[index].normalized()
-                if n.magnitude < float_info.epsilon:
-                    vertex_normals[index * 3 + 2] = 1.0
+                if 0.9 < n.length < 1.1:
+                    vertex_normals[index * 3 + 0] = n[0]
+                    vertex_normals[index * 3 + 1] = n[1]
+                    vertex_normals[index * 3 + 2] = n[2]
                     continue
-                vertex_normals[index * 3 + 0] = n[0]
-                vertex_normals[index * 3 + 1] = n[1]
-                vertex_normals[index * 3 + 2] = n[2]
+
+                if index == 0:
+                    vertex_normals[2] = 1.0
+                    continue
+
+                vertex_normals[index * 3 + 0] = vertex_normals[(index - 1) * 3 + 0]
+                vertex_normals[index * 3 + 1] = vertex_normals[(index - 1) * 3 + 1]
+                vertex_normals[index * 3 + 2] = vertex_normals[(index - 1) * 3 + 2]
 
             vert_base_normal_dict.update({kb.name: vertex_normals})
         reference_key_name = mesh_data.shape_keys.reference_key.name
