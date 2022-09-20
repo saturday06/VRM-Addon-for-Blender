@@ -135,6 +135,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if mesh.validate():
             raise ValueError("Invalid geometry")
         obj = bpy.data.objects.new("secondary", mesh)
+        obj.parent_type = "OBJECT"
+        obj.parent = self.armature
         for index, bone_name in enumerate(self.armature.data.bones.keys()):
             vertex_group = obj.vertex_groups.new(name=bone_name)
             vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
