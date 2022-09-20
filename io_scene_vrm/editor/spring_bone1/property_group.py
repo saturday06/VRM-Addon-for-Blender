@@ -2,6 +2,7 @@ import uuid
 from typing import Any
 
 import bpy
+from mathutils import Matrix
 
 from ..property_group import BonePropertyGroup
 
@@ -101,26 +102,64 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
-    def refresh(self, armature: bpy.types.Object, bone_name: str) -> None:
+    def reset_bpy_object(
+        self, context: bpy.types.Context, armature: bpy.types.Object
+    ) -> None:
+        broadcast = False
         if not self.bpy_object or not self.bpy_object.name:
-            return
+            prefix = armature.data.name
+            if self.node and self.node.value:
+                prefix = self.node.value
+            obj = bpy.data.objects.new(name=f"{prefix} Collider", object_data=None)
+            self.bpy_object = obj
+            broadcast = True
 
         if self.bpy_object.parent != armature:
             self.bpy_object.parent = armature
         if self.bpy_object.empty_display_type != "SPHERE":
             self.bpy_object.empty_display_type = "SPHERE"
 
-        if bone_name:
+        if self.shape.shape == self.shape.SHAPE_SPHERE:
+            if self.bpy_object.empty_display_size != self.shape.sphere.radius:
+                self.bpy_object.empty_display_size = self.shape.sphere.radius
+            offset = list(self.shape.sphere.offset)
+        elif self.shape.shape == self.shape.SHAPE_CAPSULE:
+            if self.bpy_object.empty_display_size != self.shape.capsule.radius:
+                self.bpy_object.empty_display_size = self.shape.capsule.radius
+            offset = list(self.shape.capsule.offset)
+        else:
+            offset = [0, 0, 0]
+
+        if self.bpy_object.name not in context.scene.collection.objects:
+            context.scene.collection.objects.link(self.bpy_object)
+
+        if self.node and self.node.value:
             if self.bpy_object.parent_type != "BONE":
                 self.bpy_object.parent_type = "BONE"
-            if self.bpy_object.parent_bone != bone_name:
-                self.bpy_object.parent_bone = bone_name
+            if self.bpy_object.parent_bone != self.node.value:
+                self.bpy_object.parent_bone = self.node.value
+            self.bpy_object.matrix_world = Matrix.Translation(
+                [
+                    armature.matrix_world.to_translation()[i]
+                    + armature.data.bones[
+                        self.node.value
+                    ].matrix_local.to_translation()[i]
+                    + offset[i]
+                    for i in range(3)
+                ]
+            )
         else:
             if self.bpy_object.parent_type != "OBJECT":
                 self.bpy_object.parent_type = "OBJECT"
+            self.bpy_object.matrix_world = Matrix.Translation(
+                [
+                    armature.matrix_world.to_translation()[i] + offset[i]
+                    for i in range(3)
+                ]
+            )
 
-        self.node.refresh(armature)
-        self.node.value = bone_name
+        if broadcast:
+            self.broadcast_bpy_object_name()
 
 
 class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]

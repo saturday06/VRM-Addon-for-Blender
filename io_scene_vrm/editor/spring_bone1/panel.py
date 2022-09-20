@@ -79,7 +79,7 @@ def draw_vrm1_spring_bone_layout(
             vrm1_operator.VRM_OT_add_spring_bone1_collider.bl_idname,
             icon="ADD",
         )
-        add_collider_op.armature_data_name = armature.data.name
+        add_collider_op.armature_name = armature.data.name
 
     collider_groups_box = layout.box()
     collider_groups_row = collider_groups_box.row()
@@ -211,7 +211,11 @@ def draw_vrm1_spring_bone_layout(
                     "vrm_name",
                 )
                 spring_column.prop_search(
-                    spring.center, "value", armature.data, "bones", text="Center",
+                    spring.center,
+                    "value",
+                    armature.data,
+                    "bones",
+                    text="Center",
                 )
 
                 spring_joints_box = spring_column.box().column()

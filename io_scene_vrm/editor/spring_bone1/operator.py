@@ -12,25 +12,17 @@ class VRM_OT_add_spring_bone1_collider(  # noqa: N801
     bl_description = "Add VRM 1.0 Collider"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}  # noqa: F821
     )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if not isinstance(armature.data, bpy.types.Armature):
             return {"CANCELLED"}
-        collider = armature.vrm_addon_extension.spring_bone1.colliders.add()
+        collider = armature.data.vrm_addon_extension.spring_bone1.colliders.add()
         collider.uuid = uuid.uuid4().hex
-
-        obj = bpy.data.objects.new(
-            name=f"{self.armature_data_name} Collider", object_data=None
-        )
-        collider.bpy_object = obj
-        obj.empty_display_type = "SPHERE"
-        obj.empty_display_size = 0.25
-        collider.broadcast_bpy_object_name()
-        context.scene.collection.objects.link(obj)
+        collider.reset_bpy_object(context, armature)
         return {"FINISHED"}
 
 

@@ -1874,7 +1874,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: Dict[str, Any],
-        armature_data_name: str,
     ) -> Dict[int, SpringBone1ColliderPropertyGroup]:
         collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup] = {}
         collider_dicts = spring_bone_dict.get("colliders")
@@ -1883,7 +1882,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         for collider_index, collider_dict in enumerate(collider_dicts):
             if bpy.ops.vrm.add_spring_bone1_collider(
-                armature_data_name=armature_data_name
+                armature_name=self.armature.name
             ) != {"FINISHED"}:
                 continue
 
@@ -1898,6 +1897,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bone_name = self.bone_names.get(node_index)
                 if isinstance(bone_name, str):
                     collider.node.value = bone_name
+                    collider.bpy_object.name = f"{bone_name} Collider"
 
             shape_dict = collider_dict.get("shape")
             if not isinstance(shape_dict, dict):
@@ -1933,6 +1933,17 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             shape.capsule.tail = convert.vrm_json_array_to_float_vector(
                 capsule_dict.get("tail"), [0, 0, 0]
             )
+
+        for collider in spring_bone.colliders:
+            collider.reset_bpy_object(self.context, self.armature)
+
+        if spring_bone.colliders:
+            colliders_collection = bpy.data.collections.new("Colliders")
+            self.context.scene.collection.children.link(colliders_collection)
+            for collider in spring_bone.colliders:
+                colliders_collection.objects.link(collider.bpy_object)
+                if collider.bpy_object.name in self.context.scene.collection.objects:
+                    self.context.scene.collection.objects.unlink(collider.bpy_object)
 
         return collider_index_to_collider
 
@@ -2088,7 +2099,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             raise ValueError("armature is None")
 
         collider_index_to_collider = self.load_spring_bone1_colliders(
-            spring_bone, spring_bone_dict, armature.data.name
+            spring_bone, spring_bone_dict
         )
         collider_group_index_to_collider_group = self.load_spring_bone1_collider_groups(
             spring_bone,
