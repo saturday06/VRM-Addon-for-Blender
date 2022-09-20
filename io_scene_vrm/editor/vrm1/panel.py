@@ -89,13 +89,6 @@ def draw_vrm1_humanoid_layout(
         pose_marker_name_empty_box.scale_y = 0.5
         pose_marker_name_empty_box.label(text="Current Pose")
 
-    armature_box.operator(
-        operator.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT"
-    )
-    armature_box.operator(
-        operator.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT"
-    )
-
     if operator.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
         simplify_vroid_bones_op = armature_box.operator(
             operator.VRM_OT_simplify_vroid_bones.bl_idname,
