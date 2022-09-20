@@ -27,7 +27,7 @@ translation_dictionary = {
         "*",
         "VRM 1.0 support is under development.\n"
         + "It won't work as intended in many situations.",
-    ): "VRM 1.0対応機能は現在開発中のため\n"
+    ): "VRM 1.0対応機能は現在開発中です。\n"
     + "多くの状況で意図通り動作しません。\n",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
     (

@@ -137,6 +137,10 @@ def create_blend_model(
                     license_validation=license_validation,
                     legacy_importer=False,
                 ).parse()
+
+                if parse_result.vrm1_extension:
+                    bpy.ops.wm.vrm_vrm1_incomplete_support_warning("INVOKE_DEFAULT")
+
                 Gltf2AddonVrmImporter(
                     context,
                     parse_result,
@@ -230,3 +234,29 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
                     )
 
         layout.prop(self, "import_anyway")
+
+
+class WM_OT_vrm1_incomplete_support_warning(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_label = "VRM 1.0"
+    bl_idname = "wm.vrm_vrm1_incomplete_support_warning"
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+        return cast(
+            Set[str], context.window_manager.invoke_props_dialog(self, width=300)
+        )
+
+    def draw(self, _context: bpy.types.Context) -> None:
+        warning_column = self.layout.column()
+        warning_message = pgettext(
+            "VRM 1.0 support is under development.\n"
+            + "It won't work as intended in many situations."
+        )
+        for index, warning_line in enumerate(warning_message.splitlines()):
+            warning_column.label(
+                text=warning_line,
+                translate=False,
+                icon="ERROR" if index == 0 else "NONE",
+            )
