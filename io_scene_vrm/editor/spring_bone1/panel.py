@@ -211,7 +211,7 @@ def draw_vrm1_spring_bone_layout(
                     "vrm_name",
                 )
                 spring_column.prop_search(
-                    spring.center, "value", armature.data, "bones"
+                    spring.center, "value", armature.data, "bones", text="Center",
                 )
 
                 spring_joints_box = spring_column.box().column()
