@@ -1,5 +1,6 @@
 from collections import abc
 from os.path import dirname, join
+from sys import float_info
 from typing import Any, Dict, Optional, Tuple
 
 import bgl
@@ -428,20 +429,23 @@ def get_image_name_and_sampler_type(
     return image_name, wrap_type, filter_type
 
 
-def float_or_none(v: Any) -> Optional[float]:
+def float_or_none(v: Any, min_value: float, max_value: float) -> Optional[float]:
     if isinstance(v, (float, int)):
-        return float(v)
+        return max(min_value, min(float(v), max_value))
     return None
 
 
 def get_float_value(
-    shader_node: bpy.types.Node, input_socket_name: str
+    shader_node: bpy.types.Node,
+    input_socket_name: str,
+    min_value: float = float_info.min,
+    max_value: float = float_info.max,
 ) -> Optional[float]:
     socket = shader_node.inputs.get(input_socket_name)
     if not socket:
         return None
 
-    default_value = float_or_none(socket.default_value)
+    default_value = float_or_none(socket.default_value, min_value, max_value)
 
     links = socket.links
     if not links:
@@ -455,16 +459,18 @@ def get_float_value(
     if not outputs:
         return default_value
 
-    return float_or_none(outputs[0].default_value)
+    return float_or_none(outputs[0].default_value, min_value, max_value)
 
 
-def rgba_or_none(vs: Any) -> Optional[Tuple[float, float, float, float]]:
+def rgba_or_none(
+    vs: Any, min_value: float = float_info.min, max_value: float = float_info.max
+) -> Optional[Tuple[float, float, float, float]]:
     if not isinstance(vs, abc.Iterable):
         return None
 
     rgba = []
     for v in vs:
-        f = float_or_none(v)
+        f = float_or_none(v, min_value, max_value)
         if f is None:
             return None
         rgba.append(f)
@@ -472,7 +478,7 @@ def rgba_or_none(vs: Any) -> Optional[Tuple[float, float, float, float]]:
             return None
 
     if len(rgba) == 3:
-        rgba.append(1.0)
+        rgba.append(max(min_value, min(1.0, max_value)))
     if len(rgba) != 4:
         return None
 
@@ -480,13 +486,16 @@ def rgba_or_none(vs: Any) -> Optional[Tuple[float, float, float, float]]:
 
 
 def get_rgba_val(
-    shader_node: bpy.types.Node, input_socket_name: str
+    shader_node: bpy.types.Node,
+    input_socket_name: str,
+    min_value: float = float_info.min,
+    max_value: float = float_info.max,
 ) -> Optional[Tuple[float, float, float, float]]:
     socket = shader_node.inputs.get(input_socket_name)
     if not socket:
         return None
 
-    default_value = rgba_or_none(socket.default_value)
+    default_value = rgba_or_none(socket.default_value, min_value, max_value)
 
     links = socket.links
     if not links:
@@ -500,16 +509,18 @@ def get_rgba_val(
     if not outputs:
         return default_value
 
-    return rgba_or_none(outputs[0].default_value)
+    return rgba_or_none(outputs[0].default_value, min_value, max_value)
 
 
-def rgb_or_none(vs: Any) -> Optional[Tuple[float, float, float]]:
+def rgb_or_none(
+    vs: Any, min_value: float = float_info.min, max_value: float = float_info.max
+) -> Optional[Tuple[float, float, float]]:
     if not isinstance(vs, abc.Iterable):
         return None
 
     rgb = []
     for v in vs:
-        f = float_or_none(v)
+        f = float_or_none(v, min_value, max_value)
         if f is None:
             return None
         rgb.append(f)
@@ -525,13 +536,16 @@ def rgb_or_none(vs: Any) -> Optional[Tuple[float, float, float]]:
 
 
 def get_rgb_val(
-    shader_node: bpy.types.Node, input_socket_name: str
+    shader_node: bpy.types.Node,
+    input_socket_name: str,
+    min_value: float = float_info.min,
+    max_value: float = float_info.max,
 ) -> Optional[Tuple[float, float, float]]:
     socket = shader_node.inputs.get(input_socket_name)
     if not socket:
         return None
 
-    default_value = rgb_or_none(socket.default_value)
+    default_value = rgb_or_none(socket.default_value, min_value, max_value)
 
     links = socket.links
     if not links:
@@ -545,4 +559,4 @@ def get_rgb_val(
     if not outputs:
         return default_value
 
-    return rgb_or_none(outputs[0].default_value)
+    return rgb_or_none(outputs[0].default_value, min_value, max_value)

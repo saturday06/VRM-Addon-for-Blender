@@ -1361,6 +1361,7 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
     render_queue_offset_number: bpy.props.IntProperty(  # type: ignore[valid-type]
         name="RenderQueue Offset",  # noqa: F722
         min=-9,
+        default=0,
         max=9,
         get=lambda self: self.get_int("mtoon.renderQueueOffsetNumber"),
         set=lambda self, value: self.set_int("mtoon.renderQueueOffsetNumber", value),
@@ -1373,9 +1374,9 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
     shade_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="COLOR",  # noqa: F821
-        default=(0, 0, 0),
-        min=0,
-        max=1,
+        default=(1.0, 1.0, 1.0),
+        min=0.0,
+        max=1.0,
         get=lambda self: self.get_rgb("mtoon.shadeColorFactor"),
         set=lambda self, value: self.set_rgb("mtoon.shadeColorFactor", value),
     )
@@ -1386,26 +1387,27 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
 
     shading_shift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Shading Shift",  # noqa: F722
-        soft_min=-1,
-        soft_max=1,
+        soft_min=-1.0,
+        default=0.0,
+        soft_max=1.0,
         get=lambda self: self.get_value("mtoon.shadingShiftFactor"),
         set=lambda self, value: self.set_value("mtoon.shadingShiftFactor", value),
     )
 
     shading_toony_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Shading Toony",  # noqa: F722
-        soft_min=0,
+        min=0.0,
         default=0.9,
-        soft_max=1,
+        max=1.0,
         get=lambda self: self.get_value("mtoon.shadingToonyFactor"),
         set=lambda self, value: self.set_value("mtoon.shadingToonyFactor", value),
     )
 
     gi_equalization_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="GI Equalization",  # noqa: F722
-        soft_min=0,
+        min=0.0,
         default=0.9,
-        soft_max=1,
+        max=1.0,
         get=lambda self: self.get_value("mtoon.giEqualizationFactor"),
         set=lambda self, value: self.set_value("mtoon.giEqualizationFactor", value),
     )
@@ -1420,6 +1422,10 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
         set=lambda self, value: self.set_rgb("mtoon.matcapFactor", value),
     )
 
+    matcap_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1MatcapTextureInfoPropertyGroup  # noqa: F722
+    )
+
     parametric_rim_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Parametric Rim Color",  # noqa: F722
         size=3,
@@ -1431,12 +1437,8 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
         set=lambda self, value: self.set_rgb("mtoon.parametricRimColorFactor", value),
     )
 
-    matcap_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapTextureInfoPropertyGroup  # noqa: F722
-    )
-
-    outline_width_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup  # noqa: F722
+    rim_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1RimMultiplyTextureInfoPropertyGroup  # noqa: F722
     )
 
     rim_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1447,15 +1449,11 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
         set=lambda self, value: self.set_value("mtoon.rimLightingMixFactor", value),
     )
 
-    rim_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyTextureInfoPropertyGroup  # noqa: F722
-    )
-
     parametric_rim_fresnel_power_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Parametric Rim Fresnel Power",  # noqa: F722
-        soft_min=0,
+        min=0.0,
         default=1.0,
-        soft_max=100,
+        soft_max=100.0,
         get=lambda self: self.get_value("mtoon.parametricRimFresnelPowerFactor"),
         set=lambda self, value: self.set_value(
             "mtoon.parametricRimFresnelPowerFactor", value
@@ -1464,8 +1462,9 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
 
     parametric_rim_lift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Parametric Rim Lift",  # noqa: F722
-        soft_min=0,
-        soft_max=1,
+        soft_min=0.0,
+        default=1.0,
+        soft_max=1.0,
         get=lambda self: self.get_value("mtoon.parametricRimLiftFactor"),
         set=lambda self, value: self.set_value("mtoon.parametricRimLiftFactor", value),
     )
@@ -1497,10 +1496,14 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
 
     outline_width_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Outline Width",  # noqa: F722
-        soft_min=0,
+        min=0.0,
         soft_max=0.05,
         get=lambda self: self.get_value("mtoon.outlineWidthFactor"),
         set=lambda self, value: self.set_value("mtoon.outlineWidthFactor", value),
+    )
+
+    outline_width_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup  # noqa: F722
     )
 
     outline_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -1516,8 +1519,9 @@ class Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGro
 
     outline_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Outline LightingMix",  # noqa: F722
-        soft_min=0,
-        soft_max=1,
+        min=0.0,
+        default=1.0,
+        max=1.0,
         get=lambda self: self.get_value("mtoon.outlineLightingMixFactor"),
         set=lambda self, value: self.set_value("mtoon.outlineLightingMixFactor", value),
     )
@@ -1636,7 +1640,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     alpha_cutoff: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Cutoff",  # noqa: F821
         min=0,
-        max=1,
+        soft_max=1,
         get=__get_alpha_cutoff,
         set=__set_alpha_cutoff,
     )

@@ -344,7 +344,7 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.rangeMap.schema.json
 class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    input_max_value: bpy.props.FloatProperty()  # type: ignore[valid-type]
+    input_max_value: bpy.props.FloatProperty(min=0.0, max=180.0)  # type: ignore[valid-type]
     output_scale: bpy.props.FloatProperty()  # type: ignore[valid-type]
 
 
@@ -440,7 +440,7 @@ class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):  # type: i
         type=bpy.types.Material  # noqa: F821
     )
     scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=2, default=(0, 0)  # noqa: F722
+        size=2, default=(1, 1)  # noqa: F722
     )
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=2, default=(0, 0)  # noqa: F722

@@ -534,7 +534,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 constraint_dict["roll"] = {
                     "source": source_index,
                     "rollAxis": roll_axis,
-                    "weight": roll_constraint.influence,
+                    "weight": max(0.0, min(1.0, roll_constraint.influence)),
                 }
         elif aim_constraint:
             source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
@@ -548,7 +548,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "aimAxis": convert.BPY_TRACK_AXIS_TO_VRM_AIM_AXIS[
                         aim_constraint.track_axis
                     ],
-                    "weight": aim_constraint.influence,
+                    "weight": max(0.0, min(1.0, aim_constraint.influence)),
                 }
         elif rotation_constraint:
             source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
@@ -559,7 +559,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if isinstance(source_index, int):
                 constraint_dict["rotation"] = {
                     "source": source_index,
-                    "weight": rotation_constraint.influence,
+                    "weight": max(0.0, min(1.0, rotation_constraint.influence)),
                 }
         return constraint_dict
 
@@ -961,7 +961,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict["transparentWithZWrite"] = False
             mtoon_dict["renderQueueOffsetNumber"] = 0
         elif material.blend_method == "CLIP":
-            alpha_cutoff = shader.get_float_value(node, "CutoffRate")
+            alpha_cutoff = shader.get_float_value(node, "CutoffRate", 0, float_info.max)
             if alpha_cutoff is not None:
                 material_dict["alphaCutoff"] = alpha_cutoff
             else:
@@ -988,7 +988,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             pbr_metallic_roughness_dict,
             "baseColorFactor",
-            shader.get_rgba_val(node, "DiffuseColor"),
+            shader.get_rgba_val(node, "DiffuseColor", 0.0, 1.0),
         )
         base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
             json_dict, body_binary, node, "MainTexture"
@@ -997,7 +997,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
         )
         assign_dict(
-            mtoon_dict, "shadeColorFactor", shader.get_rgb_val(node, "ShadeColor")
+            mtoon_dict,
+            "shadeColorFactor",
+            shader.get_rgb_val(node, "ShadeColor", 0.0, 1.0),
         )
         shade_multiply_texture_dict = (
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
@@ -1046,7 +1048,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ] = Gltf2AddonVrmExporter.migrate_to_gi_equalization(gi_equalization_0x)
 
         assign_dict(
-            material_dict, "emissiveFactor", shader.get_rgb_val(node, "EmissionColor")
+            material_dict,
+            "emissiveFactor",
+            shader.get_rgb_val(node, "EmissionColor", 0.0, 1.0),
         )
         assign_dict(
             material_dict,
@@ -1063,12 +1067,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ),
         )
         assign_dict(
-            mtoon_dict, "parametricRimColorFactor", shader.get_rgb_val(node, "RimColor")
+            mtoon_dict,
+            "parametricRimColorFactor",
+            shader.get_rgb_val(node, "RimColor", 0.0, 1.0),
         )
         assign_dict(
             mtoon_dict,
             "parametricRimFresnelPowerFactor",
-            shader.get_float_value(node, "RimFresnelPower"),
+            shader.get_float_value(node, "RimFresnelPower", 0.0, float_info.max),
         )
         assign_dict(
             mtoon_dict,
@@ -1103,10 +1109,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         if outline_width_mode == 1:
             mtoon_dict["outlineWidthMode"] = "worldCoordinates"
-            mtoon_dict["outlineWidthFactor"] = outline_width * centimeter_to_meter
+            mtoon_dict["outlineWidthFactor"] = max(
+                0.0, outline_width * centimeter_to_meter
+            )
         elif outline_width_mode == 2:
             mtoon_dict["outlineWidthMode"] = "screenCoordinates"
-            mtoon_dict["outlineWidthFactor"] = outline_width * one_hundredth * 0.5
+            mtoon_dict["outlineWidthFactor"] = max(
+                0.0, outline_width * one_hundredth * 0.5
+            )
         else:
             mtoon_dict["outlineWidthMode"] = "none"
 
@@ -1118,7 +1128,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ),
         )
         assign_dict(
-            mtoon_dict, "outlineColorFactor", shader.get_rgb_val(node, "OutlineColor")
+            mtoon_dict,
+            "outlineColorFactor",
+            shader.get_rgb_val(node, "OutlineColor", 0.0, 1.0),
         )
 
         outline_color_mode = shader.get_float_value(node, "OutlineColorMode")
