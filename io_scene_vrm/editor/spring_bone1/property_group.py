@@ -105,14 +105,12 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     def reset_bpy_object(
         self, context: bpy.types.Context, armature: bpy.types.Object
     ) -> None:
-        broadcast = False
         if not self.bpy_object or not self.bpy_object.name:
             prefix = armature.data.name
             if self.node and self.node.value:
                 prefix = self.node.value
             obj = bpy.data.objects.new(name=f"{prefix} Collider", object_data=None)
             self.bpy_object = obj
-            broadcast = True
 
         if self.bpy_object.parent != armature:
             self.bpy_object.parent = armature
@@ -158,8 +156,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
                 ]
             )
 
-        if broadcast:
-            self.broadcast_bpy_object_name()
+        self.broadcast_bpy_object_name()
 
 
 class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
