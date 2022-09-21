@@ -4,8 +4,10 @@ from typing import Any
 import bpy
 from mathutils import Matrix
 
+from ...common.logging import get_logger
 from ..property_group import BonePropertyGroup
 
+logger = get_logger(__name__)
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L7-L27
 class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
