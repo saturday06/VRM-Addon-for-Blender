@@ -1516,10 +1516,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.load_vrm1_first_person(
             vrm1.first_person, vrm1_extension_dict.get("firstPerson")
         )
+        self.load_vrm1_look_at(vrm1.look_at, vrm1_extension_dict.get("lookAt"))
         self.load_vrm1_expressions(
             vrm1.expressions, vrm1_extension_dict.get("expressions")
         )
-
         self.load_spring_bone1(
             addon_extension.spring_bone1,
             deep.get(self.parse_result.json_dict, ["extensions", "VRMC_springBone"]),
@@ -1685,11 +1685,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if not isinstance(look_at_dict, dict):
             return
 
-        offset_from_head_bone = convert.vrm_json_vector3_to_tuple(
-            look_at_dict.get("offsetFromHeadBone")
+        offset_from_head_bone = convert.vrm_json_array_to_float_vector(
+            look_at_dict.get("offsetFromHeadBone"), [0, 0, 0]
         )
         if offset_from_head_bone is not None:
-            look_at.first_person_bone_offset = offset_from_head_bone
+            look_at.offset_from_head_bone = offset_from_head_bone
 
         type_ = look_at_dict.get("type")
         if type_ in ["bone", "expression"]:
