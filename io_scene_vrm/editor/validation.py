@@ -460,7 +460,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     )
                 )
 
-        if armature is not None:
+        if armature is not None and armature.data.vrm_addon_extension.is_vrm0():
             # region first_person
             first_person = armature.data.vrm_addon_extension.vrm0.first_person
             if not first_person.first_person_bone.value:
