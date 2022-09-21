@@ -72,6 +72,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.import_id = Gltf2AddonImporterUserExtension.update_current_import_id()
         self.temp_object_name_count = 0
         self.object_names: Dict[int, str] = {}
+        self.mesh_object_names: Dict[int, str] = {}
 
     def import_vrm(self) -> None:
         wm = self.context.window_manager
@@ -807,8 +808,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         extras_node_index_key = self.import_id + "Nodes"
         for obj in self.context.selectable_objects:
             if extras_node_index_key in obj:
-                if isinstance(obj[extras_node_index_key], int):
-                    self.object_names[obj[extras_node_index_key]] = obj.name
+                node_index = obj[extras_node_index_key]
+                if isinstance(node_index, int):
+                    self.object_names[node_index] = obj.name
+                    if isinstance(obj.data, bpy.types.Mesh):
+                        self.mesh_object_names[node_index] = obj.name
                 del obj[extras_node_index_key]
             data = obj.data
             if isinstance(data, bpy.types.Mesh) and extras_node_index_key in data:
@@ -1665,9 +1669,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             node = mesh_annotation_dict.get("node")
             if isinstance(node, int):
-                mesh_obj = self.meshes.get(node)
-                if mesh_obj:
-                    mesh_annotation.node.value = mesh_obj.name
+                mesh_object_name = self.mesh_object_names.get(node)
+                if isinstance(mesh_object_name, str):
+                    mesh_annotation.node.value = mesh_object_name
 
             type_ = mesh_annotation_dict.get("type")
             if type_ in ["auto", "both", "thirdPersonOnly", "firstPersonOnly"]:
