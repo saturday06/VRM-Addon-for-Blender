@@ -101,9 +101,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         armature: bpy.types.Object,
         readonly: bool,
     ) -> None:
-        humanoid = armature.data.vrm_addon_extension.vrm1.humanoid
-        humanoid.check_last_bone_names_and_update(armature.data.name, defer=readonly)
-        for human_bone in humanoid.human_bone_name_to_human_bone.values():
+        human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones.check_last_bone_names_and_update(armature.data.name, defer=readonly)
+        for human_bone in human_bones.human_bone_name_to_human_bone().values():
             if (
                 not human_bone.node.value
                 or human_bone.node.value in human_bone.node_candidates
@@ -235,6 +235,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         node_names.append(bone.name)
 
                 # TODO: T_POSE,
+                all_required_bones_exist = True
                 if armature.data.vrm_addon_extension.is_vrm1():
                     warning_messages.append(
                         pgettext(
@@ -245,10 +246,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     human_bones = (
                         armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
                     )
+
+                    human_bone_name_to_human_bone = (
+                        human_bones.human_bone_name_to_human_bone()
+                    )
                     for (
                         human_bone_name,
                         human_bone,
-                    ) in human_bones.human_bone_name_to_human_bone().items():
+                    ) in human_bone_name_to_human_bone.items():
                         human_bone_specification = (
                             vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
                         )
@@ -260,12 +265,46 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             and human_bone.node.value in armature.data.bones
                         ):
                             continue
+                        all_required_bones_exist = False
                         error_messages.append(
                             pgettext(
                                 'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
                                 + ' "VRM" Panel → "Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
                             ).format(humanoid_name=human_bone_specification.title)
                         )
+
+                    if all_required_bones_exist:
+                        # https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0-beta/humanoid.md#list-of-humanoid-bones
+                        for (
+                            human_bone_specification
+                        ) in vrm1_human_bone.HumanBoneSpecifications.all_human_bones:
+                            if not human_bone_specification.parent_requirement:
+                                continue
+                            parent = human_bone_specification.parent()
+                            if parent is None:
+                                raise Exception(
+                                    f"Fatal: {human_bone_specification.name} has no parent"
+                                )
+                            child_human_bone = human_bone_name_to_human_bone[
+                                human_bone_specification.name
+                            ]
+                            parent_human_bone = human_bone_name_to_human_bone[
+                                parent.name
+                            ]
+                            if (
+                                child_human_bone.node.value
+                                and not parent_human_bone.node.value
+                            ):
+                                error_messages.append(
+                                    pgettext(
+                                        'VRM Bone "{child}" needs "{parent}". Please confirm'
+                                        + ' "VRM" Panel → "Humanoid" → "VRM Optional Bones" → "{parent}".'
+                                    ).format(
+                                        child=human_bone_specification.title,
+                                        parent=parent.title,
+                                    )
+                                )
+
                 else:
                     humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
                     human_bones = humanoid.human_bones
@@ -288,10 +327,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                                 + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
                             ).format(humanoid_name=humanoid_name.capitalize())
                         )
-                    if all_required_bones_exist:
-                        WM_OT_vrm_validator.validate_bone_order(
-                            error_messages, armature, readonly
-                        )
+
+                if all_required_bones_exist:
+                    WM_OT_vrm_validator.validate_bone_order(
+                        error_messages, armature, readonly
+                    )
 
             if obj.type == "MESH":
                 for poly in obj.data.polygons:
@@ -307,6 +347,16 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
         # endregion export object seeking
 
+        if armature is not None and armature.data.vrm_addon_extension.is_vrm1():
+            for obj in export_objects:
+                if obj.scale[0] < 0 or obj.scale[1] < 0 or obj.scale[2] < 0:
+                    error_messages.append(
+                        pgettext(
+                            'Object "{name}" contains a negative value for the scale;'
+                            + " VRM 1.0 does not allow negative values to be specified for the scale."
+                        ).format(name=obj.name)
+                    )
+
         used_materials = search.export_materials(export_objects)
         used_images: List[bpy.types.Image] = []
         bones_name = []
@@ -320,6 +370,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             for v in mesh.data.vertices:
                 if not v.groups and mesh.parent_bone == "":
                     if vertex_error_count > 5:
+                        continue
+                    if (
+                        armature is not None
+                        and armature.data.vrm_addon_extension.is_vrm1()
+                    ):
                         continue
                     info_messages.append(
                         pgettext(

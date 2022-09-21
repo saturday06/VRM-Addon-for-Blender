@@ -130,6 +130,18 @@ translation_dictionary = {
         'Faces must be Triangle, but not face in "{name}" or '
         + "it will be triangulated automatically.",
     ): "「{name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
+    (
+        "*",
+        'VRM Bone "{child}" needs "{parent}". Please confirm'
+        + ' "VRM" Panel → "Humanoid" → "VRM Optional Bones" → "{parent}".',
+    ): "VRMボーン「{child}」は「{parent}」が必要です。"
+    + "「VRM」パネルの「Humanoid」→「VRMオプションボーン」で「{parent}」ボーンの設定をしてください。",
+    (
+        "*",
+        'Object "{name}" contains a negative value for the scale;'
+        + " VRM 1.0 does not allow negative values to be specified for the scale.",
+    ): "「{mesh_name}」の頂点id「{vertex_index}」にウェイトが乗っていません。"
+    + "オブジェクト「{name}」にスケールにマイナス値が含まれています。VRM 1.0ではスケールにマイナス値を指定できません。",
     ("*", "Please add ARMATURE to selections"): "アーマチュアを選択範囲に含めてください",
     (
         "*",
