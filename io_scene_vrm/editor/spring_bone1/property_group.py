@@ -251,14 +251,36 @@ class SpringBone1ColliderGroupPropertyGroup(
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.joint.schema.json
 class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     node: bpy.props.PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
-    hit_radius: bpy.props.FloatProperty(min=0.0, default=0.0)  # type: ignore[valid-type]
-    stiffness: bpy.props.FloatProperty(min=0.0, default=1.0)  # type: ignore[valid-type]
-    gravity_power: bpy.props.FloatProperty(min=0.0, default=0.0)  # type: ignore[valid-type]
-    gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=3, default=(0, -1, 0)  # noqa: F722
+
+    hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Hit Radius",  # noqa: F722
+        min=0.0,
+        default=0.0,
     )
+
+    stiffness: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Stiffness",  # noqa: F821
+        min=0.0,
+        default=1.0,
+    )
+
+    gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Gravity Power",  # noqa: F722
+        min=0.0,
+        default=0.0,
+    )
+
+    gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+        name="Gravity Direction",  # noqa: F722
+        size=3,
+        default=(0, -1, 0),  # noqa: F722
+    )
+
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.5, min=0, max=1.0
+        name="Drag Force",  # noqa: F722
+        default=0.5,
+        min=0,
+        max=1.0,
     )
 
     # for UI
