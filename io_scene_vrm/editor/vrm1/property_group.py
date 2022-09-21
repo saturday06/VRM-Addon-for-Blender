@@ -344,13 +344,20 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.rangeMap.schema.json
 class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    input_max_value: bpy.props.FloatProperty(min=0.0, max=180.0)  # type: ignore[valid-type]
-    output_scale: bpy.props.FloatProperty()  # type: ignore[valid-type]
+    input_max_value: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Input Max Value",  # noqa: F722
+        min=0.0,
+        max=180.0,
+    )
+    output_scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Output Scale",  # noqa: F722
+    )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.schema.json
 class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     offset_from_head_bone: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+        name="Offset From Head Bone",  # noqa: F722
         size=3,
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
@@ -361,19 +368,20 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         ("expression", "Expression", "Expression", "SHAPEKEY_DATA", 1),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=type_items,  # noqa: F722
+        name="Type",  # noqa: F821
+        items=type_items,
     )
     range_map_horizontal_inner: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1LookAtRangeMapPropertyGroup,  # noqa: F722
+        type=Vrm1LookAtRangeMapPropertyGroup,
     )
     range_map_horizontal_outer: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1LookAtRangeMapPropertyGroup,  # noqa: F722
+        type=Vrm1LookAtRangeMapPropertyGroup,
     )
     range_map_vertical_down: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1LookAtRangeMapPropertyGroup  # noqa: F722
+        type=Vrm1LookAtRangeMapPropertyGroup,
     )
     range_map_vertical_up: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1LookAtRangeMapPropertyGroup  # noqa: F722
+        type=Vrm1LookAtRangeMapPropertyGroup,
     )
 
 
