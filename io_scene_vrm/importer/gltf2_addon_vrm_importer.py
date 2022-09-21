@@ -1885,7 +1885,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature_name) != {
                 "FINISHED"
             }:
-                continue
+                raise Exception(
+                    f'Failed to add spring bone 1.0 collider to "{armature_name}"'
+                )
 
             collider = spring_bone.colliders[-1]
             collider_index_to_collider[collider_index] = collider
@@ -1967,7 +1969,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         ):
             if bpy.ops.vrm.add_spring_bone1_collider_group(
                 armature_data_name=armature_data_name
-            ) != {"FINISHED"} or not isinstance(collider_group_dict, dict):
+            ) != {"FINISHED"}:
+                raise Exception(
+                    f"Failed to add spring bone 1.0 collider group to {armature_data_name}"
+                )
+
+            if not isinstance(collider_group_dict, dict):
                 continue
 
             collider_group = spring_bone.collider_groups[-1]
@@ -1986,8 +1993,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             for collider_index in collider_indices:
                 if bpy.ops.vrm.add_spring_bone1_collider_group_collider(
                     armature_data_name=armature_data_name,
-                    collider_group_index=len(spring_bone.collider_groups) - 1,
-                ) != {"FINISHED"} or not isinstance(collider_index, int):
+                    collider_group_index=collider_group_index,
+                ) != {"FINISHED"}:
+                    raise Exception(
+                        "Failed to assign spring bone 1.0 collider to collider group "
+                        + f"{collider_group_index} in {armature_data_name}"
+                    )
+                if not isinstance(collider_index, int):
                     continue
                 collider = collider_index_to_collider.get(collider_index)
                 if not collider:
