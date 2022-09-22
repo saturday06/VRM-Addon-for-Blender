@@ -819,7 +819,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs
         mtoon_dict: Dict[str, Any] = {
-            "specVersion": "1.0-beta",
+            "specVersion": "1.0",
         }
         extensions_dict = {
             "KHR_materials_unlit": {},
@@ -946,7 +946,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs
         mtoon_dict: Dict[str, Any] = {
-            "specVersion": "1.0-beta",
+            "specVersion": "1.0",
         }
         extensions_dict = {
             "KHR_materials_unlit": {},
@@ -1357,7 +1357,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not extras_dict and "extras" in node_dict:
                 del node_dict["extras"]
 
-        node_constraint_spec_version = "1.0-beta"
+        node_constraint_spec_version = "1.0"
         use_node_constraint = False
         object_constraints = search.export_object_constraints(self.export_objects)
         for object_name, node_index in object_name_to_index_dict.items():
@@ -1487,7 +1487,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         if spring_bone_dict:
             extensions_used.append("VRMC_springBone")
-            spring_bone_dict["specVersion"] = "1.0-beta"
+            spring_bone_dict["specVersion"] = "1.0"
             extensions["VRMC_springBone"] = spring_bone_dict
 
         json_dict["extensions"] = extensions
