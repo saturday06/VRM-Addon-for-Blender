@@ -1,3 +1,4 @@
+import math
 from collections import abc
 from os.path import dirname, join
 from sys import float_info
@@ -430,6 +431,8 @@ def get_image_name_and_sampler_type(
 
 
 def float_or_none(v: Any, min_value: float, max_value: float) -> Optional[float]:
+    if isinstance(v, float) and math.isnan(v):
+        return None
     if isinstance(v, (float, int)):
         return max(min_value, min(float(v), max_value))
     return None

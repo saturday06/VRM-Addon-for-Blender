@@ -92,6 +92,7 @@ img
 instancer
 inv
 invisibles
+isnan
 ja
 keyblock
 khr
