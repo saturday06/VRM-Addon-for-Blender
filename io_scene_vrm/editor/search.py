@@ -222,19 +222,15 @@ def current_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
             collections.append(child)
             collection_child_to_parent[child] = parent
 
-    object_to_distance: Dict[bpy.types.Object, Tuple[int, int, int, int]] = {}
+    min_distance: Optional[Tuple[int, int, int, int]] = None
+    nearest_object: Optional[bpy.types.Object] = None
     for obj in objects:
-        object_to_distance[obj] = object_distance(
-            active_object, obj, collection_child_to_parent
-        )
+        distance = object_distance(active_object, obj, collection_child_to_parent)
+        if min_distance is None or min_distance > distance:
+            min_distance = distance
+            nearest_object = obj
 
-    sorted_objs = [
-        sorted_obj
-        for (_, _, sorted_obj) in sorted(
-            [(distance, obj.name, obj) for obj, distance in object_to_distance.items()]
-        )
-    ]
-    return sorted_objs[0] if sorted_objs else None
+    return objects[0] if nearest_object is None else nearest_object
 
 
 def export_objects(
