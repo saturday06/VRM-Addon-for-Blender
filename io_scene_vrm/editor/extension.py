@@ -240,9 +240,37 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
         (SPEC_VERSION_VRM1, "VRM 1.0 (EXPERIMENTAL)", "", "EXPERIMENTAL", 1),
     ]
 
+    def __update_spec_version(self, _context: bpy.types.Context) -> None:
+        if self.spec_version == self.SPEC_VERSION_VRM0:
+            vrm0_hidden = False
+            vrm1_hidden = True
+        elif self.spec_version == self.SPEC_VERSION_VRM1:
+            vrm0_hidden = True
+            vrm1_hidden = False
+        else:
+            return
+
+        for vrm0_collider in [
+            collider.bpy_object
+            for collider_group in self.vrm0.secondary_animation.collider_groups
+            for collider in collider_group.colliders
+            if collider.bpy_object
+        ]:
+            vrm0_collider.hide_set(vrm0_hidden)
+
+        for vrm1_collider in [
+            collider.bpy_object
+            for collider in self.spring_bone1.colliders
+            if collider.bpy_object
+        ]:
+            vrm1_collider.hide_set(vrm1_hidden)
+            for child in vrm1_collider.children:
+                child.hide_set(vrm1_hidden)
+
     spec_version: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=spec_version_items,
         name="Spec Version",  # noqa: F722
+        update=__update_spec_version,
     )
 
     def is_vrm0(self) -> bool:
