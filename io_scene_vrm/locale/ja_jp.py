@@ -140,8 +140,7 @@ translation_dictionary = {
         "*",
         'Object "{name}" contains a negative value for the scale;'
         + " VRM 1.0 does not allow negative values to be specified for the scale.",
-    ): "「{mesh_name}」の頂点id「{vertex_index}」にウェイトが乗っていません。"
-    + "オブジェクト「{name}」にスケールにマイナス値が含まれています。VRM 1.0ではスケールにマイナス値を指定できません。",
+    ): "オブジェクト「{name}」にスケールにマイナス値が含まれています。VRM 1.0ではスケールにマイナス値を指定できません。",
     ("*", "Please add ARMATURE to selections"): "アーマチュアを選択範囲に含めてください",
     (
         "*",
