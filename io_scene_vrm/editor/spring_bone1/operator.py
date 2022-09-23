@@ -22,7 +22,9 @@ class VRM_OT_add_spring_bone1_collider(  # noqa: N801
             return {"CANCELLED"}
         collider = armature.data.vrm_addon_extension.spring_bone1.colliders.add()
         collider.uuid = uuid.uuid4().hex
-        collider.shape.sphere.radius = 0.25
+        collider.shape.sphere.radius = 0.125
+        collider.shape.capsule.radius = 0.125
+        collider.shape.capsule.tail = (0, 0.25, 0)
         collider.reset_bpy_object(context, armature)
         return {"FINISHED"}
 
@@ -42,7 +44,7 @@ class VRM_OT_remove_spring_bone1_collider(  # noqa: N801
         min=0, options={"HIDDEN"}  # noqa: F821
     )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.armatures.get(self.armature_data_name)
         if not isinstance(armature, bpy.types.Armature):
             return {"CANCELLED"}
@@ -51,9 +53,17 @@ class VRM_OT_remove_spring_bone1_collider(  # noqa: N801
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
         bpy_object = colliders[self.collider_index].bpy_object
-        if bpy_object and bpy_object.name in context.scene.collection.objects:
-            bpy_object.parent_type = "OBJECT"
-            context.scene.collection.objects.unlink(bpy_object)
+
+        remove_objects = list(bpy_object.children) + [bpy_object]
+        for collection in bpy.data.collections:
+            for remove_object in remove_objects:
+                remove_object.parent = None
+                if remove_object.name in collection.objects:
+                    collection.objects.unlink(remove_object)
+        for remove_object in remove_objects:
+            if remove_object.users <= 1:
+                bpy.data.objects.remove(remove_object, do_unlink=True)
+
         collider_uuid = colliders[self.collider_index].uuid
         colliders.remove(self.collider_index)
         for collider_group in spring_bone.collider_groups:

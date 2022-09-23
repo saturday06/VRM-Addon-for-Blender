@@ -1951,6 +1951,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 colliders_collection.objects.link(collider.bpy_object)
                 if collider.bpy_object.name in self.context.scene.collection.objects:
                     self.context.scene.collection.objects.unlink(collider.bpy_object)
+                for child in collider.bpy_object.children:
+                    colliders_collection.objects.link(child)
+                    if child.name in self.context.scene.collection.objects:
+                        self.context.scene.collection.objects.unlink(child)
 
         return collider_index_to_collider
 

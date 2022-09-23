@@ -91,8 +91,19 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         (SHAPE_TYPE_SPHERE, "Sphere", "", 0),
         (SHAPE_TYPE_CAPSULE, "Capsule", "", 1),
     ]
+
+    def __update_shape_type(self, context: bpy.types.Context) -> None:
+        if (
+            self.bpy_object
+            and self.bpy_object.parent
+            and self.bpy_object.parent.type == "ARMATURE"
+        ):
+            self.reset_bpy_object(context, self.bpy_object.parent)
+
     shape_type: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=shape_type_items, name="Shape"  # noqa: F821
+        items=shape_type_items,
+        name="Shape",  # noqa: F821
+        update=__update_shape_type,
     )
 
     # for View3D
@@ -107,11 +118,15 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     def reset_bpy_object(
         self, context: bpy.types.Context, armature: bpy.types.Object
     ) -> None:
+        collider_prefix = armature.data.name
+        if self.node and self.node.value:
+            collider_prefix = self.node.value
+
         if not self.bpy_object or not self.bpy_object.name:
-            prefix = armature.data.name
-            if self.node and self.node.value:
-                prefix = self.node.value
-            obj = bpy.data.objects.new(name=f"{prefix} Collider", object_data=None)
+            obj = bpy.data.objects.new(
+                name=f"{collider_prefix} Collider", object_data=None
+            )
+            context.scene.collection.objects.link(obj)
             self.bpy_object = obj
 
         if self.bpy_object.parent != armature:
@@ -124,16 +139,35 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
             if self.bpy_object.empty_display_size != self.shape.sphere.radius:
                 self.bpy_object.empty_display_size = self.shape.sphere.radius
             offset = list(self.shape.sphere.offset)
+            children = list(self.bpy_object.children)
+            for collection in bpy.data.collections:
+                for child in children:
+                    child.parent = None
+                    if child.name in collection.objects:
+                        collection.objects.unlink(child)
+            for child in children:
+                if child.users <= 1:
+                    bpy.data.objects.remove(child, do_unlink=True)
+
         elif self.shape_type == self.SHAPE_TYPE_CAPSULE:
             # TODO: empty scale
             if self.bpy_object.empty_display_size != self.shape.capsule.radius:
                 self.bpy_object.empty_display_size = self.shape.capsule.radius
             offset = list(self.shape.capsule.offset)
+            if self.bpy_object.children:
+                end_object = self.bpy_object.children[0]
+            else:
+                end_object = bpy.data.objects.new(
+                    name=f"{self.bpy_object.name} End", object_data=None
+                )
+                context.scene.collection.objects.link(end_object)
+                end_object.parent = self.bpy_object
+            if end_object.empty_display_type != "SPHERE":
+                end_object.empty_display_type = "SPHERE"
+            if end_object.empty_display_size != self.shape.capsule.radius:
+                end_object.empty_display_size = self.shape.capsule.radius
         else:
             offset = [0, 0, 0]
-
-        if self.bpy_object.name not in context.scene.collection.objects:
-            context.scene.collection.objects.link(self.bpy_object)
 
         if self.node.value:
             if self.bpy_object.parent_type != "BONE":
@@ -149,6 +183,15 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
                 )
                 @ Matrix.Translation(offset)
             )
+            if self.shape_type == self.SHAPE_TYPE_CAPSULE:
+                self.bpy_object.children[0].matrix_world = (
+                    armature.matrix_world
+                    @ bone.vrm_addon_extension.translate_axis(
+                        armature.data.bones[self.node.value].matrix_local,
+                        bone.vrm_addon_extension.axis_translation,
+                    )
+                    @ Matrix.Translation(self.shape.capsule.tail)
+                )
         else:
             if self.bpy_object.parent_type != "OBJECT":
                 self.bpy_object.parent_type = "OBJECT"
