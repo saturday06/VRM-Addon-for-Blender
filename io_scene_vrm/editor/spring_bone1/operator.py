@@ -22,6 +22,7 @@ class VRM_OT_add_spring_bone1_collider(  # noqa: N801
             return {"CANCELLED"}
         collider = armature.data.vrm_addon_extension.spring_bone1.colliders.add()
         collider.uuid = uuid.uuid4().hex
+        collider.shape.sphere.radius = 0.25
         collider.reset_bpy_object(context, armature)
         return {"FINISHED"}
 
