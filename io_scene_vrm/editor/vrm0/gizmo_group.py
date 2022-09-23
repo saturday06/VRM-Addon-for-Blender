@@ -12,9 +12,11 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        if context.active_object.data is None:
-            return False
-        return hasattr(context.active_object.data, "vrm_addon_extension")
+        return (
+            context.active_object
+            and context.active_object.type == "ARMATURE"
+            and hasattr(context.active_object.data, "vrm_addon_extension")
+        )
 
     def setup(self, context: bpy.types.Context) -> None:
         armature = context.active_object.data
