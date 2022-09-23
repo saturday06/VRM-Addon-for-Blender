@@ -63,7 +63,7 @@ def draw_vrm1_spring_bone_layout(
                 collider_column.prop(
                     collider.bpy_object, "name", icon="MESH_UVSPHERE", text=""
                 )
-                collider_column.prop(collider.shape, "shape")
+                collider_column.prop(collider, "shape_type")
                 collider_column.prop_search(
                     collider.node, "value", armature.data, "bones"
                 )

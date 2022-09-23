@@ -391,20 +391,19 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 continue
             collider_dict["node"] = node_index
 
-            shape = collider.shape
-            if shape.shape == shape.SHAPE_SPHERE:
+            if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
                 shape_dict = {
                     "sphere": {
-                        "offset": list(shape.sphere.offset),
-                        "radius": shape.sphere.radius,
+                        "offset": list(collider.shape.sphere.offset),
+                        "radius": collider.shape.sphere.radius,
                     }
                 }
-            elif shape.shape == shape.SHAPE_CAPSULE:
+            elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
                 shape_dict = {
                     "capsule": {
-                        "offset": list(shape.capsule.offset),
-                        "radius": shape.capsule.radius,
-                        "tail": list(shape.capsule.tail),
+                        "offset": list(collider.shape.capsule.offset),
+                        "radius": collider.shape.capsule.radius,
+                        "tail": list(collider.shape.capsule.tail),
                     }
                 }
             else:

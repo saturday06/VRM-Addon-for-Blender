@@ -1914,7 +1914,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             sphere_dict = shape_dict.get("sphere")
             if isinstance(sphere_dict, dict):
-                shape.shape = shape.SHAPE_SPHERE
+                collider.shape_type = collider.SHAPE_TYPE_SPHERE
                 shape.sphere.offset = convert.vrm_json_array_to_float_vector(
                     sphere_dict.get("offset"), [0, 0, 0]
                 )
@@ -1927,7 +1927,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not isinstance(capsule_dict, dict):
                 continue
 
-            shape.shape = shape.SHAPE_CAPSULE
+            collider.shape_type = collider.SHAPE_TYPE_CAPSULE
 
             shape.capsule.offset = convert.vrm_json_array_to_float_vector(
                 capsule_dict.get("offset"), [0, 0, 0]

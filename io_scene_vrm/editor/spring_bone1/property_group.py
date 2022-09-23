@@ -47,17 +47,6 @@ class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):  # type: i
         type=SpringBone1ColliderShapeCapsulePropertyGroup  # noqa: F821
     )
 
-    # for UI
-    SHAPE_SPHERE = "Sphere"
-    SHAPE_CAPSULE = "Capsule"
-    shape_items = [
-        (SHAPE_SPHERE, "Sphere", "", 0),
-        (SHAPE_CAPSULE, "Capsule", "", 1),
-    ]
-    shape: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=shape_items, name="Shape"  # noqa: F821
-    )
-
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
 class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -96,6 +85,16 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
+    SHAPE_TYPE_SPHERE = "Sphere"
+    SHAPE_TYPE_CAPSULE = "Capsule"
+    shape_type_items = [
+        (SHAPE_TYPE_SPHERE, "Sphere", "", 0),
+        (SHAPE_TYPE_CAPSULE, "Capsule", "", 1),
+    ]
+    shape_type: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=shape_type_items, name="Shape"  # noqa: F821
+    )
+
     # for View3D
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
@@ -120,11 +119,13 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         if self.bpy_object.empty_display_type != "SPHERE":
             self.bpy_object.empty_display_type = "SPHERE"
 
-        if self.shape.shape == self.shape.SHAPE_SPHERE:
+        if self.shape_type == self.SHAPE_TYPE_SPHERE:
+            # TODO: empty scale
             if self.bpy_object.empty_display_size != self.shape.sphere.radius:
                 self.bpy_object.empty_display_size = self.shape.sphere.radius
             offset = list(self.shape.sphere.offset)
-        elif self.shape.shape == self.shape.SHAPE_CAPSULE:
+        elif self.shape_type == self.SHAPE_TYPE_CAPSULE:
+            # TODO: empty scale
             if self.bpy_object.empty_display_size != self.shape.capsule.radius:
                 self.bpy_object.empty_display_size = self.shape.capsule.radius
             offset = list(self.shape.capsule.offset)
