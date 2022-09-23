@@ -134,29 +134,25 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         if self.bpy_object.name not in context.scene.collection.objects:
             context.scene.collection.objects.link(self.bpy_object)
 
-        if self.node and self.node.value:
+        if self.node.value:
             if self.bpy_object.parent_type != "BONE":
                 self.bpy_object.parent_type = "BONE"
             if self.bpy_object.parent_bone != self.node.value:
                 self.bpy_object.parent_bone = self.node.value
-            self.bpy_object.matrix_world = Matrix.Translation(
-                [
-                    armature.matrix_world.to_translation()[i]
-                    + armature.data.bones[
-                        self.node.value
-                    ].matrix_local.to_translation()[i]
-                    + offset[i]
-                    for i in range(3)
-                ]
+            bone = armature.data.bones[self.node.value]
+            self.bpy_object.matrix_world = (
+                armature.matrix_world
+                @ bone.vrm_addon_extension.translate_axis(
+                    armature.data.bones[self.node.value].matrix_local,
+                    bone.vrm_addon_extension.axis_translation,
+                )
+                @ Matrix.Translation(offset)
             )
         else:
             if self.bpy_object.parent_type != "OBJECT":
                 self.bpy_object.parent_type = "OBJECT"
-            self.bpy_object.matrix_world = Matrix.Translation(
-                [
-                    armature.matrix_world.to_translation()[i] + offset[i]
-                    for i in range(3)
-                ]
+            self.bpy_object.matrix_world = armature.matrix_world @ Matrix.Translation(
+                offset
             )
 
         self.broadcast_bpy_object_name()
