@@ -1516,7 +1516,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.load_vrm1_first_person(
             vrm1.first_person, vrm1_extension_dict.get("firstPerson")
         )
-        self.load_vrm1_look_at(vrm1.look_at, vrm1_extension_dict.get("lookAt"))
+        self.load_vrm1_look_at(
+            vrm1.look_at, vrm1_extension_dict.get("lookAt"), vrm1.humanoid
+        )
         self.load_vrm1_expressions(
             vrm1.expressions, vrm1_extension_dict.get("expressions")
         )
@@ -1681,15 +1683,26 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         look_at: Vrm1LookAtPropertyGroup,
         look_at_dict: Any,
+        humanoid: Vrm1HumanoidPropertyGroup,
     ) -> None:
         if not isinstance(look_at_dict, dict):
             return
-
+        armature = self.armature
+        if armature is None:
+            return
         offset_from_head_bone = convert.vrm_json_array_to_float_vector(
             look_at_dict.get("offsetFromHeadBone"), [0, 0, 0]
         )
-        if offset_from_head_bone is not None:
-            look_at.offset_from_head_bone = offset_from_head_bone
+        head_bone = armature.data.bones.get(humanoid.human_bones.head.node.value)
+        if head_bone:
+            axis_translation = head_bone.vrm_addon_extension.axis_translation
+            offset_from_head_bone = VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                Matrix.Translation(offset_from_head_bone),
+                VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
+                    axis_translation
+                ),
+            ).to_translation()
+        look_at.offset_from_head_bone = offset_from_head_bone
 
         type_ = look_at_dict.get("type")
         if type_ in ["bone", "expression"]:
@@ -1878,7 +1891,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: Dict[str, Any],
-        armature_name: str,
+        armature: bpy.types.Object,
     ) -> Dict[int, SpringBone1ColliderPropertyGroup]:
         collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup] = {}
         collider_dicts = spring_bone_dict.get("colliders")
@@ -1886,11 +1899,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             collider_dicts = []
 
         for collider_index, collider_dict in enumerate(collider_dicts):
-            if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature_name) != {
+            if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
                 "FINISHED"
             }:
                 raise Exception(
-                    f'Failed to add spring bone 1.0 collider to "{armature_name}"'
+                    f'Failed to add spring bone 1.0 collider to "{armature.name}"'
                 )
 
             collider = spring_bone.colliders[-1]
@@ -1899,12 +1912,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not isinstance(collider_dict, dict):
                 continue
 
+            bone: Optional[bpy.types.Bone] = None
             node_index = collider_dict.get("node")
             if isinstance(node_index, int):
                 bone_name = self.bone_names.get(node_index)
                 if isinstance(bone_name, str):
                     collider.node.value = bone_name
                     collider.bpy_object.name = f"{bone_name} Collider"
+                    bone = armature.data.bones.get(collider.node.value)
 
             shape_dict = collider_dict.get("shape")
             if not isinstance(shape_dict, dict):
@@ -1915,9 +1930,18 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             sphere_dict = shape_dict.get("sphere")
             if isinstance(sphere_dict, dict):
                 collider.shape_type = collider.SHAPE_TYPE_SPHERE
-                shape.sphere.offset = convert.vrm_json_array_to_float_vector(
+                offset = convert.vrm_json_array_to_float_vector(
                     sphere_dict.get("offset"), [0, 0, 0]
                 )
+                if bone:
+                    axis_translation = bone.vrm_addon_extension.axis_translation
+                    offset = VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                        Matrix.Translation(offset),
+                        VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
+                            axis_translation
+                        ),
+                    ).to_translation()
+                shape.sphere.offset = offset
                 radius = sphere_dict.get("radius")
                 if isinstance(radius, (float, int)):
                     shape.sphere.radius = float(radius)
@@ -1929,17 +1953,35 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             collider.shape_type = collider.SHAPE_TYPE_CAPSULE
 
-            shape.capsule.offset = convert.vrm_json_array_to_float_vector(
+            offset = convert.vrm_json_array_to_float_vector(
                 capsule_dict.get("offset"), [0, 0, 0]
             )
+            if bone:
+                axis_translation = bone.vrm_addon_extension.axis_translation
+                offset = VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                    Matrix.Translation(offset),
+                    VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
+                        axis_translation
+                    ),
+                ).to_translation()
+            shape.capsule.offset = offset
 
             radius = capsule_dict.get("radius")
             if isinstance(radius, (float, int)):
                 shape.capsule.radius = float(radius)
 
-            shape.capsule.tail = convert.vrm_json_array_to_float_vector(
+            tail = convert.vrm_json_array_to_float_vector(
                 capsule_dict.get("tail"), [0, 0, 0]
             )
+            if bone:
+                axis_translation = bone.vrm_addon_extension.axis_translation
+                tail = VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                    Matrix.Translation(tail),
+                    VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
+                        axis_translation
+                    ),
+                ).to_translation()
+            shape.capsule.tail = tail
 
         for collider in spring_bone.colliders:
             collider.reset_bpy_object(self.context, self.armature)
@@ -2120,7 +2162,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             raise ValueError("armature is None")
 
         collider_index_to_collider = self.load_spring_bone1_colliders(
-            spring_bone, spring_bone_dict, armature.name
+            spring_bone, spring_bone_dict, armature
         )
         collider_group_index_to_collider_group = self.load_spring_bone1_collider_groups(
             spring_bone,

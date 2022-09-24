@@ -1,5 +1,7 @@
+import statistics
 import uuid
-from typing import Any
+from collections import abc
+from typing import Any, Tuple
 
 import bpy
 from mathutils import Matrix
@@ -10,31 +12,233 @@ from ..property_group import BonePropertyGroup
 logger = get_logger(__name__)
 
 
+def to_tuple_3(v: Any) -> Tuple[float, float, float]:
+    if not isinstance(v, abc.Iterable):
+        raise Exception(f"{v} is not an iterable")
+    v = list(v)
+    if len(v) != 3:
+        raise Exception(f"len({v}) != 3")
+    for elem in v:
+        if not isinstance(elem, (int, float)):
+            raise Exception(f"{elem} is not a number")
+    return (float(v[0]), float(v[1]), float(v[2]))
+
+
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L7-L27
 class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def __find_armature_and_collider(
+        self,
+    ) -> Tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
+        for obj in bpy.data.objects:
+            if obj.type != "ARMATURE":
+                continue
+            for collider in obj.data.vrm_addon_extension.spring_bone1.colliders:
+                if collider.shape.sphere == self:
+                    return (obj, collider)
+        raise ValueError("No armature")
+
+    def __get_offset(self) -> Tuple[float, float, float]:
+        armature, collider = self.__find_armature_and_collider()
+        if not collider.bpy_object:
+            logger.error(
+                f"Failed to get bpy object of {collider.name} in __get_offset()"
+            )
+            return (0, 0, 0)
+        bone = armature.data.bones.get(collider.node.value)
+        if bone:
+            mat = (
+                bone.matrix_local.inverted()
+                @ armature.matrix_world.inverted()
+                @ collider.bpy_object.matrix_world
+            )
+        else:
+            mat = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
+        return to_tuple_3((mat).to_translation())
+
+    def __set_offset(self, offset: Any) -> None:
+        backup_radius = self.__get_radius()
+        armature, collider = self.__find_armature_and_collider()
+        collider.reset_bpy_object(bpy.context, armature)
+        bone = armature.data.bones.get(collider.node.value)
+        if not bone:
+            collider.bpy_object.matrix_world = (
+                armature.matrix_world @ Matrix.Translation(offset)
+            )
+            self.__set_radius(backup_radius)
+            return
+        collider.bpy_object.matrix_world = (
+            armature.matrix_world @ bone.matrix_local @ Matrix.Translation(offset)
+        )
+        self.__set_radius(backup_radius)
+
+    def __get_radius(self) -> float:
+        _, collider = self.__find_armature_and_collider()
+        if not collider.bpy_object:
+            logger.error(
+                f"Failed to get bpy object of {collider.name} in __get_radius()"
+            )
+            return 0.0
+        mean_scale = statistics.mean(
+            abs(s) for s in collider.bpy_object.matrix_basis.to_scale()
+        )
+        return float(mean_scale * collider.bpy_object.empty_display_size)
+
+    def __set_radius(self, v: Any) -> None:
+        armature, collider = self.__find_armature_and_collider()
+        collider.reset_bpy_object(bpy.context, armature)
+        location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
+        collider.bpy_object.matrix_basis = (
+            Matrix.Translation(location) @ rotation.to_matrix().to_4x4()
+        )
+        collider.bpy_object.empty_display_size = v
+
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
+        get=__get_offset,
+        set=__set_offset,
     )
-    radius: bpy.props.FloatProperty(min=0.0, default=0.0)  # type: ignore[valid-type]
+
+    radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        min=0.0,
+        default=0.0,
+        unit="LENGTH",  # noqa: F821
+        get=__get_radius,
+        set=__set_radius,
+    )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L28-L58
 class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def __find_armature_and_collider(
+        self,
+    ) -> Tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
+        for obj in bpy.data.objects:
+            if obj.type != "ARMATURE":
+                continue
+            for collider in obj.data.vrm_addon_extension.spring_bone1.colliders:
+                if collider.shape.capsule == self:
+                    return (obj, collider)
+        raise ValueError("No armature")
+
+    def __get_offset(self) -> Tuple[float, float, float]:
+        armature, collider = self.__find_armature_and_collider()
+        if not collider.bpy_object:
+            logger.error(
+                f"Failed to get bpy object of {collider.name} in __get_offset()"
+            )
+            return (0, 0, 0)
+        bone = armature.data.bones.get(collider.node.value)
+        if bone:
+            mat = (
+                bone.matrix_local.inverted()
+                @ armature.matrix_world.inverted()
+                @ collider.bpy_object.matrix_world
+            )
+
+        else:
+            mat = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
+        return to_tuple_3((mat).to_translation())
+
+    def __set_offset(self, offset: Any) -> None:
+        backup_radius = self.__get_radius()
+        armature, collider = self.__find_armature_and_collider()
+        collider.reset_bpy_object(bpy.context, armature)
+        bone = armature.data.bones.get(collider.node.value)
+        if not bone:
+            collider.bpy_object.matrix_world = (
+                armature.matrix_world @ Matrix.Translation(offset)
+            )
+            self.__set_radius(backup_radius)
+            return
+        collider.bpy_object.matrix_world = (
+            armature.matrix_world @ bone.matrix_local @ Matrix.Translation(offset)
+        )
+        self.__set_radius(backup_radius)
+
+    def __get_tail(self) -> Tuple[float, float, float]:
+        armature, collider = self.__find_armature_and_collider()
+        if not collider.bpy_object or not collider.bpy_object.children:
+            logger.error(f"Failed to get bpy object of {collider.name} in __get_tail()")
+            return (0, 0, 0)
+        bone = armature.data.bones.get(collider.node.value)
+        if bone:
+            mat = (
+                bone.matrix_local.inverted()
+                @ armature.matrix_world.inverted()
+                @ collider.bpy_object.children[0].matrix_world
+            )
+        else:
+            mat = (
+                armature.matrix_world.inverted()
+                @ collider.bpy_object.children[0].matrix_world
+            ).to_translation()
+        return to_tuple_3(mat.to_translation())
+
+    def __set_tail(self, offset: Any) -> None:
+        backup_radius = self.__get_radius()
+        armature, collider = self.__find_armature_and_collider()
+        collider.reset_bpy_object(bpy.context, armature)
+        bone = armature.data.bones.get(collider.node.value)
+        if not bone:
+            collider.bpy_object.children[
+                0
+            ].matrix_world = armature.matrix_world @ Matrix.Translation(offset)
+            self.__set_radius(backup_radius)
+            return
+        collider.bpy_object.children[0].matrix_world = (
+            armature.matrix_world @ bone.matrix_local @ Matrix.Translation(offset)
+        )
+        self.__set_radius(backup_radius)
+
+    def __get_radius(self) -> float:
+        _, collider = self.__find_armature_and_collider()
+        if not collider.bpy_object:
+            logger.error(
+                f"Failed to get bpy object of {collider.name} in __get_radius()"
+            )
+            return 0.0
+        mean_scale = statistics.mean(
+            abs(s) for s in collider.bpy_object.matrix_basis.to_scale()
+        )
+        return float(mean_scale * collider.bpy_object.empty_display_size)
+
+    def __set_radius(self, v: Any) -> None:
+        armature, collider = self.__find_armature_and_collider()
+        collider.reset_bpy_object(bpy.context, armature)
+        location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
+        collider.bpy_object.matrix_basis = (
+            Matrix.Translation(location) @ rotation.to_matrix().to_4x4()
+        )
+        collider.bpy_object.empty_display_size = v
+        collider.bpy_object.children[0].empty_display_size = v
+
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
+        get=__get_offset,
+        set=__set_offset,
     )
-    radius: bpy.props.FloatProperty(min=0.0, default=0.0)  # type: ignore[valid-type]
+
+    radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        min=0.0,
+        default=0.0,
+        unit="LENGTH",  # noqa: F821
+        get=__get_radius,
+        set=__set_radius,
+    )
+
     tail: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
+        get=__get_tail,
+        set=__set_tail,
     )
 
 
@@ -135,10 +339,6 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
             self.bpy_object.empty_display_type = "SPHERE"
 
         if self.shape_type == self.SHAPE_TYPE_SPHERE:
-            # TODO: empty scale
-            if self.bpy_object.empty_display_size != self.shape.sphere.radius:
-                self.bpy_object.empty_display_size = self.shape.sphere.radius
-            offset = list(self.shape.sphere.offset)
             children = list(self.bpy_object.children)
             for collection in bpy.data.collections:
                 for child in children:
@@ -150,10 +350,6 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
                     bpy.data.objects.remove(child, do_unlink=True)
 
         elif self.shape_type == self.SHAPE_TYPE_CAPSULE:
-            # TODO: empty scale
-            if self.bpy_object.empty_display_size != self.shape.capsule.radius:
-                self.bpy_object.empty_display_size = self.shape.capsule.radius
-            offset = list(self.shape.capsule.offset)
             if self.bpy_object.children:
                 end_object = self.bpy_object.children[0]
             else:
@@ -164,40 +360,17 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
                 end_object.parent = self.bpy_object
             if end_object.empty_display_type != "SPHERE":
                 end_object.empty_display_type = "SPHERE"
-            if end_object.empty_display_size != self.shape.capsule.radius:
-                end_object.empty_display_size = self.shape.capsule.radius
-        else:
-            offset = [0, 0, 0]
 
         if self.node.value:
             if self.bpy_object.parent_type != "BONE":
                 self.bpy_object.parent_type = "BONE"
             if self.bpy_object.parent_bone != self.node.value:
                 self.bpy_object.parent_bone = self.node.value
-            bone = armature.data.bones[self.node.value]
-            self.bpy_object.matrix_world = (
-                armature.matrix_world
-                @ bone.vrm_addon_extension.translate_axis(
-                    armature.data.bones[self.node.value].matrix_local,
-                    bone.vrm_addon_extension.axis_translation,
-                )
-                @ Matrix.Translation(offset)
-            )
-            if self.shape_type == self.SHAPE_TYPE_CAPSULE:
-                self.bpy_object.children[0].matrix_world = (
-                    armature.matrix_world
-                    @ bone.vrm_addon_extension.translate_axis(
-                        armature.data.bones[self.node.value].matrix_local,
-                        bone.vrm_addon_extension.axis_translation,
-                    )
-                    @ Matrix.Translation(self.shape.capsule.tail)
-                )
         else:
             if self.bpy_object.parent_type != "OBJECT":
                 self.bpy_object.parent_type = "OBJECT"
-            self.bpy_object.matrix_world = armature.matrix_world @ Matrix.Translation(
-                offset
-            )
+            if self.bpy_object.parent_bone:
+                self.bpy_object.parent_bone = ""
 
         self.broadcast_bpy_object_name()
 

@@ -23,8 +23,6 @@ class VRM_OT_add_spring_bone1_collider(  # noqa: N801
         collider = armature.data.vrm_addon_extension.spring_bone1.colliders.add()
         collider.uuid = uuid.uuid4().hex
         collider.shape.sphere.radius = 0.125
-        collider.shape.capsule.radius = 0.125
-        collider.shape.capsule.tail = (0, 0.25, 0)
         collider.reset_bpy_object(context, armature)
         return {"FINISHED"}
 

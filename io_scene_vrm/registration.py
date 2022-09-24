@@ -209,6 +209,7 @@ classes = [
     node_constraint1_panel.VRM_PT_node_constraint1_ui,
     spring_bone1_panel.VRM_PT_spring_bone1_armature_object_property,
     spring_bone1_panel.VRM_PT_spring_bone1_ui,
+    spring_bone1_panel.VRM_PT_spring_bone1_collider_property,
     vrm0_operator.VRM_OT_add_vrm0_first_person_mesh_annotation,
     vrm0_operator.VRM_OT_remove_vrm0_first_person_mesh_annotation,
     vrm0_operator.VRM_OT_add_vrm0_material_value_bind,

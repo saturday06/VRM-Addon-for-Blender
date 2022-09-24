@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import bpy
 
 from .. import search
@@ -5,7 +7,10 @@ from ..extension import VrmAddonArmatureExtensionPropertyGroup
 from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
 from . import operator as vrm1_operator
-from .property_group import SpringBone1SpringBonePropertyGroup
+from .property_group import (
+    SpringBone1ColliderPropertyGroup,
+    SpringBone1SpringBonePropertyGroup,
+)
 
 
 def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
@@ -22,7 +27,28 @@ def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
     )
 
 
-def draw_vrm1_spring_bone_layout(
+def draw_spring_bone1_collider_layout(
+    armature: bpy.types.Object,
+    layout: bpy.types.UILayout,
+    collider: SpringBone1ColliderPropertyGroup,
+) -> None:
+    layout.prop(collider, "shape_type")
+    layout.prop_search(collider.node, "value", armature.data, "bones")
+    if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
+        layout.prop(collider.shape.sphere, "radius")
+        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="")
+        layout.prop(collider.shape.sphere, "offset", text="")
+    elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
+        layout.prop(collider.shape.capsule, "radius")
+        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Start")
+        layout.prop(collider.shape.capsule, "offset", text="")
+        layout.prop(
+            collider.bpy_object.children[0], "name", icon="MESH_UVSPHERE", text="End"
+        )
+        layout.prop(collider.shape.capsule, "tail", text="")
+
+
+def draw_spring_bone1_spring_bone_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
@@ -60,13 +86,7 @@ def draw_vrm1_spring_bone_layout(
                     continue
 
                 collider_column = colliders_expanded_box.box().column()
-                collider_column.prop(
-                    collider.bpy_object, "name", icon="MESH_UVSPHERE", text=""
-                )
-                collider_column.prop(collider, "shape_type")
-                collider_column.prop_search(
-                    collider.node, "value", armature.data, "bones"
-                )
+                draw_spring_bone1_collider_layout(armature, collider_column, collider)
                 remove_collider_op = collider_column.operator(
                     vrm1_operator.VRM_OT_remove_spring_bone1_collider.bl_idname,
                     icon="REMOVE",
@@ -333,7 +353,7 @@ class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):  # type: ig
         self.layout.label(icon="PHYSICS")
 
     def draw(self, context: bpy.types.Context) -> None:
-        draw_vrm1_spring_bone_layout(
+        draw_spring_bone1_spring_bone_layout(
             context.active_object,
             self.layout,
             context.active_object.data.vrm_addon_extension.spring_bone1,
@@ -360,8 +380,56 @@ class VRM_PT_spring_bone1_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N80
         armature = search.current_armature(context)
         if not armature:
             return
-        draw_vrm1_spring_bone_layout(
+        draw_spring_bone1_spring_bone_layout(
             armature,
             self.layout,
             armature.data.vrm_addon_extension.spring_bone1,
         )
+
+
+class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+    bl_idname = "VRM_PT_spring_bone1_collider_property"
+    bl_label = "VRM Spring Bone Collider"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "data"
+
+    @classmethod
+    def active_armature_and_collider(
+        cls, context: bpy.types.Context
+    ) -> Optional[Tuple[bpy.types.Object, SpringBone1ColliderPropertyGroup]]:
+        if (
+            not context.active_object
+            or context.active_object.type != "EMPTY"
+            or not context.active_object.parent
+        ):
+            return None
+        if context.active_object.parent_type == "BONE":
+            collider_object = context.active_object
+        elif context.active_object.parent_type == "OBJECT":
+            if context.active_object.parent.type == "ARMATURE":
+                collider_object = context.active_object
+            elif context.active_object.parent.parent_type == "BONE":
+                collider_object = context.active_object.parent
+            else:
+                return None
+        else:
+            return None
+        for obj in bpy.data.objects:
+            if obj.type != "ARMATURE":
+                continue
+            for collider in obj.data.vrm_addon_extension.spring_bone1.colliders:
+                if collider.bpy_object == collider_object:
+                    return (obj, collider)
+        return None
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return cls.active_armature_and_collider(context) is not None
+
+    def draw(self, context: bpy.types.Context) -> None:
+        armature_and_collider = self.active_armature_and_collider(context)
+        if armature_and_collider is None:
+            return
+        armature, collider = armature_and_collider
+        draw_spring_bone1_collider_layout(armature, self.layout.column(), collider)
