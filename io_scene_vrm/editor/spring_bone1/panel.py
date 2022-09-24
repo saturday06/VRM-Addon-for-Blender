@@ -409,7 +409,10 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[mi
         elif context.active_object.parent_type == "OBJECT":
             if context.active_object.parent.type == "ARMATURE":
                 collider_object = context.active_object
-            elif context.active_object.parent.parent_type == "BONE":
+            elif context.active_object.parent.parent_type == "BONE" or (
+                context.active_object.parent.parent_type == "OBJECT"
+                and context.active_object.parent.parent.type == "ARMATURE"
+            ):
                 collider_object = context.active_object.parent
             else:
                 return None
