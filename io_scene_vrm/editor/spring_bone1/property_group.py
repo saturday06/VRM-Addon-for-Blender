@@ -332,6 +332,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
             obj = bpy.data.objects.new(
                 name=f"{collider_prefix} Collider", object_data=None
             )
+            obj.empty_display_size = 0.125
             context.scene.collection.objects.link(obj)
             self.bpy_object = obj
 
@@ -358,6 +359,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
                 end_object = bpy.data.objects.new(
                     name=f"{self.bpy_object.name} End", object_data=None
                 )
+                end_object.empty_display_size = self.bpy_object.empty_display_size
                 context.scene.collection.objects.link(end_object)
                 end_object.parent = self.bpy_object
             if end_object.empty_display_type != "SPHERE":
