@@ -139,7 +139,6 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
                 @ armature.matrix_world.inverted()
                 @ collider.bpy_object.matrix_world
             )
-
         else:
             mat = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
         return to_tuple_3((mat).to_translation())
@@ -176,7 +175,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             mat = (
                 armature.matrix_world.inverted()
                 @ collider.bpy_object.children[0].matrix_world
-            ).to_translation()
+            )
         return to_tuple_3(mat.to_translation())
 
     def __set_tail(self, offset: Any) -> None:
