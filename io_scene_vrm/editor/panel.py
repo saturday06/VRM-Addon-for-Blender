@@ -126,6 +126,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
             icon="VIEWZOOM",
         )
         vrm_validator_prop.show_successful_message = True
+        mtoon_preview = False
         if preferences:
             layout.prop(preferences, "export_invisibles")
             layout.prop(preferences, "export_only_selections")
@@ -150,6 +151,8 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                             translate=False,
                             icon="ERROR" if index == 0 else "NONE",
                         )
+                else:
+                    mtoon_preview = True
 
         if mode == "OBJECT":
             if GlslDrawObj.draw_objs:
@@ -158,7 +161,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                     icon="SHADING_RENDERED",
                     depress=True,
                 )
-            else:
+            elif mtoon_preview:
                 if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
                     layout.operator(
                         glsl_drawer.ICYP_OT_draw_model.bl_idname,
