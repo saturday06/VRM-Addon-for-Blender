@@ -4,7 +4,7 @@ from collections import abc
 from typing import Any, Tuple
 
 import bpy
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 
 from ...common.logging import get_logger
 from ..property_group import BonePropertyGroup
@@ -13,8 +13,10 @@ logger = get_logger(__name__)
 
 
 def to_tuple_3(v: Any) -> Tuple[float, float, float]:
+    if isinstance(v, Vector):
+        return (v.x, v.y, v.z)
     if not isinstance(v, abc.Iterable):
-        raise Exception(f"{v} is not an iterable")
+        raise Exception(f"{v} is not an iterable or mathutils.Vector")
     v = list(v)
     if len(v) != 3:
         raise Exception(f"len({v}) != 3")
