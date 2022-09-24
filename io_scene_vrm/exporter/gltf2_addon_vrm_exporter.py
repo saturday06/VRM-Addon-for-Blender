@@ -37,6 +37,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             raise NotImplementedError("アーマチュア無しエクスポートはまだ未対応")
         self.armature = armatures[0]
 
+        for collider in self.armature.data.vrm_addon_extension.spring_bone1.colliders:
+            if not collider.bpy_object:
+                continue
+            if collider.bpy_object in self.export_objects:
+                self.export_objects.remove(collider.bpy_object)
+            for child in collider.bpy_object.children:
+                if child in self.export_objects:
+                    self.export_objects.remove(child)
+
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
