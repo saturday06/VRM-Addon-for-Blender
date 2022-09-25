@@ -15,7 +15,7 @@ import string
 import struct
 from collections import abc
 from sys import float_info
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import bgl
 import bmesh
@@ -1234,7 +1234,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def fetch_morph_vertex_normal_difference(
-        mesh_data: bpy.types.Mesh,
+        mesh_data: bpy.types.Mesh, exclusion_vertex_indices: Set[int]
     ) -> Dict[str, List[List[float]]]:
         morph_normal_diff_dict = {}
         vert_base_normal_dict = {}
@@ -1246,6 +1246,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             vertex_normal_vectors = [Vector([0.0, 0.0, 0.0])] * len(mesh_data.vertices)
             for loop_index in range(len(split_normals) // 3):
                 loop = mesh_data.loops[loop_index]
+                if loop.vertex_index in exclusion_vertex_indices:
+                    continue
                 v = Vector(
                     [
                         split_normals[loop_index * 3 + 0],
@@ -1261,6 +1263,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             vertex_normals = [0.0] * len(vertex_normal_vectors) * 3
             for index, _ in enumerate(vertex_normal_vectors):
+                if index in exclusion_vertex_indices:
+                    continue
                 n = vertex_normal_vectors[index]
                 if n.length <= float_info.epsilon:
                     continue
@@ -1542,8 +1546,34 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     for shape in mesh_data.shape_keys.key_blocks[1:]
                 }
                 # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
+                morph_vertex_normal_exclusion_vertex_indices = set()
+                if not self.export_mtoon_shape_key_normals:
+                    for polygon in mesh_data.polygons:
+                        material_slot_name = material_slot_dict.get(
+                            polygon.material_index
+                        )
+                        if not isinstance(material_slot_name, str):
+                            continue
+                        material_index = mat_id_dict.get(material_slot_name)
+                        if not isinstance(material_index, int):
+                            continue
+                        shader_name = deep.get(
+                            self.json_dict,
+                            [
+                                "extensions",
+                                "VRM",
+                                "materialProperties",
+                                material_index,
+                                "shader",
+                            ],
+                        )
+                        if shader_name == "VRM/MToon":
+                            morph_vertex_normal_exclusion_vertex_indices.update(
+                                polygon.vertices
+                            )
+
                 morph_normal_diff_dict = self.fetch_morph_vertex_normal_difference(
-                    mesh_data
+                    mesh_data, morph_vertex_normal_exclusion_vertex_indices
                 )
             position_bin = bytearray()
             position_min_max = [[fmax, fmax, fmax], [fmin, fmin, fmin]]
@@ -1814,24 +1844,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             primitive_list = []
             for primitive_id, index_glb in primitive_glbs_dict.items():
                 primitive: Dict[str, Any] = {"mode": 4}
-
-                if not self.export_mtoon_shape_key_normals and primitive_id is not None:
-                    export_primitive_morph_normals = (
-                        deep.get(
-                            self.json_dict,
-                            [
-                                "extensions",
-                                "VRM",
-                                "materialProperties",
-                                primitive_id,
-                                "shader",
-                            ],
-                        )
-                        != "VRM/MToon"
-                    )
-                else:
-                    export_primitive_morph_normals = True
-
                 if primitive_id is not None:
                     primitive["material"] = primitive_id
                 primitive["indices"] = index_glb.accessor_id
@@ -1862,10 +1874,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             {
                                 "POSITION": morph_pos_glb.accessor_id,
                                 "NORMAL": morph_normal_glb.accessor_id,
-                            }
-                            if export_primitive_morph_normals
-                            else {
-                                "POSITION": morph_pos_glb.accessor_id,
                             }
                             for morph_pos_glb, morph_normal_glb in zip(
                                 morph_pos_glbs, morph_normal_glbs
