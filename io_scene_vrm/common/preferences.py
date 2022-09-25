@@ -32,15 +32,12 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",  # noqa: F722
-        default=False,
     )
     export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",  # noqa: F722
-        default=False,
     )
     show_experimental_features: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Show Experimetal Features",  # noqa: F722
-        default=False,
     )
 
     def __get_export_fb_ngon_encoding(self) -> bool:
