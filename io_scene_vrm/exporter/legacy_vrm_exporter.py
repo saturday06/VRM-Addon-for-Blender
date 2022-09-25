@@ -14,7 +14,6 @@ import statistics
 import string
 import struct
 from collections import abc
-from math import floor
 from sys import float_info
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -65,7 +64,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         super().__init__(context)
         self.export_objects = export_objects
         self.export_fb_ngon_encoding = export_fb_ngon_encoding
-        self.vrm_version: Optional[str] = None
         self.json_dict: Dict[str, Any] = {}
         self.glb_bin_collector = GlbBinCollection()
         self.use_dummy_armature = False
@@ -99,7 +97,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         wm = self.context.window_manager
         wm.progress_begin(0, 9)
         try:
-            self.vrm_version = "0.0"
             self.setup_pose()
             wm.progress_update(1)
             self.image_to_bin()
@@ -786,121 +783,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 double_sided=not b_mat.use_backface_culling,
                 texture_transform=main_texture_transform,
             )
-            vrm_version = self.vrm_version
-            if vrm_version is None:
-                raise ValueError("vrm version is None")
-            if vrm_version.startswith("1."):
-                mtoon_ext_dict: Dict[str, Any] = {}
-                mtoon_ext_dict["properties"] = {}
-                mt_prop = mtoon_ext_dict["properties"]
-                mt_prop["version"] = "3.2"
-                blend_mode = mtoon_float_dict.get("_BlendMode")
-                if blend_mode == 0:
-                    blend_mode_str = "opaque"
-                elif blend_mode == 1:
-                    blend_mode_str = "cutout"
-                else:
-                    blend_mode_str = "transparent"
-                # TODO transparentWithZWrite
-                mt_prop["renderMode"] = blend_mode_str
-
-                mt_prop["cullMode"] = (
-                    # mtoon_float_dict.get("_CullMode") == "back"
-                    "on"
-                    if b_mat.use_backface_culling
-                    else "off"
-                )  # no cull or bf cull
-                # TODO unknown number
-                mt_prop["renderQueueOffsetNumber"] = 0
-
-                mt_prop["litFactor"] = mtoon_vector_dict.get("_Color")
-                mt_prop["litMultiplyTexture"] = mtoon_texture_dict.get("_MainTex")
-                mt_prop["shadeFactor"] = mtoon_vector_dict.get("_ShadeColor")
-                mt_prop["shadeMultiplyTexture"] = mtoon_texture_dict.get(
-                    "_ShadeTexture"
-                )
-                mt_prop["cutoutThresholdFactor"] = mtoon_float_dict.get("_Cutoff")
-                mt_prop["shadingShiftFactor"] = mtoon_float_dict.get("_ShadeShift")
-                mt_prop["shadingToonyFactor"] = mtoon_float_dict.get("_ShadeToony")
-                mt_prop["shadowReceiveMultiplierFactor"] = mtoon_float_dict.get(
-                    "_ReceiveShadowRate"
-                )
-                mt_prop[
-                    "shadowReceiveMultiplierMultiplyTexture"
-                ] = mtoon_texture_dict.get("_ReceiveShadowTexture")
-                mt_prop["litAndShadeMixingMultiplierFactor"] = mtoon_float_dict.get(
-                    "_ShadingGradeRate"
-                )
-                mt_prop[
-                    "litAndShadeMixingMultiplierMultiplyTexture"
-                ] = mtoon_texture_dict.get("_ShadingGradeTexture")
-                mt_prop["lightColorAttenuationFactor"] = mtoon_float_dict.get(
-                    "_LightColorAttenuation"
-                )
-                mt_prop["giIntensityFactor"] = mtoon_float_dict.get(
-                    "_IndirectLightIntensity"
-                )
-                mt_prop["normalTexture"] = mtoon_texture_dict.get("_BumpMap")
-                mt_prop["normalScaleFactor"] = mtoon_float_dict.get("_BumpScale")
-                mt_prop["emissionFactor"] = mtoon_vector_dict.get("_EmissionColor")
-                mt_prop["emissionMultiplyTexture"] = mtoon_texture_dict.get(
-                    "_EmissionMap"
-                )
-                mt_prop["additiveTexture"] = mtoon_texture_dict.get("_SphereAdd")
-                mt_prop["rimFactor"] = mtoon_vector_dict.get("_RimColor")
-                mt_prop["rimMultiplyTexture"] = mtoon_texture_dict.get("_RimTexture")
-                mt_prop["rimLightingMixFactor"] = mtoon_float_dict.get(
-                    "_RimLightingMix"
-                )
-                mt_prop["rimFresnelPowerFactor"] = mtoon_float_dict.get(
-                    "_RimFresnelPower"
-                )
-                mt_prop["rimLiftFactor"] = mtoon_float_dict.get("_RimLift")
-                mt_prop["outlineWidthMode"] = [
-                    "none",
-                    "worldCoordinates",
-                    "screenCoordinates",
-                ][floor(mtoon_float_dict.get("_OutlineWidthMode", 0))]
-                mt_prop["outlineWidthFactor"] = mtoon_vector_dict.get("_OutlineColor")
-                mt_prop["outlineWidthMultiplyTexture"] = mtoon_texture_dict.get(
-                    "_OutlineWidthTexture"
-                )
-                mt_prop["outlineScaledMaxDistanceFactor"] = mtoon_float_dict.get(
-                    "_OutlineScaledMaxDistance"
-                )
-                mt_prop["outlineColorMode"] = ["fixedColor", "mixedLighting"][
-                    floor(mtoon_float_dict.get("_OutlineLightingMix", 0))
-                ]
-                mt_prop["outlineFactor"] = mtoon_float_dict.get("_OutlineWidth")
-                mt_prop["outlineLightingMixFactor"] = mtoon_float_dict.get(
-                    "OutlineLightingMix"
-                )
-
-                uv_transforms = mtoon_vector_dict.get("_MainTex")
-                if uv_transforms is None:
-                    uv_transforms = [0, 0, 1, 1]
-                mt_prop["mainTextureLeftBottomOriginOffset"] = uv_transforms[0:2]
-                mt_prop["mainTextureLeftBottomOriginScale"] = uv_transforms[2:4]
-                mt_prop["uvAnimationMaskTexture"] = mtoon_texture_dict.get(
-                    "_UvAnimMaskTexture"
-                )
-                mt_prop["uvAnimationScrollXSpeedFactor"] = mtoon_float_dict.get(
-                    "_UvAnimScrollX"
-                )
-                mt_prop["uvAnimationScrollYSpeedFactor"] = mtoon_float_dict.get(
-                    "_UvAnimScrollY"
-                )
-                mt_prop["uvAnimationRotationSpeedFactor"] = mtoon_float_dict.get(
-                    "_UvAnimRotation"
-                )
-                garbage_list = []
-                for k, v in mt_prop.items():
-                    if v is None:
-                        garbage_list.append(k)
-                for garbage in garbage_list:
-                    mt_prop.pop(garbage)
-
-                pbr_dict["extensions"].update({"VRMC_materials_mtoon": mtoon_ext_dict})
             return mtoon_dict, pbr_dict
 
         def make_gltf_mat_dict(
@@ -1331,13 +1213,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         apply_texture_and_sampler_to_dict()
         self.json_dict.update({"materials": glb_material_list})
-        vrm_version = self.vrm_version
-        if vrm_version is None:
-            raise ValueError("vrm version is None")
-        if vrm_version.startswith("0."):
-            self.json_dict.update(
-                {"extensions": {"VRM": {"materialProperties": vrm_material_props_list}}}
-            )
+        self.json_dict.update(
+            {"extensions": {"VRM": {"materialProperties": vrm_material_props_list}}}
+        )
 
     def joint_id_from_node_name_solver(
         self, node_name: str, node_id_dict: Dict[str, int]
@@ -1494,10 +1372,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def mesh_to_bin_and_dict(self) -> None:
         self.json_dict["meshes"] = []
-        vrm_version = self.vrm_version
-        if vrm_version is None:
-            raise ValueError("vrm version is None")
-
         meshes = [
             obj
             for obj in self.export_objects
@@ -1663,11 +1537,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     shape.name: [[fmax, fmax, fmax], [fmin, fmin, fmin]]
                     for shape in mesh_data.shape_keys.key_blocks[1:]
                 }
-                morph_normal_diff_dict = (
-                    self.fetch_morph_vertex_normal_difference(mesh_data)
-                    if vrm_version.startswith("0.")
-                    else {}
-                )  # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
+                # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
+                morph_normal_diff_dict = self.fetch_morph_vertex_normal_difference(
+                    mesh_data
+                )
             position_bin = bytearray()
             position_min_max = [[fmax, fmax, fmax], [fmin, fmin, fmin]]
             normal_bin = bytearray()
@@ -1727,16 +1600,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         shape_pos_bin_dict[shape_name].extend(
                             float_vec3_packer(*morph_pos)
                         )
-                        if vrm_version.startswith("0."):
-                            shape_normal_bin_dict[shape_name].extend(
-                                float_vec3_packer(
-                                    *self.axis_blender_to_glb(
-                                        morph_normal_diff_dict[shape_name][
-                                            loop.vert.index
-                                        ]
-                                    )
+                        shape_normal_bin_dict[shape_name].extend(
+                            float_vec3_packer(
+                                *self.axis_blender_to_glb(
+                                    morph_normal_diff_dict[shape_name][loop.vert.index]
                                 )
                             )
+                        )
                         self.min_max(shape_min_max_dict[shape_name], morph_pos)
                     if is_skin_mesh:
                         weight_and_joint_list: List[Tuple[float, int]] = []
@@ -1925,18 +1795,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         shape_pos_bin_dict.values(), shape_min_max_dict.values()
                     )
                 ]
-                if vrm_version.startswith("0."):
-                    morph_normal_glbs = [
-                        GlbBin(
-                            morph_normal_bin,
-                            "VEC3",
-                            bgl.GL_FLOAT,
-                            unique_vertex_id,
-                            None,
-                            self.glb_bin_collector,
-                        )
-                        for morph_normal_bin in shape_normal_bin_dict.values()
-                    ]
+                morph_normal_glbs = [
+                    GlbBin(
+                        morph_normal_bin,
+                        "VEC3",
+                        bgl.GL_FLOAT,
+                        unique_vertex_id,
+                        None,
+                        self.glb_bin_collector,
+                    )
+                    for morph_normal_bin in shape_normal_bin_dict.values()
+                ]
 
             primitive_list = []
             for primitive_id, index_glb in primitive_glbs_dict.items():
@@ -1966,24 +1835,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     }
                 )
                 if shape_pos_bin_dict:
-                    vrm_version = self.vrm_version
-                    if vrm_version is None:
-                        raise ValueError("vrm version is None")
-                    if vrm_version.startswith("0."):
-                        if morph_pos_glbs and morph_normal_glbs:
-                            primitive["targets"] = [
-                                {
-                                    "POSITION": morph_pos_glb.accessor_id,
-                                    "NORMAL": morph_normal_glb.accessor_id,
-                                }
-                                for morph_pos_glb, morph_normal_glb in zip(
-                                    morph_pos_glbs, morph_normal_glbs
-                                )
-                            ]
-                    elif morph_pos_glbs:
+                    if morph_pos_glbs and morph_normal_glbs:
                         primitive["targets"] = [
-                            {"POSITION": morph_pos_glb.accessor_id}
-                            for morph_pos_glb in morph_pos_glbs
+                            {
+                                "POSITION": morph_pos_glb.accessor_id,
+                                "NORMAL": morph_normal_glb.accessor_id,
+                            }
+                            for morph_pos_glb, morph_normal_glb in zip(
+                                morph_pos_glbs, morph_normal_glbs
+                            )
                         ]
                     primitive["extras"] = {
                         "targetNames": list(shape_pos_bin_dict.keys())
@@ -2034,13 +1894,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         # materialProperties は material_to_dict()で処理する
         # region vrm_extension
         meta = self.armature.data.vrm_addon_extension.vrm0.meta
-        vrm_extension_dict: Dict[str, Any] = {}
-        vrm_version = self.vrm_version
-        if vrm_version is None:
-            raise ValueError("vrm version is None")
-        if vrm_version.startswith("0."):
-            vrm_extension_dict["exporterVersion"] = self.exporter_name()
-        vrm_extension_dict["specVersion"] = self.vrm_version
+        vrm_extension_dict: Dict[str, Any] = {
+            "exporterVersion": self.exporter_name(),
+            "specVersion": "0.0",
+        }
         # region meta
         vrm_extension_dict["meta"] = {
             "title": meta.title,
@@ -2374,8 +2231,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 collider_dicts.append(collider_dict)
         # endregion colliderGroups
         # endregion secondaryAnimation
-        extension_name = "VRM" if vrm_version.startswith("0.") else "VRMC_vrm"
-        self.json_dict["extensions"][extension_name].update(vrm_extension_dict)
+        self.json_dict["extensions"]["VRM"].update(vrm_extension_dict)
         # endregion vrm_extension
 
         # region secondary
