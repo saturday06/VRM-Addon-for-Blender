@@ -59,10 +59,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self,
         context: bpy.types.Context,
         export_objects: List[bpy.types.Object],
+        export_shape_key_normals: str,
         export_fb_ngon_encoding: bool,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
+        self.export_shape_key_normals = export_shape_key_normals
         self.export_fb_ngon_encoding = export_fb_ngon_encoding
         self.json_dict: Dict[str, Any] = {}
         self.glb_bin_collector = GlbBinCollection()

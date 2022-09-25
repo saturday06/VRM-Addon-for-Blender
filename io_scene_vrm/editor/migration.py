@@ -4,6 +4,7 @@ from typing import List
 import bpy
 
 from ..common import version
+from ..common.preferences import VrmAddonPreferences, get_preferences
 from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
@@ -48,6 +49,21 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
 
     vrm0_migration.migrate(ext.vrm0, armature)
     spring_bone1_migration.migrate(armature)
+
+    if (
+        ext.addon_version
+        != VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
+        and ext.addon_version < (2, 6, 3)
+    ):
+        preferences = get_preferences(bpy.context)
+        if preferences:
+            preferences.export_shape_key_normals = (
+                VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_YES_ID
+            )
+            preferences.enable_advanced_preferences = True
+            preferences.export_fb_ngon_encoding = bool(
+                preferences.get("hooked_export_fb_ngon_encoding")
+            )
 
     ext.addon_version = version.version()
 

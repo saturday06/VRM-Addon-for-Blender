@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -36,22 +36,30 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",  # noqa: F722
     )
-    show_experimental_features: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Show Experimetal Features",  # noqa: F722
+    enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Enable Advanced Options",  # noqa: F722
     )
-
-    def __get_export_fb_ngon_encoding(self) -> bool:
-        return bool(self.show_experimental_features) and bool(
-            self.get("hooked_export_fb_ngon_encoding")
-        )
-
-    def __set_export_fb_ngon_encoding(self, value: Any) -> None:
-        self["hooked_export_fb_ngon_encoding"] = bool(value)
-
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
-        get=__get_export_fb_ngon_encoding,
-        set=__set_export_fb_ngon_encoding,
+    )
+
+    EXPORT_SHAPE_KEY_NORMALS_AUTO_ID = "auto"
+    EXPORT_SHAPE_KEY_NORMALS_YES_ID = "yes"
+    EXPORT_SHAPE_KEY_NORMALS_NO_ID = "no"
+    export_shape_key_normals_items = [
+        (
+            EXPORT_SHAPE_KEY_NORMALS_AUTO_ID,
+            "No for MToon, Yes for others",
+            "",
+            "NONE",
+            0,
+        ),
+        (EXPORT_SHAPE_KEY_NORMALS_YES_ID, "Yes", "", "NONE", 1),
+        (EXPORT_SHAPE_KEY_NORMALS_NO_ID, "No", "", "NONE", 2),
+    ]
+    export_shape_key_normals: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=export_shape_key_normals_items,
+        name="Export Shape Key Normals",  # noqa: F722
     )
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -73,10 +81,11 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
 
         layout.prop(self, "export_invisibles")
         layout.prop(self, "export_only_selections")
-        layout.prop(self, "show_experimental_features")
-        if self.show_experimental_features:
-            experimental_features_box = layout.box()
-            experimental_features_box.prop(self, "export_fb_ngon_encoding")
+        layout.prop(self, "enable_advanced_preferences")
+        if self.enable_advanced_preferences:
+            advanced_options_box = layout.box()
+            advanced_options_box.prop(self, "export_fb_ngon_encoding")
+            advanced_options_box.prop(self, "export_shape_key_normals")
 
 
 def use_legacy_importer_exporter() -> bool:

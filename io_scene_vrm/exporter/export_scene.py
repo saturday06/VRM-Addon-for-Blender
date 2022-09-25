@@ -5,7 +5,11 @@ from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ExportHelper
 
 from ..common import version
-from ..common.preferences import get_preferences, use_legacy_importer_exporter
+from ..common.preferences import (
+    VrmAddonPreferences,
+    get_preferences,
+    use_legacy_importer_exporter,
+)
 from ..editor import search, validation
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
@@ -36,10 +40,22 @@ def export_vrm_update_addon_preferences(
         preferences.export_only_selections = export_op.export_only_selections
         changed = True
 
+    if bool(preferences.enable_advanced_preferences) != bool(
+        export_op.enable_advanced_preferences
+    ):
+        preferences.enable_advanced_preferences = export_op.enable_advanced_preferences
+        changed = True
+
     if bool(preferences.export_fb_ngon_encoding) != bool(
         export_op.export_fb_ngon_encoding
     ):
         preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
+        changed = True
+
+    if str(preferences.export_shape_key_normals) != str(
+        export_op.export_shape_key_normals
+    ):
+        preferences.export_shape_key_normals = export_op.export_shape_key_normals
         changed = True
 
     if changed:
@@ -57,7 +73,6 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
     )
 
-    # vrm_version : bpy.props.EnumProperty(name="VRM version" ,items=(("0.0","0.0",""),("1.0","1.0","")))
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",  # noqa: F722
         update=export_vrm_update_addon_preferences,
@@ -66,8 +81,17 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         name="Export Only Selections",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
+    enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Enable Advanced Options",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+    )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+    )
+    export_shape_key_normals: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=VrmAddonPreferences.export_shape_key_normals_items,
+        name="Export Shape Key Normals",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
 
@@ -84,14 +108,17 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             return {"CANCELLED"}
 
         preferences = get_preferences(context)
+        export_fb_ngon_encoding = False
+        export_shape_key_normals = VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_AUTO_ID
         if preferences:
             export_invisibles = bool(preferences.export_invisibles)
             export_only_selections = bool(preferences.export_only_selections)
-            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+            if preferences.enable_advanced_preferences:
+                export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+                export_shape_key_normals = str(preferences.export_shape_key_normals)
         else:
             export_invisibles = False
             export_only_selections = False
-            export_fb_ngon_encoding = False
 
         export_objects = search.export_objects(
             context, export_invisibles, export_only_selections
@@ -103,11 +130,14 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
 
         if is_vrm1:
             vrm_exporter: AbstractBaseVrmExporter = Gltf2AddonVrmExporter(
-                context, export_objects
+                context, export_objects, export_shape_key_normals
             )
         else:
             vrm_exporter = LegacyVrmExporter(
-                context, export_objects, export_fb_ngon_encoding
+                context,
+                export_objects,
+                export_shape_key_normals,
+                export_fb_ngon_encoding,
             )
 
         vrm_bin = vrm_exporter.export_vrm()
@@ -123,11 +153,15 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             (
                 self.export_invisibles,
                 self.export_only_selections,
+                self.enable_advanced_preferences,
                 self.export_fb_ngon_encoding,
+                self.export_shape_key_normals,
             ) = (
                 bool(preferences.export_invisibles),
                 bool(preferences.export_only_selections),
+                bool(preferences.enable_advanced_preferences),
                 bool(preferences.export_fb_ngon_encoding),
+                str(preferences.export_shape_key_normals),
             )
         if not use_legacy_importer_exporter() and "gltf" not in dir(
             bpy.ops.export_scene
@@ -210,10 +244,11 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
 
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
-
-        preferences = get_preferences(context)
-        if preferences and preferences.show_experimental_features:
-            layout.prop(operator, "export_fb_ngon_encoding")
+        layout.prop(operator, "enable_advanced_preferences")
+        if operator.enable_advanced_preferences:
+            advanced_options_box = layout.box()
+            advanced_options_box.prop(operator, "export_fb_ngon_encoding")
+            advanced_options_box.prop(operator, "export_shape_key_normals")
 
         if operator.errors:
             validation.WM_OT_vrm_validator.draw_errors(

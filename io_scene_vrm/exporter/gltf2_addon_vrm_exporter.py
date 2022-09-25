@@ -28,10 +28,14 @@ from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 
 class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def __init__(
-        self, context: bpy.types.Context, export_objects: List[bpy.types.Object]
+        self,
+        context: bpy.types.Context,
+        export_objects: List[bpy.types.Object],
+        export_shape_key_normals: str,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
+        self.export_shape_key_normals = export_shape_key_normals
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
             raise NotImplementedError(
