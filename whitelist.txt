@@ -209,6 +209,7 @@ tri
 tris
 tz
 ui
+unassign
 unittest
 unlink
 unregister

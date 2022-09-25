@@ -11,6 +11,7 @@ import bpy
 
 from ..common import convert, deep, gltf, shader, version
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.preferences import VrmAddonPreferences
 from ..editor import search
 from ..editor.mtoon1.property_group import Mtoon1TextureInfoPropertyGroup
 from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
@@ -1232,6 +1233,44 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if material_dicts:
             json_dict["materials"] = material_dicts
 
+    @staticmethod
+    def unassign_normal_from_mtoon_primitive_morph_target(
+        json_dict: Dict[str, Any]
+    ) -> None:
+        mesh_dicts = json_dict.get("meshes")
+        if not isinstance(mesh_dicts, abc.Iterable):
+            return
+        for mesh_dict in mesh_dicts:
+            primitive_dicts = mesh_dict.get("primitives")
+            if not isinstance(primitive_dicts, abc.Iterable):
+                continue
+            for primitive_dict in primitive_dicts:
+                material_index = primitive_dict.get("material")
+                if not isinstance(material_index, int):
+                    continue
+                mtoon = isinstance(
+                    deep.get(
+                        json_dict,
+                        [
+                            "materials",
+                            material_index,
+                            "extensions",
+                            "VRMC_materials_mtoon",
+                        ],
+                    ),
+                    dict,
+                )
+                if not mtoon:
+                    continue
+                target_dicts = primitive_dict.get("targets")
+                if not isinstance(target_dicts, abc.Iterable):
+                    continue
+                for target_dict in target_dicts:
+                    if not isinstance(target_dict, dict):
+                        continue
+                    if "NORMAL" in target_dict:
+                        del target_dict["NORMAL"]
+
     def export_vrm(self) -> Optional[bytes]:
         dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         try:
@@ -1259,6 +1298,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     export_format="GLB",
                     export_extras=True,
                     export_current_frame=True,
+                    export_morph_normal=self.export_shape_key_normals
+                    != VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_NO_ID,
                     use_selection=True,
                     export_animations=False,  # https://github.com/vrm-c/UniVRM/issues/1729
                 )
@@ -1442,6 +1483,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 del material_dict["extras"]
 
         self.save_vrm_materials(json_dict, body_binary, material_name_to_index_dict)
+        if (
+            self.export_shape_key_normals
+            == VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_AUTO_ID
+        ):
+            self.unassign_normal_from_mtoon_primitive_morph_target(json_dict)
 
         vrm = self.armature.data.vrm_addon_extension.vrm1
 

@@ -26,6 +26,7 @@ from ..common import deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
+from ..common.preferences import VrmAddonPreferences
 from ..common.version import version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..editor import migration, search
@@ -1812,6 +1813,33 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             primitive_list = []
             for primitive_id, index_glb in primitive_glbs_dict.items():
                 primitive: Dict[str, Any] = {"mode": 4}
+
+                if (
+                    self.export_shape_key_normals
+                    == VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_AUTO_ID
+                    and primitive_id is not None
+                ):
+                    export_primitive_morph_normals = (
+                        deep.get(
+                            self.json_dict,
+                            [
+                                "extensions",
+                                "VRM",
+                                "materialProperties",
+                                primitive_id,
+                                "shader",
+                            ],
+                        )
+                        != "VRM/MToon"
+                    )
+                elif (
+                    self.export_shape_key_normals
+                    == VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_NO_ID
+                ):
+                    export_primitive_morph_normals = False
+                else:
+                    export_primitive_morph_normals = True
+
                 if primitive_id is not None:
                     primitive["material"] = primitive_id
                 primitive["indices"] = index_glb.accessor_id
@@ -1842,6 +1870,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             {
                                 "POSITION": morph_pos_glb.accessor_id,
                                 "NORMAL": morph_normal_glb.accessor_id,
+                            }
+                            if export_primitive_morph_normals
+                            else {
+                                "POSITION": morph_pos_glb.accessor_id,
                             }
                             for morph_pos_glb, morph_normal_glb in zip(
                                 morph_pos_glbs, morph_normal_glbs
