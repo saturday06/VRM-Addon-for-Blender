@@ -38,6 +38,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     )
     enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",  # noqa: F722
+        default=True,
     )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
@@ -60,6 +61,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     export_shape_key_normals: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=export_shape_key_normals_items,
         name="Export Shape Key Normals",  # noqa: F722
+        default=EXPORT_SHAPE_KEY_NORMALS_YES_ID,
     )
 
     def draw(self, _context: bpy.types.Context) -> None:

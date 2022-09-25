@@ -119,6 +119,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         else:
             export_invisibles = False
             export_only_selections = False
+            export_shape_key_normals = (
+                VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_YES_ID
+            )
 
         export_objects = search.export_objects(
             context, export_invisibles, export_only_selections
