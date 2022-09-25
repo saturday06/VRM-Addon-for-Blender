@@ -1253,16 +1253,18 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         split_normals[loop_index * 3 + 2],
                     ]
                 )
+                if v.length <= float_info.epsilon:
+                    continue
                 vertex_normal_vectors[loop.vertex_index] = (
                     vertex_normal_vectors[loop.vertex_index] + v
                 )
 
             vertex_normals = [0.0] * len(vertex_normal_vectors) * 3
             for index, _ in enumerate(vertex_normal_vectors):
-                n = vertex_normal_vectors[index].normalized()
-                if n.magnitude < float_info.epsilon:
-                    vertex_normals[index * 3 + 2] = 1.0
+                n = vertex_normal_vectors[index]
+                if n.length <= float_info.epsilon:
                     continue
+                n = n.normalized()
                 vertex_normals[index * 3 + 0] = n[0]
                 vertex_normals[index * 3 + 1] = n[1]
                 vertex_normals[index * 3 + 2] = n[2]
