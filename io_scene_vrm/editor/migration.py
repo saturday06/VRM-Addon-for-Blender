@@ -50,11 +50,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     vrm0_migration.migrate(ext.vrm0, armature)
     spring_bone1_migration.migrate(armature)
 
-    if (
-        ext.addon_version
-        != VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
-        and ext.addon_version < (2, 6, 3)
-    ):
+    if ext.addon_version < (2, 6, 3):
         preferences = get_preferences(bpy.context)
         if preferences:
             preferences.export_shape_key_normals = (
