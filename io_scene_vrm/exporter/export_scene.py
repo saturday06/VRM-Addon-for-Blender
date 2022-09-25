@@ -5,11 +5,7 @@ from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ExportHelper
 
 from ..common import version
-from ..common.preferences import (
-    VrmAddonPreferences,
-    get_preferences,
-    use_legacy_importer_exporter,
-)
+from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import search, validation
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
@@ -52,10 +48,12 @@ def export_vrm_update_addon_preferences(
         preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
         changed = True
 
-    if str(preferences.export_shape_key_normals) != str(
-        export_op.export_shape_key_normals
+    if bool(preferences.export_mtoon_shape_key_normals) != bool(
+        export_op.export_mtoon_shape_key_normals
     ):
-        preferences.export_shape_key_normals = export_op.export_shape_key_normals
+        preferences.export_mtoon_shape_key_normals = (
+            export_op.export_mtoon_shape_key_normals
+        )
         changed = True
 
     if changed:
@@ -89,9 +87,8 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
-    export_shape_key_normals: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=VrmAddonPreferences.export_shape_key_normals_items,
-        name="Export Shape Key Normals",  # noqa: F722
+    export_mtoon_shape_key_normals: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export MToon Shape Key Normals",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
 
@@ -109,19 +106,18 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
 
         preferences = get_preferences(context)
         export_fb_ngon_encoding = False
-        export_shape_key_normals = VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_AUTO_ID
+        export_mtoon_shape_key_normals = True
         if preferences:
             export_invisibles = bool(preferences.export_invisibles)
             export_only_selections = bool(preferences.export_only_selections)
             if preferences.enable_advanced_preferences:
                 export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
-                export_shape_key_normals = str(preferences.export_shape_key_normals)
+                export_mtoon_shape_key_normals = bool(
+                    preferences.export_mtoon_shape_key_normals
+                )
         else:
             export_invisibles = False
             export_only_selections = False
-            export_shape_key_normals = (
-                VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_YES_ID
-            )
 
         export_objects = search.export_objects(
             context, export_invisibles, export_only_selections
@@ -133,13 +129,13 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
 
         if is_vrm1:
             vrm_exporter: AbstractBaseVrmExporter = Gltf2AddonVrmExporter(
-                context, export_objects, export_shape_key_normals
+                context, export_objects, export_mtoon_shape_key_normals
             )
         else:
             vrm_exporter = LegacyVrmExporter(
                 context,
                 export_objects,
-                export_shape_key_normals,
+                export_mtoon_shape_key_normals,
                 export_fb_ngon_encoding,
             )
 
@@ -158,13 +154,13 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                 self.export_only_selections,
                 self.enable_advanced_preferences,
                 self.export_fb_ngon_encoding,
-                self.export_shape_key_normals,
+                self.export_mtoon_shape_key_normals,
             ) = (
                 bool(preferences.export_invisibles),
                 bool(preferences.export_only_selections),
                 bool(preferences.enable_advanced_preferences),
                 bool(preferences.export_fb_ngon_encoding),
-                str(preferences.export_shape_key_normals),
+                bool(preferences.export_mtoon_shape_key_normals),
             )
         if not use_legacy_importer_exporter() and "gltf" not in dir(
             bpy.ops.export_scene
@@ -251,7 +247,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noq
         if operator.enable_advanced_preferences:
             advanced_options_box = layout.box()
             advanced_options_box.prop(operator, "export_fb_ngon_encoding")
-            advanced_options_box.prop(operator, "export_shape_key_normals")
+            advanced_options_box.prop(operator, "export_mtoon_shape_key_normals")
 
         if operator.errors:
             validation.WM_OT_vrm_validator.draw_errors(

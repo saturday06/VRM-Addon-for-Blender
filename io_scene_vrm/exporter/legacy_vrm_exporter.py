@@ -26,7 +26,6 @@ from ..common import deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
-from ..common.preferences import VrmAddonPreferences
 from ..common.version import version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..editor import migration, search
@@ -60,12 +59,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self,
         context: bpy.types.Context,
         export_objects: List[bpy.types.Object],
-        export_shape_key_normals: str,
+        export_mtoon_shape_key_normals: bool,
         export_fb_ngon_encoding: bool,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
-        self.export_shape_key_normals = export_shape_key_normals
+        self.export_mtoon_shape_key_normals = export_mtoon_shape_key_normals
         self.export_fb_ngon_encoding = export_fb_ngon_encoding
         self.json_dict: Dict[str, Any] = {}
         self.glb_bin_collector = GlbBinCollection()
@@ -1814,11 +1813,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             for primitive_id, index_glb in primitive_glbs_dict.items():
                 primitive: Dict[str, Any] = {"mode": 4}
 
-                if (
-                    self.export_shape_key_normals
-                    == VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_AUTO_ID
-                    and primitive_id is not None
-                ):
+                if not self.export_mtoon_shape_key_normals and primitive_id is not None:
                     export_primitive_morph_normals = (
                         deep.get(
                             self.json_dict,
@@ -1832,11 +1827,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         )
                         != "VRM/MToon"
                     )
-                elif (
-                    self.export_shape_key_normals
-                    == VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_NO_ID
-                ):
-                    export_primitive_morph_normals = False
                 else:
                     export_primitive_morph_normals = True
 

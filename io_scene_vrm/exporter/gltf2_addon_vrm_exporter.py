@@ -11,7 +11,6 @@ import bpy
 
 from ..common import convert, deep, gltf, shader, version
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.preferences import VrmAddonPreferences
 from ..editor import search
 from ..editor.mtoon1.property_group import Mtoon1TextureInfoPropertyGroup
 from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
@@ -32,11 +31,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self,
         context: bpy.types.Context,
         export_objects: List[bpy.types.Object],
-        export_shape_key_normals: str,
+        export_mtoon_shape_key_normals: bool,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
-        self.export_shape_key_normals = export_shape_key_normals
+        self.export_mtoon_shape_key_normals = export_mtoon_shape_key_normals
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
             raise NotImplementedError(
@@ -1298,8 +1297,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     export_format="GLB",
                     export_extras=True,
                     export_current_frame=True,
-                    export_morph_normal=self.export_shape_key_normals
-                    != VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_NO_ID,
                     use_selection=True,
                     export_animations=False,  # https://github.com/vrm-c/UniVRM/issues/1729
                 )
@@ -1483,10 +1480,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 del material_dict["extras"]
 
         self.save_vrm_materials(json_dict, body_binary, material_name_to_index_dict)
-        if (
-            self.export_shape_key_normals
-            == VrmAddonPreferences.EXPORT_SHAPE_KEY_NORMALS_AUTO_ID
-        ):
+        if not self.export_mtoon_shape_key_normals:
             self.unassign_normal_from_mtoon_primitive_morph_target(json_dict)
 
         vrm = self.armature.data.vrm_addon_extension.vrm1
