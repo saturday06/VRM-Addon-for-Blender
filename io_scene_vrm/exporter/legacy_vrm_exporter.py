@@ -1256,7 +1256,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if v.length <= float_info.epsilon:
                     continue
                 vertex_normal_vectors[loop.vertex_index] = (
-                    vertex_normal_vectors[loop.vertex_index] + v
+                    vertex_normal_vectors[loop.vertex_index] + v.normalized()
                 )
 
             vertex_normals = [0.0] * len(vertex_normal_vectors) * 3
