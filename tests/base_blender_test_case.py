@@ -23,7 +23,7 @@ class BaseBlenderTestCase(TestCase):
             os.path.dirname(os.path.realpath(__file__))
         )
         repository_addon_dir = os.path.join(self.repository_root_dir, "io_scene_vrm")
-        self.user_scripts_dir = tempfile.mkdtemp()
+        self.user_scripts_dir = tempfile.mkdtemp(prefix="blender_vrm_")
         os.mkdir(os.path.join(self.user_scripts_dir, "addons"))
         self.addons_pythonpath = os.path.join(self.user_scripts_dir, "addons")
         addon_dir = os.path.join(self.addons_pythonpath, "io_scene_vrm")
