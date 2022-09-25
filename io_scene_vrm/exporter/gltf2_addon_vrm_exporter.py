@@ -34,7 +34,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.export_objects = export_objects
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
-            raise NotImplementedError("アーマチュア無しエクスポートはまだ未対応")
+            raise NotImplementedError(
+                "Export without armature is not yet supported.\n"
+                + "アーマチュア無しエクスポートはまだ未対応。"
+            )
         self.armature = armatures[0]
 
         for collider in self.armature.data.vrm_addon_extension.spring_bone1.colliders:
