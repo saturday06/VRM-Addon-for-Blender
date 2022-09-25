@@ -211,8 +211,11 @@ class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ig
 
 
 class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    INITIAL_ADDON_VERSION = (0, 0, 0)
+
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
-        size=3  # noqa: F722
+        size=3,  # noqa: F722
+        default=INITIAL_ADDON_VERSION,
     )
 
     vrm0: bpy.props.PointerProperty(  # type: ignore[valid-type]
