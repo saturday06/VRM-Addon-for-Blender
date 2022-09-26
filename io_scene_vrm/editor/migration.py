@@ -53,6 +53,9 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     if tuple(ext.addon_version) < (2, 6, 3):
         preferences = get_preferences(bpy.context)
         if preferences:
+            preferences.enable_advanced_preferences = bool(
+                preferences.get("show_experimental_features")
+            )
             preferences.export_fb_ngon_encoding = bool(
                 preferences.get("hooked_export_fb_ngon_encoding")
             )

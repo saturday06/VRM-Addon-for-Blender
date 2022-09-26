@@ -38,7 +38,6 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     )
     enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",  # noqa: F722
-        default=True,
     )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
