@@ -22,7 +22,6 @@ from .editor import (
     property_group,
     validation,
 )
-from .editor.mtoon1 import panel as mtoon1_panel
 from .editor.mtoon1 import property_group as mtoon1_property_group
 from .editor.node_constraint1 import panel as node_constraint1_panel
 from .editor.node_constraint1 import property_group as node_constraint1_property_group
@@ -181,7 +180,7 @@ classes = [
     mtoon1_property_group.Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup,
     mtoon1_property_group.Mtoon1MaterialExtensionsPropertyGroup,
     mtoon1_property_group.Mtoon1MaterialPropertyGroup,
-    mtoon1_panel.VRM_PT_vrm_material_property,
+    # mtoon1_panel.VRM_PT_vrm_material_property,
     panel.VRM_PT_current_selected_armature,
     panel.VRM_PT_controller_unsupported_blender_version_warning,
     panel.VRM_PT_controller,
