@@ -2,6 +2,7 @@ from typing import Optional
 
 import bpy
 
+from .. import search
 from .property_group import Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup
 
 
@@ -51,12 +52,21 @@ class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noq
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(context.material)
+        material = context.material
+        if not isinstance(material, bpy.types.Material):
+            return False
+        node = search.vrm_shader_node(material)
+        if not node:
+            return False
+        if node.node_tree["SHADER"] != "MToon_unversioned":
+            return False
+        return True
 
     def draw(self, context: bpy.types.Context) -> None:
         ext = context.material.vrm_addon_extension
         layout = self.layout.column()
-        layout.prop(ext.mtoon1, "enabled")
+        layout.prop(ext.mtoon1, "export_shape_key_normals")
+        # layout.prop(ext.mtoon1, "enabled")
         if not ext.mtoon1.enabled:
             return
 

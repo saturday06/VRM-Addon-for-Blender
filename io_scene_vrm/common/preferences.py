@@ -43,10 +43,6 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
     )
-    export_mtoon_shape_key_normals: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export MToon Shape Key Normals",  # noqa: F722
-        default=True,
-    )
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
@@ -71,7 +67,6 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
         if self.enable_advanced_preferences:
             advanced_options_box = layout.box()
             advanced_options_box.prop(self, "export_fb_ngon_encoding")
-            advanced_options_box.prop(self, "export_mtoon_shape_key_normals")
 
 
 def use_legacy_importer_exporter() -> bool:

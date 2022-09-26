@@ -31,11 +31,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self,
         context: bpy.types.Context,
         export_objects: List[bpy.types.Object],
-        export_mtoon_shape_key_normals: bool,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
-        self.export_mtoon_shape_key_normals = export_mtoon_shape_key_normals
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
             raise NotImplementedError(
@@ -1234,7 +1232,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def unassign_normal_from_mtoon_primitive_morph_target(
-        json_dict: Dict[str, Any]
+        json_dict: Dict[str, Any], material_name_to_index_dict: Dict[str, int]
     ) -> None:
         mesh_dicts = json_dict.get("meshes")
         if not isinstance(mesh_dicts, abc.Iterable):
@@ -1247,20 +1245,29 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 material_index = primitive_dict.get("material")
                 if not isinstance(material_index, int):
                     continue
-                mtoon = isinstance(
-                    deep.get(
-                        json_dict,
-                        [
-                            "materials",
-                            material_index,
-                            "extensions",
-                            "VRMC_materials_mtoon",
-                        ],
-                    ),
-                    dict,
-                )
-                if not mtoon:
+
+                skip = True
+                for (
+                    search_material_name,
+                    search_material_index,
+                ) in material_name_to_index_dict.items():
+                    if material_index != search_material_index:
+                        continue
+                    material = bpy.data.materials.get(search_material_name)
+                    if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
+                        continue
+                    if material.vrm_addon_extension.mtoon1.enabled:
+                        skip = False
+                        break
+                    node = search.vrm_shader_node(material)
+                    if not node:
+                        continue
+                    if node.node_tree["SHADER"] == "MToon_unversioned":
+                        skip = False
+                        break
+                if skip:
                     continue
+
                 target_dicts = primitive_dict.get("targets")
                 if not isinstance(target_dicts, abc.Iterable):
                     continue
@@ -1480,8 +1487,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 del material_dict["extras"]
 
         self.save_vrm_materials(json_dict, body_binary, material_name_to_index_dict)
-        if not self.export_mtoon_shape_key_normals:
-            self.unassign_normal_from_mtoon_primitive_morph_target(json_dict)
+        self.unassign_normal_from_mtoon_primitive_morph_target(
+            json_dict, material_name_to_index_dict
+        )
 
         vrm = self.armature.data.vrm_addon_extension.vrm1
 

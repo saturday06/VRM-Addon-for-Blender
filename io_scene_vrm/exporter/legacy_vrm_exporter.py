@@ -15,7 +15,7 @@ import string
 import struct
 from collections import abc
 from sys import float_info
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import bgl
 import bmesh
@@ -59,12 +59,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self,
         context: bpy.types.Context,
         export_objects: List[bpy.types.Object],
-        export_mtoon_shape_key_normals: bool,
         export_fb_ngon_encoding: bool,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
-        self.export_mtoon_shape_key_normals = export_mtoon_shape_key_normals
         self.export_fb_ngon_encoding = export_fb_ngon_encoding
         self.json_dict: Dict[str, Any] = {}
         self.glb_bin_collector = GlbBinCollection()
@@ -1234,8 +1232,24 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def fetch_morph_vertex_normal_difference(
-        mesh_data: bpy.types.Mesh, exclusion_vertex_indices: Set[int]
+        mesh_data: bpy.types.Mesh,
     ) -> Dict[str, List[List[float]]]:
+        exclusion_vertex_indices = set()
+        for polygon in mesh_data.polygons:
+            material = mesh_data.materials[polygon.material_index]
+            if material is None:
+                continue
+            if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
+                continue
+            if material.vrm_addon_extension.mtoon1.enabled:
+                exclusion_vertex_indices.update(polygon.vertices)
+                continue
+            node = search.vrm_shader_node(material)
+            if not node:
+                continue
+            if node.node_tree["SHADER"] == "MToon_unversioned":
+                exclusion_vertex_indices.update(polygon.vertices)
+
         morph_normal_diff_dict = {}
         vert_base_normal_dict = {}
         for kb in mesh_data.shape_keys.key_blocks:
@@ -1546,34 +1560,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     for shape in mesh_data.shape_keys.key_blocks[1:]
                 }
                 # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
-                morph_vertex_normal_exclusion_vertex_indices = set()
-                if not self.export_mtoon_shape_key_normals:
-                    for polygon in mesh_data.polygons:
-                        material_slot_name = material_slot_dict.get(
-                            polygon.material_index
-                        )
-                        if not isinstance(material_slot_name, str):
-                            continue
-                        material_index = mat_id_dict.get(material_slot_name)
-                        if not isinstance(material_index, int):
-                            continue
-                        shader_name = deep.get(
-                            self.json_dict,
-                            [
-                                "extensions",
-                                "VRM",
-                                "materialProperties",
-                                material_index,
-                                "shader",
-                            ],
-                        )
-                        if shader_name == "VRM/MToon":
-                            morph_vertex_normal_exclusion_vertex_indices.update(
-                                polygon.vertices
-                            )
-
                 morph_normal_diff_dict = self.fetch_morph_vertex_normal_difference(
-                    mesh_data, morph_vertex_normal_exclusion_vertex_indices
+                    mesh_data
                 )
             position_bin = bytearray()
             position_min_max = [[fmax, fmax, fmax], [fmin, fmin, fmin]]
