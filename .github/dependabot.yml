@@ -5,10 +5,10 @@ updates:
     directory: "/"
     target-branch: main
     schedule:
-      interval: "weekly"
+      interval: "daily"
 
   - package-ecosystem: "gomod"
     directory: "/docs/website"
     target-branch: main
     schedule:
-      interval: "weekly"
+      interval: "daily"
