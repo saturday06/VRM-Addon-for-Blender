@@ -1715,5 +1715,4 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     export_shape_key_normals: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Shape Key Normals",  # noqa: F722
-        default=True,
     )
