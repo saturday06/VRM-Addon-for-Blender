@@ -36,7 +36,7 @@ jobs:
             break
           done
 
-          gh pr merge
+          gh pr merge --auto --merge "$PR_URL"
 
         env:
           WORKFLOW_NAME: ${{github.workflow}}
