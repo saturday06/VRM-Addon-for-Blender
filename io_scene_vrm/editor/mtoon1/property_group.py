@@ -1,7 +1,7 @@
 import functools
 from collections import abc
 from sys import float_info
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import bpy
 
@@ -12,12 +12,6 @@ logger = get_logger(__name__)
 
 
 class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    @staticmethod
-    def __all_search_material_instances() -> Iterator[Optional[bpy.types.Material]]:
-        yield from bpy.data.materials
-        for mesh in bpy.data.meshes:
-            yield from mesh.materials
-
     def find_material(self) -> bpy.types.Material:
         chain = getattr(self, "material_property_chain", None)
         if not isinstance(chain, abc.Sequence):
@@ -25,9 +19,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
                 f"No material property chain: {type(self)}.{type(chain)} => {chain}"
             )
 
-        for material in self.__all_search_material_instances():
-            if not material:
-                continue
+        for material in bpy.data.materials:
             ext = material.vrm_addon_extension.mtoon1
             if functools.reduce(getattr, chain, ext) == self:
                 return material
