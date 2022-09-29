@@ -20,6 +20,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             )
 
         for material in bpy.data.materials:
+            if not material:
+                continue
             ext = material.vrm_addon_extension.mtoon1
             if functools.reduce(getattr, chain, ext) == self:
                 return material
