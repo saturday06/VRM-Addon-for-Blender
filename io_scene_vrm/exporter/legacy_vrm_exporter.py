@@ -1239,6 +1239,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             material = mesh_data.materials[polygon.material_index]
             if material is None:
                 continue
+            # Use non-evaluated material
+            material = bpy.data.materials.get(material.name)
+            if material is None:
+                continue
             if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
                 continue
             if material.vrm_addon_extension.mtoon1.enabled:

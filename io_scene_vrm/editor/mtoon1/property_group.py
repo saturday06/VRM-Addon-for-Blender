@@ -13,6 +13,9 @@ logger = get_logger(__name__)
 
 class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def find_material(self) -> bpy.types.Material:
+        if self.id_data.is_evaluated:
+            logger.error(f"{self} is evaluated. May cause a problem.")
+
         chain = getattr(self, "material_property_chain", None)
         if not isinstance(chain, abc.Sequence):
             raise NotImplementedError(
