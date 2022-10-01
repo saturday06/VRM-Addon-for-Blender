@@ -303,6 +303,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if isinstance(gi_equalization_factor, (float, int)):
             mtoon.gi_equalization_factor = float(gi_equalization_factor)
 
+        matcap_factor = shader.rgb_or_none(mtoon_dict.get("matcapFactor"))
+        if matcap_factor:
+            mtoon.matcap_factor = matcap_factor
+
         matcap_texture_dict = mtoon_dict.get("matcapTexture")
         if isinstance(matcap_texture_dict, dict):
             self.assign_texture_info(

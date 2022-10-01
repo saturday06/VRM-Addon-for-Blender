@@ -431,6 +431,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
         ("color", "Color", "", 0),
         ("emissionColor", "Emission Color", "", 1),
         ("shadeColor", "Shade Color", "", 2),
+        ("matcapColor", "Matcap Color", "", 5),
         ("rimColor", "Rim Color", "", 3),
         ("outlineColor", "Outline Color", "", 4),
     ]

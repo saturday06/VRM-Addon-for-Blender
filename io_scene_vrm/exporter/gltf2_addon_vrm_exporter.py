@@ -887,6 +887,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 json_dict, body_binary, root.emissive_texture
             ),
         )
+        mtoon_dict["matcapFactor"] = mtoon.matcap_factor
         assign_dict(
             mtoon_dict,
             "matcapTexture",
@@ -1079,6 +1080,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 json_dict, body_binary, node, "SphereAddTexture"
             ),
         )
+        if mtoon_dict.get("matcapTexture"):
+            mtoon_dict["matcapFactor"] = [1, 1, 1]
+
         assign_dict(
             mtoon_dict,
             "parametricRimColorFactor",
