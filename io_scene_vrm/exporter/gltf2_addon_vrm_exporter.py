@@ -1105,11 +1105,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 json_dict, body_binary, node, "RimTexture"
             ),
         )
-        assign_dict(
-            mtoon_dict,
-            "rimLightingMixFactor",
-            shader.get_float_value(node, "RimLightingMix"),
-        )
+
+        # https://github.com/vrm-c/UniVRM/blob/7c9919ef47a25c04100a2dcbe6a75dff49ef4857/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L287-L290
+        mtoon_dict["rimLightingMixFactor"] = 1.0
 
         centimeter_to_meter = 0.01
         one_hundredth = 0.01
