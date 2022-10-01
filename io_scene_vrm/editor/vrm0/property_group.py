@@ -329,7 +329,7 @@ class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
         name="Index"  # noqa: F821
     )
     weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Weight", min=0, max=1  # noqa: F821
+        name="Weight", min=0, default=1, max=1  # noqa: F821
     )
 
 

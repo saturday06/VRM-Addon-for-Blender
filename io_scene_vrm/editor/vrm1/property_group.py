@@ -417,7 +417,7 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         # noqa: F821
     )
     weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        min=0, max=1  # noqa: F821
+        min=0, default=1, max=1  # noqa: F821
     )
 
 
