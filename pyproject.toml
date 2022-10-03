@@ -9,7 +9,7 @@ license = "MIT"
 python = "^3.7"
 "fake-bpy-module-2.83" = "20210701"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 autoflake = "*"
 black = "*"
 flake8 = "*"

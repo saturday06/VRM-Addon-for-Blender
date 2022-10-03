@@ -479,7 +479,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "df075c8fe1ab4af98684c5fc83da26a8ff5ae4edc9f8a679546b1770f14fb592"
+content-hash = "77f5054ebc6f59383cb87bbe0ddd628d8ce1e924eb8d974cb2a90cd21cab00f6"
 
 [metadata.files]
 astor = [
