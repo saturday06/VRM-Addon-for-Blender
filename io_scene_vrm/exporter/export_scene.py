@@ -12,6 +12,7 @@ from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_required_bones_layout,
 )
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
+from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .gltf2_addon_vrm_exporter import Gltf2AddonVrmExporter
 from .legacy_vrm_exporter import LegacyVrmExporter
@@ -158,10 +159,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         )
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
-        is_vrm0 = any(
-            armature.data.vrm_addon_extension.is_vrm0() for armature in armatures
-        )
-        if len(armatures) == 1 and is_vrm0:
+        if len(armatures) == 1 and armatures[0].data.vrm_addon_extension.is_vrm0():
             armature = armatures[0]
             Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
             Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
@@ -174,6 +172,24 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                     armature_name=armature.name
                 )
             if not humanoid.all_required_bones_are_assigned():
+                bpy.ops.wm.vrm_export_human_bones_assignment("INVOKE_DEFAULT")
+                return {"CANCELLED"}
+        elif len(armatures) == 1 and armatures[0].data.vrm_addon_extension.is_vrm1():
+            armature = armatures[0]
+            Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
+            Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+                armature.data.name,
+                defer=False,
+            )
+            human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
+            if all(
+                human_bone.node.value not in human_bone.node_candidates
+                for human_bone in human_bones.human_bone_name_to_human_bone().values()
+            ):
+                bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
+                    armature_name=armature.name
+                )
+            if not human_bones.all_required_bones_are_assigned():
                 bpy.ops.wm.vrm_export_human_bones_assignment("INVOKE_DEFAULT")
                 return {"CANCELLED"}
 
@@ -259,15 +275,25 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
         if len(armatures) != 1:
             return {"CANCELLED"}
         armature = armatures[0]
-        if not armature.data.vrm_addon_extension.is_vrm0():
-            return {"CANCELLED"}
-        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            armature.data.name,
-            defer=False,
-        )
-        humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
-        if not humanoid.all_required_bones_are_assigned():
+        if armature.data.vrm_addon_extension.is_vrm0():
+            Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+            Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+                armature.data.name,
+                defer=False,
+            )
+            humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+            if not humanoid.all_required_bones_are_assigned():
+                return {"CANCELLED"}
+        elif armature.data.vrm_addon_extension.is_vrm1():
+            Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
+            Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+                armature.data.name,
+                defer=False,
+            )
+            human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
+            if human_bones.all_required_bones_are_assigned():
+                return {"CANCELLED"}
+        else:
             return {"CANCELLED"}
         bpy.ops.export_scene.vrm("INVOKE_DEFAULT")
         return {"FINISHED"}
@@ -297,6 +323,12 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
             return
         armature = armatures[0]
 
+        if armature.data.vrm_addon_extension.is_vrm0():
+            self.draw_vrm0(armature)
+        elif armature.data.vrm_addon_extension.is_vrm1():
+            self.draw_vrm1(armature)
+
+    def draw_vrm0(self, armature: bpy.types.Object) -> None:
         layout = self.layout
         humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
         if humanoid.all_required_bones_are_assigned():
@@ -313,3 +345,6 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
             )
         draw_vrm0_humanoid_operators_layout(armature, layout)
         draw_vrm0_humanoid_required_bones_layout(armature, layout)
+
+    def draw_vrm1(self, _armature: bpy.types.Object) -> None:
+        pass

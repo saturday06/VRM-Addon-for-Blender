@@ -246,6 +246,7 @@ classes = [
     vrm1_operator.VRM_OT_remove_vrm1_expression_texture_transform_bind,
     vrm1_operator.VRM_OT_add_vrm1_first_person_mesh_annotation,
     vrm1_operator.VRM_OT_remove_vrm1_first_person_mesh_annotation,
+    vrm1_operator.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
     spring_bone1_operator.VRM_OT_add_spring_bone1_collider,
     spring_bone1_operator.VRM_OT_remove_spring_bone1_collider,
     spring_bone1_operator.VRM_OT_add_spring_bone1_collider_group,

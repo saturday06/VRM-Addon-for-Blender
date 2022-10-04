@@ -612,7 +612,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
         bones = armature.data.bones
         for (
             bone_name,
-            human_bone_name,
+            (human_bone_name, _),
         ) in cats_blender_plugin_support.create_human_bone_mapping(
             armature.data
         ).items():

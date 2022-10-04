@@ -3,6 +3,7 @@ from typing import Dict
 
 import bpy
 
+from ...common.logging import get_logger
 from ...common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
@@ -13,6 +14,8 @@ from ..property_group import (
     MeshObjectPropertyGroup,
     StringPropertyGroup,
 )
+
+logger = get_logger(__name__)
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
@@ -283,6 +286,58 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             HumanBoneName.RIGHT_LITTLE_INTERMEDIATE: self.right_little_intermediate,
             HumanBoneName.RIGHT_LITTLE_DISTAL: self.right_little_distal,
         }
+
+    def all_required_bones_are_assigned(self) -> bool:
+        human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
+        for name, human_bone in human_bone_name_to_human_bone.items():
+            specification = HumanBoneSpecifications.get(name)
+            if specification is None:
+                logger.error(f"No '{name}'")
+                continue
+            if not human_bone.node.value:
+                if specification.requirement:
+                    return False
+                continue
+            if not specification.parent_requirement:
+                continue
+            if not specification.parent_name:
+                logger.error(f"No parent for '{name}' in spec")
+                continue
+            parent = human_bone_name_to_human_bone.get(specification.parent_name)
+            if not parent:
+                logger.error(f"No parent for '{name}' in dict")
+                continue
+            if not parent.node.value:
+                return False
+
+        return True
+
+    @staticmethod
+    def fixup_human_bones(obj: bpy.types.Object) -> None:
+        armature_data = obj.data
+        if (
+            obj.type != "ARMATURE"
+            or not isinstance(armature_data, bpy.types.Armature)
+            or not hasattr(armature_data, "vrm_addon_extension")
+        ):
+            return
+
+        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+
+        # 複数のボーンマップに同一のBlenderのボーンが設定されていたら片方を削除
+        fixup = True
+        while fixup:
+            fixup = False
+            found_node_values = []
+            for human_bone in human_bones.human_bone_name_to_human_bone().values():
+                if not human_bone.node.value:
+                    continue
+                if human_bone.node.value not in found_node_values:
+                    found_node_values.append(human_bone.node.value)
+                    continue
+                human_bone.node.value = ""
+                fixup = True
+                break
 
     @staticmethod
     def check_last_bone_names_and_update(

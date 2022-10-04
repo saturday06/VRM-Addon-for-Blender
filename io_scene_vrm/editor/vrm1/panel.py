@@ -89,6 +89,12 @@ def draw_vrm1_humanoid_layout(
         pose_marker_name_empty_box.scale_y = 0.5
         pose_marker_name_empty_box.label(text="Current Pose")
 
+    bone_operator_column = layout.column()
+    bone_operator_column.operator(
+        vrm1_operator.VRM_OT_assign_vrm1_humanoid_human_bones_automatically.bl_idname,
+        icon="ARMATURE_DATA",
+    ).armature_name = armature.name
+
     if operator.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
         simplify_vroid_bones_op = armature_box.operator(
             operator.VRM_OT_simplify_vroid_bones.bl_idname,

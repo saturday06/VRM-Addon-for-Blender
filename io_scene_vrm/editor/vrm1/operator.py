@@ -1,6 +1,15 @@
-from typing import Set
+from typing import Dict, Set
 
 import bpy
+
+from ...common.logging import get_logger
+from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
+from ...common.vrm1.human_bone import HumanBoneName
+from ...external import cats_blender_plugin_support
+from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
+from .property_group import Vrm1HumanBonesPropertyGroup
+
+logger = get_logger(__name__)
 
 
 class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
@@ -461,4 +470,131 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator): 
         if len(expression.texture_transform_binds) <= self.bind_index:
             return {"CANCELLED"}
         expression.texture_transform_binds.remove(self.bind_index)
+        return {"FINISHED"}
+
+
+vrm0_human_bone_name_to_vrm1_human_bone_name: Dict[Vrm0HumanBoneName, HumanBoneName] = {
+    Vrm0HumanBoneName.HIPS: HumanBoneName.HIPS,
+    Vrm0HumanBoneName.SPINE: HumanBoneName.SPINE,
+    Vrm0HumanBoneName.CHEST: HumanBoneName.CHEST,
+    Vrm0HumanBoneName.UPPER_CHEST: HumanBoneName.UPPER_CHEST,
+    Vrm0HumanBoneName.NECK: HumanBoneName.NECK,
+    Vrm0HumanBoneName.HEAD: HumanBoneName.HEAD,
+    Vrm0HumanBoneName.LEFT_EYE: HumanBoneName.LEFT_EYE,
+    Vrm0HumanBoneName.RIGHT_EYE: HumanBoneName.RIGHT_EYE,
+    Vrm0HumanBoneName.JAW: HumanBoneName.JAW,
+    Vrm0HumanBoneName.LEFT_UPPER_LEG: HumanBoneName.LEFT_UPPER_LEG,
+    Vrm0HumanBoneName.LEFT_LOWER_LEG: HumanBoneName.LEFT_LOWER_LEG,
+    Vrm0HumanBoneName.LEFT_FOOT: HumanBoneName.LEFT_FOOT,
+    Vrm0HumanBoneName.LEFT_TOES: HumanBoneName.LEFT_TOES,
+    Vrm0HumanBoneName.RIGHT_UPPER_LEG: HumanBoneName.RIGHT_UPPER_LEG,
+    Vrm0HumanBoneName.RIGHT_LOWER_LEG: HumanBoneName.RIGHT_LOWER_LEG,
+    Vrm0HumanBoneName.RIGHT_FOOT: HumanBoneName.RIGHT_FOOT,
+    Vrm0HumanBoneName.RIGHT_TOES: HumanBoneName.RIGHT_TOES,
+    Vrm0HumanBoneName.LEFT_SHOULDER: HumanBoneName.LEFT_SHOULDER,
+    Vrm0HumanBoneName.LEFT_UPPER_ARM: HumanBoneName.LEFT_UPPER_ARM,
+    Vrm0HumanBoneName.LEFT_LOWER_ARM: HumanBoneName.LEFT_LOWER_ARM,
+    Vrm0HumanBoneName.LEFT_HAND: HumanBoneName.LEFT_HAND,
+    Vrm0HumanBoneName.RIGHT_SHOULDER: HumanBoneName.RIGHT_SHOULDER,
+    Vrm0HumanBoneName.RIGHT_UPPER_ARM: HumanBoneName.RIGHT_UPPER_ARM,
+    Vrm0HumanBoneName.RIGHT_LOWER_ARM: HumanBoneName.RIGHT_LOWER_ARM,
+    Vrm0HumanBoneName.RIGHT_HAND: HumanBoneName.RIGHT_HAND,
+    Vrm0HumanBoneName.LEFT_THUMB_PROXIMAL: HumanBoneName.LEFT_THUMB_METACARPAL,
+    Vrm0HumanBoneName.LEFT_THUMB_INTERMEDIATE: HumanBoneName.LEFT_THUMB_PROXIMAL,
+    Vrm0HumanBoneName.LEFT_THUMB_DISTAL: HumanBoneName.LEFT_THUMB_DISTAL,
+    Vrm0HumanBoneName.LEFT_INDEX_PROXIMAL: HumanBoneName.LEFT_INDEX_PROXIMAL,
+    Vrm0HumanBoneName.LEFT_INDEX_INTERMEDIATE: HumanBoneName.LEFT_INDEX_INTERMEDIATE,
+    Vrm0HumanBoneName.LEFT_INDEX_DISTAL: HumanBoneName.LEFT_INDEX_DISTAL,
+    Vrm0HumanBoneName.LEFT_MIDDLE_PROXIMAL: HumanBoneName.LEFT_MIDDLE_PROXIMAL,
+    Vrm0HumanBoneName.LEFT_MIDDLE_INTERMEDIATE: HumanBoneName.LEFT_MIDDLE_INTERMEDIATE,
+    Vrm0HumanBoneName.LEFT_MIDDLE_DISTAL: HumanBoneName.LEFT_MIDDLE_DISTAL,
+    Vrm0HumanBoneName.LEFT_RING_PROXIMAL: HumanBoneName.LEFT_RING_PROXIMAL,
+    Vrm0HumanBoneName.LEFT_RING_INTERMEDIATE: HumanBoneName.LEFT_RING_INTERMEDIATE,
+    Vrm0HumanBoneName.LEFT_RING_DISTAL: HumanBoneName.LEFT_RING_DISTAL,
+    Vrm0HumanBoneName.LEFT_LITTLE_PROXIMAL: HumanBoneName.LEFT_LITTLE_PROXIMAL,
+    Vrm0HumanBoneName.LEFT_LITTLE_INTERMEDIATE: HumanBoneName.LEFT_LITTLE_INTERMEDIATE,
+    Vrm0HumanBoneName.LEFT_LITTLE_DISTAL: HumanBoneName.LEFT_LITTLE_DISTAL,
+    Vrm0HumanBoneName.RIGHT_THUMB_PROXIMAL: HumanBoneName.RIGHT_THUMB_METACARPAL,
+    Vrm0HumanBoneName.RIGHT_THUMB_INTERMEDIATE: HumanBoneName.RIGHT_THUMB_PROXIMAL,
+    Vrm0HumanBoneName.RIGHT_THUMB_DISTAL: HumanBoneName.RIGHT_THUMB_DISTAL,
+    Vrm0HumanBoneName.RIGHT_INDEX_PROXIMAL: HumanBoneName.RIGHT_INDEX_PROXIMAL,
+    Vrm0HumanBoneName.RIGHT_INDEX_INTERMEDIATE: HumanBoneName.RIGHT_INDEX_INTERMEDIATE,
+    Vrm0HumanBoneName.RIGHT_INDEX_DISTAL: HumanBoneName.RIGHT_INDEX_DISTAL,
+    Vrm0HumanBoneName.RIGHT_MIDDLE_PROXIMAL: HumanBoneName.RIGHT_MIDDLE_PROXIMAL,
+    Vrm0HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE: HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE,
+    Vrm0HumanBoneName.RIGHT_MIDDLE_DISTAL: HumanBoneName.RIGHT_MIDDLE_DISTAL,
+    Vrm0HumanBoneName.RIGHT_RING_PROXIMAL: HumanBoneName.RIGHT_RING_PROXIMAL,
+    Vrm0HumanBoneName.RIGHT_RING_INTERMEDIATE: HumanBoneName.RIGHT_RING_INTERMEDIATE,
+    Vrm0HumanBoneName.RIGHT_RING_DISTAL: HumanBoneName.RIGHT_RING_DISTAL,
+    Vrm0HumanBoneName.RIGHT_LITTLE_PROXIMAL: HumanBoneName.RIGHT_LITTLE_PROXIMAL,
+    Vrm0HumanBoneName.RIGHT_LITTLE_INTERMEDIATE: HumanBoneName.RIGHT_LITTLE_INTERMEDIATE,
+    Vrm0HumanBoneName.RIGHT_LITTLE_DISTAL: HumanBoneName.RIGHT_LITTLE_DISTAL,
+}
+
+
+class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+    bl_idname = "vrm.assign_vrm1_humanoid_human_bones_automatically"
+    bl_label = "Automatic Bone Assignment"
+    bl_description = "Assign VRM 1.0 Humanoid Human Bones"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
+        Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+            armature.data.name, defer=False
+        )
+        human_bone_name_to_human_bone = (
+            armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
+        )
+        bones = armature.data.bones
+
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+        Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+            armature.data.name, defer=False
+        )
+        vrm0_humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+        if vrm0_humanoid.all_required_bones_are_assigned():
+            for vrm0_human_bone in vrm0_humanoid.human_bones:
+                if vrm0_human_bone.node.value not in vrm0_human_bone.node_candidates:
+                    continue
+                vrm0_name = Vrm0HumanBoneName.from_str(vrm0_human_bone.bone)
+                if not vrm0_name:
+                    logger.error(f"Invalid VRM0 bone name str: {vrm0_human_bone.bone}")
+                    continue
+                vrm1_name = vrm0_human_bone_name_to_vrm1_human_bone_name.get(vrm0_name)
+                if not vrm1_name:
+                    logger.error(f"Invalid VRM0 bone name: {vrm0_name}")
+                    continue
+                human_bone = human_bone_name_to_human_bone.get(vrm1_name)
+                if vrm0_human_bone.node.value not in human_bone.node_candidates:
+                    continue
+                human_bone.node.value = vrm0_human_bone.node.value
+
+        for (
+            bone_name,
+            (_, human_bone_name),
+        ) in cats_blender_plugin_support.create_human_bone_mapping(
+            armature.data
+        ).items():
+            bone = bones.get(bone_name)
+            if not bone:
+                continue
+
+            for search_name, human_bone in human_bone_name_to_human_bone.items():
+                if (
+                    human_bone_name != search_name
+                    or human_bone.node.value in human_bone.node_candidates
+                    or bone_name not in human_bone.node_candidates
+                ):
+                    continue
+                human_bone.node.value = bone_name
+                break
+
         return {"FINISHED"}
