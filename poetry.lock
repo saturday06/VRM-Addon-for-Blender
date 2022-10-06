@@ -122,7 +122,7 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "fake-bpy-module-2.83"
-version = "20210701"
+version = "20221006"
 description = "Collection of the fake Blender Python API module for the code completion."
 category = "main"
 optional = false
@@ -479,7 +479,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "77f5054ebc6f59383cb87bbe0ddd628d8ce1e924eb8d974cb2a90cd21cab00f6"
+content-hash = "4b0828c5c4b5833bfe8a0208dcc8e28b33d24a6a03c85bf59a18d61d4deea451"
 
 [metadata.files]
 astor = [
@@ -540,8 +540,8 @@ dill = [
     {file = "dill-0.3.5.1.tar.gz", hash = "sha256:d75e41f3eff1eee599d738e76ba8f4ad98ea229db8b085318aa2b3333a208c86"},
 ]
 "fake-bpy-module-2.83" = [
-    {file = "fake-bpy-module-2.83-20210701.tar.gz", hash = "sha256:7ae58827ef6fdfacc344eab4dd41455231f52b692c680f96c880cb444a3771fe"},
-    {file = "fake_bpy_module_2.83-20210701-py3-none-any.whl", hash = "sha256:c834efd7bf978a80d8eda61be2b869271f9d5650e0b160d189f070454470a963"},
+    {file = "fake-bpy-module-2.83-20221006.tar.gz", hash = "sha256:c6c3efdfc7ecdd5e6359e942300f297199f739834ba5942274464d36a1907f9e"},
+    {file = "fake_bpy_module_2.83-20221006-py3-none-any.whl", hash = "sha256:9efe4bf67a7a2b0925e8808a7d12c0758c40e3c9eb0bf960890dfa892d3c665c"},
 ]
 flake8 = [
     {file = "flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248"},
