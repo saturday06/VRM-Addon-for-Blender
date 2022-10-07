@@ -27,6 +27,8 @@ jobs:
           rm .github/workflows/test.yml
           rm .github/workflows/release.yml
           cp ../README.md .
+          find . -maxdepth 1 -name "LICENSE*" -exec rm {} \;
+          find .. -maxdepth 1 -name "LICENSE*" -exec cp {} . \;
           git add .
           if git diff --cached --exit-code; then
             exit 0
