@@ -1,7 +1,8 @@
 import functools
-from typing import Dict
+from typing import Dict, List
 
 import bpy
+from bpy.app.translations import pgettext
 
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import (
@@ -287,7 +288,9 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             HumanBoneName.RIGHT_LITTLE_DISTAL: self.right_little_distal,
         }
 
-    def all_required_bones_are_assigned(self) -> bool:
+    def error_messages(self) -> List[str]:
+        messages = []
+
         human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
         for name, human_bone in human_bone_name_to_human_bone.items():
             specification = HumanBoneSpecifications.get(name)
@@ -296,7 +299,11 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
                 continue
             if not human_bone.node.value:
                 if specification.requirement:
-                    return False
+                    messages.append(
+                        pgettext('Please assign Required VRM Bone "{name}".').format(
+                            name=specification.title
+                        )
+                    )
                 continue
             if not specification.parent_requirement:
                 continue
@@ -307,10 +314,23 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             if not parent:
                 logger.error(f"No parent for '{name}' in dict")
                 continue
+            parent_specification = specification.parent()
+            if not parent_specification:
+                logger.error(f"No parent specification for '{name}'")
+                continue
             if not parent.node.value:
-                return False
+                messages.append(
+                    pgettext(
+                        'Please assign "{parent_name}" because "{name}" requires it as its child bone.'
+                    ).format(
+                        name=specification.title, parent_name=parent_specification.title
+                    )
+                )
 
-        return True
+        return messages
+
+    def all_required_bones_are_assigned(self) -> bool:
+        return len(self.error_messages()) == 0
 
     @staticmethod
     def fixup_human_bones(obj: bpy.types.Object) -> None:

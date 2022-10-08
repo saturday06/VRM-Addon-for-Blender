@@ -12,6 +12,11 @@ from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_required_bones_layout,
 )
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
+from ..editor.vrm1.operator import VRM_OT_assign_vrm1_humanoid_human_bones_automatically
+from ..editor.vrm1.panel import (
+    draw_vrm1_humanoid_optional_bones_layout,
+    draw_vrm1_humanoid_required_bones_layout,
+)
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .gltf2_addon_vrm_exporter import Gltf2AddonVrmExporter
@@ -300,7 +305,7 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
         return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=550)
+            Set[str], context.window_manager.invoke_props_dialog(self, width=700)
         )
 
     def draw(self, context: bpy.types.Context) -> None:
@@ -346,5 +351,26 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
         draw_vrm0_humanoid_operators_layout(armature, layout)
         draw_vrm0_humanoid_required_bones_layout(armature, layout)
 
-    def draw_vrm1(self, _armature: bpy.types.Object) -> None:
-        pass
+    def draw_vrm1(self, armature: bpy.types.Object) -> None:
+        layout = self.layout
+        human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
+        if human_bones.all_required_bones_are_assigned():
+            alert_box = layout.box()
+            alert_box.label(
+                text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
+            )
+        else:
+            alert_box = layout.box()
+            alert_box.alert = True
+            alert_column = alert_box.column()
+            for error_message in human_bones.error_messages():
+                alert_column.label(text=error_message, translate=False, icon="ERROR")
+
+        layout.operator(
+            VRM_OT_assign_vrm1_humanoid_human_bones_automatically.bl_idname,
+            icon="ARMATURE_DATA",
+        ).armature_name = armature.name
+
+        row = layout.split(factor=0.5)
+        draw_vrm1_humanoid_required_bones_layout(human_bones, row.column())
+        draw_vrm1_humanoid_optional_bones_layout(human_bones, row.column())

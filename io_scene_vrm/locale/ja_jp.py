@@ -127,6 +127,14 @@ translation_dictionary = {
     + "「VRM」パネルの「Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
     (
         "*",
+        'Please assign Required VRM Bone "{name}".',
+    ): "VRM必須ボーン「{name}」を割り当ててください。",
+    (
+        "*",
+        'Please assign "{parent_name}" because "{name}" requires it as its child bone.',
+    ): "「{parent_name}」を割り当ててください。子ボーンである「{name}」の割り当てに必要になります。",
+    (
+        "*",
         'Faces must be Triangle, but not face in "{name}" or '
         + "it will be triangulated automatically.",
     ): "「{name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
