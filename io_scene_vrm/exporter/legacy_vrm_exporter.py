@@ -9,9 +9,7 @@ import datetime
 import math
 import os
 import re
-import secrets
 import statistics
-import string
 import struct
 from collections import abc
 from sys import float_info
@@ -23,7 +21,6 @@ import bpy
 from mathutils import Matrix, Quaternion, Vector
 
 from ..common import deep, gltf, shader
-from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.version import version
@@ -67,9 +64,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.json_dict: Dict[str, Any] = {}
         self.glb_bin_collector = GlbBinCollection()
         self.use_dummy_armature = False
-        self.export_id = "BlenderVrmAddonExport" + (
-            "".join(secrets.choice(string.digits) for _ in range(10))
-        )
         self.mesh_name_to_index: Dict[str, int] = {}
         armatures = [obj for obj in self.export_objects if obj.type == "ARMATURE"]
         if armatures:
@@ -88,16 +82,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             self.use_dummy_armature = True
         migration.migrate(self.armature.name, defer=False)
 
-        self.original_pose_library: Optional[bpy.types.Action] = None
-        self.saved_current_pose_library: Optional[bpy.types.Action] = None
-        self.saved_pose_position: Optional[str] = None
         self.result: Optional[bytes] = None
 
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
         wm.progress_begin(0, 9)
         try:
-            self.setup_pose()
+            self.setup_pose(
+                self.armature,
+                self.armature.data.vrm_addon_extension.vrm0.humanoid.pose_library,
+                self.armature.data.vrm_addon_extension.vrm0.humanoid.pose_marker_name,
+            )
             wm.progress_update(1)
             self.image_to_bin()
             wm.progress_update(2)
@@ -117,7 +112,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             self.pack()
         finally:
             try:
-                self.restore_pose()
+                self.restore_pose(self.armature)
                 self.cleanup()
             finally:
                 wm.progress_end()
@@ -126,72 +121,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def axis_blender_to_glb(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
-
-    def setup_pose(self) -> None:
-        if self.context.view_layer.objects.active is not None:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        self.context.view_layer.objects.active = self.armature
-        bpy.ops.object.mode_set(mode="POSE")
-
-        self.saved_pose_position = self.armature.data.pose_position
-        humanoid = self.armature.data.vrm_addon_extension.vrm0.humanoid
-
-        pose_library: Optional[bpy.types.Action] = None
-        pose_index: Optional[int] = None
-        if (
-            humanoid.pose_library
-            and humanoid.pose_library.name in bpy.data.actions
-            and humanoid.pose_marker_name
-        ):
-            pose_library = humanoid.pose_library
-            if pose_library:
-                for search_pose_index, search_pose_marker in enumerate(
-                    pose_library.pose_markers.values()
-                ):
-                    if search_pose_marker.name == humanoid.pose_marker_name:
-                        pose_index = search_pose_index
-                        self.armature.data.pose_position = "POSE"
-                        break
-
-        self.original_pose_library = self.armature.pose_library
-        self.saved_current_pose_library = bpy.data.actions.new(
-            INTERNAL_NAME_PREFIX + self.export_id + "SavedCurrentPoseLibrary"
-        )
-
-        self.armature.pose_library = self.saved_current_pose_library
-        bpy.ops.poselib.pose_add(
-            name=INTERNAL_NAME_PREFIX + self.export_id + "SavedCurrentPose"
-        )
-
-        if pose_library and pose_index is not None:
-            self.armature.pose_library = pose_library
-            bpy.ops.poselib.apply_pose(pose_index=pose_index)
-
-    def restore_pose(self) -> None:
-        if self.context.view_layer.objects.active is not None:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        self.context.view_layer.objects.active = self.armature
-        bpy.ops.object.mode_set(mode="POSE")
-
-        if self.saved_current_pose_library:
-            self.armature.pose_library = self.saved_current_pose_library
-            bpy.ops.poselib.apply_pose(pose_index=0)
-            bpy.ops.poselib.unlink()
-
-        self.armature.pose_library = self.original_pose_library
-
-        if (
-            self.saved_current_pose_library
-            and not self.saved_current_pose_library.users
-        ):
-            bpy.data.actions.remove(self.saved_current_pose_library)
-
-        if self.saved_pose_position:
-            self.armature.data.pose_position = self.saved_pose_position
-
-        bpy.ops.object.mode_set(mode="OBJECT")
 
     def image_to_bin(self) -> None:
         # collect used image

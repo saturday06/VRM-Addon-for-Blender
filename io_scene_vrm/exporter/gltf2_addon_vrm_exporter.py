@@ -1,7 +1,5 @@
 import math
 import os
-import secrets
-import string
 import tempfile
 from collections import abc
 from sys import float_info
@@ -34,6 +32,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
+
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
             raise NotImplementedError(
@@ -51,9 +50,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 if child in self.export_objects:
                     self.export_objects.remove(child)
 
-        self.export_id = "BlenderVrmAddonExport" + (
-            "".join(secrets.choice(string.digits) for _ in range(10))
-        )
         self.extras_bone_name_key = INTERNAL_NAME_PREFIX + self.export_id + "BoneName"
         self.extras_object_name_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "ObjectName"
@@ -1280,8 +1276,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         del target_dict["NORMAL"]
 
     def export_vrm(self) -> Optional[bytes]:
+        vrm = self.armature.data.vrm_addon_extension.vrm1
         dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         try:
+            self.setup_pose(
+                self.armature,
+                vrm.humanoid.pose_library,
+                vrm.humanoid.pose_marker_name,
+            )
+
             # 他glTF2ExportUserExtensionの影響を最小化するため、影響が少ないと思われるカスタムプロパティを使ってBlenderのオブジェクトとインデックスの対応をとる。
             for obj in bpy.data.objects:
                 obj[self.extras_object_name_key] = obj.name
@@ -1328,6 +1331,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             self.restore_object_visibility_and_selection()
             self.restore_skinned_mesh_parent()
             self.destroy_dummy_skinned_mesh_object(dummy_skinned_mesh_object_name)
+            self.restore_pose(self.armature)
 
         json_dict, body_binary = gltf.parse_glb(extra_name_assigned_glb)
         body_binary = bytearray(body_binary)
@@ -1492,8 +1496,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.unassign_normal_from_mtoon_primitive_morph_target(
             json_dict, material_name_to_index_dict
         )
-
-        vrm = self.armature.data.vrm_addon_extension.vrm1
 
         extensions_used = json_dict["extensionsUsed"]
 
