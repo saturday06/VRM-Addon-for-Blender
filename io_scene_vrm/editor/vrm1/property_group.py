@@ -226,6 +226,9 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
     last_bone_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
+    initial_automatic_bone_assignment: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        default=True
+    )
 
     def human_bone_name_to_human_bone(
         self,

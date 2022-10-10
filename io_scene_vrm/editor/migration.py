@@ -10,6 +10,7 @@ from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
+from .vrm1 import migration as vrm1_migration
 
 
 def migrate_no_defer_discarding_return_value(armature_object_name: str) -> None:
@@ -48,6 +49,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
         bone_property_group.armature_data_name = armature.data.name
 
     vrm0_migration.migrate(ext.vrm0, armature)
+    vrm1_migration.migrate(ext.vrm1, armature)
     spring_bone1_migration.migrate(armature)
 
     if tuple(ext.addon_version) < (2, 6, 3):
