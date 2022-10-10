@@ -20,6 +20,8 @@ backface
 base64
 bgl
 bindcode
+bip01
+bip02
 bmesh
 bone1
 bone2
@@ -121,6 +123,7 @@ metalness
 metas
 minmax
 mipmap
+mmd
 mobj
 morphname
 msgbus
@@ -166,7 +169,9 @@ req
 rfu
 rgb
 rgba
+rigify
 rl
+rocketbox
 roid
 selectable
 sg

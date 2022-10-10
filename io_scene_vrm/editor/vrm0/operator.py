@@ -3,7 +3,7 @@ from typing import Set
 
 import bpy
 
-from ...external import cats_blender_plugin_support
+from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from .property_group import Vrm0HumanoidPropertyGroup
 
 
@@ -613,9 +613,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
         for (
             bone_name,
             vrm1_specification,
-        ) in cats_blender_plugin_support.create_human_bone_mapping(
-            armature.data
-        ).items():
+        ) in create_human_bone_mapping(armature).items():
             bone = bones.get(bone_name)
             if not bone:
                 continue

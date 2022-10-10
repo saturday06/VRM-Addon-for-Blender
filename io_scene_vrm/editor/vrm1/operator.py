@@ -2,10 +2,10 @@ from typing import Dict, Set
 
 import bpy
 
+from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logging import get_logger
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
-from ...external import cats_blender_plugin_support
 from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .property_group import Vrm1HumanBonesPropertyGroup
 
@@ -527,9 +527,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
         for (
             bone_name,
             specification,
-        ) in cats_blender_plugin_support.create_human_bone_mapping(
-            armature.data
-        ).items():
+        ) in create_human_bone_mapping(armature).items():
             bone = bones.get(bone_name)
             if not bone:
                 continue
