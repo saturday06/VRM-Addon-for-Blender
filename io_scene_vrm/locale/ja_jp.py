@@ -18,7 +18,7 @@ translation_dictionary = {
     ): "インストールされているVRMアドオンはBlender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
-    ("*", "Show Experimetal Features"): "実験中の機能を表示する",
+    ("*", "Enable Advanced Options"): "高度なオプションを有効にする",
     (
         "*",
         "Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
