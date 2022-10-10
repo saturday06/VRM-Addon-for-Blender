@@ -296,7 +296,7 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
                 defer=False,
             )
             human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
-            if human_bones.all_required_bones_are_assigned():
+            if not human_bones.all_required_bones_are_assigned():
                 return {"CANCELLED"}
         else:
             return {"CANCELLED"}
