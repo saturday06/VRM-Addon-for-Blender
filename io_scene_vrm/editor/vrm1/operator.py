@@ -4,7 +4,7 @@ import bpy
 
 from ...common.logging import get_logger
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
-from ...common.vrm1.human_bone import HumanBoneName
+from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ...external import cats_blender_plugin_support
 from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .property_group import Vrm1HumanBonesPropertyGroup
@@ -474,61 +474,8 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator): 
 
 
 vrm0_human_bone_name_to_vrm1_human_bone_name: Dict[Vrm0HumanBoneName, HumanBoneName] = {
-    Vrm0HumanBoneName.HIPS: HumanBoneName.HIPS,
-    Vrm0HumanBoneName.SPINE: HumanBoneName.SPINE,
-    Vrm0HumanBoneName.CHEST: HumanBoneName.CHEST,
-    Vrm0HumanBoneName.UPPER_CHEST: HumanBoneName.UPPER_CHEST,
-    Vrm0HumanBoneName.NECK: HumanBoneName.NECK,
-    Vrm0HumanBoneName.HEAD: HumanBoneName.HEAD,
-    Vrm0HumanBoneName.LEFT_EYE: HumanBoneName.LEFT_EYE,
-    Vrm0HumanBoneName.RIGHT_EYE: HumanBoneName.RIGHT_EYE,
-    Vrm0HumanBoneName.JAW: HumanBoneName.JAW,
-    Vrm0HumanBoneName.LEFT_UPPER_LEG: HumanBoneName.LEFT_UPPER_LEG,
-    Vrm0HumanBoneName.LEFT_LOWER_LEG: HumanBoneName.LEFT_LOWER_LEG,
-    Vrm0HumanBoneName.LEFT_FOOT: HumanBoneName.LEFT_FOOT,
-    Vrm0HumanBoneName.LEFT_TOES: HumanBoneName.LEFT_TOES,
-    Vrm0HumanBoneName.RIGHT_UPPER_LEG: HumanBoneName.RIGHT_UPPER_LEG,
-    Vrm0HumanBoneName.RIGHT_LOWER_LEG: HumanBoneName.RIGHT_LOWER_LEG,
-    Vrm0HumanBoneName.RIGHT_FOOT: HumanBoneName.RIGHT_FOOT,
-    Vrm0HumanBoneName.RIGHT_TOES: HumanBoneName.RIGHT_TOES,
-    Vrm0HumanBoneName.LEFT_SHOULDER: HumanBoneName.LEFT_SHOULDER,
-    Vrm0HumanBoneName.LEFT_UPPER_ARM: HumanBoneName.LEFT_UPPER_ARM,
-    Vrm0HumanBoneName.LEFT_LOWER_ARM: HumanBoneName.LEFT_LOWER_ARM,
-    Vrm0HumanBoneName.LEFT_HAND: HumanBoneName.LEFT_HAND,
-    Vrm0HumanBoneName.RIGHT_SHOULDER: HumanBoneName.RIGHT_SHOULDER,
-    Vrm0HumanBoneName.RIGHT_UPPER_ARM: HumanBoneName.RIGHT_UPPER_ARM,
-    Vrm0HumanBoneName.RIGHT_LOWER_ARM: HumanBoneName.RIGHT_LOWER_ARM,
-    Vrm0HumanBoneName.RIGHT_HAND: HumanBoneName.RIGHT_HAND,
-    Vrm0HumanBoneName.LEFT_THUMB_PROXIMAL: HumanBoneName.LEFT_THUMB_METACARPAL,
-    Vrm0HumanBoneName.LEFT_THUMB_INTERMEDIATE: HumanBoneName.LEFT_THUMB_PROXIMAL,
-    Vrm0HumanBoneName.LEFT_THUMB_DISTAL: HumanBoneName.LEFT_THUMB_DISTAL,
-    Vrm0HumanBoneName.LEFT_INDEX_PROXIMAL: HumanBoneName.LEFT_INDEX_PROXIMAL,
-    Vrm0HumanBoneName.LEFT_INDEX_INTERMEDIATE: HumanBoneName.LEFT_INDEX_INTERMEDIATE,
-    Vrm0HumanBoneName.LEFT_INDEX_DISTAL: HumanBoneName.LEFT_INDEX_DISTAL,
-    Vrm0HumanBoneName.LEFT_MIDDLE_PROXIMAL: HumanBoneName.LEFT_MIDDLE_PROXIMAL,
-    Vrm0HumanBoneName.LEFT_MIDDLE_INTERMEDIATE: HumanBoneName.LEFT_MIDDLE_INTERMEDIATE,
-    Vrm0HumanBoneName.LEFT_MIDDLE_DISTAL: HumanBoneName.LEFT_MIDDLE_DISTAL,
-    Vrm0HumanBoneName.LEFT_RING_PROXIMAL: HumanBoneName.LEFT_RING_PROXIMAL,
-    Vrm0HumanBoneName.LEFT_RING_INTERMEDIATE: HumanBoneName.LEFT_RING_INTERMEDIATE,
-    Vrm0HumanBoneName.LEFT_RING_DISTAL: HumanBoneName.LEFT_RING_DISTAL,
-    Vrm0HumanBoneName.LEFT_LITTLE_PROXIMAL: HumanBoneName.LEFT_LITTLE_PROXIMAL,
-    Vrm0HumanBoneName.LEFT_LITTLE_INTERMEDIATE: HumanBoneName.LEFT_LITTLE_INTERMEDIATE,
-    Vrm0HumanBoneName.LEFT_LITTLE_DISTAL: HumanBoneName.LEFT_LITTLE_DISTAL,
-    Vrm0HumanBoneName.RIGHT_THUMB_PROXIMAL: HumanBoneName.RIGHT_THUMB_METACARPAL,
-    Vrm0HumanBoneName.RIGHT_THUMB_INTERMEDIATE: HumanBoneName.RIGHT_THUMB_PROXIMAL,
-    Vrm0HumanBoneName.RIGHT_THUMB_DISTAL: HumanBoneName.RIGHT_THUMB_DISTAL,
-    Vrm0HumanBoneName.RIGHT_INDEX_PROXIMAL: HumanBoneName.RIGHT_INDEX_PROXIMAL,
-    Vrm0HumanBoneName.RIGHT_INDEX_INTERMEDIATE: HumanBoneName.RIGHT_INDEX_INTERMEDIATE,
-    Vrm0HumanBoneName.RIGHT_INDEX_DISTAL: HumanBoneName.RIGHT_INDEX_DISTAL,
-    Vrm0HumanBoneName.RIGHT_MIDDLE_PROXIMAL: HumanBoneName.RIGHT_MIDDLE_PROXIMAL,
-    Vrm0HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE: HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE,
-    Vrm0HumanBoneName.RIGHT_MIDDLE_DISTAL: HumanBoneName.RIGHT_MIDDLE_DISTAL,
-    Vrm0HumanBoneName.RIGHT_RING_PROXIMAL: HumanBoneName.RIGHT_RING_PROXIMAL,
-    Vrm0HumanBoneName.RIGHT_RING_INTERMEDIATE: HumanBoneName.RIGHT_RING_INTERMEDIATE,
-    Vrm0HumanBoneName.RIGHT_RING_DISTAL: HumanBoneName.RIGHT_RING_DISTAL,
-    Vrm0HumanBoneName.RIGHT_LITTLE_PROXIMAL: HumanBoneName.RIGHT_LITTLE_PROXIMAL,
-    Vrm0HumanBoneName.RIGHT_LITTLE_INTERMEDIATE: HumanBoneName.RIGHT_LITTLE_INTERMEDIATE,
-    Vrm0HumanBoneName.RIGHT_LITTLE_DISTAL: HumanBoneName.RIGHT_LITTLE_DISTAL,
+    specification.vrm0_name: specification.name
+    for specification in HumanBoneSpecifications.all_human_bones
 }
 
 
@@ -579,7 +526,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
 
         for (
             bone_name,
-            (_, human_bone_name),
+            specification,
         ) in cats_blender_plugin_support.create_human_bone_mapping(
             armature.data
         ).items():
@@ -589,7 +536,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
 
             for search_name, human_bone in human_bone_name_to_human_bone.items():
                 if (
-                    human_bone_name != search_name
+                    specification.name != search_name
                     or human_bone.node.value in human_bone.node_candidates
                     or bone_name not in human_bone.node_candidates
                 ):
