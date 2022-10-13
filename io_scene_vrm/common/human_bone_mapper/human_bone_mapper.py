@@ -2,7 +2,6 @@ from typing import Dict, Optional
 
 import bpy
 
-from ...external import cats_blender_plugin_support
 from ..logging import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification
 from . import (
@@ -91,6 +90,4 @@ def create_human_bone_mapping(
             logger.warning(f'Treat as "{name}" bone mappings')
             return sorted_required_first(mapping)
 
-    return sorted_required_first(
-        cats_blender_plugin_support.create_human_bone_mapping(armature.data)
-    )
+    return {}
