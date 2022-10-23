@@ -1466,13 +1466,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for mat in mesh.material_slots
                 if mat.name
             }
-            if not primitive_index_bin_dict:
-                primitive_index_bin_dict[None] = bytearray()
             primitive_index_vertex_count: Dict[Optional[int], int] = {
                 mat_id_dict[mat.name]: 0 for mat in mesh.material_slots if mat.name
             }
-            if not primitive_index_vertex_count:
-                primitive_index_vertex_count[None] = 0
 
             shape_pos_bin_dict: Dict[str, bytearray] = {}
             shape_normal_bin_dict: Dict[str, bytearray] = {}
@@ -1655,6 +1651,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     material_slot_name = material_slot_dict.get(material_index)
                     if isinstance(material_slot_name, str):
                         primitive_index = mat_id_dict[material_slot_name]
+                    if primitive_index not in primitive_index_bin_dict:
+                        primitive_index_bin_dict[primitive_index] = bytearray()
+                    if primitive_index not in primitive_index_vertex_count:
+                        primitive_index_vertex_count[primitive_index] = 0
                     primitive_index_bin_dict[primitive_index].extend(
                         unsigned_int_scalar_packer(unique_vertex_id)
                     )
