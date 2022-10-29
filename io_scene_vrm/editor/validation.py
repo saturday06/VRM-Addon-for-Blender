@@ -387,7 +387,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     weight_count = 0
                     for g in v.groups:
                         if (
-                            0 <= len(mesh_vertex_group_names) < g.group
+                            0 <= g.group < len(mesh_vertex_group_names)
                             and mesh_vertex_group_names[g.group] in bones_name
                             and g.weight < float_info.epsilon
                         ):
