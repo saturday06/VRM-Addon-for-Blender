@@ -821,7 +821,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "VRMC_materials_mtoon": mtoon_dict,
         }
 
-        material_dict: Dict[str, Any] = {}
+        material_dict: Dict[str, Any] = {"name": material.name}
         pbr_metallic_roughness_dict: Dict[str, Any] = {}
 
         material_dict["alphaMode"] = root.alpha_mode
