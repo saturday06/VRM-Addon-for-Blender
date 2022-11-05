@@ -827,7 +827,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         material_dict["alphaMode"] = root.alpha_mode
         mtoon_dict["transparentWithZWrite"] = mtoon.transparent_with_z_write
         mtoon_dict["renderQueueOffsetNumber"] = mtoon.render_queue_offset_number
-        material_dict["alphaCutoff"] = root.alpha_cutoff
+        if root.alpha_mode == "MASK":
+            material_dict["alphaCutoff"] = root.alpha_cutoff
         material_dict["doubleSided"] = root.double_sided
         pbr_metallic_roughness_dict["baseColorFactor"] = list(
             root.pbr_metallic_roughness.base_color_factor
