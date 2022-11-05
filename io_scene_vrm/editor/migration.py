@@ -4,7 +4,7 @@ from typing import List
 import bpy
 
 from ..common import version
-from ..common.preferences import VrmAddonPreferences, get_preferences
+from ..common.preferences import get_preferences
 from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
@@ -61,24 +61,6 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
 def migrate_all_objects() -> None:
     preferences = get_preferences(bpy.context)
     if preferences:
-        if (
-            tuple(preferences.addon_version)
-            != VrmAddonPreferences.INITIAL_ADDON_VERSION
-        ):
-            if tuple(preferences.addon_version) < (2, 6, 3):
-                preferences.enable_advanced_preferences = bool(
-                    preferences.get("show_experimental_features")
-                )
-                preferences.export_fb_ngon_encoding = bool(
-                    preferences.get("hooked_export_fb_ngon_encoding")
-                )
-
-            if tuple(preferences.addon_version) < (2, 10, 0):
-                preferences.set_shading_type_to_material_on_import = False
-                preferences.set_view_transform_to_standard_on_import = False
-                preferences.set_armature_display_to_wire = False
-                preferences.set_armature_display_to_show_in_front = False
-
         preferences.addon_version = version.version()
 
     for obj in bpy.data.objects:
