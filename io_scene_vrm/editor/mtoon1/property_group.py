@@ -620,10 +620,12 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
     # https://github.com/KhronosGroup/glTF/blob/2a9996a2ea66ab712590eaf62f39f1115996f5a3/specification/2.0/schema/sampler.schema.json#L67-L117
     WRAP_DEFAULT_NUMBER = 10497
+    WRAP_DEFAULT_ID = "REPEAT"
+
     wrap_items = [
         ("CLAMP_TO_EDGE", "Clamp to Edge", "", 33071),
         ("MIRRORED_REPEAT", "Mirrored Repeat", "", 33648),
-        ("REPEAT", "Repeat", "", WRAP_DEFAULT_NUMBER),
+        (WRAP_DEFAULT_ID, "Repeat", "", WRAP_DEFAULT_NUMBER),
     ]
     WRAP_NUMBER_TO_ID: Dict[int, str] = {wrap[-1]: wrap[0] for wrap in wrap_items}
     WRAP_ID_TO_NUMBER: Dict[str, int] = {wrap[0]: wrap[-1] for wrap in wrap_items}
@@ -658,12 +660,14 @@ class Mtoon1BaseColorSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -690,12 +694,14 @@ class Mtoon1ShadeMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -720,12 +726,14 @@ class Mtoon1NormalSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -752,12 +760,14 @@ class Mtoon1ShadingShiftSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -782,12 +792,14 @@ class Mtoon1EmissiveSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -814,12 +826,14 @@ class Mtoon1RimMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -846,12 +860,14 @@ class Mtoon1MatcapSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -878,12 +894,14 @@ class Mtoon1OutlineWidthMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup)
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
@@ -910,12 +928,14 @@ class Mtoon1UvAnimationMaskSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap S",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
         name="Wrap T",  # noqa: F722
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
         update=Mtoon1SamplerPropertyGroup.update_wrap_t,
     )
 
