@@ -16,6 +16,13 @@ translation_dictionary = {
         "The installed VRM add-on is not compatible with Blender {blender_version}. "
         + " The VRM may not be exported correctly.",
     ): "インストールされているVRMアドオンはBlender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
+    ("*", 'Set shading type to "Material"'): "3Dビューをマテリアルプレビューに設定",
+    ("*", 'Set view transform to "Standard"'): "ビュー変換を「標準」に設定",
+    (
+        "*",
+        'Set an imported armature display to "Wire"',
+    ): "アーマチュアのビューポート表示を「ワイヤーフレーム」に設定",
+    ("*", 'Set an imported armature display to show "In-Front"'): "アーマチュアを最前面に表示",
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
     ("*", "Enable Advanced Options"): "高度なオプションを有効にする",

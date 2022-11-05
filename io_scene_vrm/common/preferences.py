@@ -30,6 +30,30 @@ previous_package_name = __name__
 class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     bl_idname = addon_package_name
 
+    INITIAL_ADDON_VERSION = (0, 0, 0)
+
+    addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
+        size=3,  # noqa: F722
+        default=INITIAL_ADDON_VERSION,
+    )
+
+    set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set shading type to "Material"',  # noqa: F722
+        default=True,
+    )
+    set_view_transform_to_standard_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set view transform to "Standard"',  # noqa: F722
+        default=True,
+    )
+    set_armature_display_to_wire: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set an imported armature display to "Wire"',  # noqa: F722
+        default=True,
+    )
+    set_armature_display_to_show_in_front: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set an imported armature display to show "In-Front"',  # noqa: F722
+        default=True,
+    )
+
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",  # noqa: F722
     )
@@ -60,11 +84,20 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
                     icon="NONE" if index else "ERROR",
                 )
 
-        layout.prop(self, "export_invisibles")
-        layout.prop(self, "export_only_selections")
-        layout.prop(self, "enable_advanced_preferences")
+        import_box = layout.box()
+        import_box.label(text="Import", icon="IMPORT")
+        import_box.prop(self, "set_shading_type_to_material_on_import")
+        import_box.prop(self, "set_view_transform_to_standard_on_import")
+        import_box.prop(self, "set_armature_display_to_wire")
+        import_box.prop(self, "set_armature_display_to_show_in_front")
+
+        export_box = layout.box()
+        export_box.label(text="Export", icon="EXPORT")
+        export_box.prop(self, "export_invisibles")
+        export_box.prop(self, "export_only_selections")
+        export_box.prop(self, "enable_advanced_preferences")
         if self.enable_advanced_preferences:
-            advanced_options_box = layout.box()
+            advanced_options_box = export_box.box()
             advanced_options_box.prop(self, "export_fb_ngon_encoding")
 
 

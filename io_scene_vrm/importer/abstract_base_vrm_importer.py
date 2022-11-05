@@ -23,6 +23,7 @@ from ..common import convert, deep
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
+from ..common.preferences import get_preferences
 from ..common.shader import shader_node_group_import
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration, operator
@@ -1424,6 +1425,23 @@ class AbstractBaseVrmImporter(ABC):
         self.context.view_layer.depsgraph.update()
         self.context.scene.view_layers.update()
         operator.VRM_OT_simplify_vroid_bones(self.context)
+
+    def viewport_setup(self) -> None:
+        preferences = get_preferences(self.context)
+        if not preferences:
+            return
+        if self.armature and preferences.set_armature_display_to_wire:
+            self.armature.display_type = "WIRE"
+        if self.armature and preferences.set_armature_display_to_show_in_front:
+            self.armature.show_in_front = True
+        if preferences.set_view_transform_to_standard_on_import:
+            self.context.scene.view_settings.view_transform = "Standard"
+        if preferences.set_shading_type_to_material_on_import:
+            screen = self.context.screen
+            for area in screen.areas:
+                for space in area.spaces:
+                    if space.type == "VIEW_3D":
+                        space.shading.type = "MATERIAL"
 
 
 # DeprecationWarning

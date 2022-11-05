@@ -41,6 +41,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             self.set_bone_roll()
             i = prog(i)
             self.finishing(affected_object)
+            i = prog(i)
+            self.viewport_setup()
         finally:
             wm.progress_end()
 

@@ -8,7 +8,7 @@ from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
 from ..common.logging import get_logger
-from ..common.preferences import use_legacy_importer_exporter
+from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor.operator import VRM_OT_open_url_in_web_browser
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
@@ -24,6 +24,42 @@ class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
+def import_vrm_update_addon_preferences(
+    import_op: bpy.types.Operator, context: bpy.types.Context
+) -> None:
+    preferences = get_preferences(context)
+    if not preferences:
+        return
+
+    if bool(preferences.set_shading_type_to_material_on_import) != bool(
+        import_op.set_shading_type_to_material_on_import
+    ):
+        preferences.set_shading_type_to_material_on_import = (
+            import_op.set_shading_type_to_material_on_import
+        )
+
+    if bool(preferences.set_view_transform_to_standard_on_import) != bool(
+        import_op.set_view_transform_to_standard_on_import
+    ):
+        preferences.set_view_transform_to_standard_on_import = (
+            import_op.set_view_transform_to_standard_on_import
+        )
+
+    if bool(preferences.set_armature_display_to_wire) != bool(
+        import_op.set_armature_display_to_wire
+    ):
+        preferences.set_armature_display_to_wire = (
+            import_op.set_armature_display_to_wire
+        )
+
+    if bool(preferences.set_armature_display_to_show_in_front) != bool(
+        import_op.set_armature_display_to_show_in_front
+    ):
+        preferences.set_armature_display_to_show_in_front = (
+            import_op.set_armature_display_to_show_in_front
+        )
+
+
 class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[misc] # noqa: N801
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
@@ -36,11 +72,32 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
     )
 
     extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        default=False, name="Extract texture images into the folder"  # noqa: F722
+        name="Extract texture images into the folder",  # noqa: F722
+        default=False,
     )
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        default=True,
         name="Don't overwrite existing texture folder (limit:100,000)",  # noqa: F722
+        default=True,
+    )
+    set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set shading type to "Material"',  # noqa: F722
+        update=import_vrm_update_addon_preferences,
+        default=True,
+    )
+    set_view_transform_to_standard_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set view transform to "Standard"',  # noqa: F722
+        update=import_vrm_update_addon_preferences,
+        default=True,
+    )
+    set_armature_display_to_wire: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set an imported armature display to "Wire"',  # noqa: F722
+        update=import_vrm_update_addon_preferences,
+        default=True,
+    )
+    set_armature_display_to_show_in_front: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name='Set an imported armature display to show "In-Front"',  # noqa: F722
+        update=import_vrm_update_addon_preferences,
+        default=True,
     )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
@@ -75,6 +132,20 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         )
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        preferences = get_preferences(context)
+        if preferences:
+            (
+                self.set_shading_type_to_material_on_import,
+                self.set_view_transform_to_standard_on_import,
+                self.set_armature_display_to_wire,
+                self.set_armature_display_to_show_in_front,
+            ) = (
+                preferences.set_shading_type_to_material_on_import,
+                preferences.set_view_transform_to_standard_on_import,
+                preferences.set_armature_display_to_wire,
+                preferences.set_armature_display_to_show_in_front,
+            )
+
         if not use_legacy_importer_exporter() and "gltf" not in dir(
             bpy.ops.import_scene
         ):

@@ -6,6 +6,7 @@ import bpy
 from mathutils import Matrix, Quaternion
 
 from ..common.logging import get_logger
+from ..common.preferences import VrmAddonPreferences
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .property_group import StringPropertyGroup
@@ -211,7 +212,7 @@ class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ig
 
 
 class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    INITIAL_ADDON_VERSION = (0, 0, 0)
+    INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
         size=3,  # noqa: F722
