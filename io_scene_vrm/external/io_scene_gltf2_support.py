@@ -41,3 +41,17 @@ def image_to_image_bytes(image: bpy.types.Image) -> Tuple[bytes, str]:
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/b8901bb58fa29d78bc2741cadb3f01b6d30d7750/addons/io_scene_gltf2/blender/exp/gltf2_blender_image.py
     image_bytes, _specular_color_factor = export_image.encode(mime_type)
     return image_bytes, mime_type
+
+
+def init_extras_export() -> None:
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/com/gltf2_blender_extras.py#L20-L21
+    try:
+        from io_scene_gltf2.blender.com.gltf2_blender_extras import (
+            BLACK_LIST,
+        )  # pyright: reportMissingImports=false
+    except ImportError:
+        return
+
+    value = "vrm_addon_extension"
+    if value not in BLACK_LIST:
+        BLACK_LIST.append(value)

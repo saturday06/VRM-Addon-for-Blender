@@ -22,6 +22,7 @@ from .editor import (
     property_group,
     validation,
 )
+from .editor.mtoon1 import operator as mtoon1_operator
 from .editor.mtoon1 import panel as mtoon1_panel
 from .editor.mtoon1 import property_group as mtoon1_property_group
 from .editor.node_constraint1 import panel as node_constraint1_panel
@@ -178,7 +179,8 @@ classes = [
     mtoon1_property_group.Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup,
     mtoon1_property_group.Mtoon1UvAnimationMaskTextureInfoPropertyGroup,
     mtoon1_property_group.Mtoon1PbrMetallicRoughnessPropertyGroup,
-    mtoon1_property_group.Mtoon1MaterialVrmcMaterialsMtoonPropertyGroup,
+    mtoon1_property_group.Mtoon1VrmcMaterialsMtoonPropertyGroup,
+    mtoon1_property_group.Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup,
     mtoon1_property_group.Mtoon1MaterialExtensionsPropertyGroup,
     mtoon1_property_group.Mtoon1MaterialPropertyGroup,
     mtoon1_panel.VRM_PT_vrm_material_property,
@@ -259,6 +261,9 @@ classes = [
     spring_bone1_operator.VRM_OT_remove_spring_bone1_spring_collider_group,
     spring_bone1_operator.VRM_OT_add_spring_bone1_spring_joint,
     spring_bone1_operator.VRM_OT_remove_spring_bone1_spring_joint,
+    mtoon1_operator.VRM_OT_convert_material_to_mtoon1,
+    mtoon1_operator.VRM_OT_convert_mtoon1_to_bsdf_principled,
+    mtoon1_operator.VRM_OT_reset_mtoon1_material_shader_node_group,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,
@@ -336,6 +341,8 @@ def register(init_version: Any) -> None:
     bpy.app.handlers.load_post.append(load_post)
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
+
+    io_scene_gltf2_support.init_extras_export()
 
 
 def unregister() -> None:

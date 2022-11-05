@@ -10,7 +10,10 @@ import bpy
 from ..common import convert, deep, gltf, shader, version
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..editor import search
-from ..editor.mtoon1.property_group import Mtoon1TextureInfoPropertyGroup
+from ..editor.mtoon1.property_group import (
+    Mtoon1SamplerPropertyGroup,
+    Mtoon1TextureInfoPropertyGroup,
+)
 from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -20,7 +23,7 @@ from ..editor.vrm1.property_group import (
     Vrm1LookAtPropertyGroup,
     Vrm1MetaPropertyGroup,
 )
-from ..external.io_scene_gltf2_support import image_to_image_bytes
+from ..external.io_scene_gltf2_support import image_to_image_bytes, init_extras_export
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 
 
@@ -655,10 +658,18 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         sampler_index = len(json_dict["samplers"])
         json_dict["samplers"].append(
             {
-                "magFilter": texture_info.index.sampler.mag_filter,
-                "minFilter": texture_info.index.sampler.min_filter,
-                "wrapS": texture_info.index.sampler.wrap_type,
-                "wrapT": texture_info.index.sampler.wrap_type,
+                "magFilter": Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
+                    texture_info.index.sampler.mag_filter
+                ],
+                "minFilter": Mtoon1SamplerPropertyGroup.MIN_FILTER_ID_TO_NUMBER[
+                    texture_info.index.sampler.min_filter
+                ],
+                "wrapS": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
+                    texture_info.index.sampler.wrap_s
+                ],
+                "wrapT": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
+                    texture_info.index.sampler.wrap_t
+                ],
             }
         )
 
@@ -779,40 +790,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def lerp(a: float, b: float, t: float) -> float:
         return (1 - t) * a + t * b
 
-    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L10-L19
-    @staticmethod
-    def migrate_to_shading_toony(
-        shading_toony_0x: float, shading_shift_0x: float
-    ) -> float:
-        (range_min, range_max) = Gltf2AddonVrmExporter.get_shading_range_0x(
-            shading_toony_0x, shading_shift_0x
-        )
-        return max(0, min(1, (2 - (range_max - range_min)) * 0.5))
-
-    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L21-L30
-    @staticmethod
-    def migrate_to_shading_shift(
-        shading_toony_0x: float, shading_shift_0x: float
-    ) -> float:
-        (range_min, range_max) = Gltf2AddonVrmExporter.get_shading_range_0x(
-            shading_toony_0x, shading_shift_0x
-        )
-        return max(-1, min(1, ((range_max + range_min) * 0.5 * -1)))
-
-    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L32-L38
-    @staticmethod
-    def migrate_to_gi_equalization(gi_intensity_0x: float) -> float:
-        return max(0, min(1, 1 - gi_intensity_0x))
-
-    # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L40-L46
-    @staticmethod
-    def get_shading_range_0x(
-        shading_toony_0x: float, shading_shift_0x: float
-    ) -> Tuple[float, float]:
-        range_min = shading_shift_0x
-        range_max = (1 - shading_toony_0x) + shading_toony_0x * shading_shift_0x
-        return (range_min, range_max)
-
     @staticmethod
     def create_mtoon1_material_dict(
         json_dict: Dict[str, Any],
@@ -823,6 +800,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         if "KHR_materials_unlit" not in extensions_used:
             extensions_used.append("KHR_materials_unlit")
+        if "KHR_materials_emissive_strength" not in extensions_used:
+            extensions_used.append("KHR_materials_emissive_strength")
         if "VRMC_materials_mtoon" not in extensions_used:
             extensions_used.append("VRMC_materials_mtoon")
 
@@ -830,13 +809,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         mtoon_dict: Dict[str, Any] = {
             "specVersion": "1.0",
         }
-        extensions_dict = {
-            "KHR_materials_unlit": {},
-            "VRMC_materials_mtoon": mtoon_dict,
-        }
 
         root = material.vrm_addon_extension.mtoon1
         mtoon = root.extensions.vrmc_materials_mtoon
+
+        extensions_dict = {
+            "KHR_materials_unlit": {},
+            "KHR_materials_emissive_strength": {
+                "emissiveStrength": root.extensions.khr_materials_emissive_strength.emissive_strength,
+            },
+            "VRMC_materials_mtoon": mtoon_dict,
+        }
 
         material_dict: Dict[str, Any] = {}
         pbr_metallic_roughness_dict: Dict[str, Any] = {}
@@ -861,7 +844,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "shadeMultiplyTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, mtoon.shade_color_texture
+                json_dict, body_binary, mtoon.shade_multiply_texture
             ),
         )
         if assign_dict(
@@ -875,7 +858,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         mtoon_dict["shadingShiftFactor"] = mtoon.shading_shift_factor
         mtoon_dict["shadingToonyFactor"] = mtoon.shading_toony_factor
         mtoon_dict["giEqualizationFactor"] = mtoon.gi_equalization_factor
-        material_dict["emissiveFactor"] = root.emissive_factor
+        material_dict["emissiveFactor"] = list(root.emissive_factor)
         assign_dict(
             material_dict,
             "emissiveTexture",
@@ -883,12 +866,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 json_dict, body_binary, root.emissive_texture
             ),
         )
-        mtoon_dict["matcapFactor"] = mtoon.matcap_factor
+        mtoon_dict["matcapFactor"] = list(mtoon.matcap_factor)
         assign_dict(
             mtoon_dict,
             "matcapTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, mtoon.matcap_Texture
+                json_dict, body_binary, mtoon.matcap_texture
             ),
         )
         mtoon_dict["parametricRimColorFactor"] = list(mtoon.parametric_rim_color_factor)
@@ -913,7 +896,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 json_dict, body_binary, mtoon.outline_width_multiply_texture
             ),
         )
-        mtoon_dict["outlineColorFactor"] = mtoon.outline_color_factor
+        mtoon_dict["outlineColorFactor"] = list(mtoon.outline_color_factor)
         mtoon_dict["outlineLightingMixFactor"] = mtoon.outline_lighting_mix_factor
         assign_dict(
             mtoon_dict,
@@ -941,6 +924,24 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         return material_dict
 
     @staticmethod
+    def create_legacy_gltf_material_dict(
+        _json_dict: Dict[str, Any],
+        _body_binary: bytearray,
+        material: bpy.types.Material,
+        _node: bpy.types.Node,
+    ) -> Dict[str, Any]:
+        return {"name": material.name}
+
+    @staticmethod
+    def create_legacy_transparent_zwrite_material_dict(
+        _json_dict: Dict[str, Any],
+        _body_binary: bytearray,
+        material: bpy.types.Material,
+        _node: bpy.types.Node,
+    ) -> Dict[str, Any]:
+        return {"name": material.name}
+
+    @staticmethod
     def create_mtoon_unversioned_material_dict(
         json_dict: Dict[str, Any],
         body_binary: bytearray,
@@ -963,7 +964,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "VRMC_materials_mtoon": mtoon_dict,
         }
 
-        material_dict: Dict[str, Any] = {}
+        material_dict: Dict[str, Any] = {"name": material.name}
         pbr_metallic_roughness_dict: Dict[str, Any] = {}
 
         if material.blend_method == "OPAQUE":
@@ -1024,6 +1025,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
             json_dict, body_binary, node, "NormalmapTexture"
         )
+        if not normal_texture_dict:
+            normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict, body_binary, node, "NomalmapTexture"
+            )
         if assign_dict(
             material_dict, "normalTexture", normal_texture_dict
         ) and isinstance(normal_texture_dict, dict):
@@ -1039,15 +1044,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if shading_toony_0x is None:
             shading_toony_0x = 0.0
 
-        mtoon_dict[
-            "shadingShiftFactor"
-        ] = Gltf2AddonVrmExporter.migrate_to_shading_shift(
+        mtoon_dict["shadingShiftFactor"] = convert.mtoon_shading_shift_0_to_1(
             shading_toony_0x, shading_shift_0x
         )
 
-        mtoon_dict[
-            "shadingToonyFactor"
-        ] = Gltf2AddonVrmExporter.migrate_to_shading_toony(
+        mtoon_dict["shadingToonyFactor"] = convert.mtoon_shading_toony_0_to_1(
             shading_toony_0x, shading_shift_0x
         )
 
@@ -1055,7 +1056,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if gi_equalization_0x is not None:
             mtoon_dict[
                 "giEqualizationFactor"
-            ] = Gltf2AddonVrmExporter.migrate_to_gi_equalization(gi_equalization_0x)
+            ] = convert.mtoon_intensity_to_gi_equalization(gi_equalization_0x)
 
         assign_dict(
             material_dict,
@@ -1218,10 +1219,23 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             node = search.vrm_shader_node(material)
             if not isinstance(node, bpy.types.Node):
                 continue
-            if node.node_tree["SHADER"] == "MToon_unversioned":
+            shader_name = node.node_tree.get("SHADER")
+            if shader_name == "MToon_unversioned":
                 material_dicts[
                     index
                 ] = Gltf2AddonVrmExporter.create_mtoon_unversioned_material_dict(
+                    json_dict, body_binary, material, node
+                )
+            elif shader_name == "GLTF":
+                material_dicts[
+                    index
+                ] = Gltf2AddonVrmExporter.create_legacy_gltf_material_dict(
+                    json_dict, body_binary, material, node
+                )
+            elif shader_name == "TRANSPARENT_ZWRITE":
+                material_dicts[
+                    index
+                ] = Gltf2AddonVrmExporter.create_legacy_transparent_zwrite_material_dict(
                     json_dict, body_binary, material, node
                 )
 
@@ -1276,6 +1290,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         del target_dict["NORMAL"]
 
     def export_vrm(self) -> Optional[bytes]:
+        init_extras_export()
+
         vrm = self.armature.data.vrm_addon_extension.vrm1
         dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         try:

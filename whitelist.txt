@@ -33,11 +33,9 @@ calc
 cn
 colorspace
 commonpath
-compat
 const
 constraint1
 coord
-cullmode
 customdata
 depsgraph
 dicts
@@ -49,7 +47,6 @@ ee
 emissive
 endregion
 eval
-exc
 exeext
 extractall
 f00
@@ -81,6 +78,7 @@ glsl
 gltf
 gltf2
 hb
+hdr
 hpos
 hrad
 hx

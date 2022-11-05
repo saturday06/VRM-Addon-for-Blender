@@ -171,11 +171,12 @@ translation_dictionary = {
     + "重い順に4つまでエクスポートされます。",
     (
         "*",
-        '"{material_name}" needs to connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE'
+        '"{material_name}" needs to enable "VRM MToon Material" or'
+        + " connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE"
         + ' to "Surface" directly. Empty material will be exported.',
-    ): "マテリアル「{material_name}」には「プリンシプルBSDF」「MToon_unversioned」「GLTF」「TRANSPARENT_ZWRITE」の"
-    + "いずれかを直接「サーフェス」に指定してください。"
-    + "空のマテリアルを出力します。",
+    ): "マテリアル「{material_name}」は「VRM MToon Material」を有効にするか"
+    + "「プリンシプルBSDF」「MToon_unversioned」「GLTF」「TRANSPARENT_ZWRITE」の"
+    + "いずれかを直接「サーフェス」に指定してください。空のマテリアルを出力します。",
     (
         "*",
         '"{image_name}" is not found in file path "{image_filepath}". '
@@ -288,4 +289,26 @@ translation_dictionary = {
         "This VRM uses Draco compression. Unable to decompress.",
     ): "Draco圧縮されたVRMは未対応です",
     ("*", "Axis Translation on Export"): "エクスポート時の軸の変換",
+    ("*", "Offset and Scale are ignored in VRM 0.0"): "VRM 0.0ではオフセットとスケールは無視されます",
+    (
+        "*",
+        'Material "{name}" {texture}\'s Offset and Scale are ignored in VRM 0.0',
+    ): "VRM 0.0ではマテリアル「{name}」の{texture}のオフセットとスケールは無視されます",
+    (
+        "*",
+        "Offset and Scale in VRM 0.0 are the values of the Lit Color Texture",
+    ): "VRM 0.0でのオフセットとスケールはLit Colorテクスチャの値になります",
+    (
+        "*",
+        'Material "{name}" {texture}\'s Offset and Scale in VRM 0.0 are the values of '
+        + "the Lit Color Texture",
+    ): "VRM 0.0でのマテリアル「name」の{texture}のオフセットとスケールはLit Colorテクスチャの値になります",
+    (
+        "*",
+        'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}" in Material "{name}"',
+    ): "マテリアル「{name}」の{texture_label}の{input_colorspace}には「{colorspace}」の設定が推奨されます",
+    (
+        "*",
+        "(Experimental!) Use New VRM MToon Material UI",
+    ): "(実験中機能です!) 新しいVRM MToonマテリアルのUIを使う",
 }

@@ -39,6 +39,7 @@ module = [
     "bpy_extras.*",
     "gpu",
     "gpu_extras.*",
+    "io_scene_gltf2.blender.com.gltf2_blender_extras",
     "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials",
     "io_scene_gltf2.blender.exp.gltf2_blender_image",
     "mathutils",

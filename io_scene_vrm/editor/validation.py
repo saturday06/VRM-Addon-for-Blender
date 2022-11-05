@@ -402,7 +402,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         vertex_error_count = vertex_error_count + 1
 
         for mat in used_materials:
-            if not mat.node_tree:
+            if not mat.node_tree or mat.vrm_addon_extension.mtoon1.enabled:
                 continue
             for node in mat.node_tree.nodes:
                 if node.type != "OUTPUT_MATERIAL":
@@ -427,7 +427,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
 
                 warning_messages.append(
                     pgettext(
-                        '"{material_name}" needs to connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE'
+                        '"{material_name}" needs to enable "VRM MToon Material" or'
+                        + " connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE"
                         + ' to "Surface" directly. Empty material will be exported.'
                     ).format(material_name=mat.name)
                 )
@@ -490,14 +491,75 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
             mtoon1 = mat.vrm_addon_extension.mtoon1
             if not mtoon1.enabled:
                 continue
-            for texture_info in [
-                mtoon1.pbr_metallic_roughness.base_color_texture,
-                mtoon1.normal_texture,
-                mtoon1.emissive_texture,
-            ]:
+            for texture_info in mtoon1.all_textures():
                 source = texture_info.index.source
                 if source and source not in used_images:
                     used_images.append(source)
+
+                if (
+                    source
+                    and source.colorspace_settings.name != texture_info.colorspace
+                ):
+                    warning_messages.append(
+                        pgettext(
+                            'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
+                            + ' in Material "{name}"'
+                        ).format(
+                            name=mat.name,
+                            texture_label=texture_info.label,
+                            colorspace=pgettext(texture_info.colorspace),
+                            input_colorspace=pgettext("Input Color Space"),
+                        )
+                    )
+
+                if (
+                    armature is None
+                    or not armature.data.vrm_addon_extension.is_vrm0()
+                    or not source
+                ):
+                    continue
+
+                base_scale = (
+                    mtoon1.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale
+                )
+                base_offset = (
+                    mtoon1.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset
+                )
+                scale = texture_info.extensions.khr_texture_transform.scale
+                offset = texture_info.extensions.khr_texture_transform.offset
+                if (
+                    texture_info
+                    == mtoon1.extensions.vrmc_materials_mtoon.matcap_texture
+                ):
+                    if (
+                        abs(scale[0]) > 0
+                        or abs(scale[1]) > 0
+                        or abs(offset[0]) > 0
+                        or abs(offset[1]) > 0
+                    ):
+                        warning_messages.append(
+                            pgettext(
+                                'Material "{name}" {texture}\'s Offset and Scale are ignored in VRM 0.0'
+                            ).format(
+                                name=mat.name,
+                                texture=texture_info.label,
+                            )
+                        )
+                elif (
+                    abs(base_scale[0] - scale[0]) > 0
+                    or abs(base_scale[1] - scale[1]) > 0
+                    or abs(base_offset[0] - offset[0]) > 0
+                    or abs(base_offset[1] - offset[1]) > 0
+                ):
+                    warning_messages.append(
+                        pgettext(
+                            'Material "{name}" {texture}\'s Offset and Scale in VRM 0.0 are the values of '
+                            + "the Lit Color Texture"
+                        ).format(
+                            name=mat.name,
+                            texture=texture_info.label,
+                        )
+                    )
 
         for image in used_images:
             if (

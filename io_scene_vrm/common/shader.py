@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional, Tuple
 import bgl
 import bpy
 
+from .char import INTERNAL_NAME_PREFIX
 from .logging import get_logger
 
 logger = get_logger(__name__)
@@ -16,6 +17,9 @@ __file_names = [
     "transparent_z_write.blend",
     "gltf.blend",
 ]
+
+UV_GROUP_NAME = "VrmAddonMToon1MaterialTextureUvGroup1"
+UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + "Template"
 
 
 def add_shaders() -> None:
@@ -28,25 +32,48 @@ def add_shaders() -> None:
 
 
 def load_mtoon1_shader(material: bpy.types.Material) -> None:
-    material_name = "MToon1MaterialTemplate452495794"
-    path = join(dirname(__file__), "mtoon1.blend") + "/Material"
+    material_name = INTERNAL_NAME_PREFIX + "VrmAddonMToon1MaterialTemplate"
+    old_material = bpy.data.materials.get(material_name)
+    if old_material:
+        logger.error(f'Material "{material_name}" already exists')
+        old_material.name += ".old"
 
-    append_result = bpy.ops.wm.append(
-        filepath=join(path, material_name),
+    old_template_uv_group = bpy.data.node_groups.get(UV_GROUP_TEMPLATE_NAME)
+    if old_template_uv_group:
+        logger.error(f'Node Group "{UV_GROUP_TEMPLATE_NAME}" already exists')
+        old_template_uv_group.name += ".old"
+
+    material_path = join(dirname(__file__), "mtoon1.blend") + "/Material"
+    material_append_result = bpy.ops.wm.append(
+        filepath=join(material_path, material_name),
         filename=material_name,
-        directory=path,
+        directory=material_path,
     )
-    if append_result != {"FINISHED"}:
+    if material_append_result != {"FINISHED"}:
         raise RuntimeError(
-            f"Failed to append MToon 1.0 template material: {append_result}"
+            "Failed to append MToon 1.0 template material: "
+            + f"{material_append_result}"
         )
 
+    template_uv_group = bpy.data.node_groups.get(UV_GROUP_TEMPLATE_NAME)
     template_material = bpy.data.materials.get(material_name)
     try:
+        uv_group = bpy.data.node_groups.get(UV_GROUP_NAME)
+        if not uv_group:
+            uv_group = bpy.data.node_groups.new(UV_GROUP_NAME, "ShaderNodeTree")
+            clear_node_tree(uv_group, clear_inputs_outputs=True)
+
+        copy_node_tree(template_uv_group, uv_group)
+
+        mtoon1 = material.vrm_addon_extension.mtoon1
+        if mtoon1.enabled:
+            mtoon1.link_material_output_surface(connect=False)
         copy_node_tree(template_material.node_tree, material.node_tree)
     finally:
         if template_material:
             bpy.data.materials.remove(template_material)
+        if template_uv_group:
+            bpy.data.node_groups.remove(template_uv_group)
 
 
 def copy_socket(
@@ -59,7 +86,19 @@ def copy_socket(
     to_socket.link_limit = from_socket.link_limit
     to_socket.name = from_socket.name
     to_socket.show_expanded = from_socket.show_expanded
-    to_socket.type = from_socket.type
+    if to_socket.type != from_socket.type:
+        to_socket.type = from_socket.type
+
+
+def copy_socket_interface(
+    from_socket: bpy.types.NodeSocketInterface, to_socket: bpy.types.NodeSocketInterface
+) -> None:
+    if bpy.app.version >= (3, 0, 0):
+        to_socket.attribute_domain = from_socket.attribute_domain
+        to_socket.bl_label = from_socket.bl_label
+    if bpy.app.version >= (2, 93, 0):
+        to_socket.description = from_socket.description
+    to_socket.name = from_socket.name
 
 
 def copy_socket_default_value(
@@ -100,11 +139,32 @@ def copy_node_socket_default_value(
     to_node: bpy.types.Node,
 ) -> None:
     for index, from_input in enumerate(from_node.inputs):
-        to_input = to_node.inputs[index]
-        copy_socket_default_value(from_input, to_input)
+        if 0 <= index < len(to_node.inputs):
+            to_input = to_node.inputs[index]
+            copy_socket_default_value(from_input, to_input)
     for index, from_output in enumerate(from_node.outputs):
-        to_output = to_node.outputs[index]
-        copy_socket_default_value(from_output, to_output)
+        if 0 <= index < len(to_node.outputs):
+            to_output = to_node.outputs[index]
+            copy_socket_default_value(from_output, to_output)
+
+
+def copy_shader_node_group(
+    from_node: bpy.types.Node,
+    to_node: bpy.types.Node,
+) -> None:
+    if not from_node.node_tree.name.startswith(UV_GROUP_TEMPLATE_NAME):
+        logger.error(
+            "Importing ShaderNodeGroup doesn't be supported yet: "
+            + f"{from_node.node_tree.name}"
+        )
+        return
+
+    uv_group = bpy.data.node_groups.get(UV_GROUP_NAME)
+    if not uv_group:
+        logger.error("UV Group Not Found")
+        return
+
+    to_node.node_tree = uv_group
 
 
 def copy_node(
@@ -116,15 +176,17 @@ def copy_node(
     to_node.height = from_node.height
     to_node.hide = from_node.hide
     for index, from_input in enumerate(from_node.inputs):
-        to_input = to_node.inputs[index]
-        copy_socket(from_input, to_input)
+        if 0 <= index < len(to_node.inputs):
+            to_input = to_node.inputs[index]
+            copy_socket(from_input, to_input)
     to_node.label = from_node.label
     to_node.location = from_node.location
     to_node.mute = from_node.mute
     to_node.name = from_node.name
     for index, from_output in enumerate(from_node.outputs):
-        to_output = to_node.outputs[index]
-        copy_socket(from_output, to_output)
+        if 0 <= index < len(to_node.outputs):
+            to_output = to_node.outputs[index]
+            copy_socket(from_output, to_output)
     if from_node.parent:
         to_node.parent = from_to.get(from_node.parent)
     to_node.select = from_node.select
@@ -140,7 +202,6 @@ def copy_node(
         to_node.label_size = from_node.label_size
         to_node.text = from_node.text
     if isinstance(from_node, bpy.types.NodeGroup):
-        # to_node.node_tree = from_node.node_tree
         logger.error("Importing NodeGroup doesn't be supported yet")
     if isinstance(from_node, bpy.types.NodeGroupOutput):
         to_node.is_active_output = from_node.is_active_output
@@ -270,8 +331,7 @@ def copy_node(
         to_node.clamp = from_node.clamp
         to_node.interpolation_type = from_node.interpolation_type
     if isinstance(from_node, bpy.types.ShaderNodeGroup):
-        # to_node.node_tree = from_node.node_tree
-        logger.error("Importing ShaderNodeGroup doesn't be supported yet")
+        copy_shader_node_group(from_node, to_node)
     if isinstance(from_node, bpy.types.ShaderNodeDisplacement):
         to_node.space = from_node.space
     if isinstance(from_node, bpy.types.ShaderNodeCustomGroup):
@@ -307,14 +367,85 @@ def copy_node(
         to_node.only_local = from_node.only_local
         to_node.samples = from_node.samples
 
+    if bpy.app.version >= (3, 3):
+        if isinstance(from_node, bpy.types.ShaderNodeCombineColor):
+            to_node.mode = from_node.mode
+        if isinstance(from_node, bpy.types.ShaderNodeSeparateColor):
+            to_node.mode = from_node.mode
+
+    if bpy.app.version >= (3, 4) and isinstance(from_node, bpy.types.ShaderNodeMix):
+        to_node.blend_type = from_node.blend_type
+        to_node.clamp_factor = from_node.clamp_factor
+        to_node.clamp_result = from_node.clamp_result
+        to_node.data_type = from_node.data_type
+        to_node.factor_mode = from_node.factor_mode
+
+
+def clear_node_tree(
+    node_tree: bpy.types.NodeTree, clear_inputs_outputs: bool = False
+) -> None:
+    logger.warning("Clear Node Tree")
+
+    # node_tree.links.clear()
+    while node_tree.links:
+        node_tree.links.remove(node_tree.links[0])
+    logger.warning("Clear Node Tree: links have been cleared")
+
+    # node_tree.nodes.clear()
+    while node_tree.nodes:
+        node_tree.nodes.remove(node_tree.nodes[0])
+    logger.warning("Clear Node Tree: nodes have been cleared")
+
+    if not clear_inputs_outputs:
+        return
+
+    # node_tree.inputs.clear()
+    while node_tree.inputs:
+        node_tree.inputs.remove(node_tree.inputs[0])
+    logger.warning("Clear Node Tree: inputs have been cleared")
+
+    # node_tree.outputs.clear()
+    while node_tree.outputs:
+        node_tree.outputs.remove(node_tree.outputs[0])
+    logger.warning("Clear Node Tree: outputs have been cleared")
+
 
 def copy_node_tree(
     from_node_tree: bpy.types.NodeTree, to_node_tree: bpy.types.NodeTree
 ) -> None:
-    to_node_tree.links.clear()
-    to_node_tree.nodes.clear()
-    to_node_tree.inputs.clear()
-    to_node_tree.outputs.clear()
+    clear_node_tree(to_node_tree, clear_inputs_outputs=False)
+
+    while len(to_node_tree.inputs) > len(from_node_tree.inputs):
+        to_node_tree.inputs.remove(to_node_tree.inputs[-1])
+    for index, from_input in enumerate(from_node_tree.inputs):
+        to_input = None
+        if 0 <= index < len(to_node_tree.inputs):
+            to_input = to_node_tree.inputs[index]
+            if to_input.type != from_input.type:
+                to_input = None
+                while len(to_node_tree.inputs) > index:
+                    to_node_tree.inputs.remove(to_node_tree.inputs[-1])
+        if not to_input:
+            to_input = to_node_tree.inputs.new(
+                from_input.bl_socket_idname, from_input.name
+            )
+        copy_socket_interface(from_input, to_input)
+
+    while len(to_node_tree.outputs) > len(from_node_tree.outputs):
+        to_node_tree.outputs.remove(to_node_tree.outputs[-1])
+    for index, from_output in enumerate(from_node_tree.outputs):
+        to_output = None
+        if 0 <= index < len(to_node_tree.outputs):
+            to_output = to_node_tree.outputs[index]
+            if to_output.type != from_output.type:
+                to_output = None
+                while len(to_node_tree.outputs) > index:
+                    to_node_tree.outputs.remove(to_node_tree.outputs[-1])
+        if not to_output:
+            to_output = to_node_tree.outputs.new(
+                from_output.bl_socket_idname, from_output.name
+            )
+        copy_socket_interface(from_output, to_output)
 
     from_to: Dict[bpy.types.Node, bpy.types.Node] = {}
 
@@ -339,6 +470,12 @@ def copy_node_tree(
         input_node = from_to.get(from_link.to_node)
         if input_node is None:
             continue
+        if not 0 <= input_socket_index < len(input_node.inputs):
+            logger.error(
+                "Input socket out of range: "
+                + f"{input_socket_index} < {len(input_node.inputs)}"
+            )
+            continue
         input_socket = input_node.inputs[input_socket_index]
         if not input_socket:
             logger.error(f"No input socket: {from_link.to_socket.name}")
@@ -353,6 +490,12 @@ def copy_node_tree(
             continue
         output_node = from_to.get(from_link.from_node)
         if output_node is None:
+            continue
+        if not 0 <= output_socket_index < len(output_node.outputs):
+            logger.error(
+                "Output socket out of range: "
+                + f"{output_socket_index} < {len(output_node.outputs)}"
+            )
             continue
         output_socket = output_node.outputs[output_socket_index]
         if not output_socket:
@@ -430,7 +573,9 @@ def get_image_name_and_sampler_type(
     return image_name, wrap_type, filter_type
 
 
-def float_or_none(v: Any, min_value: float, max_value: float) -> Optional[float]:
+def float_or_none(
+    v: Any, min_value: float = -float_info.max, max_value: float = float_info.max
+) -> Optional[float]:
     if isinstance(v, float) and math.isnan(v):
         return None
     if isinstance(v, (float, int)):
