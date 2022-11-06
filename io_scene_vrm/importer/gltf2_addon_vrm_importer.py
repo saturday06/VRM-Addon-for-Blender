@@ -1427,30 +1427,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     )
                 )
 
-            for bone in armature.data.bones.values():
-                bone_index = {
-                    0: i for i, n in self.bone_names.items() if n == bone.name
-                }.get(0)
-                if not isinstance(bone_index, int):
-                    continue
-                auto = True
-                for node_index in {
-                    0: g for g in constraint_node_index_groups if bone_index in g
-                }.get(0, set()):
-                    object_or_bone = self.get_object_or_bone_by_node_index(node_index)
-                    if isinstance(object_or_bone, bpy.types.PoseBone):
-                        if (
-                            object_or_bone.bone.vrm_addon_extension.axis_translation
-                            == VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_AUTO_ID
-                        ):
-                            continue
-                        auto = False
-                        break
-                if auto:
-                    bone.vrm_addon_extension.axis_translation = (
-                        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_AUTO_ID
-                    )
-
             for node_index in set(constraint_node_index_to_source_index.keys()) | set(
                 constraint_node_index_to_source_index.values()
             ):
@@ -1947,12 +1923,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 if bone:
                     axis_translation = bone.vrm_addon_extension.axis_translation
-                    offset = VrmAddonBoneExtensionPropertyGroup.translate_axis(
-                        Matrix.Translation(offset),
+                    offset = Vector(
+                        offset
+                    ) @ VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                        Matrix(),
                         VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
                             axis_translation
                         ),
-                    ).to_translation()
+                    )
                 shape.sphere.offset = offset
                 radius = sphere_dict.get("radius")
                 if isinstance(radius, (float, int)):
@@ -1970,12 +1948,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
-                offset = VrmAddonBoneExtensionPropertyGroup.translate_axis(
-                    Matrix.Translation(offset),
+                offset = Vector(
+                    offset
+                ) @ VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                    Matrix(),
                     VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
                         axis_translation
                     ),
-                ).to_translation()
+                )
             shape.capsule.offset = offset
 
             radius = capsule_dict.get("radius")
@@ -1987,12 +1967,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
-                tail = VrmAddonBoneExtensionPropertyGroup.translate_axis(
-                    Matrix.Translation(tail),
+                tail = Vector(tail) @ VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                    Matrix(),
                     VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
                         axis_translation
                     ),
-                ).to_translation()
+                )
             shape.capsule.tail = tail
 
         for collider in spring_bone.colliders:
