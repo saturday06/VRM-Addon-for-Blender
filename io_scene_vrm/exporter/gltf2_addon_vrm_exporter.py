@@ -867,14 +867,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 json_dict, body_binary, root.emissive_texture
             ),
         )
-        mtoon_dict["matcapFactor"] = list(mtoon.matcap_factor)
-        assign_dict(
+        if assign_dict(
             mtoon_dict,
             "matcapTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
                 json_dict, body_binary, mtoon.matcap_texture
             ),
-        )
+        ):
+            mtoon_dict["matcapFactor"] = list(mtoon.matcap_factor)
+
         mtoon_dict["parametricRimColorFactor"] = list(mtoon.parametric_rim_color_factor)
         mtoon_dict[
             "parametricRimFresnelPowerFactor"
@@ -1071,14 +1072,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 json_dict, body_binary, node, "Emission_Texture"
             ),
         )
-        assign_dict(
+        if assign_dict(
             mtoon_dict,
             "matcapTexture",
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
                 json_dict, body_binary, node, "SphereAddTexture"
             ),
-        )
-        if mtoon_dict.get("matcapTexture"):
+        ):
             mtoon_dict["matcapFactor"] = [1, 1, 1]
 
         assign_dict(
