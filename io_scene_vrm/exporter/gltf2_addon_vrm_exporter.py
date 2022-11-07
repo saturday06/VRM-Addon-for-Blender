@@ -9,6 +9,7 @@ import bpy
 
 from ..common import convert, deep, gltf, shader, version
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.logging import get_logger
 from ..editor import search
 from ..editor.mtoon1.property_group import (
     Mtoon1SamplerPropertyGroup,
@@ -25,6 +26,8 @@ from ..editor.vrm1.property_group import (
 )
 from ..external.io_scene_gltf2_support import image_to_image_bytes, init_extras_export
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
+
+logger = get_logger(__name__)
 
 
 class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
@@ -626,6 +629,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict: Dict[str, Any],
         body_binary: bytearray,
         texture_info: Mtoon1TextureInfoPropertyGroup,
+        image_name_to_index_dict: Dict[str, int],
     ) -> Optional[Dict[str, Any]]:
         # TODO: Verify alignment requirement and optimize
         while len(body_binary) % 32 == 0:
@@ -645,36 +649,43 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             }
         )
 
-        image_index = len(json_dict["images"])
-        json_dict["images"].append(
-            {
-                "bufferView": image_buffer_view_index,
-                "mimeType": mime,
-            }
-        )
+        image_index = image_name_to_index_dict.get(image.name)
+        if isinstance(image_index, int) and not 0 <= image_index < len(
+            json_dict["images"]
+        ):
+            logger.error(f"Bug: not 0 <= {image_index} < len(images)) for {image.name}")
+            image_index = None
+        if not isinstance(image_index, int):
+            image_index = len(json_dict["images"])
+            json_dict["images"].append(
+                {
+                    "name": image.name,
+                    "bufferView": image_buffer_view_index,
+                    "mimeType": mime,
+                }
+            )
+            image_name_to_index_dict[image.name] = image_index
 
-        if "samplers" not in json_dict:
-            json_dict["samplers"] = []
-        sampler_index = len(json_dict["samplers"])
-        json_dict["samplers"].append(
-            {
-                "magFilter": Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
-                    texture_info.index.sampler.mag_filter
-                ],
-                "minFilter": Mtoon1SamplerPropertyGroup.MIN_FILTER_ID_TO_NUMBER[
-                    texture_info.index.sampler.min_filter
-                ],
-                "wrapS": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
-                    texture_info.index.sampler.wrap_s
-                ],
-                "wrapT": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
-                    texture_info.index.sampler.wrap_t
-                ],
-            }
-        )
+        sampler = {
+            "magFilter": Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
+                texture_info.index.sampler.mag_filter
+            ],
+            "minFilter": Mtoon1SamplerPropertyGroup.MIN_FILTER_ID_TO_NUMBER[
+                texture_info.index.sampler.min_filter
+            ],
+            "wrapS": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
+                texture_info.index.sampler.wrap_s
+            ],
+            "wrapT": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
+                texture_info.index.sampler.wrap_t
+            ],
+        }
+        if sampler in json_dict["samplers"]:
+            sampler_index = json_dict["samplers"].index(sampler)
+        else:
+            sampler_index = len(json_dict["samplers"])
+            json_dict["samplers"].append(sampler)
 
-        if "textures" not in json_dict:
-            json_dict["textures"] = []
         texture_index = len(json_dict["textures"])
         json_dict["textures"].append(
             {
@@ -711,6 +722,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         body_binary: bytearray,
         node: bpy.types.Node,
         texture_input_name: str,
+        image_name_to_index_dict: Dict[str, int],
     ) -> Optional[Dict[str, Any]]:
         image_name_and_sampler_type = shader.get_image_name_and_sampler_type(
             node, texture_input_name
@@ -723,39 +735,46 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             body_binary.append(0)
 
         image_name, wrap_type, filter_type = image_name_and_sampler_type
-        image_bytes, mime = image_to_image_bytes(bpy.data.images[image_name])
+        image_index: Optional[int] = image_name_to_index_dict.get(image_name)
+        if isinstance(image_index, int) and not 0 <= image_index < len(
+            json_dict["images"]
+        ):
+            logger.error(f"Bug: not 0 <= {image_index} < len(images)) for {image_name}")
+            image_index = None
+        if not isinstance(image_index, int):
+            image_bytes, mime = image_to_image_bytes(bpy.data.images[image_name])
 
-        image_buffer_view_index = len(json_dict["bufferViews"])
-        json_dict["bufferViews"].append(
-            {
-                "buffer": 0,
-                "byteOffset": len(body_binary),
-                "byteLength": len(image_bytes),
-            }
-        )
+            image_buffer_view_index = len(json_dict["bufferViews"])
+            json_dict["bufferViews"].append(
+                {
+                    "buffer": 0,
+                    "byteOffset": len(body_binary),
+                    "byteLength": len(image_bytes),
+                }
+            )
 
-        image_index = len(json_dict["images"])
-        json_dict["images"].append(
-            {
-                "bufferView": image_buffer_view_index,
-                "mimeType": mime,
-            }
-        )
+            image_index = len(json_dict["images"])
+            json_dict["images"].append(
+                {
+                    "name": image_name,
+                    "bufferView": image_buffer_view_index,
+                    "mimeType": mime,
+                }
+            )
+            image_name_to_index_dict[image_name] = image_index
 
-        if "samplers" not in json_dict:
-            json_dict["samplers"] = []
-        sampler_index = len(json_dict["samplers"])
-        json_dict["samplers"].append(
-            {
-                "magFilter": filter_type,
-                "minFilter": filter_type,
-                "wrapS": wrap_type,
-                "wrapT": wrap_type,
-            }
-        )
+        sampler = {
+            "magFilter": filter_type,
+            "minFilter": filter_type,
+            "wrapS": wrap_type,
+            "wrapT": wrap_type,
+        }
+        if sampler in json_dict["samplers"]:
+            sampler_index = json_dict["samplers"].index(sampler)
+        else:
+            sampler_index = len(json_dict["samplers"])
+            json_dict["samplers"].append(sampler)
 
-        if "textures" not in json_dict:
-            json_dict["textures"] = []
         texture_index = len(json_dict["textures"])
         json_dict["textures"].append(
             {
@@ -795,6 +814,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict: Dict[str, Any],
         body_binary: bytearray,
         material: bpy.types.Material,
+        image_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         extensions_used = json_dict["extensionsUsed"]
 
@@ -837,7 +857,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             pbr_metallic_roughness_dict,
             "baseColorTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, root.pbr_metallic_roughness.base_color_texture
+                json_dict,
+                body_binary,
+                root.pbr_metallic_roughness.base_color_texture,
+                image_name_to_index_dict,
             ),
         )
         mtoon_dict["shadeColorFactor"] = list(mtoon.shade_color_factor)
@@ -845,14 +868,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "shadeMultiplyTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, mtoon.shade_multiply_texture
+                json_dict,
+                body_binary,
+                mtoon.shade_multiply_texture,
+                image_name_to_index_dict,
             ),
         )
         if assign_dict(
             material_dict,
             "normalTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, root.normal_texture
+                json_dict, body_binary, root.normal_texture, image_name_to_index_dict
             ),
         ):
             material_dict["normalTexture"]["scale"] = root.normal_texture.scale
@@ -864,14 +890,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             material_dict,
             "emissiveTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, root.emissive_texture
+                json_dict, body_binary, root.emissive_texture, image_name_to_index_dict
             ),
         )
         if assign_dict(
             mtoon_dict,
             "matcapTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, mtoon.matcap_texture
+                json_dict, body_binary, mtoon.matcap_texture, image_name_to_index_dict
             ),
         ):
             mtoon_dict["matcapFactor"] = list(mtoon.matcap_factor)
@@ -885,7 +911,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "rimMultiplyTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, mtoon.rim_multiply_texture
+                json_dict,
+                body_binary,
+                mtoon.rim_multiply_texture,
+                image_name_to_index_dict,
             ),
         )
         mtoon_dict["rimLightingMixFactor"] = mtoon.rim_lighting_mix_factor
@@ -895,7 +924,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "outlineWidthMultiplyTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, mtoon.outline_width_multiply_texture
+                json_dict,
+                body_binary,
+                mtoon.outline_width_multiply_texture,
+                image_name_to_index_dict,
             ),
         )
         mtoon_dict["outlineColorFactor"] = list(mtoon.outline_color_factor)
@@ -904,7 +936,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "uvAnimationMaskTexture",
             Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
-                json_dict, body_binary, mtoon.uv_animation_mask_texture
+                json_dict,
+                body_binary,
+                mtoon.uv_animation_mask_texture,
+                image_name_to_index_dict,
             ),
         )
         mtoon_dict[
@@ -931,6 +966,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         _body_binary: bytearray,
         material: bpy.types.Material,
         _node: bpy.types.Node,
+        _image_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         return {"name": material.name}
 
@@ -940,6 +976,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         _body_binary: bytearray,
         material: bpy.types.Material,
         _node: bpy.types.Node,
+        _image_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         return {"name": material.name}
 
@@ -949,6 +986,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         body_binary: bytearray,
         material: bpy.types.Material,
         node: bpy.types.Node,
+        image_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Any]:
         extensions_used = json_dict["extensionsUsed"]
 
@@ -1004,7 +1042,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             shader.get_rgba_val(node, "DiffuseColor", 0.0, 1.0),
         )
         base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-            json_dict, body_binary, node, "MainTexture"
+            json_dict, body_binary, node, "MainTexture", image_name_to_index_dict
         )
         assign_dict(
             pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
@@ -1016,7 +1054,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         )
         shade_multiply_texture_dict = (
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict, body_binary, node, "ShadeTexture"
+                json_dict, body_binary, node, "ShadeTexture", image_name_to_index_dict
             )
         )
         if shade_multiply_texture_dict is not None:
@@ -1025,11 +1063,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L185-L204
             mtoon_dict["shadeMultiplyTexture"] = base_color_texture_dict
         normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-            json_dict, body_binary, node, "NormalmapTexture"
+            json_dict, body_binary, node, "NormalmapTexture", image_name_to_index_dict
         )
         if not normal_texture_dict:
             normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict, body_binary, node, "NomalmapTexture"
+                json_dict,
+                body_binary,
+                node,
+                "NomalmapTexture",
+                image_name_to_index_dict,
             )
         if assign_dict(
             material_dict, "normalTexture", normal_texture_dict
@@ -1069,14 +1111,22 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             material_dict,
             "emissiveTexture",
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict, body_binary, node, "Emission_Texture"
+                json_dict,
+                body_binary,
+                node,
+                "Emission_Texture",
+                image_name_to_index_dict,
             ),
         )
         if assign_dict(
             mtoon_dict,
             "matcapTexture",
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict, body_binary, node, "SphereAddTexture"
+                json_dict,
+                body_binary,
+                node,
+                "SphereAddTexture",
+                image_name_to_index_dict,
             ),
         ):
             mtoon_dict["matcapFactor"] = [1, 1, 1]
@@ -1100,7 +1150,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "rimMultiplyTexture",
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict, body_binary, node, "RimTexture"
+                json_dict, body_binary, node, "RimTexture", image_name_to_index_dict
             ),
         )
 
@@ -1137,7 +1187,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "outlineWidthMultiplyTexture",
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict, body_binary, node, "OutlineWidthTexture"
+                json_dict,
+                body_binary,
+                node,
+                "OutlineWidthTexture",
+                image_name_to_index_dict,
             ),
         )
         assign_dict(
@@ -1164,7 +1218,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "uvAnimationMaskTexture",
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict, body_binary, node, "UV_Animation_Mask_Texture"
+                json_dict,
+                body_binary,
+                node,
+                "UV_Animation_Mask_Texture",
+                image_name_to_index_dict,
             ),
         )
         assign_dict(
@@ -1200,6 +1258,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         material_name_to_index_dict: Dict[str, int],
     ) -> None:
         material_dicts = json_dict["materials"]
+        image_name_to_index_dict: Dict[str, int] = {}
 
         for material_name, index in material_name_to_index_dict.items():
             material = bpy.data.materials.get(material_name)
@@ -1212,7 +1271,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 material_dicts[
                     index
                 ] = Gltf2AddonVrmExporter.create_mtoon1_material_dict(
-                    json_dict, body_binary, material
+                    json_dict, body_binary, material, image_name_to_index_dict
                 )
                 continue
 
@@ -1225,19 +1284,19 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 material_dicts[
                     index
                 ] = Gltf2AddonVrmExporter.create_mtoon_unversioned_material_dict(
-                    json_dict, body_binary, material, node
+                    json_dict, body_binary, material, node, image_name_to_index_dict
                 )
             elif shader_name == "GLTF":
                 material_dicts[
                     index
                 ] = Gltf2AddonVrmExporter.create_legacy_gltf_material_dict(
-                    json_dict, body_binary, material, node
+                    json_dict, body_binary, material, node, image_name_to_index_dict
                 )
             elif shader_name == "TRANSPARENT_ZWRITE":
                 material_dicts[
                     index
                 ] = Gltf2AddonVrmExporter.create_legacy_transparent_zwrite_material_dict(
-                    json_dict, body_binary, material, node
+                    json_dict, body_binary, material, node, image_name_to_index_dict
                 )
 
         if material_dicts:
