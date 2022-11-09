@@ -1728,7 +1728,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         self.link_reroutes("MaterialOutputSurface", connect)
 
 
-def reset_shader_node_group(material: bpy.types.Material) -> None:
+def reset_shader_node_group(
+    context: bpy.types.Context, material: bpy.types.Material
+) -> None:
     root = material.vrm_addon_extension.mtoon1
     mtoon = root.extensions.vrmc_materials_mtoon
 
@@ -1773,7 +1775,7 @@ def reset_shader_node_group(material: bpy.types.Material) -> None:
     uv_animation_scroll_y_speed_factor = mtoon.uv_animation_scroll_y_speed_factor
     uv_animation_rotation_speed_factor = mtoon.uv_animation_rotation_speed_factor
 
-    shader.load_mtoon1_shader(material)
+    shader.load_mtoon1_shader(context, material)
 
     root.pbr_metallic_roughness.base_color_factor = base_color_factor
     root.pbr_metallic_roughness.base_color_texture.restore(base_color_texture)

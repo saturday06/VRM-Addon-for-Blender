@@ -24,11 +24,11 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
         options={"HIDDEN"}  # noqa: F821
     )
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         material = bpy.data.materials.get(self.material_name)
         if not isinstance(material, bpy.types.Material):
             return {"CANCELLED"}
-        self.convert_material_to_mtoon1(material)
+        self.convert_material_to_mtoon1(context, material)
         return {"FINISHED"}
 
     @staticmethod
@@ -68,19 +68,24 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
             texture_info.index.sampler.wrap_s = wrap
             texture_info.index.sampler.wrap_t = wrap
 
-    def convert_material_to_mtoon1(self, material: bpy.types.Material) -> None:
+    def convert_material_to_mtoon1(
+        self, context: bpy.types.Context, material: bpy.types.Material
+    ) -> None:
         node = search.vrm_shader_node(material)
         if (
             isinstance(node, bpy.types.Node)
             and node.node_tree["SHADER"] == "MToon_unversioned"
         ):
-            self.convert_mtoon_unversioned_to_mtoon1(material, node)
+            self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
             return
 
-        reset_shader_node_group(material)
+        reset_shader_node_group(context, material)
 
     def convert_mtoon_unversioned_to_mtoon1(
-        self, material: bpy.types.Material, node: bpy.types.Node
+        self,
+        context: bpy.types.Context,
+        material: bpy.types.Material,
+        node: bpy.types.Node,
     ) -> None:
         transparent_with_z_write = False
         alpha_cutoff: Optional[float] = 0.5
@@ -250,7 +255,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
         if isinstance(uv_animation_scroll_y_speed_factor, float):
             uv_animation_scroll_y_speed_factor *= -1
 
-        shader.load_mtoon1_shader(material)
+        shader.load_mtoon1_shader(context, material)
 
         root = material.vrm_addon_extension.mtoon1
         mtoon = root.extensions.vrmc_materials_mtoon
@@ -409,9 +414,9 @@ class VRM_OT_reset_mtoon1_material_shader_node_group(bpy.types.Operator):  # typ
         options={"HIDDEN"}  # noqa: F821
     )
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         material = bpy.data.materials.get(self.material_name)
         if not isinstance(material, bpy.types.Material):
             return {"CANCELLED"}
-        reset_shader_node_group(material)
+        reset_shader_node_group(context, material)
         return {"FINISHED"}

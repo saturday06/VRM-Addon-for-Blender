@@ -31,7 +31,9 @@ def add_shaders() -> None:
                     data_to.node_groups.append(node_group)
 
 
-def load_mtoon1_shader(material: bpy.types.Material) -> None:
+def load_mtoon1_shader(
+    context: bpy.types.Context, material: bpy.types.Material
+) -> None:
     material_name = INTERNAL_NAME_PREFIX + "VrmAddonMToon1MaterialTemplate"
     old_material = bpy.data.materials.get(material_name)
     if old_material:
@@ -44,11 +46,23 @@ def load_mtoon1_shader(material: bpy.types.Material) -> None:
         old_template_uv_group.name += ".old"
 
     material_path = join(dirname(__file__), "mtoon1.blend") + "/Material"
-    material_append_result = bpy.ops.wm.append(
-        filepath=join(material_path, material_name),
-        filename=material_name,
-        directory=material_path,
-    )
+
+    # https://git.blender.org/gitweb/gitweb.cgi/blender.git/blob/v2.83:/source/blender/windowmanager/intern/wm_files_link.c#l84
+    if context.object is not None and context.object.mode == "EDIT":
+        bpy.ops.object.mode_set(mode="OBJECT")
+        edit_mode = True
+    else:
+        edit_mode = False
+    try:
+        material_append_result = bpy.ops.wm.append(
+            filepath=join(material_path, material_name),
+            filename=material_name,
+            directory=material_path,
+        )
+    finally:
+        if edit_mode:
+            bpy.ops.object.mode_set(mode="EDIT")
+
     if material_append_result != {"FINISHED"}:
         raise RuntimeError(
             "Failed to append MToon 1.0 template material: "
