@@ -178,15 +178,17 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         ]
 
         if up:
-            for link in down_links:
-                node_tree.links.remove(link)
             if not up_links:
                 node_tree.links.new(in_socket, up_socket)
-        else:
-            for link in up_links:
+            for link in down_links:
                 node_tree.links.remove(link)
+                break
+        else:
             if not down_links:
                 node_tree.links.new(in_socket, down_socket)
+            for link in up_links:
+                node_tree.links.remove(link)
+                break
 
 
 class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
