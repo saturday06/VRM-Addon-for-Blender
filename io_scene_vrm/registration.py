@@ -5,7 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-from typing import Any
+from typing import Any, Callable
 
 import bpy
 from bpy.app.handlers import persistent
@@ -43,42 +43,37 @@ from .locale.translation_dictionary import translation_dictionary
 
 logger = get_logger(__name__)
 
-if persistent:  # for fake-bpy-modules
+if not persistent:  # for fake-bpy-modules
 
-    @persistent  # type: ignore[misc]
-    def load_post(_dummy: Any) -> None:
-        shader.add_shaders()
-        migration.migrate_all_objects()
-        migration.setup_subscription(load_post=True)
-
-    @persistent  # type: ignore[misc]
-    def depsgraph_update_pre(_dummy: Any) -> None:
-        # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
-        # Blender起動直後のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
-        if depsgraph_update_pre not in bpy.app.handlers.depsgraph_update_pre:
-            return
-        bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
-        shader.add_shaders()
-        migration.migrate_all_objects()
-        migration.setup_subscription(load_post=False)
-
-    @persistent  # type: ignore[misc]
-    def save_pre(_dummy: Any) -> None:
-        # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
-        depsgraph_update_pre(None)
-        migration.migrate_all_objects()
-        extension.update_internal_cache(bpy.context)
-
-else:
-
-    def load_post(_dummy: Any) -> None:
+    def persistent(_func: Callable[[Any], None]) -> Callable[[Any], None]:
         raise NotImplementedError
 
-    def depsgraph_update_pre(_dummy: Any) -> None:
-        raise NotImplementedError
 
-    def save_pre(_dummy: Any) -> None:
-        raise NotImplementedError
+@persistent  # type: ignore[misc]
+def load_post(_dummy: Any) -> None:
+    shader.add_shaders()
+    migration.migrate_all_objects()
+    migration.setup_subscription(load_post=True)
+
+
+@persistent  # type: ignore[misc]
+def depsgraph_update_pre(_dummy: Any) -> None:
+    # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
+    # Blender起動直後のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
+    if depsgraph_update_pre not in bpy.app.handlers.depsgraph_update_pre:
+        return
+    bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
+    shader.add_shaders()
+    migration.migrate_all_objects()
+    migration.setup_subscription(load_post=False)
+
+
+@persistent  # type: ignore[misc]
+def save_pre(_dummy: Any) -> None:
+    # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
+    depsgraph_update_pre(None)
+    migration.migrate_all_objects()
+    extension.update_internal_cache(bpy.context)
 
 
 classes = [
