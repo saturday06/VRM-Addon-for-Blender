@@ -1,5 +1,6 @@
 import itertools
 import sys
+from collections import abc
 from math import radians, sqrt
 from typing import Any, Callable, Dict, List, Sequence, Set, Tuple
 
@@ -149,15 +150,23 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
         # endregion bone recursive func
         root_node_set = list(dict.fromkeys(self.parse_result.skins_root_node_list))
-        root_nodes = (
-            root_node_set
-            if root_node_set
-            else [
-                node
-                for scene in self.parse_result.json_dict["scenes"]
-                for node in scene["nodes"]
-            ]
-        )
+        if root_node_set:
+            root_nodes = root_node_set
+        else:
+            root_nodes = []
+            scene_dicts = self.parse_result.json_dict.get("scenes")
+            if not isinstance(scene_dicts, abc.Iterable):
+                scene_dicts = []
+            for scene_dict in scene_dicts:
+                if not isinstance(scene_dict, dict):
+                    continue
+                nodes = scene_dict.get("nodes")
+                if not isinstance(nodes, list):
+                    continue
+                for node in nodes:
+                    if not isinstance(node, int):
+                        continue
+                    root_nodes.append(node)
 
         # generate edit_bones sorted by node_id for deterministic vrm output
         def find_connected_node_ids(parent_node_ids: Sequence[int]) -> Set[int]:

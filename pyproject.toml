@@ -30,6 +30,7 @@ target-version = ['py37']
 [tool.mypy]
 python_version = 3.7
 strict = true
+enable_recursive_aliases = true
 
 [[tool.mypy.overrides]]
 module = [

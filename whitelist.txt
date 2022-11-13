@@ -61,6 +61,8 @@ filepath
 filetype
 filetypes
 fixup
+float3
+float4
 fmax
 fmin
 fragcode
@@ -144,7 +146,6 @@ parameteri
 parametrization
 pathsep
 pbr
-pbrmat
 pgettext
 pi2
 pos

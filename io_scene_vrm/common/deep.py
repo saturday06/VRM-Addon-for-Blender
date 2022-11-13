@@ -1,14 +1,23 @@
 import math
+from collections import abc
 from typing import Any, Dict, List, Union
 
 from .logging import get_logger
 
 logger = get_logger(__name__)
 
+Json = Union[
+    Dict[str, "Json"],
+    List["Json"],
+    str,
+    int,
+    float,
+    bool,
+    None,
+]
 
-def make_return_value(
-    v: Any,
-) -> Union[int, bool, float, str, List[Any], Dict[str, Any], None]:
+
+def make_json(v: Any) -> Json:
     if v is None:
         return None
     if isinstance(v, int):
@@ -19,20 +28,26 @@ def make_return_value(
         return v
     if isinstance(v, str):
         return v
-    if isinstance(v, list):
-        return v
-    if isinstance(v, dict):
-        return v
+    if isinstance(v, abc.Mapping):
+        result: Dict[str, Json] = {}
+        for key, value in v.items():
+            if isinstance(key, str):
+                result[key] = make_json(value)
+                continue
+            logger.warning(f"{key} {type(key)} is unrecognized type for dict key")
+        return result
+    if isinstance(v, abc.Iterable):
+        return [make_json(x) for x in v]
 
-    logger.warning(f"{v} is unrecognized type")
+    logger.warning(f"{v} {type(v)} is unrecognized type")
     return None
 
 
 def get(
-    json: Union[Dict[str, Any], List[Any], None],
+    json: Json,
     attrs: List[Union[int, str]],
-    default: Union[int, float, str, List[Any], Dict[str, Any], None] = None,
-) -> Union[int, bool, float, str, List[Any], Dict[str, Any], None]:
+    default: Json = None,
+) -> Json:
     if json is None:
         return default
 
@@ -40,28 +55,31 @@ def get(
 
     if isinstance(json, list) and isinstance(attr, int) and 0 <= attr < len(json):
         if not attrs:
-            return make_return_value(json[attr])
+            return make_json(json[attr])
         return get(json[attr], attrs, default)
 
     if isinstance(json, dict) and isinstance(attr, str) and attr in json:
         if not attrs:
-            return make_return_value(json[attr])
+            return make_json(json[attr])
         return get(json[attr], attrs, default)
 
     return default
 
 
 def get_list(
-    json: Union[Dict[str, Any], List[Any], None],
+    json: Json,
     attrs: List[Union[int, str]],
-    default: List[Any],
-) -> List[Any]:
+    default: List[Json],
+) -> List[Json]:
     result = get(json, attrs, default)
     return result if isinstance(result, list) else default
 
 
 def diff(
-    left: Any, right: Any, float_tolerance: float = 0, path: str = ""
+    left: Json,
+    right: Json,
+    float_tolerance: float = 0,
+    path: str = "",
 ) -> List[str]:
     if isinstance(left, list):
         if not isinstance(right, list):

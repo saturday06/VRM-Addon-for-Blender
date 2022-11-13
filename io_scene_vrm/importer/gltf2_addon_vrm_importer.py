@@ -8,7 +8,7 @@ import shutil
 import struct
 import tempfile
 from collections import abc
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import bgl
 import bpy
@@ -18,6 +18,7 @@ from mathutils import Matrix, Vector
 from .. import common
 from ..common import convert, deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
@@ -111,7 +112,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def assign_texture(
         self,
         texture: Mtoon1TexturePropertyGroup,
-        texture_dict: Dict[str, Any],
+        texture_dict: Dict[str, Json],
         linear: bool,
     ) -> None:
         source = texture_dict.get("source")
@@ -167,7 +168,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def assign_khr_texture_transform(
         self,
         khr_texture_transform: Mtoon1KhrTextureTransformPropertyGroup,
-        khr_texture_transform_dict: Dict[str, Any],
+        khr_texture_transform_dict: Dict[str, Json],
     ) -> None:
         offset = khr_texture_transform_dict.get("offset")
         if isinstance(offset, abc.Iterable):
@@ -184,7 +185,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def assign_texture_info(
         self,
         texture_info: Mtoon1TextureInfoPropertyGroup,
-        texture_info_dict: Dict[str, Any],
+        texture_info_dict: Dict[str, Json],
         non_color: bool,
     ) -> None:
         index = texture_info_dict.get("index")
@@ -207,7 +208,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
 
     def make_mtoon1_material(
-        self, material_index: int, gltf_dict: Dict[str, Any]
+        self, material_index: int, gltf_dict: Dict[str, Json]
     ) -> None:
         mtoon_dict = deep.get(gltf_dict, ["extensions", "VRMC_materials_mtoon"])
         if not isinstance(mtoon_dict, dict):
@@ -843,9 +844,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     del bone[extras_node_index_key]
                 if not isinstance(bone_node_index, int):
                     continue
-                if 0 <= bone_node_index < len(self.parse_result.json_dict["nodes"]):
-                    node = self.parse_result.json_dict["nodes"][bone_node_index]
-                    node["name"] = bone_name
+                node_dicts = self.parse_result.json_dict.get("nodes")
+                if not isinstance(node_dicts, list):
+                    continue
+                if 0 <= bone_node_index < len(node_dicts):
+                    node_dict = node_dicts[bone_node_index]
+                    if isinstance(node_dict, dict):
+                        node_dict["name"] = bone_name
                 self.bone_names[bone_node_index] = bone_name
                 if (
                     self.armature is not None
@@ -1517,7 +1522,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.load_node_constraint1()
         migration.migrate(armature.name, defer=False)
 
-    def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Any) -> None:
+    def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):
             return
 
@@ -1610,7 +1615,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             meta.other_license_url = str(other_license_url)
 
     def load_vrm1_humanoid(
-        self, humanoid: Vrm1HumanoidPropertyGroup, humanoid_dict: Any
+        self, humanoid: Vrm1HumanoidPropertyGroup, humanoid_dict: Json
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -1643,7 +1648,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_vrm1_first_person(
         self,
         first_person: Vrm1FirstPersonPropertyGroup,
-        first_person_dict: Any,
+        first_person_dict: Json,
     ) -> None:
         if not isinstance(first_person_dict, dict):
             return
@@ -1670,7 +1675,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_vrm1_look_at(
         self,
         look_at: Vrm1LookAtPropertyGroup,
-        look_at_dict: Any,
+        look_at_dict: Json,
         humanoid: Vrm1HumanoidPropertyGroup,
     ) -> None:
         if not isinstance(look_at_dict, dict):
@@ -1728,7 +1733,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_vrm1_expression(
         self,
         expression: Vrm1ExpressionPropertyGroup,
-        expression_dict: Any,
+        expression_dict: Json,
     ) -> None:
         if not isinstance(expression_dict, dict):
             return
@@ -1857,7 +1862,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_vrm1_expressions(
         self,
         expressions: Vrm1ExpressionsPropertyGroup,
-        expressions_dict: Any,
+        expressions_dict: Json,
     ) -> None:
         if not isinstance(expressions_dict, dict):
             return
@@ -1878,7 +1883,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_spring_bone1_colliders(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: Dict[str, Any],
+        spring_bone_dict: Dict[str, Json],
         armature: bpy.types.Object,
     ) -> Dict[int, SpringBone1ColliderPropertyGroup]:
         collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup] = {}
@@ -1995,7 +2000,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_spring_bone1_collider_groups(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: Dict[str, Any],
+        spring_bone_dict: Dict[str, Json],
         armature_data_name: str,
         collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup],
     ) -> Dict[int, SpringBone1ColliderGroupPropertyGroup]:
@@ -2054,7 +2059,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_spring_bone1_springs(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: Dict[str, Any],
+        spring_bone_dict: Dict[str, Json],
         armature_data_name: str,
         collider_group_index_to_collider_group: Dict[
             int, SpringBone1ColliderGroupPropertyGroup
@@ -2145,7 +2150,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_spring_bone1(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: Any,
+        spring_bone_dict: Json,
     ) -> None:
         if not isinstance(spring_bone_dict, dict):
             return
@@ -2222,7 +2227,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 constraint.owner_space = "LOCAL"
                 constraint.target_space = "LOCAL"
                 roll_axis = roll_dict.get("rollAxis")
-                if isinstance(object_or_bone, bpy.types.PoseBone):
+                if isinstance(object_or_bone, bpy.types.PoseBone) and isinstance(
+                    roll_axis, str
+                ):
                     roll_axis = VrmAddonBoneExtensionPropertyGroup.node_constraint_roll_axis_translation(
                         axis_translation,
                         roll_axis,
@@ -2243,7 +2250,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             elif isinstance(aim_dict, dict):
                 constraint = object_or_bone.constraints.new(type="DAMPED_TRACK")
                 aim_axis = aim_dict.get("aimAxis")
-                if isinstance(object_or_bone, bpy.types.PoseBone):
+                if isinstance(aim_axis, str) and isinstance(
+                    object_or_bone, bpy.types.PoseBone
+                ):
                     aim_axis = VrmAddonBoneExtensionPropertyGroup.node_constraint_aim_axis_translation(
                         axis_translation,
                         aim_axis,

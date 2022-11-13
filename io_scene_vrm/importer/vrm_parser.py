@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import tempfile
+from collections import abc
 from dataclasses import dataclass, field
 from itertools import repeat
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
@@ -20,6 +21,15 @@ from bpy.app.translations import pgettext
 
 from ..common import deep
 from ..common.binary_reader import BinaryReader
+from ..common.convert import (
+    deep_dict_or,
+    float3_or,
+    float4_or,
+    float_or,
+    int_or_none,
+    str_or,
+)
+from ..common.deep import Json
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon, MaterialTransparentZWrite
@@ -137,12 +147,12 @@ class ImageProperties:
 @dataclass
 class ParseResult:
     filepath: str
-    json_dict: Dict[str, Any] = field(default_factory=dict)
+    json_dict: Dict[str, Json] = field(default_factory=dict)
     spec_version_number: Tuple[int, int] = (0, 0)
     spec_version_str: str = "0.0"
     spec_version_is_stable: bool = True
-    vrm0_extension: Dict[str, Any] = field(init=False, default_factory=dict)
-    vrm1_extension: Dict[str, Any] = field(init=False, default_factory=dict)
+    vrm0_extension: Dict[str, Json] = field(init=False, default_factory=dict)
+    vrm1_extension: Dict[str, Json] = field(init=False, default_factory=dict)
     hips_node_index: int = 0
     image_properties: List[ImageProperties] = field(init=False, default_factory=list)
     meshes: List[List[PyMesh]] = field(init=False, default_factory=list)
@@ -153,95 +163,128 @@ class ParseResult:
     skins_root_node_list: List[int] = field(init=False, default_factory=list)
 
 
-def create_py_bone(node: Dict[str, Any]) -> PyNode:
+def create_py_bone(node: Dict[str, Json]) -> PyNode:
     v_node = PyNode(
-        name=node.get("name", "tmp"),
-        position=node.get("translation", [0, 0, 0]),
-        rotation=node.get("rotation", (0, 0, 0, 1)),
-        scale=node.get("scale", (1, 1, 1)),
+        name=str_or(node.get("name"), "tmp"),
+        position=float3_or(node.get("translation"), (0, 0, 0)),
+        rotation=float4_or(node.get("rotation"), (0, 0, 0, 1)),
+        scale=float3_or(node.get("scale"), (1, 1, 1)),
     )
-    if "children" in node:
-        children = node["children"]
-        if isinstance(children, int):
-            v_node.children = [children]
-        else:
-            v_node.children = children
+    children = node.get("children")
+    if isinstance(children, int):
+        v_node.children = [children]
+    elif isinstance(children, abc.Iterable):
+        v_node.children = [child for child in children if isinstance(child, int)]
     else:
         v_node.children = None
-    if "mesh" in node:
-        v_node.mesh_id = node["mesh"]
-    if "skin" in node:
-        v_node.skin_id = node["skin"]
+
+    mesh_id = node.get("mesh")
+    if isinstance(mesh_id, int):
+        v_node.mesh_id = mesh_id
+
+    skin_id = node.get("skin")
+    if isinstance(skin_id, int):
+        v_node.skin_id = skin_id
+
     return v_node
 
 
 def create_py_material(
-    mat: Dict[str, Any], ext_mat: Dict[str, Any]
+    mat: Dict[str, Json],
+    ext_mat: Dict[str, Json],
 ) -> Optional[PyMaterial]:
     shader = ext_mat.get("shader")
+    if not isinstance(shader, str):
+        return None
 
     # standard, or VRM unsupported shader(no saved)
     if shader not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]:
         gltf = PyMaterialGltf()
-        gltf.name = mat.get("name", "")
+        name = mat.get("name", "")
+        if isinstance(name, str):
+            gltf.name = name
         gltf.shader_name = "gltf"
-        if "pbrMetallicRoughness" in mat:
-            pbrmat = mat["pbrMetallicRoughness"]
-            if "baseColorTexture" in pbrmat and isinstance(
-                pbrmat["baseColorTexture"], dict
-            ):
-                texture_index = pbrmat["baseColorTexture"].get("index")
-                gltf.color_texture_index = texture_index
-                gltf.color_texcoord_index = pbrmat["baseColorTexture"].get("texCoord")
-            if "baseColorFactor" in pbrmat:
-                gltf.base_color = pbrmat["baseColorFactor"]
-            if "metallicFactor" in pbrmat:
-                gltf.metallic_factor = pbrmat["metallicFactor"]
-            if "roughnessFactor" in pbrmat:
-                gltf.roughness_factor = pbrmat["roughnessFactor"]
-            if "metallicRoughnessTexture" in pbrmat and isinstance(
-                pbrmat["metallicRoughnessTexture"], dict
-            ):
-                texture_index = pbrmat["metallicRoughnessTexture"].get("index")
-                gltf.metallic_roughness_texture_index = texture_index
-                gltf.metallic_roughness_texture_texcoord = pbrmat[
-                    "metallicRoughnessTexture"
-                ].get("texCoord")
 
-        if "normalTexture" in mat and isinstance(mat["normalTexture"], dict):
-            gltf.normal_texture_index = mat["normalTexture"].get("index")
-            gltf.normal_texture_texcoord_index = mat["normalTexture"].get("texCoord")
-        if "emissiveTexture" in mat and isinstance(mat["emissiveTexture"], dict):
-            gltf.emissive_texture_index = mat["emissiveTexture"].get("index")
-            gltf.emissive_texture_texcoord_index = mat["emissiveTexture"].get(
-                "texCoord"
+        pbr_metallic_roughness_dict = mat.get("pbrMetallicRoughness")
+        if isinstance(pbr_metallic_roughness_dict, dict):
+            base_color_texture_dict = pbr_metallic_roughness_dict.get(
+                "baseColorTexture"
             )
-        if "occlusionTexture" in mat and isinstance(mat["occlusionTexture"], dict):
-            gltf.occlusion_texture_index = mat["occlusionTexture"].get("index")
-            gltf.occlusion_texture_texcoord_index = mat["occlusionTexture"].get(
-                "texCoord"
+            if isinstance(base_color_texture_dict, dict):
+                gltf.color_texture_index = int_or_none(
+                    base_color_texture_dict.get("index")
+                )
+                gltf.color_texcoord_index = int_or_none(
+                    base_color_texture_dict.get("texCoord")
+                )
+            gltf.base_color = list(
+                float4_or(
+                    pbr_metallic_roughness_dict.get("baseColorFactor"), (1, 1, 1, 1)
+                )
             )
-        if "emissiveFactor" in mat:
-            gltf.emissive_factor = mat["emissiveFactor"]
+            gltf.metallic_factor = float_or(
+                pbr_metallic_roughness_dict.get("metallicFactor"), 1
+            )
+            gltf.roughness_factor = float_or(
+                pbr_metallic_roughness_dict.get("roughnessFactor"), 1
+            )
+            metallic_roughness_texture_dict = pbr_metallic_roughness_dict.get(
+                "metallicRoughnessTexture"
+            )
+            if isinstance(metallic_roughness_texture_dict, dict):
+                gltf.metallic_roughness_texture_index = int_or_none(
+                    metallic_roughness_texture_dict.get("index")
+                )
+                gltf.metallic_roughness_texture_texcoord = int_or_none(
+                    metallic_roughness_texture_dict.get("texCoord")
+                )
 
-        if "doubleSided" in mat:
-            gltf.double_sided = mat["doubleSided"]
-        if "alphaMode" in mat:
-            if mat["alphaMode"] == "MASK":
-                gltf.alpha_mode = "MASK"
-                if mat.get("alphaCutoff"):
-                    gltf.alphaCutoff = mat.get("alphaCutoff")
-                else:
-                    gltf.alphaCutoff = 0.5
-            elif mat["alphaMode"] == "BLEND":
-                gltf.alpha_mode = "Z_TRANSPARENCY"
-            elif mat["alphaMode"] == "OPAQUE":
-                gltf.alpha_mode = "OPAQUE"
-        if "extensions" in mat and "KHR_materials_unlit" in mat["extensions"]:
+        normal_texture_dict = mat.get("normalTexture")
+        if isinstance(normal_texture_dict, dict):
+            gltf.normal_texture_index = int_or_none(normal_texture_dict.get("index"))
+            gltf.normal_texture_texcoord_index = int_or_none(
+                normal_texture_dict.get("texCoord")
+            )
+
+        emissive_texture_dict = mat.get("emissiveTexture")
+        if isinstance(emissive_texture_dict, dict):
+            gltf.emissive_texture_index = int_or_none(
+                emissive_texture_dict.get("index")
+            )
+            gltf.emissive_texture_texcoord_index = int_or_none(
+                emissive_texture_dict.get("texCoord")
+            )
+
+        occlusion_texture_dict = mat.get("occlusionTexture")
+        if isinstance(occlusion_texture_dict, dict):
+            gltf.occlusion_texture_index = int_or_none(
+                occlusion_texture_dict.get("index")
+            )
+            gltf.occlusion_texture_texcoord_index = int_or_none(
+                occlusion_texture_dict.get("texCoord")
+            )
+
+        gltf.emissive_factor = list(float3_or(mat.get("emissiveFactor"), (0, 0, 0)))
+
+        gltf.double_sided = bool(mat.get("doubleSided"))
+
+        alpha_mode = mat.get("alphaMode")
+        if alpha_mode == "MASK":
+            gltf.alpha_mode = "MASK"
+            gltf.alphaCutoff = float_or(mat.get("alphaCutoff"), 0.5)
+        elif alpha_mode == "BLEND":
+            gltf.alpha_mode = "Z_TRANSPARENCY"
+        elif alpha_mode == "OPAQUE":
+            gltf.alpha_mode = "OPAQUE"
+
+        extensions = mat.get("extensions")
+        if isinstance(extensions, list) and "KHR_materials_unlit" in extensions:
             gltf.shadeless = 1  # 0 is shade ,1 is shadeless
 
-        if isinstance(ext_mat.get("extras"), dict) and isinstance(
-            ext_mat["extras"].get("VRM_Addon_for_Blender_legacy_gltf_material"), dict
+        extras_dict = ext_mat.get("extras")
+        if (
+            isinstance(extras_dict, dict)
+            and "VRM_Addon_for_Blender_legacy_gltf_material" in extras_dict
         ):
             gltf.vrm_addon_for_blender_legacy_gltf_material = True
         return gltf
@@ -249,17 +292,37 @@ def create_py_material(
     # "MToon or Transparent_Zwrite"
     if shader == "VRM/MToon":
         mtoon = PyMaterialMtoon()
-        mtoon.name = ext_mat.get("name", "")
-        mtoon.shader_name = ext_mat.get("shader", "")
+        mtoon.name = str_or(ext_mat.get("name"), "")
+        mtoon.shader_name = str_or(ext_mat.get("shader"), "")
+
         # region check unknown props exist
+        float_properties_dict = {
+            k: float(v)
+            for k, v in deep_dict_or(ext_mat.get("floatProperties"), {}).items()
+            if isinstance(v, (float, int))
+        }
+
+        vector_properties_dict = {
+            k: [float(v) for v in l if isinstance(v, (int, float))]
+            for k, l in deep_dict_or(ext_mat.get("vectorProperties"), {}).items()
+            if isinstance(l, list)
+        }
+
+        texture_properties_dict = {
+            k: v
+            for k, v in deep_dict_or(ext_mat.get("textureProperties"), {}).items()
+            if isinstance(v, int)
+        }
+
+        keyword_map_dict = {
+            k: bool(v) for k, v in deep_dict_or(ext_mat.get("keywordMap"), {}).items()
+        }
+
         subset = {
-            "float": ext_mat.get("floatProperties", {}).keys()
-            - mtoon.float_props_dict.keys(),
-            "vector": ext_mat.get("vectorProperties", {}).keys()
-            - mtoon.vector_props_dict.keys(),
-            "texture": ext_mat.get("textureProperties", {}).keys()
-            - mtoon.texture_index_dict.keys(),
-            "keyword": ext_mat.get("keywordMap", {}).keys() - mtoon.keyword_dict.keys(),
+            "float": float_properties_dict.keys() - mtoon.float_props_dict.keys(),
+            "vector": vector_properties_dict.keys() - mtoon.vector_props_dict.keys(),
+            "texture": texture_properties_dict.keys() - mtoon.texture_index_dict.keys(),
+            "keyword": keyword_map_dict.keys() - mtoon.keyword_dict.keys(),
         }
         for k, _subset in subset.items():
             if _subset:
@@ -267,20 +330,37 @@ def create_py_material(
                 logger.warning(f"Unknown {k} properties {_subset} in {ext_mat_name}")
         # endregion check unknown props exit
 
-        mtoon.float_props_dict.update(ext_mat.get("floatProperties", {}))
-        mtoon.vector_props_dict.update(ext_mat.get("vectorProperties", {}))
-        mtoon.texture_index_dict.update(ext_mat.get("textureProperties", {}))
-        mtoon.keyword_dict.update(ext_mat.get("keywordMap", {}))
-        mtoon.tag_dict.update(ext_mat.get("tagMap", {}))
+        mtoon.float_props_dict.update(float_properties_dict)
+        mtoon.vector_props_dict.update(vector_properties_dict)
+        mtoon.texture_index_dict.update(texture_properties_dict)
+        mtoon.keyword_dict.update(keyword_map_dict)
+        tag_map_dict = {
+            k: v
+            for k, v in deep_dict_or(ext_mat.get("tagMap"), {}).items()
+            if isinstance(v, str)
+        }
+        mtoon.tag_dict.update(tag_map_dict)
         return mtoon
 
     if shader == "VRM/UnlitTransparentZWrite":
         transparent_z_write = PyMaterialTransparentZWrite()
-        transparent_z_write.name = ext_mat.get("name", "")
-        transparent_z_write.shader_name = ext_mat.get("shader", "")
-        transparent_z_write.float_props_dict = ext_mat.get("floatProperties", {})
-        transparent_z_write.vector_props_dict = ext_mat.get("vectorProperties", {})
-        transparent_z_write.texture_index_dict = ext_mat.get("textureProperties", {})
+        transparent_z_write.name = str_or(ext_mat.get("name"), "")
+        transparent_z_write.shader_name = str_or(ext_mat.get("shader"), "")
+        transparent_z_write.float_props_dict = {
+            k: float(v)
+            for k, v in deep_dict_or(ext_mat.get("floatProperties"), {}).items()
+            if isinstance(v, (float, int))
+        }
+        transparent_z_write.vector_props_dict = {
+            k: [float(v) for v in l if isinstance(v, (int, float))]
+            for k, l in deep_dict_or(ext_mat.get("vectorProperties"), {}).items()
+            if isinstance(l, list)
+        }
+        transparent_z_write.texture_index_dict = {
+            k: v
+            for k, v in deep_dict_or(ext_mat.get("textureProperties"), {}).items()
+            if isinstance(v, int)
+        }
         return transparent_z_write
 
     # ここには入らないはず
@@ -442,12 +522,10 @@ class VrmParser:
 
         hips_node_index: Optional[int] = None
         for human_bone in human_bones:
-            if (
-                isinstance(human_bone, dict)
-                and human_bone.get("bone") == "hips"
-                and isinstance(human_bone.get("node"), int)
-            ):
-                hips_node_index = human_bone["node"]
+            if isinstance(human_bone, dict) and human_bone.get("bone") == "hips":
+                index = human_bone.get("node")
+                if isinstance(index, int):
+                    hips_node_index = index
 
         if not isinstance(hips_node_index, int):
             logger.warning("No hips bone index found")
@@ -652,9 +730,12 @@ class VrmParser:
             return
 
         for mat, ext_mat in zip(json_materials, vrm_extension_material_properties):
+            if not isinstance(ext_mat, dict):
+                continue
             material = create_py_material(mat, ext_mat)
-            if material is not None:
-                parse_result.materials.append(material)
+            if material is None:
+                continue
+            parse_result.materials.append(material)
 
         # skinをパース ->バイナリの中身はskinning実装の横着用
         # skinのjointsの(nodesの)indexをvertsのjoints_0は指定してる

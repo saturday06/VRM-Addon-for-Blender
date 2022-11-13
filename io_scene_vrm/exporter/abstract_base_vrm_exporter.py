@@ -1,11 +1,12 @@
 import secrets
 import string
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Dict, Optional, Tuple, Union
 
 import bpy
 
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.deep import Json, make_json
 
 
 class AbstractBaseVrmExporter(ABC):
@@ -97,12 +98,12 @@ class AbstractBaseVrmExporter(ABC):
 
 
 def assign_dict(
-    target: Dict[str, Any],
+    target: Dict[str, Json],
     key: str,
-    value: Union[int, float, Dict[str, Any], Sequence[Any], None],
-    default_value: Any = None,
+    value: Union[Json, Tuple[float, float, float], Tuple[float, float, float, float]],
+    default_value: Json = None,
 ) -> bool:
     if value is None or value == default_value:
         return False
-    target[key] = value
+    target[key] = make_json(value)
     return True

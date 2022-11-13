@@ -8,7 +8,7 @@ https://opensource.org/licenses/mit-license.php
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 
 # https://github.com/vrm-c/vrm-specification/tree/b5793b4ca250ed3acbde3dd7a47ee9ee1b3d60e9/specification/0.0#vrm-extension-models-bone-mapping-jsonextensionsvrmhumanoid
@@ -87,40 +87,8 @@ class HumanBoneName(Enum):
 
 
 # https://github.com/vrm-c/vrm.dev/blob/cd1d367417c53ba0f1d46588180c17b5e2768e22/docs/univrm/humanoid/humanoid_overview.md?plain=1#L99-L106
-HUMAN_BONE_STRUCTURE: Dict[
-    HumanBoneName,
-    Dict[
-        HumanBoneName,
-        Dict[
-            HumanBoneName,
-            Dict[
-                HumanBoneName,
-                Dict[
-                    HumanBoneName,
-                    Dict[
-                        HumanBoneName,
-                        Dict[
-                            HumanBoneName,
-                            Dict[
-                                HumanBoneName,
-                                Dict[
-                                    HumanBoneName,
-                                    Dict[
-                                        HumanBoneName,
-                                        Dict[
-                                            HumanBoneName,
-                                            Dict[HumanBoneName, None],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ],
-    ],
-] = {
+HumanBoneStructure = Dict[HumanBoneName, "HumanBoneStructure"]
+HUMAN_BONE_STRUCTURE: HumanBoneStructure = {
     HumanBoneName.HIPS: {
         HumanBoneName.SPINE: {
             HumanBoneName.CHEST: {
@@ -268,7 +236,7 @@ class HumanBoneSpecification:
     def find_parent_human_bone_name(
         child_human_bone_name: HumanBoneName,
         parent_human_bone_name: Optional[HumanBoneName],
-        human_bone_structure: Dict[HumanBoneName, Any],
+        human_bone_structure: HumanBoneStructure,
     ) -> Optional[HumanBoneName]:
         for (
             next_human_bone_name,
@@ -288,7 +256,7 @@ class HumanBoneSpecification:
     @staticmethod
     def find_children_human_bone_names(
         human_bone_name: HumanBoneName,
-        human_bone_structure: Dict[HumanBoneName, Dict[HumanBoneName, Any]],
+        human_bone_structure: HumanBoneStructure,
     ) -> List[HumanBoneName]:
         for (
             next_human_bone_name,

@@ -12,7 +12,7 @@ import math
 import uuid
 from abc import ABC, abstractmethod
 from collections import abc
-from typing import Any, Dict, List, Optional, Sequence, Set
+from typing import Dict, List, Optional, Sequence, Set
 
 import bgl
 import bpy
@@ -21,6 +21,7 @@ from mathutils import Matrix
 from .. import common
 from ..common import convert, deep
 from ..common.char import INTERNAL_NAME_PREFIX
+from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
@@ -307,9 +308,11 @@ class AbstractBaseVrmImporter(ABC):
             "textures" in self.parse_result.json_dict
             and len(json_textures) > json_texture_index
         ):
-            image_index = json_textures[json_texture_index].get("source")
-            if image_index in self.images:
-                self.images[image_index].use_fake_user = True
+            json_texture = json_textures[json_texture_index]
+            if isinstance(json_texture, dict):
+                image_index = json_texture.get("source")
+                if isinstance(image_index, int) and image_index in self.images:
+                    self.images[image_index].use_fake_user = True
 
     # region material
     @staticmethod
@@ -435,14 +438,27 @@ class AbstractBaseVrmImporter(ABC):
         tex_index: int,
         color_socket_to_connect: Optional[bpy.types.NodeSocketColor] = None,
         alpha_socket_to_connect: Optional[bpy.types.NodeSocketFloat] = None,
-    ) -> bpy.types.ShaderNodeTexImage:
-        tex = self.parse_result.json_dict["textures"][tex_index]
-        image_index = tex["source"]
-        sampler = (
-            self.parse_result.json_dict["samplers"][tex["sampler"]]
-            if "samplers" in self.parse_result.json_dict
-            else [{"wrapS": bgl.GL_REPEAT, "magFilter": bgl.GL_LINEAR}]
-        )
+    ) -> Optional[bpy.types.ShaderNodeTexImage]:
+        textures = self.parse_result.json_dict.get("textures")
+        if not isinstance(textures, list) or not 0 <= tex_index < len(textures):
+            return None
+        tex = textures[tex_index]
+        if not isinstance(tex, dict):
+            return None
+        image_index = tex.get("source")
+        if not isinstance(image_index, int):
+            return None
+        sampler_index = tex.get("sampler")
+        if not isinstance(sampler_index, int):
+            return None
+        sampler_dicts = self.parse_result.json_dict.get("samplers")
+        if not isinstance(sampler_dicts, abc.Sequence):
+            return None
+        if not 0 <= sampler_index < len(sampler_dicts):
+            return None
+        sampler_dict = sampler_dicts[sampler_index]
+        if not isinstance(sampler_dict, dict):
+            return None
         image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
         if image_index in self.images:
             image_node.image = self.images[image_index]
@@ -453,14 +469,12 @@ class AbstractBaseVrmImporter(ABC):
         else:
             image_node.label = "what_is_this_node"
         # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
-        filter_type = sampler["magFilter"] if "magFilter" in sampler else bgl.GL_LINEAR
-        if filter_type == bgl.GL_NEAREST:
+        if sampler_dict.get("magFilter") == bgl.GL_NEAREST:
             image_node.interpolation = "Closest"
         else:
             image_node.interpolation = "Linear"
         # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-        wrap_type = sampler["wrapS"] if "wrapS" in sampler else bgl.GL_REPEAT
-        if wrap_type in (bgl.GL_REPEAT, bgl.GL_MIRRORED_REPEAT):
+        if sampler_dict.get("wrapS") in (bgl.GL_REPEAT, bgl.GL_MIRRORED_REPEAT):
             image_node.extension = "REPEAT"
         else:
             image_node.extension = "EXTEND"
@@ -696,19 +710,21 @@ class AbstractBaseVrmImporter(ABC):
         for tex_name, tex_index in pymat.texture_index_dict.items():
             if tex_index is None:
                 continue
-            image_index = self.parse_result.json_dict["textures"][tex_index]["source"]
+            texture_dicts = self.parse_result.json_dict.get("textures")
+            if not isinstance(texture_dicts, list):
+                continue
+            if not 0 <= tex_index < len(texture_dicts):
+                continue
+            texture_dict = texture_dicts[tex_index]
+            if not isinstance(texture_dict, dict):
+                continue
+            image_index = texture_dict.get("source")
             if image_index not in self.images:
                 continue
             if tex_name not in tex_dict:
                 if "unknown_texture" not in b_mat:
                     b_mat["unknown_texture"] = {}
-                b_mat["unknown_texture"].update(
-                    {
-                        tex_name: self.parse_result.json_dict["textures"][tex_index][
-                            "name"
-                        ]
-                    }
-                )
+                b_mat["unknown_texture"].update({tex_name: texture_dict.get("name")})
                 logger.warning(f"Unknown texture {tex_name}")
             elif tex_name == "_MainTex":
                 main_tex_node = self.connect_texture_node(
@@ -717,7 +733,8 @@ class AbstractBaseVrmImporter(ABC):
                     sg.inputs[tex_dict[tex_name]],
                     sg.inputs[tex_dict[tex_name] + "Alpha"],
                 )
-                connect_uv_map_to_texture(main_tex_node)
+                if main_tex_node:
+                    connect_uv_map_to_texture(main_tex_node)
             elif tex_name == "_BumpMap":
                 # If .blend file already has VRM that is imported by older version,
                 # 'sg' has old 'MToon_unversioned', which has 'inputs["NomalmapTexture"]'. # noqa: SC100
@@ -731,32 +748,35 @@ class AbstractBaseVrmImporter(ABC):
                     tex_index,
                     color_socket_to_connect=sg.inputs[color_socket_name],
                 )
-                try:
-                    normalmap_node.image.colorspace_settings.name = "Non-Color"
-                except TypeError:  # non-colorが無いとき
-                    normalmap_node.image.colorspace_settings.name = (
-                        "Linear"  # 2.80 beta互換性コード
-                    )
-                connect_uv_map_to_texture(normalmap_node)
+                if normalmap_node:
+                    try:
+                        normalmap_node.image.colorspace_settings.name = "Non-Color"
+                    except TypeError:  # non-colorが無いとき
+                        normalmap_node.image.colorspace_settings.name = (
+                            "Linear"  # 2.80 beta互換性コード
+                        )
+                    connect_uv_map_to_texture(normalmap_node)
             elif tex_name == "_ReceiveShadowTexture":
                 rs_tex_node = self.connect_texture_node(
                     b_mat,
                     tex_index,
                     alpha_socket_to_connect=sg.inputs[tex_dict[tex_name] + "_alpha"],
                 )
-                connect_uv_map_to_texture(rs_tex_node)
+                if rs_tex_node:
+                    connect_uv_map_to_texture(rs_tex_node)
             elif tex_name == "_SphereAdd":
                 tex_node = self.connect_texture_node(
                     b_mat,
                     tex_index,
                     color_socket_to_connect=sg.inputs[tex_dict[tex_name]],
                 )
-                b_mat.node_tree.links.new(
-                    tex_node.inputs["Vector"],
-                    self.node_group_create(
-                        b_mat, sphere_add_vector_node_group_name
-                    ).outputs["Vector"],
-                )
+                if tex_node:
+                    b_mat.node_tree.links.new(
+                        tex_node.inputs["Vector"],
+                        self.node_group_create(
+                            b_mat, sphere_add_vector_node_group_name
+                        ).outputs["Vector"],
+                    )
             else:
                 if tex_dict.get(tex_name) is not None:  # Shade,Emissive,Rim,UVanimMask
                     other_tex_node = self.connect_texture_node(
@@ -764,7 +784,8 @@ class AbstractBaseVrmImporter(ABC):
                         tex_index,
                         color_socket_to_connect=sg.inputs[tex_dict[tex_name]],
                     )
-                    connect_uv_map_to_texture(other_tex_node)
+                    if other_tex_node:
+                        connect_uv_map_to_texture(other_tex_node)
                 else:
                     logger.warning(f"{tex_name} is unknown texture")
 
@@ -857,7 +878,7 @@ class AbstractBaseVrmImporter(ABC):
         )
         migration.migrate(armature.name, defer=False)
 
-    def load_vrm0_meta(self, meta: Vrm0MetaPropertyGroup, meta_dict: Any) -> None:
+    def load_vrm0_meta(self, meta: Vrm0MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):
             return
 
@@ -928,19 +949,22 @@ class AbstractBaseVrmImporter(ABC):
             meta.other_license_url = other_license_url
 
         texture = meta_dict.get("texture")
+        texture_dicts = self.parse_result.json_dict.get("textures")
         if (
             isinstance(texture, int)
-            and "textures" in self.parse_result.json_dict
+            and isinstance(texture_dicts, list)
             # extensions.VRM.meta.texture could be -1
             # https://github.com/vrm-c/UniVRM/issues/91#issuecomment-454284964
-            and 0 <= texture < len(self.parse_result.json_dict["textures"])
+            and 0 <= texture < len(texture_dicts)
         ):
-            image_index = self.parse_result.json_dict["textures"][texture]["source"]
-            if image_index in self.images:
-                meta.texture = self.images[image_index]
+            texture_dict = texture_dicts[texture]
+            if isinstance(texture_dict, dict):
+                image_index = texture_dict.get("source")
+                if isinstance(image_index, int) and image_index in self.images:
+                    meta.texture = self.images[image_index]
 
     def load_vrm0_humanoid(
-        self, humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Any
+        self, humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -1022,7 +1046,7 @@ class AbstractBaseVrmImporter(ABC):
     def load_vrm0_first_person(
         self,
         first_person: Vrm0FirstPersonPropertyGroup,
-        first_person_dict: Any,
+        first_person_dict: Json,
     ) -> None:
         if not isinstance(first_person_dict, dict):
             return
@@ -1103,7 +1127,7 @@ class AbstractBaseVrmImporter(ABC):
     def load_vrm0_blend_shape_master(
         self,
         blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
-        blend_shape_master_dict: Any,
+        blend_shape_master_dict: Json,
     ) -> None:
         if not isinstance(blend_shape_master_dict, dict):
             return
@@ -1190,7 +1214,7 @@ class AbstractBaseVrmImporter(ABC):
     def load_vrm0_secondary_animation(
         self,
         secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
-        secondary_animation_dict: Any,
+        secondary_animation_dict: Json,
     ) -> None:
         if not isinstance(secondary_animation_dict, dict):
             return

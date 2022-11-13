@@ -1,6 +1,8 @@
 from collections import abc
 from sys import float_info
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+from .deep import Json, make_json
 
 
 def vrm_json_vector3_to_tuple(
@@ -104,3 +106,78 @@ def get_shading_range_0x(
     range_min = shading_shift_0x
     range_max = (1 - shading_toony_0x) + shading_toony_0x * shading_shift_0x
     return (range_min, range_max)
+
+
+def int_or_none(v: Any) -> Optional[int]:
+    if isinstance(v, int):
+        return v
+    return None
+
+
+def float_or_none(v: Any) -> Optional[float]:
+    if isinstance(v, int):
+        return float(v)
+    if isinstance(v, float):
+        return v
+    return None
+
+
+def float_or(v: Any, default: float) -> float:
+    if isinstance(v, int):
+        return float(v)
+    if isinstance(v, float):
+        return v
+    return default
+
+
+def float4_or(
+    v: Any, default: Tuple[float, float, float, float]
+) -> Tuple[float, float, float, float]:
+    if not isinstance(v, abc.Iterable):
+        return default
+    result: List[float] = []
+    for x in v:
+        if len(result) == 4:
+            return default
+        if isinstance(x, float):
+            result.append(x)
+        elif isinstance(x, int):
+            result.append(float(x))
+        else:
+            return default
+    if len(result) != 4:
+        return default
+    return (result[0], result[1], result[2], result[3])
+
+
+def float3_or(
+    v: Any, default: Tuple[float, float, float]
+) -> Tuple[float, float, float]:
+    if not isinstance(v, abc.Iterable):
+        return default
+    result: List[float] = []
+    for x in v:
+        if len(result) == 3:
+            return default
+        if isinstance(x, float):
+            result.append(x)
+        elif isinstance(x, int):
+            result.append(float(x))
+        else:
+            return default
+    if len(result) != 3:
+        return default
+    return (result[0], result[1], result[2])
+
+
+def str_or(v: Any, default: str) -> str:
+    if isinstance(v, str):
+        return v
+    return default
+
+
+def deep_dict_or(v: Any, default: Dict[str, Json]) -> Dict[str, Json]:
+    d = make_json(v)
+    if isinstance(d, dict):
+        return d
+    return default
