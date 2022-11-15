@@ -423,33 +423,58 @@ def remove_unsafe_path_chars(filename: str) -> str:
 
 
 #  "accessorの順に" データを読み込んでリストにしたものを返す
-def decode_bin(json_dict: Dict[str, Any], binary: bytes) -> List[Any]:
+def decode_bin(
+    json_dict: Dict[str, Json], binary: bytes
+) -> List[List[Union[int, float, List[int], List[float]]]]:
     br = BinaryReader(binary)
     # This list indexed by accessor index
-    decoded_binary: List[Any] = []
-    buffer_views = json_dict["bufferViews"]
-    accessors = json_dict["accessors"]
+    decoded_binary: List[List[Union[int, float, List[int], List[float]]]] = []
+    buffer_view_dicts = json_dict["bufferViews"]
+    if not isinstance(buffer_view_dicts, list):
+        buffer_view_dicts = []
+    accessor_dicts = json_dict["accessors"]
+    if not isinstance(accessor_dicts, list):
+        return []
     type_num_dict = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
-    for accessor_index, accessor in enumerate(accessors):
-        type_num = type_num_dict[accessor["type"]]
-        if "bufferView" not in accessor:
+    for accessor_index, accessor_dict in enumerate(accessor_dicts):
+        if not isinstance(accessor_dict, dict):
+            continue
+        accessor_type = accessor_dict.get("type")
+        if not isinstance(accessor_type, str):
+            continue
+        type_num = type_num_dict.get(accessor_type)
+        if not isinstance(type_num, int):
+            logger.warning(f"Unrecognized accessor type: {accessor_type}")
+            continue
+        buffer_view_index = accessor_dict.get("bufferView")
+        if not isinstance(buffer_view_index, int):
             logger.warning(
                 f"accessors[{accessor_index}] doesn't have bufferView that is not implemented yet"
             )
             decoded_binary.append([])
             continue
-        br.set_pos(buffer_views[accessor["bufferView"]]["byteOffset"])
+        buffer_view_dict = buffer_view_dicts[buffer_view_index]
+        if not isinstance(buffer_view_dict, dict):
+            continue
+        buffer_view_byte_offset = buffer_view_dict.get("byteOffset")
+        if not isinstance(buffer_view_byte_offset, int):
+            buffer_view_byte_offset = 0
+        br.set_pos(buffer_view_byte_offset)
         data_list: List[Union[int, float, List[int], List[float]]] = []
-        for _ in range(accessor["count"]):
+        accessor_count = accessor_dict.get("count")
+        if not isinstance(accessor_count, int):
+            accessor_count = 0
+        component_type = accessor_dict.get("componentType")
+        if not isinstance(component_type, int):
+            raise ValueError(f"Unsupported component type: {component_type}")
+        for _ in range(accessor_count):
             if type_num == 1:
-                single_data = br.read_as_data_type(accessor["componentType"])
+                single_data = br.read_as_data_type(component_type)
                 data_list.append(single_data)
             else:
                 multiple_data = []
                 for _ in range(type_num):
-                    multiple_data.append(
-                        br.read_as_data_type(accessor["componentType"])
-                    )
+                    multiple_data.append(br.read_as_data_type(component_type))
                 data_list.append(multiple_data)
         decoded_binary.append(data_list)
 
@@ -463,8 +488,10 @@ class VrmParser:
     make_new_texture_folder: bool
     license_validation: bool
     legacy_importer: bool
-    decoded_binary: List[Any] = field(init=False, default_factory=list)
-    json_dict: Dict[str, Any] = field(init=False, default_factory=dict)
+    decoded_binary: List[List[Union[int, float, List[int], List[float]]]] = field(
+        init=False, default_factory=list
+    )
+    json_dict: Dict[str, Json] = field(init=False, default_factory=dict)
 
     def parse(self) -> ParseResult:
         # bin chunkは一つだけであることを期待
@@ -474,8 +501,9 @@ class VrmParser:
 
         if (
             self.legacy_importer
-            and "extensionsRequired" in self.json_dict
-            and "KHR_DRACO_MESH_COMPRESSION" in self.json_dict["extensionsRequired"]
+            and self.json_dict.get("extensionsRequired")
+            and isinstance(self.json_dict["extensionsRequired"], list)
+            and "KHR_draco_mesh_compression" in self.json_dict["extensionsRequired"]
         ):
             raise ValueError(
                 pgettext("This VRM uses Draco compression. Unable to decompress.")
@@ -509,7 +537,7 @@ class VrmParser:
             self.vrm0_extension_read(parse_result, vrm0_dict)
 
     def vrm0_extension_read(
-        self, parse_result: ParseResult, vrm0_dict: Dict[str, Any]
+        self, parse_result: ParseResult, vrm0_dict: Dict[str, Json]
     ) -> None:
         spec_version = vrm0_dict.get("specVersion")
         if isinstance(spec_version, str):
@@ -534,7 +562,7 @@ class VrmParser:
         parse_result.hips_node_index = hips_node_index
 
     def vrm1_extension_read(
-        self, parse_result: ParseResult, vrm1_dict: Dict[str, Any]
+        self, parse_result: ParseResult, vrm1_dict: Dict[str, Json]
     ) -> None:
         parse_result.vrm1_extension = vrm1_dict
         parse_result.spec_version_number = (1, 0)
@@ -553,7 +581,10 @@ class VrmParser:
         parse_result: ParseResult,
         body_binary: bytes,
     ) -> None:
-        buffer_views = self.json_dict["bufferViews"]
+        buffer_views = self.json_dict.get("bufferViews")
+        if not isinstance(buffer_views, list):
+            return
+
         binary_reader = BinaryReader(body_binary)
         if "images" not in self.json_dict:
             return
@@ -570,21 +601,47 @@ class VrmParser:
         else:
             dir_path = tempfile.mkdtemp()  # TODO: cleanup
 
-        for image_id, image_prop in enumerate(self.json_dict["images"]):
-            if "extra" in image_prop:
-                image_name = image_prop["extra"]["name"]
+        image_dicts = self.json_dict.get("images")
+        if not isinstance(image_dicts, list):
+            image_dicts = []
+        for image_index, image_dict in enumerate(image_dicts):
+            if not isinstance(image_dict, dict):
+                continue
+            if "extra" in image_dict:
+                image_name = deep.get(image_dict, ["extra", "name"])
             else:
-                image_name = image_prop["name"]
-            binary_reader.set_pos(buffer_views[image_prop["bufferView"]]["byteOffset"])
-            image_binary = binary_reader.read_binary(
-                buffer_views[image_prop["bufferView"]]["byteLength"]
-            )
-            image_type = image_prop["mimeType"].split("/")[-1]
-            if image_name == "":
-                image_name = "texture_" + str(image_id)
+                image_name = image_dict.get("name")
+
+            buffer_view_index = image_dict.get("bufferView")
+            if not isinstance(
+                buffer_view_index, int
+            ) or not 0 <= buffer_view_index < len(buffer_views):
+                continue
+
+            buffer_view_dict = buffer_views[buffer_view_index]
+            if not isinstance(buffer_view_dict, dict):
+                continue
+
+            byte_offset = buffer_view_dict.get("byteOffset")
+            if isinstance(byte_offset, int) and byte_offset >= 0:
+                binary_reader.set_pos(byte_offset)
+
+            byte_length = buffer_view_dict.get("byteLength")
+            if not isinstance(byte_length, int) or byte_length <= 0:
+                continue
+
+            image_binary = binary_reader.read_binary(byte_length)
+
+            mime_type = image_dict.get("mimeType")
+            if not isinstance(mime_type, str):
+                continue
+
+            image_type = mime_type.split("/")[-1]
+            if not image_name or not isinstance(image_name, str):
+                image_name = "texture_" + str(image_index)
                 logger.warning(f"No name image is named {image_name}")
             elif len(image_name) >= 50:
-                new_image_name = "tex_2longname_" + str(image_id)
+                new_image_name = "tex_2longname_" + str(image_index)
                 logger.warning(
                     f"Too long name image: {image_name} is named {new_image_name}"
                 )
@@ -626,46 +683,66 @@ class VrmParser:
 
     def mesh_read(self, parse_result: ParseResult) -> None:
         # メッシュをパースする
-        for n, mesh in enumerate(self.json_dict.get("meshes", [])):
+        mesh_dicts = self.json_dict.get("meshes")
+        if not isinstance(mesh_dicts, list):
+            return
+        for n, mesh_dict in enumerate(mesh_dicts):
+            if not isinstance(mesh_dict, dict):
+                continue
+            primitive_dicts = mesh_dict.get("primitives")
+            if not isinstance(primitive_dicts, list):
+                primitive_dicts = []
             primitives = []
-            for j, primitive in enumerate(mesh.get("primitives", [])):
+            for j, primitive_dict in enumerate(primitive_dicts):
+                if not isinstance(primitive_dict, dict):
+                    primitive_dict = {}
                 vrm_mesh = PyMesh(object_id=n)
+
+                mesh_name = mesh_dict.get("name")
+                if not isinstance(mesh_name, str):
+                    mesh_name = ""
                 if j == 0:  # mesh annotationとの兼ね合い
-                    vrm_mesh.name = mesh["name"]
+                    vrm_mesh.name = mesh_name
                 else:
-                    vrm_mesh.name = mesh["name"] + str(j)
+                    vrm_mesh.name = mesh_name + str(j)
 
                 vrm_mesh.has_FB_ngon_encoding = isinstance(
-                    deep.get(mesh, ["extensions", "FB_ngon_encoding"]), dict
+                    deep.get(mesh_dict, ["extensions", "FB_ngon_encoding"]), dict
                 )
 
                 # region 頂点index
-                if primitive.get("mode", 4) != bgl.GL_TRIANGLES:
+                if primitive_dict.get("mode", 4) != bgl.GL_TRIANGLES:
                     # TODO その他メッシュタイプ対応
-                    primitive_mode = primitive.get("mode")
+                    primitive_mode = primitive_dict.get("mode")
                     raise ValueError(f"Unsupported polygon type(:{primitive_mode})")
-                scalar_face_indices = self.decoded_binary[primitive["indices"]]
-                while len(scalar_face_indices) % 3 != 0:
-                    logger.warning(
-                        f"meshes[{n}]primitives[{j}] length is not a multiple of 3"
-                    )
-                    scalar_face_indices.append(0)
+                indices = primitive_dict.get("indices")
+                if isinstance(indices, int) and 0 <= indices < len(self.decoded_binary):
+                    scalar_face_indices: List[Any] = self.decoded_binary[indices]
+                    while len(scalar_face_indices) % 3 != 0:
+                        logger.warning(
+                            f"meshes[{n}]primitives[{j}] length is not a multiple of 3"
+                        )
+                        scalar_face_indices.append(0)
 
-                # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
-                vrm_mesh.face_indices = [
-                    scalar_face_indices[x : x + 3]
-                    for x in range(0, len(scalar_face_indices), 3)
-                ]
+                    # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
+                    vrm_mesh.face_indices = [
+                        scalar_face_indices[x : x + 3]
+                        for x in range(0, len(scalar_face_indices), 3)
+                    ]
 
                 # endregion 頂点index
 
                 # ここから頂点属性
-                vertex_attributes = primitive.get("attributes", {})
+                vertex_attributes = primitive_dict.get("attributes")
+                if not isinstance(vertex_attributes, dict):
+                    vertex_attributes = {}
                 # 頂点属性は実装によっては存在しない属性(例えばJOINTSやWEIGHTSがなかったりもする)もあるし、UVや頂点カラー0->Nで増やせる(スキニングは1要素(ボーン4本)限定
-                for attr in vertex_attributes.keys():
-                    vrm_mesh.__setattr__(
-                        attr, self.decoded_binary[vertex_attributes[attr]]
-                    )
+                for attr_key, attr_value in vertex_attributes.items():
+                    if not isinstance(attr_value, int) or not 0 <= attr_value < len(
+                        self.decoded_binary
+                    ):
+                        continue
+                    vrm_mesh.__setattr__(attr_key, self.decoded_binary[attr_value])
 
                 # region TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
                 legacy_uv_flag = False  # f***
@@ -690,27 +767,47 @@ class VrmParser:
                 # endregion TEXCOORD_FIX
 
                 # meshに当てられるマテリアルの場所を記録
-                vrm_mesh.material_index = primitive["material"]
+                material_index = primitive_dict.get("material")
+                if isinstance(material_index, int):
+                    vrm_mesh.material_index = material_index
 
                 # 変換時のキャッシュ対応のためのデータ
-                vrm_mesh.POSITION_accessor = primitive.get("attributes", {}).get(
-                    "POSITION"
-                )
+                attributes_dict = primitive_dict.get("attributes")
+                if isinstance(attributes_dict, dict):
+                    position_index = attributes_dict.get("POSITION")
+                    if isinstance(position_index, int):
+                        vrm_mesh.POSITION_accessor = position_index
 
                 # ここからモーフターゲット vrmのtargetは相対位置 normalは無視する
-                if "targets" in primitive:
+                if "targets" in primitive_dict:
                     morph_target_point_list_and_accessor_index_dict = {}
-                    for i, morph_target in enumerate(primitive["targets"]):
-                        pos_array = self.decoded_binary[morph_target["POSITION"]]
-                        if "extra" in morph_target:  # for old AliciaSolid
+                    morph_target_dicts = primitive_dict.get("targets")
+                    if not isinstance(morph_target_dicts, list):
+                        morph_target_dicts = []
+                    for i, morph_target_dict in enumerate(morph_target_dicts):
+                        if not isinstance(morph_target_dict, dict):
+                            continue
+                        position_index = morph_target_dict.get("POSITION")
+                        if not isinstance(
+                            position_index, int
+                        ) or not 0 <= position_index < len(self.decoded_binary):
+                            continue
+                        pos_array = self.decoded_binary[position_index]
+                        if "extra" in morph_target_dict:  # for old AliciaSolid
                             # accessorのindexを持つのは変換時のキャッシュ対応のため
-                            morph_name = str(primitive["targets"][i]["extra"]["name"])
+                            morph_name = str(
+                                deep.get(
+                                    primitive_dict, ["targets", i, "extra", "name"]
+                                )
+                            )
                         else:
-                            morph_name = str(primitive["extras"]["targetNames"][i])
+                            morph_name = str(
+                                deep.get(primitive_dict, ["extras", "targetNames", i])
+                            )
                             # 同上
                         morph_target_point_list_and_accessor_index_dict[morph_name] = [
                             pos_array,
-                            primitive["targets"][i]["POSITION"],
+                            deep.get(primitive_dict, ["targets", i, "POSITION"]),
                         ]
                     vrm_mesh.morph_target_point_list_and_accessor_index_dict = (
                         morph_target_point_list_and_accessor_index_dict
@@ -720,17 +817,19 @@ class VrmParser:
 
     # ここからマテリアル
     def material_read(self, parse_result: ParseResult) -> None:
-        json_materials = self.json_dict.get("materials", [])
+        material_dicts = self.json_dict.get("materials")
+        if not isinstance(material_dicts, list):
+            return
         vrm_extension_material_properties = deep.get(
             self.json_dict,
             ["extensions", "VRM", "materialProperties"],
-            default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(json_materials),
+            default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(material_dicts),
         )
         if not isinstance(vrm_extension_material_properties, list):
             return
 
-        for mat, ext_mat in zip(json_materials, vrm_extension_material_properties):
-            if not isinstance(ext_mat, dict):
+        for mat, ext_mat in zip(material_dicts, vrm_extension_material_properties):
+            if not isinstance(mat, dict) or not isinstance(ext_mat, dict):
                 continue
             material = create_py_material(mat, ext_mat)
             if material is None:
@@ -744,26 +843,44 @@ class VrmParser:
         # joints:JOINTS_0の指定node番号のindex
 
     def skin_read(self, parse_result: ParseResult) -> None:
-        for skin in self.json_dict.get("skins", []):
-            parse_result.skins_joints_list.append(skin["joints"])
-            if "skeleton" in skin:
-                parse_result.skins_root_node_list.append(skin["skeleton"])
+        skin_dicts = self.json_dict.get("skins")
+        if not isinstance(skin_dicts, list):
+            return
+        for skin_dict in skin_dicts:
+            if not isinstance(skin_dict, dict):
+                continue
+            joints = skin_dict.get("joints")
+            if not isinstance(joints, list):
+                joints = []
+            parse_result.skins_joints_list.append(
+                [joint for joint in joints if isinstance(joint, int)]
+            )
+            skeleton = skin_dict.get("skeleton")
+            if isinstance(skeleton, int):
+                parse_result.skins_root_node_list.append(skeleton)
 
         # node(ボーン)をパースする->親からの相対位置で記録されている
 
     def node_read(self, parse_result: ParseResult) -> None:
-        for i, node in enumerate(self.json_dict["nodes"]):
-            parse_result.nodes_dict[i] = create_py_bone(node)
+        node_dicts = self.json_dict.get("nodes")
+        if not isinstance(node_dicts, list):
+            return
+        for i, node_dict in enumerate(node_dicts):
+            if not isinstance(node_dict, dict):
+                continue
+            parse_result.nodes_dict[i] = create_py_bone(node_dict)
             # TODO こっからorigin_bone
-            if "mesh" in node:
+            mesh_index = node_dict.get("mesh")
+            if isinstance(mesh_index, int):
                 parse_result.origin_nodes_dict[i] = [
                     parse_result.nodes_dict[i],
-                    node["mesh"],
+                    mesh_index,
                 ]
-                if "skin" in node:
-                    parse_result.origin_nodes_dict[i].append(node["skin"])
+                skin_index = node_dict.get("skin")
+                if isinstance(skin_index, int):
+                    parse_result.origin_nodes_dict[i].append(skin_index)
                 else:
-                    logger.warning(f"{node.get('name')} is not have skin")
+                    logger.warning(f"{node_dict.get('name')} is not have skin")
 
 
 if __name__ == "__main__":

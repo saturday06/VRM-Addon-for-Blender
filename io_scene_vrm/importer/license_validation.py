@@ -1,9 +1,10 @@
 import contextlib
 import re
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
 from ..common import deep
+from ..common.deep import Json
 from ..external.fake_bpy_module_support import pgettext
 
 
@@ -113,7 +114,7 @@ def validate_uni_virtual_license_url(
     return True
 
 
-def validate_license(json_dict: Dict[str, Any]) -> None:
+def validate_license(json_dict: Dict[str, Json]) -> None:
     confirmations: List[LicenseConfirmationRequiredProp] = []
 
     # 既知の改変不可ライセンスを撥ねる

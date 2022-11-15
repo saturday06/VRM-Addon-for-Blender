@@ -2,11 +2,12 @@ import contextlib
 import json
 import uuid
 from collections import abc
-from typing import Any, Dict, List, Optional
+from typing import Dict, List
 
 import bpy
 
 from ...common import convert
+from ...common.deep import Json, make_json
 from ...common.vrm0.human_bone import HumanBoneSpecifications
 from ..property_group import BonePropertyGroup
 from .property_group import (
@@ -19,7 +20,7 @@ from .property_group import (
 )
 
 
-def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Optional[Any]:
+def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Json:
     text_key = armature.get(armature_key)
     if isinstance(text_key, bpy.types.Text):
         textblock = text_key
@@ -31,7 +32,7 @@ def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Option
             return None
     textblock_str = "".join([line.body for line in textblock.lines])
     with contextlib.suppress(json.JSONDecodeError):
-        return json.loads(textblock_str)
+        return make_json(json.loads(textblock_str))
     return None
 
 
@@ -110,7 +111,7 @@ def migrate_vrm0_meta(
 
 
 def migrate_vrm0_humanoid(
-    humanoid: bpy.types.PropertyGroup, humanoid_dict: Any
+    humanoid: bpy.types.PropertyGroup, humanoid_dict: Json
 ) -> None:
     if not isinstance(humanoid_dict, dict):
         return
@@ -150,7 +151,7 @@ def migrate_vrm0_humanoid(
 
 def migrate_vrm0_first_person(
     first_person: bpy.types.PropertyGroup,
-    first_person_dict: Any,
+    first_person_dict: Json,
 ) -> None:
     if not isinstance(first_person_dict, dict):
         return
@@ -236,7 +237,7 @@ def migrate_vrm0_first_person(
 
 def migrate_vrm0_blend_shape_groups(
     blend_shape_groups: bpy.types.PropertyGroup,
-    blend_shape_group_dicts: Any,
+    blend_shape_group_dicts: Json,
 ) -> None:
     if not isinstance(blend_shape_group_dicts, abc.Iterable):
         return
@@ -329,7 +330,7 @@ def migrate_vrm0_blend_shape_groups(
 
 def migrate_vrm0_secondary_animation(
     secondary_animation: bpy.types.PropertyGroup,
-    bone_group_dicts: Any,
+    bone_group_dicts: Json,
     armature: bpy.types.Object,
 ) -> None:
     bone_name_to_collider_objects: Dict[str, List[bpy.types.Object]] = {}
