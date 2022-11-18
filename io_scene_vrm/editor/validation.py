@@ -153,7 +153,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         if preferences:
             export_invisibles = bool(preferences.export_invisibles)
             export_only_selections = bool(preferences.export_only_selections)
-            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+            if preferences.enable_advanced_preferences:
+                export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
 
         if not version.supported():
             warning_messages.append(
@@ -161,14 +162,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     "The installed VRM add-on is not compatible with Blender {blender_version}. "
                     + " The VRM may not be exported correctly."
                 ).format(blender_version=".".join(map(str, bpy.app.version)))
-            )
-
-        if export_fb_ngon_encoding:
-            warning_messages.append(
-                pgettext(
-                    "The FB_ngon_encoding extension under development will be used. "
-                    + "The exported mesh may be corrupted."
-                )
             )
 
         export_objects = search.export_objects(
@@ -578,6 +571,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 )
 
         if armature is not None and armature.data.vrm_addon_extension.is_vrm0():
+            if export_fb_ngon_encoding:
+                warning_messages.append(
+                    pgettext(
+                        "The FB_ngon_encoding extension under development will be used. "
+                        + "The exported mesh may be corrupted."
+                    )
+                )
+
             # region first_person
             first_person = armature.data.vrm_addon_extension.vrm0.first_person
             if not first_person.first_person_bone.value:
