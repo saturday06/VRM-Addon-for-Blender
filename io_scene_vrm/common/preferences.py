@@ -105,9 +105,17 @@ def use_legacy_importer_exporter() -> bool:
     return tuple(bpy.app.version) < (2, 83)
 
 
-def get_preferences(context: bpy.types.Context) -> Optional[bpy.types.AddonPreferences]:
+def get_preferences(context: bpy.types.Context) -> Optional[VrmAddonPreferences]:
     addon = context.preferences.addons.get(addon_package_name)
-    if addon:
-        return addon.preferences
-    logger.warning(f"Failed to read add-on preferences for {addon_package_name}")
-    return None
+    if not addon:
+        logger.warning(f"Failed to read add-on preferences for {addon_package_name}")
+        return None
+
+    preferences = addon.preferences
+    if not isinstance(preferences, VrmAddonPreferences):
+        logger.error(
+            f"Add-on preferences for {addon_package_name} is not a VrmAddonPreferences"
+        )
+        return None
+
+    return preferences
