@@ -2,7 +2,7 @@ from typing import Tuple
 
 import bpy
 
-MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (3, 3)
+MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (3, 4)
 
 
 # To avoid circular reference
