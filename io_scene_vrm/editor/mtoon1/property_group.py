@@ -124,7 +124,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         out_node_name = base_node_name + "Out"
         out_node = node_tree.nodes.get(out_node_name)
         if not isinstance(in_node, bpy.types.NodeReroute):
-            logger.warning(f'No node reroute "{in_node_name}"')
+            # logger.warning(f'No node reroute "{in_node_name}"')
             return
         if not isinstance(out_node, bpy.types.NodeReroute):
             logger.warning(f'No node reroute "{out_node_name}"')

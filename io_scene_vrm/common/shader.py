@@ -398,17 +398,13 @@ def copy_node(
 def clear_node_tree(
     node_tree: bpy.types.NodeTree, clear_inputs_outputs: bool = False
 ) -> None:
-    logger.warning("Clear Node Tree")
-
     # node_tree.links.clear()
     while node_tree.links:
         node_tree.links.remove(node_tree.links[0])
-    logger.warning("Clear Node Tree: links have been cleared")
 
     # node_tree.nodes.clear()
     while node_tree.nodes:
         node_tree.nodes.remove(node_tree.nodes[0])
-    logger.warning("Clear Node Tree: nodes have been cleared")
 
     if not clear_inputs_outputs:
         return
@@ -416,12 +412,10 @@ def clear_node_tree(
     # node_tree.inputs.clear()
     while node_tree.inputs:
         node_tree.inputs.remove(node_tree.inputs[0])
-    logger.warning("Clear Node Tree: inputs have been cleared")
 
     # node_tree.outputs.clear()
     while node_tree.outputs:
         node_tree.outputs.remove(node_tree.outputs[0])
-    logger.warning("Clear Node Tree: outputs have been cleared")
 
 
 def copy_node_tree(
