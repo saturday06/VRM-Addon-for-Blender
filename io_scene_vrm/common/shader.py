@@ -85,9 +85,9 @@ def load_mtoon1_shader(
             mtoon1.link_material_output_surface(connect=False)
         copy_node_tree(template_material.node_tree, material.node_tree)
     finally:
-        if template_material:
+        if template_material and template_material.users <= 1:
             bpy.data.materials.remove(template_material)
-        if template_uv_group:
+        if template_uv_group and template_uv_group.users <= 1:
             bpy.data.node_groups.remove(template_uv_group)
 
 
