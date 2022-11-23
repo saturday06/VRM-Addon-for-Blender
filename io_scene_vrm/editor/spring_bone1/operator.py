@@ -13,7 +13,7 @@ class VRM_OT_add_spring_bone1_collider(  # noqa: N801
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
@@ -35,18 +35,19 @@ class VRM_OT_remove_spring_bone1_collider(  # noqa: N801
     bl_description = "Remove VRM 0.x Collider"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        spring_bone = armature.vrm_addon_extension.spring_bone1
+        spring_bone = armature.data.vrm_addon_extension.spring_bone1
         colliders = spring_bone.colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
@@ -87,15 +88,15 @@ class VRM_OT_add_spring_bone1_spring(  # noqa: N801
     bl_description = "Add VRM 1.0 Spring"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        spring = armature.vrm_addon_extension.spring_bone1.springs.add()
+        spring = armature.data.vrm_addon_extension.spring_bone1.springs.add()
         spring.vrm_name = "Spring"
         return {"FINISHED"}
 
@@ -108,18 +109,19 @@ class VRM_OT_remove_spring_bone1_spring(  # noqa: N801
     bl_description = "Remove VRM 1.0 Spring"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.vrm_addon_extension.spring_bone1.springs
+        springs = armature.data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         springs.remove(self.spring_index)
@@ -132,15 +134,17 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):  # type: ignor
     bl_description = "Add VRM 1.0 Spring Bone Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        collider_group = armature.vrm_addon_extension.spring_bone1.collider_groups.add()
+        collider_group = (
+            armature.data.vrm_addon_extension.spring_bone1.collider_groups.add()
+        )
         collider_group.vrm_name = "Collider Group"
         collider_group.uuid = uuid.uuid4().hex
         return {"FINISHED"}
@@ -152,18 +156,19 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):  # type: ig
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        spring_bone = armature.vrm_addon_extension.spring_bone1
+        spring_bone = armature.data.vrm_addon_extension.spring_bone1
         collider_groups = spring_bone.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
@@ -192,18 +197,19 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):  # ty
     bl_description = "Add VRM 1.0 Spring Bone Collider Group Collider"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        collider_groups = armature.vrm_addon_extension.spring_bone1.collider_groups
+        collider_groups = armature.data.vrm_addon_extension.spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_groups[self.collider_group_index].colliders.add()
@@ -216,21 +222,23 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):  #
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group Collider"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
     collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        collider_groups = armature.vrm_addon_extension.spring_bone1.collider_groups
+        collider_groups = armature.data.vrm_addon_extension.spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         colliders = collider_groups[self.collider_group_index].colliders
@@ -246,18 +254,19 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):  # type
     bl_description = "Add VRM 1.0 Spring Bone Spring Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.vrm_addon_extension.spring_bone1.springs
+        springs = armature.data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         springs[self.spring_index].collider_groups.add()
@@ -270,21 +279,23 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):  # t
     bl_description = "Remove VRM 1.0 Spring Bone Spring Collider Group"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.vrm_addon_extension.spring_bone1.springs
+        springs = armature.data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         collider_groups = springs[self.spring_index].collider_groups
@@ -300,18 +311,19 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):  # type: ignore[
     bl_description = "Add VRM 1.0 Spring Bone Spring Joint"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.vrm_addon_extension.spring_bone1.springs
+        springs = armature.data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         springs[self.spring_index].joints.add()
@@ -324,21 +336,23 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):  # type: igno
     bl_description = "Remove VRM 1.0 Spring Bone Spring Joint"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
     joint_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.vrm_addon_extension.spring_bone1.springs
+        springs = armature.data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         joints = springs[self.spring_index].joints

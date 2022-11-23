@@ -355,12 +355,12 @@ def draw_vrm1_first_person_layout(
             text="Remove",
             icon="REMOVE",
         )
-        remove_mesh_annotation_op.armature_data_name = armature.data.name
+        remove_mesh_annotation_op.armature_name = armature.name
         remove_mesh_annotation_op.mesh_annotation_index = mesh_annotation_index
     add_mesh_annotation_op = box.operator(
         vrm1_operator.VRM_OT_add_vrm1_first_person_mesh_annotation.bl_idname
     )
-    add_mesh_annotation_op.armature_data_name = armature.data.name
+    add_mesh_annotation_op.armature_name = armature.name
 
 
 class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
@@ -583,7 +583,7 @@ def draw_vrm1_expression_layout(
                 vrm1_operator.VRM_OT_remove_vrm1_expression_morph_target_bind.bl_idname,
                 icon="REMOVE",
             )
-            remove_bind_op.armature_data_name = armature.data.name
+            remove_bind_op.armature_name = armature.name
             remove_bind_op.expression_name = name
             remove_bind_op.bind_index = bind_index
 
@@ -591,7 +591,7 @@ def draw_vrm1_expression_layout(
             vrm1_operator.VRM_OT_add_vrm1_expression_morph_target_bind.bl_idname,
             icon="ADD",
         )
-        add_bind_op.armature_data_name = armature.data.name
+        add_bind_op.armature_name = armature.name
         add_bind_op.expression_name = name
 
     row = box.row()
@@ -615,14 +615,14 @@ def draw_vrm1_expression_layout(
                 vrm1_operator.VRM_OT_remove_vrm1_expression_material_color_bind.bl_idname,
                 icon="REMOVE",
             )
-            remove_bind_op.armature_data_name = armature.data.name
+            remove_bind_op.armature_name = armature.name
             remove_bind_op.expression_name = name
             remove_bind_op.bind_index = bind_index
         add_bind_op = box.operator(
             vrm1_operator.VRM_OT_add_vrm1_expression_material_color_bind.bl_idname,
             icon="ADD",
         )
-        add_bind_op.armature_data_name = armature.data.name
+        add_bind_op.armature_name = armature.name
         add_bind_op.expression_name = name
 
     row = box.row()
@@ -646,14 +646,14 @@ def draw_vrm1_expression_layout(
                 vrm1_operator.VRM_OT_remove_vrm1_expression_texture_transform_bind.bl_idname,
                 icon="REMOVE",
             )
-            remove_bind_op.armature_data_name = armature.data.name
+            remove_bind_op.armature_name = armature.name
             remove_bind_op.expression_name = name
             remove_bind_op.bind_index = bind_index
         add_bind_op = box.operator(
             vrm1_operator.VRM_OT_add_vrm1_expression_texture_transform_bind.bl_idname,
             icon="ADD",
         )
-        add_bind_op.armature_data_name = armature.data.name
+        add_bind_op.armature_name = armature.name
         add_bind_op.expression_name = name
 
     box.prop(expression, "is_binary", icon="IPO_CONSTANT")
@@ -666,7 +666,7 @@ def draw_vrm1_expression_layout(
             vrm1_operator.VRM_OT_remove_vrm1_expressions_custom_expression.bl_idname,
             icon="REMOVE",
         )
-        remove_custom_expression_op.armature_data_name = armature.data.name
+        remove_custom_expression_op.armature_name = armature.name
         remove_custom_expression_op.custom_expression_name = name
 
 
@@ -693,7 +693,7 @@ def draw_vrm1_expressions_layout(
         icon="ADD",
     )
     add_custom_expression_op.custom_expression_name = "New"
-    add_custom_expression_op.armature_data_name = armature.data.name
+    add_custom_expression_op.armature_name = armature.name
 
 
 class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
@@ -779,12 +779,12 @@ def draw_vrm1_meta_layout(
                 text="Remove",
                 icon="REMOVE",
             )
-            remove_author_op.armature_data_name = armature.data.name
+            remove_author_op.armature_name = armature.name
             remove_author_op.author_index = author_index
     add_author_op = authors_box.operator(
         vrm1_operator.VRM_OT_add_vrm1_meta_author.bl_idname
     )
-    add_author_op.armature_data_name = armature.data.name
+    add_author_op.armature_name = armature.name
 
     layout.prop(meta, "copyright_information")
     layout.prop(meta, "contact_information")
@@ -806,12 +806,12 @@ def draw_vrm1_meta_layout(
                 text="Remove",
                 icon="REMOVE",
             )
-            remove_reference_op.armature_data_name = armature.data.name
+            remove_reference_op.armature_name = armature.name
             remove_reference_op.reference_index = reference_index
     add_reference_op = references_box.operator(
         vrm1_operator.VRM_OT_add_vrm1_meta_reference.bl_idname
     )
-    add_reference_op.armature_data_name = armature.data.name
+    add_reference_op.armature_name = armature.name
 
     layout.prop(meta, "third_party_licenses")
     # layout.prop(meta, "license_url", icon="URL")

@@ -2018,7 +2018,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: Dict[str, Json],
-        armature_data_name: str,
+        armature_name: str,
         collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup],
     ) -> Dict[int, SpringBone1ColliderGroupPropertyGroup]:
         collider_group_index_to_collider_group: Dict[
@@ -2032,10 +2032,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             collider_group_dicts
         ):
             if bpy.ops.vrm.add_spring_bone1_collider_group(
-                armature_data_name=armature_data_name
+                armature_name=armature_name
             ) != {"FINISHED"}:
                 raise Exception(
-                    f"Failed to add spring bone 1.0 collider group to {armature_data_name}"
+                    f"Failed to add spring bone 1.0 collider group to {armature_name}"
                 )
 
             if not isinstance(collider_group_dict, dict):
@@ -2056,12 +2056,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             for collider_index in collider_indices:
                 if bpy.ops.vrm.add_spring_bone1_collider_group_collider(
-                    armature_data_name=armature_data_name,
+                    armature_name=armature_name,
                     collider_group_index=collider_group_index,
                 ) != {"FINISHED"}:
                     raise Exception(
                         "Failed to assign spring bone 1.0 collider to collider group "
-                        + f"{collider_group_index} in {armature_data_name}"
+                        + f"{collider_group_index} in {armature_name}"
                     )
                 if not isinstance(collider_index, int):
                     continue
@@ -2077,7 +2077,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: Dict[str, Json],
-        armature_data_name: str,
+        armature_name: str,
         collider_group_index_to_collider_group: Dict[
             int, SpringBone1ColliderGroupPropertyGroup
         ],
@@ -2087,9 +2087,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             spring_dicts = []
 
         for spring_dict in spring_dicts:
-            if bpy.ops.vrm.add_spring_bone1_spring(
-                armature_data_name=armature_data_name
-            ) != {"FINISHED"} or not isinstance(spring_dict, dict):
+            if bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature_name) != {
+                "FINISHED"
+            } or not isinstance(spring_dict, dict):
                 continue
 
             spring = spring_bone.springs[-1]
@@ -2109,7 +2109,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 joint_dicts = []
             for joint_dict in joint_dicts:
                 if bpy.ops.vrm.add_spring_bone1_spring_joint(
-                    armature_data_name=armature_data_name,
+                    armature_name=armature_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:
                     continue
@@ -2150,7 +2150,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 collider_group_indices = []
             for collider_group_index in collider_group_indices:
                 if bpy.ops.vrm.add_spring_bone1_spring_collider_group(
-                    armature_data_name=armature_data_name,
+                    armature_name=armature_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:
                     continue
@@ -2181,13 +2181,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         collider_group_index_to_collider_group = self.load_spring_bone1_collider_groups(
             spring_bone,
             spring_bone_dict,
-            armature.data.name,
+            armature.name,
             collider_index_to_collider,
         )
         self.load_spring_bone1_springs(
             spring_bone,
             spring_bone_dict,
-            armature.data.name,
+            armature.name,
             collider_group_index_to_collider_group,
         )
 

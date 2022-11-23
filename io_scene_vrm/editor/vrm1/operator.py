@@ -18,15 +18,15 @@ class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc] # n
     bl_description = "Add VRM 1.0 Meta Author"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.vrm_addon_extension.vrm1.meta.authors.add()
+        armature.data.vrm_addon_extension.vrm1.meta.authors.add()
         return {"FINISHED"}
 
 
@@ -36,16 +36,19 @@ class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc] 
     bl_description = "Remove VRM 1.0 Meta Author"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    author_index: bpy.props.IntProperty()  # type: ignore[valid-type]
+    author_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        authors = armature.vrm_addon_extension.vrm1.meta.authors
+        authors = armature.data.vrm_addon_extension.vrm1.meta.authors
         if len(authors) <= self.author_index:
             return {"CANCELLED"}
         authors.remove(self.author_index)
@@ -58,15 +61,15 @@ class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[misc] 
     bl_description = "Add VRM 1.0 Meta Reference"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.vrm_addon_extension.vrm1.meta.references.add()
+        armature.data.vrm_addon_extension.vrm1.meta.references.add()
         return {"FINISHED"}
 
 
@@ -76,16 +79,19 @@ class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[mis
     bl_description = "Remove VRM 1.0 Meta Reference"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    reference_index: bpy.props.IntProperty()  # type: ignore[valid-type]
+    reference_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        references = armature.vrm_addon_extension.vrm1.meta.references
+        references = armature.data.vrm_addon_extension.vrm1.meta.references
         if len(references) <= self.reference_index:
             return {"CANCELLED"}
         references.remove(self.reference_index)
@@ -98,16 +104,20 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):  # type
     bl_description = "Add VRM 1.0 Custom Expression"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    custom_expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        custom_expression = armature.vrm_addon_extension.vrm1.expressions.custom.add()
+        custom_expression = (
+            armature.data.vrm_addon_extension.vrm1.expressions.custom.add()
+        )
         custom_expression.custom_name = self.custom_expression_name
         return {"FINISHED"}
 
@@ -118,20 +128,22 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # t
     bl_description = "Remove VRM 1.0 Custom Expression"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    custom_expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if not isinstance(armature, bpy.types.Armature):
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         for custom_index, custom_expression in enumerate(
-            list(armature.vrm_addon_extension.vrm1.expressions.custom.values())
+            list(armature.data.vrm_addon_extension.vrm1.expressions.custom.values())
         ):
             if custom_expression.custom_name == self.custom_expression_name:
-                armature.vrm_addon_extension.vrm1.expressions.custom.remove(
+                armature.data.vrm_addon_extension.vrm1.expressions.custom.remove(
                     custom_index
                 )
                 return {"FINISHED"}
@@ -144,15 +156,15 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # type:
     bl_description = "Add VRM 1.0 First Person Mesh Annotation"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.vrm_addon_extension.vrm1.first_person.mesh_annotations.add()
+        armature.data.vrm_addon_extension.vrm1.first_person.mesh_annotations.add()
         return {"FINISHED"}
 
 
@@ -162,19 +174,20 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # ty
     bl_description = "Remove VRM 1.0 First Person Mesh Annotation"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
     mesh_annotation_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         mesh_annotations = (
-            armature.vrm_addon_extension.vrm1.first_person.mesh_annotations
+            armature.data.vrm_addon_extension.vrm1.first_person.mesh_annotations
         )
         if len(mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
@@ -189,10 +202,11 @@ class VRM_OT_add_vrm1_material_value_bind(bpy.types.Operator):  # type: ignore[m
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
@@ -215,13 +229,15 @@ class VRM_OT_remove_vrm1_material_value_bind(bpy.types.Operator):  # type: ignor
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
@@ -249,13 +265,15 @@ class VRM_OT_add_vrm1_material_value_bind_target_value(bpy.types.Operator):  # t
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
@@ -283,16 +301,19 @@ class VRM_OT_remove_vrm1_material_value_bind_target_value(bpy.types.Operator):  
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
     target_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
@@ -322,16 +343,18 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type:
     bl_description = "Add VRM 1.0 Expression Morph Target Bind"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.vrm_addon_extension.vrm1.expressions
+        expressions = armature.data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -345,19 +368,22 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):  # ty
     bl_description = "Remove VRM 1.0 Expression Morph Target Bind"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.vrm_addon_extension.vrm1.expressions
+        expressions = armature.data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -373,16 +399,18 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):  # typ
     bl_description = "Add VRM 1.0 Expression Material Value Bind"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
+        expression = armature.data.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
         if expression is None:
@@ -397,21 +425,23 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):  # 
     bl_description = "Remove VRM 1.0 Expression Material Color Bind"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
-            self.expression_name
-        )
+        expressions = armature.data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
         if len(expression.material_color_binds) <= self.bind_index:
@@ -426,18 +456,19 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # 
     bl_description = "Add VRM 1.0 Expression Texture Transform Bind"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
-            self.expression_name
-        )
+        expressions = armature.data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
         expression.texture_transform_binds.add()
@@ -450,21 +481,23 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator): 
     bl_description = "Remove VRM 1.0 Expression Texture Transform Bind"
     bl_options = {"REGISTER", "UNDO"}
 
-    armature_data_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
     )
-    expression_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        armature = bpy.data.armatures.get(self.armature_data_name)
-        if armature is None:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expression = armature.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
-            self.expression_name
-        )
+        expressions = armature.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
         if len(expression.texture_transform_binds) <= self.bind_index:
@@ -486,7 +519,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
