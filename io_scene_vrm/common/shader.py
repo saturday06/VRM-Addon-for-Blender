@@ -32,7 +32,8 @@ def add_shaders() -> None:
 
 
 def load_mtoon1_shader(
-    context: bpy.types.Context, material: bpy.types.Material
+    context: bpy.types.Context,
+    material: bpy.types.Material,
 ) -> None:
     material_name = INTERNAL_NAME_PREFIX + "VRM Add-on MToon 1.0 Template"
     old_material = bpy.data.materials.get(material_name)
