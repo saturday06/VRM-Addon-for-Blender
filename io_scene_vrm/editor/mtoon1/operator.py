@@ -106,7 +106,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
                 and math.fabs(transparent_with_z_write_float) >= float_info.epsilon
             )
 
-        base_color_factor = shader.get_rgba_val(node, "DiffuseColor", 0.0, 1.0) or (
+        base_color_factor = shader.get_rgba_value(node, "DiffuseColor", 0.0, 1.0) or (
             0,
             0,
             0,
@@ -145,7 +145,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
                     float(mapping_node.inputs["Scale"].default_value[1]),
                 )
 
-        shade_color_factor = shader.get_rgb_val(node, "ShadeColor", 0.0, 1.0) or (
+        shade_color_factor = shader.get_rgb_value(node, "ShadeColor", 0.0, 1.0) or (
             0,
             0,
             0,
@@ -188,7 +188,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
                 gi_equalization_0x
             )
 
-        emissive_factor = shader.get_rgb_val(node, "EmissionColor", 0.0, 1.0) or (
+        emissive_factor = shader.get_rgb_value(node, "EmissionColor", 0.0, 1.0) or (
             0,
             0,
             0,
@@ -202,7 +202,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
             "SphereAddTexture",
         )
 
-        parametric_rim_color_factor = shader.get_rgb_val(node, "RimColor", 0.0, 1.0)
+        parametric_rim_color_factor = shader.get_rgb_value(node, "RimColor", 0.0, 1.0)
         parametric_rim_fresnel_power_factor = shader.get_float_value(
             node, "RimFresnelPower", 0.0, float_info.max
         )
@@ -225,7 +225,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
             "OutlineWidthTexture",
         )
 
-        outline_color_factor = shader.get_rgb_val(node, "OutlineColor", 0.0, 1.0) or (
+        outline_color_factor = shader.get_rgb_value(node, "OutlineColor", 0.0, 1.0) or (
             0,
             0,
             0,

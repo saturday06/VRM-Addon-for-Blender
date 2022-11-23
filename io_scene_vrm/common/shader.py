@@ -641,7 +641,7 @@ def rgba_or_none(
     return (rgba[0], rgba[1], rgba[2], rgba[3])
 
 
-def get_rgba_val(
+def get_rgba_value(
     shader_node: bpy.types.Node,
     input_socket_name: str,
     min_value: float = -float_info.max,
@@ -691,7 +691,7 @@ def rgb_or_none(
     return (rgb[0], rgb[1], rgb[2])
 
 
-def get_rgb_val(
+def get_rgb_value(
     shader_node: bpy.types.Node,
     input_socket_name: str,
     min_value: float = -float_info.max,

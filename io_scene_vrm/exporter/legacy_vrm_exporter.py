@@ -558,7 +558,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for k, v in MaterialMtoon.vector_props_exchange_dict.items()
                 if v in vec_props
             ]:
-                vector_val = shader.get_rgba_val(mtoon_shader_node, vector_prop)
+                vector_val = shader.get_rgba_value(mtoon_shader_node, vector_prop)
                 if vector_val is not None:
                     mtoon_vector_dict[vector_key] = vector_val
 
@@ -745,7 +745,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 unlit = unlit_value > 0.5
             pbr_dict = pbr_fallback(
                 b_mat,
-                base_color=shader.get_rgba_val(gltf_shader_node, "base_Color"),
+                base_color=shader.get_rgba_value(gltf_shader_node, "base_Color"),
                 metalness=shader.get_float_value(gltf_shader_node, "metallic"),
                 roughness=shader.get_float_value(gltf_shader_node, "roughness"),
                 base_color_texture=shader.get_image_name_and_sampler_type(
@@ -772,7 +772,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pbr_tex_add("normalTexture", "normal")
             pbr_tex_add("emissiveTexture", "emissive_texture")
             pbr_tex_add("occlusionTexture", "occlusion_texture")
-            emissive_factor = shader.get_rgb_val(gltf_shader_node, "emissive_color")
+            emissive_factor = shader.get_rgb_value(gltf_shader_node, "emissive_color")
             if emissive_factor is None:
                 emissive_factor = (0, 0, 0)
             pbr_dict["emissiveFactor"] = emissive_factor

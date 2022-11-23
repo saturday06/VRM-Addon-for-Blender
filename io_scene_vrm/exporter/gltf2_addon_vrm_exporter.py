@@ -1088,7 +1088,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             pbr_metallic_roughness_dict,
             "baseColorFactor",
-            shader.get_rgba_val(node, "DiffuseColor", 0.0, 1.0),
+            shader.get_rgba_value(node, "DiffuseColor", 0.0, 1.0),
         )
         base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
             json_dict, body_binary, node, "MainTexture", image_name_to_index_dict
@@ -1099,7 +1099,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "shadeColorFactor",
-            shader.get_rgb_val(node, "ShadeColor", 0.0, 1.0),
+            shader.get_rgb_value(node, "ShadeColor", 0.0, 1.0),
         )
         shade_multiply_texture_dict = (
             Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
@@ -1154,7 +1154,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             material_dict,
             "emissiveFactor",
-            shader.get_rgb_val(node, "EmissionColor", 0.0, 1.0),
+            shader.get_rgb_value(node, "EmissionColor", 0.0, 1.0),
         )
         assign_dict(
             material_dict,
@@ -1183,7 +1183,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "parametricRimColorFactor",
-            shader.get_rgb_val(node, "RimColor", 0.0, 1.0),
+            shader.get_rgb_value(node, "RimColor", 0.0, 1.0),
         )
         assign_dict(
             mtoon_dict,
@@ -1246,7 +1246,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "outlineColorFactor",
-            shader.get_rgb_val(node, "OutlineColor", 0.0, 1.0),
+            shader.get_rgb_value(node, "OutlineColor", 0.0, 1.0),
         )
 
         outline_color_mode = shader.get_float_value(node, "OutlineColorMode")
