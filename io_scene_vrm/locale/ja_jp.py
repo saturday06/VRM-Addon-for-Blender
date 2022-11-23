@@ -305,8 +305,8 @@ translation_dictionary = {
     ): "VRM 0.0でのマテリアル「name」の{texture}のオフセットとスケールはLit Colorテクスチャの値になります",
     (
         "*",
-        'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}" in Material "{name}"',
-    ): "マテリアル「{name}」の{texture_label}の{input_colorspace}には「{colorspace}」の設定が推奨されます",
+        'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"',
+    ): "{texture_label}の{input_colorspace}には「{colorspace}」の設定が推奨されます",
     (
         "*",
         "(Experimental!) Use New VRM MToon Material UI",
