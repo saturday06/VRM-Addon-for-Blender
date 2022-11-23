@@ -18,8 +18,8 @@ __file_names = [
     "gltf.blend",
 ]
 
-UV_GROUP_NAME = "VrmAddonMToon1MaterialTextureUvGroup1"
-UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + "Template"
+UV_GROUP_NAME = "VRM Add-on MToon 1.0 UV Revision 1"
+UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + " Template"
 
 
 def add_shaders() -> None:
@@ -34,7 +34,7 @@ def add_shaders() -> None:
 def load_mtoon1_shader(
     context: bpy.types.Context, material: bpy.types.Material
 ) -> None:
-    material_name = INTERNAL_NAME_PREFIX + "VrmAddonMToon1MaterialTemplate"
+    material_name = INTERNAL_NAME_PREFIX + "VRM Add-on MToon 1.0 Template"
     old_material = bpy.data.materials.get(material_name)
     if old_material:
         logger.error(f'Material "{material_name}" already exists')
