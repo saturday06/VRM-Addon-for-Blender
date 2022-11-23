@@ -259,6 +259,7 @@ classes = [
     mtoon1_operator.VRM_OT_convert_material_to_mtoon1,
     mtoon1_operator.VRM_OT_convert_mtoon1_to_bsdf_principled,
     mtoon1_operator.VRM_OT_reset_mtoon1_material_shader_node_group,
+    mtoon1_operator.VRM_OT_import_mtoon1_texture_image_file,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,

@@ -4,7 +4,10 @@ import bpy
 from bpy.app.translations import pgettext
 
 from .. import search
-from .operator import VRM_OT_reset_mtoon1_material_shader_node_group
+from .operator import (
+    VRM_OT_import_mtoon1_texture_image_file,
+    VRM_OT_reset_mtoon1_material_shader_node_group,
+)
 from .property_group import (
     Mtoon1MaterialPropertyGroup,
     Mtoon1VrmcMaterialsMtoonPropertyGroup,
@@ -12,6 +15,7 @@ from .property_group import (
 
 
 def draw_texture_info(
+    material_name: str,
     ext: Mtoon1MaterialPropertyGroup,
     is_vrm0: bool,
     parent_layout: bpy.types.UILayout,
@@ -31,12 +35,21 @@ def draw_texture_info(
         translate=False,
         icon="TRIA_DOWN" if texture_info.show_expanded else "TRIA_RIGHT",
     )
-    layout.prop(texture_info.index, "source", text="")
+    input_layout = layout.split(factor=0.1)
+    import_image_file_op = input_layout.operator(
+        VRM_OT_import_mtoon1_texture_image_file.bl_idname,
+        text="",
+        translate=False,
+        icon="FILEBROWSER",
+    )
+    import_image_file_op.material_name = material_name
+    import_image_file_op.target_texture_info = type(texture_info).__name__
+    input_layout.prop(texture_info.index, "source", text="")
     if color_factor_attr_name:
-        layout.prop(base_property_group, color_factor_attr_name, text="")
+        input_layout.prop(base_property_group, color_factor_attr_name, text="")
 
     if not texture_info.show_expanded:
-        return layout
+        return input_layout
 
     box = parent_layout.box().column()
     if texture_info.index.source:
@@ -73,13 +86,14 @@ def draw_texture_info(
                 icon="ERROR",
             )
 
-    return layout
+    return input_layout
 
 
 def draw_mtoon1_material(
     context: bpy.types.Context, layout: bpy.types.UILayout
 ) -> None:
-    ext = context.material.vrm_addon_extension
+    material = context.material
+    ext = material.vrm_addon_extension
     layout = layout.column()
 
     layout.prop(ext.mtoon1, "enabled")
@@ -104,6 +118,7 @@ def draw_mtoon1_material(
     layout.label(text="Lighting", translate=False)
     lighting_box = layout.box().column()
     draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         lighting_box,
@@ -112,6 +127,7 @@ def draw_mtoon1_material(
         "base_color_factor",
     )
     draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         lighting_box,
@@ -120,6 +136,7 @@ def draw_mtoon1_material(
         "shade_color_factor",
     )
     normal_texture_layout = draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         lighting_box,
@@ -131,6 +148,7 @@ def draw_mtoon1_material(
     lighting_box.prop(mtoon1, "shading_toony_factor", slider=True)
     lighting_box.prop(mtoon1, "shading_shift_factor", slider=True)
     shading_shift_texture_layout = draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         lighting_box,
@@ -156,6 +174,7 @@ def draw_mtoon1_material(
     layout.label(text="Emission", translate=False)
     emission_box = layout.box().column()
     emissive_texture_layout = draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         emission_box,
@@ -170,6 +189,7 @@ def draw_mtoon1_material(
     layout.label(text="Rim Lighting", translate=False)
     rim_lighting_box = layout.box().column()
     draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         rim_lighting_box,
@@ -178,6 +198,7 @@ def draw_mtoon1_material(
     )
     rim_lighting_box.prop(mtoon1, "rim_lighting_mix_factor", slider=True)
     draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         rim_lighting_box,
@@ -197,6 +218,7 @@ def draw_mtoon1_material(
         != Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
     ):
         outline_width_multiply_texture_layout = draw_texture_info(
+            material.name,
             ext.mtoon1,
             is_vrm0,
             outline_box,
@@ -212,6 +234,7 @@ def draw_mtoon1_material(
     layout.label(text="UV Animation", translate=False)
     uv_animation_box = layout.box().column()
     draw_texture_info(
+        material.name,
         ext.mtoon1,
         is_vrm0,
         uv_animation_box,
