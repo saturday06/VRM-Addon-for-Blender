@@ -1008,23 +1008,172 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_legacy_gltf_material_dict(
-        _json_dict: Dict[str, Json],
-        _body_binary: bytearray,
+        json_dict: Dict[str, Json],
+        body_binary: bytearray,
         material: bpy.types.Material,
-        _node: bpy.types.Node,
-        _image_name_to_index_dict: Dict[str, int],
+        node: bpy.types.Node,
+        image_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Json]:
-        return {"name": material.name}
+        material_dict: Dict[str, Json] = {"name": material.name}
+        pbr_metallic_roughness_dict: Dict[str, Json] = {}
+
+        if material.blend_method == "OPAQUE":
+            material_dict["alphaMode"] = "OPAQUE"
+        elif material.blend_method == "CLIP":
+            material_dict["alphaCutoff"] = max(
+                0, min(1, float(material.alpha_threshold))
+            )
+            material_dict["alphaMode"] = "MASK"
+        else:
+            material_dict["alphaMode"] = "BLEND"
+        assign_dict(
+            material_dict, "doubleSided", not material.use_backface_culling, False
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict,
+            "baseColorFactor",
+            shader.get_rgba_value(node, "base_Color", 0.0, 1.0),
+        )
+        base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            json_dict, body_binary, node, "color_texture", image_name_to_index_dict
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
+        )
+
+        assign_dict(
+            pbr_metallic_roughness_dict,
+            "metallicFactor",
+            shader.get_float_value(node, "metallic", 0.0, 1.0),
+            default_value=1.0,
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict,
+            "roughnessFactor",
+            shader.get_float_value(node, "roughness", 0.0, 1.0),
+            default_value=1.0,
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict,
+            "metallicRoughnessTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict,
+                body_binary,
+                node,
+                "emissive_texture",
+                image_name_to_index_dict,
+            ),
+        )
+
+        normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            json_dict, body_binary, node, "normal", image_name_to_index_dict
+        )
+        assign_dict(material_dict, "normalTexture", normal_texture_dict)
+
+        assign_dict(
+            material_dict,
+            "emissiveFactor",
+            shader.get_rgb_value(node, "emissive_color", 0.0, 1.0),
+        )
+        assign_dict(
+            material_dict,
+            "emissiveTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict,
+                body_binary,
+                node,
+                "emissive_texture",
+                image_name_to_index_dict,
+            ),
+        )
+
+        assign_dict(
+            material_dict,
+            "occlusionTexture",
+            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+                json_dict,
+                body_binary,
+                node,
+                "occlusion_texture",
+                image_name_to_index_dict,
+            ),
+        )
+
+        if pbr_metallic_roughness_dict:
+            material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+
+        unlit_value = shader.get_float_value(node, "unlit")
+        if unlit_value is None or unlit_value > 0.5:
+            extensions_used = json_dict.get("extensionsUsed")
+            if not isinstance(extensions_used, list):
+                extensions_used = []
+                json_dict["extensionsUsed"] = extensions_used
+
+            if "KHR_materials_unlit" not in extensions_used:
+                extensions_used.append("KHR_materials_unlit")
+
+            material_dict["extensions"] = {"KHR_materials_unlit": {}}
+
+        return material_dict
 
     @staticmethod
     def create_legacy_transparent_zwrite_material_dict(
-        _json_dict: Dict[str, Json],
-        _body_binary: bytearray,
+        json_dict: Dict[str, Json],
+        body_binary: bytearray,
         material: bpy.types.Material,
-        _node: bpy.types.Node,
-        _image_name_to_index_dict: Dict[str, int],
+        node: bpy.types.Node,
+        image_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Json]:
-        return {"name": material.name}
+        # https://vrm-c.github.io/UniVRM/en/implementation/transparent_zwrite.html
+        extensions_used = json_dict.get("extensionsUsed")
+        if not isinstance(extensions_used, list):
+            extensions_used = []
+            json_dict["extensionsUsed"] = extensions_used
+
+        if "KHR_materials_unlit" not in extensions_used:
+            extensions_used.append("KHR_materials_unlit")
+        if "VRMC_materials_mtoon" not in extensions_used:
+            extensions_used.append("VRMC_materials_mtoon")
+
+        mtoon_dict: Dict[str, Json] = {
+            "specVersion": "1.0",
+        }
+        extensions_dict: Dict[str, Json] = {
+            "KHR_materials_unlit": {},
+            "VRMC_materials_mtoon": mtoon_dict,
+        }
+
+        material_dict: Dict[str, Json] = {
+            "name": material.name,
+            "emissiveFactor": [1, 1, 1],
+        }
+        pbr_metallic_roughness_dict: Dict[str, Json] = {
+            "baseColorFactor": [0, 0, 0, 1],
+        }
+
+        material_dict["alphaMode"] = "BLEND"
+        mtoon_dict["transparentWithZWrite"] = True
+        mtoon_dict["renderQueueOffsetNumber"] = 0
+        assign_dict(
+            material_dict, "doubleSided", not material.use_backface_culling, False
+        )
+        base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            json_dict, body_binary, node, "Main_Texture", image_name_to_index_dict
+        )
+        assign_dict(
+            pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
+        )
+        if base_color_texture_dict is not None:
+            mtoon_dict["shadeMultiplyTexture"] = base_color_texture_dict
+            material_dict["emissiveTexture"] = base_color_texture_dict
+
+        if pbr_metallic_roughness_dict:
+            material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+
+        extensions_dict["VRMC_materials_mtoon"] = mtoon_dict
+        material_dict["extensions"] = extensions_dict
+
+        return material_dict
 
     @staticmethod
     def create_mtoon_unversioned_material_dict(
