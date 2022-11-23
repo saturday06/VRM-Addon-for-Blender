@@ -129,19 +129,27 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not isinstance(out_node, bpy.types.NodeReroute):
             logger.warning(f'No node reroute "{out_node_name}"')
             return
-        out_socket = out_node.outputs[0]
-        in_socket = in_node.inputs[0]
-        links = [
-            link
-            for link in node_tree.links
-            if link.to_socket == in_socket and link.from_socket == out_socket
-        ]
+
         if connect:
-            if not links:
-                node_tree.links.new(in_socket, out_socket)
-        else:
-            for link in links:
-                node_tree.links.remove(link)
+            if not any(
+                1
+                for link in node_tree.links
+                if link.to_socket == in_node.inputs[0]
+                and link.from_socket == out_node.outputs[0]
+            ):
+                node_tree.links.new(in_node.inputs[0], out_node.outputs[0])
+            return
+
+        while True:
+            disconnecting_link = {
+                0: link
+                for link in node_tree.links
+                if link.to_socket == in_node.inputs[0]
+                and link.from_socket == out_node.outputs[0]
+            }.get(0)
+            if not disconnecting_link:
+                break
+            node_tree.links.remove(disconnecting_link)
 
     def switch_link_reroutes(self, base_node_name: str, up: bool) -> None:
         node_tree = self.find_material().node_tree
@@ -162,33 +170,26 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             logger.warning(f'No node reroute "{up_node_name}"')
             return
 
-        down_socket = down_node.outputs[0]
-        up_socket = up_node.outputs[0]
-        in_socket = in_node.inputs[0]
-
-        down_links = [
-            link
-            for link in node_tree.links
-            if link.to_socket == in_socket and link.from_socket == down_socket
-        ]
-        up_links = [
-            link
-            for link in node_tree.links
-            if link.to_socket == in_socket and link.from_socket == up_socket
-        ]
-
-        if up:
-            if not up_links:
-                node_tree.links.new(in_socket, up_socket)
-            for link in down_links:
-                node_tree.links.remove(link)
+        while True:
+            disconnecting_socket = down_node.outputs[0] if up else up_node.outputs[0]
+            disconnecting_link = {
+                0: link
+                for link in node_tree.links
+                if link.to_socket == in_node.inputs[0]
+                and link.from_socket == disconnecting_socket
+            }.get(0)
+            if not disconnecting_link:
                 break
-        else:
-            if not down_links:
-                node_tree.links.new(in_socket, down_socket)
-            for link in up_links:
-                node_tree.links.remove(link)
-                break
+            node_tree.links.remove(disconnecting_link)
+
+        connecting_socket = up_node.outputs[0] if up else down_node.outputs[0]
+        if not any(
+            1
+            for link in node_tree.links
+            if link.to_socket == in_node.inputs[0]
+            and link.from_socket == connecting_socket
+        ):
+            node_tree.links.new(in_node.inputs[0], connecting_socket)
 
 
 class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
