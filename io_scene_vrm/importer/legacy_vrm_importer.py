@@ -439,20 +439,14 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             for i, prim in enumerate(pymesh):
                 if (
                     prim.material_index is None
-                    or prim.material_index not in self.vrm_materials
+                    or prim.material_index not in self.materials
                 ):
                     continue
-                if (
-                    self.vrm_materials[prim.material_index].name
-                    not in obj.data.materials
-                ):
-                    obj.data.materials.append(self.vrm_materials[prim.material_index])
+                if self.materials[prim.material_index].name not in obj.data.materials:
+                    obj.data.materials.append(self.materials[prim.material_index])
                 mat_index = 0
                 for j, mat in enumerate(obj.material_slots):
-                    if (
-                        mat.material.name
-                        == self.vrm_materials[prim.material_index].name
-                    ):
+                    if mat.material.name == self.materials[prim.material_index].name:
                         mat_index = j
 
                 for n in range(primitive_length_list[i][1]):

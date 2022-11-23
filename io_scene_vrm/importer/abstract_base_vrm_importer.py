@@ -19,8 +19,7 @@ import bpy
 from mathutils import Matrix
 
 from .. import common
-from ..common import convert, deep
-from ..common.char import INTERNAL_NAME_PREFIX
+from ..common import convert, deep, shader
 from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
@@ -67,8 +66,7 @@ class AbstractBaseVrmImporter(ABC):
         self.images: Dict[int, bpy.types.Image] = {}
         self.armature: Optional[bpy.types.Object] = None
         self.bone_names: Dict[int, str] = {}
-        self.gltf_materials: Dict[int, bpy.types.Material] = {}
-        self.vrm_materials: Dict[int, bpy.types.Material] = {}
+        self.materials: Dict[int, bpy.types.Material] = {}
         self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
         self.mesh_joined_objects = None
         self.bone_child_object_world_matrices: Dict[str, Matrix] = {}
@@ -323,6 +321,17 @@ class AbstractBaseVrmImporter(ABC):
                     return node
         raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
 
+    @staticmethod
+    def reset_material(material: bpy.types.Material) -> None:
+        shader.clear_node_tree(material.node_tree)
+        material.use_nodes = True
+        material.alpha_threshold = 0.5
+        material.blend_method = "OPAQUE"
+        material.shadow_method = "OPAQUE"
+        material.use_backface_culling = False
+        material.show_transparent_back = False
+        material.node_tree.nodes.new("ShaderNodeOutputMaterial")
+
     def make_material(self) -> None:
         # 適当なので要調整
         for index, mat in enumerate(self.parse_result.materials):
@@ -332,7 +341,10 @@ class AbstractBaseVrmImporter(ABC):
                 and not mat.vrm_addon_for_blender_legacy_gltf_material
             ):
                 continue
-            b_mat = bpy.data.materials.new(mat.name)
+            b_mat = self.materials.get(index)
+            if not b_mat:
+                b_mat = bpy.data.materials.new(mat.name)
+            self.reset_material(b_mat)
             b_mat["shader_name"] = mat.shader_name
             if isinstance(mat, PyMaterialGltf):
                 self.build_material_from_gltf(b_mat, mat)
@@ -343,36 +355,6 @@ class AbstractBaseVrmImporter(ABC):
             else:
                 logger.warning(f"Unknown material {mat.name}")
             self.node_placer(self.find_material_output_node(b_mat))
-            self.vrm_materials[index] = b_mat
-        self.override_gltf_materials()
-
-    def override_gltf_materials(self) -> None:
-        gltf_material_original_names = {
-            vrm_material_index: self.gltf_materials[vrm_material_index].name
-            for vrm_material_index in self.vrm_materials
-            if vrm_material_index in self.gltf_materials
-        }
-        for mesh in self.meshes.values():
-            for material_index, material in enumerate(mesh.data.materials):
-                if not material:
-                    continue
-                for vrm_material_index, vrm_material in self.vrm_materials.items():
-                    material_original_name = gltf_material_original_names.get(
-                        vrm_material_index
-                    )
-                    if (
-                        material_original_name is None
-                        or material != self.gltf_materials.get(vrm_material_index)
-                    ):
-                        continue
-                    material.name = (
-                        INTERNAL_NAME_PREFIX
-                        + "glTF_VRM_overridden_"
-                        + material_original_name
-                    )
-                    vrm_material.name = material_original_name
-                    mesh.data.materials[material_index] = vrm_material
-                    break
 
     # region material_util func
     def set_material_transparent(
@@ -398,12 +380,6 @@ class AbstractBaseVrmImporter(ABC):
             else:
                 b_mat.blend_method = "HASHED"
                 b_mat.shadow_method = "HASHED"
-
-    def material_init(self, b_mat: bpy.types.Material) -> None:
-        b_mat.use_nodes = True
-        for node in b_mat.node_tree.nodes:
-            if node.bl_idname != "ShaderNodeOutputMaterial":
-                b_mat.node_tree.nodes.remove(node)
 
     def connect_value_node(
         self,
@@ -528,7 +504,6 @@ class AbstractBaseVrmImporter(ABC):
     def build_principle_from_gltf_mat(
         self, b_mat: bpy.types.Material, pymat: PyMaterialGltf
     ) -> None:
-        self.material_init(b_mat)
         principled_node = b_mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
 
         b_mat.node_tree.links.new(
@@ -567,7 +542,6 @@ class AbstractBaseVrmImporter(ABC):
     def build_material_from_gltf(
         self, b_mat: bpy.types.Material, pymat: PyMaterialGltf
     ) -> None:
-        self.material_init(b_mat)
         gltf_node_name = "GLTF"
         shader_node_group_import(gltf_node_name)
         sg = self.node_group_create(b_mat, gltf_node_name)
@@ -620,8 +594,6 @@ class AbstractBaseVrmImporter(ABC):
     def build_material_from_mtoon(
         self, b_mat: bpy.types.Material, pymat: PyMaterialMtoon
     ) -> None:
-        self.material_init(b_mat)
-
         shader_node_group_name = "MToon_unversioned"
         sphere_add_vector_node_group_name = "matcap_vector"
         shader_node_group_import(shader_node_group_name)
@@ -816,8 +788,6 @@ class AbstractBaseVrmImporter(ABC):
     def build_material_from_transparent_z_write(
         self, b_mat: bpy.types.Material, pymat: PyMaterialTransparentZWrite
     ) -> None:
-        self.material_init(b_mat)
-
         z_write_transparent_sg = "TRANSPARENT_ZWRITE"
         shader_node_group_import(z_write_transparent_sg)
         sg = self.node_group_create(b_mat, z_write_transparent_sg)

@@ -212,10 +212,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         mtoon_dict = deep.get(gltf_dict, ["extensions", "VRMC_materials_mtoon"])
         if not isinstance(mtoon_dict, dict):
             return
-        name = gltf_dict.get("name")
-        if not isinstance(name, str):
-            name = "Material"
-        material = bpy.data.materials.new(name)
+        material = self.materials.get(material_index)
+        if not material:
+            name = gltf_dict.get("name")
+            if not isinstance(name, str):
+                name = "Material"
+            material = bpy.data.materials.new(name)
+        self.reset_material(material)
+
         root = material.vrm_addon_extension.mtoon1
         root.enabled = True
         mtoon = root.extensions.vrmc_materials_mtoon
@@ -405,8 +409,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 uv_animation_scroll_y_speed_factor
             )
 
-        self.vrm_materials[material_index] = material
-
     def make_mtoon1_materials(self) -> None:
         material_dicts = self.parse_result.json_dict.get("materials")
         if not isinstance(material_dicts, abc.Iterable):
@@ -414,7 +416,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         for index, material_dict in enumerate(material_dicts):
             if isinstance(material_dict, dict):
                 self.make_mtoon1_material(index, material_dict)
-        self.override_gltf_materials()
 
     def import_gltf2_with_indices(self) -> None:
         with open(self.parse_result.filepath, "rb") as f:
@@ -923,7 +924,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if extras_material_index_key in material:
                 del material[extras_material_index_key]
             if isinstance(material_index, int):
-                self.gltf_materials[material_index] = material
+                self.materials[material_index] = material
 
         for image in list(bpy.data.images):
             image_index = image.get(self.import_id)
@@ -1801,7 +1802,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             material_index = material_color_bind_dict.get("material")
             if isinstance(material_index, int):
-                material = self.vrm_materials.get(material_index)
+                material = self.materials.get(material_index)
                 if material:
                     material_color_bind.material = material
 
@@ -1836,7 +1837,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             material_index = texture_transform_bind_dict.get("material")
             if isinstance(material_index, int):
-                material = self.vrm_materials.get(material_index)
+                material = self.materials.get(material_index)
                 if material:
                     texture_transform_bind.material = material
 
