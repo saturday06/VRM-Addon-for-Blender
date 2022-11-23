@@ -17,7 +17,6 @@ from mathutils import Matrix, Vector
 
 from .. import common
 from ..common import convert, deep, gltf, shader
-from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -919,9 +918,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
             if self.is_temp_object_name(material.name):
-                material.name = (
-                    INTERNAL_NAME_PREFIX + material.name
-                )  # TODO: Remove it permanently
                 continue
             material_index = material.get(extras_material_index_key)
             if extras_material_index_key in material:
@@ -960,15 +956,36 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         if self.context.object is not None and self.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        for obj in list(bpy.data.objects):
-            if self.is_temp_object_name(obj.name):
-                obj.select_set(True)
-                bpy.ops.object.delete()
 
-        for material in list(bpy.data.materials):
-            if self.is_temp_object_name(material.name) and material.users == 0:
-                bpy.data.materials.remove(material)
+        while True:
+            temp_object = {
+                0: o
+                for o in bpy.data.objects
+                if o and o.users <= 1 and self.is_temp_object_name(o.name)
+            }.get(0)
+            if not temp_object:
+                break
+            bpy.data.objects.remove(temp_object)
+
+        while True:
+            temp_mesh = {
+                0: m
+                for m in bpy.data.meshes
+                if m and m.users <= 1 and self.is_temp_object_name(m.name)
+            }.get(0)
+            if not temp_mesh:
+                break
+            bpy.data.meshes.remove(temp_mesh)
+
+        while True:
+            temp_material = {
+                0: m
+                for m in bpy.data.materials
+                if m and m.users <= 1 and self.is_temp_object_name(m.name)
+            }.get(0)
+            if not temp_material:
+                break
+            bpy.data.materials.remove(temp_material)
 
         if self.armature is None:
             logger.warning("Failed to read VRM Humanoid")
