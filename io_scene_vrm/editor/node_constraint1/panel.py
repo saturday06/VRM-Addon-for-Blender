@@ -217,8 +217,7 @@ def draw_node_constraint1_layout(
     objs = search.export_objects(
         context, export_invisibles, export_only_selections=False
     )
-    object_constraints = search.export_object_constraints(objs)
-    bone_constraints = search.export_bone_constraints(objs, armature)
+    object_constraints, bone_constraints, _ = search.export_constraints(objs, armature)
     draw_roll_constraint_layout(
         layout,
         node_constraint,

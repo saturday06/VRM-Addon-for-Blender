@@ -1707,7 +1707,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         node_constraint_spec_version = "1.0"
         use_node_constraint = False
-        object_constraints = search.export_object_constraints(self.export_objects)
+        object_constraints, bone_constraints, _ = search.export_constraints(
+            self.export_objects, self.armature
+        )
+
         for object_name, node_index in object_name_to_index_dict.items():
             if not 0 <= node_index < len(json_dict["nodes"]):
                 continue
@@ -1730,9 +1733,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 }
                 use_node_constraint = True
 
-        bone_constraints = search.export_bone_constraints(
-            self.export_objects, self.armature
-        )
         for bone_name, node_index in bone_name_to_index_dict.items():
             if not 0 <= node_index < len(json_dict["nodes"]):
                 continue

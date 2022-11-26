@@ -236,6 +236,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             + "It won't work as intended in many situations."
                         ).replace("\n", " ")
                     )
+
+                    _, _, constraint_warning_messages = search.export_constraints(
+                        export_objects, armature
+                    )
+                    warning_messages.extend(constraint_warning_messages)
+
                     human_bones = (
                         armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
                     )

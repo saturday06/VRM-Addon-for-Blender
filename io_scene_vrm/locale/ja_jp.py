@@ -156,6 +156,10 @@ translation_dictionary = {
         'Object "{name}" contains a negative value for the scale;'
         + " VRM 1.0 does not allow negative values to be specified for the scale.",
     ): "オブジェクト「{name}」にスケールにマイナス値が含まれています。VRM 1.0ではスケールにマイナス値を指定できません。",
+    (
+        "*",
+        'Node Constraint "{owner_name} / {constraint_name}" has a circular dependency',
+    ): "ノードコンストレイント「{owner_name} / {constraint_name}」に循環依存関係が存在します。",
     ("*", "Please add ARMATURE to selections"): "アーマチュアを選択範囲に含めてください",
     (
         "*",
