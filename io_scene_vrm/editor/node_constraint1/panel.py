@@ -69,14 +69,15 @@ def draw_roll_constraint_layout(
         "Conditions exported as Roll Constraint\n"
         + " - Copy Rotation\n"
         + " - Enabled\n"
-        + " - Order is Default ???\n"
         + " - No Vertex Group\n"
         + " - Axis is one of X, Y and Z\n"
-        + " - Mix is Add\n"
         + " - No Inverted\n"
+        + " - Mix is Add\n"
         + " - Target is Local Space\n"
         + " - Owner is Local Space\n"
-        + " - The one at the top of the list of those that meet all the conditions\n"
+        + " - No circular dependencies\n"
+        + " - The one at the top of the list of\n"
+        + "   those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
@@ -131,7 +132,9 @@ def draw_aim_constraint_layout(
         + " - Enabled\n"
         + " - Target Bone Head/Tail is 0\n"
         + " - No Follow Target Bone B-Bone\n"
-        + " - The one at the top of the list of those that meet all the conditions\n",
+        + " - No circular dependencies\n"
+        + " - The one at the top of the list of\n"
+        + "   those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
@@ -184,14 +187,15 @@ def draw_rotation_constraint_layout(
         "Conditions exported as Rotation Constraint\n"
         + " - Copy Rotation\n"
         + " - Enabled\n"
-        + " - Order is Default ???\n"
         + " - No Vertex Group\n"
         + " - Axis is X, Y and Z\n"
-        + " - Mix is Add\n"
         + " - No Inverted\n"
+        + " - Mix is Add\n"
         + " - Target is Local Space\n"
         + " - Owner is Local Space\n"
-        + " - The one at the top of the list of those that meet all the conditions\n"
+        + " - No circular dependencies\n"
+        + " - The one at the top of the list of\n"
+        + "   those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(

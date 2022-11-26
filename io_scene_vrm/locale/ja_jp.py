@@ -227,24 +227,25 @@ translation_dictionary = {
         "Conditions exported as Roll Constraint\n"
         + " - Copy Rotation\n"
         + " - Enabled\n"
-        + " - Order is Default ???\n"
         + " - No Vertex Group\n"
         + " - Axis is one of X, Y and Z\n"
-        + " - Mix is Add\n"
         + " - No Inverted\n"
+        + " - Mix is Add\n"
         + " - Target is Local Space\n"
         + " - Owner is Local Space\n"
-        + " - The one at the top of the list of those that meet all the conditions\n",
+        + " - No circular dependencies\n"
+        + " - The one at the top of the list of\n"
+        + "   those that meet all the conditions\n",
     ): "Roll Constraintになる条件\n"
     + " - 回転コピー\n"
     + " - 有効状態\n"
-    + " - 順序はデフォルト ???\n"
     + " - 頂点グループの指定無し\n"
     + " - 座標軸はXYZのどれか一つを指定\n"
-    + " - ミックスは追加\n"
     + " - 反転は無し\n"
+    + " - ミックスは追加\n"
     + " - ターゲットはローカル空間\n"
     + " - オーナーはローカル空間\n"
+    + " - 循環依存関係が存在しない\n"
     + " - 複数が条件を満たす場合は一番上にあるもの\n",
     (
         "*",
@@ -253,36 +254,40 @@ translation_dictionary = {
         + " - Enabled\n"
         + " - Target Bone Head/Tail is 0\n"
         + " - No Follow Target Bone B-Bone\n"
-        + " - The one at the top of the list of those that meet all the conditions\n",
+        + " - No circular dependencies\n"
+        + " - The one at the top of the list of\n"
+        + "   those that meet all the conditions\n",
     ): "Aim Constraintになる条件\n"
     + " - 減衰トラック\n"
     + " - 有効状態\n"
     + " - ターゲットボーンのヘッド/テールが0\n"
     + " - ターゲットボーンのBボーンには従わない\n"
+    + " - 循環依存関係が存在しない\n"
     + " - 複数が条件を満たす場合は一番上にあるもの\n",
     (
         "*",
         "Conditions exported as Rotation Constraint\n"
         + " - Copy Rotation\n"
         + " - Enabled\n"
-        + " - Order is Default ???\n"
         + " - No Vertex Group\n"
         + " - Axis is X, Y and Z\n"
-        + " - Mix is Add\n"
         + " - No Inverted\n"
+        + " - Mix is Add\n"
         + " - Target is Local Space\n"
         + " - Owner is Local Space\n"
-        + " - The one at the top of the list of those that meet all the conditions\n",
+        + " - No circular dependencies\n"
+        + " - The one at the top of the list of\n"
+        + "   those that meet all the conditions\n",
     ): "Rotation Constraintになる条件\n"
     + " - 回転コピー\n"
     + " - 有効状態\n"
-    + " - 順序はデフォルト ???\n"
     + " - 頂点グループの指定無し\n"
     + " - 座標軸はXYZ全て指定\n"
-    + " - ミックスは追加\n"
     + " - 反転は無し\n"
+    + " - ミックスは追加\n"
     + " - ターゲットはローカル空間\n"
     + " - オーナーはローカル空間\n"
+    + " - 循環依存関係が存在しない\n"
     + " - 複数が条件を満たす場合は一番上にあるもの\n",
     (
         "*",
