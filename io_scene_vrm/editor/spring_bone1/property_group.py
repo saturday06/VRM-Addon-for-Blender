@@ -106,6 +106,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
     radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
         min=0.0,
         default=0.0,
+        soft_max=1.0,
         unit="LENGTH",  # noqa: F821
         get=__get_radius,
         set=__set_radius,
@@ -228,6 +229,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
     radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
         min=0.0,
         default=0.0,
+        soft_max=1.0,
         unit="LENGTH",  # noqa: F821
         get=__get_radius,
         set=__set_radius,
@@ -473,18 +475,21 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
         name="Hit Radius",  # noqa: F722
         min=0.0,
         default=0.0,
+        soft_max=0.5,
     )
 
     stiffness: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Stiffness",  # noqa: F821
         min=0.0,
         default=1.0,
+        soft_max=4.0,
     )
 
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power",  # noqa: F722
         min=0.0,
         default=0.0,
+        soft_max=2.0,
     )
 
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
