@@ -431,4 +431,8 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[mi
         if armature_and_collider is None:
             return
         armature, collider = armature_and_collider
-        draw_spring_bone1_collider_layout(armature, self.layout.column(), collider)
+        if armature.data.vrm_addon_extension.is_vrm1():
+            draw_spring_bone1_collider_layout(armature, self.layout.column(), collider)
+            return
+
+        self.layout.label(text="This is a VRM 1.0 Spring Bone Collider", icon="INFO")
