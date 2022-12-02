@@ -426,70 +426,86 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         for key in ["nodes", "materials", "meshes"]:
             if key not in json_dict or not isinstance(json_dict[key], list):
                 continue
-            for index, value in enumerate(json_dict[key]):
-                if not isinstance(value, dict):
+            value_dicts = json_dict.get(key)
+            if not isinstance(value_dicts, list):
+                continue
+            for index, value_dict in enumerate(value_dicts):
+                if not isinstance(value_dict, dict):
                     continue
-                if "extras" not in value or not isinstance(value["extras"], dict):
-                    value["extras"] = {}
-                value["extras"].update({self.import_id + key.capitalize(): index})
-                if (
-                    key == "nodes"
-                    and "mesh" in value
-                    and isinstance(value["mesh"], int)
-                ):
-                    value["extras"].update({self.import_id + "Meshes": value["mesh"]})
+                extras_dict = value_dict.get("extras")
+                if not isinstance(extras_dict, dict):
+                    extras_dict = {}
+                    value_dict["extras"] = extras_dict
+
+                extras_dict.update({self.import_id + key.capitalize(): index})
+                mesh_index = value_dict.get("mesh")
+                if key == "nodes" and isinstance(mesh_index, int):
+                    extras_dict.update({self.import_id + "Meshes": mesh_index})
 
         legacy_image_name_prefix = self.import_id + "Image"
-        if isinstance(json_dict.get("images"), list):
-            for image_index, image in enumerate(json_dict["images"]):
-                if not isinstance(image, dict):
+        image_dicts = json_dict.get("images")
+        if isinstance(image_dicts, list):
+            for image_index, image_dict in enumerate(image_dicts):
+                if not isinstance(image_dict, dict):
                     continue
-                if not isinstance(image.get("name"), str) or not image["name"]:
+                name = image_dict.get("name")
+                if not isinstance(name, str) or not name:
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
-                    image["name"] = f"Image_{image_index}"
-                image["name"] = (
-                    legacy_image_name_prefix + str(image_index) + "_" + image["name"]
+                    name = f"Image_{image_index}"
+                image_dict["name"] = (
+                    legacy_image_name_prefix + str(image_index) + "_" + name
                 )
 
-        if isinstance(json_dict.get("meshes"), list):
-            for mesh in json_dict["meshes"]:
-                if (
-                    isinstance(mesh.get("extras"), dict)
-                    and isinstance(mesh["extras"].get("targetNames"), list)
-                ) or not isinstance(mesh["primitives"], list):
+        mesh_dicts = json_dict.get("meshes")
+        if isinstance(mesh_dicts, list):
+            for mesh_dict in mesh_dicts:
+                if not isinstance(mesh_dict, dict):
                     continue
-                for primitive in mesh["primitives"]:
-                    if (
-                        not isinstance(primitive, dict)
-                        or not isinstance(primitive.get("extras"), dict)
-                        or not isinstance(primitive["extras"].get("targetNames"), list)
-                    ):
+                mesh_extras_dict = mesh_dict.get("extras")
+                if not isinstance(mesh_extras_dict, dict):
+                    mesh_extras_dict = {}
+                    mesh_dict["extras"] = mesh_extras_dict
+                mesh_target_names = mesh_extras_dict.get("targetNames")
+                if isinstance(mesh_target_names, list):
+                    continue
+                primitive_dicts = mesh_dict.get("primitives")
+                if not isinstance(primitive_dicts, list):
+                    continue
+                for primitive_dict in primitive_dicts:
+                    if not isinstance(primitive_dict, dict):
                         continue
-                    if mesh.get("extras") is None:
-                        mesh["extras"] = {}
-                    mesh["extras"]["targetNames"] = primitive["extras"]["targetNames"]
+                    primitive_extras_dict = primitive_dict.get("extras")
+                    if not isinstance(primitive_extras_dict, dict):
+                        continue
+                    primitive_target_names = primitive_extras_dict.get("targetNames")
+                    if not isinstance(primitive_target_names, list):
+                        continue
+                    mesh_extras_dict["targetNames"] = primitive_target_names
                     break
 
-        if isinstance(json_dict.get("textures"), list) and json_dict["textures"]:
-            primitives = []
+        texture_dicts = json_dict.get("textures")
+        if isinstance(texture_dicts, list) and texture_dicts:
+            primitive_dicts = []
 
-            for texture_index, _ in enumerate(json_dict["textures"]):
-                if not isinstance(json_dict.get("buffers"), list):
-                    json_dict["buffers"] = []
-                position_buffer_index = len(json_dict["buffers"])
+            for texture_index, _ in enumerate(texture_dicts):
+                buffer_dicts = json_dict.get("buffers")
+                if not isinstance(buffer_dicts, list):
+                    buffer_dicts = []
+                    json_dict["buffers"] = buffer_dicts
+                position_buffer_index = len(buffer_dicts)
                 position_buffer_bytes = struct.pack(
                     "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
                 )
-                json_dict["buffers"].append(
+                buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(position_buffer_bytes).decode("ascii"),
                         "byteLength": len(position_buffer_bytes),
                     }
                 )
-                texcoord_buffer_index = len(json_dict["buffers"])
+                texcoord_buffer_index = len(buffer_dicts)
                 texcoord_buffer_bytes = struct.pack("<6f", 0.0, 0.0, 1.0, 0.0, 0.0, 1.0)
-                json_dict["buffers"].append(
+                buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(texcoord_buffer_bytes).decode("ascii"),
@@ -497,18 +513,20 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-                if not isinstance(json_dict.get("bufferViews"), list):
-                    json_dict["bufferViews"] = []
-                position_buffer_view_index = len(json_dict["bufferViews"])
-                json_dict["bufferViews"].append(
+                buffer_view_dicts = json_dict.get("bufferViews")
+                if not isinstance(buffer_view_dicts, list):
+                    buffer_view_dicts = []
+                    json_dict["bufferViews"] = buffer_view_dicts
+                position_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
                     {
                         "buffer": position_buffer_index,
                         "byteOffset": 0,
                         "byteLength": len(position_buffer_bytes),
                     }
                 )
-                texcoord_buffer_view_index = len(json_dict["bufferViews"])
-                json_dict["bufferViews"].append(
+                texcoord_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
                     {
                         "buffer": texcoord_buffer_index,
                         "byteOffset": 0,
@@ -516,10 +534,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-                if not isinstance(json_dict.get("accessors"), list):
-                    json_dict["accessors"] = []
-                position_accessors_index = len(json_dict["accessors"])
-                json_dict["accessors"].append(
+                accessor_dicts = json_dict.get("accessors")
+                if not isinstance(accessor_dicts, list):
+                    accessor_dicts = []
+                    json_dict["accessors"] = accessor_dicts
+                position_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
                     {
                         "bufferView": position_buffer_view_index,
                         "byteOffset": 0,
@@ -530,8 +550,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "max": [1, 1, 0],
                     }
                 )
-                texcoord_accessors_index = len(json_dict["accessors"])
-                json_dict["accessors"].append(
+                texcoord_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
                     {
                         "bufferView": texcoord_buffer_view_index,
                         "byteOffset": 0,
@@ -541,16 +561,18 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-                if not isinstance(json_dict.get("materials"), list):
-                    json_dict["materials"] = []
-                tex_material_index = len(json_dict["materials"])
-                json_dict["materials"].append(
+                material_dicts = json_dict.get("materials")
+                if not isinstance(material_dicts, list):
+                    material_dicts = []
+                    json_dict["materials"] = material_dicts
+                tex_material_index = len(material_dicts)
+                material_dicts.append(
                     {
                         "name": self.temp_object_name(),
                         "emissiveTexture": {"index": texture_index},
                     }
                 )
-                primitives.append(
+                primitive_dicts.append(
                     {
                         "attributes": {
                             "POSITION": position_accessors_index,
@@ -560,59 +582,75 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-            if not isinstance(json_dict.get("meshes"), list):
-                json_dict["meshes"] = []
-            tex_mesh_index = len(json_dict["meshes"])
-            json_dict["meshes"].append(
-                {"name": self.temp_object_name(), "primitives": primitives}
+            mesh_dicts = json_dict.get("meshes")
+            if not isinstance(mesh_dicts, list):
+                mesh_dicts = []
+                json_dict["meshes"] = mesh_dicts
+            tex_mesh_index = len(mesh_dicts)
+            mesh_dicts.append(
+                {"name": self.temp_object_name(), "primitives": primitive_dicts}
             )
 
-            if not isinstance(json_dict.get("nodes"), list):
-                json_dict["nodes"] = []
-            tex_node_index = len(json_dict["nodes"])
-            json_dict["nodes"].append(
-                {"name": self.temp_object_name(), "mesh": tex_mesh_index}
-            )
+            node_dicts = json_dict.get("nodes")
+            if not isinstance(node_dicts, list):
+                node_dicts = []
+                json_dict["nodes"] = node_dicts
+            tex_node_index = len(node_dicts)
+            node_dicts.append({"name": self.temp_object_name(), "mesh": tex_mesh_index})
 
-            if not isinstance(json_dict.get("scenes"), list):
-                json_dict["scenes"] = []
-            json_dict["scenes"].append(
+            scene_dicts = json_dict.get("scenes")
+            if not isinstance(scene_dicts, list):
+                scene_dicts = []
+                json_dict["scenes"] = scene_dicts
+            scene_dicts.append(
                 {"name": self.temp_object_name(), "nodes": [tex_node_index]}
             )
 
-        if isinstance(json_dict.get("scenes"), list) and isinstance(
-            json_dict.get("nodes"), list
-        ):
-            nodes = json_dict["nodes"]
-            skins = json_dict.get("skins", [])
-            for scene in json_dict["scenes"]:
-                if not isinstance(scene.get("nodes"), list):
+        scene_dicts = json_dict.get("scenes")
+        node_dicts = json_dict.get("nodes")
+        if isinstance(scene_dicts, list) and isinstance(node_dicts, list):
+            for scene_dict in scene_dicts:
+                if not isinstance(scene_dict, dict):
+                    continue
+                scene_nodes = scene_dict.get("nodes")
+                if not isinstance(scene_nodes, list):
                     continue
 
-                all_node_indices = list(scene["nodes"])
-                referenced_node_indices = list(scene["nodes"])
-                search_node_indices = list(scene["nodes"])
+                all_node_indices = list(scene_nodes)
+                referenced_node_indices = list(scene_nodes)
+                search_node_indices = list(scene_nodes)
                 while search_node_indices:
                     search_node_index = search_node_indices.pop()
                     if not isinstance(search_node_index, int):
                         continue
                     all_node_indices.append(search_node_index)
-                    if search_node_index < 0 or len(nodes) <= search_node_index:
+                    if not 0 <= search_node_index < len(node_dicts):
                         continue
-                    node = nodes[search_node_index]
-                    if isinstance(node.get("mesh"), int):
+                    node_dict = node_dicts[search_node_index]
+                    if not isinstance(node_dict, dict):
+                        continue
+                    if isinstance(node_dict.get("mesh"), int):
                         referenced_node_indices.append(search_node_index)
-                    if isinstance(node.get("skin"), int):
+                    skin_index = node_dict.get("skin")
+                    if isinstance(skin_index, int):
                         referenced_node_indices.append(search_node_index)
-                        if node["skin"] < 0 or len(skins) <= node["skin"]:
-                            continue
-                        skin = skins[node["skin"]]
-                        if isinstance(skin.get("skeleton"), int):
-                            referenced_node_indices.append(skin["skeleton"])
-                        if isinstance(skin.get("joints"), list):
-                            referenced_node_indices.extend(skin["joints"])
-                    if isinstance(node.get("children"), list):
-                        search_node_indices.extend(node["children"])
+                        skin_dicts = json_dict.get("skins")
+                        if not isinstance(skin_dicts, list):
+                            skin_dicts = []
+                            json_dict["skins"] = skin_dicts
+                        if 0 <= skin_index < len(skin_dicts):
+                            skin_dict = skin_dicts[skin_index]
+                            if isinstance(skin_dict, dict):
+                                skeleton_index = skin_dict.get("skeleton")
+                                if isinstance(skeleton_index, int):
+                                    referenced_node_indices.append(skeleton_index)
+                                joints = skin_dict.get("joints")
+                                if isinstance(joints, list):
+                                    referenced_node_indices.extend(joints)
+
+                    node_children = node_dict.get("children")
+                    if isinstance(node_children, list):
+                        search_node_indices.extend(node_children)
 
                 retain_node_indices = list(dict.fromkeys(all_node_indices))  # distinct
                 for referenced_node_index in referenced_node_indices:
@@ -622,35 +660,37 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if not retain_node_indices:
                     continue
 
-                if not isinstance(json_dict.get("buffers"), list):
-                    json_dict["buffers"] = []
-                position_buffer_index = len(json_dict["buffers"])
+                buffer_dicts = json_dict.get("buffers")
+                if not isinstance(buffer_dicts, list):
+                    buffer_dicts = []
+                    json_dict["buffers"] = buffer_dicts
+                position_buffer_index = len(buffer_dicts)
                 position_buffer_bytes = struct.pack(
                     "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
                 )
-                json_dict["buffers"].append(
+                buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(position_buffer_bytes).decode("ascii"),
                         "byteLength": len(position_buffer_bytes),
                     }
                 )
-                joints_buffer_index = len(json_dict["buffers"])
+                joints_buffer_index = len(buffer_dicts)
                 joints_buffer_bytes = struct.pack(
                     "<12H", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                 )
-                json_dict["buffers"].append(
+                buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(joints_buffer_bytes).decode("ascii"),
                         "byteLength": len(joints_buffer_bytes),
                     }
                 )
-                weights_buffer_index = len(json_dict["buffers"])
+                weights_buffer_index = len(buffer_dicts)
                 weights_buffer_bytes = struct.pack(
                     "<12f", 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0
                 )
-                json_dict["buffers"].append(
+                buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(weights_buffer_bytes).decode("ascii"),
@@ -658,26 +698,28 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-                if not isinstance(json_dict.get("bufferViews"), list):
-                    json_dict["bufferViews"] = []
-                position_buffer_view_index = len(json_dict["bufferViews"])
-                json_dict["bufferViews"].append(
+                buffer_view_dicts = json_dict.get("bufferViews")
+                if not isinstance(buffer_view_dicts, list):
+                    buffer_view_dicts = []
+                    json_dict["bufferViews"] = buffer_view_dicts
+                position_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
                     {
                         "buffer": position_buffer_index,
                         "byteOffset": 0,
                         "byteLength": len(position_buffer_bytes),
                     }
                 )
-                joints_buffer_view_index = len(json_dict["bufferViews"])
-                json_dict["bufferViews"].append(
+                joints_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
                     {
                         "buffer": joints_buffer_index,
                         "byteOffset": 0,
                         "byteLength": len(joints_buffer_bytes),
                     }
                 )
-                weights_buffer_view_index = len(json_dict["bufferViews"])
-                json_dict["bufferViews"].append(
+                weights_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
                     {
                         "buffer": weights_buffer_index,
                         "byteOffset": 0,
@@ -685,10 +727,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-                if not isinstance(json_dict.get("accessors"), list):
-                    json_dict["accessors"] = []
-                position_accessors_index = len(json_dict["accessors"])
-                json_dict["accessors"].append(
+                accessor_dicts = json_dict.get("accessors")
+                if not isinstance(accessor_dicts, list):
+                    accessor_dicts = []
+                    json_dict["accessors"] = accessor_dicts
+                position_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
                     {
                         "bufferView": position_buffer_view_index,
                         "byteOffset": 0,
@@ -699,8 +743,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "max": [1, 1, 0],
                     }
                 )
-                joints_accessors_index = len(json_dict["accessors"])
-                json_dict["accessors"].append(
+                joints_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
                     {
                         "bufferView": joints_buffer_view_index,
                         "byteOffset": 0,
@@ -709,8 +753,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "count": 3,
                     }
                 )
-                weights_accessors_index = len(json_dict["accessors"])
-                json_dict["accessors"].append(
+                weights_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
                     {
                         "bufferView": weights_buffer_view_index,
                         "byteOffset": 0,
@@ -720,7 +764,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-                primitives = [
+                primitive_dicts = [
                     {
                         "attributes": {
                             "POSITION": position_accessors_index,
@@ -730,22 +774,28 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 ]
 
-                if not isinstance(json_dict.get("meshes"), list):
-                    json_dict["meshes"] = []
-                skin_mesh_index = len(json_dict["meshes"])
-                json_dict["meshes"].append(
-                    {"name": self.temp_object_name(), "primitives": primitives}
+                mesh_dicts = json_dict.get("meshes")
+                if not isinstance(mesh_dicts, list):
+                    mesh_dicts = []
+                    json_dict["meshes"] = mesh_dicts
+                skin_mesh_index = len(mesh_dicts)
+                mesh_dicts.append(
+                    {"name": self.temp_object_name(), "primitives": primitive_dicts}
                 )
 
-                if not isinstance(json_dict.get("skins"), list):
-                    json_dict["skins"] = []
-                skin_index = len(json_dict["skins"])
-                json_dict["skins"].append({"joints": list(retain_node_indices)})
+                skin_dicts = json_dict.get("skins")
+                if not isinstance(skin_dicts, list):
+                    skin_dicts = []
+                    json_dict["skins"] = skin_dicts
+                skin_index = len(skin_dicts)
+                skin_dicts.append({"joints": list(retain_node_indices)})
 
-                if not isinstance(json_dict.get("nodes"), list):
-                    json_dict["nodes"] = []
-                skin_node_index = len(json_dict["nodes"])
-                json_dict["nodes"].append(
+                node_dicts = json_dict.get("nodes")
+                if not isinstance(node_dicts, list):
+                    node_dicts = []
+                    json_dict["nodes"] = node_dicts
+                skin_node_index = len(node_dicts)
+                node_dicts.append(
                     {
                         "name": self.temp_object_name(),
                         "mesh": skin_mesh_index,
@@ -753,7 +803,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     }
                 )
 
-                scene["nodes"].append(skin_node_index)
+                scene_nodes.append(skin_node_index)
 
         # glTF 2.0アドオンが未対応のエクステンションが"extensionsRequired"に含まれている場合はエラーになるのを抑止
         extensions_required = json_dict.get("extensionsRequired")
@@ -940,9 +990,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     image_index = int(image_index_str)
             if not isinstance(image_index, int):
                 continue
-            if 0 <= image_index < len(json_dict["images"]):
+            image_dicts = json_dict.get("images")
+            if isinstance(image_dicts, list) and 0 <= image_index < len(image_dicts):
                 # image.nameはインポート時に勝手に縮められてしまうことがあるので、jsonの値から復元する
-                indexed_image_name = json_dict["images"][image_index].get("name")
+                image_dict = image_dicts[image_index]
+                indexed_image_name = None
+                if isinstance(image_dict, dict):
+                    indexed_image_name = image_dict.get("name")
                 if isinstance(
                     indexed_image_name, str
                 ) and indexed_image_name.startswith(legacy_image_name_prefix):

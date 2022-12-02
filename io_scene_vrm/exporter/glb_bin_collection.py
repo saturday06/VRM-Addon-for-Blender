@@ -5,7 +5,9 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
+
+from ..common.deep import Json, make_json
 
 
 class GlbBinCollection:
@@ -14,15 +16,17 @@ class GlbBinCollection:
         self.image_bins: List[ImageBin] = []
         self.bin = bytearray()
 
-    def pack_all(self) -> Tuple[Dict[str, Any], bytes]:
-        bin_dict: Dict[str, Any] = {}
+    def pack_all(self) -> Tuple[Dict[str, Json], bytes]:
+        bin_dict: Dict[str, Json] = {}
         byte_offset = 0
-        bin_dict["bufferViews"] = []
-        bin_dict["accessors"] = []
+        buffer_view_dicts: List[Json] = []
+        bin_dict["bufferViews"] = buffer_view_dicts
+        accessor_dicts: List[Json] = []
+        bin_dict["accessors"] = accessor_dicts
 
         for vab in self.vertex_attribute_bins:
             self.bin.extend(vab.bin)
-            vab_dict = {
+            vab_dict: Dict[str, Json] = {
                 "bufferView": self.get_new_buffer_view_id(),
                 "byteOffset": 0,
                 "type": vab.array_type,
@@ -31,10 +35,10 @@ class GlbBinCollection:
                 "normalized": False,
             }
             if vab.min_max:
-                vab_dict["min"] = vab.min_max[0]
-                vab_dict["max"] = vab.min_max[1]
-            bin_dict["accessors"].append(vab_dict)
-            bin_dict["bufferViews"].append(
+                vab_dict["min"] = make_json(vab.min_max[0])
+                vab_dict["max"] = make_json(vab.min_max[1])
+            accessor_dicts.append(vab_dict)
+            buffer_view_dicts.append(
                 {
                     "buffer": 0,
                     "byteOffset": byte_offset,
@@ -44,17 +48,18 @@ class GlbBinCollection:
             byte_offset += vab.bin_length
 
         if self.image_bins:
-            bin_dict["images"] = []
+            image_dicts: List[Json] = []
+            bin_dict["images"] = image_dicts
             for img in self.image_bins:
                 self.bin.extend(img.bin)
-                bin_dict["images"].append(
+                image_dicts.append(
                     {
                         "name": img.name,
                         "bufferView": self.get_new_buffer_view_id(),
                         "mimeType": img.image_type,
                     }
                 )
-                bin_dict["bufferViews"].append(
+                buffer_view_dicts.append(
                     {
                         "buffer": 0,
                         "byteOffset": byte_offset,

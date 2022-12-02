@@ -8,7 +8,7 @@ import json
 import os
 import re
 import webbrowser
-from typing import Any, Set, cast
+from typing import Set, cast
 from urllib.parse import urlparse
 
 import bpy
@@ -278,11 +278,9 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):  # type: ignore[misc] 
     )
 
     @staticmethod
-    def supported(url_any: Any) -> bool:
-        if not isinstance(url_any, str):
-            return False
+    def supported(url_str: str) -> bool:
         try:
-            url = urlparse(url_any)
+            url = urlparse(url_str)
         except ValueError:
             return False
         if url.scheme not in ["http", "https"]:
@@ -290,7 +288,10 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):  # type: ignore[misc] 
         return True
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        if not self.supported(self.url):
+        url = self.url
+        if not isinstance(url, str):
+            return {"CANCELLED"}
+        if not self.supported(url):
             return {"CANCELLED"}
         webbrowser.open(self.url)
         return {"FINISHED"}

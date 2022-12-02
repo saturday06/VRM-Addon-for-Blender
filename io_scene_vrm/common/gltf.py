@@ -1,8 +1,9 @@
 import json
 import struct
-from typing import Any, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 from .binary_reader import BinaryReader
+from .deep import Json
 
 # https://www.khronos.org/opengl/wiki/Small_Float_Formats#Numeric_limits_and_precision
 FLOAT_POSITIVE_MAX = 3.4028237e38
@@ -18,7 +19,7 @@ VAL_INPUT_NAMES = ["metallic", "roughness", "unlit"]
 RGBA_INPUT_NAMES = ["base_Color", "emissive_color"]
 
 
-def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
+def parse_glb(data: bytes) -> Tuple[Dict[str, Json], bytes]:
     reader = BinaryReader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
@@ -68,7 +69,7 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Any], bytes]:
     return json_obj, body if body else bytes()
 
 
-def pack_glb(json_dict: Dict[str, Any], binary_chunk: bytes) -> bytes:
+def pack_glb(json_dict: Dict[str, Json], binary_chunk: bytes) -> bytes:
     magic = b"glTF" + struct.pack("<I", 2)
     json_str = json.dumps(json_dict).encode("utf-8")
     if len(json_str) % 4 != 0:

@@ -1,7 +1,7 @@
 import functools
 from math import radians
 from sys import float_info
-from typing import Any, Dict, Optional, Set, Tuple
+from typing import Dict, Optional, Set, Tuple
 
 import bpy
 from mathutils import Matrix
@@ -133,7 +133,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N
 
     def make_armature(
         self, context: bpy.types.Context
-    ) -> Tuple[bpy.types.Object, Dict[str, Any]]:
+    ) -> Tuple[bpy.types.Object, Dict[str, str]]:
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
 

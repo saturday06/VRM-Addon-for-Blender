@@ -1644,13 +1644,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         for key in gltf_root_non_empty_array_keys:
             list_value = json_dict.get(key)
-            json_dict[key] = (
-                list(list_value) if isinstance(list_value, abc.Iterable) else []
-            )
+            json_dict[key] = list(list_value) if isinstance(list_value, list) else []
 
-        nodes = json_dict["nodes"]
+        node_dicts = json_dict.get("nodes")
+        if not isinstance(node_dicts, list):
+            node_dicts = []
+            json_dict["nodes"] = node_dicts
 
-        for node_index, node_dict in enumerate(nodes):
+        for node_index, node_dict in enumerate(node_dicts):
             if not isinstance(node_dict, dict):
                 continue
             extras_dict = node_dict.get("extras")
@@ -1669,10 +1670,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if isinstance(object_name, str):
                 object_name_to_index_dict[object_name] = node_index
             mesh_index = node_dict.get("mesh")
-            mesh_dicts = json_dict["meshes"]
+            mesh_dicts = json_dict.get("meshes")
             if (
                 isinstance(object_name, str)
                 and isinstance(mesh_index, int)
+                and isinstance(mesh_dicts, list)
                 and 0 <= mesh_index < len(mesh_dicts)
             ):
                 mesh_object_name_to_node_index_dict[object_name] = node_index
@@ -1688,7 +1690,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 or object_name.startswith(INTERNAL_NAME_PREFIX + "VrmAddonLinkTo")
             ):
                 node_dict.clear()
-                for child_removing_node_dict in list(nodes):
+                for child_removing_node_dict in list(node_dicts):
                     if not isinstance(child_removing_node_dict, dict):
                         continue
                     children = child_removing_node_dict.get("children")
@@ -1712,11 +1714,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         )
 
         for object_name, node_index in object_name_to_index_dict.items():
-            if not 0 <= node_index < len(json_dict["nodes"]):
+            if not 0 <= node_index < len(node_dicts):
                 continue
-            if not isinstance(json_dict["nodes"][node_index], dict):
-                json_dict["nodes"][node_index] = {}
-            node_dict = json_dict["nodes"][node_index]
+            node_dict = node_dicts[node_index]
+            if not isinstance(node_dict, dict):
+                node_dict = {}
+                node_dicts[node_index] = node_dict
             constraint_dict = self.create_constraint_dict(
                 object_name,
                 object_constraints,
@@ -1734,11 +1737,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 use_node_constraint = True
 
         for bone_name, node_index in bone_name_to_index_dict.items():
-            if not 0 <= node_index < len(json_dict["nodes"]):
+            if not 0 <= node_index < len(node_dicts):
                 continue
-            if not isinstance(json_dict["nodes"][node_index], dict):
-                json_dict["nodes"][node_index] = {}
-            node_dict = json_dict["nodes"][node_index]
+            node_dict = node_dicts[node_index]
+            if not isinstance(node_dict, dict):
+                node_dict = {}
+                node_dicts[node_index] = node_dicts
             constraint_dict = self.create_constraint_dict(
                 bone_name,
                 bone_constraints,
@@ -1756,8 +1760,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 use_node_constraint = True
 
         material_name_to_index_dict: Dict[str, int] = {}
-        materials = json_dict["materials"]
-        for material_index, material_dict in enumerate(materials):
+        material_dicts = json_dict.get("materials")
+        if not isinstance(material_dicts, list):
+            material_dicts = []
+            json_dict["materials"] = material_dicts
+        for material_index, material_dict in enumerate(material_dicts):
             if not isinstance(material_dict, dict):
                 continue
             extras_dict = material_dict.get("extras")
@@ -1779,7 +1786,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             json_dict, material_name_to_index_dict
         )
 
-        extensions_used = json_dict["extensionsUsed"]
+        extensions_used = json_dict.get("extensionsUsed")
+        if not isinstance(extensions_used, list):
+            extensions_used = []
+            json_dict["extensionsUsed"] = extensions_used
 
         if use_node_constraint:
             extensions_used.append("VRMC_node_constraint")
@@ -1848,18 +1858,29 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         generator = "VRM Add-on for Blender v" + ".".join(map(str, v))
 
-        base_generator = deep.get(json_dict, ["asset", "generator"])
+        asset_dict = json_dict.get("asset")
+        if not isinstance(asset_dict, dict):
+            asset_dict = {}
+            json_dict["asset"] = asset_dict
+
+        base_generator = asset_dict.get("generator")
         if isinstance(base_generator, str):
             generator += " with " + base_generator
 
-        json_dict["asset"]["generator"] = generator
+        asset_dict["generator"] = generator
 
         if len(body_binary):
-            if not json_dict["buffers"]:
-                json_dict["buffers"] = [{}]
-            if not isinstance(json_dict["buffers"][0], dict):
-                json_dict["buffers"][0] = {}
-            json_dict["buffers"][0]["byteLength"] = len(body_binary)
+            buffer_dicts = json_dict.get("buffers")
+            if not isinstance(buffer_dicts, list) or not buffer_dicts:
+                buffer_dicts = []
+                json_dict["buffers"] = buffer_dicts
+            if not buffer_dicts:
+                buffer_dicts.append({})
+            buffer_dict = buffer_dicts[0]
+            if not isinstance(buffer_dict, dict):
+                buffer_dict = {}
+                buffer_dicts[0] = buffer_dict
+            buffer_dict["byteLength"] = len(body_binary)
 
         for key in gltf_root_non_empty_array_keys:
             if not json_dict[key]:
