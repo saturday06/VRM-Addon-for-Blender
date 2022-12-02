@@ -7,6 +7,7 @@ import re
 import shutil
 import struct
 import tempfile
+import uuid
 from collections import abc
 from typing import Dict, List, Optional, Set, Tuple, Union
 
@@ -17,6 +18,7 @@ from mathutils import Matrix, Vector
 
 from .. import common
 from ..common import convert, deep, gltf, shader
+from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -1918,6 +1920,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
 
             collider = spring_bone.colliders[-1]
+            collider.name = f"{INTERNAL_NAME_PREFIX} VRM Collider {uuid.uuid4().hex}"
             collider_index_to_collider[collider_index] = collider
 
             if not isinstance(collider_dict, dict):
