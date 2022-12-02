@@ -325,4 +325,8 @@ translation_dictionary = {
         "*",
         "(Experimental!) Use New VRM MToon Material UI",
     ): "(実験中の機能です!) 新しいVRM MToonマテリアルのUIを使う",
+    (
+        "*",
+        "VRM Material",
+    ): "VRMマテリアル",
 }

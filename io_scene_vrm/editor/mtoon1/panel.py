@@ -261,7 +261,7 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
 
 class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
     bl_idname = "VRM_PT_vrm_material_property"
-    bl_label = "VRM MToon Material"
+    bl_label = "VRM Material"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "material"
