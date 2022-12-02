@@ -1836,7 +1836,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not mesh_obj:
                 continue
 
-            morph_target_bind.mesh.value = mesh_obj.name
+            morph_target_bind.node.value = mesh_obj.name
             index = morph_target_bind_dict.get("index")
             if not isinstance(index, int):
                 continue
@@ -1941,11 +1941,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if not isinstance(expressions_dict, dict):
             return
 
-        for (
-            preset_name,
-            expression,
-        ) in expressions.preset_name_to_expression_dict().items():
-            self.load_vrm1_expression(expression, expressions_dict.get(preset_name))
+        preset_dict = expressions_dict.get("preset")
+        if isinstance(preset_dict, dict):
+            for (
+                preset_name,
+                expression,
+            ) in expressions.preset_name_to_expression_dict().items():
+                self.load_vrm1_expression(expression, preset_dict.get(preset_name))
 
         custom_dict = expressions_dict.get("custom")
         if isinstance(custom_dict, dict):
