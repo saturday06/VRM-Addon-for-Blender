@@ -7,7 +7,6 @@ import re
 import shutil
 import struct
 import tempfile
-import uuid
 from collections import abc
 from typing import Dict, List, Optional, Set, Tuple, Union
 
@@ -18,7 +17,6 @@ from mathutils import Matrix, Vector
 
 from .. import common
 from ..common import convert, deep, gltf, shader
-from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -34,11 +32,7 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
-from ..editor.spring_bone1.property_group import (
-    SpringBone1ColliderGroupPropertyGroup,
-    SpringBone1ColliderPropertyGroup,
-    SpringBone1SpringBonePropertyGroup,
-)
+from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
@@ -1977,13 +1971,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: Dict[str, Json],
         armature: bpy.types.Object,
-    ) -> Dict[int, SpringBone1ColliderPropertyGroup]:
-        collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup] = {}
+    ) -> None:
         collider_dicts = spring_bone_dict.get("colliders")
         if not isinstance(collider_dicts, abc.Iterable):
             collider_dicts = []
 
-        for collider_index, collider_dict in enumerate(collider_dicts):
+        for collider_dict in collider_dicts:
             if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
                 "FINISHED"
             }:
@@ -1992,8 +1985,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
 
             collider = spring_bone.colliders[-1]
-            collider.name = f"{INTERNAL_NAME_PREFIX} VRM Collider {uuid.uuid4().hex}"
-            collider_index_to_collider[collider_index] = collider
 
             if not isinstance(collider_dict, dict):
                 continue
@@ -2088,18 +2079,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     if child.name in self.context.scene.collection.objects:
                         self.context.scene.collection.objects.unlink(child)
 
-        return collider_index_to_collider
-
     def load_spring_bone1_collider_groups(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: Dict[str, Json],
         armature_name: str,
-        collider_index_to_collider: Dict[int, SpringBone1ColliderPropertyGroup],
-    ) -> Dict[int, SpringBone1ColliderGroupPropertyGroup]:
-        collider_group_index_to_collider_group: Dict[
-            int, SpringBone1ColliderGroupPropertyGroup
-        ] = {}
+    ) -> None:
         collider_group_dicts = spring_bone_dict.get("colliderGroups")
         if not isinstance(collider_group_dicts, abc.Iterable):
             collider_group_dicts = []
@@ -2118,9 +2103,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 continue
 
             collider_group = spring_bone.collider_groups[-1]
-            collider_group_index_to_collider_group[
-                collider_group_index
-            ] = collider_group
 
             name = collider_group_dict.get("name")
             if isinstance(name, str):
@@ -2141,22 +2123,19 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     )
                 if not isinstance(collider_index, int):
                     continue
-                collider = collider_index_to_collider.get(collider_index)
+                if not 0 <= collider_index < len(spring_bone.colliders):
+                    continue
+                collider = spring_bone.colliders[collider_index]
                 if not collider:
                     continue
                 collider_reference = collider_group.colliders[-1]
                 collider_reference.collider_name = collider.name
-
-        return collider_group_index_to_collider_group
 
     def load_spring_bone1_springs(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: Dict[str, Json],
         armature_name: str,
-        collider_group_index_to_collider_group: Dict[
-            int, SpringBone1ColliderGroupPropertyGroup
-        ],
     ) -> None:
         spring_dicts = spring_bone_dict.get("springs")
         if not isinstance(spring_dicts, abc.Iterable):
@@ -2232,9 +2211,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     continue
                 if not isinstance(collider_group_index, int):
                     continue
-                collider_group = collider_group_index_to_collider_group.get(
-                    collider_group_index
-                )
+                if not 0 <= collider_group_index < len(spring_bone.collider_groups):
+                    continue
+                collider_group = spring_bone.collider_groups[collider_group_index]
                 if not collider_group:
                     continue
                 collider_group_reference = spring.collider_groups[-1]
@@ -2251,20 +2230,18 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if armature is None:
             raise ValueError("armature is None")
 
-        collider_index_to_collider = self.load_spring_bone1_colliders(
-            spring_bone, spring_bone_dict, armature
-        )
-        collider_group_index_to_collider_group = self.load_spring_bone1_collider_groups(
+        self.load_spring_bone1_colliders(spring_bone, spring_bone_dict, armature)
+
+        self.load_spring_bone1_collider_groups(
             spring_bone,
             spring_bone_dict,
             armature.name,
-            collider_index_to_collider,
         )
+
         self.load_spring_bone1_springs(
             spring_bone,
             spring_bone_dict,
             armature.name,
-            collider_group_index_to_collider_group,
         )
 
     def get_object_or_bone_by_node_index(
