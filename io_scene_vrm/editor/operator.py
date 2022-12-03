@@ -25,9 +25,9 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc] # n
     bl_description = "Rename VRoid_bones as Blender type"
     bl_options = {"REGISTER", "UNDO"}
 
-    left__pattern = re.compile("^J_(Adj|Bip|Sec)_L_")
-    right_pattern = re.compile("^J_(Adj|Bip|Sec)_R_")
-    full__pattern = re.compile("^J_(Adj|Bip|Sec)_[CLR]_")
+    left__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_L_")
+    right_pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_R_")
+    full__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?")
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}  # noqa: F821
@@ -41,11 +41,7 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc] # n
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return (
-            bool(context.active_object)
-            and context.active_object.type == "ARMATURE"
-            and context.active_object.mode != "EDIT"
-        )
+        return bool(context.active_object) and context.active_object.mode != "EDIT"
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.objects.get(self.armature_name)
