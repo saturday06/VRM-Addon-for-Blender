@@ -1111,6 +1111,21 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         elif not os.path.exists(dir_path):
             os.mkdir(dir_path)
 
+        if bpy.app.version >= (3, 3) and not bpy.data.filepath:
+            blend_dir_path = os.path.dirname(self.parse_result.filepath)
+            blend_base_path = os.path.basename(self.parse_result.filepath)
+            blend_file_root, _ = os.path.splitext(blend_base_path)
+            filepath = os.path.join(blend_dir_path, blend_file_root + ".temp.blend")
+            for count in range(100000):
+                if os.path.exists(filepath):
+                    filepath = os.path.join(
+                        blend_dir_path,
+                        blend_file_root + ".temp" + str(count + 1) + ".blend",
+                    )
+                    continue
+                bpy.ops.wm.save_as_mainfile(filepath=filepath)
+                break
+
         for image_index, image in self.images.items():
             image_name = os.path.basename(image.filepath_from_user())
             if image_name:
@@ -1135,30 +1150,31 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 image_name.lower().endswith(".jpg") and image_type.lower() == "jpeg"
             ):
                 image_path += "." + image_type
-            if not os.path.exists(image_path):
+
+            written = False
+            retry_limit = 100000
+
+            for retry_count in range(retry_limit):
+                root, ext = os.path.splitext(os.path.basename(image_path))
+                if os.path.exists(image_path):
+                    next_image_name = root + "_" + str(retry_count + 1) + ext
+                    image_path = os.path.join(dir_path, next_image_name)
+                    continue
+
                 image.unpack(method="WRITE_ORIGINAL")
-                with contextlib.suppress(IOError, shutil.SameFileError):
+                with contextlib.suppress(shutil.SameFileError):
                     shutil.move(image.filepath_from_user(), image_path)
                     image.filepath = image_path
                     image.reload()
-            else:
-                written_flag = False
-                for i in range(100000):
-                    root, ext = os.path.splitext(image_name)
-                    second_image_name = root + "_" + str(i) + ext
-                    image_path = os.path.join(dir_path, second_image_name)
-                    if not os.path.exists(image_path):
-                        image.unpack(method="WRITE_ORIGINAL")
-                        shutil.move(image.filepath_from_user(), image_path)
-                        image.filepath = image_path
-                        image.reload()
-                        written_flag = True
-                        break
-                if not written_flag:
-                    logger.warning(
-                        "There are more than 100000 images with the same name in the folder."
-                        + f" Failed to write file: {image_name}"
-                    )
+
+                written = True
+                break
+
+            if not written:
+                logger.error(
+                    f"There are more than {retry_limit} images with the same name in the folder."
+                    + f" Failed to write file: {image_name}"
+                )
 
     def setup_vrm1_humanoid_bones(self) -> None:
         armature = self.armature
