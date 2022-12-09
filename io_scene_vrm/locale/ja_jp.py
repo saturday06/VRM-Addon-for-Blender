@@ -323,12 +323,12 @@ translation_dictionary = {
     ): "マテリアル{name}の{texture_label}の{input_colorspace}には「{colorspace}」の設定が推奨されます。",
     (
         "*",
-        "(Experimental!) Use New VRM MToon Material UI",
-    ): "(実験中の機能です!) 新しいVRM MToonマテリアルのUIを使う",
-    (
-        "*",
         "VRM Material",
     ): "VRMマテリアル",
+    (
+        "*",
+        "Enable VRM MToon Material",
+    ): "VRM MToonマテリアルを有効にする",
     (
         "*",
         "Export Shape Key Normals",
