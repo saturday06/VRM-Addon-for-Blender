@@ -329,4 +329,8 @@ translation_dictionary = {
         "*",
         "VRM Material",
     ): "VRMマテリアル",
+    (
+        "*",
+        "Export Shape Key Normals",
+    ): "シェイプキー法線をエクスポートする",
 }
