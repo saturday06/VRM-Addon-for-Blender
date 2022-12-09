@@ -257,6 +257,25 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     node = search.vrm_shader_node(context.material)
     if ext.mtoon1.enabled or (node and node.node_tree["SHADER"] == "MToon_unversioned"):
         layout.prop(ext.mtoon1, "export_shape_key_normals")
+        return
+    if node and node.node_tree["SHADER"] in ["TRANSPARENT_ZWRITE", "GLTF"]:
+        return
+
+    help_column = layout.box().column()
+    help_message = pgettext(
+        "How to export this material to VRM.\n"
+        + "Meet one of the following conditions.\n"
+        + " - VRM MToon material is enabled\n"
+        + ' - Connect the "Surface" to a "Principled BSDF"\n'
+        + ' - Connect the "Surface" to a "MToon_unversioned"\n'
+        + ' - Connect the "Surface" to a "TRANSPARENT_ZWRITE"\n'
+        + " - Others that are compatible with the glTF 2.0 add-on export\n"
+        + "   https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials\n",
+    )
+    for index, help_line in enumerate(help_message.splitlines()):
+        help_column.label(
+            text=help_line, translate=False, icon="HELP" if index == 0 else "NONE"
+        )
 
 
 class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801

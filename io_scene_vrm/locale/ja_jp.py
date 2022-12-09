@@ -333,4 +333,22 @@ translation_dictionary = {
         "*",
         "Export Shape Key Normals",
     ): "シェイプキー法線をエクスポートする",
+    (
+        "*",
+        "How to export this material to VRM.\n"
+        + "Meet one of the following conditions.\n"
+        + " - VRM MToon material is enabled\n"
+        + ' - Connect the "Surface" to a "Principled BSDF"\n'
+        + ' - Connect the "Surface" to a "MToon_unversioned"\n'
+        + ' - Connect the "Surface" to a "TRANSPARENT_ZWRITE"\n'
+        + " - Others that are compatible with the glTF 2.0 add-on export\n"
+        + "   https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials\n",
+    ): "VRMにこのマテリアルをエクスポートする方法\n"
+    + "次のいずれかの条件を満たしてください。\n"
+    + " - VRM MToonマテリアルが有効\n"
+    + " - 「サーフィス」に「プリンシプルBSDF」を指定\n"
+    + " - 「サーフィス」に「MToon_unversioned」を指定\n"
+    + " - 「サーフィス」に「TRANSPARENT_ZWRITE」を指定\n"
+    + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n"
+    + "   https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials\n",
 }
