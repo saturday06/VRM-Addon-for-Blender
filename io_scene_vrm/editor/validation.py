@@ -427,7 +427,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 warning_messages.append(
                     pgettext(
                         '"{material_name}" needs to enable "VRM MToon Material" or'
-                        + " connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE"
+                        + " connect Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
                         + ' to "Surface" directly. Empty material will be exported.'
                     ).format(material_name=mat.name)
                 )

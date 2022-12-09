@@ -15,7 +15,6 @@ logger = get_logger(__name__)
 __file_names = [
     "mtoon0.blend",
     "transparent_z_write.blend",
-    "gltf.blend",
 ]
 
 UV_GROUP_NAME = "VRM Add-on MToon 1.0 UV Revision 1"

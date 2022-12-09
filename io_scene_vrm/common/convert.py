@@ -108,12 +108,6 @@ def get_shading_range_0x(
     return (range_min, range_max)
 
 
-def int_or_none(v: Any) -> Optional[int]:
-    if isinstance(v, int):
-        return v
-    return None
-
-
 def float_or_none(v: Any) -> Optional[float]:
     if isinstance(v, int):
         return float(v)

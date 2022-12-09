@@ -176,10 +176,10 @@ translation_dictionary = {
     (
         "*",
         '"{material_name}" needs to enable "VRM MToon Material" or'
-        + " connect Principled BSDF/MToon_unversioned/GLTF/TRANSPARENT_ZWRITE"
+        + " connect Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
         + ' to "Surface" directly. Empty material will be exported.',
     ): "マテリアル「{material_name}」は「VRM MToon Material」を有効にするか"
-    + "「プリンシプルBSDF」「MToon_unversioned」「GLTF」「TRANSPARENT_ZWRITE」の"
+    + "「プリンシプルBSDF」「MToon_unversioned」「TRANSPARENT_ZWRITE」の"
     + "いずれかを直接「サーフェス」に指定してください。空のマテリアルを出力します。",
     (
         "*",

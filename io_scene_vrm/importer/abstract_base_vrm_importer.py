@@ -335,20 +335,14 @@ class AbstractBaseVrmImporter(ABC):
     def make_material(self) -> None:
         # 適当なので要調整
         for index, mat in enumerate(self.parse_result.materials):
-            if (
-                bpy.app.version >= (2, 83)
-                and isinstance(mat, PyMaterialGltf)
-                and not mat.vrm_addon_for_blender_legacy_gltf_material
-            ):
+            if isinstance(mat, PyMaterialGltf):
                 continue
             b_mat = self.materials.get(index)
             if not b_mat:
                 b_mat = bpy.data.materials.new(mat.name)
             self.reset_material(b_mat)
             b_mat["shader_name"] = mat.shader_name
-            if isinstance(mat, PyMaterialGltf):
-                self.build_material_from_gltf(b_mat, mat)
-            elif isinstance(mat, PyMaterialMtoon):
+            if isinstance(mat, PyMaterialMtoon):
                 self.build_material_from_mtoon(b_mat, mat)
             elif isinstance(mat, PyMaterialTransparentZWrite):
                 self.build_material_from_transparent_z_write(b_mat, mat)
@@ -500,96 +494,6 @@ class AbstractBaseVrmImporter(ABC):
                 self.node_placer(child_node)
 
     # endregion material_util func
-
-    def build_principle_from_gltf_mat(
-        self, b_mat: bpy.types.Material, pymat: PyMaterialGltf
-    ) -> None:
-        principled_node = b_mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
-
-        b_mat.node_tree.links.new(
-            self.find_material_output_node(b_mat).inputs["Surface"],
-            principled_node.outputs["BSDF"],
-        )
-        # self.connect_with_color_multiply_node(
-        #     b_mat, pymat.base_color, pymat.color_texture_index, principled_node.inputs["Base Color"]
-        # )
-        if pymat.color_texture_index is not None:
-            self.connect_texture_node(
-                b_mat,
-                pymat.color_texture_index,
-                principled_node.inputs["Base Color"],
-                principled_node.inputs["Alpha"],
-            )
-        # self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
-        # self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
-        # self.connect_value_node(b_mat, pymat.metallic_factor,sg.inputs["metallic"])
-        # self.connect_value_node(b_mat, pymat.roughness_factor,sg.inputs["roughness"])
-        if pymat.normal_texture_index is not None:
-            self.connect_texture_node(
-                b_mat, pymat.normal_texture_index, principled_node.inputs["Normal"]
-            )
-
-        transparent_exchange_dict = {
-            "OPAQUE": "OPAQUE",
-            "MASK": "CUTOUT",
-            "Z_TRANSPARENCY": "Z_TRANSPARENCY",
-        }
-        self.set_material_transparent(
-            b_mat, pymat, transparent_exchange_dict[pymat.alpha_mode]
-        )
-        b_mat.use_backface_culling = not pymat.double_sided
-
-    def build_material_from_gltf(
-        self, b_mat: bpy.types.Material, pymat: PyMaterialGltf
-    ) -> None:
-        gltf_node_name = "GLTF"
-        shader_node_group_import(gltf_node_name)
-        sg = self.node_group_create(b_mat, gltf_node_name)
-        b_mat.node_tree.links.new(
-            self.find_material_output_node(b_mat).inputs["Surface"],
-            sg.outputs["BSDF"],
-        )
-
-        self.connect_rgb_node(b_mat, pymat.base_color, sg.inputs["base_Color"])
-        if pymat.color_texture_index is not None:
-            self.connect_texture_node(
-                b_mat, pymat.color_texture_index, sg.inputs["color_texture"]
-            )
-        self.connect_value_node(b_mat, pymat.metallic_factor, sg.inputs["metallic"])
-        self.connect_value_node(b_mat, pymat.roughness_factor, sg.inputs["roughness"])
-        if pymat.metallic_roughness_texture_index is not None:
-            self.connect_texture_node(
-                b_mat,
-                pymat.metallic_roughness_texture_index,
-                sg.inputs["metallic_roughness_texture"],
-            )
-        if isinstance(pymat.emissive_factor, abc.Iterable):
-            self.connect_rgb_node(
-                b_mat, [*pymat.emissive_factor, 1], sg.inputs["emissive_color"]
-            )
-        if pymat.emissive_texture_index is not None:
-            self.connect_texture_node(
-                b_mat, pymat.emissive_texture_index, sg.inputs["emissive_texture"]
-            )
-        if pymat.normal_texture_index is not None:
-            self.connect_texture_node(
-                b_mat, pymat.normal_texture_index, sg.inputs["normal"]
-            )
-        if pymat.occlusion_texture_index is not None:
-            self.connect_texture_node(
-                b_mat, pymat.occlusion_texture_index, sg.inputs["occlusion_texture"]
-            )
-        self.connect_value_node(b_mat, pymat.shadeless, sg.inputs["unlit"])
-
-        transparent_exchange_dict = {
-            "OPAQUE": "OPAQUE",
-            "MASK": "CUTOUT",
-            "Z_TRANSPARENCY": "Z_TRANSPARENCY",
-        }
-        self.set_material_transparent(
-            b_mat, pymat, transparent_exchange_dict[pymat.alpha_mode]
-        )
-        b_mat.use_backface_culling = not pymat.double_sided
 
     def build_material_from_mtoon(
         self, b_mat: bpy.types.Material, pymat: PyMaterialMtoon

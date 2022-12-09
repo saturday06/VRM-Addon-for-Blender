@@ -31,7 +31,6 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 - VRMエクステンションの編集パネル
   !["UI Panel"](images/ui_panel.png)
 - VRM向けシェーダーノードグループ(※モックアップ程度の出来)
-  - GLTF
   - MToon_unversioned
   - TransparentZwrite
 - VRM向けHumanoid Armature追加機能
