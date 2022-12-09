@@ -32,20 +32,26 @@ def draw_spring_bone1_collider_layout(
     layout: bpy.types.UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
-    layout.prop(collider, "shape_type")
-    layout.prop_search(collider.node, "value", armature.data, "bones")
     if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
-        layout.prop(collider.shape.sphere, "radius")
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="")
+        layout.prop_search(collider.node, "value", armature.data, "bones")
+        layout.prop(collider, "shape_type")
+        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
         layout.prop(collider.shape.sphere, "offset", text="")
+        layout.separator(factor=0.5)
+        layout.prop(collider.shape.sphere, "radius", slider=True)
     elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
-        layout.prop(collider.shape.capsule, "radius")
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Start")
+        layout.prop_search(collider.node, "value", armature.data, "bones")
+        layout.prop(collider, "shape_type")
+        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
         layout.prop(collider.shape.capsule, "offset", text="")
+        layout.separator(factor=0.5)
+        layout.prop(collider.shape.capsule, "radius", slider=True)
+        layout.separator(factor=0.5)
         layout.prop(
-            collider.bpy_object.children[0], "name", icon="MESH_UVSPHERE", text="End"
+            collider.bpy_object.children[0], "name", icon="MESH_UVSPHERE", text="Tail"
         )
         layout.prop(collider.shape.capsule, "tail", text="")
+    layout.separator(factor=0.5)
 
 
 def draw_spring_bone1_spring_bone_layout(
@@ -251,13 +257,16 @@ def draw_spring_bone1_spring_bone_layout(
                         )
                         if not joint.show_expanded:
                             continue
+
                         box = spring_joints_box.box().column()
                         box.prop_search(joint.node, "value", armature.data, "bones")
-                        box.prop(joint, "hit_radius")
-                        box.prop(joint, "stiffness")
-                        box.prop(joint, "gravity_power")
+                        box.prop(joint, "stiffness", slider=True)
+                        box.prop(joint, "gravity_power", slider=True)
                         box.prop(joint, "gravity_dir")
-                        box.prop(joint, "drag_force")
+                        box.prop(joint, "drag_force", slider=True)
+                        box.prop(joint, "hit_radius", slider=True)
+
+                        box.separator(factor=0.5)
 
                         remove_spring_joint_op = box.operator(
                             vrm1_operator.VRM_OT_remove_spring_bone1_spring_joint.bl_idname,
