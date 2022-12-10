@@ -2,7 +2,7 @@ import collections
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 import bgl
 import bpy
@@ -175,11 +175,11 @@ class MtoonGlsl:
 
 @dataclass
 class GlMesh:
-    pos: Dict[Any, Any] = field(default_factory=dict)
-    normals: Dict[Any, Any] = field(default_factory=dict)
-    uvs: Dict[Any, Any] = field(default_factory=dict)
-    tangents: Dict[Any, Any] = field(default_factory=dict)
-    index_per_mat: Dict[Any, Any] = field(default_factory=dict)
+    pos: Dict[object, object] = field(default_factory=dict)
+    normals: Dict[object, object] = field(default_factory=dict)
+    uvs: Dict[object, object] = field(default_factory=dict)
+    tangents: Dict[object, object] = field(default_factory=dict)
+    index_per_mat: Dict[bpy.types.Material, object] = field(default_factory=dict)
     mat_list: List[MtoonGlsl] = field(default_factory=list)
     index_per_mat = field(default_factory=dict)  # material : vert index
 
@@ -207,12 +207,12 @@ class GlslDrawObj:
     light = None
     offscreen = None
     materials: Dict[str, MtoonGlsl] = {}
-    instance: Optional[Any] = None
+    instance: Optional["GlslDrawObj"] = None
     draw_objs: List[bpy.types.Object] = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
-    bounding_center = [0, 0, 0]
-    bounding_size = [1, 1, 1]
+    bounding_center = [0.0, 0.0, 0.0]
+    bounding_size = [1.0, 1.0, 1.0]
 
     def __init__(self) -> None:
         GlslDrawObj.instance = self
@@ -292,7 +292,7 @@ class GlslDrawObj:
                 for i, v in count_list.items()
             }
 
-            def job_pos() -> Dict[Any, Any]:
+            def job_pos() -> Dict[object, object]:
                 if scene_mesh.index_per_mat is None:
                     raise ValueError("scene mesh index per mat is None")
                 return {
@@ -305,7 +305,7 @@ class GlslDrawObj:
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_normal() -> Dict[Any, Any]:
+            def job_normal() -> Dict[object, object]:
                 if tmp_mesh.has_custom_normals:
                     return {
                         k: [
@@ -326,7 +326,7 @@ class GlslDrawObj:
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_uv() -> Dict[Any, Any]:
+            def job_uv() -> Dict[object, object]:
                 return {
                     k: [
                         st[lo].uv
@@ -337,7 +337,7 @@ class GlslDrawObj:
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_tangent() -> Dict[Any, Any]:
+            def job_tangent() -> Dict[object, object]:
                 return {
                     k: [
                         tmp_mesh.loops[lo].tangent
@@ -372,7 +372,7 @@ class GlslDrawObj:
 
         glsl_draw_obj.build_batches()
 
-    batches: Optional[List[Tuple[Any, Any, Any]]] = None
+    batches: Optional[List[Tuple[bpy.types.Material, object, object]]] = None
 
     def build_batches(self) -> None:
         if self.toon_shader is None:
@@ -501,7 +501,7 @@ class GlslDrawObj:
                 )  # obj.matrix_world)
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
-                depth_bat.draw(depth_shader)
+                depth_bat.draw(depth_shader)  # type: ignore[attr-defined]
         # endregion shader depth path
 
         # region shader main
@@ -612,7 +612,7 @@ class GlslDrawObj:
                     )
                     toon_shader.uniform_int(k, 1 + i)
 
-                toon_bat.draw(toon_shader)
+                toon_bat.draw(toon_shader)  # type: ignore[attr-defined]
         # endregion shader main
 
     draw_func: Optional[bpy.types.Object] = None

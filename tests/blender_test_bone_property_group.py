@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import bpy
 
@@ -8,18 +8,20 @@ from io_scene_vrm.common.vrm0.human_bone import (
 )
 from io_scene_vrm.editor.property_group import BonePropertyGroup
 
+Tree = Dict[str, "Tree"]
+
 
 def assert_bone_candidates(
     armature: bpy.types.Object,
     target_human_bone_specification: HumanBoneSpecification,
     bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
     expected: Set[str],
-    tree: Dict[str, Any],
+    tree: Dict[str, Tree],
 ) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
     for bone in list(armature.data.edit_bones):
         armature.data.edit_bones.remove(bone)
-    parent_and_trees: List[Tuple[Optional[bpy.types.Bone], Dict[str, Any]]] = [
+    parent_and_trees: List[Tuple[Optional[bpy.types.Bone], Dict[str, Tree]]] = [
         (None, tree)
     ]
     while parent_and_trees:

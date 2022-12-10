@@ -1,23 +1,23 @@
 import math
 from collections import abc
-from typing import Any, Dict, List, Union
+from typing import Dict, List, Union
 
 from .logging import get_logger
 
 logger = get_logger(__name__)
 
 Json = Union[
-    Dict[str, "Json"],
-    List["Json"],
-    str,
+    None,
+    bool,
     int,
     float,
-    bool,
-    None,
+    str,
+    List["Json"],
+    Dict[str, "Json"],
 ]
 
 
-def make_json(v: Any) -> Json:
+def make_json(v: object) -> Json:
     if v is None:
         return None
     if isinstance(v, int):
@@ -55,12 +55,12 @@ def get(
 
     if isinstance(json, list) and isinstance(attr, int) and 0 <= attr < len(json):
         if not attrs:
-            return make_json(json[attr])
+            return json[attr]
         return get(json[attr], attrs, default)
 
     if isinstance(json, dict) and isinstance(attr, str) and attr in json:
         if not attrs:
-            return make_json(json[attr])
+            return json[attr]
         return get(json[attr], attrs, default)
 
     return default

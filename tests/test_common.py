@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import List
 from unittest import TestCase
 
 from io_scene_vrm.common import deep
@@ -30,7 +30,7 @@ class TestVrm0HumanBone(TestCase):
         )
 
         structure_human_bone_names = []
-        children: List[Dict[vrm0_human_bone.HumanBoneName, Any]] = [
+        children: List[vrm0_human_bone.HumanBoneStructure] = [
             vrm0_human_bone.HUMAN_BONE_STRUCTURE
         ]
         while children:
@@ -140,7 +140,7 @@ class TestVrm1HumanBone(TestCase):
         )
 
         structure_human_bone_names = []
-        children: List[Dict[vrm1_human_bone.HumanBoneName, Any]] = [
+        children: List[vrm1_human_bone.HumanBoneStructure] = [
             vrm1_human_bone.HUMAN_BONE_STRUCTURE
         ]
         while children:

@@ -2,7 +2,7 @@ import itertools
 import sys
 from collections import abc
 from math import radians, sqrt
-from typing import Any, Callable, Dict, List, Sequence, Set, Tuple
+from typing import Callable, Dict, List, Sequence, Set, Tuple
 
 import bpy
 from mathutils import Matrix, Vector
@@ -290,8 +290,12 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
             # region  vertex groupの作成
             if origin is not None:
+                skin_index = list(origin)[2]
+                if not isinstance(skin_index, int):
+                    raise ValueError
+
                 # TODO bone名の不具合などでリネームが発生してるとうまくいかない
-                nodes_index_list = self.parse_result.skins_joints_list[origin[2]]
+                nodes_index_list = self.parse_result.skins_joints_list[skin_index]
                 # TODO bone名の不具合などでリネームが発生してるとうまくいかない
                 # VertexGroupに頂点属性から一個ずつウェイトを入れる用の辞書作り
                 for prim in pymesh:
@@ -337,7 +341,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                                 return len(keys) + sort_joint_ids.index(sort_joint_id)
 
                             get_first_element: Callable[
-                                [Tuple[int, Any, Any, Any]], int
+                                [Tuple[int, object, object, object]], int
                             ] = lambda input: input[0]
                             sorted_joint_ids = map(
                                 get_first_element,
@@ -487,7 +491,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             # shapekey_data_factory with cache
             def absolutize_morph_positions(
                 base_points: List[List[float]],
-                morph_target_pos_and_index: List[Any],
+                morph_target_pos_and_index: List[object],
                 prim: PyMesh,
             ) -> List[List[float]]:
                 shape_key_positions = []
@@ -503,17 +507,17 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                     morph_target_index,
                 ) in morph_cache_dict:
                     return morph_cache_dict[
-                        (prim.POSITION_accessor, morph_target_index)
+                        (prim.POSITION_accessor, morph_target_index)  # type: ignore[index]
                     ]
 
-                for base_pos, morph_pos in zip(base_points, morph_target_pos):
+                for base_pos, morph_pos in zip(base_points, morph_target_pos):  # type: ignore[call-overload]
                     shape_key_positions.append(
                         self.axis_glb_to_blender(
                             [base_pos[i] + morph_pos[i] for i in range(3)]  # noqa: B023
                         )
                     )
                 morph_cache_dict[
-                    (prim.POSITION_accessor, morph_target_index)
+                    (prim.POSITION_accessor, morph_target_index)  # type: ignore[index]
                 ] = shape_key_positions
                 return shape_key_positions
 

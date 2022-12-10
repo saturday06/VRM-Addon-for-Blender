@@ -7,10 +7,11 @@ import re
 import uuid
 from collections import abc
 from pathlib import Path
-from typing import Any
 
 
-def to_function_component_literal(s: str) -> str:
+def to_function_component_literal(s: object) -> str:
+    if not isinstance(s, str):
+        return "_invalid_str_error_"
     permitted = "abcdefghijklmnopqrstuvwxyz0123456789"
     return "".join(
         c if c in permitted else "_"
@@ -105,7 +106,7 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
         if not os.path.exists(os.path.join(resources_dir, d)):
             return render_missing_required_directory_test("./tests/resources/{d}/")
 
-    test_command_args_list: Any = None
+    test_command_args_list: object = None
     try:
         spec = importlib.util.spec_from_file_location(
             "blender_vrm_addon_base_blender_test_case_generate_blender_test_case__"
@@ -119,7 +120,7 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
             raise RuntimeError("Failed to create module spec loader")
         spec.loader.exec_module(mod)
 
-        func: Any = None
+        func: object = None
         with contextlib.suppress(AttributeError):
             func = getattr(mod, "get_test_command_args")  # noqa: B009
         if callable(func):

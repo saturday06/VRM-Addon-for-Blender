@@ -2,7 +2,7 @@ import functools
 import re
 from collections import abc
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import bpy
 import mathutils
@@ -36,7 +36,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
     def set_value(
         self,
         name: str,
-        value: Any,
+        value: object,
     ) -> None:
         if not isinstance(value, (int, float)):
             return
@@ -50,21 +50,21 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
     def set_bool(
         self,
         name: str,
-        value: Any,
+        value: object,
     ) -> None:
         self.set_value(name, 1 if value else 0)
 
     def set_int(
         self,
         name: str,
-        value: Any,
+        value: object,
     ) -> None:
         self.set_value(name, value)
 
     def set_rgba(
         self,
         name: str,
-        value: Any,
+        value: object,
         default_value: Optional[Tuple[float, float, float, float]] = None,
     ) -> None:
         if not default_value:
@@ -77,17 +77,17 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not isinstance(value, abc.Iterable):
             node.outputs[0].default_value = default_value
             return
-        value = list(value)
-        if len(value) < 4:
+        list_value = list(value)
+        if len(list_value) < 4:
             node.outputs[0].default_value = default_value
             return
-        value = value[0:4]
-        node.outputs[0].default_value = value
+        list_value = list_value[0:4]
+        node.outputs[0].default_value = list_value
 
     def set_rgb(
         self,
         name: str,
-        value: Any,
+        value: object,
         default_value: Optional[Tuple[float, float, float]] = None,
     ) -> None:
         if not default_value:
@@ -103,13 +103,13 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         elif not isinstance(value, abc.Iterable):
             node.outputs[0].default_value = default_value + (1.0,)
             return
-        value = list(value)
-        if len(value) < 3:
+        list_value = list(value)
+        if len(list_value) < 3:
             node.outputs[0].default_value = default_value + (1.0,)
             return
-        value = value[0:3]
-        value.append(1.0)
-        node.outputs[0].default_value = value
+        list_value = list_value[0:3]
+        list_value.append(1.0)
+        node.outputs[0].default_value = list_value
 
     def get_node_name(self, extra: Optional[str] = None) -> str:
         base = re.sub("PropertyGroup$", "", type(self).__name__)
@@ -237,7 +237,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         self.link_reroutes(self.get_texture_node_name("Color"), bool(node.image))
         self.link_reroutes(self.get_texture_node_name("Alpha"), bool(node.image))
 
-    def set_texture_uv(self, name: str, value: Any) -> None:
+    def set_texture_uv(self, name: str, value: object) -> None:
         node_name = self.get_texture_node_name("Uv")
         node_tree = self.find_material().node_tree
         node = node_tree.nodes.get(node_name)

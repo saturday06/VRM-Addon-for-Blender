@@ -30,6 +30,7 @@ target-version = ['py37']
 [tool.mypy]
 python_version = 3.7
 strict = true
+disallow_any_explicit = true
 
 [[tool.mypy.overrides]]
 module = [

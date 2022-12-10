@@ -1,7 +1,7 @@
 import secrets
 import string
 from collections import abc
-from typing import Any, Optional
+from typing import Optional
 
 import bpy
 
@@ -27,7 +27,7 @@ class Gltf2AddonImporterUserExtension:
 
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L51
     def gather_import_image_after_hook(
-        self, img: Any, blender_image: Any, gltf_importer: Any
+        self, img: object, blender_image: object, gltf_importer: object
     ) -> None:
         if self.__current_import_id is None:
             return

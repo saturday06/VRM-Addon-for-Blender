@@ -5,7 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-from typing import Any, Callable
+from typing import Callable
 
 import bpy
 from bpy.app.handlers import persistent
@@ -45,19 +45,19 @@ logger = get_logger(__name__)
 
 if not persistent:  # for fake-bpy-modules
 
-    def persistent(_func: Callable[[Any], None]) -> Callable[[Any], None]:
+    def persistent(_func: Callable[[object], None]) -> Callable[[object], None]:
         raise NotImplementedError
 
 
 @persistent  # type: ignore[misc]
-def load_post(_dummy: Any) -> None:
+def load_post(_dummy: object) -> None:
     shader.add_shaders()
     migration.migrate_all_objects()
     migration.setup_subscription(load_post=True)
 
 
 @persistent  # type: ignore[misc]
-def depsgraph_update_pre(_dummy: Any) -> None:
+def depsgraph_update_pre(_dummy: object) -> None:
     # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
     # Blender起動直後のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
     if depsgraph_update_pre not in bpy.app.handlers.depsgraph_update_pre:
@@ -69,7 +69,7 @@ def depsgraph_update_pre(_dummy: Any) -> None:
 
 
 @persistent  # type: ignore[misc]
-def save_pre(_dummy: Any) -> None:
+def save_pre(_dummy: object) -> None:
     # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
     depsgraph_update_pre(None)
     migration.migrate_all_objects()
@@ -294,7 +294,7 @@ classes = [
 ]
 
 
-def register(init_version: Any) -> None:
+def register(init_version: object) -> None:
     # Sanity check
     if init_version != version.version():
         raise AssertionError(

@@ -2,7 +2,7 @@ import math
 from collections import abc
 from os.path import dirname, join
 from sys import float_info
-from typing import Any, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import bgl
 import bpy
@@ -582,7 +582,7 @@ def get_image_name_and_sampler_type(
 
 
 def float_or_none(
-    v: Any, min_value: float = -float_info.max, max_value: float = float_info.max
+    v: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[float]:
     if isinstance(v, float) and math.isnan(v):
         return None
@@ -619,7 +619,7 @@ def get_float_value(
 
 
 def rgba_or_none(
-    vs: Any, min_value: float = -float_info.max, max_value: float = float_info.max
+    vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[Tuple[float, float, float, float]]:
     if not isinstance(vs, abc.Iterable):
         return None
@@ -669,7 +669,7 @@ def get_rgba_value(
 
 
 def rgb_or_none(
-    vs: Any, min_value: float = -float_info.max, max_value: float = float_info.max
+    vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[Tuple[float, float, float]]:
     if not isinstance(vs, abc.Iterable):
         return None

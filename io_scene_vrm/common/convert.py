@@ -1,12 +1,12 @@
 from collections import abc
 from sys import float_info
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .deep import Json, make_json
 
 
 def vrm_json_vector3_to_tuple(
-    value: Any,
+    value: object,
 ) -> Optional[Tuple[float, float, float]]:
     if not isinstance(value, dict):
         return None
@@ -22,7 +22,7 @@ def vrm_json_vector3_to_tuple(
     return (float(x), float(y), float(z))
 
 
-def vrm_json_curve_to_list(curve: Any) -> Optional[List[float]]:
+def vrm_json_curve_to_list(curve: object) -> Optional[List[float]]:
     if not isinstance(curve, abc.Iterable):
         return None
     values = [float(v) if isinstance(v, (int, float)) else 0 for v in curve]
@@ -33,8 +33,8 @@ def vrm_json_curve_to_list(curve: Any) -> Optional[List[float]]:
     return values
 
 
-def vrm_json_array_to_float_vector(json: Any, defaults: List[float]) -> List[float]:
-    if not isinstance(json, abc.Iterable):
+def vrm_json_array_to_float_vector(json: object, defaults: List[float]) -> List[float]:
+    if not isinstance(json, abc.Iterable) or isinstance(json, str):
         return defaults
 
     input_values = list(json)
@@ -108,7 +108,7 @@ def get_shading_range_0x(
     return (range_min, range_max)
 
 
-def float_or_none(v: Any) -> Optional[float]:
+def float_or_none(v: object) -> Optional[float]:
     if isinstance(v, int):
         return float(v)
     if isinstance(v, float):
@@ -116,7 +116,7 @@ def float_or_none(v: Any) -> Optional[float]:
     return None
 
 
-def float_or(v: Any, default: float) -> float:
+def float_or(v: object, default: float) -> float:
     if isinstance(v, int):
         return float(v)
     if isinstance(v, float):
@@ -125,7 +125,7 @@ def float_or(v: Any, default: float) -> float:
 
 
 def float4_or(
-    v: Any, default: Tuple[float, float, float, float]
+    v: object, default: Tuple[float, float, float, float]
 ) -> Tuple[float, float, float, float]:
     if not isinstance(v, abc.Iterable):
         return default
@@ -145,7 +145,7 @@ def float4_or(
 
 
 def float3_or(
-    v: Any, default: Tuple[float, float, float]
+    v: object, default: Tuple[float, float, float]
 ) -> Tuple[float, float, float]:
     if not isinstance(v, abc.Iterable):
         return default
@@ -164,13 +164,13 @@ def float3_or(
     return (result[0], result[1], result[2])
 
 
-def str_or(v: Any, default: str) -> str:
+def str_or(v: object, default: str) -> str:
     if isinstance(v, str):
         return v
     return default
 
 
-def deep_dict_or(v: Any, default: Dict[str, Json]) -> Dict[str, Json]:
+def deep_dict_or(v: object, default: Dict[str, Json]) -> Dict[str, Json]:
     d = make_json(v)
     if isinstance(d, dict):
         return d

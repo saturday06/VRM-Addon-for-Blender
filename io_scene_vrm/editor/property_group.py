@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict, Iterator, Optional, Set, TypeVar, Union
+from typing import Dict, Iterator, Optional, Set, TypeVar, Union
 
 import bpy
 
@@ -35,7 +35,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             return ""
         return str(self.bpy_object.name)
 
-    def __set_value(self, value: Any) -> None:
+    def __set_value(self, value: object) -> None:
         if (
             not isinstance(value, str)
             or value not in bpy.data.objects
@@ -156,7 +156,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         return ""
 
-    def __set_value(self, value: Any) -> None:
+    def __set_value(self, value: object) -> None:
         armature: Optional[bpy.types.Armature] = None
 
         # アーマチュアの複製が行われた場合を考えてself.armature_data_nameの振り直しをする

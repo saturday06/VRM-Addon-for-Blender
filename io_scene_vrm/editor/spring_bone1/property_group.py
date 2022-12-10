@@ -1,7 +1,7 @@
 import statistics
 import uuid
 from collections import abc
-from typing import Any, Tuple
+from typing import Tuple
 
 import bpy
 from mathutils import Matrix, Vector
@@ -12,7 +12,7 @@ from ..property_group import BonePropertyGroup
 logger = get_logger(__name__)
 
 
-def to_tuple_3(v: Any) -> Tuple[float, float, float]:
+def to_tuple_3(v: object) -> Tuple[float, float, float]:
     if isinstance(v, Vector):
         return (v.x, v.y, v.z)
     if not isinstance(v, abc.Iterable):
@@ -57,7 +57,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
             mat = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
         return to_tuple_3((mat).to_translation())
 
-    def __set_offset(self, offset: Any) -> None:
+    def __set_offset(self, offset: object) -> None:
         backup_radius = self.__get_radius()
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
@@ -85,7 +85,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         )
         return float(mean_scale * collider.bpy_object.empty_display_size)
 
-    def __set_radius(self, v: Any) -> None:
+    def __set_radius(self, v: object) -> None:
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
@@ -145,7 +145,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             mat = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
         return to_tuple_3((mat).to_translation())
 
-    def __set_offset(self, offset: Any) -> None:
+    def __set_offset(self, offset: object) -> None:
         backup_radius = self.__get_radius()
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
@@ -180,7 +180,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             )
         return to_tuple_3(mat.to_translation())
 
-    def __set_tail(self, offset: Any) -> None:
+    def __set_tail(self, offset: object) -> None:
         backup_radius = self.__get_radius()
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
@@ -208,7 +208,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         )
         return float(mean_scale * collider.bpy_object.empty_display_size)
 
-    def __set_radius(self, v: Any) -> None:
+    def __set_radius(self, v: object) -> None:
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
@@ -387,7 +387,7 @@ class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # typ
         value = self.get("collider_name", "")
         return value if isinstance(value, str) else str(value)
 
-    def __set_collider_name(self, value: Any) -> None:
+    def __set_collider_name(self, value: object) -> None:
         if not isinstance(value, str):
             value = str(value)
         self.name = value  # pylint: disable=attribute-defined-outside-init
@@ -426,7 +426,7 @@ class SpringBone1ColliderGroupPropertyGroup(
         value = self.get("vrm_name", "")
         return value if isinstance(value, str) else str(value)
 
-    def __set_vrm_name(self, vrm_name: Any) -> None:
+    def __set_vrm_name(self, vrm_name: object) -> None:
         if not isinstance(vrm_name, str):
             vrm_name = str(vrm_name)
         self["vrm_name"] = vrm_name
@@ -516,7 +516,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  
         value = self.get("collider_group_name", "")
         return value if isinstance(value, str) else str(value)
 
-    def __set_collider_group_name(self, value: Any) -> None:
+    def __set_collider_group_name(self, value: object) -> None:
         if not isinstance(value, str):
             value = str(value)
         self.name = value  # pylint: disable=attribute-defined-outside-init

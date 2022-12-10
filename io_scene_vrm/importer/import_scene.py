@@ -1,6 +1,6 @@
 import contextlib
 import os
-from typing import Any, Set, cast
+from typing import Set, Union, cast
 
 import bpy
 from bpy.app.translations import pgettext
@@ -188,64 +188,6 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # typ
             )
 
 
-def create_blend_model(
-    addon: Any,
-    context: bpy.types.Context,
-    license_validation: bool,
-) -> Set[str]:
-    legacy_importer = use_legacy_importer_exporter()
-    has_ui_localization = bpy.app.version < (2, 83)
-    ui_localization = False
-    if has_ui_localization:
-        ui_localization = context.preferences.view.use_international_fonts
-    try:
-        if not legacy_importer:
-            with contextlib.suppress(RetryUsingLegacyVrmImporter):
-                parse_result = VrmParser(
-                    addon.filepath,
-                    addon.extract_textures_into_folder,
-                    addon.make_new_texture_folder,
-                    license_validation=license_validation,
-                    legacy_importer=False,
-                ).parse()
-
-                if parse_result.vrm1_extension:
-                    bpy.ops.wm.vrm_vrm1_incomplete_support_warning("INVOKE_DEFAULT")
-
-                Gltf2AddonVrmImporter(
-                    context,
-                    parse_result,
-                    addon.extract_textures_into_folder,
-                    addon.make_new_texture_folder,
-                ).import_vrm()
-                return {"FINISHED"}
-
-        parse_result = VrmParser(
-            addon.filepath,
-            addon.extract_textures_into_folder,
-            addon.make_new_texture_folder,
-            license_validation=license_validation,
-            legacy_importer=True,
-        ).parse()
-        LegacyVrmImporter(
-            context,
-            parse_result,
-            addon.extract_textures_into_folder,
-            addon.make_new_texture_folder,
-        ).import_vrm()
-    finally:
-        if has_ui_localization and ui_localization:
-            context.preferences.view.use_international_fonts = ui_localization
-
-    return {"FINISHED"}
-
-
-def menu_import(
-    import_op: bpy.types.Operator, _context: bpy.types.Context
-) -> None:  # Same as test/blender_io.py for now
-    import_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
-
-
 class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
@@ -331,3 +273,61 @@ class WM_OT_vrm1_incomplete_support_warning(bpy.types.Operator):  # type: ignore
                 translate=False,
                 icon="ERROR" if index == 0 else "NONE",
             )
+
+
+def create_blend_model(
+    addon: Union[IMPORT_SCENE_OT_vrm, WM_OT_license_confirmation],
+    context: bpy.types.Context,
+    license_validation: bool,
+) -> Set[str]:
+    legacy_importer = use_legacy_importer_exporter()
+    has_ui_localization = bpy.app.version < (2, 83)
+    ui_localization = False
+    if has_ui_localization:
+        ui_localization = context.preferences.view.use_international_fonts
+    try:
+        if not legacy_importer:
+            with contextlib.suppress(RetryUsingLegacyVrmImporter):
+                parse_result = VrmParser(
+                    addon.filepath,
+                    addon.extract_textures_into_folder,
+                    addon.make_new_texture_folder,
+                    license_validation=license_validation,
+                    legacy_importer=False,
+                ).parse()
+
+                if parse_result.vrm1_extension:
+                    bpy.ops.wm.vrm_vrm1_incomplete_support_warning("INVOKE_DEFAULT")
+
+                Gltf2AddonVrmImporter(
+                    context,
+                    parse_result,
+                    addon.extract_textures_into_folder,
+                    addon.make_new_texture_folder,
+                ).import_vrm()
+                return {"FINISHED"}
+
+        parse_result = VrmParser(
+            addon.filepath,
+            addon.extract_textures_into_folder,
+            addon.make_new_texture_folder,
+            license_validation=license_validation,
+            legacy_importer=True,
+        ).parse()
+        LegacyVrmImporter(
+            context,
+            parse_result,
+            addon.extract_textures_into_folder,
+            addon.make_new_texture_folder,
+        ).import_vrm()
+    finally:
+        if has_ui_localization and ui_localization:
+            context.preferences.view.use_international_fonts = ui_localization
+
+    return {"FINISHED"}
+
+
+def menu_import(
+    import_op: bpy.types.Operator, _context: bpy.types.Context
+) -> None:  # Same as test/blender_io.py for now
+    import_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")

@@ -13,7 +13,7 @@ import tempfile
 from collections import abc
 from dataclasses import dataclass, field
 from itertools import repeat
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import bgl
 import bpy
@@ -45,7 +45,7 @@ class PyMesh:
     NORMAL: Optional[List[List[float]]] = None
     vert_normal_normalized: Optional[bool] = None
     morph_target_point_list_and_accessor_index_dict: Optional[
-        Dict[str, List[Any]]
+        Dict[str, List[object]]
     ] = None
     has_FB_ngon_encoding: bool = False  # noqa: N815
 
@@ -127,7 +127,9 @@ class ParseResult:
     meshes: List[List[PyMesh]] = field(init=False, default_factory=list)
     materials: List[PyMaterial] = field(init=False, default_factory=list)
     nodes_dict: Dict[int, PyNode] = field(init=False, default_factory=dict)
-    origin_nodes_dict: Dict[int, List[Any]] = field(init=False, default_factory=dict)
+    origin_nodes_dict: Dict[
+        int, Union[Tuple[PyNode, int], Tuple[PyNode, int, int]]
+    ] = field(init=False, default_factory=dict)
     skins_joints_list: List[List[int]] = field(init=False, default_factory=list)
     skins_root_node_list: List[int] = field(init=False, default_factory=list)
 
@@ -595,7 +597,7 @@ class VrmParser:
                     raise ValueError(f"Unsupported polygon type(:{primitive_mode})")
                 indices = primitive_dict.get("indices")
                 if isinstance(indices, int) and 0 <= indices < len(self.decoded_binary):
-                    scalar_face_indices: List[Any] = self.decoded_binary[indices]
+                    scalar_face_indices = self.decoded_binary[indices]
                     while len(scalar_face_indices) % 3 != 0:
                         logger.warning(
                             f"meshes[{n}]primitives[{j}] length is not a multiple of 3"
@@ -604,7 +606,7 @@ class VrmParser:
 
                     # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
                     vrm_mesh.face_indices = [
-                        scalar_face_indices[x : x + 3]
+                        scalar_face_indices[x : x + 3]  # type: ignore[misc]
                         for x in range(0, len(scalar_face_indices), 3)
                     ]
 
@@ -687,9 +689,9 @@ class VrmParser:
                             pos_array,
                             deep.get(primitive_dict, ["targets", i, "POSITION"]),
                         ]
-                    vrm_mesh.morph_target_point_list_and_accessor_index_dict = (
-                        morph_target_point_list_and_accessor_index_dict
-                    )
+
+                    temp = morph_target_point_list_and_accessor_index_dict
+                    vrm_mesh.morph_target_point_list_and_accessor_index_dict = temp  # type: ignore[assignment]
                 primitives.append(vrm_mesh)
             parse_result.meshes.append(primitives)
 
@@ -750,13 +752,17 @@ class VrmParser:
             # TODO こっからorigin_bone
             mesh_index = node_dict.get("mesh")
             if isinstance(mesh_index, int):
-                parse_result.origin_nodes_dict[i] = [
+                parse_result.origin_nodes_dict[i] = (
                     parse_result.nodes_dict[i],
                     mesh_index,
-                ]
+                )
                 skin_index = node_dict.get("skin")
                 if isinstance(skin_index, int):
-                    parse_result.origin_nodes_dict[i].append(skin_index)
+                    parse_result.origin_nodes_dict[i] = (
+                        parse_result.nodes_dict[i],
+                        mesh_index,
+                        skin_index,
+                    )
                 else:
                     logger.warning(f"{node_dict.get('name')} is not have skin")
 
