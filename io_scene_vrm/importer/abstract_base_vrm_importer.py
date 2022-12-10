@@ -851,15 +851,20 @@ class AbstractBaseVrmImporter(ABC):
                 bone = human_bone_dict.get("bone")
                 if bone not in HumanBoneSpecifications.all_names:
                     continue
-                if any(human_bone.bone == bone for human_bone in humanoid.human_bones):
-                    logger.warning(f'Duplicated bone: "{bone}"')
-                    continue
 
                 node = human_bone_dict.get("node")
                 if not isinstance(node, int) or node not in self.bone_names:
                     continue
 
-                human_bone = humanoid.human_bones.add()
+                human_bone = {
+                    0: human_bone
+                    for human_bone in humanoid.human_bones
+                    if human_bone.bone == bone
+                }.get(0)
+                if human_bone:
+                    logger.warning(f'Duplicated bone: "{bone}"')
+                else:
+                    human_bone = humanoid.human_bones.add()
                 human_bone.bone = bone
                 human_bone.node.value = self.bone_names[node]
 
