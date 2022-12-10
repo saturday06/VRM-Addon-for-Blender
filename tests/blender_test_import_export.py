@@ -3,7 +3,7 @@ import pathlib
 import platform
 import shutil
 import sys
-from typing import List, Optional
+from typing import List
 
 import bpy
 
@@ -43,15 +43,8 @@ def test() -> None:
 
     major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
     out_vrm_dir = os.path.join(vrm_dir, major_minor, "out")
-    out2_vrm_dir = os.path.join(vrm_dir, major_minor, "out2")
     temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
     os.makedirs(temp_vrm_dir, exist_ok=True)
-    test_blend_path = os.path.join(
-        os.path.dirname(vrm_dir),
-        "blend",
-        major_minor,
-        os.path.splitext(vrm)[0] + ".blend",
-    )
     extract_textures = extract_textures_str == "true"
 
     if not os.path.exists(os.path.join(out_vrm_dir, vrm)):
@@ -61,57 +54,6 @@ def test() -> None:
     bpy.ops.object.delete()
     while bpy.data.collections:
         bpy.data.collections.remove(bpy.data.collections[0])
-    startup_blend_path = os.path.join(temp_vrm_dir, vrm + ".blend")
-    bpy.ops.wm.save_as_mainfile(filepath=startup_blend_path)
-
-    assert_import_export(
-        in_path,
-        os.path.join(out_vrm_dir, vrm),
-        temp_vrm_dir,
-        extract_textures,
-        update_failed_vrm,
-        startup_blend_path,
-        test_blend_path,
-    )
-
-    if update_failed_vrm and not os.path.exists(os.path.join(out_vrm_dir, vrm)):
-        return
-
-    if os.path.exists(os.path.join(out2_vrm_dir, vrm + ".TO_BE_SUPPORTED.txt")):
-        logger.warning(f"Second import-export assertion for {vrm} is skipped.")
-        return
-
-    if not os.path.exists(os.path.join(out2_vrm_dir, vrm)) and not update_failed_vrm:
-        assert_import_export(
-            os.path.join(out_vrm_dir, vrm),
-            os.path.join(out_vrm_dir, vrm),
-            temp_vrm_dir,
-            extract_textures,
-            update_failed_vrm,
-            startup_blend_path,
-        )
-        return
-
-    assert_import_export(
-        os.path.join(out_vrm_dir, vrm),
-        os.path.join(out2_vrm_dir, vrm),
-        temp_vrm_dir,
-        extract_textures,
-        update_failed_vrm,
-        startup_blend_path,
-    )
-
-
-def assert_import_export(
-    in_path: str,
-    expected_path: str,
-    temp_dir_path: str,
-    extract_textures: bool,
-    update_failed_vrm: bool,
-    startup_blend_path: str,
-    test_blend_path: Optional[str] = None,
-) -> None:
-    bpy.ops.wm.open_mainfile(filepath=startup_blend_path)
 
     bpy.ops.import_scene.vrm(
         filepath=in_path,
@@ -119,20 +61,17 @@ def assert_import_export(
         make_new_texture_folder=extract_textures,
     )
 
+    for a in bpy.data.armatures:
+        print(str(a))
+        for b in a.bones:
+            print(str(b))
+
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    if (
-        not extract_textures
-        and test_blend_path is not None
-        and not os.path.exists(test_blend_path)
-        and not os.path.exists(test_blend_path + ".OPT_OUT.txt")
-    ):
-        os.makedirs(os.path.dirname(test_blend_path), exist_ok=True)
-        bpy.ops.wm.save_as_mainfile(filepath=test_blend_path)
-
-    actual_path = os.path.join(temp_dir_path, os.path.basename(in_path))
+    actual_path = os.path.join(temp_vrm_dir, os.path.basename(in_path))
     if os.path.exists(actual_path):
         os.remove(actual_path)
+
     bpy.ops.export_scene.vrm(filepath=actual_path)
     actual_bytes = pathlib.Path(actual_path).read_bytes()
 
@@ -142,22 +81,7 @@ def assert_import_export(
     else:
         float_tolerance = 0.00030
 
-    if (
-        update_failed_vrm
-        and in_path != expected_path
-        and not vrm_diff(
-            actual_bytes, pathlib.Path(in_path).read_bytes(), float_tolerance
-        )
-    ):
-        if os.path.exists(expected_path):
-            message = (
-                "The input and the output are same. The output file is unnecessary.\n"
-                + f"input ={in_path}\n"
-                + f"output={expected_path}\n"
-            )
-            sys.stderr.buffer.write(message.encode())
-        sys.exit(0)
-
+    expected_path = os.path.join(out_vrm_dir, vrm)
     if not os.path.exists(expected_path):
         shutil.copy(actual_path, expected_path)
 

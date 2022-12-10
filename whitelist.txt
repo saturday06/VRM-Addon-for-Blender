@@ -141,7 +141,6 @@ offscreen
 ortho
 otogai
 ou
-out2
 parameteri
 parametrization
 pathsep
