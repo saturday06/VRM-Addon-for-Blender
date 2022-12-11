@@ -103,19 +103,24 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
     ) -> None:
         human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bones.check_last_bone_names_and_update(armature.data.name, defer=readonly)
-        for human_bone in human_bones.human_bone_name_to_human_bone().values():
+        for (
+            human_bone_name,
+            human_bone,
+        ) in human_bones.human_bone_name_to_human_bone().items():
             if (
                 not human_bone.node.value
                 or human_bone.node.value in human_bone.node_candidates
             ):
                 continue
+
+            specification = vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
             messages.append(
                 pgettext(
                     'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
                     + 'Please confirm "VRM" Panel → "Humanoid" → {human_bone}.'
                 ).format(
                     bone=human_bone.node.value,
-                    human_bone=human_bone.specification().title,
+                    human_bone=specification.title,
                 )
             )
             break
