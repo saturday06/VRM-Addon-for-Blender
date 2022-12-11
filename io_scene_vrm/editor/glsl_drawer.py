@@ -662,8 +662,6 @@ class GlslDrawObj:
         GlslDrawObj.draw_objs = []
         bpy.ops.wm.redraw_timer(type="DRAW", iterations=1)  # Force redraw
 
-    # endregion 3Dview drawer
-
 
 # region util func
 def ortho_proj_mat(
@@ -705,3 +703,6 @@ def lookat_cross(
         mat4[i][2] = z[i]
         mat4[3][i] = n[i]
     return mat4
+
+
+# endregion util func

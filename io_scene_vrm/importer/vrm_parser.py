@@ -208,7 +208,7 @@ def create_py_material(ext_mat: Dict[str, Json]) -> Optional[PyMaterial]:
             if _subset:
                 ext_mat_name = ext_mat.get("name")
                 logger.warning(f"Unknown {k} properties {_subset} in {ext_mat_name}")
-        # endregion check unknown props exit
+        # endregion check unknown props exist
 
         mtoon.float_props_dict.update(float_properties_dict)
         mtoon.vector_props_dict.update(vector_properties_dict)

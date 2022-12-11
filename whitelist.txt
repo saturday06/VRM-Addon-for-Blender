@@ -41,7 +41,6 @@ depsgraph
 dicts
 dirname
 dof
-dview
 editmode
 ee
 emissive

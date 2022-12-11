@@ -636,8 +636,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         )
             # endregion blend_shape_master
 
-        # endregion vrm metas check
-
         error_collection.clear()
 
         for message in error_messages:
