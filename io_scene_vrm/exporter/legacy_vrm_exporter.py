@@ -391,22 +391,24 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         def apply_texture_and_sampler_to_dict() -> None:
             if sampler_dict:
-                sampler_list = self.json_dict["samplers"] = []
-                for sampler in sampler_dict:
-                    sampler_list.append(
-                        {
-                            "wrapS": sampler[0],
-                            "wrapT": sampler[1],
-                            "magFilter": sampler[2],
-                            "minFilter": sampler[3],
-                        }
-                    )
+                self.json_dict["samplers"] = [
+                    {
+                        "wrapS": sampler[0],
+                        "wrapT": sampler[1],
+                        "magFilter": sampler[2],
+                        "minFilter": sampler[3],
+                    }
+                    for sampler in sampler_dict
+                ]
             if texture_dict:
-                textures: List[Json] = []
-                for tex in texture_dict:
-                    texture: Json = {"sampler": tex[1], "source": tex[0]}
-                    textures.append(texture)
-                self.json_dict.update({"textures": textures})
+                self.json_dict["textures"] = [
+                    {
+                        "sampler": tex[1],
+                        "source": tex[0],
+                    }
+                    for tex in texture_dict
+                ]
+
         # endregion texture func
 
         # region function separate by shader
@@ -975,7 +977,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             gltf2_io_material: Optional[object] = None
             export_settings: Dict[str, object] = {
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L522
-                "timestamp": datetime.datetime.now(),
+                "timestamp": datetime.datetime.now(datetime.timezone.utc),
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L258-L268
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L552
                 "gltf_materials": True,

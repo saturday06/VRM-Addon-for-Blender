@@ -16,13 +16,13 @@ def to_tuple_3(v: object) -> Tuple[float, float, float]:
     if isinstance(v, Vector):
         return (v.x, v.y, v.z)
     if not isinstance(v, abc.Iterable):
-        raise Exception(f"{v} is not an iterable or mathutils.Vector")
+        raise ValueError(f"{v} is not an iterable or mathutils.Vector")
     v = list(v)
     if len(v) != 3:
-        raise Exception(f"len({v}) != 3")
+        raise ValueError(f"len({v}) != 3")
     for elem in v:
         if not isinstance(elem, (int, float)):
-            raise Exception(f"{elem} is not a number")
+            raise ValueError(f"{elem} is not a number")
     return (float(v[0]), float(v[1]), float(v[2]))
 
 
