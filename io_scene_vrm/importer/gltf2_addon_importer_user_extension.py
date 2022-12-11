@@ -27,26 +27,28 @@ class Gltf2AddonImporterUserExtension:
 
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L51
     def gather_import_image_after_hook(
-        self, img: object, blender_image: object, gltf_importer: object
+        self, image: object, bpy_image: object, gltf_importer: object
     ) -> None:
         if self.__current_import_id is None:
             return
 
-        if (
-            not hasattr(gltf_importer, "data")
-            or not hasattr(gltf_importer.data, "images")
-            or not isinstance(gltf_importer.data.images, abc.Sequence)
-        ):
+        if not isinstance(bpy_image, bpy.types.Image):
+            logger.warning(
+                f"gather_import_image_after_hook: bpy_image is not a bpy.types.Image but {type(bpy_image)}"
+            )
+            return
+
+        images = getattr(getattr(gltf_importer, "data", None), "images", None)
+        if not isinstance(images, abc.Sequence):
             logger.warning(
                 f"gather_import_image_after_hook: gltf_importer is unexpected structure: {gltf_importer}"
             )
             return
-        if img not in gltf_importer.data.images:
-            logger.warning(
-                f"gather_import_image_after_hook: {img} not in {gltf_importer.data.images}"
-            )
+
+        if image not in images:
+            logger.warning(f"gather_import_image_after_hook: {image} not in {images}")
             return
-        index = gltf_importer.data.images.index(img)
-        if not isinstance(blender_image, bpy.types.Image):
-            return
-        blender_image[self.__current_import_id] = index
+
+        index = images.index(image)
+
+        bpy_image[self.__current_import_id] = index
