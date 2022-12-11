@@ -407,6 +407,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     texture: Json = {"sampler": tex[1], "source": tex[0]}
                     textures.append(texture)
                 self.json_dict.update({"textures": textures})
+        # endregion texture func
 
         # region function separate by shader
         def pbr_fallback(
@@ -2571,6 +2572,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
         if isinstance(first_scene_nodes, list):
             first_scene_nodes.append(len(node_dicts) - 1)
+        # endregion secondary
 
     def fill_empty_material(self) -> None:
         # clusterではマテリアル無しのプリミティブが許可されないため、空のマテリアルを付与する。
