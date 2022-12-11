@@ -346,9 +346,9 @@ translation_dictionary = {
     ): "VRMにこのマテリアルをエクスポートする方法\n"
     + "次のいずれかの条件を満たしてください。\n"
     + " - VRM MToonマテリアルが有効\n"
-    + " - 「サーフィス」に「プリンシプルBSDF」を指定\n"
-    + " - 「サーフィス」に「MToon_unversioned」を指定\n"
-    + " - 「サーフィス」に「TRANSPARENT_ZWRITE」を指定\n"
+    + " - 「サーフェス」に「プリンシプルBSDF」を指定\n"
+    + " - 「サーフェス」に「MToon_unversioned」を指定\n"
+    + " - 「サーフェス」に「TRANSPARENT_ZWRITE」を指定\n"
     + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n"
     + "   https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials\n",
 }
