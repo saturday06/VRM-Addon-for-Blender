@@ -989,17 +989,22 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 # image.nameはインポート時に勝手に縮められてしまうことがあるので、jsonの値から復元する
                 image_dict = image_dicts[image_index]
                 indexed_image_name = None
+
                 if isinstance(image_dict, dict):
                     indexed_image_name = image_dict.get("name")
-                if isinstance(
-                    indexed_image_name, str
-                ) and indexed_image_name.startswith(legacy_image_name_prefix):
-                    indexed_image_name = "_".join(indexed_image_name.split("_")[1:])
+
+                if isinstance(indexed_image_name, str):
+                    if indexed_image_name.startswith(legacy_image_name_prefix):
+                        indexed_image_name = "_".join(indexed_image_name.split("_")[1:])
+                else:
+                    indexed_image_name = None
+
                 if indexed_image_name:
                     image.name = indexed_image_name
                 else:
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
                     image.name = f"Image_{image_index}"
+
             else:
                 image.name = "_".join(image.name.split("_")[1:])
 
