@@ -61,11 +61,6 @@ def test() -> None:
         make_new_texture_folder=extract_textures,
     )
 
-    for a in bpy.data.armatures:
-        print(str(a))
-        for b in a.bones:
-            print(str(b))
-
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
     actual_path = os.path.join(temp_vrm_dir, os.path.basename(in_path))

@@ -4,7 +4,6 @@ import bpy
 def test() -> None:
     bpy.ops.icyp.make_basic_armature()
     armatures = [obj for obj in bpy.data.objects if obj.type == "ARMATURE"]
-    print(str(armatures))
     assert len(armatures) == 1
     armature = armatures[0]
 
