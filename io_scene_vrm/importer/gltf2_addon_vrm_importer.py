@@ -79,7 +79,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.import_gltf2_with_indices()
             wm.progress_update(2)
             if self.extract_textures_into_folder:
-                self.extract_textures()
+                self.extract_textures(repack=False)
+            elif bpy.app.version < (3, 1):
+                self.extract_textures(repack=True)
+
             wm.progress_update(3)
             self.use_fake_user_for_thumbnail()
             wm.progress_update(4)
@@ -438,7 +441,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         legacy_image_name_prefix = self.import_id + "Image"
         image_dicts = json_dict.get("images")
-        if isinstance(image_dicts, list):
+        if bpy.app.version < (3, 1) and isinstance(image_dicts, list):
             for image_index, image_dict in enumerate(image_dicts):
                 if not isinstance(image_dict, dict):
                     continue
@@ -1098,9 +1101,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def is_temp_object_name(self, name: str) -> bool:
         return name.startswith(f"{self.import_id}Temp_")
 
-    def extract_textures(self) -> None:
+    def extract_textures(self, repack: bool) -> None:
         dir_path = os.path.abspath(self.parse_result.filepath) + ".textures"
-        if self.make_new_texture_folder:
+        if self.make_new_texture_folder or repack:
             for i in range(100001):
                 checking_dir_path = dir_path if i == 0 else f"{dir_path}.{i}"
                 if not os.path.exists(checking_dir_path):
@@ -1110,7 +1113,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         elif not os.path.exists(dir_path):
             os.mkdir(dir_path)
 
-        if bpy.app.version >= (3, 3) and not bpy.data.filepath:
+        if bpy.app.version >= (3, 1) and not bpy.data.filepath:
             blend_dir_path = os.path.dirname(self.parse_result.filepath)
             blend_base_path = os.path.basename(self.parse_result.filepath)
             blend_file_root, _ = os.path.splitext(blend_base_path)
@@ -1163,8 +1166,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 image.unpack(method="WRITE_ORIGINAL")
                 with contextlib.suppress(shutil.SameFileError):
                     shutil.move(image.filepath_from_user(), image_path)
-                    image.filepath = image_path
-                    image.reload()
+                image.filepath = image_path
+                image.reload()
+                if repack:
+                    image.pack()
 
                 written = True
                 break
@@ -1174,6 +1179,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     f"There are more than {retry_limit} images with the same name in the folder."
                     + f" Failed to write file: {image_name}"
                 )
+
+        if repack:
+            shutil.rmtree(dir_path, ignore_errors=True)
 
     def setup_vrm1_humanoid_bones(self) -> None:
         armature = self.armature
