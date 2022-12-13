@@ -1039,11 +1039,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 )
 
                 extensions = getattr(gltf2_io_material, "extensions", None)
-                if isinstance(extensions, dict):
-                    pbr_dict["extensions"] = {}  # For compatibility
-                    if extensions.get("KHR_materials_unlit") is not None:
-                        # https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_unli
-                        pbr_dict["extensions"] = {"KHR_materials_unlit": {}}
+                if (
+                    isinstance(extensions, dict)
+                    and extensions.get("KHR_materials_unlit") is not None
+                ):
+                    # https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_unli
+                    pbr_dict["extensions"] = {"KHR_materials_unlit": {}}
 
                 assign_dict(
                     pbr_dict,
