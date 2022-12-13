@@ -99,10 +99,10 @@ def diff(
         diffs = []
         for key in sorted(set(list(left.keys()) + list(right.keys()))):
             if key not in left:
-                diffs.append(f"{path}: {key} not in left")
+                diffs.append(f'{path}: {key} not in left. right["{key}"]={right[key]}')
                 continue
             if key not in right:
-                diffs.append(f"{path}: {key} not in right")
+                diffs.append(f'{path}: {key} not in right, left["{key}"]={left[key]}')
                 continue
             diffs.extend(
                 diff(left[key], right[key], float_tolerance, f'{path}["{key}"]')
