@@ -137,6 +137,8 @@ class BaseBlenderTestCase(TestCase):
             "--python-exit-code",
             str(error_exit_code),
             "--background",
+            "--python-expr",
+            "import bpy; bpy.ops.preferences.addon_enable(module='io_scene_vrm')",
             "--python",
             os.path.join(
                 self.repository_root_dir, "tests", script
