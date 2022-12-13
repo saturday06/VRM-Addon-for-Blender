@@ -130,19 +130,17 @@ class BaseBlenderTestCase(TestCase):
         error_exit_code = 1
         command = [
             self.find_blender_command(),
-            "-noaudio",  # sound system to None (less output on stdout)
-            "--factory-startup",  # factory settings
+            "-noaudio",
+            "--factory-startup",
             "--addons",
-            "io_scene_vrm",  # enable the addon
+            "io_scene_vrm",
             "--python-exit-code",
             str(error_exit_code),
             "--background",
             "--python-expr",
             "import bpy; bpy.ops.preferences.addon_enable(module='io_scene_vrm')",
             "--python",
-            os.path.join(
-                self.repository_root_dir, "tests", script
-            ),  # run the test script
+            os.path.join(self.repository_root_dir, "tests", script),
             "--",
             *args,
         ]
