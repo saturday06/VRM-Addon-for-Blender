@@ -1043,7 +1043,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     isinstance(extensions, dict)
                     and extensions.get("KHR_materials_unlit") is not None
                 ):
-                    # https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_unli
+                    # https://github.com/KhronosGroup/glTF/tree/19a1d820040239bca1327fc26220ae8cae9f948c/extensions/2.0/Khronos/KHR_materials_unlit
                     pbr_dict["extensions"] = {"KHR_materials_unlit": {}}
 
                 assign_dict(
