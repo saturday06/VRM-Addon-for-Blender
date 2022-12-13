@@ -1,7 +1,6 @@
 import contextlib
 import json
 import uuid
-from collections import abc
 from typing import Dict, List
 
 import bpy
@@ -169,7 +168,7 @@ def migrate_vrm0_first_person(
         first_person.first_person_bone_offset = (x, z, y)
 
     mesh_annotation_dicts = first_person_dict.get("meshAnnotations")
-    if isinstance(mesh_annotation_dicts, abc.Iterable):
+    if isinstance(mesh_annotation_dicts, list):
         for mesh_annotation_dict in mesh_annotation_dicts:
             mesh_annotation = first_person.mesh_annotations.add()
 
@@ -239,7 +238,7 @@ def migrate_vrm0_blend_shape_groups(
     blend_shape_groups: bpy.types.PropertyGroup,
     blend_shape_group_dicts: Json,
 ) -> None:
-    if not isinstance(blend_shape_group_dicts, abc.Iterable):
+    if not isinstance(blend_shape_group_dicts, list):
         return
 
     for blend_shape_group_dict in blend_shape_group_dicts:
@@ -260,7 +259,7 @@ def migrate_vrm0_blend_shape_groups(
             blend_shape_group.preset_name = preset_name
 
         bind_dicts = blend_shape_group_dict.get("binds")
-        if isinstance(bind_dicts, abc.Iterable):
+        if isinstance(bind_dicts, list):
             for bind_dict in bind_dicts:
                 bind = blend_shape_group.binds.add()
 
@@ -298,7 +297,7 @@ def migrate_vrm0_blend_shape_groups(
                     bind.weight = weight
 
         material_value_dicts = blend_shape_group_dict.get("materialValues")
-        if isinstance(material_value_dicts, abc.Iterable):
+        if isinstance(material_value_dicts, list):
             for material_value_dict in material_value_dicts:
                 material_value = blend_shape_group.material_values.add()
 
@@ -317,7 +316,7 @@ def migrate_vrm0_blend_shape_groups(
                     material_value.property_name = property_name
 
                 target_value_vector = material_value_dict.get("targetValue")
-                if isinstance(target_value_vector, abc.Iterable):
+                if isinstance(target_value_vector, list):
                     for v in target_value_vector:
                         if not isinstance(v, (int, float)):
                             v = 0
@@ -359,7 +358,7 @@ def migrate_vrm0_secondary_animation(
     for collider_group in secondary_animation.collider_groups:
         collider_group.refresh(armature)
 
-    if not isinstance(bone_group_dicts, abc.Iterable):
+    if not isinstance(bone_group_dicts, list):
         bone_group_dicts = []
 
     for bone_group_dict in bone_group_dicts:
@@ -401,7 +400,7 @@ def migrate_vrm0_secondary_animation(
             bone_group.hit_radius = hit_radius
 
         bones = bone_group_dict.get("bones")
-        if isinstance(bones, abc.Iterable):
+        if isinstance(bones, list):
             for bone in bones:
                 bone_prop = bone_group.bones.add()
                 if not isinstance(bone, str):
@@ -409,7 +408,7 @@ def migrate_vrm0_secondary_animation(
                 bone_prop.value = bone
 
         collider_group_node_names = bone_group_dict.get("colliderGroups")
-        if not isinstance(collider_group_node_names, abc.Iterable):
+        if not isinstance(collider_group_node_names, list):
             continue
 
         for collider_group_node_name in collider_group_node_names:

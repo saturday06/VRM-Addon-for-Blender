@@ -1,7 +1,6 @@
 import math
 import os
 import tempfile
-from collections import abc
 from sys import float_info
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -1509,13 +1508,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         material_name_to_index_dict: Dict[str, int],
     ) -> None:
         mesh_dicts = json_dict.get("meshes")
-        if not isinstance(mesh_dicts, abc.Iterable):
+        if not isinstance(mesh_dicts, list):
             return
         for mesh_dict in mesh_dicts:
             if not isinstance(mesh_dict, dict):
                 continue
             primitive_dicts = mesh_dict.get("primitives")
-            if not isinstance(primitive_dicts, abc.Iterable):
+            if not isinstance(primitive_dicts, list):
                 continue
             for primitive_dict in primitive_dicts:
                 if not isinstance(primitive_dict, dict):
@@ -1547,7 +1546,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     continue
 
                 target_dicts = primitive_dict.get("targets")
-                if not isinstance(target_dicts, abc.Iterable):
+                if not isinstance(target_dicts, list):
                     continue
                 for target_dict in target_dicts:
                     if not isinstance(target_dict, dict):
@@ -1681,7 +1680,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 target_names = deep.get(
                     mesh_dicts, [mesh_index, "extras", "targetNames"]
                 )
-                if isinstance(target_names, abc.Iterable):
+                if isinstance(target_names, list):
                     mesh_object_name_to_morph_target_names_dict[object_name] = [
                         str(target_name) for target_name in target_names
                     ]
@@ -1694,7 +1693,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     if not isinstance(child_removing_node_dict, dict):
                         continue
                     children = child_removing_node_dict.get("children")
-                    if not isinstance(children, abc.Iterable):
+                    if not isinstance(children, list):
                         continue
                     children = [child for child in children if child != node_index]
                     if children:

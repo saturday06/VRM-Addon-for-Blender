@@ -1,6 +1,5 @@
 import itertools
 import sys
-from collections import abc
 from math import radians, sqrt
 from typing import Callable, Dict, List, Sequence, Set, Tuple
 
@@ -155,7 +154,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         else:
             root_nodes = []
             scene_dicts = self.parse_result.json_dict.get("scenes")
-            if not isinstance(scene_dicts, abc.Iterable):
+            if not isinstance(scene_dicts, list):
                 scene_dicts = []
             for scene_dict in scene_dicts:
                 if not isinstance(scene_dict, dict):

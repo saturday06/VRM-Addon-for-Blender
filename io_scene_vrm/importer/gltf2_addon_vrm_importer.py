@@ -125,9 +125,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         sampler = texture_dict.get("sampler")
         samplers = self.parse_result.json_dict.get("samplers")
-        if not isinstance(sampler, int) or not isinstance(samplers, abc.Iterable):
+        if not isinstance(sampler, int) or not isinstance(samplers, list):
             return
-        samplers = list(samplers)
         if not 0 <= len(samplers) < sampler:
             return
 
@@ -169,14 +168,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         khr_texture_transform_dict: Dict[str, Json],
     ) -> None:
         offset = khr_texture_transform_dict.get("offset")
-        if isinstance(offset, abc.Iterable):
-            offset = list(offset)[:2]
+        if isinstance(offset, list):
+            offset = offset[:2]
             if len(offset) == 2:
                 khr_texture_transform.offset = offset
 
         scale = khr_texture_transform_dict.get("scale")
-        if isinstance(scale, abc.Iterable):
-            scale = list(scale)[:2]
+        if isinstance(scale, list):
+            scale = scale[:2]
             if len(scale) == 2:
                 khr_texture_transform.scale = scale
 
@@ -188,13 +187,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     ) -> None:
         index = texture_info_dict.get("index")
         if isinstance(index, int):
-            textures = self.parse_result.json_dict.get("textures")
-            if isinstance(textures, abc.Iterable):
-                textures = list(textures)
-                if 0 <= index < len(textures):
-                    texture_dict = textures[index]
-                    if isinstance(texture_dict, dict):
-                        self.assign_texture(texture_info.index, texture_dict, non_color)
+            texture_dicts = self.parse_result.json_dict.get("textures")
+            if isinstance(texture_dicts, list) and 0 <= index < len(texture_dicts):
+                texture_dict = texture_dicts[index]
+                if isinstance(texture_dict, dict):
+                    self.assign_texture(texture_info.index, texture_dict, non_color)
 
         khr_texture_transform_dict = deep.get(
             texture_info_dict, ["extensions", "KHR_texture_transform"]
@@ -410,7 +407,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def make_mtoon1_materials(self) -> None:
         material_dicts = self.parse_result.json_dict.get("materials")
-        if not isinstance(material_dicts, abc.Iterable):
+        if not isinstance(material_dicts, list):
             return
         for index, material_dict in enumerate(material_dicts):
             if isinstance(material_dict, dict):
@@ -1316,7 +1313,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             constraint_node_index_to_source_index: Dict[int, int] = {}
             constraint_node_index_groups: List[Set[int]] = []
             nodes = self.parse_result.json_dict.get("nodes")
-            if not isinstance(nodes, abc.Iterable):
+            if not isinstance(nodes, list):
                 nodes = []
             for node_index, node_dict in enumerate(nodes):
                 if not isinstance(node_dict, dict):
@@ -1632,7 +1629,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             meta.version = str(version)
 
         authors = meta_dict.get("authors")
-        if isinstance(authors, abc.Iterable):
+        if isinstance(authors, list):
             for author in authors:
                 if author is not None:
                     meta.authors.add().value = str(author)
@@ -1646,7 +1643,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             meta.contact_information = str(contact_information)
 
         references = meta_dict.get("references")
-        if isinstance(references, abc.Iterable):
+        if isinstance(references, list):
             for reference in references:
                 if reference is not None:
                     meta.references.add().value = str(reference)
@@ -1751,7 +1748,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
 
         mesh_annotation_dicts = first_person_dict.get("meshAnnotations")
-        if not isinstance(mesh_annotation_dicts, abc.Iterable):
+        if not isinstance(mesh_annotation_dicts, list):
             mesh_annotation_dicts = []
 
         for mesh_annotation_dict in mesh_annotation_dicts:
@@ -1836,7 +1833,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
 
         morph_target_bind_dicts = expression_dict.get("morphTargetBinds")
-        if not isinstance(morph_target_bind_dicts, abc.Iterable):
+        if not isinstance(morph_target_bind_dicts, list):
             morph_target_bind_dicts = []
 
         for morph_target_bind_dict in morph_target_bind_dicts:
@@ -1870,7 +1867,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 ]
 
         material_color_bind_dicts = expression_dict.get("materialColorBinds")
-        if not isinstance(material_color_bind_dicts, abc.Iterable):
+        if not isinstance(material_color_bind_dicts, list):
             material_color_bind_dicts = []
 
         for material_color_bind_dict in material_color_bind_dicts:
@@ -1896,7 +1893,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 material_color_bind.type = type_
 
             target_value = material_color_bind_dict.get("targetValue")
-            if not isinstance(target_value, abc.Iterable):
+            if not isinstance(target_value, list):
                 target_value = []
             target_value = [
                 float(v) if isinstance(v, (float, int)) else 0.0 for v in target_value
@@ -1906,7 +1903,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             material_color_bind.target_value = target_value[:4]
 
         texture_transform_bind_dicts = expression_dict.get("textureTransformBinds")
-        if not isinstance(texture_transform_bind_dicts, abc.Iterable):
+        if not isinstance(texture_transform_bind_dicts, list):
             texture_transform_bind_dicts = []
         for texture_transform_bind_dict in texture_transform_bind_dicts:
             texture_transform_bind = expression.texture_transform_binds.add()
@@ -1986,7 +1983,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         armature: bpy.types.Object,
     ) -> None:
         collider_dicts = spring_bone_dict.get("colliders")
-        if not isinstance(collider_dicts, abc.Iterable):
+        if not isinstance(collider_dicts, list):
             collider_dicts = []
 
         for collider_dict in collider_dicts:
@@ -2099,7 +2096,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         armature_name: str,
     ) -> None:
         collider_group_dicts = spring_bone_dict.get("colliderGroups")
-        if not isinstance(collider_group_dicts, abc.Iterable):
+        if not isinstance(collider_group_dicts, list):
             collider_group_dicts = []
 
         for collider_group_index, collider_group_dict in enumerate(
@@ -2122,7 +2119,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 collider_group.vrm_name = name
 
             collider_indices = collider_group_dict.get("colliders")
-            if not isinstance(collider_indices, abc.Iterable):
+            if not isinstance(collider_indices, list):
                 continue
 
             for collider_index in collider_indices:
@@ -2151,7 +2148,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         armature_name: str,
     ) -> None:
         spring_dicts = spring_bone_dict.get("springs")
-        if not isinstance(spring_dicts, abc.Iterable):
+        if not isinstance(spring_dicts, list):
             spring_dicts = []
 
         for spring_dict in spring_dicts:
@@ -2173,7 +2170,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     spring.center.value = bone_name
 
             joint_dicts = spring_dict.get("joints")
-            if not isinstance(joint_dicts, abc.Iterable):
+            if not isinstance(joint_dicts, list):
                 joint_dicts = []
             for joint_dict in joint_dicts:
                 if bpy.ops.vrm.add_spring_bone1_spring_joint(
@@ -2214,7 +2211,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     joint.drag_force = drag_force
 
             collider_group_indices = spring_dict.get("colliderGroups")
-            if not isinstance(collider_group_indices, abc.Iterable):
+            if not isinstance(collider_group_indices, list):
                 collider_group_indices = []
             for collider_group_index in collider_group_indices:
                 if bpy.ops.vrm.add_spring_bone1_spring_collider_group(
@@ -2276,7 +2273,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
 
         nodes = self.parse_result.json_dict.get("nodes")
-        if not isinstance(nodes, abc.Iterable):
+        if not isinstance(nodes, list):
             nodes = []
         for node_index, node_dict in enumerate(nodes):
             if not isinstance(node_dict, dict):

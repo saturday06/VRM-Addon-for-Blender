@@ -843,7 +843,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(humanoid_dict, dict):
             return
         human_bone_dicts = humanoid_dict.get("humanBones")
-        if isinstance(human_bone_dicts, abc.Iterable):
+        if isinstance(human_bone_dicts, list):
             for human_bone_dict in human_bone_dicts:
                 if not isinstance(human_bone_dict, dict):
                     continue
@@ -943,7 +943,7 @@ class AbstractBaseVrmImporter(ABC):
             first_person.first_person_bone_offset = (x, z, y)
 
         mesh_annotation_dicts = first_person_dict.get("meshAnnotations")
-        if isinstance(mesh_annotation_dicts, abc.Iterable):
+        if isinstance(mesh_annotation_dicts, list):
             for mesh_annotation_dict in mesh_annotation_dicts:
                 mesh_annotation = first_person.mesh_annotations.add()
 
@@ -1011,7 +1011,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(blend_shape_master_dict, dict):
             return
         blend_shape_group_dicts = blend_shape_master_dict.get("blendShapeGroups")
-        if not isinstance(blend_shape_group_dicts, abc.Iterable):
+        if not isinstance(blend_shape_group_dicts, list):
             return
 
         for blend_shape_group_dict in blend_shape_group_dicts:
@@ -1032,7 +1032,7 @@ class AbstractBaseVrmImporter(ABC):
                 blend_shape_group.preset_name = preset_name
 
             bind_dicts = blend_shape_group_dict.get("binds")
-            if isinstance(bind_dicts, abc.Iterable):
+            if isinstance(bind_dicts, list):
                 for bind_dict in bind_dicts:
                     if not isinstance(bind_dict, dict):
                         continue
@@ -1061,7 +1061,7 @@ class AbstractBaseVrmImporter(ABC):
                     bind.weight = min(max(weight / 100.0, 0), 1)
 
             material_value_dicts = blend_shape_group_dict.get("materialValues")
-            if isinstance(material_value_dicts, abc.Iterable):
+            if isinstance(material_value_dicts, list):
                 for material_value_dict in material_value_dicts:
                     material_value = blend_shape_group.material_values.add()
 
@@ -1080,7 +1080,7 @@ class AbstractBaseVrmImporter(ABC):
                         material_value.property_name = property_name
 
                     target_value_vector = material_value_dict.get("targetValue")
-                    if isinstance(target_value_vector, abc.Iterable):
+                    if isinstance(target_value_vector, list):
                         for v in target_value_vector:
                             if not isinstance(v, (int, float)):
                                 v = 0
@@ -1102,7 +1102,7 @@ class AbstractBaseVrmImporter(ABC):
             raise ValueError("armature is None")
 
         collider_group_dicts = secondary_animation_dict.get("colliderGroups")
-        if not isinstance(collider_group_dicts, abc.Iterable):
+        if not isinstance(collider_group_dicts, list):
             collider_group_dicts = []
 
         self.context.view_layer.depsgraph.update()
@@ -1123,7 +1123,7 @@ class AbstractBaseVrmImporter(ABC):
             bone_name = self.bone_names[node]
             collider_group.node.value = bone_name
             collider_dicts = collider_group_dict.get("colliders")
-            if not isinstance(collider_dicts, abc.Iterable):
+            if not isinstance(collider_dicts, list):
                 continue
 
             for collider_index, collider_dict in enumerate(collider_dicts):
@@ -1175,7 +1175,7 @@ class AbstractBaseVrmImporter(ABC):
             collider_group.refresh(armature)
 
         bone_group_dicts = secondary_animation_dict.get("boneGroups")
-        if not isinstance(bone_group_dicts, abc.Iterable):
+        if not isinstance(bone_group_dicts, list):
             bone_group_dicts = []
 
         for bone_group_dict in bone_group_dicts:
@@ -1218,7 +1218,7 @@ class AbstractBaseVrmImporter(ABC):
                 bone_group.hit_radius = hit_radius
 
             bones = bone_group_dict.get("bones")
-            if isinstance(bones, abc.Iterable):
+            if isinstance(bones, list):
                 for bone in bones:
                     bone_prop = bone_group.bones.add()
                     if not isinstance(bone, int) or bone not in self.bone_names:
@@ -1227,7 +1227,7 @@ class AbstractBaseVrmImporter(ABC):
                     bone_prop.value = self.bone_names[bone]
 
             collider_group_dicts = bone_group_dict.get("colliderGroups")
-            if isinstance(collider_group_dicts, abc.Iterable):
+            if isinstance(collider_group_dicts, list):
                 for collider_group in collider_group_dicts:
                     if not isinstance(collider_group, int) or not (
                         0 <= collider_group < len(secondary_animation.collider_groups)
