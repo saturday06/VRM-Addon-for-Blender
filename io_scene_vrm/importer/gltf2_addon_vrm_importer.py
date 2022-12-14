@@ -903,6 +903,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     or bone_node_index != self.parse_result.hips_node_index
                 ):
                     continue
+
+                if self.parse_result.spec_version_number < (1, 0):
+                    vrm0_humanoid = obj.data.vrm_addon_extension.vrm0.humanoid
+                    vrm0_humanoid.initial_automatic_bone_assignment = False
+                else:
+                    vrm1_humanoid = obj.data.vrm_addon_extension.vrm1.humanoid
+                    vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
                 self.armature = obj
 
         if (
