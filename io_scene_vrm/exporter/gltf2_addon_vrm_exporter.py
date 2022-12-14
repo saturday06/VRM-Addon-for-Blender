@@ -1591,7 +1591,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     export_extras=True,
                     export_current_frame=True,
                     use_selection=True,
-                    export_animations=False,  # https://github.com/vrm-c/UniVRM/issues/1729
                 )
                 with open(filepath, "rb") as file:
                     extra_name_assigned_glb = file.read()
