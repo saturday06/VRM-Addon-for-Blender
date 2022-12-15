@@ -70,11 +70,7 @@ def test() -> None:
     bpy.ops.export_scene.vrm(filepath=actual_path)
     actual_bytes = pathlib.Path(actual_path).read_bytes()
 
-    system = platform.system()
-    if system in ["Darwin", "Linux"]:
-        float_tolerance = 0.00055
-    else:
-        float_tolerance = 0.00030
+    float_tolerance = 0.00055
 
     expected_path = os.path.join(out_vrm_dir, vrm)
     if not os.path.exists(expected_path):
