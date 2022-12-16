@@ -4,6 +4,7 @@ import bpy
 from bpy.app.translations import pgettext
 
 from .. import search
+from ..ops import VRM_OT_open_url_in_web_browser
 from .ops import (
     VRM_OT_import_mtoon1_texture_image_file,
     VRM_OT_reset_mtoon1_material_shader_node_group,
@@ -270,12 +271,16 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
         + ' - Connect the "Surface" to a "MToon_unversioned"\n'
         + ' - Connect the "Surface" to a "TRANSPARENT_ZWRITE"\n'
         + " - Others that are compatible with the glTF 2.0 add-on export\n"
-        + "   https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials\n",
     )
     for index, help_line in enumerate(help_message.splitlines()):
         help_column.label(
             text=help_line, translate=False, icon="HELP" if index == 0 else "NONE"
         )
+    url = "https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials"
+    link_row = help_column.split(factor=0.8)
+    link_row.label(text="   " + url, translate=False)
+    web_op = link_row.operator(VRM_OT_open_url_in_web_browser.bl_idname, icon="")
+    web_op.url = url
 
 
 class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801

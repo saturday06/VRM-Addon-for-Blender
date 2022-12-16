@@ -341,14 +341,12 @@ translation_dictionary = {
         + ' - Connect the "Surface" to a "Principled BSDF"\n'
         + ' - Connect the "Surface" to a "MToon_unversioned"\n'
         + ' - Connect the "Surface" to a "TRANSPARENT_ZWRITE"\n'
-        + " - Others that are compatible with the glTF 2.0 add-on export\n"
-        + "   https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials\n",
+        + " - Others that are compatible with the glTF 2.0 add-on export\n",
     ): "VRMにこのマテリアルをエクスポートする方法\n"
     + "次のいずれかの条件を満たしてください。\n"
     + " - VRM MToonマテリアルが有効\n"
     + " - 「サーフェス」に「プリンシプルBSDF」を指定\n"
     + " - 「サーフェス」に「MToon_unversioned」を指定\n"
     + " - 「サーフェス」に「TRANSPARENT_ZWRITE」を指定\n"
-    + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n"
-    + "   https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials\n",
+    + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n",
 }
