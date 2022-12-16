@@ -295,7 +295,8 @@ classes = [
 
 
 def register(init_version: object) -> None:
-    # Sanity check
+    # Sanity check. Because a version.version() implementation is very acrobatic
+    # and it can break easily.
     if init_version != version.version():
         raise AssertionError(
             f"Sanity error: version mismatch: {init_version} != {version.version()}"
