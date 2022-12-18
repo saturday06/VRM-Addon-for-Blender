@@ -23,7 +23,7 @@ from mathutils import Matrix, Quaternion, Vector
 from ..common import convert, deep, gltf, shader
 from ..common.deep import Json, make_json
 from ..common.logging import get_logger
-from ..common.mtoon_constants import MaterialMtoon
+from ..common.mtoon0_constants import MaterialMtoon0
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..editor import migration, search
@@ -139,7 +139,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         for node, mat in search.shader_nodes_and_materials(used_materials):
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 mat["vrm_shader"] = "MToon_unversioned"
-                for shader_vals in MaterialMtoon.texture_kind_exchange_dict.values():
+                for shader_vals in MaterialMtoon0.texture_kind_exchange_dict.values():
 
                     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
                     #
@@ -540,7 +540,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             outline_color_mode = 0
             for float_key, float_prop in [
                 (k, val)
-                for k, val in MaterialMtoon.float_props_exchange_dict.items()
+                for k, val in MaterialMtoon0.float_props_exchange_dict.items()
                 if val is not None
             ]:
                 float_val = shader.get_float_value(mtoon_shader_node, float_prop)
@@ -568,15 +568,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     set_mtoon_outline_keywords(keyword_map, False, True, False, True)
 
             vec_props = list(
-                dict.fromkeys(MaterialMtoon.vector_props_exchange_dict.values())
+                dict.fromkeys(MaterialMtoon0.vector_props_exchange_dict.values())
             )
-            for remove_vec_prop in MaterialMtoon.texture_kind_exchange_dict.values():
+            for remove_vec_prop in MaterialMtoon0.texture_kind_exchange_dict.values():
                 if remove_vec_prop in vec_props:
                     vec_props.remove(remove_vec_prop)
 
             for vector_key, vector_prop in [
                 (k, v)
-                for k, v in MaterialMtoon.vector_props_exchange_dict.items()
+                for k, v in MaterialMtoon0.vector_props_exchange_dict.items()
                 if v in vec_props
             ]:
                 vector_val = shader.get_rgba_value(mtoon_shader_node, vector_prop)
@@ -594,7 +594,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             for (
                 texture_key,
                 texture_prop,
-            ) in MaterialMtoon.texture_kind_exchange_dict.items():
+            ) in MaterialMtoon0.texture_kind_exchange_dict.items():
                 tex = shader.get_image_name_and_sampler_type(
                     mtoon_shader_node, texture_prop
                 )
@@ -699,7 +699,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             )
             keyword_map.update({"_ALPHAPREMULTIPLY_ON": False})
 
-            mtoon_float_dict["_MToonVersion"] = MaterialMtoon.version
+            mtoon_float_dict["_MToonVersion"] = MaterialMtoon0.version
             mtoon_float_dict["_CullMode"] = (
                 2 if b_mat.use_backface_culling else 0
             )  # no cull or bf cull
@@ -1375,7 +1375,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 keyword_map["_ALPHATEST_ON"] = alphatest_on
             tag_map["RenderType"] = render_type
 
-            float_properties["_MToonVersion"] = MaterialMtoon.version
+            float_properties["_MToonVersion"] = MaterialMtoon0.version
             float_properties["_CullMode"] = (
                 2 if b_mat.use_backface_culling else 0
             )  # no cull or bf cull

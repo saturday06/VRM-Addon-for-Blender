@@ -25,7 +25,7 @@ from ..common.convert import deep_dict_or, float3_or, float4_or, str_or
 from ..common.deep import Json
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
-from ..common.mtoon_constants import MaterialMtoon, MaterialTransparentZWrite
+from ..common.mtoon0_constants import MaterialMtoon0, MaterialTransparentZWrite
 from .license_validation import validate_license
 
 logger = get_logger(__name__)
@@ -90,19 +90,19 @@ class PyMaterialMtoon(PyMaterial):
     def __init__(self) -> None:
         super().__init__()
         self.float_props_dict: Dict[str, Optional[float]] = {
-            prop: None for prop in MaterialMtoon.float_props_exchange_dict
+            prop: None for prop in MaterialMtoon0.float_props_exchange_dict
         }
         self.vector_props_dict: Dict[str, Optional[Sequence[float]]] = {
-            prop: None for prop in MaterialMtoon.vector_props_exchange_dict
+            prop: None for prop in MaterialMtoon0.vector_props_exchange_dict
         }
         self.texture_index_dict: Dict[str, Optional[int]] = {
-            prop: None for prop in MaterialMtoon.texture_kind_exchange_dict
+            prop: None for prop in MaterialMtoon0.texture_kind_exchange_dict
         }
         self.keyword_dict: Dict[str, bool] = {
-            kw: False for kw in MaterialMtoon.keyword_list
+            kw: False for kw in MaterialMtoon0.keyword_list
         }
         self.tag_dict: Dict[str, Optional[str]] = {
-            tag: None for tag in MaterialMtoon.tagmap_list
+            tag: None for tag in MaterialMtoon0.tagmap_list
         }
 
 

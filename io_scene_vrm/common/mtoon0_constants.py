@@ -16,7 +16,7 @@ class MaterialTransparentZWrite:
     vector_props = ["_Color"]
 
 
-class MaterialMtoon:
+class MaterialMtoon0:
     # {key = MToonProp, val = ShaderNodeGroup_member_name}
     version = 32
     float_props_exchange_dict: Dict[str, Optional[str]] = {

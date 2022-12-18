@@ -21,7 +21,7 @@ from mathutils import Matrix
 from ..common import convert, deep, shader
 from ..common.deep import Json
 from ..common.logging import get_logger
-from ..common.mtoon_constants import MaterialMtoon
+from ..common.mtoon0_constants import MaterialMtoon0
 from ..common.preferences import get_preferences
 from ..common.shader import shader_node_group_import
 from ..common.version import addon_version
@@ -509,7 +509,7 @@ class AbstractBaseVrmImporter(ABC):
             sg.outputs["Emission"],
         )
 
-        float_prop_exchange_dict = MaterialMtoon.float_props_exchange_dict
+        float_prop_exchange_dict = MaterialMtoon0.float_props_exchange_dict
         for k, v in pymat.float_props_dict.items():
             if k == "_CullMode":
                 if v == 2:  # 0: no cull 1:front cull 2:back cull
@@ -530,7 +530,7 @@ class AbstractBaseVrmImporter(ABC):
             b_mat[k] = v
 
         uv_offset_tiling_value: Sequence[float] = [0, 0, 1, 1]
-        vector_props_dict = MaterialMtoon.vector_props_exchange_dict
+        vector_props_dict = MaterialMtoon0.vector_props_exchange_dict
         for k, vec in pymat.vector_props_dict.items():
             if k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
                 self.connect_rgb_node(
@@ -581,7 +581,7 @@ class AbstractBaseVrmImporter(ABC):
                 texture_node.inputs[0], uv_offset_tiling_node.outputs[0]
             )
 
-        tex_dict = MaterialMtoon.texture_kind_exchange_dict
+        tex_dict = MaterialMtoon0.texture_kind_exchange_dict
 
         for tex_name, tex_index in pymat.texture_index_dict.items():
             if tex_index is None:

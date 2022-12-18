@@ -8,7 +8,7 @@ from mathutils import Vector
 
 from ..common import gltf, version
 from ..common.logging import get_logger
-from ..common.mtoon_constants import MaterialMtoon
+from ..common.mtoon0_constants import MaterialMtoon0
 from ..common.preferences import get_preferences
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -481,7 +481,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         for node, material in search.shader_nodes_and_materials(used_materials):
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
-                for texture_val in MaterialMtoon.texture_kind_exchange_dict.values():
+                for texture_val in MaterialMtoon0.texture_kind_exchange_dict.values():
                     if texture_val == "ReceiveShadow_Texture":
                         texture_val += "_alpha"
                     node_material_input_check(
@@ -492,7 +492,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         error_messages,
                         used_images,
                     )
-                for float_val in MaterialMtoon.float_props_exchange_dict.values():
+                for float_val in MaterialMtoon0.float_props_exchange_dict.values():
                     if float_val is None:
                         continue
                     node_material_input_check(
@@ -503,7 +503,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         node,
                         material,
                         "RGB",
-                        MaterialMtoon.vector_props_exchange_dict[k],
+                        MaterialMtoon0.vector_props_exchange_dict[k],
                         error_messages,
                         used_images,
                     )
