@@ -214,6 +214,8 @@ jobs:
           poetry run pylint --rcfile .pylintrc.ci $(git ls-files "*.py")
           git checkout .
           poetry install
+      - name: Pyright
+        run: poetry run pyright --warnings $(git ls-files "*.py")
       - name: Mypy
         run: poetry run mypy --show-error-code $(git ls-files "*.py")
       - name: Flake8

@@ -18,8 +18,7 @@ import bgl
 import bpy
 from mathutils import Matrix
 
-from .. import common
-from ..common import convert, deep, shader
+from ..common import convert, deep, shader, version
 from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
@@ -733,7 +732,7 @@ class AbstractBaseVrmImporter(ABC):
 
         vrm0_extension = self.parse_result.vrm0_extension
 
-        addon_extension.addon_version = common.version.version()
+        addon_extension.addon_version = version.version()
 
         textblock = bpy.data.texts.new(name="vrm.json")
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))

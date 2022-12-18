@@ -15,8 +15,7 @@ import bpy
 import mathutils
 from mathutils import Matrix, Vector
 
-from .. import common
-from ..common import convert, deep, gltf, shader
+from ..common import convert, deep, gltf, shader, version
 from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -1603,7 +1602,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
         vrm1_extension_dict = self.parse_result.vrm1_extension
 
-        addon_extension.addon_version = common.version.version()
+        addon_extension.addon_version = version.version()
 
         textblock = bpy.data.texts.new(name="vrm.json")
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))

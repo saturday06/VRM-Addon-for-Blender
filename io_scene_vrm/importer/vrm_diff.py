@@ -16,8 +16,6 @@ def human_bone_sort_key(human_bone_dict: Json) -> int:
 
 def create_vrm_json_dict(data: bytes) -> Dict[str, Json]:
     vrm_json, binary_chunk = gltf.parse_glb(data)
-    if not isinstance(vrm_json, dict):
-        return vrm_json
 
     vrm_json["~accessors_decoded"] = make_json(decode_bin(vrm_json, binary_chunk))
 

@@ -762,7 +762,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if isinstance(image_index, int) and not 0 <= image_index < len(image_dicts):
             logger.error(f"Bug: not 0 <= {image_index} < len(images)) for {image_name}")
             image_index = None
-        if not isinstance(image_index, int):
+        if isinstance(image_index, int):
+            image_bytes = None
+        else:
             image_bytes, mime = image_to_image_bytes(bpy.data.images[image_name])
 
             buffer_view_dicts = json_dict.get("bufferViews")
@@ -820,10 +822,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             },
         )
 
-        body_binary.extend(image_bytes)
-        # TODO: Verify alignment requirement and optimize
-        while len(body_binary) % 32 == 0:
-            body_binary.append(0)
+        if image_bytes:
+            body_binary.extend(image_bytes)
+            # TODO: Verify alignment requirement and optimize
+            while len(body_binary) % 32 == 0:
+                body_binary.append(0)
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):

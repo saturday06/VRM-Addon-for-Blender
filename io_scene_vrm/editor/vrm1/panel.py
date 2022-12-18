@@ -771,17 +771,19 @@ def draw_vrm1_meta_layout(
         authors_column = authors_row.column()
         for author in meta.authors:
             authors_column.prop(author, "value", text="", translate=False, icon="USER")
-    if len(meta.authors) > 1:
-        authors_remove_column = authors_row.column()
-        for author_index in range(len(meta.authors)):
-            remove_author_op = authors_remove_column.operator(
-                vrm1_ops.VRM_OT_remove_vrm1_meta_author.bl_idname,
-                text="Remove",
-                icon="REMOVE",
-            )
-            remove_author_op.armature_name = armature.name
-            remove_author_op.author_index = author_index
-    add_author_op = authors_box.operator(vrm1_ops.VRM_OT_add_vrm1_meta_author.bl_idname)
+        if len(meta.authors) > 1:
+            authors_remove_column = authors_row.column()
+            for author_index in range(len(meta.authors)):
+                remove_author_op = authors_remove_column.operator(
+                    vrm1_ops.VRM_OT_remove_vrm1_meta_author.bl_idname,
+                    text="Remove",
+                    icon="REMOVE",
+                )
+                remove_author_op.armature_name = armature.name
+                remove_author_op.author_index = author_index
+    add_author_op = authors_box.operator(
+        vrm1_ops.VRM_OT_add_vrm1_meta_author.bl_idname
+    )
     add_author_op.armature_name = armature.name
 
     layout.prop(meta, "copyright_information")
@@ -796,16 +798,16 @@ def draw_vrm1_meta_layout(
             references_column.prop(
                 reference, "value", text="", translate=False, icon="URL"
             )
-    if len(meta.references) > 1:
-        references_remove_column = references_row.column()
-        for reference_index in range(len(meta.references)):
-            remove_reference_op = references_remove_column.operator(
-                vrm1_ops.VRM_OT_remove_vrm1_meta_reference.bl_idname,
-                text="Remove",
-                icon="REMOVE",
-            )
-            remove_reference_op.armature_name = armature.name
-            remove_reference_op.reference_index = reference_index
+        if len(meta.references) > 1:
+            references_remove_column = references_row.column()
+            for reference_index in range(len(meta.references)):
+                remove_reference_op = references_remove_column.operator(
+                    vrm1_ops.VRM_OT_remove_vrm1_meta_reference.bl_idname,
+                    text="Remove",
+                    icon="REMOVE",
+                )
+                remove_reference_op.armature_name = armature.name
+                remove_reference_op.reference_index = reference_index
     add_reference_op = references_box.operator(
         vrm1_ops.VRM_OT_add_vrm1_meta_reference.bl_idname
     )

@@ -23,6 +23,7 @@ isort = "*"
 mypy = "*"
 pep8-naming = "*"
 pylint = "*"
+pyright = "*"
 
 [tool.black]
 target-version = ['py37']
@@ -52,6 +53,24 @@ module = [
     "_winapi",
 ]
 warn_unused_ignores = false
+
+[tool.pyright]
+pythonVersion = "3.7"
+pythonPlatform = "All"
+typeCheckingMode = "strict"
+
+reportGeneralTypeIssues = false
+reportIncompatibleMethodOverride = false
+reportMissingTypeStubs = false
+reportOptionalContextManager = false
+reportOptionalMemberAccess = false
+reportOptionalSubscript = false
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportUnnecessaryComparison = false
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -858,7 +858,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if not isinstance(source_buffer_view_data, bytes):
                 source_buffer_view_data = bytes()
 
-            found = False
+            image_index = None
             for (name, data, index) in gltf2_io_texture_images:
                 if name != source_name or data != source_buffer_view_data:
                     continue
@@ -866,9 +866,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 image_name = {value: key for key, value in image_id_dict.items()}[
                     image_index
                 ]
-                found = True
                 break
-            if not found:
+            if image_index is None:
                 image_index = self.glb_bin_collector.get_new_image_id()
                 gltf2_io_texture_images.append(
                     (source_name, source_buffer_view_data, image_index)
@@ -876,10 +875,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 image_base_name = re.sub(
                     r"^BlenderVrmAddonImport[0-9]+Image[0-9]+_", "", source_name
                 )
+                image_name = image_base_name
                 for count in range(100000):
-                    image_name = image_base_name
                     if count:
-                        image_name += "." + str(count)
+                        image_name = image_base_name + "." + str(count)
                     if image_name not in image_id_dict:
                         break
                 image_id_dict[image_name] = image_index
