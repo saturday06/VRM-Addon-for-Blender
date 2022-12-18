@@ -38,7 +38,7 @@ def test() -> None:
     os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
     update_failed_vrm = os.environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
 
-    vrm, extract_textures_str = sys.argv[sys.argv.index("--") + 1 :]
+    vrm, extract_textures_str = sys.argv[slice(sys.argv.index("--") + 1, len(sys.argv))]
     in_path = os.path.join(vrm_dir, "in", vrm)
 
     major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"

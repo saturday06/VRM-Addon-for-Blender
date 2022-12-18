@@ -19,7 +19,7 @@ def run(stream: TextIO) -> None:
 
     if in_blender:
         if "--" in argv:
-            argv = argv[argv.index("--") + 1 :]
+            argv = argv[slice(argv.index("--") + 1, len(argv))]
         else:
             argv = []
 

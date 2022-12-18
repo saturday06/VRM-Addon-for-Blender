@@ -1138,7 +1138,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 legacy_image_name_prefix = self.import_id + "Image"
                 if image_name.startswith(legacy_image_name_prefix):
                     image_name = re.sub(
-                        r"^\d+_", "", image_name[len(legacy_image_name_prefix) :]
+                        r"^\d+_",
+                        "",
+                        image_name[
+                            slice(len(legacy_image_name_prefix), len(image_name))
+                        ],
                     )
             if not image_name:
                 image_name = image.name

@@ -20,53 +20,53 @@ class BinaryReader:
         self.pos = pos
 
     def read_str(self, size: int) -> str:
-        result = self.data[self.pos : self.pos + size]
+        result = self.data[slice(self.pos, self.pos + size)]
         self.pos += size
         return result.decode("utf-8")
 
     def read_binary(self, size: int) -> bytes:
-        result = self.data[self.pos : self.pos + size]
+        result = self.data[slice(self.pos, self.pos + size)]
         self.pos += size
         return result
 
     def read_unsigned_int(self) -> int:
         # unpackは内容の個数に関わらずタプルで返すので[0]が必要
-        result = struct.unpack("<I", self.data[self.pos : self.pos + 4])[0]
+        result = struct.unpack("<I", self.data[slice(self.pos, self.pos + 4)])[0]
         if not isinstance(result, int):
             raise ValueError()
         self.pos += 4
         return result
 
     def read_int(self) -> int:
-        result = struct.unpack("<i", self.data[self.pos : self.pos + 4])[0]
+        result = struct.unpack("<i", self.data[slice(self.pos, self.pos + 4)])[0]
         if not isinstance(result, int):
             raise ValueError()
         self.pos += 4
         return result
 
     def read_unsigned_short(self) -> int:
-        result = struct.unpack("<H", self.data[self.pos : self.pos + 2])[0]
+        result = struct.unpack("<H", self.data[slice(self.pos, self.pos + 2)])[0]
         if not isinstance(result, int):
             raise ValueError()
         self.pos += 2
         return result
 
     def read_short(self) -> int:
-        result = struct.unpack("<h", self.data[self.pos : self.pos + 2])[0]
+        result = struct.unpack("<h", self.data[slice(self.pos, self.pos + 2)])[0]
         if not isinstance(result, int):
             raise ValueError()
         self.pos += 2
         return result
 
     def read_float(self) -> float:
-        result = struct.unpack("<f", self.data[self.pos : self.pos + 4])[0]
+        result = struct.unpack("<f", self.data[slice(self.pos, self.pos + 4)])[0]
         if not isinstance(result, float):
             raise ValueError()
         self.pos += 4
         return result
 
     def read_unsigned_byte(self) -> int:
-        result = struct.unpack("<B", self.data[self.pos : self.pos + 1])[0]
+        result = struct.unpack("<B", self.data[slice(self.pos, self.pos + 1)])[0]
         if not isinstance(result, int):
             raise ValueError()
         self.pos += 1

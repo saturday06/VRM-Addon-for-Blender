@@ -2,8 +2,6 @@
 # https://wiki.blender.org/wiki/Process/Addons/Guidelines
 max-line-length = 120
 extend-ignore =
-    # https://github.com/PyCQA/pycodestyle/issues/373
-    E203,
     # https://github.com/MartinThoma/flake8-simplify/blob/0930f49e013f1e88903e8a94cfe9759b630f6b54/README.md?plain=1#L92-L98
     SIM9
 per-file-ignores =

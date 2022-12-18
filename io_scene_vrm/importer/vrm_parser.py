@@ -606,7 +606,7 @@ class VrmParser:
 
                     # 3要素ずつに変換しておく(GlConstants.TRIANGLES前提なので)
                     vrm_mesh.face_indices = [
-                        scalar_face_indices[x : x + 3]  # type: ignore[misc]
+                        scalar_face_indices[slice(x, x + 3)]  # type: ignore[misc]
                         for x in range(0, len(scalar_face_indices), 3)
                     ]
 

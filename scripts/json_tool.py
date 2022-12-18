@@ -20,9 +20,9 @@ with open(read_path, "rb") as vrm_file:
     if filetype in ("vrm", "glb"):
         binary = vrm_file.read()
         magic = 12  # offset from header
-        bi_size = struct.unpack("<I", binary[magic : magic + 4])[0]
+        bi_size = struct.unpack("<I", binary[slice(magic, magic + 4)])[0]
         magic = 20  # offset from header
-        loaded_json = json.loads(binary[magic : magic + bi_size].decode("utf-8"))
+        loaded_json = json.loads(binary[slice(magic, magic + bi_size)].decode("utf-8"))
         with open(read_path + ".json", "wt", encoding="utf-8") as json_file:
             json_file.write(json.dumps(loaded_json, indent=4))
     elif filetype == "json":
