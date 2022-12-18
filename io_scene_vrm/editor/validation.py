@@ -359,7 +359,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         ).format(name=obj.name)
                     )
 
-            joint_chain_bone_names_to_spring_name: Dict[str, str] = {}
+            joint_chain_bone_names_to_spring_vrm_name: Dict[str, str] = {}
             for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
                 joint_bone_names = []
                 for joint in spring.joints:
@@ -383,21 +383,21 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     joint_chain_bone_names.extend(search_joint_chain_bone_names)
 
                 for joint_chain_bone_name in joint_chain_bone_names:
-                    spring_name = joint_chain_bone_names_to_spring_name.get(
+                    spring_vrm_name = joint_chain_bone_names_to_spring_vrm_name.get(
                         joint_chain_bone_name
                     )
-                    if not spring_name:
-                        joint_chain_bone_names_to_spring_name[
+                    if not spring_vrm_name:
+                        joint_chain_bone_names_to_spring_vrm_name[
                             joint_chain_bone_name
-                        ] = spring.name
+                        ] = spring.vrm_name
                         continue
                     warning_messages.append(
                         pgettext(
                             'Spring "{spring_name1}" and "{spring_name2}" have'
                             + ' common bone "{bone_name}".'
                         ).format(
-                            spring_name1=spring_name,
-                            spring_name2=spring.name,
+                            spring_name1=spring_vrm_name,
+                            spring_name2=spring.vrm_name,
                             bone_name=joint_chain_bone_name,
                         )
                     )
