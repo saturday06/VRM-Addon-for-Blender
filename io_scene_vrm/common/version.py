@@ -5,7 +5,7 @@ import bpy
 MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (3, 4)
 
 
-def version() -> Tuple[int, int, int]:
+def addon_version() -> Tuple[int, int, int]:
     # To avoid circular reference call __import__() in the function local scope.
     v = __import__(".".join(__name__.split(".")[:-2])).bl_info.get("version")
     if (

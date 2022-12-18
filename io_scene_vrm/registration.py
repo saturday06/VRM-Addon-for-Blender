@@ -10,8 +10,9 @@ from typing import Callable
 import bpy
 from bpy.app.handlers import persistent
 
-from .common import preferences, shader, version
+from .common import preferences, shader
 from .common.logging import get_logger
+from .common.version import addon_version
 from .editor import (
     extension,
     glsl_drawer,
@@ -294,12 +295,12 @@ classes = [
 ]
 
 
-def register(init_version: object) -> None:
-    # Sanity check. Because a version.version() implementation is very acrobatic
+def register(init_addon_version: object) -> None:
+    # Sanity check. Because a addon_version() implementation is very acrobatic
     # and it can break easily.
-    if init_version != version.version():
+    if init_addon_version != addon_version():
         raise AssertionError(
-            f"Sanity error: version mismatch: {init_version} != {version.version()}"
+            f"Sanity error: version mismatch: {init_addon_version} != {addon_version()}"
         )
 
     bpy.app.translations.register(

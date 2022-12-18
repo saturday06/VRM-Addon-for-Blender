@@ -24,7 +24,7 @@ from ..common import convert, deep, gltf, shader
 from ..common.deep import Json, make_json
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
-from ..common.version import version
+from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..editor import migration, search
 from ..editor.mtoon1.property_group import (
@@ -2163,7 +2163,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         bpy.ops.object.mode_set(mode="OBJECT")
 
     def exporter_name(self) -> str:
-        v = version()
+        v = addon_version()
         if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
             v = (999, 999, 999)
         return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, v))

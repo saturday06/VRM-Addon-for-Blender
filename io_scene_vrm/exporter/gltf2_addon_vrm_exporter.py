@@ -6,10 +6,11 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import bpy
 
-from ..common import convert, deep, gltf, shader, version
+from ..common import convert, deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.deep import Json
 from ..common.logging import get_logger
+from ..common.version import addon_version
 from ..editor import search
 from ..editor.mtoon1.property_group import (
     Mtoon1SamplerPropertyGroup,
@@ -1853,7 +1854,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict["extensions"] = extensions
         json_dict["extensionsUsed"] = extensions_used
 
-        v = version.version()
+        v = addon_version()
         if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
             v = (999, 999, 999)
 

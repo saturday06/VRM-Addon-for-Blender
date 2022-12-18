@@ -3,8 +3,8 @@ from typing import List
 
 import bpy
 
-from ..common import version
 from ..common.preferences import get_preferences
+from ..common.version import addon_version
 from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
@@ -29,7 +29,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
 
     ext = armature.data.vrm_addon_extension
     if (
-        tuple(ext.addon_version) >= version.version()
+        tuple(ext.addon_version) >= addon_version()
         and armature.data.name == ext.armature_data_name
         and vrm0_migration.is_unnecessary(ext.vrm0)
     ):
@@ -52,7 +52,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     vrm1_migration.migrate(ext.vrm1, armature)
     spring_bone1_migration.migrate(armature)
 
-    ext.addon_version = version.version()
+    ext.addon_version = addon_version()
 
     setup_subscription(load_post=False)
     return True
@@ -60,7 +60,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
 
 def migrate_all_objects() -> None:
     preferences = get_preferences(bpy.context)
-    preferences.addon_version = version.version()
+    preferences.addon_version = addon_version()
 
     for obj in bpy.data.objects:
         if obj.type == "ARMATURE":

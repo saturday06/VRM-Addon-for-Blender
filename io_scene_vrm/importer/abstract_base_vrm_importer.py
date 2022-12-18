@@ -18,12 +18,13 @@ import bgl
 import bpy
 from mathutils import Matrix
 
-from ..common import convert, deep, shader, version
+from ..common import convert, deep, shader
 from ..common.deep import Json
 from ..common.logging import get_logger
 from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
 from ..common.shader import shader_node_group_import
+from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration, ops
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
@@ -732,7 +733,7 @@ class AbstractBaseVrmImporter(ABC):
 
         vrm0_extension = self.parse_result.vrm0_extension
 
-        addon_extension.addon_version = version.version()
+        addon_extension.addon_version = addon_version()
 
         textblock = bpy.data.texts.new(name="vrm.json")
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
