@@ -863,9 +863,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if name != source_name or data != source_buffer_view_data:
                     continue
                 image_index = index
-                image_name = {value: key for key, value in image_id_dict.items()}[
-                    image_index
-                ]
                 break
             if image_index is None:
                 image_index = self.glb_bin_collector.get_new_image_id()
