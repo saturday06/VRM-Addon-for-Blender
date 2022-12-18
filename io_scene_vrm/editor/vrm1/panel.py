@@ -781,9 +781,7 @@ def draw_vrm1_meta_layout(
                 )
                 remove_author_op.armature_name = armature.name
                 remove_author_op.author_index = author_index
-    add_author_op = authors_box.operator(
-        vrm1_ops.VRM_OT_add_vrm1_meta_author.bl_idname
-    )
+    add_author_op = authors_box.operator(vrm1_ops.VRM_OT_add_vrm1_meta_author.bl_idname)
     add_author_op.armature_name = armature.name
 
     layout.prop(meta, "copyright_information")
