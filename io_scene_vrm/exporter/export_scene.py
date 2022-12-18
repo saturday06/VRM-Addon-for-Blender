@@ -27,8 +27,6 @@ def export_vrm_update_addon_preferences(
     export_op: bpy.types.Operator, context: bpy.types.Context
 ) -> None:
     preferences = get_preferences(context)
-    if not preferences:
-        return
 
     changed = False
 
@@ -99,15 +97,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             return {"CANCELLED"}
 
         preferences = get_preferences(context)
-        export_fb_ngon_encoding = False
-        if preferences:
-            export_invisibles = bool(preferences.export_invisibles)
-            export_only_selections = bool(preferences.export_only_selections)
-            if preferences.enable_advanced_preferences:
-                export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+        export_invisibles = bool(preferences.export_invisibles)
+        export_only_selections = bool(preferences.export_only_selections)
+        if preferences.enable_advanced_preferences:
+            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
         else:
-            export_invisibles = False
-            export_only_selections = False
+            export_fb_ngon_encoding = False
 
         export_objects = search.export_objects(
             context, export_invisibles, export_only_selections
@@ -137,18 +132,17 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         preferences = get_preferences(context)
-        if preferences:
-            (
-                self.export_invisibles,
-                self.export_only_selections,
-                self.enable_advanced_preferences,
-                self.export_fb_ngon_encoding,
-            ) = (
-                bool(preferences.export_invisibles),
-                bool(preferences.export_only_selections),
-                bool(preferences.enable_advanced_preferences),
-                bool(preferences.export_fb_ngon_encoding),
-            )
+        (
+            self.export_invisibles,
+            self.export_only_selections,
+            self.enable_advanced_preferences,
+            self.export_fb_ngon_encoding,
+        ) = (
+            bool(preferences.export_invisibles),
+            bool(preferences.export_only_selections),
+            bool(preferences.enable_advanced_preferences),
+            bool(preferences.export_fb_ngon_encoding),
+        )
         if not use_legacy_importer_exporter() and "gltf" not in dir(
             bpy.ops.export_scene
         ):
@@ -267,12 +261,8 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         preferences = get_preferences(context)
-        if preferences:
-            export_invisibles = bool(preferences.export_invisibles)
-            export_only_selections = bool(preferences.export_only_selections)
-        else:
-            export_invisibles = False
-            export_only_selections = False
+        export_invisibles = bool(preferences.export_invisibles)
+        export_only_selections = bool(preferences.export_only_selections)
         export_objects = search.export_objects(
             context, export_invisibles, export_only_selections
         )
@@ -310,12 +300,8 @@ class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[m
 
     def draw(self, context: bpy.types.Context) -> None:
         preferences = get_preferences(context)
-        if preferences:
-            export_invisibles = bool(preferences.export_invisibles)
-            export_only_selections = bool(preferences.export_only_selections)
-        else:
-            export_invisibles = False
-            export_only_selections = False
+        export_invisibles = bool(preferences.export_invisibles)
+        export_only_selections = bool(preferences.export_only_selections)
 
         armatures = [
             obj

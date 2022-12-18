@@ -151,15 +151,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
         node_names = []
 
         # region export object seeking
-        export_invisibles = False
-        export_only_selections = False
-        export_fb_ngon_encoding = False
         preferences = get_preferences(context)
-        if preferences:
-            export_invisibles = bool(preferences.export_invisibles)
-            export_only_selections = bool(preferences.export_only_selections)
-            if preferences.enable_advanced_preferences:
-                export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+        export_invisibles = bool(preferences.export_invisibles)
+        export_only_selections = bool(preferences.export_only_selections)
+        if preferences.enable_advanced_preferences:
+            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+        else:
+            export_fb_ngon_encoding = False
 
         if not version.supported():
             warning_messages.append(

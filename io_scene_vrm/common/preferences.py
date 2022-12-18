@@ -1,5 +1,3 @@
-from typing import Optional
-
 import bpy
 from bpy.app.translations import pgettext
 
@@ -8,23 +6,7 @@ from .logging import get_logger
 
 logger = get_logger(__name__)
 
-addon_package_name_temp = ".".join(__name__.split(".")[:-2])
-if not addon_package_name_temp:
-    addon_package_name_temp = "VRM_Addon_for_Blender_fallback_key"
-    logger.warning(f"Failed to detect add-on package name from __name__={__name__}")
-
-if "addon_package_name" not in globals():
-    addon_package_name = addon_package_name_temp
-elif globals()["addon_package_name"] != addon_package_name_temp:
-    logger.warning(
-        "Accidentally package name is changed? addon_package_name: "
-        + str(globals()["addon_package_name"])
-        + f" => {addon_package_name_temp}, __name__: "
-        + str(globals().get("previous_package_name"))
-        + f" => {__name__}"
-    )
-
-previous_package_name = __name__
+addon_package_name = ".".join(__name__.split(".")[:-2])
 
 
 class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
@@ -105,17 +87,17 @@ def use_legacy_importer_exporter() -> bool:
     return tuple(bpy.app.version) < (2, 83)
 
 
-def get_preferences(context: bpy.types.Context) -> Optional[VrmAddonPreferences]:
+def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
     addon = context.preferences.addons.get(addon_package_name)
     if not addon:
-        logger.warning(f"Failed to read add-on preferences for {addon_package_name}")
-        return None
+        raise RuntimeError(
+            f"Failed to read add-on preferences for {addon_package_name}"
+        )
 
     preferences = addon.preferences
     if not isinstance(preferences, VrmAddonPreferences):
-        logger.error(
+        raise RuntimeError(
             f"Add-on preferences for {addon_package_name} is not a VrmAddonPreferences"
         )
-        return None
 
     return preferences

@@ -28,8 +28,6 @@ def import_vrm_update_addon_preferences(
     import_op: bpy.types.Operator, context: bpy.types.Context
 ) -> None:
     preferences = get_preferences(context)
-    if not preferences:
-        return
 
     if bool(preferences.set_shading_type_to_material_on_import) != bool(
         import_op.set_shading_type_to_material_on_import
@@ -133,18 +131,17 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         preferences = get_preferences(context)
-        if preferences:
-            (
-                self.set_shading_type_to_material_on_import,
-                self.set_view_transform_to_standard_on_import,
-                self.set_armature_display_to_wire,
-                self.set_armature_display_to_show_in_front,
-            ) = (
-                preferences.set_shading_type_to_material_on_import,
-                preferences.set_view_transform_to_standard_on_import,
-                preferences.set_armature_display_to_wire,
-                preferences.set_armature_display_to_show_in_front,
-            )
+        (
+            self.set_shading_type_to_material_on_import,
+            self.set_view_transform_to_standard_on_import,
+            self.set_armature_display_to_wire,
+            self.set_armature_display_to_show_in_front,
+        ) = (
+            preferences.set_shading_type_to_material_on_import,
+            preferences.set_view_transform_to_standard_on_import,
+            preferences.set_armature_display_to_wire,
+            preferences.set_armature_display_to_show_in_front,
+        )
 
         if not use_legacy_importer_exporter() and "gltf" not in dir(
             bpy.ops.import_scene

@@ -60,8 +60,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
 
 def migrate_all_objects() -> None:
     preferences = get_preferences(bpy.context)
-    if preferences:
-        preferences.addon_version = version.version()
+    preferences.addon_version = version.version()
 
     for obj in bpy.data.objects:
         if obj.type == "ARMATURE":

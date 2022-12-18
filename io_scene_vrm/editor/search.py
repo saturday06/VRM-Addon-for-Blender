@@ -6,7 +6,7 @@ import bpy
 from bpy.app.translations import pgettext
 
 from ..common.logging import get_logger
-from ..common.preferences import VrmAddonPreferences, get_preferences
+from ..common.preferences import get_preferences
 
 logger = get_logger(__name__)
 
@@ -37,9 +37,7 @@ def export_materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material
 
 def object_candidates(context: bpy.types.Context) -> Sequence[bpy.types.Object]:
     preferences = get_preferences(context)
-    if isinstance(preferences, VrmAddonPreferences) and bool(
-        preferences.export_invisibles
-    ):
+    if preferences.export_invisibles:
         objects = bpy.data.objects
     else:
         objects = context.selectable_objects

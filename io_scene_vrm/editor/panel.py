@@ -127,32 +127,31 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         )
         vrm_validator_prop.show_successful_message = True
         mtoon_preview = False
-        if preferences:
-            layout.prop(preferences, "export_invisibles")
-            layout.prop(preferences, "export_only_selections")
+        layout.prop(preferences, "export_invisibles")
+        layout.prop(preferences, "export_only_selections")
 
-            armature = search.current_armature(context)
-            if armature:
-                layout.prop(
-                    armature.data.vrm_addon_extension,
-                    "spec_version",
-                    text="",
-                    translate=False,
+        armature = search.current_armature(context)
+        if armature:
+            layout.prop(
+                armature.data.vrm_addon_extension,
+                "spec_version",
+                text="",
+                translate=False,
+            )
+            if armature.data.vrm_addon_extension.is_vrm1():
+                warning_column = layout.box().column()
+                warning_message = pgettext(
+                    "VRM 1.0 support is under development.\n"
+                    + "It won't work as intended in many situations."
                 )
-                if armature.data.vrm_addon_extension.is_vrm1():
-                    warning_column = layout.box().column()
-                    warning_message = pgettext(
-                        "VRM 1.0 support is under development.\n"
-                        + "It won't work as intended in many situations."
+                for index, warning_line in enumerate(warning_message.splitlines()):
+                    warning_column.label(
+                        text=warning_line,
+                        translate=False,
+                        icon="ERROR" if index == 0 else "NONE",
                     )
-                    for index, warning_line in enumerate(warning_message.splitlines()):
-                        warning_column.label(
-                            text=warning_line,
-                            translate=False,
-                            icon="ERROR" if index == 0 else "NONE",
-                        )
-                else:
-                    mtoon_preview = True
+            else:
+                mtoon_preview = True
 
         if mode == "OBJECT":
             if GlslDrawObj.draw_objs:

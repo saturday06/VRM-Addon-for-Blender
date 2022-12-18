@@ -23,13 +23,10 @@ class ICYP_OT_draw_model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         GlslDrawObj()
-        invisibles = False
-        only_selections = False
         preferences = get_preferences(context)
-        if preferences:
-            invisibles = bool(preferences.export_invisibles)
-            only_selections = bool(preferences.export_only_selections)
-        GlslDrawObj.draw_func_add(context, invisibles, only_selections)
+        GlslDrawObj.draw_func_add(
+            context, preferences.export_invisibles, preferences.export_only_selections
+        )
         return {"FINISHED"}
 
 

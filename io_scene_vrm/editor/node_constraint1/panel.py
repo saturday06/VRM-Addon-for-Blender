@@ -3,7 +3,7 @@ from typing import Dict
 import bpy
 from bpy.app.translations import pgettext
 
-from ...common import preferences
+from ...common.preferences import get_preferences
 from .. import search
 from ..extension import VrmAddonArmatureExtensionPropertyGroup
 from ..panel import VRM_PT_vrm_armature_object_property
@@ -209,13 +209,9 @@ def draw_node_constraint1_layout(
     layout: bpy.types.UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
 ) -> None:
-    pref = preferences.get_preferences(context)
-    if pref:
-        export_invisibles = pref.export_invisibles
-    else:
-        export_invisibles = False
+    preferences = get_preferences(context)
     objs = search.export_objects(
-        context, export_invisibles, export_only_selections=False
+        context, preferences.export_invisibles, export_only_selections=False
     )
     object_constraints, bone_constraints, _ = search.export_constraints(objs, armature)
     draw_roll_constraint_layout(

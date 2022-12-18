@@ -1331,8 +1331,6 @@ class AbstractBaseVrmImporter(ABC):
 
     def viewport_setup(self) -> None:
         preferences = get_preferences(self.context)
-        if not preferences:
-            return
         if self.armature and preferences.set_armature_display_to_wire:
             self.armature.display_type = "WIRE"
         if self.armature and preferences.set_armature_display_to_show_in_front:
