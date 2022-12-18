@@ -1,6 +1,6 @@
 import os
 from sys import float_info
-from typing import List, Optional, Set, cast
+from typing import Dict, List, Optional, Set, cast
 
 import bpy
 from bpy.app.translations import pgettext
@@ -357,6 +357,49 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                             'Object "{name}" contains a negative value for the scale;'
                             + " VRM 1.0 does not allow negative values to be specified for the scale."
                         ).format(name=obj.name)
+                    )
+
+            joint_chain_bone_names_to_spring_name: Dict[str, str] = {}
+            for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
+                joint_bone_names = []
+                for joint in spring.joints:
+                    bone_name = joint.node.value
+                    if bone_name and bone_name not in joint_bone_names:
+                        joint_bone_names.append(bone_name)
+
+                joint_chain_bone_names = []
+                for bone_name in joint_bone_names:
+                    search_joint_chain_bone_names = []
+                    bone = armature.data.bones.get(bone_name)
+                    terminated = False
+                    while bone:
+                        if bone.name != bone_name and bone.name in joint_bone_names:
+                            terminated = True
+                            break
+                        search_joint_chain_bone_names.append(bone.name)
+                        bone = bone.parent
+                    if not terminated:
+                        continue
+                    joint_chain_bone_names.extend(search_joint_chain_bone_names)
+
+                for joint_chain_bone_name in joint_chain_bone_names:
+                    spring_name = joint_chain_bone_names_to_spring_name.get(
+                        joint_chain_bone_name
+                    )
+                    if not spring_name:
+                        joint_chain_bone_names_to_spring_name[
+                            joint_chain_bone_name
+                        ] = spring.name
+                        continue
+                    warning_messages.append(
+                        pgettext(
+                            'Spring "{spring_name1}" and "{spring_name2}" have'
+                            + ' common bone "{bone_name}"'
+                        ).format(
+                            spring_name1=spring_name,
+                            spring_name2=spring.name,
+                            bone_name=joint_chain_bone_name,
+                        )
                     )
 
         used_materials = search.export_materials(export_objects)

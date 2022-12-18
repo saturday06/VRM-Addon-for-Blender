@@ -130,6 +130,8 @@ mtoon
 mtoon0
 mtoon1
 musgrave
+name1
+name2
 ngon
 normalmap
 normals
