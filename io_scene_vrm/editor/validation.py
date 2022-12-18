@@ -394,7 +394,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                     warning_messages.append(
                         pgettext(
                             'Spring "{spring_name1}" and "{spring_name2}" have'
-                            + ' common bone "{bone_name}"'
+                            + ' common bone "{bone_name}".'
                         ).format(
                             spring_name1=spring_name,
                             spring_name2=spring.name,

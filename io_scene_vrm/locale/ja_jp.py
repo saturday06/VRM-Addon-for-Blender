@@ -99,8 +99,8 @@ translation_dictionary = {
     (
         "*",
         'Spring "{spring_name1}" and "{spring_name2}" have'
-        + ' common bone "{bone_name}"',
-    ): "Spring 「{spring_name1}」と「{spring_name2}」は「{bone_name}」ボーンを共有しています",
+        + ' common bone "{bone_name}".',
+    ): "Spring 「{spring_name1}」と「{spring_name2}」が「{bone_name}」ボーンを共有しています。",
     (
         "*",
         "Only one armature is required for VRM export. Multiple armatures found.",
