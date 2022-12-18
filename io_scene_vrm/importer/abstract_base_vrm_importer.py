@@ -26,7 +26,7 @@ from ..common.mtoon_constants import MaterialMtoon
 from ..common.preferences import get_preferences
 from ..common.shader import shader_node_group_import
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
-from ..editor import make_armature, migration, operator
+from ..editor import make_armature, migration, ops
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
 from ..editor.vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
@@ -1327,7 +1327,7 @@ class AbstractBaseVrmImporter(ABC):
         bpy.ops.object.mode_set(mode="OBJECT")
         self.context.view_layer.depsgraph.update()
         self.context.scene.view_layers.update()
-        operator.VRM_OT_simplify_vroid_bones(self.context)
+        ops.VRM_OT_simplify_vroid_bones(self.context)
 
     def viewport_setup(self) -> None:
         preferences = get_preferences(self.context)

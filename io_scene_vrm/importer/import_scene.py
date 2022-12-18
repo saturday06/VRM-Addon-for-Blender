@@ -9,7 +9,7 @@ from bpy_extras.io_utils import ImportHelper
 from ..common import version
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
-from ..editor.operator import VRM_OT_open_url_in_web_browser
+from ..editor.ops import VRM_OT_open_url_in_web_browser
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
 from .license_validation import LicenseConfirmationRequired

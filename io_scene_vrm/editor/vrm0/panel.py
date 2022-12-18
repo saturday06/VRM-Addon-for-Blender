@@ -2,14 +2,14 @@ import bpy
 from bpy.app.translations import pgettext
 
 from ...common.vrm0.human_bone import HumanBoneSpecification, HumanBoneSpecifications
-from .. import operator, search
+from .. import ops, search
 from ..extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     VrmAddonSceneExtensionPropertyGroup,
 )
 from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
-from . import operator as vrm0_operator
+from . import ops as vrm0_ops
 from .property_group import (
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
@@ -64,15 +64,15 @@ def draw_vrm0_humanoid_operators_layout(
 ) -> None:
     bone_operator_column = layout.column()
     bone_operator_column.operator(
-        vrm0_operator.VRM_OT_assign_vrm0_humanoid_human_bones_automatically.bl_idname,
+        vrm0_ops.VRM_OT_assign_vrm0_humanoid_human_bones_automatically.bl_idname,
         icon="ARMATURE_DATA",
     ).armature_name = armature.name
     save_load_row = bone_operator_column.split(factor=0.5, align=True)
     save_load_row.operator(
-        operator.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT", text="Save"
+        ops.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT", text="Save"
     )
     save_load_row.operator(
-        operator.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT", text="Load"
+        ops.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT", text="Load"
     )
 
 
@@ -170,10 +170,10 @@ def draw_vrm0_humanoid_layout(
 
     draw_vrm0_humanoid_operators_layout(armature, armature_box)
 
-    if operator.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
+    if ops.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
         simplify_vroid_bones_op = armature_box.operator(
-            operator.VRM_OT_simplify_vroid_bones.bl_idname,
-            text=pgettext(operator.VRM_OT_simplify_vroid_bones.bl_label),
+            ops.VRM_OT_simplify_vroid_bones.bl_idname,
+            text=pgettext(ops.VRM_OT_simplify_vroid_bones.bl_label),
             icon="GREASEPENCIL",
         )
         simplify_vroid_bones_op.armature_name = armature.name
@@ -433,14 +433,14 @@ def draw_vrm0_first_person_layout(
         )
         row.prop(mesh_annotation, "first_person_flag")
         remove_mesh_annotation_op = row.operator(
-            vrm0_operator.VRM_OT_remove_vrm0_first_person_mesh_annotation.bl_idname,
+            vrm0_ops.VRM_OT_remove_vrm0_first_person_mesh_annotation.bl_idname,
             text="Remove",
             icon="REMOVE",
         )
         remove_mesh_annotation_op.armature_name = armature.name
         remove_mesh_annotation_op.mesh_annotation_index = mesh_annotation_index
     add_mesh_annotation_op = box.operator(
-        vrm0_operator.VRM_OT_add_vrm0_first_person_mesh_annotation.bl_idname
+        vrm0_ops.VRM_OT_add_vrm0_first_person_mesh_annotation.bl_idname
     )
     add_mesh_annotation_op.armature_name = armature.name
     box = layout.box()
@@ -596,7 +596,7 @@ def draw_vrm0_blend_shape_master_layout(
                     )
                 bind_box.prop(bind, "weight")
                 remove_blend_shape_bind_op = bind_box.operator(
-                    vrm0_operator.VRM_OT_remove_vrm0_blend_shape_bind.bl_idname,
+                    vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind.bl_idname,
                     icon="REMOVE",
                 )
                 remove_blend_shape_bind_op.armature_name = armature.name
@@ -605,7 +605,7 @@ def draw_vrm0_blend_shape_master_layout(
                 )
                 remove_blend_shape_bind_op.bind_index = bind_index
             add_blend_shape_bind_op = box.operator(
-                vrm0_operator.VRM_OT_add_vrm0_blend_shape_bind.bl_idname, icon="ADD"
+                vrm0_ops.VRM_OT_add_vrm0_blend_shape_bind.bl_idname, icon="ADD"
             )
             add_blend_shape_bind_op.armature_name = armature.name
             add_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
@@ -638,7 +638,7 @@ def draw_vrm0_blend_shape_master_layout(
                         target_value, "value", text=f"Value {target_value_index}"
                     )
                     remove_target_value_op = target_value_row.operator(
-                        vrm0_operator.VRM_OT_remove_vrm0_material_value_bind_target_value.bl_idname,
+                        vrm0_ops.VRM_OT_remove_vrm0_material_value_bind_target_value.bl_idname,
                         text="Remove",
                         icon="REMOVE",
                     )
@@ -649,7 +649,7 @@ def draw_vrm0_blend_shape_master_layout(
                     remove_target_value_op.material_value_index = material_value_index
                     remove_target_value_op.target_value_index = target_value_index
                 add_target_value_op = material_value_box.operator(
-                    vrm0_operator.VRM_OT_add_vrm0_material_value_bind_target_value.bl_idname,
+                    vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value.bl_idname,
                     icon="ADD",
                 )
                 add_target_value_op.armature_name = armature.name
@@ -657,7 +657,7 @@ def draw_vrm0_blend_shape_master_layout(
                 add_target_value_op.material_value_index = material_value_index
 
                 remove_material_value_op = material_value_box.operator(
-                    vrm0_operator.VRM_OT_remove_vrm0_material_value_bind.bl_idname,
+                    vrm0_ops.VRM_OT_remove_vrm0_material_value_bind.bl_idname,
                     icon="REMOVE",
                 )
                 remove_material_value_op.armature_name = armature.name
@@ -666,18 +666,18 @@ def draw_vrm0_blend_shape_master_layout(
                 )
                 remove_material_value_op.material_value_index = material_value_index
             add_material_value_op = box.operator(
-                vrm0_operator.VRM_OT_add_vrm0_material_value_bind.bl_idname, icon="ADD"
+                vrm0_ops.VRM_OT_add_vrm0_material_value_bind.bl_idname, icon="ADD"
             )
             add_material_value_op.armature_name = armature.name
             add_material_value_op.blend_shape_group_index = blend_shape_group_index
 
         remove_blend_shape_group_op = box.operator(
-            vrm0_operator.VRM_OT_remove_vrm0_blend_shape_group.bl_idname, icon="REMOVE"
+            vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group.bl_idname, icon="REMOVE"
         )
         remove_blend_shape_group_op.armature_name = armature.name
         remove_blend_shape_group_op.blend_shape_group_index = blend_shape_group_index
     add_blend_shape_group_op = layout.operator(
-        vrm0_operator.VRM_OT_add_vrm0_blend_shape_group.bl_idname, icon="ADD"
+        vrm0_ops.VRM_OT_add_vrm0_blend_shape_group.bl_idname, icon="ADD"
     )
     add_blend_shape_group_op.name = "New"
     add_blend_shape_group_op.armature_name = armature.name
@@ -818,7 +818,7 @@ def draw_vrm0_secondary_animation_layout(
                 bone_row = box.split(align=True, factor=0.7)
                 bone_row.prop_search(bone, "value", data, "bones", text="")
                 remove_bone_op = bone_row.operator(
-                    vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_group_bone.bl_idname,
+                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_bone.bl_idname,
                     icon="REMOVE",
                     text="Remove",
                 )
@@ -826,7 +826,7 @@ def draw_vrm0_secondary_animation_layout(
                 remove_bone_op.bone_group_index = bone_group_index
                 remove_bone_op.bone_index = bone_index
             add_bone_op = box.operator(
-                vrm0_operator.VRM_OT_add_vrm0_secondary_animation_group_bone.bl_idname,
+                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_bone.bl_idname,
                 icon="ADD",
             )
             add_bone_op.armature_name = armature.name
@@ -855,7 +855,7 @@ def draw_vrm0_secondary_animation_layout(
                     text="",
                 )
                 remove_collider_group_op = collider_group_row.operator(
-                    vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_group_collider_group.bl_idname,
+                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_collider_group.bl_idname,
                     icon="REMOVE",
                     text="Remove",
                 )
@@ -863,20 +863,20 @@ def draw_vrm0_secondary_animation_layout(
                 remove_collider_group_op.bone_group_index = bone_group_index
                 remove_collider_group_op.collider_group_index = collider_group_index
             add_collider_group_op = box.operator(
-                vrm0_operator.VRM_OT_add_vrm0_secondary_animation_group_collider_group.bl_idname,
+                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_collider_group.bl_idname,
                 icon="ADD",
             )
             add_collider_group_op.armature_name = armature.name
             add_collider_group_op.bone_group_index = bone_group_index
 
         remove_bone_group_op = box.operator(
-            vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_group.bl_idname,
+            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group.bl_idname,
             icon="REMOVE",
         )
         remove_bone_group_op.armature_name = armature.name
         remove_bone_group_op.bone_group_index = bone_group_index
     add_bone_group_op = bone_groups_box.operator(
-        vrm0_operator.VRM_OT_add_vrm0_secondary_animation_group.bl_idname, icon="ADD"
+        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group.bl_idname, icon="ADD"
     )
     add_bone_group_op.armature_name = armature.name
 
@@ -913,7 +913,7 @@ def draw_vrm0_secondary_animation_layout(
             )
             collider_row.prop(collider.bpy_object, "empty_display_size", text="")
             remove_collider_op = collider_row.operator(
-                vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider.bl_idname,
+                vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider.bl_idname,
                 icon="REMOVE",
                 text="Remove",
             )
@@ -921,7 +921,7 @@ def draw_vrm0_secondary_animation_layout(
             remove_collider_op.collider_group_index = collider_group_index
             remove_collider_op.collider_index = collider_index
         add_collider_op = box.operator(
-            vrm0_operator.VRM_OT_add_vrm0_secondary_animation_collider_group_collider.bl_idname,
+            vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group_collider.bl_idname,
             icon="ADD",
         )
         add_collider_op.armature_name = armature.name
@@ -929,13 +929,13 @@ def draw_vrm0_secondary_animation_layout(
         add_collider_op.bone_name = collider_group.node.value
 
         remove_collider_group_op = box.operator(
-            vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group.bl_idname,
+            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group.bl_idname,
             icon="REMOVE",
         )
         remove_collider_group_op.armature_name = armature.name
         remove_collider_group_op.collider_group_index = collider_group_index
     add_collider_group_op = collider_groups_box.operator(
-        vrm0_operator.VRM_OT_add_vrm0_secondary_animation_collider_group.bl_idname,
+        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group.bl_idname,
         icon="ADD",
     )
     add_collider_group_op.armature_name = armature.name

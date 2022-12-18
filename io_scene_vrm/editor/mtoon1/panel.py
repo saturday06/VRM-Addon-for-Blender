@@ -4,7 +4,7 @@ import bpy
 from bpy.app.translations import pgettext
 
 from .. import search
-from .operator import (
+from .ops import (
     VRM_OT_import_mtoon1_texture_image_file,
     VRM_OT_reset_mtoon1_material_shader_node_group,
 )

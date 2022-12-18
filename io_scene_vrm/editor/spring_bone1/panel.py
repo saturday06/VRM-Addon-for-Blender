@@ -6,7 +6,7 @@ from .. import search
 from ..extension import VrmAddonArmatureExtensionPropertyGroup
 from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
-from . import operator as vrm1_operator
+from . import ops as vrm1_operator
 from .property_group import (
     SpringBone1ColliderPropertyGroup,
     SpringBone1SpringBonePropertyGroup,

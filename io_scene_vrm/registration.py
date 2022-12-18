@@ -17,23 +17,23 @@ from .editor import (
     glsl_drawer,
     make_armature,
     migration,
-    operator,
+    ops,
     panel,
     property_group,
     validation,
 )
-from .editor.mtoon1 import operator as mtoon1_operator
+from .editor.mtoon1 import ops as mtoon1_operator
 from .editor.mtoon1 import panel as mtoon1_panel
 from .editor.mtoon1 import property_group as mtoon1_property_group
 from .editor.node_constraint1 import panel as node_constraint1_panel
 from .editor.node_constraint1 import property_group as node_constraint1_property_group
-from .editor.spring_bone1 import operator as spring_bone1_operator
+from .editor.spring_bone1 import ops as spring_bone1_operator
 from .editor.spring_bone1 import panel as spring_bone1_panel
 from .editor.spring_bone1 import property_group as spring_bone1_property_group
-from .editor.vrm0 import operator as vrm0_operator
+from .editor.vrm0 import ops as vrm0_ops
 from .editor.vrm0 import panel as vrm0_panel
 from .editor.vrm0 import property_group as vrm0_property_group
-from .editor.vrm1 import operator as vrm1_operator
+from .editor.vrm1 import ops as vrm1_ops
 from .editor.vrm1 import panel as vrm1_panel
 from .editor.vrm1 import property_group as vrm1_property_group
 from .exporter import export_scene
@@ -208,42 +208,42 @@ classes = [
     spring_bone1_panel.VRM_PT_spring_bone1_armature_object_property,
     spring_bone1_panel.VRM_PT_spring_bone1_ui,
     spring_bone1_panel.VRM_PT_spring_bone1_collider_property,
-    vrm0_operator.VRM_OT_add_vrm0_first_person_mesh_annotation,
-    vrm0_operator.VRM_OT_remove_vrm0_first_person_mesh_annotation,
-    vrm0_operator.VRM_OT_add_vrm0_material_value_bind,
-    vrm0_operator.VRM_OT_remove_vrm0_material_value_bind,
-    vrm0_operator.VRM_OT_add_vrm0_material_value_bind_target_value,
-    vrm0_operator.VRM_OT_remove_vrm0_material_value_bind_target_value,
-    vrm0_operator.VRM_OT_add_vrm0_blend_shape_bind,
-    vrm0_operator.VRM_OT_remove_vrm0_blend_shape_bind,
-    vrm0_operator.VRM_OT_add_vrm0_secondary_animation_collider_group_collider,
-    vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider,
-    vrm0_operator.VRM_OT_add_vrm0_secondary_animation_group_bone,
-    vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_group_bone,
-    vrm0_operator.VRM_OT_add_vrm0_secondary_animation_group_collider_group,
-    vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_group_collider_group,
-    vrm0_operator.VRM_OT_add_vrm0_blend_shape_group,
-    vrm0_operator.VRM_OT_remove_vrm0_blend_shape_group,
-    vrm0_operator.VRM_OT_add_vrm0_secondary_animation_group,
-    vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_group,
-    vrm0_operator.VRM_OT_add_vrm0_secondary_animation_collider_group,
-    vrm0_operator.VRM_OT_remove_vrm0_secondary_animation_collider_group,
-    vrm0_operator.VRM_OT_assign_vrm0_humanoid_human_bones_automatically,
-    vrm1_operator.VRM_OT_add_vrm1_meta_author,
-    vrm1_operator.VRM_OT_remove_vrm1_meta_author,
-    vrm1_operator.VRM_OT_add_vrm1_meta_reference,
-    vrm1_operator.VRM_OT_remove_vrm1_meta_reference,
-    vrm1_operator.VRM_OT_add_vrm1_expressions_custom_expression,
-    vrm1_operator.VRM_OT_remove_vrm1_expressions_custom_expression,
-    vrm1_operator.VRM_OT_add_vrm1_expression_morph_target_bind,
-    vrm1_operator.VRM_OT_remove_vrm1_expression_morph_target_bind,
-    vrm1_operator.VRM_OT_add_vrm1_expression_material_color_bind,
-    vrm1_operator.VRM_OT_remove_vrm1_expression_material_color_bind,
-    vrm1_operator.VRM_OT_add_vrm1_expression_texture_transform_bind,
-    vrm1_operator.VRM_OT_remove_vrm1_expression_texture_transform_bind,
-    vrm1_operator.VRM_OT_add_vrm1_first_person_mesh_annotation,
-    vrm1_operator.VRM_OT_remove_vrm1_first_person_mesh_annotation,
-    vrm1_operator.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
+    vrm0_ops.VRM_OT_add_vrm0_first_person_mesh_annotation,
+    vrm0_ops.VRM_OT_remove_vrm0_first_person_mesh_annotation,
+    vrm0_ops.VRM_OT_add_vrm0_material_value_bind,
+    vrm0_ops.VRM_OT_remove_vrm0_material_value_bind,
+    vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value,
+    vrm0_ops.VRM_OT_remove_vrm0_material_value_bind_target_value,
+    vrm0_ops.VRM_OT_add_vrm0_blend_shape_bind,
+    vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind,
+    vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group_collider,
+    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider,
+    vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_bone,
+    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_bone,
+    vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_collider_group,
+    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_collider_group,
+    vrm0_ops.VRM_OT_add_vrm0_blend_shape_group,
+    vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group,
+    vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group,
+    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group,
+    vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group,
+    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group,
+    vrm0_ops.VRM_OT_assign_vrm0_humanoid_human_bones_automatically,
+    vrm1_ops.VRM_OT_add_vrm1_meta_author,
+    vrm1_ops.VRM_OT_remove_vrm1_meta_author,
+    vrm1_ops.VRM_OT_add_vrm1_meta_reference,
+    vrm1_ops.VRM_OT_remove_vrm1_meta_reference,
+    vrm1_ops.VRM_OT_add_vrm1_expressions_custom_expression,
+    vrm1_ops.VRM_OT_remove_vrm1_expressions_custom_expression,
+    vrm1_ops.VRM_OT_add_vrm1_expression_morph_target_bind,
+    vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind,
+    vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
+    vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
+    vrm1_ops.VRM_OT_add_vrm1_expression_texture_transform_bind,
+    vrm1_ops.VRM_OT_remove_vrm1_expression_texture_transform_bind,
+    vrm1_ops.VRM_OT_add_vrm1_first_person_mesh_annotation,
+    vrm1_ops.VRM_OT_remove_vrm1_first_person_mesh_annotation,
+    vrm1_ops.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
     spring_bone1_operator.VRM_OT_add_spring_bone1_collider,
     spring_bone1_operator.VRM_OT_remove_spring_bone1_collider,
     spring_bone1_operator.VRM_OT_add_spring_bone1_collider_group,
@@ -265,15 +265,15 @@ classes = [
     glsl_drawer.ICYP_OT_remove_draw_model,
     make_armature.ICYP_OT_make_armature,
     # editor.mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
-    operator.VRM_OT_add_human_bone_custom_property,
-    operator.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
-    operator.VRM_OT_add_extensions_to_armature,
-    operator.VRM_OT_add_required_human_bone_custom_property,  # deprecated
-    operator.VRM_OT_simplify_vroid_bones,
-    operator.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
-    operator.VRM_OT_open_url_in_web_browser,
-    operator.VRM_OT_save_human_bone_mappings,
-    operator.VRM_OT_load_human_bone_mappings,
+    ops.VRM_OT_add_human_bone_custom_property,
+    ops.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
+    ops.VRM_OT_add_extensions_to_armature,
+    ops.VRM_OT_add_required_human_bone_custom_property,  # deprecated
+    ops.VRM_OT_simplify_vroid_bones,
+    ops.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
+    ops.VRM_OT_open_url_in_web_browser,
+    ops.VRM_OT_save_human_bone_mappings,
+    ops.VRM_OT_load_human_bone_mappings,
     validation.VrmValidationError,
     validation.WM_OT_vrm_validator,
     export_scene.VRM_PT_export_error_messages,

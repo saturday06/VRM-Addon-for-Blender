@@ -12,7 +12,7 @@ from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_required_bones_layout,
 )
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
-from ..editor.vrm1.operator import VRM_OT_assign_vrm1_humanoid_human_bones_automatically
+from ..editor.vrm1.ops import VRM_OT_assign_vrm1_humanoid_human_bones_automatically
 from ..editor.vrm1.panel import (
     draw_vrm1_humanoid_optional_bones_layout,
     draw_vrm1_humanoid_required_bones_layout,

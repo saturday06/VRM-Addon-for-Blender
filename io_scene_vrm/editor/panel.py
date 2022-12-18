@@ -8,7 +8,7 @@ from . import (
     glsl_drawer,
     make_armature,
     mesh_from_bone_envelopes,
-    operator,
+    ops,
     search,
     validation,
 )
@@ -175,7 +175,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                     )
             if object_type == "MESH":
                 layout.operator(
-                    operator.VRM_OT_vroid2vrc_lipsync_from_json_recipe.bl_idname,
+                    ops.VRM_OT_vroid2vrc_lipsync_from_json_recipe.bl_idname,
                     icon="EXPERIMENTAL",
                 )
         if mode == "EDIT_MESH":
