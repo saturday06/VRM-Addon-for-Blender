@@ -379,6 +379,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                         search_joint_chain_bone_names.append(bone.name)
                         bone = bone.parent
                     if not terminated:
+                        if bone_name not in joint_chain_bone_names:
+                            joint_chain_bone_names.append(bone_name)
                         continue
                     joint_chain_bone_names.extend(search_joint_chain_bone_names)
 
