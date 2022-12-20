@@ -57,7 +57,7 @@ class BaseBlenderGuiTestCase(TestCase):
         )
 
         if completed_process.returncode:
-            raise RuntimeError(
+            raise AssertionError(
                 f"{server_start_bat_path}\n"
                 + BaseBlenderGuiTestCase.format_process_output(completed_process)
             )

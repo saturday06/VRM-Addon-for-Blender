@@ -114,10 +114,10 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
             os.path.join(test_src_dir, path),
         )
         if spec is None:
-            raise RuntimeError("Failed to create module spec")
+            raise AssertionError("Failed to create module spec")
         mod = importlib.util.module_from_spec(spec)
         if spec.loader is None:
-            raise RuntimeError("Failed to create module spec loader")
+            raise AssertionError("Failed to create module spec loader")
         spec.loader.exec_module(mod)
 
         func: object = None

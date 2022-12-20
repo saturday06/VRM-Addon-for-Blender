@@ -90,14 +90,13 @@ def use_legacy_importer_exporter() -> bool:
 def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
     addon = context.preferences.addons.get(addon_package_name)
     if not addon:
-        raise RuntimeError(
-            f"Failed to read add-on preferences for {addon_package_name}"
-        )
+        raise AssertionError(f"No add-on preferences for {addon_package_name}")
 
     preferences = addon.preferences
     if not isinstance(preferences, VrmAddonPreferences):
-        raise RuntimeError(
+        raise AssertionError(
             f"Add-on preferences for {addon_package_name} is not a VrmAddonPreferences"
+            + f" but {type(preferences)}"
         )
 
     return preferences

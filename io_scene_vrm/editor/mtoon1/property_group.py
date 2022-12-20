@@ -31,7 +31,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             if functools.reduce(getattr, chain, ext) == self:
                 return material
 
-        raise RuntimeError(f"No matching material: {type(self)} {chain}")
+        raise AssertionError(f"No matching material: {type(self)} {chain}")
 
     def set_value(
         self,
