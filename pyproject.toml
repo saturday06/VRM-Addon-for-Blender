@@ -71,6 +71,7 @@ reportUnknownMemberType = false
 reportUnknownParameterType = false
 reportUnknownVariableType = false
 reportUnnecessaryComparison = false
+reportUnnecessaryContains = false
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
