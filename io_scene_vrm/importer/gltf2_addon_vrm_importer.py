@@ -7,7 +7,6 @@ import re
 import shutil
 import struct
 import tempfile
-from collections import abc
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 import bgl
@@ -801,7 +800,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         # glTF 2.0アドオンが未対応のエクステンションが"extensionsRequired"に含まれている場合はエラーになるのを抑止
         extensions_required = json_dict.get("extensionsRequired")
-        if isinstance(extensions_required, abc.MutableSequence):
+        if isinstance(extensions_required, list):
             for supported_extension in [
                 "VRM",
                 "VRMC_vrm",

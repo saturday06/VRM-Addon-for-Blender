@@ -11,7 +11,6 @@ import json
 import math
 import uuid
 from abc import ABC, abstractmethod
-from collections import abc
 from typing import Dict, List, Optional, Sequence, Set
 
 import bgl
@@ -422,7 +421,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(sampler_index, int):
             return None
         sampler_dicts = self.parse_result.json_dict.get("samplers")
-        if not isinstance(sampler_dicts, abc.Sequence):
+        if not isinstance(sampler_dicts, list):
             return None
         if not 0 <= sampler_index < len(sampler_dicts):
             return None

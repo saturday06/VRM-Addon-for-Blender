@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import tempfile
-from collections import abc
 from dataclasses import dataclass, field
 from itertools import repeat
 from typing import Dict, List, Optional, Sequence, Tuple, Union
@@ -144,7 +143,7 @@ def create_py_bone(node: Dict[str, Json]) -> PyNode:
     children = node.get("children")
     if isinstance(children, int):
         v_node.children = [children]
-    elif isinstance(children, abc.Iterable):
+    elif isinstance(children, list):
         v_node.children = [child for child in children if isinstance(child, int)]
     else:
         v_node.children = None
