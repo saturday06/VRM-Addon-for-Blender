@@ -179,7 +179,10 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                     icon="EXPERIMENTAL",
                 )
         if mode == "EDIT_MESH":
-            layout.operator(bpy.ops.mesh.symmetry_snap.idname_py(), icon="MOD_MIRROR")
+            layout.operator(
+                bpy.ops.mesh.symmetry_snap.idname_py(),  # pyright: reportFunctionMemberAccess=false
+                icon="MOD_MIRROR",
+            )
         # endregion draw_main
 
 
