@@ -1,5 +1,4 @@
 import json
-import platform
 import sys
 import tempfile
 
@@ -79,7 +78,7 @@ def test() -> None:
         return
 
     message = "\n".join(diffs)
-    if platform.system() == "Windows":
+    if sys.platform == "win32":
         sys.stderr.buffer.write((message + "\n").encode())
         raise AssertionError
     raise AssertionError(message)

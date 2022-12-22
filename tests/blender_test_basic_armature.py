@@ -1,6 +1,5 @@
 import os
 import pathlib
-import platform
 import shutil
 import sys
 
@@ -57,7 +56,7 @@ def test() -> None:
         + f"right={expected_path}\n"
         + f"{diffs_str}\n"
     )
-    if platform.system() == "Windows":
+    if sys.platform == "win32":
         sys.stderr.buffer.write(message.encode())
         raise AssertionError
     raise AssertionError(message)

@@ -1,6 +1,6 @@
 import os
-import platform
 import subprocess
+import sys
 from os.path import dirname
 from unittest import TestCase
 
@@ -45,7 +45,7 @@ class BaseBlenderGuiTestCase(TestCase):
             cls.has_docker = False
             return
 
-        if platform.system() == "Windows":
+        if sys.platform == "win32":
             server_start_bat_path = "scripts\\gui_test_server_start.bat"
         else:
             server_start_bat_path = "scripts/gui_test_server_start.sh"

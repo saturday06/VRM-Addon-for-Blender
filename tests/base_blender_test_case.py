@@ -1,7 +1,7 @@
 import contextlib
 import os
-import platform
 import subprocess
+import sys
 import tempfile
 from typing import Optional
 from unittest import TestCase
@@ -12,9 +12,7 @@ class BaseBlenderTestCase(TestCase):
         # https://stackoverflow.com/a/19102520
         super().__init__(*args, **kwargs)
 
-        self.macos = platform.system() == "Darwin"
-        self.windows = platform.system() == "Windows"
-        if self.windows:
+        if sys.platform == "win32":
             self.exeext = ".exe"
         else:
             self.exeext = ""
@@ -27,10 +25,10 @@ class BaseBlenderTestCase(TestCase):
         os.mkdir(os.path.join(self.user_scripts_dir, "addons"))
         self.addons_pythonpath = os.path.join(self.user_scripts_dir, "addons")
         addon_dir = os.path.join(self.addons_pythonpath, "io_scene_vrm")
-        if self.windows:
+        if sys.platform == "win32":
             import _winapi
 
-            _winapi.CreateJunction(repository_addon_dir, addon_dir)  # type: ignore[attr-defined]
+            _winapi.CreateJunction(repository_addon_dir, addon_dir)
         else:
             os.symlink(repository_addon_dir, addon_dir)
 
@@ -68,13 +66,11 @@ class BaseBlenderTestCase(TestCase):
         output = ""
         for line_bytes in process_output.splitlines():
             line = None
-            if platform.system() != "Windows":
-                line = line_bytes.decode()
-            else:
+            if sys.platform == "win32":
                 with contextlib.suppress(UnicodeDecodeError):
                     line = line_bytes.decode("ansi")
-                if line is None:
-                    line = line_bytes.decode()
+            if line is None:
+                line = line_bytes.decode()
             output += str.rstrip(line) + "\n"
         return output
 
@@ -90,7 +86,7 @@ class BaseBlenderTestCase(TestCase):
         env = os.environ.get("BLENDER_VRM_TEST_BLENDER_PATH")
         if env:
             return env
-        if self.windows:
+        if sys.platform == "win32":
             completed_process = subprocess.run(
                 "where blender", shell=True, capture_output=True, check=False
             )
@@ -106,7 +102,7 @@ class BaseBlenderTestCase(TestCase):
                 return self.process_output_to_str(
                     completed_process.stdout
                 ).splitlines()[0]
-        if self.macos:
+        if sys.platform == "darwin":
             default_path = "/Applications/Blender.app/Contents/MacOS/Blender"
             if os.path.exists(default_path):
                 return default_path
@@ -145,7 +141,7 @@ class BaseBlenderTestCase(TestCase):
             *args,
         ]
 
-        if self.major_minor == "2.83" and self.macos:
+        if self.major_minor == "2.83" and sys.platform == "darwin":
             retry = 3
         else:
             retry = 1

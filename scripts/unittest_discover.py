@@ -2,7 +2,6 @@
 
 import argparse
 import contextlib
-import platform
 import sys
 import unittest
 from os.path import basename, dirname
@@ -34,7 +33,7 @@ def run(stream: TextIO) -> None:
         sys.exit(1)
 
 
-if platform.system() == "Windows":
+if sys.platform == "win32":
     with open(
         sys.stderr.fileno(), mode="w", encoding="ansi", buffering=1
     ) as windows_stderr:
