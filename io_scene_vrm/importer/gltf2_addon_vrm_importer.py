@@ -412,6 +412,260 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(material_dict, dict):
                 self.make_mtoon1_material(index, material_dict)
 
+    def find_vrm0_bone_node_indices(self) -> List[int]:
+        result: List[int] = []
+        vrm0_dict = self.parse_result.vrm0_extension
+
+        first_person_bone_index = deep.get(
+            vrm0_dict, ["firstPerson", "firstPersonBone"]
+        )
+        if isinstance(first_person_bone_index, int):
+            result.append(first_person_bone_index)
+
+        human_bone_dicts = deep.get(vrm0_dict, ["humanoid", "humanBones"])
+        if isinstance(human_bone_dicts, list):
+            for human_bone_dict in human_bone_dicts:
+                if not isinstance(human_bone_dict, dict):
+                    continue
+                node_index = human_bone_dict.get("node")
+                if isinstance(node_index, int):
+                    result.append(node_index)
+
+        collider_group_dicts = deep.get(
+            vrm0_dict, ["secondaryAnimation", "colliderGroups"]
+        )
+        if isinstance(collider_group_dicts, list):
+            for collider_group_dict in collider_group_dicts:
+                if not isinstance(collider_group_dict, dict):
+                    continue
+                node_index = collider_group_dict.get("node")
+                if isinstance(node_index, int):
+                    result.append(node_index)
+
+        bone_group_dicts = deep.get(vrm0_dict, ["secondaryAnimation", "boneGroups"])
+        if isinstance(bone_group_dicts, list):
+            for bone_group_dict in bone_group_dicts:
+                if not isinstance(bone_group_dict, dict):
+                    continue
+                center_index = bone_group_dict.get("center")
+                if isinstance(center_index, int):
+                    result.append(center_index)
+                bone_indices = bone_group_dict.get("bones")
+                if isinstance(bone_indices, list):
+                    for bone_index in bone_indices:
+                        if isinstance(bone_index, int):
+                            result.append(bone_index)
+        return list(dict.fromkeys(result))  # Remove duplicates
+
+    def find_vrm1_bone_node_indices(self) -> List[int]:
+        result: List[int] = []
+        vrm1_dict = self.parse_result.vrm1_extension
+        human_bones_dict = deep.get(vrm1_dict, ["humanoid", "humanBones"])
+        if isinstance(human_bones_dict, dict):
+            for human_bone_dict in human_bones_dict.values():
+                if not isinstance(human_bone_dict, dict):
+                    continue
+                node_index = human_bone_dict.get("node")
+                if isinstance(node_index, int):
+                    result.append(node_index)
+        return list(dict.fromkeys(result))  # Remove duplicates
+
+    def find_spring_bone1_bone_node_indices(self) -> List[int]:
+        spring_bone1_dict = deep.get(
+            self.parse_result.json_dict,
+            ["extensions", "VRMC_springBone"],
+        )
+        if not isinstance(spring_bone1_dict, dict):
+            return []
+
+        result: List[int] = []
+
+        collider_dicts = spring_bone1_dict.get("colliders")
+        if isinstance(collider_dicts, list):
+            for collider_dict in collider_dicts:
+                if not isinstance(collider_dict, dict):
+                    continue
+
+                node_index = collider_dict.get("node")
+                if isinstance(node_index, int):
+                    result.append(node_index)
+
+        spring_dicts = spring_bone1_dict.get("springs")
+        if isinstance(spring_dicts, list):
+            for spring_dict in spring_dicts:
+                if not isinstance(spring_dict, dict):
+                    continue
+
+                center_index = spring_dict.get("center")
+                if isinstance(center_index, int):
+                    result.append(center_index)
+
+                joint_dicts = spring_dict.get("joints")
+                if not isinstance(joint_dicts, list):
+                    continue
+
+                for joint_dict in joint_dicts:
+                    if not isinstance(joint_dict, dict):
+                        continue
+                    node_index = joint_dict.get("node")
+                    if isinstance(node_index, int):
+                        result.append(node_index)
+
+        return list(dict.fromkeys(result))  # Remove duplicates
+
+    def find_vrm_bone_node_indices(self) -> List[int]:
+        # TODO: SkinnedMeshRenderer root <=> skin.skeleton???
+        return list(
+            dict.fromkeys(  # Remove duplicates
+                self.find_vrm0_bone_node_indices()
+                + self.find_vrm1_bone_node_indices()
+                + self.find_spring_bone1_bone_node_indices()
+            )
+        )
+
+    # VRM再インポートを繰り返すことでボーンが増殖しないように注意。
+    # 特に注意するべきもの:
+    # - ルートボーン
+    # - メッシュがペアレンティングされているボーン
+    def find_retain_node_indices(self, scene_dict: Dict[str, Json]) -> List[int]:
+        scene_node_index_jsons = scene_dict.get("nodes")
+        if not isinstance(scene_node_index_jsons, list):
+            return []
+        scene_node_indices = [
+            index for index in scene_node_index_jsons if isinstance(index, int)
+        ]
+        json_dict = self.parse_result.json_dict
+        node_dict_jsons = json_dict.get("nodes")
+        if not isinstance(node_dict_jsons, list):
+            return []
+        node_dicts = [
+            node_dict for node_dict in node_dict_jsons if isinstance(node_dict, dict)
+        ]
+        skin_dict_jsons = json_dict.get("skins")
+        if not isinstance(skin_dict_jsons, list):
+            skin_dict_jsons = []
+        skin_dicts = [
+            skin_dict for skin_dict in skin_dict_jsons if isinstance(skin_dict, dict)
+        ]
+
+        bone_node_indices = self.find_vrm_bone_node_indices()
+
+        # 全てのシーンノードindexを取得する
+        all_scene_node_indices: List[int] = []
+        search_scene_node_indices = list(scene_node_indices)
+        while search_scene_node_indices:
+            search_scene_node_index = search_scene_node_indices.pop()
+            if not 0 <= search_scene_node_index < len(node_dicts):
+                continue
+            node_dict = node_dicts[search_scene_node_index]
+
+            all_scene_node_indices.append(search_scene_node_index)
+
+            child_indices = node_dict.get("children")
+            if not isinstance(child_indices, list):
+                continue
+            for child_index in child_indices:
+                if not isinstance(child_index, int):
+                    continue
+                if child_index in all_scene_node_indices:
+                    # Avoid recursive nodes
+                    continue
+
+                search_scene_node_indices.append(child_index)
+        all_scene_node_indices = list(dict.fromkeys(all_scene_node_indices))  # Distinct
+
+        # skinに登録されているインデックスもボーン扱いする
+        for node_index in all_scene_node_indices:
+            if not 0 <= node_index < len(node_dicts):
+                continue
+            node_dict = node_dicts[node_index]
+            skin_index = node_dict.get("skin")
+            if not isinstance(skin_index, int) or not 0 <= skin_index < len(skin_dicts):
+                continue
+            skin_dict = skin_dicts[skin_index]
+            skeleton_index = skin_dict.get("skeleton")
+            if isinstance(skeleton_index, int):
+                bone_node_indices.append(skeleton_index)
+            joint_indices = skin_dict.get("joints")
+            if isinstance(joint_indices, list):
+                for joint_index in joint_indices:
+                    if isinstance(joint_index, int):
+                        bone_node_indices.append(joint_index)
+
+        # ボーンインデックスからシーンノードindexに入ってないヤツを削除
+        for bone_node_index in list(bone_node_indices):
+            if bone_node_index not in all_scene_node_indices:
+                bone_node_indices.remove(bone_node_index)
+
+        # 現在見つかっているボーンノードから、メッシュノードにぶつかるまで子供を追加
+        search_bone_node_indices = list(bone_node_indices)
+        while search_bone_node_indices:
+            search_bone_node_index = search_bone_node_indices.pop()
+            if not 0 <= search_bone_node_index < len(node_dicts):
+                continue
+            node_dict = node_dicts[search_bone_node_index]
+            if isinstance(node_dict.get("mesh"), int):
+                continue
+
+            bone_node_indices.append(search_bone_node_index)
+
+            child_indices = node_dict.get("children")
+            if not isinstance(child_indices, list):
+                continue
+            for child_index in child_indices:
+                if not isinstance(child_index, int):
+                    continue
+                if child_index in bone_node_indices:
+                    continue
+                search_bone_node_indices.append(child_index)
+
+        bone_node_indices.extend(
+            sum(
+                [
+                    self.find_middle_bone_indices(
+                        node_dicts, bone_node_indices, bone_node_index, []
+                    )
+                    for bone_node_index in bone_node_indices
+                ],
+                [],
+            )
+        )
+
+        return list(dict.fromkeys(bone_node_indices))  # Distinct
+
+    def find_middle_bone_indices(
+        self,
+        node_dicts: List[Dict[str, Json]],
+        bone_node_indices: List[int],
+        bone_node_index: int,
+        middle_bone_node_indices: List[int],
+    ) -> List[int]:
+        if not 0 <= bone_node_index < len(node_dicts):
+            return []
+        node_dict = node_dicts[bone_node_index]
+        child_indices = node_dict.get("children")
+        if not isinstance(child_indices, list):
+            return []
+
+        result = []
+        for child_index in child_indices:
+            if not isinstance(child_index, int):
+                continue
+            if not 0 <= child_index < len(node_dicts):
+                continue
+            if child_index in bone_node_indices:
+                result.extend(middle_bone_node_indices)
+                continue
+            result.extend(
+                self.find_middle_bone_indices(
+                    node_dicts,
+                    bone_node_indices,
+                    child_index,
+                    middle_bone_node_indices + [bone_node_index],
+                )
+            )
+        return result
+
     def import_gltf2_with_indices(self) -> None:
         with open(self.parse_result.filepath, "rb") as f:
             json_dict, body_binary = gltf.parse_glb(f.read())
@@ -605,51 +859,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             for scene_dict in scene_dicts:
                 if not isinstance(scene_dict, dict):
                     continue
-                scene_nodes = scene_dict.get("nodes")
-                if not isinstance(scene_nodes, list):
-                    continue
-
-                all_node_indices = list(scene_nodes)
-                referenced_node_indices = list(scene_nodes)
-                search_node_indices = list(scene_nodes)
-                while search_node_indices:
-                    search_node_index = search_node_indices.pop()
-                    if not isinstance(search_node_index, int):
-                        continue
-                    all_node_indices.append(search_node_index)
-                    if not 0 <= search_node_index < len(node_dicts):
-                        continue
-                    node_dict = node_dicts[search_node_index]
-                    if not isinstance(node_dict, dict):
-                        continue
-                    if isinstance(node_dict.get("mesh"), int):
-                        referenced_node_indices.append(search_node_index)
-                    skin_index = node_dict.get("skin")
-                    if isinstance(skin_index, int):
-                        referenced_node_indices.append(search_node_index)
-                        skin_dicts = json_dict.get("skins")
-                        if not isinstance(skin_dicts, list):
-                            skin_dicts = []
-                            json_dict["skins"] = skin_dicts
-                        if 0 <= skin_index < len(skin_dicts):
-                            skin_dict = skin_dicts[skin_index]
-                            if isinstance(skin_dict, dict):
-                                skeleton_index = skin_dict.get("skeleton")
-                                if isinstance(skeleton_index, int):
-                                    referenced_node_indices.append(skeleton_index)
-                                joints = skin_dict.get("joints")
-                                if isinstance(joints, list):
-                                    referenced_node_indices.extend(joints)
-
-                    node_children = node_dict.get("children")
-                    if isinstance(node_children, list):
-                        search_node_indices.extend(node_children)
-
-                retain_node_indices = list(dict.fromkeys(all_node_indices))  # distinct
-                for referenced_node_index in referenced_node_indices:
-                    if referenced_node_index in retain_node_indices:
-                        retain_node_indices.remove(referenced_node_index)
-
+                retain_node_indices = self.find_retain_node_indices(scene_dict)
                 if not retain_node_indices:
                     continue
 
@@ -795,6 +1005,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "skin": skin_index,
                     }
                 )
+
+                scene_nodes = scene_dict.get("nodes")
+                if not isinstance(scene_nodes, list):
+                    scene_nodes = []
+                    scene_dict["nodes"] = scene_nodes
 
                 scene_nodes.append(skin_node_index)
 
