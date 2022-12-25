@@ -550,28 +550,37 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         bone_node_indices = self.find_vrm_bone_node_indices()
 
-        # 全てのシーンノードindexを取得する
+        # シーンノードツリーのうち、hipsボーンが存在するツリーの全てのノードを集める。また、そのツリーのルートノードもボーン扱いする。
         all_scene_node_indices: List[int] = []
-        search_scene_node_indices = list(scene_node_indices)
-        while search_scene_node_indices:
-            search_scene_node_index = search_scene_node_indices.pop()
-            if not 0 <= search_scene_node_index < len(node_dicts):
-                continue
-            node_dict = node_dicts[search_scene_node_index]
+        hips_found = False
+        for scene_node_index in scene_node_indices:
+            all_scene_node_indices.clear()
 
-            all_scene_node_indices.append(search_scene_node_index)
-
-            child_indices = node_dict.get("children")
-            if not isinstance(child_indices, list):
-                continue
-            for child_index in child_indices:
-                if not isinstance(child_index, int):
+            search_scene_node_indices = [scene_node_index]
+            while search_scene_node_indices:
+                search_scene_node_index = search_scene_node_indices.pop()
+                if search_scene_node_index == self.parse_result.hips_node_index:
+                    bone_node_indices.append(scene_node_index)
+                    hips_found = True
+                if not 0 <= search_scene_node_index < len(node_dicts):
                     continue
-                if child_index in all_scene_node_indices:
-                    # Avoid recursive nodes
+                node_dict = node_dicts[search_scene_node_index]
+                all_scene_node_indices.append(search_scene_node_index)
+                child_indices = node_dict.get("children")
+                if not isinstance(child_indices, list):
                     continue
+                for child_index in child_indices:
+                    if not isinstance(child_index, int):
+                        continue
+                    if child_index in all_scene_node_indices:
+                        # Avoid recursive nodes
+                        continue
+                    search_scene_node_indices.append(child_index)
+            if hips_found:
+                break
+        if not hips_found:
+            return []
 
-                search_scene_node_indices.append(child_index)
         all_scene_node_indices = list(dict.fromkeys(all_scene_node_indices))  # Distinct
 
         # skinに登録されているインデックスもボーン扱いする
@@ -619,6 +628,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     continue
                 search_bone_node_indices.append(child_index)
 
+        # メッシュノードの子供にボーンノードが存在する場合は、そのメッシュノードもボーン扱いする
         bone_node_indices.extend(
             sum(
                 [

@@ -121,7 +121,7 @@ class ParseResult:
     spec_version_is_stable: bool = True
     vrm0_extension: Dict[str, Json] = field(init=False, default_factory=dict)
     vrm1_extension: Dict[str, Json] = field(init=False, default_factory=dict)
-    hips_node_index: int = 0
+    hips_node_index: Optional[int] = None
     image_properties: List[ImageProperties] = field(init=False, default_factory=list)
     meshes: List[List[PyMesh]] = field(init=False, default_factory=list)
     materials: List[PyMaterial] = field(init=False, default_factory=list)
