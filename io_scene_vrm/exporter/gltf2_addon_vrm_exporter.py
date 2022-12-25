@@ -57,6 +57,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 if child in self.export_objects:
                     self.export_objects.remove(child)
 
+        self.extras_main_armature_key = (
+            INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
+        )
         self.extras_bone_name_key = INTERNAL_NAME_PREFIX + self.export_id + "BoneName"
         self.extras_object_name_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "ObjectName"
@@ -1570,6 +1573,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 vrm.humanoid.pose_marker_name,
             )
 
+            self.armature[self.extras_main_armature_key] = {}
             # 他glTF2ExportUserExtensionの影響を最小化するため、影響が少ないと思われるカスタムプロパティを使ってBlenderのオブジェクトとインデックスの対応をとる。
             for obj in bpy.data.objects:
                 obj[self.extras_object_name_key] = obj.name
@@ -1621,6 +1625,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             for obj in bpy.data.objects:
                 if self.extras_object_name_key in obj:
                     del obj[self.extras_object_name_key]
+            del self.armature[self.extras_main_armature_key]
             for material in bpy.data.materials:
                 if self.extras_material_name_key in material:
                     del material[self.extras_material_name_key]
@@ -1684,6 +1689,33 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 del extras_dict[self.extras_object_name_key]
             if isinstance(object_name, str):
                 object_name_to_index_dict[object_name] = node_index
+
+            if self.extras_main_armature_key in extras_dict:
+                del extras_dict[self.extras_main_armature_key]
+                scene_dicts = json_dict.get("scenes")
+                if isinstance(scene_dicts, list):
+                    replaced = False
+                    for scene_dict in scene_dicts:
+                        if not isinstance(scene_dict, dict):
+                            continue
+                        scene_node_indices = scene_dict.get("nodes")
+                        if not isinstance(scene_node_indices, list):
+                            continue
+                        child_indices = node_dict.get("children")
+                        if not isinstance(child_indices, list):
+                            continue
+                        if node_index not in scene_node_indices:
+                            continue
+                        while node_index in scene_node_indices:
+                            scene_node_indices.remove(node_index)
+                        for child_index in child_indices:
+                            if isinstance(child_index, int):
+                                scene_node_indices.append(child_index)
+                        replaced = True
+                    if replaced:
+                        node_dict.clear()
+                        continue
+
             mesh_index = node_dict.get("mesh")
             mesh_dicts = json_dict.get("meshes")
             if (
