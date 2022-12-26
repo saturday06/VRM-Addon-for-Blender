@@ -1692,6 +1692,16 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             if self.extras_main_armature_key in extras_dict:
                 del extras_dict[self.extras_main_armature_key]
+
+                for child_search_node_dict in node_dicts:
+                    if not isinstance(child_search_node_dict, dict):
+                        continue
+                    child_indices = child_search_node_dict.get("children")
+                    if not isinstance(child_indices, list):
+                        continue
+                    while node_index in child_indices:
+                        child_indices.remove(node_index)
+
                 scene_dicts = json_dict.get("scenes")
                 if isinstance(scene_dicts, list):
                     replaced = False
