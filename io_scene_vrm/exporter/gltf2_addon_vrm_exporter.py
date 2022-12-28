@@ -5,6 +5,7 @@ from sys import float_info
 from typing import Dict, List, Optional, Tuple, Union
 
 import bpy
+from mathutils import Matrix, Quaternion
 
 from ..common import convert, deep, gltf, shader
 from ..common.char import INTERNAL_NAME_PREFIX
@@ -1565,7 +1566,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         init_extras_export()
 
         vrm = self.armature.data.vrm_addon_extension.vrm1
-        dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
+        # dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         try:
             self.setup_pose(
                 self.armature,
@@ -1632,7 +1633,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             self.restore_object_visibility_and_selection()
             self.restore_skinned_mesh_parent()
-            self.destroy_dummy_skinned_mesh_object(dummy_skinned_mesh_object_name)
+            # self.destroy_dummy_skinned_mesh_object(dummy_skinned_mesh_object_name)
             self.restore_pose(self.armature)
 
         json_dict, body_binary = gltf.parse_glb(extra_name_assigned_glb)
@@ -1684,46 +1685,91 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if isinstance(bone_name, str):
                 bone_name_to_index_dict[bone_name] = node_index
 
+            is_main_armature = self.extras_main_armature_key in extras_dict
+
             object_name = extras_dict.get(self.extras_object_name_key)
             if self.extras_object_name_key in extras_dict:
                 del extras_dict[self.extras_object_name_key]
             if isinstance(object_name, str):
                 object_name_to_index_dict[object_name] = node_index
+                if bpy.app.version < (3, 3):
+                    is_main_armature = object_name == self.armature.name
 
-            if self.extras_main_armature_key in extras_dict:
-                del extras_dict[self.extras_main_armature_key]
+            if is_main_armature:
+                if self.extras_main_armature_key in extras_dict:
+                    del extras_dict[self.extras_main_armature_key]
+                if not extras_dict:
+                    del node_dict["extras"]
 
-                for child_search_node_dict in node_dicts:
-                    if not isinstance(child_search_node_dict, dict):
-                        continue
-                    child_indices = child_search_node_dict.get("children")
-                    if not isinstance(child_indices, list):
-                        continue
-                    while node_index in child_indices:
-                        child_indices.remove(node_index)
+                armature_world_matrix = (
+                    find_node_world_matrix(node_dicts, node_index, None) or Matrix()
+                )
 
+                # シーンにメインアーマチュアが存在したら置換する
                 scene_dicts = json_dict.get("scenes")
                 if isinstance(scene_dicts, list):
-                    replaced = False
+                    armature_replaced = False
                     for scene_dict in scene_dicts:
                         if not isinstance(scene_dict, dict):
                             continue
                         scene_node_indices = scene_dict.get("nodes")
                         if not isinstance(scene_node_indices, list):
                             continue
+
+                        # シーンに属するノードのうち、そのアーマチュアの祖先ノードを削除
+                        for scene_node_index in list(scene_node_indices):
+                            if not isinstance(scene_node_index, int):
+                                continue
+                            search_scene_node_indices = [scene_node_index]
+                            while search_scene_node_indices:
+                                search_scene_node_index = (
+                                    search_scene_node_indices.pop()
+                                )
+                                if search_scene_node_index == node_index:
+                                    scene_node_indices.remove(scene_node_index)
+                                    break
+                                if not 0 <= search_scene_node_index < len(node_dicts):
+                                    continue
+                                search_scene_node_dict = node_dicts[
+                                    search_scene_node_index
+                                ]
+                                if not isinstance(search_scene_node_dict, dict):
+                                    continue
+                                child_indices = search_scene_node_dict.get("children")
+                                if not isinstance(child_indices, list):
+                                    continue
+                                for child_index in child_indices:
+                                    if not isinstance(child_index, int):
+                                        continue
+                                    search_scene_node_indices.append(child_index)
+
                         child_indices = node_dict.get("children")
                         if not isinstance(child_indices, list):
                             continue
-                        if node_index not in scene_node_indices:
-                            continue
-                        while node_index in scene_node_indices:
-                            scene_node_indices.remove(node_index)
                         for child_index in child_indices:
-                            if isinstance(child_index, int):
-                                scene_node_indices.append(child_index)
-                        replaced = True
-                    if replaced:
-                        node_dict.clear()
+                            if (
+                                not isinstance(child_index, int)
+                                or not 0 <= child_index < len(node_dicts)
+                                or child_index in scene_node_indices
+                            ):
+                                continue
+                            scene_node_indices.append(child_index)
+                            if armature_replaced:
+                                continue
+                            # メインアーマチュアまでのワールド行列をその子供に適用
+                            child_node_dict = node_dicts[child_index]
+                            if not isinstance(child_node_dict, dict):
+                                continue
+                            child_matrix = get_node_matrix(child_node_dict)
+                            set_node_matrix(
+                                child_node_dict,
+                                armature_world_matrix @ child_matrix,
+                            )
+                        armature_replaced = True
+                    if armature_replaced:
+                        if "children" in node_dict:
+                            del node_dict["children"]
+                        node_dict["name"] = "secondary"  # Assign dummy name
                         continue
 
             mesh_index = node_dict.get("mesh")
@@ -1743,8 +1789,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         str(target_name) for target_name in target_names
                     ]
             if isinstance(object_name, str) and (
-                object_name == dummy_skinned_mesh_object_name
-                or object_name.startswith(INTERNAL_NAME_PREFIX + "VrmAddonLinkTo")
+                object_name.startswith(INTERNAL_NAME_PREFIX + "VrmAddonLinkTo")
+                # or object_name == dummy_skinned_mesh_object_name
             ):
                 node_dict.clear()
                 for child_removing_node_dict in list(node_dicts):
@@ -1944,3 +1990,103 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 del json_dict[key]
 
         return gltf.pack_glb(json_dict, body_binary)
+
+
+def find_node_world_matrix(
+    node_dicts: List[Json],
+    target_node_index: int,
+    parent_node_index: Optional[int],
+) -> Optional[Matrix]:
+    if parent_node_index is None:
+        all_child_indices = []
+        for node_dict in node_dicts:
+            if not isinstance(node_dict, dict):
+                continue
+            child_node_indices = node_dict.get("children")
+            if isinstance(child_node_indices, list):
+                for child_node_index in child_node_indices:
+                    if isinstance(child_node_index, int):
+                        all_child_indices.append(child_node_index)
+        for node_index in range(len(node_dicts)):
+            if node_index in all_child_indices:
+                continue
+            matrix = find_node_world_matrix(node_dicts, target_node_index, node_index)
+            if matrix is not None:
+                return matrix
+        return Matrix()
+
+    if not 0 <= parent_node_index < len(node_dicts):
+        return None
+
+    node_dict = node_dicts[parent_node_index]
+    if not isinstance(node_dict, dict):
+        return None
+
+    parent_node_matrix = get_node_matrix(node_dict)
+
+    if parent_node_index == target_node_index:
+        return parent_node_matrix
+
+    child_node_indices = node_dict.get("children")
+    if not isinstance(child_node_indices, list):
+        return None
+
+    for child_node_index in child_node_indices:
+        if not isinstance(child_node_index, int):
+            continue
+        child_node_matrix = find_node_world_matrix(
+            node_dicts, target_node_index, child_node_index
+        )
+        if child_node_matrix is not None:
+            return parent_node_matrix @ child_node_matrix
+
+    return None
+
+
+def get_node_matrix(node_dict: Dict[str, Json]) -> Matrix:
+    matrix = node_dict.get("matrix")
+    if isinstance(matrix, list):
+        if len(matrix) != 16:
+            return Matrix()
+        return Matrix(
+            (matrix[0], matrix[4], matrix[8], matrix[12]),
+            (matrix[1], matrix[5], matrix[9], matrix[13]),
+            (matrix[2], matrix[6], matrix[10], matrix[14]),
+            (matrix[3], matrix[7], matrix[11], matrix[15]),
+        )
+
+    location_matrix = Matrix()
+    location = node_dict.get("translation")
+    if isinstance(location, list) and len(location) == 3:
+        location_matrix = Matrix.Translation(location)
+
+    rotation_matrix = Matrix()
+    rotation = node_dict.get("rotation")
+    if isinstance(rotation, list) and len(rotation) == 4:
+        quaternion = Quaternion((rotation[3], rotation[0], rotation[1], rotation[2]))
+        rotation_matrix = quaternion.to_matrix().to_4x4()
+
+    scale_matrix = Matrix()
+    scale = node_dict.get("scale")
+    if isinstance(scale, list) and len(scale) == 3:
+        scale_matrix = (
+            Matrix.Scale(scale[0], 4, (1, 0, 0))
+            @ Matrix.Scale(scale[1], 4, (0, 1, 0))
+            @ Matrix.Scale(scale[2], 4, (0, 0, 1))
+        )
+
+    return location_matrix @ rotation_matrix @ scale_matrix
+
+
+def set_node_matrix(node_dict: Dict[str, Json], matrix: Matrix) -> None:
+    if "matrix" in node_dict:
+        del node_dict["matrix"]
+    location, rotation, scale = matrix.decompose()
+    node_dict["translation"] = list(location)
+    node_dict["rotation"] = [
+        rotation.x,
+        rotation.y,
+        rotation.z,
+        rotation.w,
+    ]
+    node_dict["scale"] = list(scale)
