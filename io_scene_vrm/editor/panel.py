@@ -153,7 +153,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                         depress=False,
                     )
                 else:
-                    layout.label(text="Preview MToon")
+                    layout.label(text="Preview MToon 0.0")
                     layout.box().label(
                         icon="INFO",
                         text=pgettext("A light is required"),

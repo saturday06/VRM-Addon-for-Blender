@@ -17,7 +17,7 @@ from . import search
 
 class ICYP_OT_draw_model(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
     bl_idname = "vrm.model_draw"
-    bl_label = "Preview MToon"
+    bl_label = "Preview MToon 0.0"
     bl_description = "Draw selected with MToon of GLSL"
     bl_options = {"REGISTER"}
 

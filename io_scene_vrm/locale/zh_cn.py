@@ -106,7 +106,7 @@ translation_dictionary = {
     ("*", "Simplify VRoid Bones"): "简化VRoid骨骼名",
     ("*", "Save Bone Mappings"): "保存映射文件",
     ("*", "Load Bone Mappings"): "加载映射文件",
-    ("Operator", "Preview MToon"): "预览MToon",
+    ("Operator", "Preview MToon 0.0"): "预览MToon 0.0",
     ("Operator", "VRM Humanoid"): "VRM Humanoid",
     ("Operator", "VRM License Confirmation"): "VRM使用用条件确认",
 }
