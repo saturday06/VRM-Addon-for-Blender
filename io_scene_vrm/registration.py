@@ -282,7 +282,6 @@ classes = [
     export_scene.EXPORT_SCENE_OT_vrm,
     import_scene.LicenseConfirmation,
     import_scene.WM_OT_license_confirmation,
-    import_scene.WM_OT_vrm1_incomplete_support_warning,
     import_scene.IMPORT_SCENE_OT_vrm,
     import_scene.VRM_PT_import_unsupported_blender_version_warning,
     # importer.blend_model.ICYP_OT_select_helper,

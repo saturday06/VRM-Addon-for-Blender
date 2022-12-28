@@ -126,7 +126,6 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
             icon="VIEWZOOM",
         )
         vrm_validator_prop.show_successful_message = True
-        mtoon_preview = False
         layout.prop(preferences, "export_invisibles")
         layout.prop(preferences, "export_only_selections")
 
@@ -138,20 +137,6 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                 text="",
                 translate=False,
             )
-            if armature.data.vrm_addon_extension.is_vrm1():
-                warning_column = layout.box().column()
-                warning_message = pgettext(
-                    "VRM 1.0 support is under development.\n"
-                    + "It won't work as intended in many situations."
-                )
-                for index, warning_line in enumerate(warning_message.splitlines()):
-                    warning_column.label(
-                        text=warning_line,
-                        translate=False,
-                        icon="ERROR" if index == 0 else "NONE",
-                    )
-            else:
-                mtoon_preview = True
 
         if mode == "OBJECT":
             if GlslDrawObj.draw_objs:
@@ -160,7 +145,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
                     icon="SHADING_RENDERED",
                     depress=True,
                 )
-            elif mtoon_preview:
+            elif not armature.data.vrm_addon_extension.is_vrm1():
                 if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
                     layout.operator(
                         glsl_drawer.ICYP_OT_draw_model.bl_idname,

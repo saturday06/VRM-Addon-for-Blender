@@ -241,7 +241,7 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
     SPEC_VERSION_VRM1 = "1.0"
     spec_version_items = [
         (SPEC_VERSION_VRM0, "VRM 0.0", "", "NONE", 0),
-        (SPEC_VERSION_VRM1, "VRM 1.0 (EXPERIMENTAL)", "", "EXPERIMENTAL", 1),
+        (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
     ]
 
     def __update_spec_version(self, _context: bpy.types.Context) -> None:

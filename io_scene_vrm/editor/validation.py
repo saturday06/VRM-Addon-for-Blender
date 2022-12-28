@@ -233,13 +233,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N80
                 # TODO: T_POSE,
                 all_required_bones_exist = True
                 if armature.data.vrm_addon_extension.is_vrm1():
-                    warning_messages.append(
-                        pgettext(
-                            "VRM 1.0 support is under development.\n"
-                            + "It won't work as intended in many situations."
-                        ).replace("\n", " ")
-                    )
-
                     _, _, constraint_warning_messages = search.export_constraints(
                         export_objects, armature
                     )

@@ -30,12 +30,6 @@ translation_dictionary = {
         "*",
         "Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
     ): "開発中のFB_ngon_encodingエクステンションを試してみる(エクスポートされるメッシュが壊れることがあります)",
-    (
-        "*",
-        "VRM 1.0 support is under development.\n"
-        + "It won't work as intended in many situations.",
-    ): "VRM 1.0対応機能は現在開発中です。\n"
-    + "多くの状況で意図通り動作しません。\n",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
     (
         "*",

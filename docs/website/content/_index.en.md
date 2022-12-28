@@ -18,8 +18,7 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 
 ## Import
 
-- Support VRM 0.0
-- Experimental support VRM 1.0
+- Support VRM 0.0, 1.0
 - If the "Extract texture images into the folder" option is enabled, the add-on makes a texture folder for each import (max:100,000 character name).
 
 ## Edit
@@ -31,8 +30,7 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 
 ## Export
 
-- Support VRM 0.0
-- Experimental support VRM 1.0
+- Support VRM 0.0, 1.0
 
 ## Tutorials for the legacy version 1.x, 0.x
 
