@@ -266,7 +266,7 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     help_message = pgettext(
         "How to export this material to VRM.\n"
         + "Meet one of the following conditions.\n"
-        + " - VRM MToon material is enabled\n"
+        + " - VRM MToon Material is enabled\n"
         + ' - Connect the "Surface" to a "Principled BSDF"\n'
         + ' - Connect the "Surface" to a "MToon_unversioned"\n'
         + ' - Connect the "Surface" to a "TRANSPARENT_ZWRITE"\n'
