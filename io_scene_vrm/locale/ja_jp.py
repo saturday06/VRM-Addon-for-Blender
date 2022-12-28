@@ -332,8 +332,8 @@ translation_dictionary = {
     ): "VRMマテリアル",
     (
         "*",
-        "(Experimental!) Enable VRM MToon Material",
-    ): "(実験中の機能です!) VRM MToonマテリアルを有効にする",
+        "Enable VRM MToon Material",
+    ): "VRM MToonマテリアルを有効にする",
     (
         "*",
         "Export Shape Key Normals",

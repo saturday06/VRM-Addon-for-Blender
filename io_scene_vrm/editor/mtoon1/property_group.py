@@ -1705,7 +1705,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         self["enabled"] = True
 
     enabled: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="(Experimental!) Enable VRM MToon Material",  # noqa: F722
+        name="Enable VRM MToon Material",  # noqa: F722
         get=__get_enabled,
         set=__set_enabled,
     )
