@@ -1703,43 +1703,41 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 z_negated_vector = z_vector.copy()
                 z_negated_vector.negate()
 
-                cos_angle_and_axis_translations: List[Tuple[float, str]] = [
+                bone_length_and_axis_translations: List[Tuple[float, str]] = [
                     (
-                        target_vector.dot(x_vector) / target_vector.length,
+                        target_vector.dot(x_vector),
                         VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_X_TO_Y_ID,
                     ),
                     (
-                        target_vector.dot(y_vector) / target_vector.length,
+                        target_vector.dot(y_vector),
                         VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_NONE_ID,
                     ),
                     (
-                        target_vector.dot(z_vector) / target_vector.length,
+                        target_vector.dot(z_vector),
                         VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_Z_TO_Y_ID,
                     ),
                     (
-                        target_vector.dot(x_negated_vector) / target_vector.length,
+                        target_vector.dot(x_negated_vector),
                         VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_X_TO_Y_ID,
                     ),
                     (
-                        target_vector.dot(y_negated_vector) / target_vector.length,
+                        target_vector.dot(y_negated_vector),
                         VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID,
                     ),
                     (
-                        target_vector.dot(z_negated_vector) / target_vector.length,
+                        target_vector.dot(z_negated_vector),
                         VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
                     ),
                 ]
-                cos_angle, axis_translation = sorted(
-                    cos_angle_and_axis_translations, reverse=True, key=lambda x: x[0]
+                bone_length, axis_translation = sorted(
+                    bone_length_and_axis_translations, reverse=True, key=lambda x: x[0]
                 )[0]
                 bone.matrix = VrmAddonBoneExtensionPropertyGroup.translate_axis(
                     bone.matrix,
                     axis_translation,
                 )
                 if bone.children:
-                    bone.length = max(
-                        target_vector.length * cos_angle, make_armature.MIN_BONE_LENGTH
-                    )
+                    bone.length = max(bone_length, make_armature.MIN_BONE_LENGTH)
                 elif bone.parent:
                     bone.length = max(
                         bone.parent.length / 2, make_armature.MIN_BONE_LENGTH
