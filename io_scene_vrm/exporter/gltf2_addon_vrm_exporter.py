@@ -178,7 +178,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         )
 
     @staticmethod
-    def create_meta_dict(meta: Vrm1MetaPropertyGroup) -> Dict[str, Json]:
+    def create_meta_dict(
+        meta: Vrm1MetaPropertyGroup,
+        json_dict: Dict[str, Json],
+        body_binary: bytearray,
+        image_name_to_index_dict: Dict[str, int],
+    ) -> Dict[str, Json]:
         meta_dict: Dict[str, Json] = {
             "licenseUrl": "https://vrm.dev/licenses/1.0/",
             "name": meta.vrm_name if meta.vrm_name else "undefined",
@@ -213,6 +218,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         if meta.other_license_url:
             meta_dict["otherLicenseUrl"] = meta.other_license_url
+
+        if meta.thumbnail_image:
+            meta_dict["thumbnailImage"] = Gltf2AddonVrmExporter.find_or_create_image(
+                json_dict, body_binary, image_name_to_index_dict, meta.thumbnail_image
+            )
 
         return meta_dict
 
@@ -630,19 +640,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         }
 
     @staticmethod
-    def create_mtoon1_texture_info_dict(
+    def find_or_create_image(
         json_dict: Dict[str, Json],
         body_binary: bytearray,
-        texture_info: Mtoon1TextureInfoPropertyGroup,
         image_name_to_index_dict: Dict[str, int],
-    ) -> Optional[Dict[str, Json]]:
+        image: bpy.types.Image,
+    ) -> int:
         # TODO: Verify alignment requirement and optimize
         while len(body_binary) % 32 == 0:
             body_binary.append(0)
-
-        image = texture_info.index.source
-        if not image:
-            return None
 
         image_bytes, mime = image_to_image_bytes(image)
         buffer_view_dicts = json_dict.get("bufferViews")
@@ -676,6 +682,31 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 }
             )
             image_name_to_index_dict[image.name] = image_index
+
+        body_binary.extend(image_bytes)
+        # TODO: Verify alignment requirement and optimize
+        while len(body_binary) % 32 == 0:
+            body_binary.append(0)
+
+        return image_index
+
+    @staticmethod
+    def create_mtoon1_texture_info_dict(
+        json_dict: Dict[str, Json],
+        body_binary: bytearray,
+        texture_info: Mtoon1TextureInfoPropertyGroup,
+        image_name_to_index_dict: Dict[str, int],
+    ) -> Optional[Dict[str, Json]]:
+        image = texture_info.index.source
+        if not image:
+            return None
+
+        image_index = Gltf2AddonVrmExporter.find_or_create_image(
+            json_dict,
+            body_binary,
+            image_name_to_index_dict,
+            image,
+        )
 
         sampler_dict: Dict[str, Json] = {
             "magFilter": Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
@@ -715,11 +746,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             },
         )
 
-        body_binary.extend(image_bytes)
-        # TODO: Verify alignment requirement and optimize
-        while len(body_binary) % 32 == 0:
-            body_binary.append(0)
-
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
             extensions_used = []
@@ -754,50 +780,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if image_name_and_sampler_type is None:
             return None
 
-        # TODO: Verify alignment requirement and optimize
-        while len(body_binary) % 32 == 0:
-            body_binary.append(0)
-
         image_name, wrap_type, filter_type = image_name_and_sampler_type
-        image_index: Optional[int] = image_name_to_index_dict.get(image_name)
-        image_dicts = json_dict.get("images")
-        if not isinstance(image_dicts, list):
-            image_dicts = []
-            json_dict["images"] = image_dicts
-        if isinstance(image_index, int) and not 0 <= image_index < len(image_dicts):
-            logger.error(f"Bug: not 0 <= {image_index} < len(images)) for {image_name}")
-            image_index = None
-        if isinstance(image_index, int):
-            image_bytes = None
-        else:
-            image_bytes, mime = image_to_image_bytes(bpy.data.images[image_name])
-
-            buffer_view_dicts = json_dict.get("bufferViews")
-            if not isinstance(buffer_view_dicts, list):
-                buffer_view_dicts = []
-                json_dict["bufferViews"] = buffer_view_dicts
-            image_buffer_view_index = len(buffer_view_dicts)
-            buffer_view_dicts.append(
-                {
-                    "buffer": 0,
-                    "byteOffset": len(body_binary),
-                    "byteLength": len(image_bytes),
-                }
-            )
-
-            image_dicts = json_dict.get("images")
-            if not isinstance(image_dicts, list):
-                image_dicts = []
-                json_dict["images"] = image_dicts
-            image_index = len(image_dicts)
-            image_dicts.append(
-                {
-                    "name": image_name,
-                    "bufferView": image_buffer_view_index,
-                    "mimeType": mime,
-                }
-            )
-            image_name_to_index_dict[image_name] = image_index
+        image_index = Gltf2AddonVrmExporter.find_or_create_image(
+            json_dict,
+            body_binary,
+            image_name_to_index_dict,
+            bpy.data.images[image_name],
+        )
 
         sampler_dict: Dict[str, Json] = {
             "magFilter": filter_type,
@@ -826,12 +815,6 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 "source": image_index,
             },
         )
-
-        if image_bytes:
-            body_binary.extend(image_bytes)
-            # TODO: Verify alignment requirement and optimize
-            while len(body_binary) % 32 == 0:
-                body_binary.append(0)
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
@@ -1131,7 +1114,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         node: bpy.types.Node,
         image_name_to_index_dict: Dict[str, int],
     ) -> Dict[str, Json]:
-        # https://vrm-c.github.io/UniVRM/en/implementation/transparent_zwrite.html
+        # https://vrm-c.github.io/UniVRM/en/implementation/transparent_zwrite.html#mtoon-unlit
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
             extensions_used = []
@@ -1461,12 +1444,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict: Dict[str, Json],
         body_binary: bytearray,
         material_name_to_index_dict: Dict[str, int],
+        image_name_to_index_dict: Dict[str, int],
     ) -> None:
         material_dicts = json_dict.get("materials")
         if not isinstance(material_dicts, list):
             material_dicts = []
             json_dict["materials"] = material_dicts
-        image_name_to_index_dict: Dict[str, int] = {}
 
         for material_name, index in material_name_to_index_dict.items():
             material = bpy.data.materials.get(material_name)
@@ -1641,6 +1624,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         bone_name_to_index_dict: Dict[str, int] = {}
         object_name_to_index_dict: Dict[str, int] = {}
+        image_name_to_index_dict: Dict[str, int] = {}
         mesh_object_name_to_node_index_dict: Dict[str, int] = {}
         mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]] = {}
 
@@ -1884,7 +1868,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not extras_dict:
                 del material_dict["extras"]
 
-        self.save_vrm_materials(json_dict, body_binary, material_name_to_index_dict)
+        self.save_vrm_materials(
+            json_dict,
+            body_binary,
+            material_name_to_index_dict,
+            image_name_to_index_dict,
+        )
         self.unassign_normal_from_mtoon_primitive_morph_target(
             json_dict, material_name_to_index_dict
         )
@@ -1904,7 +1893,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         extensions_used.append("VRMC_vrm")
         extensions["VRMC_vrm"] = {
             "specVersion": self.armature.data.vrm_addon_extension.spec_version,
-            "meta": self.create_meta_dict(vrm.meta),
+            "meta": self.create_meta_dict(
+                vrm.meta, json_dict, body_binary, image_name_to_index_dict
+            ),
             "humanoid": self.create_humanoid_dict(
                 vrm.humanoid, bone_name_to_index_dict
             ),
