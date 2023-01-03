@@ -642,7 +642,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json
-class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
+class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     avatar_permission_items = [
         ("onlyAuthor", "Only Author", "", 0),
         ("onlySeparatelyLicensedPerson", "Only Separately Licensed Person", "", 1),

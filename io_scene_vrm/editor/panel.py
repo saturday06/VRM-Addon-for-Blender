@@ -16,7 +16,7 @@ from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .glsl_drawer import GlslDrawObj
 
 
-class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_PT_vrm_armature_object_property"
     bl_label = "VRM"
     bl_space_type = "PROPERTIES"
@@ -77,7 +77,7 @@ def make_mesh(make_mesh_op: bpy.types.Operator, _context: bpy.types.Context) -> 
     )
 
 
-class VRM_PT_current_selected_armature(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_current_selected_armature(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_PT_current_selected_armature"
     bl_label = "Current selected armature"
     bl_space_type = "VIEW_3D"
@@ -97,7 +97,7 @@ class VRM_PT_current_selected_armature(bpy.types.Panel):  # type: ignore[misc] #
         layout.label(text=armature.name, icon="ARMATURE_DATA", translate=False)
 
 
-class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "Operator"
     bl_space_type = "VIEW_3D"
@@ -171,7 +171,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
         # endregion draw_main
 
 
-class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_PT_controller_unsupported_blender_version_warning"
     bl_label = "Unsupported Blender Version Warning"
     bl_space_type = "VIEW_3D"

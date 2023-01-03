@@ -1459,9 +1459,13 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         for outline_width_mode_item in outline_width_mode_items
     ]
 
+    def update_outline_width_mode(self, _context: bpy.types.Context) -> None:
+        pass
+
     outline_width_mode: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=outline_width_mode_items,
         name="Outline Width Mode",  # noqa: F722
+        update=update_outline_width_mode,
     )
 
     outline_width_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]

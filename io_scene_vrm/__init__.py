@@ -92,7 +92,7 @@ def unregister() -> None:
     registration.unregister()
 
 
-class glTF2ImportUserExtension:  # noqa: N801, SC200
+class glTF2ImportUserExtension:
     def __init__(self) -> None:
         # Lazy import to minimize initialization.
         from .importer.gltf2_addon_importer_user_extension import (
@@ -110,7 +110,7 @@ class glTF2ImportUserExtension:  # noqa: N801, SC200
         )
 
 
-class glTF2ExportUserExtension:  # noqa: N801, SC200
+class glTF2ExportUserExtension:
     def __init__(self) -> None:
         # Lazy import to minimize initialization.
         from .exporter.gltf2_addon_exporter_user_extension import (

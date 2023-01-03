@@ -1345,7 +1345,7 @@ class AbstractBaseVrmImporter(ABC):
 
 
 # DeprecationWarning
-class ICYP_OT_select_helper(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class ICYP_OT_select_helper(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "mesh.icyp_select_helper"
     bl_label = "VRM importer internal only func"
     bl_description = "VRM importer internal only"

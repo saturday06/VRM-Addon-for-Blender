@@ -58,7 +58,7 @@ def import_vrm_update_addon_preferences(
         )
 
 
-class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[misc] # noqa: N801
+class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
     bl_description = "Import VRM"
@@ -155,7 +155,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         return cast(Set[str], ImportHelper.invoke(self, context, event))
 
 
-class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_PT_import_unsupported_blender_version_warning"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -185,7 +185,7 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # typ
             )
 
 
-class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class WM_OT_vrm_license_confirmation(bpy.types.Operator):  # type: ignore[misc]
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
     bl_options = {"REGISTER", "UNDO"}
@@ -247,7 +247,7 @@ class WM_OT_license_confirmation(bpy.types.Operator):  # type: ignore[misc] # no
 
 
 def create_blend_model(
-    addon: Union[IMPORT_SCENE_OT_vrm, WM_OT_license_confirmation],
+    addon: Union[IMPORT_SCENE_OT_vrm, WM_OT_vrm_license_confirmation],
     context: bpy.types.Context,
     license_validation: bool,
 ) -> Set[str]:

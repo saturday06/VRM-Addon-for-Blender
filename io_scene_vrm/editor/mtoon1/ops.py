@@ -24,7 +24,7 @@ from .property_group import (
 )
 
 
-class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.convert_material_to_mtoon1"
     bl_label = "Convert Material to MToon 1.0"
     bl_description = "Convert Material to MToon 1.0"
@@ -388,7 +388,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
             )
 
 
-class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.convert_mtoon1_to_bsdf_principled"
     bl_label = "Convert MToon 1.0 to Principled BSDF"
     bl_description = "Convert MToon 1.0 to Principled BSDF"
@@ -414,7 +414,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):  # type: ign
         )
 
 
-class VRM_OT_reset_mtoon1_material_shader_node_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_reset_mtoon1_material_shader_node_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.reset_mtoon1_material_shader_node_group"
     bl_label = "Reset Shader Node Group"
     bl_description = "Reset MToon 1.0 Material Shader Node Group"
@@ -432,7 +432,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_group(bpy.types.Operator):  # typ
         return {"FINISHED"}
 
 
-class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):  # type: ignore[misc] # noqa: N801
+class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     bl_idname = "vrm.import_mtoon1_texture_image_file"
     bl_label = "Open"
     bl_description = "Import Texture Image File"
@@ -589,3 +589,13 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         self.filepath = ""
         return cast(Set[str], ImportHelper.invoke(self, context, event))
+
+
+class VRM_OT_refresh_mtoon1_outline_width_mode(bpy.types.Operator):  # type: ignore[misc]
+    bl_idname = "vrm.refresh_mtoon1_outline_width_mode"
+    bl_label = "Refresh MToon 1.0 Outline Width Mode"
+    bl_description = "Import Texture Image File"
+    bl_options = {"UNDO"}
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        return {"FINISHED"}

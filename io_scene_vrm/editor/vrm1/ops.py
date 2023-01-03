@@ -12,7 +12,7 @@ from .property_group import Vrm1HumanBonesPropertyGroup
 logger = get_logger(__name__)
 
 
-class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_meta_author"
     bl_label = "Add Author"
     bl_description = "Add VRM 1.0 Meta Author"
@@ -30,7 +30,7 @@ class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc] # n
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_meta_author"
     bl_label = "Remove Author"
     bl_description = "Remove VRM 1.0 Meta Author"
@@ -55,7 +55,7 @@ class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc] 
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_meta_reference"
     bl_label = "Add Reference"
     bl_description = "Add VRM 1.0 Meta Reference"
@@ -73,7 +73,7 @@ class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[misc] 
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_meta_reference"
     bl_label = "Remove Reference"
     bl_description = "Remove VRM 1.0 Meta Reference"
@@ -98,7 +98,7 @@ class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[mis
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_expressions_custom_expression"
     bl_label = "Add Custom Expression"
     bl_description = "Add VRM 1.0 Custom Expression"
@@ -122,7 +122,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):  # type
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_expressions_custom_expression"
     bl_label = "Remove Custom Expression"
     bl_description = "Remove VRM 1.0 Custom Expression"
@@ -150,7 +150,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # t
         return {"CANCELLED"}
 
 
-class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_first_person_mesh_annotation"
     bl_label = "Add Mesh Annotation"
     bl_description = "Add VRM 1.0 First Person Mesh Annotation"
@@ -168,7 +168,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # type:
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_first_person_mesh_annotation"
     bl_label = "Remove Mesh Annotation"
     bl_description = "Remove VRM 1.0 First Person Mesh Annotation"
@@ -195,7 +195,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # ty
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_material_value_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_material_value_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_material_value_bind"
     bl_label = "Add material value bind"
     bl_description = "Add VRM 0.x BlendShape Material Value Bind"
@@ -222,7 +222,7 @@ class VRM_OT_add_vrm1_material_value_bind(bpy.types.Operator):  # type: ignore[m
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_material_value_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_material_value_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_material_value_bind"
     bl_label = "Remove material value bind"
     bl_description = "Remove VRM 0.x BlendShape Material Value Bind"
@@ -258,7 +258,7 @@ class VRM_OT_remove_vrm1_material_value_bind(bpy.types.Operator):  # type: ignor
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_material_value_bind_target_value"
     bl_label = "Add value"
     bl_description = "Add VRM 0.x BlendShape Material Value Bind"
@@ -294,7 +294,7 @@ class VRM_OT_add_vrm1_material_value_bind_target_value(bpy.types.Operator):  # t
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_material_value_bind_target_value"
     bl_label = "Remove value"
     bl_description = "Remove VRM 0.x BlendShape Material Value Bind"
@@ -337,7 +337,7 @@ class VRM_OT_remove_vrm1_material_value_bind_target_value(bpy.types.Operator):  
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_expression_morph_target_bind"
     bl_label = "Add Morph Target Bind"
     bl_description = "Add VRM 1.0 Expression Morph Target Bind"
@@ -362,7 +362,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type:
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_expression_morph_target_bind"
     bl_label = "Remove Morph Target Bind"
     bl_description = "Remove VRM 1.0 Expression Morph Target Bind"
@@ -393,7 +393,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):  # ty
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_expression_material_color_bind"
     bl_label = "Add Material Color Bind"
     bl_description = "Add VRM 1.0 Expression Material Value Bind"
@@ -419,7 +419,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):  # typ
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_expression_material_color_bind"
     bl_label = "Remove Material Color Bind"
     bl_description = "Remove VRM 1.0 Expression Material Color Bind"
@@ -450,7 +450,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):  # 
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm1_expression_texture_transform_bind"
     bl_label = "Add Texture Transform Bind"
     bl_description = "Add VRM 1.0 Expression Texture Transform Bind"
@@ -475,7 +475,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # 
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm1_expression_texture_transform_bind"
     bl_label = "Remove Texture Transform Bind"
     bl_description = "Remove VRM 1.0 Expression Texture Transform Bind"
@@ -512,7 +512,7 @@ vrm0_human_bone_name_to_vrm1_human_bone_name: Dict[Vrm0HumanBoneName, HumanBoneN
 }
 
 
-class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.assign_vrm1_humanoid_human_bones_automatically"
     bl_label = "Automatic Bone Assignment"
     bl_description = "Assign VRM 1.0 Humanoid Human Bones"

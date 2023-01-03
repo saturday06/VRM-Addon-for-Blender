@@ -515,7 +515,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
-class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc] # noqa: N801
+class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     allowed_user_name_items = [
         ("OnlyAuthor", "Only Author", "", 0),
         ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", 1),

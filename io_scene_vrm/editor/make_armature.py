@@ -14,7 +14,7 @@ MIN_BONE_LENGTH = 0.00001  # 10μm
 AUTO_BONE_CONNECTION_DISTANCE = 0.000001  # 1μm
 
 
-class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "Create armature along with a simple setup for VRM export"

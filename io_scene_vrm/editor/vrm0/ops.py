@@ -7,7 +7,7 @@ from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapp
 from .property_group import Vrm0HumanoidPropertyGroup
 
 
-class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_first_person_mesh_annotation"
     bl_label = "Add Mesh Annotation"
     bl_description = "Add VRM 0.x First Person Mesh Annotation"
@@ -25,7 +25,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type:
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_first_person_mesh_annotation"
     bl_label = "Remove Mesh Annotation"
     bl_description = "Remove VRM 0.x First Person Mesh Annotation"
@@ -51,7 +51,7 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # ty
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_material_value_bind"
     bl_label = "Add Material Value Bind"
     bl_description = "Add VRM 0.x Blend Shape Material Value Bind"
@@ -77,7 +77,7 @@ class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[m
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_material_value_bind"
     bl_label = "Remove Material Value Bind"
     bl_description = "Remove VRM 0.x Blend Shape Material Value Bind"
@@ -111,7 +111,7 @@ class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):  # type: ignor
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_material_value_bind_target_value"
     bl_label = "Add Value"
     bl_description = "Add VRM 0.x Blend Shape Material Value Bind"
@@ -145,7 +145,7 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):  # t
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_material_value_bind_target_value"
     bl_label = "Remove Value"
     bl_description = "Remove VRM 0.x Blend Shape Material Value Bind"
@@ -185,7 +185,7 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):  
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_blend_shape_bind"
     bl_label = "Add Blend Shape Bind"
     bl_description = "Add VRM 0.x Blend Shape Bind"
@@ -211,7 +211,7 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_blend_shape_bind"
     bl_label = "Remove Blend Shape Bind"
     bl_description = "Remove VRM 0.x Blend Shape Bind"
@@ -243,7 +243,7 @@ class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[m
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(  # noqa: N801
+class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(
     bpy.types.Operator  # type: ignore[misc]
 ):
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group_collider"
@@ -287,7 +287,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(  # noqa: N801
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(  # noqa: N801
+class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(
     bpy.types.Operator  # type: ignore[misc]
 ):
     bl_idname = "vrm.remove_vrm0_secondary_animation_collider_group_collider"
@@ -325,7 +325,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(  # noqa: N
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_secondary_animation_group_bone"
     bl_label = "Add Bone"
     bl_description = "Add VRM 0.x Secondary Animation Group Bone"
@@ -351,7 +351,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # typ
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_secondary_animation_group_bone"
     bl_label = "Remove Bone"
     bl_description = "Remove VRM 0.x Secondary Animation Group Bone"
@@ -383,7 +383,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # 
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_secondary_animation_group_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 0.x Secondary Animation Group Collider Group"
@@ -409,7 +409,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operato
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(  # noqa: N801
+class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(
     bpy.types.Operator  # type: ignore[misc]
 ):
     bl_idname = "vrm.remove_vrm0_secondary_animation_group_collider_group"
@@ -443,7 +443,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(  # noqa: N801
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_blend_shape_group"
     bl_label = "Add Blend Shape Group"
     bl_description = "Add VRM 0.x Blend Shape Group"
@@ -467,7 +467,7 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[mis
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_blend_shape_group"
     bl_label = "Remove Blend Shape Group"
     bl_description = "Remove VRM 0.x Blend Shape Group"
@@ -493,7 +493,7 @@ class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_secondary_animation_group"
     bl_label = "Add Spring Bone"
     bl_description = "Add VRM 0.x Secondary Animation Group"
@@ -514,7 +514,7 @@ class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ig
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_secondary_animation_group"
     bl_label = "Remove Spring Bone"
     bl_description = "Remove VRM 0.x Secondary Animation Group"
@@ -540,7 +540,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):  # type:
         return {"FINISHED"}
 
 
-class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 0.x Secondary Animation Collider Group"
@@ -562,7 +562,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):  #
         return {"FINISHED"}
 
 
-class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.remove_vrm0_secondary_animation_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 0.x Secondary Animation Collider Group"
@@ -593,7 +593,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.assign_vrm0_humanoid_human_bones_automatically"
     bl_label = "Automatic Bone Assignment"
     bl_description = "Assign VRM 0.x Humanoid Human Bones"

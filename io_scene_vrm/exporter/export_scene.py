@@ -56,7 +56,7 @@ def export_vrm_update_addon_preferences(
         validation.WM_OT_vrm_validator.detect_errors(context, export_op.errors)
 
 
-class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[misc] # noqa: N801
+class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
     bl_description = "Export VRM"
@@ -204,7 +204,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         pass  # Is needed to get panels available
 
 
-class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_IMPORTER_PT_export_error_messages"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -254,7 +254,7 @@ def menu_export(export_op: bpy.types.Operator, _context: bpy.types.Context) -> N
     export_op.layout.operator(EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
 
 
-class WM_OT_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[misc]
     bl_label = "VRM Required Bones Assignment"
     bl_idname = "wm.vrm_export_human_bones_assignment"
     bl_options = {"REGISTER", "UNDO"}

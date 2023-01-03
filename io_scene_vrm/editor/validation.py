@@ -22,7 +22,7 @@ class VrmValidationError(bpy.types.PropertyGroup):  # type: ignore[misc]
     severity: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
 
 
-class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc] # noqa: N801
+class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.model_validate"
     bl_label = "Validate VRM Model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."

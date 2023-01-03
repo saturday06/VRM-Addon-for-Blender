@@ -340,7 +340,7 @@ def draw_spring_bone1_spring_bone_layout(
         add_spring_op.armature_name = armature.name
 
 
-class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_PT_vrm1_spring_bone_armature_object_property"
     bl_label = "Spring Bone"
     bl_translation_context = "VRM"
@@ -365,7 +365,7 @@ class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):  # type: ig
         )
 
 
-class VRM_PT_spring_bone1_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_spring_bone1_ui(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_PT_vrm1_spring_bone_ui"
     bl_label = "Spring Bone"
     bl_translation_context = "VRM"
@@ -392,7 +392,7 @@ class VRM_PT_spring_bone1_ui(bpy.types.Panel):  # type: ignore[misc] # noqa: N80
         )
 
 
-class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[misc] # noqa: N801
+class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[misc]
     bl_idname = "VRM_PT_spring_bone1_collider_property"
     bl_label = "VRM Spring Bone Collider"
     bl_space_type = "PROPERTIES"
