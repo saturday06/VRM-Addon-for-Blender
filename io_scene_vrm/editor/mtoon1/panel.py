@@ -231,6 +231,7 @@ def draw_mtoon1_material(
             mtoon1,
             "outline_width_multiply_texture",
         )
+        outline_width_multiply_texture_layout.separator(factor=0.5)
         outline_width_multiply_texture_layout.prop(
             mtoon1, "outline_width_factor", slider=True, text=""
         )
