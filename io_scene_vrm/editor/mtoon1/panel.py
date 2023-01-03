@@ -279,7 +279,7 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     url = "https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials"
     link_row = help_column.split(factor=0.8)
     link_row.label(text="   " + url, translate=False)
-    web_op = link_row.operator(VRM_OT_open_url_in_web_browser.bl_idname, icon="")
+    web_op = link_row.operator(VRM_OT_open_url_in_web_browser.bl_idname, icon="URL")
     web_op.url = url
 
 
