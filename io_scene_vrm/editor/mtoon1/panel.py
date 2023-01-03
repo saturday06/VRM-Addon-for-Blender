@@ -36,7 +36,8 @@ def draw_texture_info(
         translate=False,
         icon="TRIA_DOWN" if texture_info.show_expanded else "TRIA_RIGHT",
     )
-    input_layout = layout.split(factor=0.1)
+    input_layout = layout.row(align=True)
+    input_layout.prop(texture_info.index, "source", text="")
     import_image_file_op = input_layout.operator(
         VRM_OT_import_mtoon1_texture_image_file.bl_idname,
         text="",
@@ -45,8 +46,8 @@ def draw_texture_info(
     )
     import_image_file_op.material_name = material_name
     import_image_file_op.target_texture_info = type(texture_info).__name__
-    input_layout.prop(texture_info.index, "source", text="")
     if color_factor_attr_name:
+        input_layout.separator(factor=0.5)
         input_layout.prop(base_property_group, color_factor_attr_name, text="")
 
     if not texture_info.show_expanded:
@@ -144,6 +145,7 @@ def draw_mtoon1_material(
         gltf,
         "normal_texture",
     )
+    normal_texture_layout.separator(factor=0.5)
     normal_texture_layout.prop(gltf.normal_texture, "scale")
 
     lighting_box.prop(mtoon1, "shading_toony_factor", slider=True)
@@ -156,6 +158,7 @@ def draw_mtoon1_material(
         mtoon1,
         "shading_shift_texture",
     )
+    shading_shift_texture_layout.separator(factor=0.5)
     shading_shift_texture_layout.prop(mtoon1.shading_shift_texture, "scale")
 
     # UniVRM (MIT License)
@@ -181,8 +184,10 @@ def draw_mtoon1_material(
         emission_box,
         gltf,
         "emissive_texture",
-        "emissive_factor",
-    )
+    ).row(align=True)
+    emissive_texture_layout.scale_x = 0.71
+    emissive_texture_layout.separator(factor=0.5 / 0.71)
+    emissive_texture_layout.prop(gltf, "emissive_factor", text="")
     emissive_texture_layout.prop(
         gltf.extensions.khr_materials_emissive_strength, "emissive_strength"
     )
