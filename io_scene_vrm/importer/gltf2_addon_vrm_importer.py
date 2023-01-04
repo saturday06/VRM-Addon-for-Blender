@@ -1084,9 +1084,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         + " without animations key"
                     )
                     self.cleanup_gltf2_with_indices()
-                    if self.parse_result.spec_version_number >= (1, 0):
-                        raise e
-                    raise RetryUsingLegacyVrmImporter() from e
+                    raise e
 
         extras_node_index_key = self.import_id + "Nodes"
         for obj in self.context.selectable_objects:
