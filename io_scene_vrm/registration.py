@@ -23,12 +23,12 @@ from .editor import (
     property_group,
     validation,
 )
-from .editor.mtoon1 import ops as mtoon1_operator
+from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
 from .editor.mtoon1 import property_group as mtoon1_property_group
 from .editor.node_constraint1 import panel as node_constraint1_panel
 from .editor.node_constraint1 import property_group as node_constraint1_property_group
-from .editor.spring_bone1 import ops as spring_bone1_operator
+from .editor.spring_bone1 import ops as spring_bone1_ops
 from .editor.spring_bone1 import panel as spring_bone1_panel
 from .editor.spring_bone1 import property_group as spring_bone1_property_group
 from .editor.vrm0 import ops as vrm0_ops
@@ -245,22 +245,22 @@ classes = [
     vrm1_ops.VRM_OT_add_vrm1_first_person_mesh_annotation,
     vrm1_ops.VRM_OT_remove_vrm1_first_person_mesh_annotation,
     vrm1_ops.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
-    spring_bone1_operator.VRM_OT_add_spring_bone1_collider,
-    spring_bone1_operator.VRM_OT_remove_spring_bone1_collider,
-    spring_bone1_operator.VRM_OT_add_spring_bone1_collider_group,
-    spring_bone1_operator.VRM_OT_remove_spring_bone1_collider_group,
-    spring_bone1_operator.VRM_OT_add_spring_bone1_collider_group_collider,
-    spring_bone1_operator.VRM_OT_remove_spring_bone1_collider_group_collider,
-    spring_bone1_operator.VRM_OT_add_spring_bone1_spring,
-    spring_bone1_operator.VRM_OT_remove_spring_bone1_spring,
-    spring_bone1_operator.VRM_OT_add_spring_bone1_spring_collider_group,
-    spring_bone1_operator.VRM_OT_remove_spring_bone1_spring_collider_group,
-    spring_bone1_operator.VRM_OT_add_spring_bone1_spring_joint,
-    spring_bone1_operator.VRM_OT_remove_spring_bone1_spring_joint,
-    mtoon1_operator.VRM_OT_convert_material_to_mtoon1,
-    mtoon1_operator.VRM_OT_convert_mtoon1_to_bsdf_principled,
-    mtoon1_operator.VRM_OT_reset_mtoon1_material_shader_node_group,
-    mtoon1_operator.VRM_OT_import_mtoon1_texture_image_file,
+    spring_bone1_ops.VRM_OT_add_spring_bone1_collider,
+    spring_bone1_ops.VRM_OT_remove_spring_bone1_collider,
+    spring_bone1_ops.VRM_OT_add_spring_bone1_collider_group,
+    spring_bone1_ops.VRM_OT_remove_spring_bone1_collider_group,
+    spring_bone1_ops.VRM_OT_add_spring_bone1_collider_group_collider,
+    spring_bone1_ops.VRM_OT_remove_spring_bone1_collider_group_collider,
+    spring_bone1_ops.VRM_OT_add_spring_bone1_spring,
+    spring_bone1_ops.VRM_OT_remove_spring_bone1_spring,
+    spring_bone1_ops.VRM_OT_add_spring_bone1_spring_collider_group,
+    spring_bone1_ops.VRM_OT_remove_spring_bone1_spring_collider_group,
+    spring_bone1_ops.VRM_OT_add_spring_bone1_spring_joint,
+    spring_bone1_ops.VRM_OT_remove_spring_bone1_spring_joint,
+    mtoon1_ops.VRM_OT_convert_material_to_mtoon1,
+    mtoon1_ops.VRM_OT_convert_mtoon1_to_bsdf_principled,
+    mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_group,
+    mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,
