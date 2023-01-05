@@ -1037,6 +1037,41 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 while supported_extension in extensions_required:
                     extensions_required.remove(supported_extension)
 
+        # Unfortunately such VRMs exist.
+        accessor_dicts = json_dict.get("accessors")
+        if isinstance(accessor_dicts, list):
+            for accessor_dict in accessor_dicts:
+                if not isinstance(accessor_dict, dict):
+                    continue
+
+                max_values = accessor_dict.get("max")
+                if isinstance(max_values, list):
+                    for i, max_value in enumerate(list(max_values)):
+                        if not isinstance(max_value, (float, int)) or math.isnan(
+                            max_value
+                        ):
+                            max_values[i] = gltf.FLOAT_POSITIVE_MAX
+                        elif math.isinf(max_value):
+                            max_values[i] = (
+                                gltf.FLOAT_POSITIVE_MAX
+                                if max_value > 0
+                                else gltf.FLOAT_NEGATIVE_MAX
+                            )
+
+                min_values = accessor_dict.get("min")
+                if isinstance(min_values, list):
+                    for i, min_value in enumerate(list(min_values)):
+                        if not isinstance(min_value, (float, int)) or math.isnan(
+                            min_value
+                        ):
+                            min_values[i] = gltf.FLOAT_NEGATIVE_MAX
+                        elif math.isinf(min_value):
+                            min_values[i] = (
+                                gltf.FLOAT_POSITIVE_MAX
+                                if min_value > 0
+                                else gltf.FLOAT_NEGATIVE_MAX
+                            )
+
         if self.parse_result.spec_version_number < (1, 0):
             bone_heuristic = "FORTUNE"
         else:

@@ -92,6 +92,7 @@ img
 instancer
 inv
 invisibles
+isinf
 isnan
 ja
 jsons
