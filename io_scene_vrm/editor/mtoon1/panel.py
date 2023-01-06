@@ -220,6 +220,22 @@ def draw_mtoon1_material(
     outline_box = layout.box().column()
     outline_box.prop(mtoon1, "outline_width_mode")
     if (
+        bpy.app.version >= (3, 3)
+        and mtoon1.outline_width_mode
+        == Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
+    ):
+        outline_warning_message = pgettext(
+            'The "Screen Coordinates" display is not yet implemented.\n'
+            + 'It is displayed in the same way as "World Coordinates".'
+        )
+        outline_warning_column = outline_box.box().column()
+        for index, outline_warning_line in enumerate(
+            outline_warning_message.splitlines()
+        ):
+            outline_warning_column.label(
+                text=outline_warning_line, icon="BLANK1" if index else "INFO"
+            )
+    if (
         mtoon1.outline_width_mode
         != Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
     ):
@@ -258,9 +274,13 @@ def draw_mtoon1_material(
 
 
 def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> None:
+    ext = context.material.vrm_addon_extension
+    if ext.mtoon1.is_outline_material:
+        layout.box().label(icon="INFO", text="This is a MToon Outline material")
+        return
+
     draw_mtoon1_material(context, layout)
 
-    ext = context.material.vrm_addon_extension
     node = search.vrm_shader_node(context.material)
     if ext.mtoon1.enabled or (node and node.node_tree["SHADER"] == "MToon_unversioned"):
         layout.prop(ext.mtoon1, "export_shape_key_normals")

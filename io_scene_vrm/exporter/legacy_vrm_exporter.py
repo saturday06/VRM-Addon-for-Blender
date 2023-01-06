@@ -70,6 +70,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.glb_bin_collector = GlbBinCollection()
         self.use_dummy_armature = False
         self.mesh_name_to_index: Dict[str, int] = {}
+        self.outline_modifier_visibilities: Dict[str, Dict[str, Tuple[bool, bool]]] = {}
         armatures = [obj for obj in self.export_objects if obj.type == "ARMATURE"]
         if armatures:
             self.armature = armatures[0]
@@ -91,7 +92,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
-        wm.progress_begin(0, 9)
+        wm.progress_begin(0, 11)
         try:
             self.setup_pose(
                 self.armature,
@@ -105,15 +106,19 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             wm.progress_update(3)
             self.material_to_dict()
             wm.progress_update(4)
-            self.mesh_to_bin_and_dict()
+            self.hide_outline_modifiers()
             wm.progress_update(5)
+            self.mesh_to_bin_and_dict()
+            wm.progress_update(6)
+            self.restore_outline_modifiers()
+            wm.progress_update(7)
             self.json_dict["scene"] = 0
             self.gltf_meta_to_dict()
-            wm.progress_update(6)
-            self.vrm_meta_to_dict()  # colliderとかmetaとか....
-            wm.progress_update(7)
-            self.fill_empty_material()
             wm.progress_update(8)
+            self.vrm_meta_to_dict()  # colliderとかmetaとか....
+            wm.progress_update(9)
+            self.fill_empty_material()
+            wm.progress_update(10)
             self.pack()
         finally:
             try:
@@ -126,6 +131,50 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def axis_blender_to_glb(vec3: Sequence[float]) -> List[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
+
+    def hide_outline_modifiers(self) -> None:
+        for obj in self.export_objects:
+            if obj.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES:
+                continue
+
+            modifier_dict: Dict[str, Tuple[bool, bool]] = {}
+            for modifier in obj.modifiers:
+                if (
+                    not modifier
+                    or modifier.type != "NODES"
+                    or not modifier.node_group
+                    or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
+                ):
+                    continue
+                modifier_dict[modifier.name] = (
+                    modifier.show_render,
+                    modifier.show_viewport,
+                )
+                modifier.show_render = False
+                modifier.show_viewport = False
+            self.outline_modifier_visibilities[obj.name] = modifier_dict
+
+    def restore_outline_modifiers(self) -> None:
+        for object_name, modifier_dict in self.outline_modifier_visibilities.items():
+            obj = bpy.data.objects.get(object_name)
+            if (
+                not obj
+                or obj not in self.export_objects
+                or obj.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES
+            ):
+                continue
+
+            for modifier_name, (show_render, show_viewport) in modifier_dict.items():
+                modifier = obj.modifiers.get(modifier_name)
+                if (
+                    not modifier
+                    or modifier.type != "NODES"
+                    or not modifier.node_group
+                    or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
+                ):
+                    continue
+                modifier.show_render = show_render
+                modifier.show_viewport = show_viewport
 
     def image_to_bin(self) -> None:
         # collect used image

@@ -17,6 +17,11 @@ __file_names = [
     "transparent_z_write.blend",
 ]
 
+OUTLINE_GEOMETRY_GROUP_NAME = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
+OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME = (
+    INTERNAL_NAME_PREFIX + OUTLINE_GEOMETRY_GROUP_NAME + " Template"
+)
+
 UV_GROUP_NAME = "VRM Add-on MToon 1.0 UV Revision 1"
 UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + " Template"
 
@@ -28,6 +33,54 @@ def add_shaders() -> None:
             for node_group in data_from.node_groups:
                 if node_group not in bpy.data.node_groups:
                     data_to.node_groups.append(node_group)
+
+
+def load_mtoon1_outline_shader(
+    context: bpy.types.Context,
+    material: bpy.types.Material,
+) -> None:
+    material_name = INTERNAL_NAME_PREFIX + "VRM Add-on MToon 1.0 Outline Template"
+    old_material = bpy.data.materials.get(material_name)
+    if old_material:
+        logger.error(f'Material "{material_name}" already exists')
+        old_material.name += ".old"
+
+    material_path = join(dirname(__file__), "mtoon1_outline.blend") + "/Material"
+    template_material = None
+
+    # https://git.blender.org/gitweb/gitweb.cgi/blender.git/blob/v2.83:/source/blender/windowmanager/intern/wm_files_link.c#l84
+    if context.object is not None and context.object.mode == "EDIT":
+        bpy.ops.object.mode_set(mode="OBJECT")
+        edit_mode = True
+    else:
+        edit_mode = False
+    try:
+        material_append_result = bpy.ops.wm.append(
+            filepath=join(material_path, material_name),
+            filename=material_name,
+            directory=material_path,
+        )
+
+        if edit_mode:
+            bpy.ops.object.mode_set(mode="EDIT")
+            edit_mode = False
+
+        if material_append_result != {"FINISHED"}:
+            raise RuntimeError(
+                "Failed to append MToon 1.0 outline template material: "
+                + f"{material_append_result}"
+            )
+
+        template_material = bpy.data.materials.get(material_name)
+        if not template_material:
+            raise ValueError("No " + material_name)
+
+        copy_node_tree(template_material.node_tree, material.node_tree)
+    finally:
+        if template_material and template_material.users <= 1:
+            bpy.data.materials.remove(template_material)
+        if edit_mode:
+            bpy.ops.object.mode_set(mode="EDIT")
 
 
 def load_mtoon1_shader(
@@ -46,6 +99,15 @@ def load_mtoon1_shader(
         old_template_uv_group.name += ".old"
 
     material_path = join(dirname(__file__), "mtoon1.blend") + "/Material"
+    outline_node_tree_path = (
+        join(dirname(__file__), "mtoon1_outline.blend") + "/NodeTree"
+    )
+
+    template_uv_group = None
+    template_outline_group = None
+    template_material = None
+
+    outline_enabled = bpy.app.version >= (3, 3)
 
     # https://git.blender.org/gitweb/gitweb.cgi/blender.git/blob/v2.83:/source/blender/windowmanager/intern/wm_files_link.c#l84
     if context.object is not None and context.object.mode == "EDIT":
@@ -59,25 +121,60 @@ def load_mtoon1_shader(
             filename=material_name,
             directory=material_path,
         )
-    finally:
+        if outline_enabled:
+            outline_node_tree_append_result = bpy.ops.wm.append(
+                filepath=join(
+                    outline_node_tree_path, OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
+                ),
+                filename=OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME,
+                directory=outline_node_tree_path,
+            )
+        else:
+            outline_node_tree_append_result = None
+
         if edit_mode:
             bpy.ops.object.mode_set(mode="EDIT")
+            edit_mode = False
 
-    if material_append_result != {"FINISHED"}:
-        raise RuntimeError(
-            "Failed to append MToon 1.0 template material: "
-            + f"{material_append_result}"
+        if material_append_result != {"FINISHED"}:
+            raise RuntimeError(
+                "Failed to append MToon 1.0 template material: "
+                + f"{material_append_result}"
+            )
+        if outline_enabled and outline_node_tree_append_result != {"FINISHED"}:
+            raise RuntimeError(
+                "Failed to append MToon 1.0 outline template material: "
+                + f"{outline_node_tree_append_result}"
+            )
+
+        template_uv_group = bpy.data.node_groups.get(UV_GROUP_TEMPLATE_NAME)
+        if not template_uv_group:
+            raise ValueError("No " + UV_GROUP_TEMPLATE_NAME)
+
+        template_outline_group = bpy.data.node_groups.get(
+            OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
         )
+        if not template_outline_group:
+            raise ValueError("No " + OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME)
 
-    template_uv_group = bpy.data.node_groups.get(UV_GROUP_TEMPLATE_NAME)
-    template_material = bpy.data.materials.get(material_name)
-    try:
+        template_material = bpy.data.materials.get(material_name)
+        if not template_material:
+            raise ValueError("No " + material_name)
+
         uv_group = bpy.data.node_groups.get(UV_GROUP_NAME)
         if not uv_group:
             uv_group = bpy.data.node_groups.new(UV_GROUP_NAME, "ShaderNodeTree")
             clear_node_tree(uv_group, clear_inputs_outputs=True)
-
         copy_node_tree(template_uv_group, uv_group)
+
+        if outline_enabled:
+            outline_group = bpy.data.node_groups.get(OUTLINE_GEOMETRY_GROUP_NAME)
+            if not outline_group:
+                outline_group = bpy.data.node_groups.new(
+                    OUTLINE_GEOMETRY_GROUP_NAME, "GeometryNodeTree"
+                )
+                clear_node_tree(outline_group, clear_inputs_outputs=True)
+            copy_node_tree(template_outline_group, outline_group)
 
         mtoon1 = material.vrm_addon_extension.mtoon1
         if mtoon1.enabled:
@@ -86,8 +183,12 @@ def load_mtoon1_shader(
     finally:
         if template_material and template_material.users <= 1:
             bpy.data.materials.remove(template_material)
+        if template_outline_group and template_outline_group.users <= 1:
+            bpy.data.node_groups.remove(template_outline_group)
         if template_uv_group and template_uv_group.users <= 1:
             bpy.data.node_groups.remove(template_uv_group)
+        if edit_mode:
+            bpy.ops.object.mode_set(mode="EDIT")
 
 
 def copy_socket(
@@ -386,6 +487,16 @@ def copy_node(
             to_node.mode = from_node.mode
         if isinstance(from_node, bpy.types.ShaderNodeSeparateColor):
             to_node.mode = from_node.mode
+
+        if isinstance(from_node, bpy.types.GeometryNodeSwitch):
+            to_node.input_type = from_node.input_type
+        if isinstance(from_node, bpy.types.GeometryNodeExtrudeMesh):
+            to_node.mode = from_node.mode
+        if isinstance(from_node, bpy.types.GeometryNodeDeleteGeometry):
+            to_node.domain = from_node.domain
+            to_node.mode = from_node.mode
+        if isinstance(from_node, bpy.types.GeometryNodeSeparateGeometry):
+            to_node.domain = from_node.domain
 
     if bpy.app.version >= (3, 4) and isinstance(from_node, bpy.types.ShaderNodeMix):
         to_node.blend_type = from_node.blend_type

@@ -334,6 +334,11 @@ translation_dictionary = {
     ): "シェイプキー法線をエクスポートする",
     (
         "*",
+        'The "Screen Coordinates" display is not yet implemented.\n'
+        + 'It is displayed in the same way as "World Coordinates".',
+    ): "「Screen Coordinates」の表示は未実装です\n「World Coordinates」と同じ表示をします",
+    (
+        "*",
         "How to export this material to VRM.\n"
         + "Meet one of the following conditions.\n"
         + " - VRM MToon Material is enabled\n"

@@ -242,6 +242,7 @@ vid
 view3
 view3d
 viewport
+visibilities
 voronoi
 vrm
 vrm0

@@ -23,6 +23,7 @@ from .editor import (
     property_group,
     validation,
 )
+from .editor.mtoon1 import handler as mtoon1_handler
 from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
 from .editor.mtoon1 import property_group as mtoon1_property_group
@@ -261,6 +262,7 @@ classes = [
     mtoon1_ops.VRM_OT_convert_mtoon1_to_bsdf_principled,
     mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_group,
     mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
+    mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,
@@ -337,7 +339,9 @@ def register(init_addon_version: object) -> None:
 
     bpy.app.handlers.load_post.append(load_post)
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
+    bpy.app.handlers.save_pre.append(mtoon1_handler.save_pre)
 
     io_scene_gltf2_support.init_extras_export()
 
@@ -345,7 +349,9 @@ def register(init_addon_version: object) -> None:
 def unregister() -> None:
     migration.teardown_subscription()  # migration.setup_subscription()はload_postで呼ばれる
 
+    bpy.app.handlers.save_pre.remove(mtoon1_handler.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
+    bpy.app.handlers.depsgraph_update_pre.remove(mtoon1_handler.depsgraph_update_pre)
     if depsgraph_update_pre in bpy.app.handlers.depsgraph_update_pre:
         bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
     bpy.app.handlers.load_post.remove(load_post)
