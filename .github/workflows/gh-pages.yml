@@ -18,6 +18,8 @@ jobs:
 
           if ! curl \
             --fail \
+            --retry 5 \
+            --retry-all-errors \
             --show-error \
             --location \
             --output releases_latest.json \
