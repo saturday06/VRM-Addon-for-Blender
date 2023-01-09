@@ -7,7 +7,9 @@ https://opensource.org/licenses/mit-license.php
 
 #
 #
-# Please don't import anything in global scope to minimize initialization.
+# Please don't import anything in the global scope to minimize initialization and
+# support unzipping the partial add-on archive for users who have acquired the add-on
+# from "Code" -> "Download ZIP" on GitHub.
 #
 #
 
@@ -74,7 +76,7 @@ def register() -> None:
         logger.warning("%s ...OK", log_warning_prefix)
 
     # Lazy import to minimize initialization before blender version checking and
-    # unzipping the partial add-on archive.
+    # support unzipping the partial add-on archive.
     from . import registration
 
     registration.register(bl_info["version"])
