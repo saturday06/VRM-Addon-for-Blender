@@ -3,7 +3,7 @@ title: "Installation"
 images: ["en/images/installation.png"]
 ---
 
-Download latest add-on zip file from **[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**
+Download latest add-on zip file from **[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM-Addon-for-Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**
 
 Start Blender and select menu `Edit` → `Preferences`.
 

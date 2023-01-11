@@ -1098,7 +1098,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if not full_vrm_import_success:
             # Some VRMs have broken animations.
             # https://github.com/vrm-c/UniVRM/issues/1522
-            # https://github.com/saturday06/VRM_Addon_for_Blender/issues/58
+            # https://github.com/saturday06/VRM-Addon-for-Blender/issues/58
             if "animations" in json_dict:
                 del json_dict["animations"]
             with tempfile.TemporaryDirectory() as temp_dir:

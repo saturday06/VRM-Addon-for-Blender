@@ -1,6 +1,6 @@
 <a name="en" />
 
-# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM_Addon_for_Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_Addon_for_Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 English / [日本語](#ja_JP)
 
 ## Overview
@@ -21,7 +21,7 @@ It is because the release on February 7, 2021 changed the add-on name from (ex-V
 
 ## Development
 
-The source code for development is in the <a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main">`main`</a> branch. Its <a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> folder is the main body of the Blender add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
+The source code for development is in the <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a> branch. Its <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> folder is the main body of the Blender add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
 
 For more advanced development, such as running tests, please use [Poetry](https://python-poetry.org/).
 
@@ -30,18 +30,18 @@ git checkout main
 git submodule update --init
 
 # Linux
-ln -s "$PWD/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/VRM_Addon_for_Blender-repo"
+ln -s "$PWD/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/VRM-Addon-for-Blender-repo"
 # macOS
-ln -s "$PWD/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/VRM_Addon_for_Blender-repo"
+ln -s "$PWD/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/VRM-Addon-for-Blender-repo"
 # Windows PowerShell
-New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM_Addon_for_Blender-repo" -Value "$(Get-Location)\io_scene_vrm"
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM-Addon-for-Blender-repo" -Value "$(Get-Location)\io_scene_vrm"
 # Windows Command Prompt
-mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM_Addon_for_Blender-repo" io_scene_vrm
+mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM-Addon-for-Blender-repo" io_scene_vrm
 ```
 
 <a name="ja_JP" />
 
-# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM_Addon_for_Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM_Addon_for_Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 [English](#en) / 日本語
 
@@ -63,7 +63,7 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 ## 開発するには
 
-開発用のソースコードは<a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM_Addon_for_Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> フォルダがBlenderアドオン本体です。
+開発用のソースコードは<a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> フォルダがBlenderアドオン本体です。
 `io_scene_vrm` フォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
 テストの実行などより高度な開発をする場合は[Poetry](https://python-poetry.org/)をご利用ください。
@@ -73,11 +73,11 @@ git checkout main
 git submodule update --init
 
 # Linux
-ln -s "$PWD/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/VRM_Addon_for_Blender-repo"
+ln -s "$PWD/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/VRM-Addon-for-Blender-repo"
 # macOS
-ln -s "$PWD/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/VRM_Addon_for_Blender-repo"
+ln -s "$PWD/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/VRM-Addon-for-Blender-repo"
 # Windows PowerShell
-New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM_Addon_for_Blender-repo" -Value "$(Get-Location)\io_scene_vrm"
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM-Addon-for-Blender-repo" -Value "$(Get-Location)\io_scene_vrm"
 # Windows Command Prompt
-mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM_Addon_for_Blender-repo" io_scene_vrm
+mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM-Addon-for-Blender-repo" io_scene_vrm
 ```

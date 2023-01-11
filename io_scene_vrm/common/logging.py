@@ -3,7 +3,7 @@ import logging as standard_logging
 
 class Logger:
     def log_prefix(self, severity: str) -> str:
-        # https://github.com/saturday06/VRM_Addon_for_Blender/blob/2_5_0/io_scene_vrm/__init__.py#L45-L46
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_5_0/io_scene_vrm/__init__.py#L45-L46
         return f"[VRM Add-on:{severity}] "
 
     def __init__(self, logger: standard_logging.Logger) -> None:

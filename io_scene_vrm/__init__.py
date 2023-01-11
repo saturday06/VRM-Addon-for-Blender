@@ -24,7 +24,7 @@ bl_info = {
     "support": "COMMUNITY",
     "wiki_url": "",
     "doc_url": "https://vrm-addon-for-blender.info",
-    "tracker_url": "https://github.com/saturday06/VRM_Addon_for_Blender/issues",
+    "tracker_url": "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
     "category": "Import-Export",
 }
 
@@ -44,7 +44,7 @@ def register() -> None:
             + f"but the current version is {bpy.app.version}"
         )
 
-    # https://github.com/saturday06/VRM_Addon_for_Blender/blob/2_5_0/io_scene_vrm/common/logging.py#L5-L7
+    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_5_0/io_scene_vrm/common/logging.py#L5-L7
     log_warning_prefix = "[VRM Add-on:Warning]"
 
     # For users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.

@@ -1786,7 +1786,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         )
 
             # region hell
-            # Check added to resolve https://github.com/saturday06/VRM_Addon_for_Blender/issues/70
+            # Check added to resolve https://github.com/saturday06/VRM-Addon-for-Blender/issues/70
             if self.context.view_layer.objects.active is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
 

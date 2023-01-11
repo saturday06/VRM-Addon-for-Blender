@@ -3,7 +3,7 @@ title: "アドオンのインストール"
 images: ["ja/images/installation.png"]
 ---
 
-**[最新版のダウンロード {{< release_ja >}}](https://github.com/saturday06/VRM_Addon_for_Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンのzipファイルをダウンロードします。次にBlenderを起動し、メニューの `編集` → `プリファレンス` を選択します。
+**[最新版のダウンロード {{< release_ja >}}](https://github.com/saturday06/VRM-Addon-for-Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンのzipファイルをダウンロードします。次にBlenderを起動し、メニューの `編集` → `プリファレンス` を選択します。
 
 ![](../images/installation1.png)
 
