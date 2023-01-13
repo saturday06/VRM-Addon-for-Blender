@@ -25,11 +25,11 @@ def test() -> None:
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
     right_little_distal_bone.node.value = "hips"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
-    right_little_distal_bone.node.value = "little.distal.L"
+    right_little_distal_bone.node.value = "little_distal.L"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
     right_little_distal_bone.node.value = ""
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
-    right_little_distal_bone.node.value = "little.distal.R"
+    right_little_distal_bone.node.value = "little_distal.R"
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
 

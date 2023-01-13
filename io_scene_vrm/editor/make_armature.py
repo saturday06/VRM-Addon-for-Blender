@@ -390,7 +390,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
                 * self.finger_2_3_ratio
             )
             proximal_bones = x_mirror_bones_add(
-                f"{finger_name}.proximal",
+                f"{finger_name}_proximal",
                 proximal_pos,
                 x_add(proximal_pos, proximal_finger_len),
                 hands,
@@ -398,7 +398,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
                 bone_type="arm",
             )
             intermediate_bones = x_mirror_bones_add(
-                f"{finger_name}.intermediate",
+                f"{finger_name}_intermediate",
                 proximal_bones[0].tail,
                 x_add(proximal_bones[0].tail, intermediate_finger_len),
                 proximal_bones,
@@ -406,7 +406,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
                 bone_type="arm",
             )
             distal_bones = x_mirror_bones_add(
-                f"{finger_name}.distal",
+                f"{finger_name}_distal",
                 intermediate_bones[0].tail,
                 x_add(intermediate_bones[0].tail, distal_finger_len),
                 intermediate_bones,
@@ -415,7 +415,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
             )
             if self.nail_bone:
                 x_mirror_bones_add(
-                    f"{finger_name}.nail",
+                    f"{finger_name}_nail",
                     distal_bones[0].tail,
                     x_add(distal_bones[0].tail, distal_finger_len),
                     distal_bones,
