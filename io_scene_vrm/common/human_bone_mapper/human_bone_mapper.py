@@ -10,6 +10,7 @@ from . import (
     mmd_mapping,
     ready_player_me_mapping,
     rigify_meta_rig_mapping,
+    vrm_addon_mapping,
 )
 
 logger = get_logger(__name__)
@@ -85,6 +86,8 @@ def create_human_bone_mapping(
         microsoft_rocketbox_mapping.config_bip01,
         microsoft_rocketbox_mapping.config_bip02,
         rigify_meta_rig_mapping.config,
+        vrm_addon_mapping.config_vrm1,
+        vrm_addon_mapping.config_vrm0,
     ]:
         if match_mapping(armature.data, mapping):
             logger.warning(f'Treat as "{name}" bone mappings')
