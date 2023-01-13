@@ -18,7 +18,7 @@ jobs:
 
           if ! curl \
             --fail \
-            --retry 5 \
+            --retry 20 \
             --retry-all-errors \
             --show-error \
             --location \
