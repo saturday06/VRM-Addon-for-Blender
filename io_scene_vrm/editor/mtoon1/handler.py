@@ -1,9 +1,13 @@
+import time
 from typing import Callable, List, Optional, Tuple
 
 import bpy
 from bpy.app.handlers import persistent
 
+from ...common.logging import get_logger
 from .ops import VRM_OT_refresh_mtoon1_outline
+
+logger = get_logger(__name__)
 
 if not persistent:  # for fake-bpy-modules
 
@@ -15,6 +19,8 @@ previous_object_material_state: List[List[Optional[Tuple[str, bool]]]] = []
 
 
 def update_mtoon1_outline() -> Optional[float]:
+    compare_start_time = time.perf_counter()
+
     # ここは最適化の必要がある
     object_material_state = [
         [
@@ -33,7 +39,15 @@ def update_mtoon1_outline() -> Optional[float]:
         for obj in bpy.data.objects
         if obj.type == "MESH"
     ]
-    if object_material_state == previous_object_material_state:
+    not_changed = object_material_state == previous_object_material_state
+
+    compare_end_time = time.perf_counter()
+
+    logger.debug(
+        f"The duration to determine material updates is {compare_end_time - compare_start_time:.9f} seconds"
+    )
+
+    if not_changed:
         return None
     previous_object_material_state.clear()
     previous_object_material_state.extend(object_material_state)

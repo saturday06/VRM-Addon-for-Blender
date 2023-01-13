@@ -9,6 +9,9 @@ class Logger:
     def __init__(self, logger: standard_logging.Logger) -> None:
         self.logger = logger
 
+    def debug(self, message: str) -> None:
+        self.logger.debug(self.log_prefix("Debug") + message)
+
     def info(self, message: str) -> None:
         self.logger.info(self.log_prefix("Info") + message)
 

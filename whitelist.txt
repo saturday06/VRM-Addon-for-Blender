@@ -147,6 +147,7 @@ parameteri
 parametrization
 pathsep
 pbr
+perf
 pgettext
 pi2
 pos
