@@ -18,12 +18,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if self.id_data.is_evaluated:
             logger.error(f"{self} is evaluated. May cause a problem.")
 
-        chain = getattr(self, "material_property_chain", None)
-        if not isinstance(chain, abc.Sequence):
-            raise NotImplementedError(
-                f"No material property chain: {type(self)}.{type(chain)} => {chain}"
-            )
-
+        chain = self.get_material_property_chain()
         for material in bpy.data.materials:
             if not material:
                 continue
@@ -33,6 +28,46 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
 
         raise AssertionError(f"No matching material: {type(self)} {chain}")
 
+    @classmethod
+    def get_material_property_chain(cls) -> List[str]:
+        chain = getattr(cls, "material_property_chain", None)
+        if not isinstance(chain, list):
+            raise NotImplementedError(
+                f"No material property chain: {cls}.{type(chain)} => {chain}",
+            )
+        result: List[str] = []
+        for property_name in list(chain):
+            if isinstance(property_name, str):
+                result.append(property_name)
+                continue
+            raise AssertionError(
+                f"Invalid material property chain: {cls}.{type(chain)} => {chain}",
+            )
+        return result
+
+    @classmethod
+    def find_outline_property_group(
+        cls, material: bpy.types.Material
+    ) -> Optional[bpy.types.PropertyGroup]:
+        mtoon1 = material.vrm_addon_extension.mtoon1
+        if mtoon1.is_outline_material:
+            return None
+        outline_material = mtoon1.outline_material
+        if not outline_material:
+            return None
+        if material.name == outline_material.name:
+            logger.error(
+                "Base material and outline material are same. name={material.name}"
+            )
+            return None
+        chain = cls.get_material_property_chain()
+        property_group = functools.reduce(
+            getattr, chain, outline_material.vrm_addon_extension.mtoon1
+        )
+        if isinstance(property_group, bpy.types.PropertyGroup):
+            return property_group
+        raise AssertionError(f"No matching property group: {cls} {chain}")
+
     def set_value(
         self,
         name: str,
@@ -41,11 +76,19 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not isinstance(value, (int, float)):
             return
         node_name = self.get_node_name(name)
-        node = self.find_material().node_tree.nodes.get(node_name)
+        material = self.find_material()
+        node_tree = material.node_tree
+        if not node_tree:
+            return
+        node = node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeValue):
-            logger.warning(f'No shader node value "{node_name}"')
+            logger.warning(f'No shader node value "{node_name}" for "{material.name}"')
             return
         node.outputs[0].default_value = value
+
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.set_value(name, value)
 
     def set_bool(
         self,
@@ -70,7 +113,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not default_value:
             default_value = (0.0, 0.0, 0.0, 0.0)
         node_name = self.get_node_name(name)
-        node = self.find_material().node_tree.nodes.get(node_name)
+        material = self.find_material()
+        node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeRGB):
             logger.warning(f'No shader node rgb "{node_name}"')
             return
@@ -84,6 +128,10 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         list_value = list_value[0:4]
         node.outputs[0].default_value = list_value
 
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.set_rgba(name, value, default_value)
+
     def set_rgb(
         self,
         name: str,
@@ -93,11 +141,11 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not default_value:
             default_value = (0.0, 0.0, 0.0)
         node_name = self.get_node_name(name)
-        node = self.find_material().node_tree.nodes.get(node_name)
+        material = self.find_material()
+        node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeRGB):
             logger.warning(f'No shader node rgb "{node_name}"')
             return
-
         if isinstance(value, mathutils.Color):
             value = [value.r, value.g, value.b]
         elif not isinstance(value, abc.Iterable):
@@ -111,6 +159,10 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         list_value.append(1.0)
         node.outputs[0].default_value = list_value
 
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.set_rgb(name, value, default_value)
+
     def get_node_name(self, extra: Optional[str] = None) -> str:
         base = re.sub("PropertyGroup$", "", type(self).__name__)
         if extra is not None:
@@ -118,7 +170,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         return base
 
     def link_reroutes(self, base_node_name: str, connect: bool) -> None:
-        node_tree = self.find_material().node_tree
+        material = self.find_material()
+        node_tree = material.node_tree
         in_node_name = base_node_name + "In"
         in_node = node_tree.nodes.get(in_node_name)
         out_node_name = base_node_name + "Out"
@@ -151,8 +204,13 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
                 break
             node_tree.links.remove(disconnecting_link)
 
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.link_reroutes(base_node_name, connect)
+
     def switch_link_reroutes(self, base_node_name: str, up: bool) -> None:
-        node_tree = self.find_material().node_tree
+        material = self.find_material()
+        node_tree = material.node_tree
         in_node_name = base_node_name + "SwitchIn"
         in_node = node_tree.nodes.get(in_node_name)
         down_node_name = base_node_name + "SwitchDown"
@@ -191,15 +249,14 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         ):
             node_tree.links.new(in_node.inputs[0], connecting_socket)
 
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.switch_link_reroutes(base_node_name, up)
+
 
 class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     def get_texture_info_property_group(self) -> "Mtoon1TextureInfoPropertyGroup":
-        chain = getattr(self, "material_property_chain", None)
-        if not isinstance(chain, abc.Sequence) or not chain:
-            raise NotImplementedError(
-                f"No material property chain: {type(self)}.{type(chain)} => {chain}"
-            )
-        chain = list(chain)
+        chain = self.get_material_property_chain()
         if chain[-1:] == ["sampler"]:
             chain = chain[:-1]
         if chain[-1:] == ["index"]:
@@ -224,7 +281,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_image(self, image: Optional[bpy.types.Image]) -> None:
         node_name = self.get_texture_node_name("Image")
-        node_tree = self.find_material().node_tree
+        material = self.find_material()
+        node_tree = material.node_tree
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
@@ -237,9 +295,14 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         self.link_reroutes(self.get_texture_node_name("Color"), bool(node.image))
         self.link_reroutes(self.get_texture_node_name("Alpha"), bool(node.image))
 
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.update_image(image)
+
     def set_texture_uv(self, name: str, value: object) -> None:
         node_name = self.get_texture_node_name("Uv")
-        node_tree = self.find_material().node_tree
+        material = self.find_material()
+        node_tree = material.node_tree
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeGroup):
             logger.warning(f'No shader node group "{node_name}"')
@@ -251,6 +314,10 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         socket.default_value = value
 
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.set_texture_uv(name, value)
+
 
 class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
     def update_texture_offset(self, _context: bpy.types.Context) -> None:
@@ -258,22 +325,32 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         self.set_texture_uv("UV Offset Y", self.offset[1])
 
         node_name = self.get_texture_node_name("Image")
-        node = self.find_material().node_tree.nodes.get(node_name)
+        material = self.find_material()
+        node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
         node.texture_mapping.translation = (0, 0, 0)
+
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.update_texture_offset(_context)
 
     def update_texture_scale(self, _context: bpy.types.Context) -> None:
         self.set_texture_uv("UV Scale X", self.scale[0])
         self.set_texture_uv("UV Scale Y", self.scale[1])
 
         node_name = self.get_texture_node_name("Image")
-        node = self.find_material().node_tree.nodes.get(node_name)
+        material = self.find_material()
+        node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
         node.texture_mapping.scale = (1, 1, 1)
+
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.update_texture_scale(_context)
 
 
 class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
@@ -1101,7 +1178,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
         mtoon = (
             self.find_material().vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
         )
-        mtoon.update_outline(context)
+        mtoon.update_outline_geometry(context)
         self.update_source(context)
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -1482,7 +1559,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         for outline_width_mode_item in outline_width_mode_items
     ]
 
-    def update_outline(self, _context: bpy.types.Context) -> None:
+    def update_outline_geometry(self, _context: bpy.types.Context) -> None:
         material = self.find_material()
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
@@ -1491,12 +1568,12 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     outline_width_mode: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=outline_width_mode_items,
         name="Outline Width Mode",  # noqa: F722
-        update=update_outline,
+        update=update_outline_geometry,
     )
 
     def update_outline_width_factor(self, context: bpy.types.Context) -> None:
         self.set_value("OutlineWidthFactor", self.outline_width_factor)
-        self.update_outline(context)
+        self.update_outline_geometry(context)
 
     outline_width_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Outline Width",  # noqa: F722
@@ -1511,7 +1588,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_outline_color_factor(self, context: bpy.types.Context) -> None:
         self.set_rgb("OutlineColorFactor", self.outline_color_factor)
-        self.update_outline(context)
+        self.update_outline_geometry(context)
 
     outline_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Outline Color",  # noqa: F722
@@ -1525,7 +1602,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_outline_lighting_mix_factor(self, context: bpy.types.Context) -> None:
         self.set_value("OutlineLightingMixFactor", self.outline_lighting_mix_factor)
-        self.update_outline(context)
+        self.update_outline_geometry(context)
 
     outline_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Outline LightingMix",  # noqa: F722
@@ -1754,7 +1831,13 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         name="Export Shape Key Normals",  # noqa: F722
     )
 
-    is_outline_material: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    def update_is_outline_material(self, _context: bpy.types.Context) -> None:
+        self.set_bool("IsOutlineMaterial", self.is_outline_material)
+        self.set_int("NormalScale", -1 if self.is_outline_material else 1)
+
+    is_outline_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        update=update_is_outline_material,
+    )
 
     outline_material: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Material,
@@ -1778,7 +1861,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
 
 def reset_shader_node_group(
-    context: bpy.types.Context, material: bpy.types.Material
+    context: bpy.types.Context,
+    material: bpy.types.Material,
+    reset_node_tree: bool = True,
 ) -> None:
     root = material.vrm_addon_extension.mtoon1
     mtoon = root.extensions.vrmc_materials_mtoon
@@ -1824,9 +1909,14 @@ def reset_shader_node_group(
     uv_animation_scroll_y_speed_factor = mtoon.uv_animation_scroll_y_speed_factor
     uv_animation_rotation_speed_factor = mtoon.uv_animation_rotation_speed_factor
 
-    shader.load_mtoon1_shader(context, material)
+    if reset_node_tree:
+        shader.load_mtoon1_shader(context, material)
+        if root.outline_material:
+            shader.load_mtoon1_shader(context, root.outline_material)
+
+    root.is_outline_material = False
     if root.outline_material:
-        shader.load_mtoon1_outline_shader(context, root.outline_material)
+        root.outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
 
     root.pbr_metallic_roughness.base_color_factor = base_color_factor
     root.pbr_metallic_roughness.base_color_texture.restore(base_color_texture)

@@ -604,6 +604,7 @@ MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_X_KEY = "Input_8"
 MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_Y_KEY = "Input_9"
 MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_X_KEY = "Input_10"
 MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_Y_KEY = "Input_11"
+MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY = "Input_12"
 
 
 class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
@@ -669,15 +670,19 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
         modifier_name = f"MToon Outline ({material.name})"
 
         outline_material = material.vrm_addon_extension.mtoon1.outline_material
-        if not outline_material:
+        reset_outline_material = not outline_material
+        if reset_outline_material:
             outline_material = context.blend_data.materials.new(
                 name=outline_material_name
             )
+            outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
             outline_material.use_nodes = True
             outline_material.diffuse_color[3] = 0.25
             outline_material.roughness = 0
-            shader.load_mtoon1_outline_shader(context, outline_material)
+            shader.load_mtoon1_shader(context, outline_material)
             material.vrm_addon_extension.mtoon1.outline_material = outline_material
+        if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:
+            outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
         if outline_material.name != outline_material_name:
             outline_material.name = outline_material_name
         if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:
@@ -694,19 +699,6 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             outline_material.use_backface_culling = True
         if outline_material.show_transparent_back:
             outline_material.show_transparent_back = False
-
-        outline_mtoon = (
-            outline_material.vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
-        )
-        if outline_mtoon.outline_color_factor != mtoon.outline_color_factor:
-            outline_mtoon.outline_color_factor = mtoon.outline_color_factor
-        if (
-            outline_mtoon.outline_lighting_mix_factor
-            != mtoon.outline_lighting_mix_factor
-        ):
-            outline_mtoon.outline_lighting_mix_factor = (
-                mtoon.outline_lighting_mix_factor
-            )
 
         if not modifier:
             modifier = obj.modifiers.new(modifier_name, "NODES")
@@ -803,10 +795,25 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             ] = outline_width_multiply_texture_uv_scale_y
             modifier_input_changed = True
 
+        extrude_mesh_individual = (
+            obj.type == "MESH"
+            and not obj.data.use_auto_smooth
+            and not any(polygon.use_smooth for polygon in obj.data.polygons)
+        )
+        if (
+            modifier.get(MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY)
+            != extrude_mesh_individual
+        ):
+            modifier[MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY] = extrude_mesh_individual
+            modifier_input_changed = True
+
         # Apply input values
         if modifier_input_changed:
             modifier.show_viewport = not modifier.show_viewport
             modifier.show_viewport = not modifier.show_viewport
+
+        if reset_outline_material:
+            reset_shader_node_group(context, material, reset_node_tree=False)
 
     @staticmethod
     def refresh(

@@ -35,54 +35,6 @@ def add_shaders() -> None:
                     data_to.node_groups.append(node_group)
 
 
-def load_mtoon1_outline_shader(
-    context: bpy.types.Context,
-    material: bpy.types.Material,
-) -> None:
-    material_name = INTERNAL_NAME_PREFIX + "VRM Add-on MToon 1.0 Outline Template"
-    old_material = bpy.data.materials.get(material_name)
-    if old_material:
-        logger.error(f'Material "{material_name}" already exists')
-        old_material.name += ".old"
-
-    material_path = join(dirname(__file__), "mtoon1_outline.blend") + "/Material"
-    template_material = None
-
-    # https://git.blender.org/gitweb/gitweb.cgi/blender.git/blob/v2.83:/source/blender/windowmanager/intern/wm_files_link.c#l84
-    if context.object is not None and context.object.mode == "EDIT":
-        bpy.ops.object.mode_set(mode="OBJECT")
-        edit_mode = True
-    else:
-        edit_mode = False
-    try:
-        material_append_result = bpy.ops.wm.append(
-            filepath=join(material_path, material_name),
-            filename=material_name,
-            directory=material_path,
-        )
-
-        if edit_mode:
-            bpy.ops.object.mode_set(mode="EDIT")
-            edit_mode = False
-
-        if material_append_result != {"FINISHED"}:
-            raise RuntimeError(
-                "Failed to append MToon 1.0 outline template material: "
-                + f"{material_append_result}"
-            )
-
-        template_material = bpy.data.materials.get(material_name)
-        if not template_material:
-            raise ValueError("No " + material_name)
-
-        copy_node_tree(template_material.node_tree, material.node_tree)
-    finally:
-        if template_material and template_material.users <= 1:
-            bpy.data.materials.remove(template_material)
-        if edit_mode:
-            bpy.ops.object.mode_set(mode="EDIT")
-
-
 def load_mtoon1_shader(
     context: bpy.types.Context,
     material: bpy.types.Material,

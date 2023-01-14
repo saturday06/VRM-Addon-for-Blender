@@ -15,7 +15,7 @@ if not persistent:  # for fake-bpy-modules
         raise NotImplementedError
 
 
-previous_object_material_state: List[List[Optional[Tuple[str, bool]]]] = []
+previous_object_material_state: List[List[Optional[Tuple[str, bool, bool]]]] = []
 
 
 def update_mtoon1_outline() -> Optional[float]:
@@ -31,6 +31,7 @@ def update_mtoon1_outline() -> Optional[float]:
                         material_slot.material
                     )
                 ),
+                bool(obj.data.use_auto_smooth),
             )
             if material_slot.material
             else None
