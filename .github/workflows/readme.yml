@@ -24,8 +24,9 @@ jobs:
           git checkout README
           cp -fr ../.github .
           rm .github/workflows/gh-pages.yml
-          rm .github/workflows/test.yml
+          rm .github/workflows/readme.yml
           rm .github/workflows/release.yml
+          rm .github/workflows/test.yml
           cp ../README.md .
           find . -maxdepth 1 -name "LICENSE*" -exec rm {} \;
           find .. -maxdepth 1 -name "LICENSE*" -exec cp {} . \;
