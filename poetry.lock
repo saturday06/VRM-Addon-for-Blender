@@ -171,14 +171,14 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "fake-bpy-module-2-83"
-version = "20210701"
+version = "20230117"
 description = "Collection of the fake Blender Python API module for the code completion."
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "fake-bpy-module-2.83-20210701.tar.gz", hash = "sha256:7ae58827ef6fdfacc344eab4dd41455231f52b692c680f96c880cb444a3771fe"},
-    {file = "fake_bpy_module_2.83-20210701-py3-none-any.whl", hash = "sha256:c834efd7bf978a80d8eda61be2b869271f9d5650e0b160d189f070454470a963"},
+    {file = "fake-bpy-module-2.83-20230117.tar.gz", hash = "sha256:856602e46fa7e223e312f5faac44366ad1d69c2df3ad7a145e83ccbafac57592"},
+    {file = "fake_bpy_module_2.83-20230117-py3-none-any.whl", hash = "sha256:21672eb707800e77538e4db2fa140ef75b8c9cec523eb171b734fd7acfd43a0f"},
 ]
 
 [[package]]
@@ -879,4 +879,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "3f9674c94beb1a61daf472b005bc3459f65bbdfbdd047612aaba04b5cba34837"
+content-hash = "a017911e90481c9bd6f4ae88b1cdd6780d9d50c41b2293cd2b19bda33cab6153"
