@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import bpy
 
@@ -16,51 +16,50 @@ from . import (
 logger = get_logger(__name__)
 
 
-def match_mapping(
+def match_count(
     armature: bpy.types.Armature, mapping: Dict[str, HumanBoneSpecification]
-) -> bool:
-    required_mappings: Dict[str, HumanBoneSpecification] = {}
-    for bpy_name, required_specification in mapping.items():
-        if required_specification.requirement:
-            required_mappings[bpy_name] = required_specification
+) -> int:
+    count = 0
 
-    if not required_mappings:
-        return False
-
-    # Validate required bone ordering
-    for bpy_name, specification in required_mappings.items():
+    # Validate bone ordering
+    for bpy_name, specification in mapping.items():
         bone = armature.bones.get(bpy_name)
         if not bone:
-            return False
+            continue
 
-        required_parent_specification: Optional[HumanBoneSpecification] = None
-        search_specification = specification.parent()
-        while search_specification:
-            if search_specification.requirement:
-                required_parent_specification = search_specification
+        parent_specification: Optional[HumanBoneSpecification] = None
+        search_parent_specification = specification.parent()
+        while search_parent_specification:
+            if search_parent_specification in mapping.values():
+                parent_specification = search_parent_specification
                 break
-            search_specification = search_specification.parent()
+            search_parent_specification = search_parent_specification.parent()
 
         found = False
         bone = bone.parent
         while bone:
-            search_required_specification = required_mappings.get(bone.name)
-            if search_required_specification:
-                if search_required_specification != required_parent_specification:
-                    return False
-                found = True
+            search_specification = mapping.get(bone.name)
+            if search_specification:
+                found = search_specification == parent_specification
                 break
             bone = bone.parent
 
-        if found:
+        if found or not parent_specification:
+            count += 1
             continue
 
-        if not required_parent_specification:
-            continue
+    return count
 
-        return False
 
-    return True
+def match_counts(
+    armature: bpy.types.Armature, mapping: Dict[str, HumanBoneSpecification]
+) -> Tuple[int, int]:
+    required_mapping = {
+        bpy_name: required_specification
+        for bpy_name, required_specification in mapping.items()
+        if required_specification.requirement
+    }
+    return (match_count(armature, required_mapping), match_count(armature, mapping))
 
 
 def sorted_required_first(
@@ -79,18 +78,22 @@ def sorted_required_first(
 def create_human_bone_mapping(
     armature: bpy.types.Object,
 ) -> Dict[str, HumanBoneSpecification]:
-    for name, mapping in [
-        mmd_mapping.create_config(armature),
-        ready_player_me_mapping.config,
-        cats_blender_plugin_fix_model_mapping.config,
-        microsoft_rocketbox_mapping.config_bip01,
-        microsoft_rocketbox_mapping.config_bip02,
-        rigify_meta_rig_mapping.config,
-        vrm_addon_mapping.config_vrm1,
-        vrm_addon_mapping.config_vrm0,
-    ]:
-        if match_mapping(armature.data, mapping):
-            logger.warning(f'Treat as "{name}" bone mappings')
-            return sorted_required_first(mapping)
-
+    ((required_count, _all_count), name, mapping) = sorted(
+        [
+            (match_counts(armature.data, mapping), name, mapping)
+            for name, mapping in [
+                mmd_mapping.create_config(armature),
+                ready_player_me_mapping.config,
+                cats_blender_plugin_fix_model_mapping.config,
+                microsoft_rocketbox_mapping.config_bip01,
+                microsoft_rocketbox_mapping.config_bip02,
+                rigify_meta_rig_mapping.config,
+                vrm_addon_mapping.config_vrm1,
+                vrm_addon_mapping.config_vrm0,
+            ]
+        ]
+    )[-1]
+    if required_count:
+        logger.warning(f'Treat as "{name}" bone mappings')
+        return sorted_required_first(mapping)
     return {}
