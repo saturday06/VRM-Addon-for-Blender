@@ -260,7 +260,7 @@ classes = [
     spring_bone1_ops.VRM_OT_remove_spring_bone1_spring_joint,
     mtoon1_ops.VRM_OT_convert_material_to_mtoon1,
     mtoon1_ops.VRM_OT_convert_mtoon1_to_bsdf_principled,
-    mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_group,
+    mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_tree,
     mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,

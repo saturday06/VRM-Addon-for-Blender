@@ -7,7 +7,7 @@ from .. import search
 from ..ops import VRM_OT_open_url_in_web_browser
 from .ops import (
     VRM_OT_import_mtoon1_texture_image_file,
-    VRM_OT_reset_mtoon1_material_shader_node_group,
+    VRM_OT_reset_mtoon1_material_shader_node_tree,
 )
 from .property_group import (
     Mtoon1MaterialPropertyGroup,
@@ -269,7 +269,7 @@ def draw_mtoon1_material(
     uv_animation_box.prop(mtoon1, "uv_animation_rotation_speed_factor")
 
     layout.operator(
-        VRM_OT_reset_mtoon1_material_shader_node_group.bl_idname
+        VRM_OT_reset_mtoon1_material_shader_node_tree.bl_idname
     ).material_name = context.material.name
 
 

@@ -415,10 +415,10 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):  # type: ign
         )
 
 
-class VRM_OT_reset_mtoon1_material_shader_node_group(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.reset_mtoon1_material_shader_node_group"
-    bl_label = "Reset Shader Node Group"
-    bl_description = "Reset MToon 1.0 Material Shader Node Group"
+    bl_label = "Reset Shader Nodes"
+    bl_description = "Reset MToon 1.0 Material Shader Node Tree"
     bl_options = {"REGISTER", "UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
