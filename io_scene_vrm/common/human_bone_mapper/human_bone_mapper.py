@@ -21,6 +21,12 @@ def match_count(
 ) -> int:
     count = 0
 
+    mapping = {
+        bpy_name: specification
+        for bpy_name, specification in mapping.items()
+        if bpy_name in armature.bones
+    }
+
     # Validate bone ordering
     for bpy_name, specification in mapping.items():
         bone = armature.bones.get(bpy_name)
