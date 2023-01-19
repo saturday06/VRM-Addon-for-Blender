@@ -36,8 +36,15 @@ jobs:
             break
           done
 
-          gh pr merge --auto --merge "$PR_URL"
+          for retry in $(seq 10); do
+            if gh pr merge --auto --merge "$PR_URL"; then
+              exit 0
+            fi
+            sleep 180
+          done
 
+          echo Error
+          exit 1
         env:
           WORKFLOW_NAME: ${{github.workflow}}
           PR_URL: ${{github.event.pull_request.html_url}}
