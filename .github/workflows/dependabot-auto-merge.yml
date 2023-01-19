@@ -20,7 +20,7 @@ jobs:
           for retry in $(seq 60 -1 0); do
             if [ "$retry" = "0" ]; then
               echo Timeout
-              exit 0
+              exit 1
             fi
 
             sleep 60
