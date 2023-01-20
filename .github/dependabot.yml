@@ -5,16 +5,16 @@ updates:
     directory: "/"
     target-branch: "main"
     schedule:
-      interval: "daily"
+      interval: "weekly"
 
   - package-ecosystem: "pip"
     directory: "/"
     target-branch: "main"
     schedule:
-      interval: "daily"
+      interval: "weekly"
 
   - package-ecosystem: "gomod"
     directory: "/docs/website"
     target-branch: "main"
     schedule:
-      interval: "daily"
+      interval: "weekly"
