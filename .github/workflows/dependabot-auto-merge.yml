@@ -36,6 +36,19 @@ jobs:
             break
           done
 
+          set -x
+
+          git fetch
+          current_hash=$(git rev-parse HEAD)
+          base_ref_name=$(gh pr status --json baseRefName --jq .currentBranch.baseRefName)
+          if ! git merge --ff-only "origin/$base_ref_name": then
+            git reset --hard "$current_hash"
+            gh pr comment --body "@dependabot rebase"
+            exit 0
+          fi
+
+          git reset --hard "$current_hash"
+
           for retry in $(seq 10); do
             if gh pr merge --auto --merge "$PR_URL"; then
               exit 0
