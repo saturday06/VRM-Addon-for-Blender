@@ -3,18 +3,18 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: main
+    target-branch: "main"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "pip"
     directory: "/"
-    target-branch: main
+    target-branch: "main"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "gomod"
     directory: "/docs/website"
-    target-branch: main
+    target-branch: "main"
     schedule:
       interval: "daily"
