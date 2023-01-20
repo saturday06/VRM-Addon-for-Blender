@@ -46,7 +46,6 @@ jobs:
             exit 1
           fi
           if ! git merge --ff-only "$origin_base_ref_name"; then
-            git reset --hard "$current_hash"
             gh pr comment --body "@dependabot rebase"
             exit 0
           fi
