@@ -39,7 +39,7 @@ jobs:
           & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\generate_dynamic_tests.py
           & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: VRMs
@@ -76,7 +76,7 @@ jobs:
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/generate_dynamic_tests.py
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: VRMs
