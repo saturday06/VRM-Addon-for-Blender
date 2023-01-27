@@ -1059,6 +1059,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         b_mat, not b_mat.use_backface_culling, export_settings
                     )
 
+                pbr_dict["extensions"] = {}
+
                 alpha_cutoff = getattr(gltf2_io_material, "alpha_cutoff", None)
                 if isinstance(alpha_cutoff, (int, float)):
                     pbr_dict["alphaCutoff"] = alpha_cutoff
@@ -1089,7 +1091,18 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     and extensions.get("KHR_materials_unlit") is not None
                 ):
                     # https://github.com/KhronosGroup/glTF/tree/19a1d820040239bca1327fc26220ae8cae9f948c/extensions/2.0/Khronos/KHR_materials_unlit
-                    pbr_dict["extensions"] = {"KHR_materials_unlit": {}}
+                    pbr_dict["extensions"]["KHR_materials_unlit"] = {}
+
+
+                if emissive_factor is not None:
+                    emissive_strength = b_mat.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value
+                    hdr_emissive_factor = Vector((
+                        emissive_factor[0] * emissive_strength,
+                        emissive_factor[1] * emissive_strength,
+                        emissive_factor[2] * emissive_strength,
+                    ))
+                    pbr_dict["emissiveFactor"] = list(hdr_emissive_factor)
+                    pbr_dict["extensions"]["KHR_materials_emissive_strength"] = { "emissiveStrength": emissive_strength  }
 
                 assign_dict(
                     pbr_dict,
