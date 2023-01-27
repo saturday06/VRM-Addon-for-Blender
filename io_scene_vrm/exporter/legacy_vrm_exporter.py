@@ -1093,15 +1093,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     # https://github.com/KhronosGroup/glTF/tree/19a1d820040239bca1327fc26220ae8cae9f948c/extensions/2.0/Khronos/KHR_materials_unlit
                     pbr_dict["extensions"]["KHR_materials_unlit"] = {}
 
-
                 if emissive_factor is not None:
                     emissive_strength = b_mat.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value
-                    hdr_emissive_factor = Vector((
-                        emissive_factor[0] * emissive_strength,
-                        emissive_factor[1] * emissive_strength,
-                        emissive_factor[2] * emissive_strength,
-                    ))
-                    pbr_dict["emissiveFactor"] = list(hdr_emissive_factor)
                     pbr_dict["extensions"]["KHR_materials_emissive_strength"] = { "emissiveStrength": emissive_strength  }
 
                 assign_dict(
