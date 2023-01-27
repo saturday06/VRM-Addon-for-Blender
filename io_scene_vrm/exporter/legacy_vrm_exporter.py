@@ -1059,8 +1059,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         b_mat, not b_mat.use_backface_culling, export_settings
                     )
 
-                pbr_dict["extensions"] = {}
-
                 alpha_cutoff = getattr(gltf2_io_material, "alpha_cutoff", None)
                 if isinstance(alpha_cutoff, (int, float)):
                     pbr_dict["alphaCutoff"] = alpha_cutoff
@@ -1086,16 +1084,32 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 )
 
                 extensions = getattr(gltf2_io_material, "extensions", None)
-                if (
-                    isinstance(extensions, dict)
-                    and extensions.get("KHR_materials_unlit") is not None
-                ):
-                    # https://github.com/KhronosGroup/glTF/tree/19a1d820040239bca1327fc26220ae8cae9f948c/extensions/2.0/Khronos/KHR_materials_unlit
-                    pbr_dict["extensions"]["KHR_materials_unlit"] = {}
+                if isinstance(extensions, dict):
+                    extensions_dict: Dict[str, Json] = {}
 
-                if emissive_factor is not None:
-                    emissive_strength = b_mat.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value
-                    pbr_dict["extensions"]["KHR_materials_emissive_strength"] = { "emissiveStrength": emissive_strength  }
+                    # https://github.com/KhronosGroup/glTF/tree/19a1d820040239bca1327fc26220ae8cae9f948c/extensions/2.0/Khronos/KHR_materials_unlit
+                    if extensions.get("KHR_materials_unlit") is not None:
+                        extensions_dict["KHR_materials_unlit"] = {}
+
+                    # https://github.com/KhronosGroup/glTF/blob/9c4a3567384b4d9f2706cdd9623bbb5ca7b341ad/extensions/2.0/Khronos/KHR_materials_emissive_strength
+                    khr_materials_emissive_strength = extensions.get(
+                        "KHR_materials_emissive_strength"
+                    )
+                    if isinstance(khr_materials_emissive_strength, dict):
+                        emissive_strength = khr_materials_emissive_strength.get(
+                            "emissiveStrength"
+                        )
+                        if (
+                            isinstance(emissive_strength, (int, float))
+                            and emissive_strength >= 0
+                            and emissive_strength != 1.0
+                        ):
+                            extensions_dict["KHR_materials_emissive_strength"] = {
+                                "emissiveStrength": emissive_strength,
+                            }
+
+                    if extensions_dict:
+                        pbr_dict["extensions"] = extensions_dict
 
                 assign_dict(
                     pbr_dict,
