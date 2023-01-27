@@ -1092,8 +1092,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         extensions_dict["KHR_materials_unlit"] = {}
 
                     # https://github.com/KhronosGroup/glTF/blob/9c4a3567384b4d9f2706cdd9623bbb5ca7b341ad/extensions/2.0/Khronos/KHR_materials_emissive_strength
-                    khr_materials_emissive_strength = extensions.get(
-                        "KHR_materials_emissive_strength"
+                    khr_materials_emissive_strength = getattr(
+                        extensions.get("KHR_materials_emissive_strength"),
+                        "extension",
+                        None,
                     )
                     if isinstance(khr_materials_emissive_strength, dict):
                         emissive_strength = khr_materials_emissive_strength.get(
