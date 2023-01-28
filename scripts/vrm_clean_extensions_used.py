@@ -2,8 +2,10 @@
 
 import glob
 import sys
+from typing import List
 
-from io_scene_vrm.common import gltf
+from io_scene_vrm.common import deep, gltf
+from io_scene_vrm.common.deep import Json
 
 
 def clean(path: str) -> None:
@@ -17,24 +19,36 @@ def clean(path: str) -> None:
         extensions_used = []
         json_dict["extensionsUsed"] = extensions_used
 
-    extensions_used.clear()
-    extensions_used.append("VRM")
+    base_extensions_dicts: List[Json] = []
+    base_extensions_dicts.append(json_dict)
 
-    for some_dicts in [
-        json_dict.get("materials"),
-        json_dict.get("textures"),
-    ]:
-        if not isinstance(some_dicts, list):
+    for mesh_dict in deep.get_list(json_dict, ["meshes"], []):
+        base_extensions_dicts.append(mesh_dict)
+
+    for material_dict in deep.get_list(json_dict, ["materials"], []):
+        if not isinstance(material_dict, dict):
             continue
-        for some_dict in some_dicts:
-            if not isinstance(some_dict, dict):
-                continue
-            extensions_dict = some_dict.get("extensions")
-            if not isinstance(extensions_dict, dict):
-                continue
-            for key in extensions_dict:
-                if key in extensions_used:
-                    continue
+        base_extensions_dicts.append(material_dict)
+        base_extensions_dicts.append(
+            deep.get(material_dict, ["pbrMetallicRoughness", "baseColorTexture"])
+        )
+        base_extensions_dicts.append(
+            deep.get(
+                material_dict, ["pbrMetallicRoughness", "metallicRoughnessTexture"]
+            )
+        )
+        base_extensions_dicts.append(material_dict.get("normalTexture"))
+        base_extensions_dicts.append(material_dict.get("emissiveTexture"))
+        base_extensions_dicts.append(material_dict.get("occlusionTexture"))
+
+    for base_extensions_dict in base_extensions_dicts:
+        if not isinstance(base_extensions_dict, dict):
+            continue
+        extensions_dict = base_extensions_dict.get("extensions")
+        if not isinstance(extensions_dict, dict):
+            continue
+        for key in extensions_dict:
+            if key not in extensions_used:
                 extensions_used.append(key)
 
     extensions_used.sort()
