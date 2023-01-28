@@ -501,7 +501,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         "hitRadius": joint.hit_radius,
                         "stiffness": joint.stiffness,
                         "gravityPower": joint.gravity_power,
-                        "gravityDir": list(joint.gravity_dir),
+                        "gravityDir": [
+                            joint.gravity_dir[0],
+                            joint.gravity_dir[2],
+                            joint.gravity_dir[1],
+                        ],
                         "dragForce": joint.drag_force,
                     }
                 )

@@ -2467,10 +2467,15 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(gravity_power, (int, float)):
                     joint.gravity_power = gravity_power
 
-                joint.gravity_dir = convert.vrm_json_array_to_float_vector(
+                gltf_axis_gravity_dir = convert.vrm_json_array_to_float_vector(
                     joint_dict.get("gravityDir"),
                     [0.0, -1.0, 0.0],
                 )
+                joint.gravity_dir = [
+                    gltf_axis_gravity_dir[0],
+                    gltf_axis_gravity_dir[2],
+                    gltf_axis_gravity_dir[1],
+                ]
 
                 drag_force = joint_dict.get("dragForce")
                 if isinstance(drag_force, (int, float)):

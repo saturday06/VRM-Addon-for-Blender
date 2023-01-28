@@ -497,7 +497,7 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Gravity Dir",  # noqa: F722
         size=3,
-        default=(0, -1, 0),  # noqa: F722
+        default=(0, 0, -1),  # noqa: F722
         subtype="XYZ",  # noqa: F821
     )
 

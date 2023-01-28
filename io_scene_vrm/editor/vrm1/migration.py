@@ -19,3 +19,13 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
             bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
                 armature_name=armature.name
             )
+
+    if tuple(armature.data.vrm_addon_extension.addon_version) <= (2, 14, 3):
+        spring_bone1 = armature.data.vrm_addon_extension.spring_bone1
+        for spring in spring_bone1.springs:
+            for joint in spring.joints:
+                joint.gravity_dir = [
+                    joint.gravity_dir[0],
+                    joint.gravity_dir[2],
+                    joint.gravity_dir[1],
+                ]
