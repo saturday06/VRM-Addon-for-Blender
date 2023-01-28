@@ -18,6 +18,7 @@ def clean(path: str) -> None:
     if not isinstance(extensions_used, list):
         extensions_used = []
         json_dict["extensionsUsed"] = extensions_used
+    extensions_used.clear()
 
     base_extensions_dicts: List[Json] = []
     base_extensions_dicts.append(json_dict)
