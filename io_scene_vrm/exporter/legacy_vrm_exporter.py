@@ -2240,14 +2240,29 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, v))
 
     def gltf_meta_to_dict(self) -> None:
-        extensions_used = [
-            "VRM",
-            "KHR_materials_unlit",
-            "KHR_texture_transform",
-            "VRMC_materials_mtoon",
-        ]
+        extensions_used = ["VRM"]
+        for some_dicts in [
+            self.json_dict.get("materials"),
+            self.json_dict.get("textures"),
+        ]:
+            if not isinstance(some_dicts, list):
+                continue
+            for some_dict in some_dicts:
+                if not isinstance(some_dict, dict):
+                    continue
+                extensions_dict = some_dict.get("extensions")
+                if not isinstance(extensions_dict, dict):
+                    continue
+                for key in extensions_dict:
+                    if key in extensions_used:
+                        continue
+                    extensions_used.append(key)
+
         if self.export_fb_ngon_encoding:
             extensions_used.append("FB_ngon_encoding")
+
+        extensions_used.sort()
+
         gltf_meta_dict: Dict[str, Json] = {
             "extensionsUsed": make_json(extensions_used),
             "asset": {
