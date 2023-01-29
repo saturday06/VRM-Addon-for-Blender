@@ -4,8 +4,6 @@ max-line-length = 120
 extend-ignore =
     # https://github.com/MartinThoma/flake8-simplify/blob/0930f49e013f1e88903e8a94cfe9759b630f6b54/README.md?plain=1#L92-L98
     SIM9
-    # https://github.com/PyCQA/flake8-bugbear/commit/ef39e9a1b5306393ce42ea231d3174449a929c81#diff-7b3ed02bc73dc06b7db906cf97aa91dec2b2eb21f2d92bc5caa761df5bbc168fR172
-    B028
 per-file-ignores =
     # Dynamically generated tests can have misspelt words
     tests/test_GENERATED_*.py:SC200
