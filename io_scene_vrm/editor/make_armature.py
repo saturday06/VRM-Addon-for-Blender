@@ -20,6 +20,11 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
     bl_description = "Create armature along with a simple setup for VRM export"
     bl_options = {"REGISTER", "UNDO"}
 
+    skip_heavy_armature_setup: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        default=False,
+        options={"HIDDEN"},  # noqa: F821
+    )
+
     #
     WIP_with_template_mesh: bpy.props.BoolProperty(  # type: ignore[valid-type]
         default=False
@@ -512,15 +517,17 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         self, armature: bpy.types.Object, compare_dict: Dict[str, str]
     ) -> None:
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        for vrm_bone_name, bpy_bone_name in compare_dict.items():
-            for (
-                human_bone
-            ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
-                if human_bone.bone == vrm_bone_name:
-                    human_bone.node.value = bpy_bone_name
-                    break
+        if not self.skip_heavy_armature_setup:
+            for vrm_bone_name, bpy_bone_name in compare_dict.items():
+                for (
+                    human_bone
+                ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
+                    if human_bone.bone == vrm_bone_name:
+                        human_bone.node.value = bpy_bone_name
+                        break
         self.make_extension_setting_and_metas(armature)
-        migration.migrate(armature.name, defer=False)
+        if not self.skip_heavy_armature_setup:
+            migration.migrate(armature.name, defer=False)
 
     @classmethod
     def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:

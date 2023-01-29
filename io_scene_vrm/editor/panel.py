@@ -60,7 +60,7 @@ def add_armature(
         make_armature.ICYP_OT_make_armature.bl_idname,
         text="VRM Humanoid",
         icon="OUTLINER_OB_ARMATURE",
-    )
+    ).skip_heavy_armature_setup = True
 
 
 def make_mesh(make_mesh_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
@@ -119,7 +119,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
             make_armature.ICYP_OT_make_armature.bl_idname,
             text=pgettext("Create VRM Model"),
             icon="OUTLINER_OB_ARMATURE",
-        )
+        ).skip_heavy_armature_setup = True
         vrm_validator_prop = layout.operator(
             validation.WM_OT_vrm_validator.bl_idname,
             text=pgettext("Validate VRM Model"),

@@ -58,12 +58,21 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     return True
 
 
-def migrate_all_objects() -> None:
+def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
     preferences = get_preferences(bpy.context)
     preferences.addon_version = addon_version()
 
     for obj in bpy.data.objects:
         if obj.type == "ARMATURE":
+            if skip_non_migrated_armatures:
+                ext = getattr(obj.data, "vrm_addon_extension", None)
+                if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
+                    continue
+                if (
+                    tuple(ext.addon_version)
+                    == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
+                ):
+                    continue
             migrate(obj.name, defer=False)
 
 
@@ -75,20 +84,28 @@ __setup_once: List[bool] = []  # mutableにするためlistを使う
 
 def __on_change_bpy_object_name() -> None:
     for armature in bpy.data.armatures:
-        if not hasattr(armature, "vrm_addon_extension") or not isinstance(
-            armature.vrm_addon_extension, VrmAddonArmatureExtensionPropertyGroup
+        ext = getattr(armature, "vrm_addon_extension", None)
+        if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
+            continue
+        if (
+            tuple(ext.addon_version)
+            == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
         ):
             continue
 
         # FIXME: Needs optimization!
-        for collider in armature.vrm_addon_extension.spring_bone1.colliders:
+        for collider in ext.spring_bone1.colliders:
             collider.broadcast_bpy_object_name()
 
 
 def __on_change_bpy_bone_name() -> None:
     for armature in bpy.data.armatures:
-        if not hasattr(armature, "vrm_addon_extension") or not isinstance(
-            armature.vrm_addon_extension, VrmAddonArmatureExtensionPropertyGroup
+        ext = getattr(armature, "vrm_addon_extension", None)
+        if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
+            continue
+        if (
+            tuple(ext.addon_version)
+            == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
         ):
             continue
 
@@ -98,7 +115,7 @@ def __on_change_bpy_bone_name() -> None:
 
 
 def __on_change_bpy_armature_name() -> None:
-    migrate_all_objects()
+    migrate_all_objects(skip_non_migrated_armatures=True)
 
 
 def setup_subscription(load_post: bool) -> None:
