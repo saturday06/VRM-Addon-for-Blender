@@ -66,7 +66,7 @@ def register() -> None:
 
         try:
             os.remove(github_code_download_zip_path)
-        except (FileNotFoundError, PermissionError):
+        except OSError:
             logger.exception(
                 "%s Failed to remove the partial add-on archive: %s",
                 log_warning_prefix,
