@@ -6,6 +6,13 @@ shellcheck "$0"
 export PYTHONDONTWRITEBYTECODE=1
 prefix_name=VRM_Addon_for_Blender
 
+if ! git status; then
+  uname -a
+  id
+  ls -alR
+  exit 1
+fi
+
 tag_name=$(git describe --tags --exact-match || true)
 if [ -z "$tag_name" ]; then
   exit 1
