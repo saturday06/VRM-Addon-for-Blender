@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-          path: repo
+          path: repo # Add "repo" to prevent "fatal: detected dubious ownership in repository at '...'"
       - name: Release
         run: cd repo && ./scripts/release.sh
         env:
