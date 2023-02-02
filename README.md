@@ -9,10 +9,6 @@ VRM Add-on for Blender is the add-on to add VRM-related functions into Blender.
 ## Download
 Please download the add-on from this website: [https://vrm-addon-for-blender.info](https://vrm-addon-for-blender.info)
 
-## Updating
-Please remove the old add-on when it update.
-It is because the release on February 7, 2021 changed the add-on name from (ex-VRM_IMPORTER_for_Blender) and changed the [installation method](https://vrm-addon-for-blender.info/en/installation?locale_redirection).
-
 ## Tutorials
 
 | [Installation](https://vrm-addon-for-blender.info/en/installation?locale_redirection) | [Create Simple VRM](https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection) | [Create Humanoid VRM](https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection) |
@@ -50,10 +46,6 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 ## ダウンロード
 こちらのWebサイトからダウンロードしてください: [https://vrm-addon-for-blender.info](https://vrm-addon-for-blender.info)
-
-## 更新について
-アップデートの際は古いアドオンを削除してください。
-2021年2月7日のリリースでアドオン名(旧名:VRM_IMPORTER_for_Blender)と[インストール方法](https://vrm-addon-for-blender.info/en/installation?locale_redirection)を変更したためです。
 
 ## チュートリアル
 
