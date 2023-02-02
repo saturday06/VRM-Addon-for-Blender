@@ -5,7 +5,7 @@ images: ["ja/images/installation.png"]
 
 **[最新版のダウンロード {{< release_ja >}}](https://github.com/saturday06/VRM-Addon-for-Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンファイルをダウンロードします。
 
-ダウンロードしたアドオンファイルはzipファイルになっていますが、<u>展開せずそのまま</u>利用します。展開された中身のデータは、アドオンとしての機能が無くなっているのでご注意ください。
+ダウンロードしたアドオンファイルはzipファイルになっていますが、<u>展開せずそのまま</u>利用します。もし展開した場合、展開されたデータはアドオンとして機能しないためです。
 
 次にBlenderを起動し、メニューの `編集` → `プリファレンス` を選択します。
 
