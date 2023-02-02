@@ -34,6 +34,7 @@
 !/io_scene_vrm/README.txt
 !/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
 
+*.DS_Store
 *.blend1
 *.pyc
 .vscode/.ropeproject/config.py
