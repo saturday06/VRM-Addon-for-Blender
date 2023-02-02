@@ -3,7 +3,9 @@ title: "Installation"
 images: ["en/images/installation.png"]
 ---
 
-Download latest add-on zip file from **[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM-Addon-for-Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**
+Download latest add-on file from **[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM-Addon-for-Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**
+
+The downloaded add-on file is a zip file, but <u>do not extract it</u>. Please note that the extracted data is no longer functional as an add-on.
 
 Start Blender and select menu `Edit` → `Preferences`.
 
@@ -13,17 +15,21 @@ Select `Add-ons` from the left menu when the preferences screen, and then press 
 
 ![](../images/installation2.png)
 
-When the File View window appears, select the add-on you just downloaded.
+When the File View window appears, select the add-on file you just downloaded.
 
 ![](../images/installation3.png)
 
+Make sure "Community" is enabled.
+
+![](../images/installation4.png?1)
+
 Find `Import-Export: VRM format` in the add-on list view. There is a search box in the upper right corner if there are too many items to find.
 
-![](../images/installation4.png)
+![](../images/installation5.png?1)
 
 Press the checkbox to complete the installation of the add-on.
 
-![](../images/installation5.png)
+![](../images/installation6.png)
 
 ## Related links:
 
