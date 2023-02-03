@@ -1,9 +1,9 @@
 <a name="en" />
 
-# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-English / [日本語](#ja_JP)
+[ English / [日本語](#ja_JP) ]
 
-## Overview
+# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+
 VRM Add-on for Blender is the add-on to add VRM-related functions into Blender.
 
 ## Download
@@ -35,13 +35,14 @@ New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLEND
 mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\VRM-Addon-for-Blender-repo" io_scene_vrm
 ```
 
+---
+
 <a name="ja_JP" />
+
+[ [English](#en) / 日本語 ]
 
 # VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
-[English](#en) / 日本語
-
-## 概要
 BlenderにVRM関連機能を追加するアドオンです。
 
 ## ダウンロード
