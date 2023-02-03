@@ -47,7 +47,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             wm.progress_end()
 
     def texture_load(self) -> None:
-        for (image_index, image_props) in enumerate(self.parse_result.image_properties):
+        for image_index, image_props in enumerate(self.parse_result.image_properties):
             img = bpy.data.images.load(image_props.filepath)
             if not self.extract_textures_into_folder:
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.82-release/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L100
@@ -375,7 +375,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                         # 頂点リストに辞書から書き込む
                         for vg in vg_list:
                             joint_id_and_weights = vg_dict[vg.name]
-                            for (joint_id, weight) in joint_id_and_weights:
+                            for joint_id, weight in joint_id_and_weights:
                                 if weight != 0.0:
                                     # 頂点はまとめてリストで追加できるようにしかなってない
                                     vg.add([joint_id], weight, "REPLACE")

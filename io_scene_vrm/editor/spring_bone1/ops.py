@@ -64,7 +64,7 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):  # type: ignore[m
         for collider_group in spring_bone.collider_groups:
             while True:
                 removed = False
-                for (index, collider) in enumerate(list(collider_group.colliders)):
+                for index, collider in enumerate(list(collider_group.colliders)):
                     if collider.collider_uuid != collider_uuid:
                         continue
                     collider_group.colliders.remove(index)
@@ -169,7 +169,7 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):  # type: ig
         for spring in spring_bone.springs:
             while True:
                 removed = False
-                for (index, collider_group) in enumerate(list(spring.collider_groups)):
+                for index, collider_group in enumerate(list(spring.collider_groups)):
                     if collider_group.collider_group_uuid != collider_group_uuid:
                         continue
                     spring.collider_groups.remove(index)

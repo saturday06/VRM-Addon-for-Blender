@@ -378,7 +378,6 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
             Tuple[bpy.types.Bone, bpy.types.Bone],
             Tuple[bpy.types.Bone, bpy.types.Bone],
         ]:
-
             finger_normalize = 1 / (
                 self.finger_1_2_ratio * self.finger_2_3_ratio
                 + self.finger_1_2_ratio

@@ -23,7 +23,7 @@ vrm_dir = os.path.join(
 
 def get_test_command_args() -> List[List[str]]:
     command_args: List[List[str]] = []
-    for (vrm, extract_textures) in [
+    for vrm, extract_textures in [
         (v, e)
         for e in ["false", "true"]
         for v in sorted(os.listdir(os.path.join(vrm_dir, "in")))

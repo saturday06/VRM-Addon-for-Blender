@@ -189,7 +189,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 mat["vrm_shader"] = "MToon_unversioned"
                 for shader_vals in MaterialMtoon0.texture_kind_exchange_dict.values():
-
                     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
                     #
                     # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".  # noqa: SC100
@@ -908,7 +907,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 source_buffer_view_data = bytes()
 
             image_index = None
-            for (name, data, index) in gltf2_io_texture_images:
+            for name, data, index in gltf2_io_texture_images:
                 if name != source_name or data != source_buffer_view_data:
                     continue
                 image_index = index
@@ -2459,7 +2458,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
             )
         first_person_dict["lookAtTypeName"] = first_person.look_at_type_name
-        for (look_at, look_at_dict_key) in [
+        for look_at, look_at_dict_key in [
             (
                 first_person.look_at_horizontal_inner,
                 "lookAtHorizontalInner",

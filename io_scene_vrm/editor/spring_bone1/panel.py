@@ -122,7 +122,6 @@ def draw_spring_bone1_spring_bone_layout(
             for collider_group_index, collider_group in enumerate(
                 spring_bone.collider_groups
             ):
-
                 collider_group_row = collider_groups_expanded_box.row()
                 collider_group_row.alignment = "LEFT"
                 collider_group_row.prop(

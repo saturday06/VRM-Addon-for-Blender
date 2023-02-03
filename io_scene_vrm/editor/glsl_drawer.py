@@ -513,7 +513,6 @@ class GlslDrawObj:
 
         for is_outline in [0, 1]:
             for bat in batches:
-
                 toon_bat = bat[1]
                 toon_shader.bind()
                 mat = bat[0]

@@ -2061,7 +2061,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if type_ in ["bone", "expression"]:
             look_at.type = type_
 
-        for (range_map, range_map_dict) in [
+        for range_map, range_map_dict in [
             (
                 look_at.range_map_horizontal_inner,
                 look_at_dict.get("rangeMapHorizontalInner"),

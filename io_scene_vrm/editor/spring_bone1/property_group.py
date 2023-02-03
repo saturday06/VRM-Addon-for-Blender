@@ -437,7 +437,7 @@ class SpringBone1ColliderGroupPropertyGroup(
         for armature in bpy.data.armatures:
             spring_bone = armature.vrm_addon_extension.spring_bone1
 
-            for (index, collider_group) in enumerate(spring_bone.collider_groups):
+            for index, collider_group in enumerate(spring_bone.collider_groups):
                 if collider_group.search_one_time_uuid != self.search_one_time_uuid:
                     continue
 

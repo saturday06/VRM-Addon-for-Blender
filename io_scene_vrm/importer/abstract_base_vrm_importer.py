@@ -969,7 +969,7 @@ class AbstractBaseVrmImporter(ABC):
         ):
             first_person.look_at_type_name = look_at_type_name
 
-        for (look_at, look_at_dict) in [
+        for look_at, look_at_dict in [
             (
                 first_person.look_at_horizontal_inner,
                 first_person_dict.get("lookAtHorizontalInner"),
