@@ -17,7 +17,7 @@ Please download the add-on from this website: [https://vrm-addon-for-blender.inf
 
 ## Development
 
-The source code for development is in the <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a> branch. Its <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> folder is the main body of the Blender add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
+The source code for development is in the <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a> branch. Its <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> folder is a main body of the add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
 
 For more advanced development, such as running tests, please use [Poetry](https://python-poetry.org/).
 
@@ -56,7 +56,7 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 ## 開発するには
 
-開発用のソースコードは<a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> フォルダがBlenderアドオン本体です。
+開発用のソースコードは<a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> フォルダがアドオン本体です。
 `io_scene_vrm` フォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
 テストの実行などより高度な開発をする場合は[Poetry](https://python-poetry.org/)をご利用ください。
