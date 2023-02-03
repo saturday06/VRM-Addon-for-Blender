@@ -48,12 +48,6 @@ module = [
 ]
 ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-module = [
-    "_winapi",
-]
-warn_unused_ignores = false
-
 [tool.pyright]
 pythonVersion = "3.7"
 pythonPlatform = "All"
