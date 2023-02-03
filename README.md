@@ -4,7 +4,7 @@
 
 # VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> <a href="https://github.com/psf/black"><img alt="Code style is black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
-VRM Add-on for Blender is the add-on to add VRM-related functions into Blender.
+VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 
 ## Download
 Please download the add-on from this website: [https://vrm-addon-for-blender.info](https://vrm-addon-for-blender.info)
