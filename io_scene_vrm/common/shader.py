@@ -1,6 +1,6 @@
 import math
 from collections import abc
-from os.path import dirname, join
+from pathlib import Path
 from sys import float_info
 from typing import Dict, Optional, Tuple
 
@@ -28,8 +28,8 @@ UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + " Template"
 
 def add_shaders() -> None:
     for file_name in __file_names:
-        path = join(dirname(__file__), file_name)
-        with bpy.data.libraries.load(path, link=False) as (data_from, data_to):
+        path = Path(__file__).with_name(file_name)
+        with bpy.data.libraries.load(str(path), link=False) as (data_from, data_to):
             for node_group in data_from.node_groups:
                 if node_group not in bpy.data.node_groups:
                     data_to.node_groups.append(node_group)
@@ -50,9 +50,9 @@ def load_mtoon1_shader(
         logger.error(f'Node Group "{UV_GROUP_TEMPLATE_NAME}" already exists')
         old_template_uv_group.name += ".old"
 
-    material_path = join(dirname(__file__), "mtoon1.blend") + "/Material"
+    material_path = str(Path(__file__).with_name("mtoon1.blend")) + "/Material"
     outline_node_tree_path = (
-        join(dirname(__file__), "mtoon1_outline.blend") + "/NodeTree"
+        str(Path(__file__).with_name("mtoon1_outline.blend")) + "/NodeTree"
     )
 
     template_uv_group = None
@@ -69,14 +69,14 @@ def load_mtoon1_shader(
         edit_mode = False
     try:
         material_append_result = bpy.ops.wm.append(
-            filepath=join(material_path, material_name),
+            filepath=material_path + "/" + material_name,
             filename=material_name,
             directory=material_path,
         )
         if outline_enabled:
             outline_node_tree_append_result = bpy.ops.wm.append(
-                filepath=join(
-                    outline_node_tree_path, OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
+                filepath=(
+                    outline_node_tree_path + "/" + OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
                 ),
                 filename=OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME,
                 directory=outline_node_tree_path,
@@ -587,13 +587,9 @@ def shader_node_group_import(shader_node_group_name: str) -> None:
     if shader_node_group_name in bpy.data.node_groups:
         return
     for file_name in __file_names:
-        path = join(
-            dirname(__file__),
-            file_name,
-            "NodeTree",
-        )
+        path = str(Path(__file__).with_name(file_name)) + "/NodeTree"
         bpy.ops.wm.append(
-            filepath=join(path, shader_node_group_name),
+            filepath=path + "/" + shader_node_group_name,
             filename=shader_node_group_name,
             directory=path,
         )

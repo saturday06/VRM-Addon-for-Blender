@@ -7,11 +7,11 @@ https://opensource.org/licenses/mit-license.php
 
 import datetime
 import math
-import os
 import re
 import statistics
 import struct
 from collections import abc
+from os import environ
 from sys import float_info
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -2234,7 +2234,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def exporter_name(self) -> str:
         v = addon_version()
-        if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
+        if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
             v = (999, 999, 999)
         return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, v))
 

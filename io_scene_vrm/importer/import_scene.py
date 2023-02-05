@@ -1,5 +1,6 @@
 import contextlib
-import os
+from os import environ
+from pathlib import Path
 from typing import Set, Union, cast
 
 import bpy
@@ -99,6 +100,10 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
     )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
+        filepath = Path(self.filepath)
+        if not filepath.is_file():
+            return {"CANCELLED"}
+
         license_error = None
         try:
             return create_blend_model(
@@ -113,7 +118,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
 
         execution_context = "INVOKE_DEFAULT"
         import_anyway = False
-        if os.environ.get("BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION") == "true":
+        if environ.get("BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION") == "true":
             execution_context = "EXEC_DEFAULT"
             import_anyway = True
 
@@ -123,7 +128,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
                 execution_context,
                 import_anyway=import_anyway,
                 license_confirmations=license_error.license_confirmations(),
-                filepath=self.filepath,
+                filepath=str(filepath),
                 extract_textures_into_folder=self.extract_textures_into_folder,
                 make_new_texture_folder=self.make_new_texture_folder,
             ),
@@ -201,6 +206,9 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):  # type: ignore[misc]
     make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
+        filepath = Path(self.filepath)
+        if not filepath.is_file():
+            return {"CANCELLED"}
         if not self.import_anyway:
             return {"CANCELLED"}
         return create_blend_model(
@@ -260,7 +268,7 @@ def create_blend_model(
         if not legacy_importer:
             with contextlib.suppress(RetryUsingLegacyVrmImporter):
                 parse_result = VrmParser(
-                    addon.filepath,
+                    Path(addon.filepath),
                     addon.extract_textures_into_folder,
                     addon.make_new_texture_folder,
                     license_validation=license_validation,
@@ -276,7 +284,7 @@ def create_blend_model(
                 return {"FINISHED"}
 
         parse_result = VrmParser(
-            addon.filepath,
+            Path(addon.filepath),
             addon.extract_textures_into_folder,
             addon.make_new_texture_folder,
             license_validation=license_validation,

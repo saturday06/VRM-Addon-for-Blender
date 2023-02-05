@@ -1,7 +1,7 @@
 import os
 import subprocess
 import sys
-from os.path import dirname
+from pathlib import Path
 from unittest import TestCase
 
 from .base_blender_test_case import BaseBlenderTestCase
@@ -52,7 +52,7 @@ class BaseBlenderGuiTestCase(TestCase):
         completed_process = subprocess.run(
             server_start_bat_path,
             check=False,
-            cwd=dirname(dirname(__file__)),
+            cwd=Path(__file__).parent.parent,
             capture_output=True,
         )
 

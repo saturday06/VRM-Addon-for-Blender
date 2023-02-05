@@ -3,6 +3,8 @@ import os
 import subprocess
 import sys
 import tempfile
+from os import environ
+from pathlib import Path
 from typing import Optional
 from unittest import TestCase
 
@@ -17,22 +19,20 @@ class BaseBlenderTestCase(TestCase):
         else:
             self.exeext = ""
 
-        self.repository_root_dir = os.path.dirname(
-            os.path.dirname(os.path.realpath(__file__))
-        )
-        repository_addon_dir = os.path.join(self.repository_root_dir, "io_scene_vrm")
-        self.user_scripts_dir = tempfile.mkdtemp(prefix="blender_vrm_")
-        os.mkdir(os.path.join(self.user_scripts_dir, "addons"))
-        self.addons_pythonpath = os.path.join(self.user_scripts_dir, "addons")
-        addon_dir = os.path.join(self.addons_pythonpath, "io_scene_vrm")
+        self.repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
+        repository_addon_dir = self.repository_root_dir / "io_scene_vrm"
+        self.user_scripts_dir = Path(tempfile.mkdtemp(prefix="blender_vrm_"))
+        (self.user_scripts_dir / "addons").mkdir(parents=True, exist_ok=True)
+        self.addons_pythonpath = self.user_scripts_dir / "addons"
+        addon_dir = self.addons_pythonpath / "io_scene_vrm"
         if sys.platform == "win32":
             import _winapi
 
-            _winapi.CreateJunction(repository_addon_dir, addon_dir)
+            _winapi.CreateJunction(str(repository_addon_dir), str(addon_dir))
         else:
-            os.symlink(repository_addon_dir, addon_dir)
+            addon_dir.symlink_to(repository_addon_dir)
 
-        command = [self.find_blender_command(), "--version"]
+        command = [str(self.find_blender_command()), "--version"]
         completed_process = subprocess.run(
             command,
             check=False,
@@ -74,37 +74,49 @@ class BaseBlenderTestCase(TestCase):
             output += str.rstrip(line) + "\n"
         return output
 
-    def find_blender_command(self) -> str:
+    def find_blender_command(self) -> Path:
         try:
             import bpy
 
-            bpy_binary_path = str(bpy.app.binary_path)
-            if bpy_binary_path and os.path.exists(bpy_binary_path):
-                return bpy_binary_path
+            bpy_binary_path_str = str(bpy.app.binary_path)
+            if bpy_binary_path_str:
+                bpy_binary_path = Path(bpy_binary_path_str)
+                if bpy_binary_path.exists():
+                    return bpy_binary_path
         except ImportError:
             pass
-        env = os.environ.get("BLENDER_VRM_TEST_BLENDER_PATH")
-        if env:
-            return env
+        env_blender_path_str = environ.get("BLENDER_VRM_TEST_BLENDER_PATH")
+        if env_blender_path_str:
+            env_blender_path = Path(env_blender_path_str)
+            if env_blender_path.exists():
+                return env_blender_path
         if sys.platform == "win32":
             completed_process = subprocess.run(
                 "where blender", shell=True, capture_output=True, check=False
             )
             if completed_process.returncode == 0:
-                return self.process_output_to_str(
+                where_str = self.process_output_to_str(
                     completed_process.stdout
                 ).splitlines()[0]
+                if where_str:
+                    where_path = Path(where_str)
+                    if where_path.exists():
+                        return where_path
         if os.name == "posix":
             completed_process = subprocess.run(
                 "which blender", shell=True, capture_output=True, check=False
             )
             if completed_process.returncode == 0:
-                return self.process_output_to_str(
+                which_str = self.process_output_to_str(
                     completed_process.stdout
                 ).splitlines()[0]
+                if which_str:
+                    which_path = Path(which_str)
+                    if which_path.exists():
+                        return which_path
         if sys.platform == "darwin":
-            default_path = "/Applications/Blender.app/Contents/MacOS/Blender"
-            if os.path.exists(default_path):
+            default_path = Path("/Applications/Blender.app/Contents/MacOS/Blender")
+            if default_path.exists():
                 return default_path
         raise RuntimeError(
             "Failed to discover blender executable. "
@@ -113,19 +125,19 @@ class BaseBlenderTestCase(TestCase):
         )
 
     def run_script(self, script: str, *args: str) -> None:
-        env = os.environ.copy()
-        env["BLENDER_USER_SCRIPTS"] = self.user_scripts_dir
+        env = environ.copy()
+        env["BLENDER_USER_SCRIPTS"] = str(self.user_scripts_dir)
         env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
         env["BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION"] = self.major_minor
         pythonpath = env.get("PYTHONPATH", "")
         if pythonpath:
             pythonpath += os.pathsep
-        pythonpath += self.addons_pythonpath
+        pythonpath += str(self.addons_pythonpath)
         env["PYTHONPATH"] = pythonpath
 
         error_exit_code = 1
         command = [
-            self.find_blender_command(),
+            str(self.find_blender_command()),
             "-noaudio",
             "--factory-startup",
             "--addons",
@@ -136,7 +148,7 @@ class BaseBlenderTestCase(TestCase):
             "--python-expr",
             "import bpy; bpy.ops.preferences.addon_enable(module='io_scene_vrm')",
             "--python",
-            os.path.join(self.repository_root_dir, "tests", script),
+            str(self.repository_root_dir / "tests" / script),
             "--",
             *args,
         ]

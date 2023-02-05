@@ -4,7 +4,7 @@ import argparse
 import contextlib
 import sys
 import unittest
-from os.path import basename, dirname
+from pathlib import Path
 from typing import TextIO
 
 
@@ -22,11 +22,11 @@ def run(stream: TextIO) -> None:
         else:
             argv = []
 
-    parser = argparse.ArgumentParser(prog=basename(__file__))
+    parser = argparse.ArgumentParser(prog=Path(__file__).name)
     parser.add_argument("-f", "--failfast", action="store_true")
     args = parser.parse_args(argv)
 
-    test = unittest.TestLoader().discover(start_dir=dirname(dirname(__file__)))
+    test = unittest.TestLoader().discover(start_dir=str(Path(__file__).parent.parent))
     runner = unittest.runner.TextTestRunner(stream=stream, failfast=args.failfast)
     result = runner.run(test)
     if not result.wasSuccessful():

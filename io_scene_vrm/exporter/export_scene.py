@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Set, cast
 
 import bpy
@@ -90,7 +91,6 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
     def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.filepath:
             return {"CANCELLED"}
-        filepath: str = self.filepath
 
         if bpy.ops.vrm.model_validate(
             "INVOKE_DEFAULT", show_successful_message=False
@@ -127,8 +127,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         vrm_bin = vrm_exporter.export_vrm()
         if vrm_bin is None:
             return {"CANCELLED"}
-        with open(filepath, "wb") as f:
-            f.write(vrm_bin)
+        Path(self.filepath).write_bytes(vrm_bin)
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:

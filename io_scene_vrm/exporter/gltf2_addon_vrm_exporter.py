@@ -1,6 +1,7 @@
 import math
-import os
 import tempfile
+from os import environ
+from pathlib import Path
 from sys import float_info
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -1579,10 +1580,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             self.mount_skinned_mesh_parent()
 
             with tempfile.TemporaryDirectory() as temp_dir:
-                filepath = os.path.join(temp_dir, "out.glb")
+                filepath = Path(temp_dir, "out.glb")
                 try:
                     bpy.ops.export_scene.gltf(
-                        filepath=filepath,
+                        filepath=str(filepath),
                         check_existing=False,
                         export_format="GLB",
                         export_extras=True,
@@ -1593,7 +1594,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     logger.error(str(e))
                     # TODO: check traceback
                     bpy.ops.export_scene.gltf(
-                        filepath=filepath,
+                        filepath=str(filepath),
                         check_existing=False,
                         export_format="GLB",
                         export_extras=True,
@@ -1601,8 +1602,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         export_animations=False,
                     )
-                with open(filepath, "rb") as file:
-                    extra_name_assigned_glb = file.read()
+                extra_name_assigned_glb = filepath.read_bytes()
         finally:
             for bone in self.armature.pose.bones:
                 if self.extras_bone_name_key in bone:
@@ -1951,7 +1951,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict["extensionsUsed"] = extensions_used
 
         v = addon_version()
-        if os.environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
+        if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
             v = (999, 999, 999)
 
         generator = "VRM Add-on for Blender v" + ".".join(map(str, v))

@@ -6,7 +6,6 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import contextlib
-import os
 import re
 import sys
 import tempfile
@@ -113,13 +112,13 @@ class PyMaterialMtoon(PyMaterial):
 @dataclass
 class ImageProperties:
     name: str
-    filepath: str
+    filepath: Path
     filetype: str
 
 
 @dataclass
 class ParseResult:
-    filepath: str
+    filepath: Path
     json_dict: Dict[str, Json] = field(default_factory=dict)
     spec_version_number: Tuple[int, int] = (0, 0)
     spec_version_str: str = "0.0"
@@ -313,10 +312,10 @@ def decode_bin(
     br = BinaryReader(binary)
     # This list indexed by accessor index
     decoded_binary: List[List[Union[int, float, List[int], List[float]]]] = []
-    buffer_view_dicts = json_dict["bufferViews"]
+    buffer_view_dicts = json_dict.get("bufferViews")
     if not isinstance(buffer_view_dicts, list):
         buffer_view_dicts = []
-    accessor_dicts = json_dict["accessors"]
+    accessor_dicts = json_dict.get("accessors")
     if not isinstance(accessor_dicts, list):
         return []
     type_num_dict = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
@@ -367,7 +366,7 @@ def decode_bin(
 
 @dataclass
 class VrmParser:
-    filepath: str
+    filepath: Path
     extract_textures_into_folder: bool
     make_new_texture_folder: bool
     license_validation: bool
@@ -379,9 +378,8 @@ class VrmParser:
 
     def parse(self) -> ParseResult:
         # bin chunkは一つだけであることを期待
-        with open(self.filepath, "rb") as f:
-            json_dict, body_binary = parse_glb(f.read())
-            self.json_dict = json_dict
+        json_dict, body_binary = parse_glb(self.filepath.read_bytes())
+        self.json_dict = json_dict
 
         if (
             self.legacy_importer
@@ -474,12 +472,12 @@ class VrmParser:
             return
 
         if self.extract_textures_into_folder:
-            dir_path = os.path.abspath(self.filepath) + ".textures"
+            dir_path = self.filepath.with_suffix(".vrm.textures").absolute()
             if self.make_new_texture_folder:
-                dir_path = str(create_unique_indexed_directory_path(Path(dir_path)))
-            os.makedirs(dir_path, exist_ok=True)
+                dir_path = create_unique_indexed_directory_path(dir_path)
+            dir_path.mkdir(parents=True, exist_ok=True)
         else:
-            dir_path = tempfile.mkdtemp()  # TODO: cleanup
+            dir_path = Path(tempfile.mkdtemp())  # TODO: cleanup
 
         image_dicts = self.json_dict.get("images")
         if not isinstance(image_dicts, list):
@@ -528,18 +526,17 @@ class VrmParser:
                 image_name = new_image_name
 
             image_name = remove_unsafe_path_chars(image_name)
-            image_path = os.path.join(dir_path, image_name)
-            if os.path.splitext(image_name)[1].lower() != ("." + image_type).lower():
-                image_path += "." + image_type
-            if not os.path.exists(image_path):  # すでに同名の画像がある場合は基本上書きしない
-                with open(image_path, "wb") as image_writer:
-                    image_writer.write(image_binary)
+            if not image_name:
+                image_name = "_"
+            image_path = dir_path / image_name
+            if image_path.suffix.lower() != ("." + image_type).lower():
+                image_path = image_path.with_name(image_path.name + "." + image_type)
+            if not image_path.exists():  # すでに同名の画像がある場合は基本上書きしない
+                image_path.write_bytes(image_binary)
             elif image_name in [
                 img.name for img in parse_result.image_properties
             ]:  # ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
-                image_path = str(
-                    create_unique_indexed_file_path(Path(image_path), image_binary)
-                )
+                image_path = create_unique_indexed_file_path(image_path, image_binary)
             else:
                 logger.warning(
                     image_name + " Image already exists. Was not overwritten."
@@ -755,7 +752,7 @@ class VrmParser:
 
 if __name__ == "__main__":
     VrmParser(
-        sys.argv[1],
+        Path(sys.argv[1]),
         extract_textures_into_folder=True,
         make_new_texture_folder=True,
         license_validation=True,

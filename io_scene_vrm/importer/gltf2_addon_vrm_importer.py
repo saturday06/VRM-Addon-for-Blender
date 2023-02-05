@@ -2,7 +2,6 @@ import base64
 import contextlib
 import json
 import math
-import os.path
 import re
 import shutil
 import struct
@@ -682,8 +681,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         return result
 
     def import_gltf2_with_indices(self) -> None:
-        with open(self.parse_result.filepath, "rb") as f:
-            json_dict, body_binary = gltf.parse_glb(f.read())
+        json_dict, body_binary = gltf.parse_glb(self.parse_result.filepath.read_bytes())
 
         for key in ["nodes", "materials", "meshes"]:
             if key not in json_dict or not isinstance(json_dict[key], list):
@@ -1083,12 +1081,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             bone_heuristic = "BLENDER"
         full_vrm_import_success = False
         with tempfile.TemporaryDirectory() as temp_dir:
-            indexed_vrm_filepath = os.path.join(temp_dir, "indexed.vrm")
-            with open(indexed_vrm_filepath, "wb") as file:
-                file.write(gltf.pack_glb(json_dict, body_binary))
+            indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
+            indexed_vrm_filepath.write_bytes(gltf.pack_glb(json_dict, body_binary))
             try:
                 bpy.ops.import_scene.gltf(
-                    filepath=indexed_vrm_filepath,
+                    filepath=str(indexed_vrm_filepath),
                     import_pack_images=True,
                     bone_heuristic=bone_heuristic,
                     guess_original_bind_pose=False,
@@ -1107,12 +1104,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if "animations" in json_dict:
                 del json_dict["animations"]
             with tempfile.TemporaryDirectory() as temp_dir:
-                indexed_vrm_filepath = os.path.join(temp_dir, "indexed.vrm")
-                with open(indexed_vrm_filepath, "wb") as file:
-                    file.write(gltf.pack_glb(json_dict, body_binary))
+                indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
+                indexed_vrm_filepath.write_bytes(gltf.pack_glb(json_dict, body_binary))
                 try:
                     bpy.ops.import_scene.gltf(
-                        filepath=indexed_vrm_filepath,
+                        filepath=str(indexed_vrm_filepath),
                         import_pack_images=True,
                         bone_heuristic=bone_heuristic,
                         guess_original_bind_pose=False,
@@ -1368,19 +1364,19 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         return name.startswith(f"{self.import_id}Temp_")
 
     def extract_textures(self, repack: bool) -> None:
-        dir_path = Path(self.parse_result.filepath + ".textures").absolute()
+        dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
         if self.make_new_texture_folder or repack:
             dir_path = create_unique_indexed_directory_path(dir_path)
         dir_path.mkdir(parents=True, exist_ok=True)
 
         if bpy.app.version >= (3, 1) and not bpy.data.filepath:
             temp_blend_path = create_unique_indexed_file_path(
-                Path(self.parse_result.filepath).with_suffix(".temp.blend")
+                self.parse_result.filepath.with_suffix(".temp.blend")
             )
             bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
 
         for image_index, image in self.images.items():
-            image_name = os.path.basename(image.filepath_from_user())
+            image_name = Path(image.filepath_from_user()).name
             if image_name:
                 legacy_image_name_prefix = self.import_id + "Image"
                 if image_name.startswith(legacy_image_name_prefix):
@@ -1402,11 +1398,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 image_name = new_image_name
 
             image_name = remove_unsafe_path_chars(image_name)
-            image_path = os.path.join(dir_path, image_name)
+            if not image_name:
+                image_name = "_"
+            image_path = dir_path / image_name
             if not image_name.lower().endswith("." + image_type.lower()) and not (
                 image_name.lower().endswith(".jpg") and image_type.lower() == "jpeg"
             ):
-                image_path += "." + image_type
+                image_path = image_path.with_name(image_path.name + "." + image_type)
 
             try:
                 image.unpack(method="WRITE_ORIGINAL")
@@ -1420,12 +1418,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             image_original_file_path = Path(image_original_path_str)
             if not image_original_file_path.exists():
                 continue
-            image_path = str(
-                create_unique_indexed_file_path(
-                    Path(image_path), Path(image_original_file_path).read_bytes()
-                )
+            image_path = create_unique_indexed_file_path(
+                image_path, image_original_file_path.read_bytes()
             )
-            image.filepath = image_path
+            image.filepath = str(image_path)
             image.reload()
             if repack:
                 image.pack()

@@ -48,7 +48,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
     def texture_load(self) -> None:
         for image_index, image_props in enumerate(self.parse_result.image_properties):
-            img = bpy.data.images.load(image_props.filepath)
+            img = bpy.data.images.load(str(image_props.filepath))
             if not self.extract_textures_into_folder:
                 # https://github.com/KhronosGroup/glTF-Blender-IO/blob/blender-v2.82-release/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L100
                 img.pack()

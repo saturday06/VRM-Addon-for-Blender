@@ -1,7 +1,7 @@
-import os
-import pathlib
 import shutil
 import sys
+from os import environ, getenv
+from pathlib import Path
 
 import bpy
 
@@ -9,21 +9,21 @@ from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 
 def test() -> None:
-    os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
+    environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 
-    repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    vrm_dir = os.path.join(
-        os.environ.get(
+    repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
+    vrm_dir = Path(
+        environ.get(
             "BLENDER_VRM_TEST_RESOURCES_PATH",
-            os.path.join(repository_root_dir, "tests", "resources"),
+            str(repository_root_dir / "tests" / "resources"),
         ),
         "vrm",
     )
-    major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
+    major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
     vrm = "basic_armature.vrm"
-    expected_path = os.path.join(vrm_dir, "in", vrm)
-    temp_dir_path = os.path.join(vrm_dir, major_minor, "temp")
-    os.makedirs(temp_dir_path, exist_ok=True)
+    expected_path = vrm_dir / "in" / vrm
+    temp_dir_path = vrm_dir / major_minor / "temp"
+    temp_dir_path.mkdir(parents=True, exist_ok=True)
 
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
@@ -33,17 +33,17 @@ def test() -> None:
     bpy.ops.icyp.make_basic_armature()
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    actual_path = os.path.join(temp_dir_path, vrm)
-    if os.path.exists(actual_path):
-        os.remove(actual_path)
-    bpy.ops.export_scene.vrm(filepath=actual_path)
-    if not os.path.exists(expected_path):
+    actual_path = temp_dir_path / vrm
+    if actual_path.exists():
+        actual_path.unlink()
+    bpy.ops.export_scene.vrm(filepath=str(actual_path))
+    if not expected_path.exists():
         shutil.copy(actual_path, expected_path)
 
     float_tolerance = 0.000001
     diffs = vrm_diff(
-        pathlib.Path(actual_path).read_bytes(),
-        pathlib.Path(expected_path).read_bytes(),
+        actual_path.read_bytes(),
+        expected_path.read_bytes(),
         float_tolerance,
     )
     if not diffs:

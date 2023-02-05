@@ -1,10 +1,10 @@
-def generate_dynamic_tests() -> None:
+def io_scene_vrm_tests_generate_dynamic_tests() -> None:
     import importlib.util
-    from os.path import dirname, join
+    from pathlib import Path
 
     spec = importlib.util.spec_from_file_location(
         "blender_vrm_addon_run_scripts_generate_dynamic_tests",
-        join(dirname(dirname(__file__)), "scripts", "generate_dynamic_tests.py"),
+        Path(__file__).parent.parent / "scripts" / "generate_dynamic_tests.py",
     )
     if spec is None:
         return
@@ -14,4 +14,4 @@ def generate_dynamic_tests() -> None:
     spec.loader.exec_module(mod)
 
 
-generate_dynamic_tests()
+io_scene_vrm_tests_generate_dynamic_tests()

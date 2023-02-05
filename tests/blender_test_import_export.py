@@ -1,7 +1,7 @@
-import os
-import pathlib
 import shutil
 import sys
+from os import environ, getenv
+from pathlib import Path
 from typing import List
 
 import bpy
@@ -11,11 +11,11 @@ from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 logger = get_logger(__name__)
 
-repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-vrm_dir = os.path.join(
-    os.environ.get(
+repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
+vrm_dir = Path(
+    environ.get(
         "BLENDER_VRM_TEST_RESOURCES_PATH",
-        os.path.join(repository_root_dir, "tests", "resources"),
+        str(repository_root_dir / "tests" / "resources"),
     ),
     "vrm",
 )
@@ -26,27 +26,27 @@ def get_test_command_args() -> List[List[str]]:
     for vrm, extract_textures in [
         (v, e)
         for e in ["false", "true"]
-        for v in sorted(os.listdir(os.path.join(vrm_dir, "in")))
-        if v.endswith(".vrm")
+        for v in sorted((vrm_dir / "in").iterdir())
+        if v.suffix == ".vrm"
     ]:
-        command_args.append([vrm, extract_textures])
+        command_args.append([str(vrm.name), extract_textures])
     return command_args
 
 
 def test() -> None:
-    os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
-    update_failed_vrm = os.environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
+    environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
+    update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
 
     vrm, extract_textures_str = sys.argv[slice(sys.argv.index("--") + 1, len(sys.argv))]
-    in_path = os.path.join(vrm_dir, "in", vrm)
+    in_path = vrm_dir / "in" / vrm
 
-    major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
-    out_vrm_dir = os.path.join(vrm_dir, major_minor, "out")
-    temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
-    os.makedirs(temp_vrm_dir, exist_ok=True)
+    major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
+    out_vrm_dir = vrm_dir / major_minor / "out"
+    temp_vrm_dir = vrm_dir / major_minor / "temp"
+    temp_vrm_dir.mkdir(parents=True, exist_ok=True)
     extract_textures = extract_textures_str == "true"
 
-    if not os.path.exists(os.path.join(out_vrm_dir, vrm)):
+    if not (out_vrm_dir / vrm).exists():
         update_failed_vrm = True
 
     bpy.ops.object.select_all(action="SELECT")
@@ -55,29 +55,29 @@ def test() -> None:
         bpy.data.collections.remove(bpy.data.collections[0])
 
     bpy.ops.import_scene.vrm(
-        filepath=in_path,
+        filepath=str(in_path),
         extract_textures_into_folder=extract_textures,
         make_new_texture_folder=extract_textures,
     )
 
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    actual_path = os.path.join(temp_vrm_dir, os.path.basename(in_path))
-    if os.path.exists(actual_path):
-        os.remove(actual_path)
+    actual_path = temp_vrm_dir / in_path.name
+    if actual_path.exists():
+        actual_path.unlink()
 
-    bpy.ops.export_scene.vrm(filepath=actual_path)
-    actual_bytes = pathlib.Path(actual_path).read_bytes()
+    bpy.ops.export_scene.vrm(filepath=str(actual_path))
+    actual_bytes = actual_path.read_bytes()
 
     float_tolerance = 0.00055
 
-    expected_path = os.path.join(out_vrm_dir, vrm)
-    if not os.path.exists(expected_path):
+    expected_path = out_vrm_dir / vrm
+    if not expected_path.exists():
         shutil.copy(actual_path, expected_path)
 
     diffs = vrm_diff(
         actual_bytes,
-        pathlib.Path(expected_path).read_bytes(),
+        expected_path.read_bytes(),
         float_tolerance,
     )
     if not diffs:

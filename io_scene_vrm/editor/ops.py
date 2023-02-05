@@ -5,9 +5,9 @@ https://opensource.org/licenses/mit-license.php
 
 """
 import json
-import os
 import re
 import webbrowser
+from pathlib import Path
 from typing import Set, cast
 from urllib.parse import urlparse
 
@@ -154,12 +154,11 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
                 continue
             mappings[human_bone.bone] = human_bone.node.value
 
-        with open(self.filepath, "wb") as file:
-            file.write(
-                json.dumps(mappings, sort_keys=True, indent=4)
-                .replace("\r\n", "\n")
-                .encode()
-            )
+        Path(self.filepath).write_bytes(
+            json.dumps(mappings, sort_keys=True, indent=4)
+            .replace("\r\n", "\n")
+            .encode()
+        )
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
@@ -186,8 +185,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
         if not armature:
             return {"CANCELLED"}
 
-        with open(self.filepath, "rb") as file:
-            obj = json.load(file)
+        obj = json.loads(Path(self.filepath).read_text(encoding="UTF-8"))
         if not isinstance(obj, dict):
             return {"CANCELLED"}
 
@@ -235,12 +233,11 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
         )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
-        recipe_uri = os.path.join(
-            os.path.dirname(__file__), "vroid2vrc_lipsync_recipe.json"
+        recipe = json.loads(
+            Path(__file__)
+            .with_name("vroid2vrc_lipsync_recipe.json")
+            .read_text(encoding="UTF-8")
         )
-        recipe = None
-        with open(recipe_uri, "rt", encoding="utf-8") as raw_recipe:
-            recipe = json.loads(raw_recipe.read())
         for shapekey_name, based_values in recipe["shapekeys"].items():
             for k in context.active_object.data.shape_keys.key_blocks:
                 k.value = 0.0

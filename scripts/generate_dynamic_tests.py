@@ -6,6 +6,7 @@ import os
 import re
 import uuid
 from collections import abc
+from os import environ
 from pathlib import Path
 
 
@@ -97,13 +98,15 @@ class BlenderGuiTestCase(BaseBlenderGuiTestCase):
 """
 
 
-def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
+def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
     for d in ["vrm", "blend"]:
-        resources_dir = os.environ.get(
-            "BLENDER_VRM_TEST_RESOURCES_PATH",
-            os.path.join(test_src_dir, "resources"),
+        resources_dir = Path(
+            environ.get(
+                "BLENDER_VRM_TEST_RESOURCES_PATH",
+                str(Path(test_src_dir, "resources")),
+            )
         )
-        if not os.path.exists(os.path.join(resources_dir, d)):
+        if not (resources_dir / d).exists():
             return render_missing_required_directory_test("./tests/resources/{d}/")
 
     test_command_args_list: object = None
@@ -111,7 +114,7 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
         spec = importlib.util.spec_from_file_location(
             "blender_vrm_addon_base_blender_test_case_generate_blender_test_case__"
             + path_without_ext,
-            os.path.join(test_src_dir, path),
+            test_src_dir / path,
         )
         if spec is None:
             raise AssertionError("Failed to create module spec")
@@ -151,12 +154,10 @@ def render_body(test_src_dir: str, path: str, path_without_ext: str) -> str:
     return content
 
 
-def generate_dynamic_test(test_src_dir: str, path: str) -> None:
+def generate_dynamic_test(test_src_dir: Path, path: str) -> None:
     if not path.startswith("blender_test_") or not path.endswith(".py"):
         return
-    out_path = os.path.join(
-        test_src_dir, re.sub("^blender_test_", "test_GENERATED_", path)
-    )
+    out_path = test_src_dir / re.sub("^blender_test_", "test_GENERATED_", path)
     path_without_ext = re.sub("\\.py$", "", path)
     if not re.match("^[A-Za-z0-9_]+$", path_without_ext):
         raise ValueError(f"Invalid file name: {path}")
@@ -168,45 +169,45 @@ def generate_dynamic_test(test_src_dir: str, path: str) -> None:
         test_src_dir, path, path_without_ext
     )
     content_bytes = content.replace("\r\n", "\n").encode()
-    if os.path.exists(out_path) and content_bytes == Path(out_path).read_bytes():
+    if out_path.exists() and content_bytes == out_path.read_bytes():
         return
 
     # It should be an atomic operation
-    temp_out_path = f"{out_path}.{uuid.uuid4().hex}.temp"
-    Path(temp_out_path).write_bytes(content_bytes)
+    temp_out_path = out_path.with_name(out_path.name + f".{uuid.uuid4().hex}.temp")
+    temp_out_path.write_bytes(content_bytes)
     os.replace(temp_out_path, out_path)
 
 
 def generate_dynamic_tests() -> None:
-    test_src_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tests")
-    for path in map(str.strip, sorted(os.listdir(test_src_dir))):
-        generate_dynamic_test(test_src_dir, path)
+    test_src_dir = Path(__file__).parent.parent / "tests"
+    for path in sorted(test_src_dir.iterdir()):
+        generate_dynamic_test(test_src_dir, path.name)
 
 
 def generate_dynamic_gui_tests() -> None:
-    test_src_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tests")
-    gui_test_src_dir = os.path.join(test_src_dir, "resources", "gui", "test.sikuli")
+    test_src_dir = Path(__file__).parent.parent / "tests"
+    gui_test_src_dir = test_src_dir / "resources" / "gui" / "test.sikuli"
 
     content = render_gui_test_header()
 
-    if os.path.exists(gui_test_src_dir):
-        for path in map(str.strip, sorted(os.listdir(gui_test_src_dir))):
-            if not path.endswith(".py"):
+    if gui_test_src_dir.exists():
+        for path in sorted(gui_test_src_dir.iterdir()):
+            if path.suffix != ".py":
                 continue
-            path_without_ext = re.sub("\\.py$", "", path)
-            method_name = to_function_component_literal(path_without_ext)
-            content += render_gui_test(method_name, path)
+            path_without_ext = path.with_suffix("")
+            method_name = to_function_component_literal(path_without_ext.name)
+            content += render_gui_test(method_name, path.name)
     else:
         content += render_missing_required_directory_test("./resources/gui/test.sikuli")
 
     content_bytes = content.replace("\r\n", "\n").encode()
-    out_path = os.path.join(test_src_dir, "test_GENERATED_gui.py")
-    if os.path.exists(out_path) and content_bytes == Path(out_path).read_bytes():
+    out_path = test_src_dir / "test_GENERATED_gui.py"
+    if out_path.exists() and content_bytes == out_path.read_bytes():
         return
 
     # It should be an atomic operation
-    temp_out_path = f"{out_path}.{uuid.uuid4().hex}.temp"
-    Path(temp_out_path).write_bytes(content_bytes)
+    temp_out_path = out_path.with_name(out_path.name + f".{uuid.uuid4().hex}.temp")
+    temp_out_path.write_bytes(content_bytes)
     os.replace(temp_out_path, out_path)
 
 

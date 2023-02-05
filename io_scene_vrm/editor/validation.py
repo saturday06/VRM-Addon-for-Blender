@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from sys import float_info
 from typing import Dict, List, Optional, Set, cast
 
@@ -606,7 +606,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 image.source == "FILE"
                 and not image.is_dirty
                 and image.packed_file is None
-                and not os.path.exists(image.filepath_from_user())
+                and not Path(image.filepath_from_user()).exists()
             ):
                 error_messages.append(
                     pgettext(

@@ -1,27 +1,26 @@
-import os
-import pathlib
-import re
 import shutil
 import sys
+from os import environ, getenv
+from pathlib import Path
 from typing import List
 
 import bpy
 
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
-repository_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-resources_dir = os.environ.get(
-    "BLENDER_VRM_TEST_RESOURCES_PATH",
-    os.path.join(repository_root_dir, "tests", "resources"),
+repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
+resources_dir = Path(
+    environ.get(
+        "BLENDER_VRM_TEST_RESOURCES_PATH",
+        str(repository_root_dir / "tests" / "resources"),
+    )
 )
-vrm_dir = os.path.join(resources_dir, "vrm")
-blend_dir = os.path.join(resources_dir, "blend")
+vrm_dir = resources_dir / "vrm"
+blend_dir = resources_dir / "blend"
 
 
 def get_test_command_args() -> List[List[str]]:
-    names = [
-        blend_path.name for blend_path in pathlib.Path(blend_dir).glob("**/*.blend")
-    ]
+    names = [blend_path.name for blend_path in blend_dir.glob("**/*.blend")]
     command_args: List[List[str]] = [
         [name] for name in sorted(list(dict.fromkeys(names)))
     ]
@@ -29,41 +28,41 @@ def get_test_command_args() -> List[List[str]]:
 
 
 def test() -> None:
-    os.environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
-    update_failed_vrm = os.environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
-    major_minor = os.getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
+    environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
+    update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
+    major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
 
-    blend = sys.argv[sys.argv.index("--") + 1]
-    in_path = os.path.join(blend_dir, blend)
-    if not os.path.exists(in_path):
-        in_path = os.path.join(blend_dir, major_minor, blend)
+    blend = Path(sys.argv[sys.argv.index("--") + 1])
+    in_path = blend_dir / blend
+    if not in_path.exists():
+        in_path = blend_dir / major_minor / blend
 
-    if blend.endswith(".merge.blend"):
-        blend = re.sub(r"\.merge\.blend$", "", blend) + ".blend"
-    vrm = os.path.splitext(blend)[0] + ".vrm"
-    blend_vrm_path = os.path.join(vrm_dir, major_minor, "out", blend + ".vrm")
+    if blend.suffixes == [".merge", ".blend"]:
+        blend = blend.with_suffix("").with_suffix(".blend")
+    vrm = blend.with_suffix(".vrm")
+    blend_vrm_path = vrm_dir / major_minor / "out" / blend.with_suffix(".blend.vrm")
     expected_path = blend_vrm_path
-    if not os.path.exists(expected_path):
-        expected_path = os.path.join(vrm_dir, major_minor, "out", vrm)
-        if not os.path.exists(expected_path):
-            expected_path = os.path.join(vrm_dir, "in", vrm)
-    temp_vrm_dir = os.path.join(vrm_dir, major_minor, "temp")
-    os.makedirs(temp_vrm_dir, exist_ok=True)
+    if not expected_path.exists():
+        expected_path = vrm_dir / major_minor / "out" / vrm
+        if not expected_path.exists():
+            expected_path = vrm_dir / "in" / vrm
+    temp_vrm_dir = vrm_dir / major_minor / "temp"
+    temp_vrm_dir.mkdir(parents=True, exist_ok=True)
 
-    bpy.ops.wm.open_mainfile(filepath=in_path)
+    bpy.ops.wm.open_mainfile(filepath=str(in_path))
 
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    actual_path = os.path.join(temp_vrm_dir, vrm)
-    if os.path.exists(actual_path):
-        os.remove(actual_path)
-    bpy.ops.export_scene.vrm(filepath=actual_path)
+    actual_path = temp_vrm_dir / vrm
+    if actual_path.exists():
+        actual_path.unlink()
+    bpy.ops.export_scene.vrm(filepath=str(actual_path))
 
     float_tolerance = 0.00015
 
     diffs = vrm_diff(
-        pathlib.Path(actual_path).read_bytes(),
-        pathlib.Path(expected_path).read_bytes(),
+        actual_path.read_bytes(),
+        expected_path.read_bytes(),
         float_tolerance,
     )
     if not diffs:

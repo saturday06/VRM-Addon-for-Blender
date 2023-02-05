@@ -1,7 +1,7 @@
 import collections
-import pathlib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 import bgl
@@ -183,19 +183,19 @@ class GlMesh:
 
 class GlslDrawObj:
     toon_vertex_shader = (
-        pathlib.Path(__file__).with_name("toon.vert.glsl").read_text(encoding="UTF-8")
+        Path(__file__).with_name("toon.vert.glsl").read_text(encoding="UTF-8")
     )
     toon_geometry_shader = (
-        pathlib.Path(__file__).with_name("toon.geom.glsl").read_text(encoding="UTF-8")
+        Path(__file__).with_name("toon.geom.glsl").read_text(encoding="UTF-8")
     )
     toon_fragment_shader = (
-        pathlib.Path(__file__).with_name("toon.frag.glsl").read_text(encoding="UTF-8")
+        Path(__file__).with_name("toon.frag.glsl").read_text(encoding="UTF-8")
     )
     depth_vertex_shader = (
-        pathlib.Path(__file__).with_name("depth.vert.glsl").read_text(encoding="UTF-8")
+        Path(__file__).with_name("depth.vert.glsl").read_text(encoding="UTF-8")
     )
     depth_fragment_shader = (
-        pathlib.Path(__file__).with_name("depth.frag.glsl").read_text(encoding="UTF-8")
+        Path(__file__).with_name("depth.frag.glsl").read_text(encoding="UTF-8")
     )
     executor = None
     toon_shader = None

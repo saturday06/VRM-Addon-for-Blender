@@ -30,9 +30,9 @@ bl_info = {
 
 
 def register() -> None:
-    import os
     import zipfile
     from logging import getLogger
+    from pathlib import Path
 
     import bpy
 
@@ -48,13 +48,13 @@ def register() -> None:
     log_warning_prefix = "[VRM Add-on:Warning]"
 
     # For users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.
-    github_code_download_zip_path = os.path.join(
-        os.path.dirname(__file__),
-        ".github",
-        "vrm_addon_for_blender_private",
-        "_".join(map(str, bl_info["version"])) + ".zip",
+    github_code_download_zip_path = (
+        Path(__file__).parent
+        / ".github"
+        / "vrm_addon_for_blender_private"
+        / ("_".join(map(str, bl_info["version"])) + ".zip")
     )
-    if os.path.exists(github_code_download_zip_path):
+    if github_code_download_zip_path.exists():
         logger.warning(
             "%s Unzipping the partial add-on archive for "
             'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub ...',
@@ -62,10 +62,10 @@ def register() -> None:
         )
 
         with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
-            z.extractall(os.path.dirname(__file__))
+            z.extractall(Path(__file__).parent)
 
         try:
-            os.remove(github_code_download_zip_path)
+            github_code_download_zip_path.unlink()
         except OSError:
             logger.exception(
                 "%s Failed to remove the partial add-on archive: %s",

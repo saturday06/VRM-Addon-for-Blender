@@ -39,7 +39,6 @@ coord
 customdata
 depsgraph
 dicts
-dirname
 dof
 editmode
 ee
@@ -69,7 +68,6 @@ fromkeys
 fsum
 func
 geocode
-getsize
 geturl
 gl
 glb
@@ -94,6 +92,7 @@ inv
 invisibles
 isinf
 isnan
+iterdir
 ja
 jsons
 keyblock
@@ -102,7 +101,6 @@ ld
 lerp
 lfd
 lipsync
-listdir
 loc
 lookat
 lv
@@ -185,7 +183,6 @@ shapekey
 sikuli
 skinnedmesh
 specular
-splitext
 splitnormals
 sqrt
 src
