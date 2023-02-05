@@ -12,6 +12,7 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from itertools import repeat
+from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import bgl
@@ -25,6 +26,10 @@ from ..common.deep import Json
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from ..common.mtoon0_constants import MaterialMtoon0, MaterialTransparentZWrite
+from ..common.path import (
+    create_unique_indexed_directory_path,
+    create_unique_indexed_file_path,
+)
 from .license_validation import validate_license
 
 logger = get_logger(__name__)
@@ -471,12 +476,8 @@ class VrmParser:
         if self.extract_textures_into_folder:
             dir_path = os.path.abspath(self.filepath) + ".textures"
             if self.make_new_texture_folder:
-                for i in range(100001):
-                    checking_dir_path = dir_path if i == 0 else f"{dir_path}.{i}"
-                    if not os.path.exists(checking_dir_path):
-                        os.mkdir(checking_dir_path)
-                        dir_path = checking_dir_path
-                        break
+                dir_path = str(create_unique_indexed_directory_path(Path(dir_path)))
+            os.makedirs(dir_path, exist_ok=True)
         else:
             dir_path = tempfile.mkdtemp()  # TODO: cleanup
 
@@ -536,23 +537,9 @@ class VrmParser:
             elif image_name in [
                 img.name for img in parse_result.image_properties
             ]:  # ただ、それがこのVRMを開いた時の名前の時はちょっと考えて書いてみる。
-                written_flag = False
-                for i in range(100000):
-                    second_image_name = image_name + "_" + str(i)
-                    image_path = os.path.join(
-                        dir_path, second_image_name + "." + image_type
-                    )
-                    if not os.path.exists(image_path):
-                        with open(image_path, "wb") as image_writer:
-                            image_writer.write(image_binary)
-                        image_name = second_image_name
-                        written_flag = True
-                        break
-                if not written_flag:
-                    logger.warning(
-                        "There are more than 100000 images with the same name in the folder."
-                        + f" Failed to write file: {image_name}"
-                    )
+                image_path = str(
+                    create_unique_indexed_file_path(Path(image_path), image_binary)
+                )
             else:
                 logger.warning(
                     image_name + " Image already exists. Was not overwritten."

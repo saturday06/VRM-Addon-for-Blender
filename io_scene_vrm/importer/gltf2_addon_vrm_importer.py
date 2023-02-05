@@ -7,6 +7,7 @@ import re
 import shutil
 import struct
 import tempfile
+from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 import bgl
@@ -17,6 +18,10 @@ from mathutils import Matrix, Vector
 from ..common import convert, deep, gltf, shader
 from ..common.deep import Json
 from ..common.logging import get_logger
+from ..common.path import (
+    create_unique_indexed_directory_path,
+    create_unique_indexed_file_path,
+)
 from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
@@ -1363,31 +1368,16 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         return name.startswith(f"{self.import_id}Temp_")
 
     def extract_textures(self, repack: bool) -> None:
-        dir_path = os.path.abspath(self.parse_result.filepath) + ".textures"
+        dir_path = Path(self.parse_result.filepath + ".textures").absolute()
         if self.make_new_texture_folder or repack:
-            for i in range(100001):
-                checking_dir_path = dir_path if i == 0 else f"{dir_path}.{i}"
-                if not os.path.exists(checking_dir_path):
-                    os.mkdir(checking_dir_path)
-                    dir_path = checking_dir_path
-                    break
-        elif not os.path.exists(dir_path):
-            os.mkdir(dir_path)
+            dir_path = create_unique_indexed_directory_path(dir_path)
+        dir_path.mkdir(parents=True, exist_ok=True)
 
         if bpy.app.version >= (3, 1) and not bpy.data.filepath:
-            blend_dir_path = os.path.dirname(self.parse_result.filepath)
-            blend_base_path = os.path.basename(self.parse_result.filepath)
-            blend_file_root, _ = os.path.splitext(blend_base_path)
-            filepath = os.path.join(blend_dir_path, blend_file_root + ".temp.blend")
-            for count in range(100000):
-                if os.path.exists(filepath):
-                    filepath = os.path.join(
-                        blend_dir_path,
-                        blend_file_root + ".temp" + str(count + 1) + ".blend",
-                    )
-                    continue
-                bpy.ops.wm.save_as_mainfile(filepath=filepath)
-                break
+            temp_blend_path = create_unique_indexed_file_path(
+                Path(self.parse_result.filepath).with_suffix(".temp.blend")
+            )
+            bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
 
         for image_index, image in self.images.items():
             image_name = os.path.basename(image.filepath_from_user())
@@ -1418,32 +1408,27 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             ):
                 image_path += "." + image_type
 
-            written = False
-            retry_limit = 100000
-
-            for retry_count in range(retry_limit):
-                root, ext = os.path.splitext(os.path.basename(image_path))
-                if os.path.exists(image_path):
-                    next_image_name = root + "_" + str(retry_count + 1) + ext
-                    image_path = os.path.join(dir_path, next_image_name)
-                    continue
-
+            try:
                 image.unpack(method="WRITE_ORIGINAL")
-                with contextlib.suppress(shutil.SameFileError):
-                    shutil.move(image.filepath_from_user(), image_path)
-                image.filepath = image_path
-                image.reload()
-                if repack:
-                    image.pack()
+            except RuntimeError:
+                logger.exception(f"Failed to unpack {image.name}")
+                continue
 
-                written = True
-                break
-
-            if not written:
-                logger.error(
-                    f"There are more than {retry_limit} images with the same name in the folder."
-                    + f" Failed to write file: {image_name}"
+            image_original_path_str = image.filepath_from_user()
+            if not image_original_path_str:
+                continue
+            image_original_file_path = Path(image_original_path_str)
+            if not image_original_file_path.exists():
+                continue
+            image_path = str(
+                create_unique_indexed_file_path(
+                    Path(image_path), Path(image_original_file_path).read_bytes()
                 )
+            )
+            image.filepath = image_path
+            image.reload()
+            if repack:
+                image.pack()
 
         if repack:
             shutil.rmtree(dir_path, ignore_errors=True)
