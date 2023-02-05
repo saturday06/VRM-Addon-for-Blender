@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from base64 import urlsafe_b64decode
 from os import environ
 from pathlib import Path
 from typing import Optional
@@ -148,9 +149,11 @@ class BaseBlenderTestCase(TestCase):
             "--python-expr",
             "import bpy; bpy.ops.preferences.addon_enable(module='io_scene_vrm')",
             "--python",
-            str(self.repository_root_dir / "tests" / script),
+            str(
+                self.repository_root_dir / "tests" / urlsafe_b64decode(script).decode()
+            ),
             "--",
-            *args,
+            *[urlsafe_b64decode(arg).decode() for arg in args],
         ]
 
         if self.major_minor == "2.83" and sys.platform == "darwin":

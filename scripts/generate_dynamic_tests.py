@@ -5,6 +5,7 @@ import importlib.util
 import os
 import re
 import uuid
+from base64 import urlsafe_b64encode
 from collections import abc
 from os import environ
 from pathlib import Path
@@ -22,7 +23,7 @@ def to_function_component_literal(s: object) -> str:
 
 
 def render_single_test(path: str) -> str:
-    path = rf"{path}".replace('"', '\\"')
+    path = urlsafe_b64encode(path.encode()).decode()
     return f"""
     def test_main(self) -> None:
         self.run_script("{path}")
@@ -37,7 +38,7 @@ def render_multiple_test(method_name: str, args_str: str) -> str:
 
 
 def render_gui_test(method_name: str, file_name: str) -> str:
-    file_name = rf"{file_name}".replace('"', '\\"')
+    file_name = urlsafe_b64encode(file_name.encode()).decode()
     return f"""
     def test_{method_name}(self) -> None:
         self.run_gui_test("{file_name}")
@@ -148,7 +149,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             raise ValueError(f"Test method name {method_name}_index is duplicated")
         existing_method_names.append(method_name)
 
-        escaped = [rf"{a}" for a in [path] + args]
+        escaped = [urlsafe_b64encode(a.encode()).decode() for a in [path] + args]
         args_str = '"' + '", "'.join(escaped) + '"'
         content += render_multiple_test(method_name, args_str)
     return content

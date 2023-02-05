@@ -217,6 +217,7 @@ unittest
 unlink
 unregister
 unversioned
+urlsafe
 util
 utils
 uuids

@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from base64 import urlsafe_b64decode
 from pathlib import Path
 from unittest import TestCase
 
@@ -87,7 +88,7 @@ class BaseBlenderGuiTestCase(TestCase):
             "sikulixide.jar",
             "-c",
             "-r",
-            "tests/test.sikuli/" + sikuli_test_path,
+            "tests/test.sikuli/" + urlsafe_b64decode(sikuli_test_path).decode(),
         ]
         completed_process = subprocess.run(
             commands,
