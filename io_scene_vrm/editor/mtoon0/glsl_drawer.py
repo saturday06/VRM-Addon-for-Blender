@@ -10,9 +10,9 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 from mathutils import Matrix, Vector
 
-from ..common.mtoon0_constants import MaterialMtoon0
-from ..common.preferences import get_preferences
-from . import search
+from ...common.mtoon0_constants import MaterialMtoon0
+from ...common.preferences import get_preferences
+from .. import search
 
 
 class ICYP_OT_draw_model(bpy.types.Operator):  # type: ignore[misc]

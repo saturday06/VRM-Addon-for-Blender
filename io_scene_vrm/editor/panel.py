@@ -5,7 +5,6 @@ from ..common import version
 from ..common.preferences import get_preferences
 from . import (
     detail_mesh_maker,
-    glsl_drawer,
     make_armature,
     mesh_from_bone_envelopes,
     ops,
@@ -13,7 +12,11 @@ from . import (
     validation,
 )
 from .extension import VrmAddonArmatureExtensionPropertyGroup
-from .glsl_drawer import GlslDrawObj
+from .mtoon0.glsl_drawer import (
+    GlslDrawObj,
+    ICYP_OT_draw_model,
+    ICYP_OT_remove_draw_model,
+)
 
 
 class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
@@ -141,14 +144,14 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
         if mode == "OBJECT":
             if GlslDrawObj.draw_objs:
                 layout.operator(
-                    glsl_drawer.ICYP_OT_remove_draw_model.bl_idname,
+                    ICYP_OT_remove_draw_model.bl_idname,
                     icon="SHADING_RENDERED",
                     depress=True,
                 )
             elif armature and not armature.data.vrm_addon_extension.is_vrm1():
                 if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
                     layout.operator(
-                        glsl_drawer.ICYP_OT_draw_model.bl_idname,
+                        ICYP_OT_draw_model.bl_idname,
                         icon="SHADING_RENDERED",
                         depress=False,
                     )

@@ -15,7 +15,6 @@ from .common.logging import get_logger
 from .common.version import addon_version
 from .editor import (
     extension,
-    glsl_drawer,
     make_armature,
     migration,
     ops,
@@ -23,6 +22,7 @@ from .editor import (
     property_group,
     validation,
 )
+from .editor.mtoon0 import glsl_drawer
 from .editor.mtoon1 import handler as mtoon1_handler
 from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
