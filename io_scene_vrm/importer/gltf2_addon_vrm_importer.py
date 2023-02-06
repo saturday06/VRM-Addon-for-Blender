@@ -16,11 +16,11 @@ from mathutils import Matrix, Vector
 
 from ..common import convert, deep, gltf, shader
 from ..common.deep import Json
-from ..common.logging import get_logger
 from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
+from ..common.logging import get_logger
 from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications

@@ -22,13 +22,13 @@ from ..common import deep
 from ..common.binary_reader import BinaryReader
 from ..common.convert import deep_dict_or, float3_or, float4_or, str_or
 from ..common.deep import Json
-from ..common.gltf import parse_glb
-from ..common.logging import get_logger
-from ..common.mtoon0_constants import MaterialMtoon0, MaterialTransparentZWrite
 from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
+from ..common.gltf import parse_glb
+from ..common.logging import get_logger
+from ..common.mtoon0_constants import MaterialMtoon0, MaterialTransparentZWrite
 from .license_validation import validate_license
 
 logger = get_logger(__name__)
