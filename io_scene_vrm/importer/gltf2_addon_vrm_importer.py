@@ -17,7 +17,7 @@ from mathutils import Matrix, Vector
 from ..common import convert, deep, gltf, shader
 from ..common.deep import Json
 from ..common.logging import get_logger
-from ..common.path import (
+from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )

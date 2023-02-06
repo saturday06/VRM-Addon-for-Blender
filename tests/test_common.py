@@ -4,7 +4,7 @@ from typing import List
 from unittest import TestCase
 
 from io_scene_vrm.common import deep
-from io_scene_vrm.common.path import (
+from io_scene_vrm.common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )

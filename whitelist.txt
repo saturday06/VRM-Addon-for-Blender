@@ -65,6 +65,7 @@ fmax
 fmin
 fragcode
 fromkeys
+fs
 fsum
 func
 geocode
