@@ -37,7 +37,7 @@ def test() -> None:
     if not in_path.exists():
         in_path = blend_dir / major_minor / blend
 
-    if blend.suffixes == [".merge", ".blend"]:
+    if blend.name.endswith(".merge.blend"):
         blend = blend.with_suffix("").with_suffix(".blend")
     vrm = blend.with_suffix(".vrm")
     blend_vrm_path = vrm_dir / major_minor / "out" / blend.with_suffix(".blend.vrm")
