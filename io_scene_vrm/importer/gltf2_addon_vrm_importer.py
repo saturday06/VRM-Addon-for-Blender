@@ -1418,10 +1418,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             image_original_file_path = Path(image_original_path_str)
             if not image_original_file_path.exists():
                 continue
-            image_path = create_unique_indexed_file_path(
-                image_path, image_original_file_path.read_bytes()
-            )
-            image.filepath = str(image_path)
+            image_bytes = image_original_file_path.read_bytes()
+            with contextlib.suppress(OSError):
+                image_original_file_path.unlink()
+            image_path = create_unique_indexed_file_path(image_path, image_bytes)
+            if image.filepath != str(image_path):
+                image.filepath = str(image_path)
             image.reload()
             if repack:
                 image.pack()
