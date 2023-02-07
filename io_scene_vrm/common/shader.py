@@ -106,7 +106,7 @@ def load_mtoon1_shader(
         template_outline_group = bpy.data.node_groups.get(
             OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
         )
-        if not template_outline_group:
+        if outline_enabled and not template_outline_group:
             raise ValueError("No " + OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME)
 
         template_material = bpy.data.materials.get(material_name)
