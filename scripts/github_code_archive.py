@@ -34,8 +34,10 @@ bpy.ops.object.delete()
 while bpy.data.collections:
     bpy.data.collections.remove(bpy.data.collections[0])
 
-bpy.ops.import_scene.vrm(filepath=str(input_path))
-bpy.ops.export_scene.vrm(filepath=str(actual_path))
+if bpy.ops.import_scene.vrm(filepath=str(input_path)) != {"FINISHED"}:
+    raise AssertionError(f"Import failure: {input_path}")
+if bpy.ops.export_scene.vrm(filepath=str(actual_path)) != {"FINISHED"}:
+    raise AssertionError(f"Export failure: {actual_path}")
 
 float_tolerance = 0.000001
 
