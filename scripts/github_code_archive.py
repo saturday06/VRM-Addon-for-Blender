@@ -17,7 +17,7 @@ bpy.ops.preferences.addon_install(filepath=addon_path)
 bpy.ops.preferences.addon_enable(module=module_name)
 
 repository_root_dir = Path(__file__).parent.parent
-input_path = repository_root_dir / "tests" / "resources" / "vrm" / "in", "triangle.vrm"
+input_path = repository_root_dir / "tests" / "resources" / "vrm" / "in" / "triangle.vrm"
 expected_path = (
     repository_root_dir
     / "tests"
