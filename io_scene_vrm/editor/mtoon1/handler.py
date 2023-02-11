@@ -62,7 +62,7 @@ def trigger_update_mtoon1_outline() -> None:
         return
     if bpy.app.timers.is_registered(update_mtoon1_outline):
         return
-    bpy.app.timers.register(update_mtoon1_outline)
+    bpy.app.timers.register(update_mtoon1_outline, first_interval=0.2)
 
 
 @persistent  # type: ignore[misc]

@@ -2,7 +2,7 @@ import importlib
 from os.path import getmtime
 from pathlib import Path
 from sys import float_info
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import bpy
 
@@ -16,9 +16,15 @@ last_blender_restart_required: List[bool] = []  # Mutable
 last_root_init_py_modification_time: List[float] = []  # Mutable
 
 
-def clear_addon_version_cache() -> None:
+def clear_addon_version_cache() -> Optional[float]:
     last_blender_restart_required.clear()
-    last_root_init_py_modification_time.clear()
+    return None
+
+
+def trigger_clear_addon_version_cache() -> None:
+    if bpy.app.timers.is_registered(clear_addon_version_cache):
+        return
+    bpy.app.timers.register(clear_addon_version_cache, first_interval=0.2)
 
 
 def addon_version() -> Tuple[int, int, int]:

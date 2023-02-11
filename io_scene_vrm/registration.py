@@ -12,7 +12,7 @@ from bpy.app.handlers import persistent
 
 from .common import preferences, shader
 from .common.logging import get_logger
-from .common.version import addon_version, clear_addon_version_cache
+from .common.version import addon_version, trigger_clear_addon_version_cache
 from .editor import (
     extension,
     make_armature,
@@ -72,7 +72,7 @@ def depsgraph_update_pre_once(_dummy: object) -> None:
 
 @persistent  # type: ignore[misc]
 def depsgraph_update_pre(_dummy: object) -> None:
-    clear_addon_version_cache()
+    trigger_clear_addon_version_cache()
 
 
 @persistent  # type: ignore[misc]
