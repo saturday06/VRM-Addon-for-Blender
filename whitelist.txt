@@ -69,6 +69,7 @@ fs
 fsum
 func
 geocode
+getmtime
 geturl
 gl
 glb

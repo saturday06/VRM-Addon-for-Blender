@@ -12,7 +12,7 @@ from bpy.app.handlers import persistent
 
 from .common import preferences, shader
 from .common.logging import get_logger
-from .common.version import addon_version
+from .common.version import addon_version, clear_addon_version_cache
 from .editor import (
     extension,
     make_armature,
@@ -59,21 +59,26 @@ def load_post(_dummy: object) -> None:
 
 
 @persistent  # type: ignore[misc]
-def depsgraph_update_pre(_dummy: object) -> None:
+def depsgraph_update_pre_once(_dummy: object) -> None:
     # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
     # Blender起動直後のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
-    if depsgraph_update_pre not in bpy.app.handlers.depsgraph_update_pre:
+    if depsgraph_update_pre_once not in bpy.app.handlers.depsgraph_update_pre:
         return
-    bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre_once)
     shader.add_shaders()
     migration.migrate_all_objects()
     migration.setup_subscription(load_post=False)
 
 
 @persistent  # type: ignore[misc]
+def depsgraph_update_pre(_dummy: object) -> None:
+    clear_addon_version_cache()
+
+
+@persistent  # type: ignore[misc]
 def save_pre(_dummy: object) -> None:
     # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
-    depsgraph_update_pre(None)
+    depsgraph_update_pre_once(None)
     migration.migrate_all_objects()
     extension.update_internal_cache(bpy.context)
 
@@ -338,6 +343,7 @@ def register(init_addon_version: object) -> None:
     # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
     bpy.app.handlers.load_post.append(load_post)
+    bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre_once)
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
@@ -352,8 +358,9 @@ def unregister() -> None:
     bpy.app.handlers.save_pre.remove(mtoon1_handler.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(mtoon1_handler.depsgraph_update_pre)
-    if depsgraph_update_pre in bpy.app.handlers.depsgraph_update_pre:
-        bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
+    if depsgraph_update_pre_once in bpy.app.handlers.depsgraph_update_pre:
+        bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre_once)
     bpy.app.handlers.load_post.remove(load_post)
 
     # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)

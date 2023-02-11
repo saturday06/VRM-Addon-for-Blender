@@ -52,13 +52,21 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
 
-        if not version.supported():
-            box = layout.box()
-            warning_column = box.column()
+        warning_message = None
+        if version.blender_restart_required():
+            warning_message = pgettext(
+                "The VRM add-on has been updated. "
+                + "Please restart Blender to apply the changes."
+            )
+        elif not version.supported():
             warning_message = pgettext(
                 "The installed VRM add-on is not compatible with Blender {blender_version}. "
                 + "Please upgrade the add-on."
             ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+
+        if warning_message:
+            box = layout.box()
+            warning_column = box.column()
             for index, warning_line in enumerate(warning_message.splitlines()):
                 warning_column.label(
                     text=warning_line,

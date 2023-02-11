@@ -221,13 +221,20 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout
 
-        if not version.supported():
-            box = layout.box()
-            warning_column = box.column()
+        warning_message = None
+        if version.blender_restart_required():
+            warning_message = pgettext(
+                "The VRM add-on has been\nupdated. "
+                + "Please restart Blender to\napply the changes."
+            )
+        elif not version.supported():
             warning_message = pgettext(
                 "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
                 + "Please upgrade the add-on."
             ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+        if warning_message:
+            box = layout.box()
+            warning_column = box.column()
             for index, warning_line in enumerate(warning_message.splitlines()):
                 warning_column.label(
                     text=warning_line,

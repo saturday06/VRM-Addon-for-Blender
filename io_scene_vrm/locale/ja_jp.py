@@ -16,6 +16,16 @@ translation_dictionary = {
         "The installed VRM add-on is not compatible with Blender {blender_version}. "
         + " The VRM may not be exported correctly.",
     ): "インストールされているVRMアドオンはBlender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
+    (
+        "*",
+        "The VRM add-on has been updated. "
+        + "Please restart Blender to apply the changes.",
+    ): "VRMアドオンはアップデートされました。変更を適用するためにBlenderを再起動してください。",
+    (
+        "*",
+        "The VRM add-on has been\nupdated. "
+        + "Please restart Blender to\napply the changes.",
+    ): "VRMアドオンはアップデート\nされました。変更を適用するため\nBlenderを再起動してください。",
     ("*", 'Set shading type to "Material"'): "3Dビューをマテリアルプレビューに設定",
     ("*", 'Set view transform to "Standard"'): "ビュー変換を「標準」に設定",
     (

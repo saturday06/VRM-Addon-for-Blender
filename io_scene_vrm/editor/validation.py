@@ -159,7 +159,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         else:
             export_fb_ngon_encoding = False
 
-        if not version.supported():
+        if version.blender_restart_required():
+            warning_messages.append(
+                pgettext(
+                    "The VRM add-on has been updated. "
+                    + "Please restart Blender to apply the changes."
+                )
+            )
+        elif not version.supported():
             warning_messages.append(
                 pgettext(
                     "The installed VRM add-on is not compatible with Blender {blender_version}. "
