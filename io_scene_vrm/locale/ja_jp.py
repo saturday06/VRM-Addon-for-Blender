@@ -221,6 +221,8 @@ translation_dictionary = {
         "There are unassigned VRM Required Bones. Please assign all.",
     ): "未割り当てのVRM必須ボーンが存在します。全てのVRM必須ボーンを割り当ててください。",
     ("Operator", "Automatic Bone Assignment"): "ボーンの自動割り当て",
+    ("Operator", "Export VRM"): "VRMをエクスポート",
+    ("Operator", "Import VRM"): "VRMをインポート",
     ("Operator", "Preview MToon 0.0"): "MToon 0.0のプレビュー",
     ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
     ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",
