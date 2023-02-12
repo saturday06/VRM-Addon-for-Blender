@@ -36,7 +36,7 @@ def clear_addon_version_cache() -> Optional[float]:  # pylint: disable=useless-r
 def trigger_clear_addon_version_cache() -> None:
     if bpy.app.timers.is_registered(clear_addon_version_cache):
         return
-    bpy.app.timers.register(clear_addon_version_cache, first_interval=0.2)
+    bpy.app.timers.register(clear_addon_version_cache, first_interval=0.5)
 
 
 def addon_version() -> Tuple[int, int, int]:
