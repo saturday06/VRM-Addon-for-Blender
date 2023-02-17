@@ -18,8 +18,11 @@ per-file-ignores =
 dictionaries=en_US,python,technical
 
 ignore-names=
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/68f792c59c09abb10f70356ea6992750f9422744/example-addons/example_gltf_exporter_extension/__init__.py#L103
     glTF2ExportUserExtension
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/68f792c59c09abb10f70356ea6992750f9422744/example-addons/example_gltf_importer_extension/__init__.py#L67
     glTF2ImportUserExtension
+    # https://wiki.blender.org/wiki/Reference/Release_Notes/2.80/Python_API/Addons#Naming
     IMPORT_SCENE_OT_vrm
     EXPORT_SCENE_OT_vrm
     ICYP_OT_*
