@@ -509,7 +509,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         "gravityDir": [
                             joint.gravity_dir[0],
                             joint.gravity_dir[2],
-                            joint.gravity_dir[1],
+                            -joint.gravity_dir[1],
                         ],
                         "dragForce": joint.drag_force,
                     }

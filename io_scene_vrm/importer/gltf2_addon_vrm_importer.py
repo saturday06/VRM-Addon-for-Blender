@@ -2447,7 +2447,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 joint.gravity_dir = [
                     gltf_axis_gravity_dir[0],
-                    gltf_axis_gravity_dir[2],
+                    -gltf_axis_gravity_dir[2],
                     gltf_axis_gravity_dir[1],
                 ]
 

@@ -45,3 +45,12 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
                 armature.matrix_world @ head_bone.matrix_local @ local_translation
             )
             look_at.offset_from_head_bone = list(world_matrix.to_translation())
+
+        spring_bone1 = armature.data.vrm_addon_extension.spring_bone1
+        for spring in spring_bone1.springs:
+            for joint in spring.joints:
+                joint.gravity_dir = [
+                    joint.gravity_dir[0],
+                    -joint.gravity_dir[1],
+                    joint.gravity_dir[2],
+                ]
