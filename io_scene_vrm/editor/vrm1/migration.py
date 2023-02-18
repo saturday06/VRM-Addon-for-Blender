@@ -1,4 +1,5 @@
 import bpy
+from mathutils import Matrix, Vector
 
 from .property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
 
@@ -29,3 +30,18 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
                     joint.gravity_dir[2],
                     joint.gravity_dir[1],
                 ]
+
+    if tuple(armature.data.vrm_addon_extension.addon_version) <= (2, 14, 10):
+        head_bone_name = (
+            armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.head.node.value
+        )
+        head_bone = armature.data.bones.get(head_bone_name)
+        if head_bone:
+            look_at = armature.data.vrm_addon_extension.vrm1.look_at
+            local_translation = Matrix.Translation(
+                Vector(list(look_at.offset_from_head_bone))
+            )
+            world_matrix = (
+                armature.matrix_world @ head_bone.matrix_local @ local_translation
+            )
+            look_at.offset_from_head_bone = list(world_matrix.to_translation())

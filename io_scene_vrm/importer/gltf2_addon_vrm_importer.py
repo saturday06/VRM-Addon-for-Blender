@@ -1852,9 +1852,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.load_vrm1_first_person(
             vrm1.first_person, vrm1_extension_dict.get("firstPerson")
         )
-        self.load_vrm1_look_at(
-            vrm1.look_at, vrm1_extension_dict.get("lookAt"), vrm1.humanoid
-        )
+        self.load_vrm1_look_at(vrm1.look_at, vrm1_extension_dict.get("lookAt"))
         self.load_vrm1_expressions(
             vrm1.expressions, vrm1_extension_dict.get("expressions")
         )
@@ -2019,7 +2017,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         look_at: Vrm1LookAtPropertyGroup,
         look_at_dict: Json,
-        humanoid: Vrm1HumanoidPropertyGroup,
     ) -> None:
         if not isinstance(look_at_dict, dict):
             return
@@ -2029,17 +2026,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         offset_from_head_bone = convert.vrm_json_array_to_float_vector(
             look_at_dict.get("offsetFromHeadBone"), [0, 0, 0]
         )
-        head_bone = armature.data.bones.get(humanoid.human_bones.head.node.value)
-        if head_bone:
-            axis_translation = head_bone.vrm_addon_extension.axis_translation
-            offset_from_head_bone = VrmAddonBoneExtensionPropertyGroup.translate_axis(
-                Matrix.Translation(offset_from_head_bone),
-                VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
-                    axis_translation
-                ),
-            ).to_translation()
-        look_at.offset_from_head_bone = offset_from_head_bone
-
+        look_at.offset_from_head_bone = [
+            offset_from_head_bone[0],
+            -offset_from_head_bone[2],
+            offset_from_head_bone[1],
+        ]
         type_ = look_at_dict.get("type")
         if type_ in ["bone", "expression"]:
             look_at.type = type_
