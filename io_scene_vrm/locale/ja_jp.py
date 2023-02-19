@@ -24,7 +24,7 @@ translation_dictionary = {
     (
         "*",
         "The VRM add-on has been\nupdated. "
-        + "Please restart Blender to\napply the changes.",
+        + "Please restart Blender\nto apply the changes.",
     ): "VRMアドオンはアップデート\nされました。変更を適用するため\nBlenderを再起動してください。",
     ("*", 'Set shading type to "Material"'): "3Dビューをマテリアルプレビューに設定",
     ("*", 'Set view transform to "Standard"'): "ビュー変換を「標準」に設定",

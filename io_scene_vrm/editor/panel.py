@@ -43,7 +43,7 @@ class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc
         if version.blender_restart_required():
             warning_message = pgettext(
                 "The VRM add-on has been\nupdated. "
-                + "Please restart Blender to\napply the changes."
+                + "Please restart Blender\nto apply the changes."
             )
         elif not version.supported():
             warning_message = pgettext(
@@ -198,7 +198,7 @@ class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):  #
         if version.blender_restart_required():
             warning_message = pgettext(
                 "The VRM add-on has been\nupdated. "
-                + "Please restart Blender to\napply the changes."
+                + "Please restart Blender\nto apply the changes."
             )
         else:
             warning_message = pgettext(

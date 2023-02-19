@@ -180,7 +180,7 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # typ
         if version.blender_restart_required():
             warning_message = pgettext(
                 "The VRM add-on has been\nupdated. "
-                + "Please restart Blender to\napply the changes."
+                + "Please restart Blender\nto apply the changes."
             )
         else:
             warning_message = pgettext(
