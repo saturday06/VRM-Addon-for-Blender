@@ -5,17 +5,17 @@ translation_dictionary = {
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}. "
         + "Please upgrade the add-on.",
-    ): "インストールされているVRMアドオンはBlender {blender_version}には未対応です。\nアドオンをバージョンアップしてください。",
+    ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。\nアドオンをアップデートしてください。",
     (
         "*",
-        "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
-        + "Please upgrade the add-on.",
-    ): "インストールされている\nVRMアドオンはBlender {blender_version}には\n未対応です。アドオンを\nバージョンアップしてください。",
+        "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
+        + " Please update.",
+    ): "インストールされている\nVRMアドオンは、Blender {blender_version}\nには未対応です。アドオンを\nアップデートしてください。",
     (
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}. "
         + " The VRM may not be exported correctly.",
-    ): "インストールされているVRMアドオンはBlender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
+    ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
     (
         "*",
         "The VRM add-on has been updated. "

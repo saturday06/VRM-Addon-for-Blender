@@ -229,8 +229,8 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
             )
         elif not version.supported():
             warning_message = pgettext(
-                "The installed VRM add-on is\nnot compatible with Blender {blender_version}.\n"
-                + "Please upgrade the add-on."
+                "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
+                + " Please update."
             ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
         if warning_message:
             box = layout.box()
