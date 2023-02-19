@@ -1,5 +1,5 @@
 import bpy
-from mathutils import Matrix, Vector
+from mathutils import Vector
 
 from .property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
 
@@ -38,13 +38,10 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
         head_bone = armature.data.bones.get(head_bone_name)
         if head_bone:
             look_at = armature.data.vrm_addon_extension.vrm1.look_at
-            local_translation = Matrix.Translation(
-                Vector(list(look_at.offset_from_head_bone))
-            )
-            world_matrix = (
-                armature.matrix_world @ head_bone.matrix_local @ local_translation
-            )
-            look_at.offset_from_head_bone = list(world_matrix.to_translation())
+            world_translation = (
+                armature.matrix_world @ head_bone.matrix_local
+            ).to_quaternion() @ Vector(look_at.offset_from_head_bone)
+            look_at.offset_from_head_bone = list(world_translation)
 
         spring_bone1 = armature.data.vrm_addon_extension.spring_bone1
         for spring in spring_bone1.springs:
