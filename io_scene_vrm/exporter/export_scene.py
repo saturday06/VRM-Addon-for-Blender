@@ -85,8 +85,11 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
-
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
+
+    ignore_skippable_warning: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.filepath:
@@ -198,6 +201,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             return {"CANCELLED"}
 
         validation.WM_OT_vrm_validator.detect_errors(context, self.errors)
+        if not self.ignore_skippable_warning and any(
+            error.severity <= 1 for error in self.errors
+        ):
+            bpy.ops.wm.vrm_export_warning("INVOKE_DEFAULT")
+            return {"CANCELLED"}
+
         return cast(Set[str], ExportHelper.invoke(self, context, event))
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -369,3 +378,44 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
         row = layout.split(factor=0.5)
         draw_vrm1_humanoid_required_bones_layout(human_bones, row.column())
         draw_vrm1_humanoid_optional_bones_layout(human_bones, row.column())
+
+
+class WM_OT_vrm_export_warning(bpy.types.Operator):  # type: ignore[misc]
+    bl_label = "VRM Export Confirmation"
+    bl_idname = "wm.vrm_export_warning"
+    bl_options = {"REGISTER", "UNDO"}
+
+    errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
+
+    export_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export Anyway",  # noqa: F722
+    )
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        if not self.export_anyway:
+            return {"CANCELLED"}
+        bpy.ops.export_scene.vrm("INVOKE_DEFAULT", ignore_skippable_warning=True)
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+        validation.WM_OT_vrm_validator.detect_errors(context, self.errors)
+        return cast(
+            Set[str], context.window_manager.invoke_props_dialog(self, width=800)
+        )
+
+    def draw(self, _context: bpy.types.Context) -> None:
+        layout = self.layout
+        layout.label(text="次のような理由により、正しくVRMがエクスポートされないかもしれません。", icon="ERROR")
+
+        column = layout.column()
+        for error in self.errors:
+            if error.severity != 1:
+                continue
+            column.prop(
+                error,
+                "message",
+                text="",
+                translate=False,
+            )
+
+        layout.prop(self, "export_anyway")
