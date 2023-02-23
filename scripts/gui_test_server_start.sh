@@ -26,9 +26,9 @@ fi
 mkdir -p var/log var/tmp
 docker_hash_path=var/repository_root_path_hash.txt
 if command -v sha256sum; then
-  echo "$PWD" | sha256sum - | awk '{print $1}' > "$docker_hash_path"
+  echo "$PWD" | sha256sum - | awk '{print $1}' >"$docker_hash_path"
 elif command -v shasum; then
-  echo "$PWD" | shasum -a 256 - | awk '{print $1}' > "$docker_hash_path"
+  echo "$PWD" | shasum -a 256 - | awk '{print $1}' >"$docker_hash_path"
 else
   echo "No hash command"
   exit 1
@@ -36,7 +36,10 @@ fi
 docker_hash=$(cat "$docker_hash_path")
 tag_name="vrm_addon_for_blender_gui_test_$docker_hash"
 container_name="vrm_addon_for_blender_gui_test_container_$docker_hash"
-CI=$(set +u; echo "$CI")
+CI=$(
+  set +u
+  echo "$CI"
+)
 
 running_container=$(docker ps --quiet --filter "name=$container_name")
 if [ -n "$running_container" ]; then
