@@ -16,7 +16,7 @@ Next, select `File` → `Export` → `VRM` from the menu.
 
 ![](../images/simple2.png)
 
-Enter the file name and destination when the File View window appears and press `Export VRM`.
+Enter the filename and destination when the File View window appears and press `Export VRM`.
 
 ![](../images/simple3.png)
 

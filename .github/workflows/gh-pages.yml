@@ -32,8 +32,10 @@ jobs:
             exit 1
           fi
 
-          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['name']")
-          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['published_at']")
+          HUGO_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['name']")
+          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME
+          HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['published_at']")
+          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE
 
           hugo_dir=$(mktemp -d)
 

@@ -72,7 +72,7 @@ jobs:
         run: |
           hdiutil attach blender.dmg
           cp -fr /Volumes/Blender/Blender.app /Applications
-          hdiutil detach $(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')
+          hdiutil detach "$(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')"
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/generate_dynamic_tests.py
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/unittest_discover.py
       - name: Archive failed io test result
@@ -114,14 +114,14 @@ jobs:
       - name: Check file permissions
         run: |
           git ls-files ':!scripts/*.sh' ':!scripts/*.py' ':!tests/resources' | while read -r f; do
-            echo $f
+            echo "$f"
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."
               exit 1
             fi
           done
           git ls-files 'scripts/*.sh' 'scripts/*.py' | while read -r f; do
-            echo $f
+            echo "$f"
             if [ ! -x "$f" ]; then
               echo "$f has no executable permission."
               exit 1
@@ -160,15 +160,16 @@ jobs:
           git diff --exit-code
       - name: Check whitelist.txt contents
         run: |
-          LC_ALL=C tr '[:upper:]' '[:lower:]' < whitelist.txt | diff -u whitelist.txt -
+          LC_ALL=C tr '[:upper:]' '[:lower:]' < whitelist.txt > whitelist_lower.txt
+          diff -u whitelist.txt whitelist_lower.txt
 
           result=0
-          for word in $(cat whitelist.txt); do
+          while read -r word; do
             if ! git grep -i "$word" "*.py" > /dev/null; then
-              >&2 echo whitelist.txt:$word is no longer necessary
+              >&2 echo "whitelist.txt:$word is no longer necessary"
               result=1
             fi
-          done
+          done < whitelist.txt
           exit $result
       - name: Check whitelist.txt ordering
         run: LC_ALL=C sort whitelist.txt | diff -u whitelist.txt -
@@ -185,7 +186,7 @@ jobs:
         run: shellcheck $(git ls-files "*.sh")
       - name: Format GLSL (May break syntax!)
         run: |
-          clang-format-12 -i $(git ls-files "**.glsl")
+          git ls-files "*.glsl" | xargs clang-format-12 -i
           git diff --exit-code
       - name: editorconfig-checker
         run: |
@@ -201,27 +202,27 @@ jobs:
       - name: Install poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Check pyproject.toml format
         run: poetry check
       - name: Install poetry dependencies
         run: poetry install
       - name: Check source code formatting
-        run: poetry run black --check --diff $(git ls-files "*.py")
+        run: git ls-files "*.py" | xargs poetry run black --check --diff
       - name: Pylint
         run: |
           poetry remove fake-bpy-module-2.83 # pylint and fake-bpy-module are incompatible
-          poetry run pylint --rcfile .pylintrc.ci $(git ls-files "*.py")
+          git ls-files "*.py" | xargs poetry run pylint --rcfile .pylintrc.ci
           git checkout .
           poetry install
       - name: Pyright
-        run: poetry run pyright --warnings $(git ls-files "*.py")
+        run: git ls-files "*.py" | xargs poetry run pyright
       - name: Mypy
-        run: poetry run mypy --show-error-code $(git ls-files "*.py")
+        run: git ls-files "*.py" | xargs poetry run mypy --show-error-codes
       - name: Flake8
-        run: poetry run flake8 --count --show-source --statistics $(git ls-files "*.py")
+        run: git ls-files "*.py" | xargs poetry run flake8 --count --show-source --statistics
       - name: Check import sorting order
         run: |
-          poetry run isort $(git ls-files "*.py")
-          poetry run black $(git ls-files "*.py")
+          git ls-files "*.py" | xargs poetry run isort
+          git ls-files "*.py" | xargs poetry run black
           git diff --exit-code
