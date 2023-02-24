@@ -182,23 +182,24 @@ jobs:
             cat "$orig" >> "$versioned"
             glslangValidator "$versioned"
           done
-      - name: Shellcheck
-        run: shellcheck $(git ls-files "*.sh")
       - name: Format GLSL (May break syntax!)
         run: |
           git ls-files "*.glsl" | xargs clang-format-12 -i
           git diff --exit-code
-      - name: editorconfig-checker
-        run: |
-          version="2.4.0"
-          os="linux"
-          arch="amd64"
-          ec_dir=$(mktemp -d)
-          pushd "$ec_dir"
-            curl -O -L -C - "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$version/ec-$os-$arch.tar.gz"
-            tar xzf ec-$os-$arch.tar.gz
-          popd
-          "$ec_dir/bin/ec-$os-$arch"
+      - name: Super-Linter
+        uses: github/super-linter@v4
+        env:
+          VALIDATE_HTML: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_JSCPD: false
+          VALIDATE_MARKDOWN: false
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_MYPY: false
+          VALIDATE_PYTHON_PYLINT: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
