@@ -218,6 +218,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 name = "Material"
             material = bpy.data.materials.new(name)
         self.reset_material(material)
+        material.use_backface_culling = True
 
         root = material.vrm_addon_extension.mtoon1
         root.enabled = True
