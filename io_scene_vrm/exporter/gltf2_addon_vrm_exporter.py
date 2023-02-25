@@ -928,6 +928,19 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if isinstance(normal_texture_dict, dict):
             normal_texture_dict["scale"] = root.normal_texture.scale
         mtoon_dict["shadingShiftFactor"] = mtoon.shading_shift_factor
+        assign_dict(
+            mtoon_dict,
+            "shadingShiftTexture",
+            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+                json_dict,
+                body_binary,
+                mtoon.shading_shift_texture,
+                image_name_to_index_dict,
+            ),
+        )
+        shading_shift_texture_dict = mtoon_dict.get("shadingShiftTexture")
+        if isinstance(shading_shift_texture_dict, dict):
+            shading_shift_texture_dict["scale"] = mtoon.shading_shift_texture.scale
         mtoon_dict["shadingToonyFactor"] = mtoon.shading_toony_factor
         mtoon_dict["giEqualizationFactor"] = mtoon.gi_equalization_factor
         material_dict["emissiveFactor"] = list(root.emissive_factor)

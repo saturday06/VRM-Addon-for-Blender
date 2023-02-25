@@ -302,6 +302,17 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if isinstance(shading_shift_factor, (float, int)):
             mtoon.shading_shift_factor = float(shading_shift_factor)
 
+        shading_shift_texture_dict = mtoon_dict.get("shadingShiftTexture")
+        if isinstance(shading_shift_texture_dict, dict):
+            self.assign_texture_info(
+                mtoon.shading_shift_texture,
+                shading_shift_texture_dict,
+                non_color=True,
+            )
+            shading_shift_texture_scale = shading_shift_texture_dict.get("scale")
+            if isinstance(shading_shift_texture_scale, (float, int)):
+                mtoon.shading_shift_texture.scale = float(shading_shift_texture_scale)
+
         shading_toony_factor = mtoon_dict.get("shadingToonyFactor")
         if isinstance(shading_toony_factor, (float, int)):
             mtoon.shading_toony_factor = float(shading_toony_factor)
