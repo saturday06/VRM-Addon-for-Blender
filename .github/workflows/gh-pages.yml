@@ -40,8 +40,16 @@ jobs:
           hugo_dir=$(mktemp -d)
 
           pushd "$hugo_dir"
-          wget -q https://github.com/gohugoio/hugo/releases/download/v0.91.2/hugo_extended_0.91.2_Linux-64bit.tar.gz
-          tar xf hugo_extended_0.91.2_Linux-64bit.tar.gz
+            curl \
+              --fail \
+              --retry 20 \
+              --retry-all-errors \
+              --show-error \
+              --location \
+              --output hugo_extended.tar.gz \
+              --header "Accept: application/vnd.github.v3+json" \
+              https://github.com/gohugoio/hugo/releases/download/v0.91.2/hugo_extended_0.91.2_Linux-64bit.tar.gz
+            tar xf hugo_extended.tar.gz
           popd
 
           git fetch --depth=1 origin gh-pages
