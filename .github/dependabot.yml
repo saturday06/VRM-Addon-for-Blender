@@ -5,7 +5,7 @@ updates:
     directory: "/"
     target-branch: "main"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
 
@@ -13,7 +13,7 @@ updates:
     directory: "/"
     target-branch: "main"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
 
@@ -21,6 +21,6 @@ updates:
     directory: "/docs/website"
     target-branch: "main"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
