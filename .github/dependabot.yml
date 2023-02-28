@@ -22,5 +22,3 @@ updates:
     target-branch: "main"
     schedule:
       interval: "daily"
-    allow:
-      - dependency-type: "all"
