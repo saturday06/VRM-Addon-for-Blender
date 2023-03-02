@@ -1707,20 +1707,24 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         if value == self.ALPHA_MODE_OPAQUE_VALUE:
             material.blend_method = "OPAQUE"
-            material.shadow_method = "OPAQUE"
+            shadow_method = "OPAQUE"
         elif value == self.ALPHA_MODE_MASK_VALUE:
             material.blend_method = "CLIP"
-            material.shadow_method = "CLIP"
+            shadow_method = "CLIP"
         elif value == self.ALPHA_MODE_BLEND_VALUE:
             material.blend_method = "HASHED"
-            material.shadow_method = "HASHED"
+            shadow_method = "HASHED"
         else:
             logger.error("Unexpected alpha mode: {value}")
             material.blend_method = "OPAQUE"
-            material.shadow_method = "OPAQUE"
+            shadow_method = "OPAQUE"
 
         if material.vrm_addon_extension.mtoon1.is_outline_material:
+            material.shadow_method = "NONE"
             return
+
+        material.shadow_method = shadow_method
+
         outline_material = material.vrm_addon_extension.mtoon1.outline_material
         if not outline_material:
             return
