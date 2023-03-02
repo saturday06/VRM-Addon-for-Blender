@@ -391,7 +391,7 @@ class WM_OT_vrm_export_warning(bpy.types.Operator):  # type: ignore[misc]
         name="Export Anyway",  # noqa: F722
     )
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         if not self.export_anyway:
             return {"CANCELLED"}
         bpy.ops.export_scene.vrm("INVOKE_DEFAULT", ignore_skippable_warning=True)
