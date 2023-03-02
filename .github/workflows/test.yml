@@ -189,11 +189,12 @@ jobs:
       - name: Super-Linter
         uses: github/super-linter@v4
         env:
+          LINTER_RULES_PATH: /
+          MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           VALIDATE_HTML: false
           VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
-          VALIDATE_MARKDOWN: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_PYTHON_ISORT: false

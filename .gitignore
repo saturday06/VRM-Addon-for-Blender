@@ -17,6 +17,7 @@
 !/.pylintrc.ci
 !/.github/workflows/*.yml
 !/.github/*.yml
+!/.markdownlint.yaml
 !/LICENSE
 !/LICENSE.*
 !/Notice.txt

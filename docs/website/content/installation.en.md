@@ -31,7 +31,7 @@ Press the checkbox to complete the installation of the add-on.
 
 ![](../images/installation6.png)
 
-## Related links:
+## Related links
 
 - [Top]({{< ref "/" >}})
 - [Create Simple VRM]({{< ref "create-simple-vrm-from-scratch" >}})

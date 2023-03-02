@@ -7,6 +7,7 @@
 VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 
 ## Download
+
 Please download the add-on from this website: [https://vrm-addon-for-blender.info](https://vrm-addon-for-blender.info)
 
 ## Tutorials
@@ -21,7 +22,7 @@ The source code for development is in the <a href="https://github.com/saturday06
 
 For more advanced development, such as running tests, please use [Poetry](https://python-poetry.org/).
 
-```
+```text
 git checkout main
 git submodule update --init
 
@@ -46,6 +47,7 @@ mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\V
 BlenderにVRM関連機能を追加するアドオンです。
 
 ## ダウンロード
+
 こちらのWebサイトからダウンロードしてください: [https://vrm-addon-for-blender.info](https://vrm-addon-for-blender.info)
 
 ## チュートリアル
@@ -61,7 +63,7 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 テストの実行などより高度な開発をする場合は[Poetry](https://python-poetry.org/)をご利用ください。
 
-```
+```text
 git checkout main
 git submodule update --init
 
