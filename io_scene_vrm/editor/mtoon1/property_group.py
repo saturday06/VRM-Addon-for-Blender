@@ -1687,7 +1687,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     alpha_mode_blend_method_hashed: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
-    def __get_alpha_mode(self) -> int:
+    def get_alpha_mode(self) -> int:
         # https://docs.blender.org/api/2.93/bpy.types.Material.html#bpy.types.Material.blend_method
         blend_method = self.find_material().blend_method
         if blend_method == "OPAQUE":
@@ -1698,7 +1698,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             return self.ALPHA_MODE_BLEND_VALUE
         raise ValueError(f"Unexpected blend_method: {blend_method}")
 
-    def __set_alpha_mode(self, value: int) -> None:
+    def set_alpha_mode(self, value: int) -> None:
         material = self.find_material()
         if material.blend_method == "HASHED":
             self.alpha_mode_blend_method_hashed = True
@@ -1715,11 +1715,18 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             logger.error("Unexpected alpha mode: {value}")
             material.blend_method = "OPAQUE"
 
+        if material.vrm_addon_extension.mtoon1.is_outline_material:
+            return
+        outline_material = material.vrm_addon_extension.mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_material.vrm_addon_extension.mtoon1.set_alpha_mode(value)
+
     alpha_mode: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=alpha_mode_items,
         name="Alpha Mode",  # noqa: F722
-        get=__get_alpha_mode,
-        set=__set_alpha_mode,
+        get=get_alpha_mode,
+        set=set_alpha_mode,
     )
 
     def __get_double_sided(self) -> bool:
@@ -1734,18 +1741,26 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         set=__set_double_sided,
     )
 
-    def __get_alpha_cutoff(self) -> float:
+    def get_alpha_cutoff(self) -> float:
         return max(0, min(1, float(self.find_material().alpha_threshold)))
 
-    def __set_alpha_cutoff(self, value: float) -> None:
-        self.find_material().alpha_threshold = max(0, min(1, value))
+    def set_alpha_cutoff(self, value: float) -> None:
+        material = self.find_material()
+        material.alpha_threshold = max(0, min(1, value))
+
+        if material.vrm_addon_extension.mtoon1.is_outline_material:
+            return
+        outline_material = material.vrm_addon_extension.mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_material.vrm_addon_extension.mtoon1.set_alpha_cutoff(value)
 
     alpha_cutoff: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Cutoff",  # noqa: F821
         min=0,
         soft_max=1,
-        get=__get_alpha_cutoff,
-        set=__set_alpha_cutoff,
+        get=get_alpha_cutoff,
+        set=set_alpha_cutoff,
     )
 
     normal_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]

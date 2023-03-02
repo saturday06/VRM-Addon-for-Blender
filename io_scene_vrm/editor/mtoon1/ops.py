@@ -689,10 +689,20 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
         if not outline_material.use_nodes:
             outline_material.use_nodes = True
-        if outline_material.alpha_threshold != 0.5:
-            outline_material.alpha_threshold = 0.5
-        if outline_material.blend_method != "OPAQUE":
-            outline_material.blend_method = "OPAQUE"
+        if (
+            outline_material.vrm_addon_extension.mtoon1.alpha_cutoff
+            != material.vrm_addon_extension.mtoon1.alpha_cutoff
+        ):
+            outline_material.vrm_addon_extension.mtoon1.alpha_cutoff = (
+                material.vrm_addon_extension.mtoon1.alpha_cutoff
+            )
+        if (
+            outline_material.vrm_addon_extension.mtoon1.alpha_mode
+            != material.vrm_addon_extension.mtoon1.alpha_mode
+        ):
+            outline_material.vrm_addon_extension.mtoon1.alpha_mode = (
+                material.vrm_addon_extension.mtoon1.alpha_mode
+            )
         if outline_material.shadow_method != "NONE":
             outline_material.shadow_method = "NONE"
         if not outline_material.use_backface_culling:
