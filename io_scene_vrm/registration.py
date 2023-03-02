@@ -286,7 +286,6 @@ classes = [
     validation.WM_OT_vrm_validator,
     export_scene.VRM_PT_export_error_messages,
     export_scene.WM_OT_vrm_export_human_bones_assignment,
-    export_scene.WM_OT_vrm_export_warning,
     export_scene.EXPORT_SCENE_OT_vrm,
     import_scene.LicenseConfirmation,
     import_scene.WM_OT_vrm_license_confirmation,
