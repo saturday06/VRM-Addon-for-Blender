@@ -56,6 +56,11 @@ translation_dictionary = {
     ): "公式アドオン「glTF 2.0 format」が必要です。有効化してください。",
     ("*", "For more information please check following URL."): "詳しくは下記のURLを確認してください。",
     ("*", "Import Anyway"): "インポートします",
+    ("*", "Export Anyway"): "エクスポートします",
+    (
+        "*",
+        "There is a high-impact warning. VRM may not export as intended.",
+    ): "影響の大きい警告があります。意図通りのVRMがエクスポートされないかもしれません。",
     ("*", "A light is required"): "ライトが必要です",
     ("*", "License Confirmation"): "ライセンスの確認",
     (

@@ -145,6 +145,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
     ) -> None:
         error_messages = []
         warning_messages = []
+        skippable_warning_messages = []
         info_messages = []
         armature_count = 0
         armature: Optional[bpy.types.Object] = None
@@ -216,7 +217,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 >= 2  # Exclude a "Basis" shape key
                 and any(map(lambda m: m.type != "ARMATURE", obj.modifiers))
             ):
-                warning_messages.append(
+                skippable_warning_messages.append(
                     pgettext(
                         'The "{name}" mesh has both a non-armature modifier and a shape key. '
                         + "However, they cannot coexist, so shape keys may not be export correctly."
@@ -243,7 +244,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     _, _, constraint_warning_messages = search.export_constraints(
                         export_objects, armature
                     )
-                    warning_messages.extend(constraint_warning_messages)
+                    skippable_warning_messages.extend(constraint_warning_messages)
 
                     human_bones = (
                         armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
@@ -393,7 +394,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                             joint_chain_bone_name
                         ] = spring.vrm_name
                         continue
-                    warning_messages.append(
+                    skippable_warning_messages.append(
                         pgettext(
                             'Spring "{spring_name1}" and "{spring_name2}" have'
                             + ' common bone "{bone_name}".'
@@ -472,7 +473,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 ):
                     continue
 
-                warning_messages.append(
+                skippable_warning_messages.append(
                     pgettext(
                         '"{material_name}" needs to enable "VRM MToon Material" or'
                         + " connect Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
@@ -547,7 +548,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     source
                     and source.colorspace_settings.name != texture_info.colorspace
                 ):
-                    warning_messages.append(
+                    skippable_warning_messages.append(
                         pgettext(
                             'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
                             + ' in Material "{name}"'
@@ -584,7 +585,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         or abs(offset[0]) > 0
                         or abs(offset[1]) > 0
                     ):
-                        warning_messages.append(
+                        skippable_warning_messages.append(
                             pgettext(
                                 'Material "{name}" {texture}\'s Offset and Scale are ignored in VRM 0.0'
                             ).format(
@@ -598,7 +599,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     or abs(base_offset[0] - offset[0]) > 0
                     or abs(base_offset[1] - offset[1]) > 0
                 ):
-                    warning_messages.append(
+                    skippable_warning_messages.append(
                         pgettext(
                             'Material "{name}" {texture}\'s Offset and Scale in VRM 0.0 are the values of '
                             + "the Lit Color Texture"
@@ -693,10 +694,16 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             error.severity = 1
             error.message = message
 
-        for message in info_messages:
+        for message in skippable_warning_messages:
             error = error_collection.add()
             error.name = f"VrmModelError{len(error_collection)}"
             error.severity = 2
+            error.message = message
+
+        for message in info_messages:
+            error = error_collection.add()
+            error.name = f"VrmModelError{len(error_collection)}"
+            error.severity = 3
             error.message = message
 
     @staticmethod
@@ -712,7 +719,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         for error in error_collection:
             if error.severity == 0:
                 error_errors.append(error)
-            elif error.severity == 1:
+            elif error.severity <= 2:
                 warning_errors.append(error)
             else:
                 info_errors.append(error)

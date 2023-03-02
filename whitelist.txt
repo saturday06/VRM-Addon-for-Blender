@@ -184,6 +184,7 @@ shadowmap
 shapekey
 sikuli
 skinnedmesh
+skippable
 specular
 splitnormals
 sqrt
