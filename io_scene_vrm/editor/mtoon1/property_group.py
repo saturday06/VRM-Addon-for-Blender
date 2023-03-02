@@ -1710,7 +1710,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         elif value == self.ALPHA_MODE_MASK_VALUE:
             material.blend_method = "CLIP"
         elif value == self.ALPHA_MODE_BLEND_VALUE:
-            material.blend_method = "BLEND"
+            material.blend_method = "HASHED"
         else:
             logger.error("Unexpected alpha mode: {value}")
             material.blend_method = "OPAQUE"
