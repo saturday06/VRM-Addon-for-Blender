@@ -190,6 +190,7 @@ jobs:
         uses: github/super-linter@v4
         env:
           LINTER_RULES_PATH: /
+          LOG_LEVEL: NOTICE
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           VALIDATE_HTML: false
           VALIDATE_JAVASCRIPT_ES: false
