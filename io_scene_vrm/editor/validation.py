@@ -179,6 +179,20 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             context, export_invisibles, export_only_selections
         )
 
+        if not [
+            True
+            for obj in export_objects
+            if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
+        ]:
+            if export_only_selections:
+                warning_messages.append(
+                    pgettext(
+                        '"{export_only_selections}" is enabled, but no mesh is selected.'
+                    ).format(export_only_selections=pgettext("Export Only Selections"))
+                )
+            else:
+                warning_messages.append(pgettext("There is no mesh to export."))
+
         armature_count = len([True for obj in export_objects if obj.type == "ARMATURE"])
         if armature_count >= 2:  # only one armature
             error_messages.append(

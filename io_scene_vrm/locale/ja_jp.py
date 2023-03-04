@@ -112,6 +112,11 @@ translation_dictionary = {
     ): "Spring 「{spring_name1}」と「{spring_name2}」が「{bone_name}」ボーンを共有しています。",
     (
         "*",
+        '"{export_only_selections}" is enabled, but no mesh is selected.',
+    ): "「{export_only_selections}」が有効ですが、メッシュが一つも選択されていません。",
+    ("*", "There is no mesh to export."): "エクスポート対象のメッシュがありません。",
+    (
+        "*",
         "Only one armature is required for VRM export. Multiple armatures found.",
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
