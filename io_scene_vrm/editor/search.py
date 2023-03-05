@@ -259,7 +259,7 @@ def export_objects(
     if export_only_selections:
         selected_objects = list(context.selected_objects)
     elif export_invisibles:
-        selected_objects = list(bpy.data.objects)
+        selected_objects = list(context.blend_data.objects)
     else:
         selected_objects = list(context.selectable_objects)
 
