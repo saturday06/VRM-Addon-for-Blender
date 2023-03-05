@@ -21,17 +21,37 @@ MESH_CONVERTIBLE_OBJECT_TYPES = [
 
 def export_materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material]:
     result = []
-    for mesh_convertible in [
-        obj.data for obj in objects if obj.type in MESH_CONVERTIBLE_OBJECT_TYPES
-    ]:
+    for obj in objects:
+        if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
+            continue
+
+        mesh_convertible = obj.data
         if isinstance(mesh_convertible, (bpy.types.Curve, bpy.types.Mesh)):
-            for material in mesh_convertible.materials:
-                if isinstance(material, bpy.types.Material) and material not in result:
+            for material_ref in mesh_convertible.materials:
+                if not isinstance(material_ref, bpy.types.Material):
+                    continue
+                material = bpy.data.materials.get(material_ref.name)
+                if not isinstance(material, bpy.types.Material):
+                    continue
+                if material not in result:
                     result.append(material)
         else:
             logger.error(
                 f"Unexpected mesh convertible object type: {type(mesh_convertible)}"
             )
+
+        for material_slot in obj.material_slots:
+            if not material_slot:
+                continue
+            material_ref = material_slot.material
+            if not material_ref:
+                continue
+            material = bpy.data.materials.get(material_ref.name)
+            if not isinstance(material, bpy.types.Material):
+                continue
+            if material not in result:
+                result.append(material)
+
     return result
 
 
