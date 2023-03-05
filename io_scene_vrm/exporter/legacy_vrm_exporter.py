@@ -1853,7 +1853,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if isinstance(material_dict, dict)
             }
             material_slot_dict = {
-                i: mat.name for i, mat in enumerate(mesh.material_slots) if mat.name
+                i: slot.material.name
+                for i, slot in enumerate(mesh.material_slots)
+                if slot.name and slot.material.name
             }
             node_id_dict: Dict[str, int] = {
                 str(node_dict.get("name")): i
