@@ -4,10 +4,10 @@ from pathlib import Path
 from sys import float_info
 from typing import Dict, Optional, Tuple
 
-import bgl
 import bpy
 
 from .char import INTERNAL_NAME_PREFIX
+from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
 from .logging import get_logger
 
 logger = get_logger(__name__)
@@ -627,15 +627,15 @@ def get_image_name_and_sampler_type(
 
     # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
     if from_node.interpolation == "Closest":
-        filter_type = bgl.GL_NEAREST
+        filter_type = GL_NEAREST
     else:
-        filter_type = bgl.GL_LINEAR
+        filter_type = GL_LINEAR
 
     # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
     if from_node.extension == "REPEAT":
-        wrap_type = bgl.GL_REPEAT
+        wrap_type = GL_REPEAT
     else:
-        wrap_type = bgl.GL_CLAMP_TO_EDGE
+        wrap_type = GL_CLAMP_TO_EDGE
 
     return image_name, wrap_type, filter_type
 

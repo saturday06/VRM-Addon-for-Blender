@@ -13,12 +13,12 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Sequence, Set
 
-import bgl
 import bpy
 from mathutils import Matrix
 
 from ..common import convert, deep, shader
 from ..common.deep import Json
+from ..common.gl import GL_MIRRORED_REPEAT, GL_NEAREST, GL_REPEAT
 from ..common.logging import get_logger
 from ..common.mtoon0_constants import MaterialMtoon0
 from ..common.preferences import get_preferences
@@ -438,12 +438,12 @@ class AbstractBaseVrmImporter(ABC):
         else:
             image_node.label = "what_is_this_node"
         # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
-        if sampler_dict.get("magFilter") == bgl.GL_NEAREST:
+        if sampler_dict.get("magFilter") == GL_NEAREST:
             image_node.interpolation = "Closest"
         else:
             image_node.interpolation = "Linear"
         # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-        if sampler_dict.get("wrapS") in (bgl.GL_REPEAT, bgl.GL_MIRRORED_REPEAT):
+        if sampler_dict.get("wrapS") in (GL_REPEAT, GL_MIRRORED_REPEAT):
             image_node.extension = "REPEAT"
         else:
             image_node.extension = "EXTEND"

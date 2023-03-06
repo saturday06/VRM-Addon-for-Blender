@@ -14,13 +14,24 @@ from os import environ
 from sys import float_info
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
-import bgl
 import bmesh
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert, deep, gltf, shader
 from ..common.deep import Json, make_json
+from ..common.gl import (
+    GL_FLOAT,
+    GL_LINEAR,
+    GL_LINEAR_MIPMAP_LINEAR,
+    GL_LINEAR_MIPMAP_NEAREST,
+    GL_NEAREST,
+    GL_NEAREST_MIPMAP_LINEAR,
+    GL_NEAREST_MIPMAP_NEAREST,
+    GL_REPEAT,
+    GL_UNSIGNED_INT,
+    GL_UNSIGNED_SHORT,
+)
 from ..common.logging import get_logger
 from ..common.mtoon0_constants import MaterialMtoon0
 from ..common.version import addon_version
@@ -379,7 +390,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             im_bin = GlbBin(
                 skin_invert_matrix_bin,
                 "MAT4",
-                bgl.GL_FLOAT,
+                GL_FLOAT,
                 len(joints),
                 None,
                 self.glb_bin_collector,
@@ -944,25 +955,25 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             min_filter = getattr(sampler, "min_filter", None)
 
             if not isinstance(wrap_s, int):
-                wrap_s = bgl.GL_REPEAT
+                wrap_s = GL_REPEAT
             if not isinstance(wrap_t, int):
-                wrap_t = bgl.GL_REPEAT
+                wrap_t = GL_REPEAT
             if not isinstance(mag_filter, int):
-                mag_filter = bgl.GL_LINEAR
+                mag_filter = GL_LINEAR
             if not isinstance(min_filter, int):
-                min_filter = bgl.GL_LINEAR
+                min_filter = GL_LINEAR
 
             # VRoid Hub may not support a mipmap
             if min_filter in [
-                bgl.GL_NEAREST_MIPMAP_LINEAR,
-                bgl.GL_NEAREST_MIPMAP_NEAREST,
+                GL_NEAREST_MIPMAP_LINEAR,
+                GL_NEAREST_MIPMAP_NEAREST,
             ]:
-                min_filter = bgl.GL_NEAREST
+                min_filter = GL_NEAREST
             elif min_filter in [
-                bgl.GL_LINEAR_MIPMAP_NEAREST,
-                bgl.GL_LINEAR_MIPMAP_LINEAR,
+                GL_LINEAR_MIPMAP_NEAREST,
+                GL_LINEAR_MIPMAP_LINEAR,
             ]:
-                min_filter = bgl.GL_LINEAR
+                min_filter = GL_LINEAR
 
             sampler_dict_key = (
                 wrap_s,
@@ -2062,7 +2073,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 mat_id: GlbBin(
                     index_bin,
                     "SCALAR",
-                    bgl.GL_UNSIGNED_INT,
+                    GL_UNSIGNED_INT,
                     primitive_index_vertex_count[mat_id],
                     None,
                     self.glb_bin_collector,
@@ -2084,7 +2095,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pos_glb = GlbBin(
                 position_bin,
                 "VEC3",
-                bgl.GL_FLOAT,
+                GL_FLOAT,
                 unique_vertex_id,
                 position_min_max,
                 self.glb_bin_collector,
@@ -2092,7 +2103,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             nor_glb = GlbBin(
                 normal_bin,
                 "VEC3",
-                bgl.GL_FLOAT,
+                GL_FLOAT,
                 unique_vertex_id,
                 None,
                 self.glb_bin_collector,
@@ -2101,7 +2112,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 GlbBin(
                     texcoord_bin,
                     "VEC2",
-                    bgl.GL_FLOAT,
+                    GL_FLOAT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -2115,7 +2126,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 joints_glb = GlbBin(
                     joints_bin,
                     "VEC4",
-                    bgl.GL_UNSIGNED_SHORT,
+                    GL_UNSIGNED_SHORT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -2123,7 +2134,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 weights_glb = GlbBin(
                     weights_bin,
                     "VEC4",
-                    bgl.GL_FLOAT,
+                    GL_FLOAT,
                     unique_vertex_id,
                     None,
                     self.glb_bin_collector,
@@ -2136,7 +2147,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     GlbBin(
                         morph_pos_bin,
                         "VEC3",
-                        bgl.GL_FLOAT,
+                        GL_FLOAT,
                         unique_vertex_id,
                         morph_minmax,
                         self.glb_bin_collector,
@@ -2149,7 +2160,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     GlbBin(
                         morph_normal_bin,
                         "VEC3",
-                        bgl.GL_FLOAT,
+                        GL_FLOAT,
                         unique_vertex_id,
                         None,
                         self.glb_bin_collector,
@@ -2316,10 +2327,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     self.json_dict["samplers"] = sampler_dicts
                 sampler_dicts.append(
                     {
-                        "magFilter": bgl.GL_LINEAR,
-                        "minFilter": bgl.GL_LINEAR,
-                        "wrapS": bgl.GL_REPEAT,
-                        "wrapT": bgl.GL_REPEAT,
+                        "magFilter": GL_LINEAR,
+                        "minFilter": GL_LINEAR,
+                        "wrapS": GL_REPEAT,
+                        "wrapT": GL_REPEAT,
                     }
                 )
 

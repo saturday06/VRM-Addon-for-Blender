@@ -9,7 +9,6 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-import bgl
 import bpy
 import mathutils
 from mathutils import Matrix, Vector
@@ -20,6 +19,7 @@ from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
+from ..common.gl import GL_FLOAT, GL_UNSIGNED_SHORT
 from ..common.logging import get_logger
 from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -816,7 +816,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "bufferView": position_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC3",
-                        "componentType": bgl.GL_FLOAT,
+                        "componentType": GL_FLOAT,
                         "count": 3,
                         "min": [0, 0, 0],
                         "max": [1, 1, 0],
@@ -828,7 +828,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "bufferView": texcoord_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC2",
-                        "componentType": bgl.GL_FLOAT,
+                        "componentType": GL_FLOAT,
                         "count": 3,
                     }
                 )
@@ -965,7 +965,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "bufferView": position_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC3",
-                        "componentType": bgl.GL_FLOAT,
+                        "componentType": GL_FLOAT,
                         "count": 3,
                         "min": [0, 0, 0],
                         "max": [1, 1, 0],
@@ -977,7 +977,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "bufferView": joints_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC4",
-                        "componentType": bgl.GL_UNSIGNED_SHORT,
+                        "componentType": GL_UNSIGNED_SHORT,
                         "count": 3,
                     }
                 )
@@ -987,7 +987,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "bufferView": weights_buffer_view_index,
                         "byteOffset": 0,
                         "type": "VEC4",
-                        "componentType": bgl.GL_FLOAT,
+                        "componentType": GL_FLOAT,
                         "count": 3,
                     }
                 )

@@ -156,7 +156,11 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
                     icon="SHADING_RENDERED",
                     depress=True,
                 )
-            elif armature and not armature.data.vrm_addon_extension.is_vrm1():
+            elif (
+                tuple(bpy.app.version) < (3, 7)
+                and armature
+                and not armature.data.vrm_addon_extension.is_vrm1()
+            ):
                 if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
                     layout.operator(
                         ICYP_OT_draw_model.bl_idname,

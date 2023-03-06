@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
-import bgl
 import bpy
 import gpu
 from gpu_extras.batch import batch_for_shader
@@ -410,6 +409,11 @@ class GlslDrawObj:
                     batches.insert(0, (mat, toon_batch, depth_batch))
 
     def glsl_draw(self) -> None:
+        if tuple(bpy.app.version) >= (3, 7):
+            return
+
+        import bgl
+
         glsl_draw_obj: Optional[GlslDrawObj] = None
         if GlslDrawObj.instance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()

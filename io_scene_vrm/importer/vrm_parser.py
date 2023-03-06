@@ -14,7 +14,6 @@ from itertools import repeat
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
-import bgl
 import bpy
 from bpy.app.translations import pgettext
 
@@ -26,6 +25,7 @@ from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
+from ..common.gl import GL_TRIANGLES
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from ..common.mtoon0_constants import MaterialMtoon0, MaterialTransparentZWrite
@@ -574,7 +574,7 @@ class VrmParser:
                 )
 
                 # region 頂点index
-                if primitive_dict.get("mode", 4) != bgl.GL_TRIANGLES:
+                if primitive_dict.get("mode", 4) != GL_TRIANGLES:
                     # TODO その他メッシュタイプ対応
                     primitive_mode = primitive_dict.get("mode")
                     raise ValueError(f"Unsupported polygon type(:{primitive_mode})")
