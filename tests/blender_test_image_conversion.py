@@ -9,7 +9,7 @@ from io_scene_vrm.external import io_scene_gltf2_support
 def test() -> None:
     tga_path = Path(__file__).parent / "resources" / "blend" / "tga_test.tga"
     image = bpy.data.images.load(str(tga_path), check_existing=True)
-    image_bytes, _ = io_scene_gltf2_support.image_to_image_bytes(image)
+    image_bytes, _ = io_scene_gltf2_support.image_to_image_bytes(image, {})
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir) / "image.png"
         temp_path.write_bytes(image_bytes)

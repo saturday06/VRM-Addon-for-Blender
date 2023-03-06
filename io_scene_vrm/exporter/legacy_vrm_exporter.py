@@ -5,7 +5,6 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-import datetime
 import math
 import re
 import statistics
@@ -255,7 +254,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             else len(bpy.data.images) + used_images.index(used_image)
         )
         for image in sorted(used_images, key=image_to_image_index):
-            image_bin, filetype = io_scene_gltf2_support.image_to_image_bytes(image)
+            image_bin, filetype = io_scene_gltf2_support.image_to_image_bytes(
+                image, self.gltf2_addon_export_settings
+            )
             ImageBin(image_bin, image.name, filetype, self.glb_bin_collector)
 
     def armature_to_node_and_scenes_dict(self) -> None:
@@ -1019,43 +1020,24 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 return fallback
 
             gltf2_io_material: Optional[object] = None
-            export_settings: Dict[str, object] = {
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L522
-                "timestamp": datetime.datetime.now(datetime.timezone.utc),
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L258-L268
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L552
-                "gltf_materials": True,
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L120-L137
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L532
-                "gltf_format": "GLB",
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L154-L168
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L533
-                "gltf_image_format": "AUTO",
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L329-L333
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L569
-                "gltf_extras": True,
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L611-L633
-                "gltf_user_extensions": [],
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L606
-                "gltf_binary": bytearray(),
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L176-L184
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L530
-                "gltf_keep_original_textures": False,
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/bfe4ff8b1b5c26ba17b0531b67798376147d9fa7/addons/io_scene_gltf2/__init__.py
-                "gltf_original_specular": False,
-            }
             try:
                 if bpy.app.version >= (3, 2):
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/master/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_primitives.py#L71-L96
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/9e08d423a803da52eb08fbc93d9aa99f3f681a27/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L42
-                    gltf2_io_material = gather_material(b_mat, 0, export_settings)
+                    gltf2_io_material = gather_material(
+                        b_mat, 0, self.gltf2_addon_export_settings
+                    )
                 elif bpy.app.version >= (2, 91):
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/abd8380e19dbe5e5fb9042513ad6b744032bc9bc/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
-                    gltf2_io_material = gather_material(b_mat, export_settings)
+                    gltf2_io_material = gather_material(
+                        b_mat, self.gltf2_addon_export_settings
+                    )
                 else:
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/ac3471cae42b34fc69fda75fa404117272fa9560/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
                     gltf2_io_material = gather_material(
-                        b_mat, not b_mat.use_backface_culling, export_settings
+                        b_mat,
+                        not b_mat.use_backface_culling,
+                        self.gltf2_addon_export_settings,
                     )
 
                 alpha_cutoff = getattr(gltf2_io_material, "alpha_cutoff", None)

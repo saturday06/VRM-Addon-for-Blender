@@ -7,6 +7,7 @@ import bpy
 
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.deep import Json, make_json
+from ..external import io_scene_gltf2_support
 
 
 class AbstractBaseVrmExporter(ABC):
@@ -21,6 +22,9 @@ class AbstractBaseVrmExporter(ABC):
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
+        self.gltf2_addon_export_settings = (
+            io_scene_gltf2_support.create_export_settings()
+        )
 
     @abstractmethod
     def export_vrm(self) -> Optional[bytes]:
@@ -32,6 +36,9 @@ class AbstractBaseVrmExporter(ABC):
         user_pose_library: Optional[bpy.types.Action],
         user_pose_marker_name: str,
     ) -> None:
+        if tuple(bpy.app.version) >= (3, 5):
+            return
+
         if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -72,6 +79,9 @@ class AbstractBaseVrmExporter(ABC):
             bpy.ops.poselib.apply_pose(pose_index=pose_index)
 
     def restore_pose(self, armature: bpy.types.Object) -> None:
+        if tuple(bpy.app.version) >= (3, 5):
+            return
+
         if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
