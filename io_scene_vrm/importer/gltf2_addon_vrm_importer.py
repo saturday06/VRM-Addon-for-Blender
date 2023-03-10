@@ -2103,8 +2103,18 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             node_index = morph_target_bind_dict.get("node")
             if not isinstance(node_index, int):
                 continue
-
-            mesh_obj = self.meshes.get(node_index)
+            node_dicts = self.parse_result.json_dict.get("nodes")
+            if not isinstance(node_dicts, list) or not (
+                0 <= node_index < len(node_dicts)
+            ):
+                continue
+            node_dict = node_dicts[node_index]
+            if not isinstance(node_dict, dict):
+                continue
+            mesh_index = node_dict.get("mesh")
+            if not isinstance(mesh_index, int):
+                continue
+            mesh_obj = self.meshes.get(mesh_index)
             if not mesh_obj:
                 continue
 
