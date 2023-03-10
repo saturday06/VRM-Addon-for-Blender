@@ -103,6 +103,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
         wm.progress_begin(0, 11)
+        object_name_and_modifier_names = self.hide_mtoon1_outline_geometry_nodes()
         try:
             self.setup_pose(
                 self.armature,
@@ -133,6 +134,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         finally:
             try:
                 self.restore_pose(self.armature)
+                self.restore_mtoon1_outline_geometry_nodes(
+                    object_name_and_modifier_names
+                )
                 self.cleanup()
             finally:
                 wm.progress_end()

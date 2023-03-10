@@ -1,10 +1,11 @@
 import secrets
 import string
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import bpy
 
+from ..common import shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.deep import Json, make_json
 from ..external import io_scene_gltf2_support
@@ -105,6 +106,34 @@ class AbstractBaseVrmExporter(ABC):
             armature.data.pose_position = self.saved_pose_position
 
         bpy.ops.object.mode_set(mode="OBJECT")
+
+    @staticmethod
+    def hide_mtoon1_outline_geometry_nodes() -> List[Tuple[str, str]]:
+        object_name_to_modifier_names = []
+        for obj in bpy.data.objects:
+            for modifier in obj.modifiers:
+                if not modifier.show_viewport:
+                    continue
+                if modifier.type != "NODES":
+                    continue
+                if modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
+                    continue
+                modifier.show_viewport = False
+                object_name_to_modifier_names.append((obj.name, modifier.name))
+        return object_name_to_modifier_names
+
+    @staticmethod
+    def restore_mtoon1_outline_geometry_nodes(
+        object_name_to_modifier_names: List[Tuple[str, str]]
+    ) -> None:
+        for object_name, modifier_name in object_name_to_modifier_names:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                continue
+            modifier = obj.modifiers.get(modifier_name)
+            if not modifier:
+                continue
+            modifier.show_viewport = True
 
 
 def assign_dict(

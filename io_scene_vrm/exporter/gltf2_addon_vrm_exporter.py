@@ -1667,6 +1667,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         vrm = self.armature.data.vrm_addon_extension.vrm1
         # dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
+        object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes()
         try:
             self.setup_pose(
                 self.armature,
@@ -1733,6 +1734,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             self.restore_object_visibility_and_selection()
             self.restore_skinned_mesh_parent()
             # self.destroy_dummy_skinned_mesh_object(dummy_skinned_mesh_object_name)
+            self.restore_mtoon1_outline_geometry_nodes(object_name_to_modifier_name)
             self.restore_pose(self.armature)
 
         json_dict, body_binary = gltf.parse_glb(extra_name_assigned_glb)

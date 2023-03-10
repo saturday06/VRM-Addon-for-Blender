@@ -6,7 +6,7 @@ import bpy
 from bpy.app.translations import pgettext
 from mathutils import Vector
 
-from ..common import gltf, version
+from ..common import gltf, shader, version
 from ..common.logging import get_logger
 from ..common.mtoon0_constants import MaterialMtoon0
 from ..common.preferences import get_preferences
@@ -229,7 +229,16 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 and obj.data.shape_keys is not None
                 and len(obj.data.shape_keys.key_blocks)
                 >= 2  # Exclude a "Basis" shape key
-                and any(map(lambda m: m.type != "ARMATURE", obj.modifiers))
+                and [
+                    True
+                    for modifier in obj.modifiers
+                    if modifier.type != "ARMATURE"
+                    and not (
+                        modifier.type == "NODES"
+                        and modifier.node_group.name
+                        == shader.OUTLINE_GEOMETRY_GROUP_NAME
+                    )
+                ]
             ):
                 skippable_warning_messages.append(
                     pgettext(
