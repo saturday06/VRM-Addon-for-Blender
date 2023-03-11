@@ -179,11 +179,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             context, export_invisibles, export_only_selections
         )
 
-        if not [
-            True
-            for obj in export_objects
-            if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
-        ]:
+        if not any(
+            obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES for obj in export_objects
+        ):
             if export_only_selections:
                 warning_messages.append(
                     pgettext(
@@ -229,16 +227,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 and obj.data.shape_keys is not None
                 and len(obj.data.shape_keys.key_blocks)
                 >= 2  # Exclude a "Basis" shape key
-                and [
-                    True
-                    for modifier in obj.modifiers
-                    if modifier.type != "ARMATURE"
+                and any(
+                    modifier.type != "ARMATURE"
                     and not (
                         modifier.type == "NODES"
                         and modifier.node_group.name
                         == shader.OUTLINE_GEOMETRY_GROUP_NAME
                     )
-                ]
+                    for modifier in obj.modifiers
+                )
             ):
                 skippable_warning_messages.append(
                     pgettext(
