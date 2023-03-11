@@ -31,11 +31,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         default=True
     )
     errors: bpy.props.CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
+    armature_object_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         self.detect_errors(
             context,
             self.errors,
+            self.armature_object_name,
             execute_migration=True,
             readonly=False,
         )
@@ -55,6 +57,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         self.detect_errors(
             context,
             self.errors,
+            self.armature_object_name,
             execute_migration=True,
             readonly=False,
         )
@@ -140,6 +143,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
     def detect_errors(
         context: bpy.types.Context,
         error_collection: bpy.types.CollectionProperty,
+        armature_object_name: str,
         execute_migration: bool = False,
         readonly: bool = True,
     ) -> None:
@@ -176,7 +180,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             )
 
         export_objects = search.export_objects(
-            context, export_invisibles, export_only_selections
+            context, export_invisibles, export_only_selections, armature_object_name
         )
 
         if not any(

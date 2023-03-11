@@ -8,6 +8,7 @@ from bpy_extras.io_utils import ExportHelper
 from ..common import version
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import search, validation
+from ..editor.property_group import StringPropertyGroup
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
     draw_vrm0_humanoid_optional_bones_layout,
@@ -55,7 +56,11 @@ def export_vrm_update_addon_preferences(
         changed = True
 
     if changed:
-        validation.WM_OT_vrm_validator.detect_errors(context, export_op.errors)
+        validation.WM_OT_vrm_validator.detect_errors(
+            context,
+            export_op.errors,
+            export_op.armature_object_name,
+        )
 
 
 class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
@@ -86,7 +91,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         update=export_vrm_update_addon_preferences,
     )
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
-
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
     ignore_skippable_warning: bpy.props.BoolProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},  # noqa: F821
     )
@@ -96,7 +103,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             return {"CANCELLED"}
 
         if bpy.ops.vrm.model_validate(
-            "INVOKE_DEFAULT", show_successful_message=False
+            "INVOKE_DEFAULT",
+            show_successful_message=False,
+            armature_object_name=self.armature_object_name,
         ) != {"FINISHED"}:
             return {"CANCELLED"}
 
@@ -109,7 +118,10 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             export_fb_ngon_encoding = False
 
         export_objects = search.export_objects(
-            context, export_invisibles, export_only_selections
+            context,
+            export_invisibles,
+            export_only_selections,
+            self.armature_object_name,
         )
         is_vrm1 = any(
             obj.type == "ARMATURE" and obj.data.vrm_addon_extension.is_vrm1()
@@ -157,10 +169,16 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             )
 
         export_objects = search.export_objects(
-            context, bool(self.export_invisibles), bool(self.export_only_selections)
+            context,
+            bool(self.export_invisibles),
+            bool(self.export_only_selections),
+            self.armature_object_name,
         )
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
+        if len(armatures) > 1:
+            bpy.ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
+            return {"CANCELLED"}
         if len(armatures) == 1 and armatures[0].data.vrm_addon_extension.is_vrm0():
             armature = armatures[0]
             Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
@@ -174,7 +192,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                     armature_name=armature.name
                 )
             if not humanoid.all_required_bones_are_assigned():
-                bpy.ops.wm.vrm_export_human_bones_assignment("INVOKE_DEFAULT")
+                bpy.ops.wm.vrm_export_human_bones_assignment(
+                    "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+                )
                 return {"CANCELLED"}
         elif len(armatures) == 1 and armatures[0].data.vrm_addon_extension.is_vrm1():
             armature = armatures[0]
@@ -192,19 +212,29 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                     armature_name=armature.name
                 )
             if not human_bones.all_required_bones_are_assigned():
-                bpy.ops.wm.vrm_export_human_bones_assignment("INVOKE_DEFAULT")
+                bpy.ops.wm.vrm_export_human_bones_assignment(
+                    "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+                )
                 return {"CANCELLED"}
 
         if bpy.ops.vrm.model_validate(
-            "INVOKE_DEFAULT", show_successful_message=False
+            "INVOKE_DEFAULT",
+            show_successful_message=False,
+            armature_object_name=self.armature_object_name,
         ) != {"FINISHED"}:
             return {"CANCELLED"}
 
-        validation.WM_OT_vrm_validator.detect_errors(context, self.errors)
+        validation.WM_OT_vrm_validator.detect_errors(
+            context,
+            self.errors,
+            self.armature_object_name,
+        )
         if not self.ignore_skippable_warning and any(
             error.severity <= 1 for error in self.errors
         ):
-            bpy.ops.wm.vrm_export_confirmation("INVOKE_DEFAULT")
+            bpy.ops.wm.vrm_export_confirmation(
+                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            )
             return {"CANCELLED"}
 
         return cast(Set[str], ExportHelper.invoke(self, context, event))
@@ -266,8 +296,11 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
             )
 
 
-def menu_export(export_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
-    export_op.layout.operator(EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
+def menu_export(menu_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
+    export_op = menu_op.layout.operator(
+        EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)"
+    )
+    export_op.armature_object_name = ""
 
 
 class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[misc]
@@ -275,12 +308,19 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
     bl_idname = "wm.vrm_export_human_bones_assignment"
     bl_options = {"REGISTER", "UNDO"}
 
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
     def execute(self, context: bpy.types.Context) -> Set[str]:
         preferences = get_preferences(context)
         export_invisibles = bool(preferences.export_invisibles)
         export_only_selections = bool(preferences.export_only_selections)
         export_objects = search.export_objects(
-            context, export_invisibles, export_only_selections
+            context,
+            export_invisibles,
+            export_only_selections,
+            self.armature_object_name,
         )
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) != 1:
@@ -306,7 +346,9 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
                 return {"CANCELLED"}
         else:
             return {"CANCELLED"}
-        bpy.ops.export_scene.vrm("INVOKE_DEFAULT")
+        bpy.ops.export_scene.vrm(
+            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+        )
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
@@ -322,7 +364,10 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
         armatures = [
             obj
             for obj in search.export_objects(
-                context, export_invisibles, export_only_selections
+                context,
+                export_invisibles,
+                export_only_selections,
+                self.armature_object_name,
             )
             if obj.type == "ARMATURE"
         ]
@@ -387,6 +432,10 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
 
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
     export_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Anyway",  # noqa: F722
     )
@@ -394,11 +443,19 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
     def execute(self, _context: bpy.types.Context) -> Set[str]:
         if not self.export_anyway:
             return {"CANCELLED"}
-        bpy.ops.export_scene.vrm("INVOKE_DEFAULT", ignore_skippable_warning=True)
+        bpy.ops.export_scene.vrm(
+            "INVOKE_DEFAULT",
+            ignore_skippable_warning=True,
+            armature_object_name=self.armature_object_name,
+        )
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
-        validation.WM_OT_vrm_validator.detect_errors(context, self.errors)
+        validation.WM_OT_vrm_validator.detect_errors(
+            context,
+            self.errors,
+            self.armature_object_name,
+        )
         return cast(
             Set[str], context.window_manager.invoke_props_dialog(self, width=800)
         )
@@ -422,3 +479,61 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
             )
 
         layout.prop(self, "export_anyway")
+
+
+class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[misc]
+    bl_label = "VRM Export Armature Selection"
+    bl_idname = "wm.vrm_export_armature_selection"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup,
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        if not self.armature_object_name:
+            return {"CANCELLED"}
+        armature_object = context.blend_data.objects.get(self.armature_object_name)
+        if not armature_object or armature_object.type != "ARMATURE":
+            return {"CANCELLED"}
+        bpy.ops.export_scene.vrm(
+            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+        )
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+        if not self.armature_object_name:
+            armature_object = search.current_armature(context)
+            if armature_object:
+                self.armature_object_name = armature_object.name
+        self.armature_object_name_candidates.clear()
+        for obj in context.blend_data.objects:
+            if obj.type != "ARMATURE":
+                continue
+            candidate = self.armature_object_name_candidates.add()
+            candidate.name = obj.name
+            candidate.value = obj.name
+        return cast(
+            Set[str], context.window_manager.invoke_props_dialog(self, width=600)
+        )
+
+    def draw(self, _context: bpy.types.Context) -> None:
+        layout = self.layout
+        layout.label(
+            text="複数のアーマチュアが存在します。VRMとしてエクスポートするアーマチュアを選択してください。",
+            icon="ERROR",
+        )
+
+        layout.prop_search(
+            self,
+            "armature_object_name",
+            self,
+            "armature_object_name_candidates",
+            icon="OUTLINER_OB_ARMATURE",
+            text="",
+            translate=False,
+        )

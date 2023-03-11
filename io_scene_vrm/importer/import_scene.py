@@ -312,6 +312,6 @@ def create_blend_model(
 
 
 def menu_import(
-    import_op: bpy.types.Operator, _context: bpy.types.Context
+    menu_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
-    import_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
+    menu_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")

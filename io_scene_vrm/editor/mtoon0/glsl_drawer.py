@@ -625,7 +625,9 @@ class GlslDrawObj:
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [
             obj
-            for obj in search.export_objects(context, invisibles, only_selections)
+            for obj in search.export_objects(
+                context, invisibles, only_selections, armature_object_name=None
+            )
             if obj.type == "MESH"
         ]
         if GlslDrawObj.instance is None or GlslDrawObj.draw_func is None:

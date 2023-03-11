@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from sys import float_info
-from typing import Dict, List, Optional, Sequence, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union
 
 import bpy
 from bpy.app.translations import pgettext
 
 from ..common.logging import get_logger
-from ..common.preferences import get_preferences
 
 logger = get_logger(__name__)
 
@@ -53,15 +52,6 @@ def export_materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material
                 result.append(material)
 
     return result
-
-
-def object_candidates(context: bpy.types.Context) -> Sequence[bpy.types.Object]:
-    preferences = get_preferences(context)
-    if preferences.export_invisibles:
-        objects = bpy.data.objects
-    else:
-        objects = context.selectable_objects
-    return cast(Sequence[bpy.types.Object], objects)
 
 
 def vrm_shader_node(material: bpy.types.Material) -> Optional[bpy.types.Node]:
@@ -157,7 +147,7 @@ def object_distance(
 
 def armature_exists(context: bpy.types.Object) -> bool:
     return any(armature.users for armature in bpy.data.armatures) and any(
-        obj.type == "ARMATURE" for obj in object_candidates(context)
+        obj.type == "ARMATURE" for obj in context.blend_data.objects
     )
 
 
@@ -171,7 +161,7 @@ def current_armature_is_vrm0(context: bpy.types.Context) -> bool:
         hasattr(armature_data, "vrm_addon_extension")
         and armature_data.vrm_addon_extension.is_vrm0()
         for armature_data in live_armature_datum
-    ) and any(obj.type == "ARMATURE" for obj in object_candidates(context)):
+    ) and any(obj.type == "ARMATURE" for obj in context.blend_data.objects):
         return True
     armature = current_armature(context)
     if armature is None:
@@ -189,7 +179,7 @@ def current_armature_is_vrm1(context: bpy.types.Context) -> bool:
         hasattr(armature_data, "vrm_addon_extension")
         and armature_data.vrm_addon_extension.is_vrm1()
         for armature_data in live_armature_datum
-    ) and any(obj.type == "ARMATURE" for obj in object_candidates(context)):
+    ) and any(obj.type == "ARMATURE" for obj in context.blend_data.objects):
         return True
     armature = current_armature(context)
     if armature is None:
@@ -207,7 +197,7 @@ def multiple_armatures_exist(context: bpy.types.Object) -> bool:
             continue
 
         first_obj_exists = False
-        for obj in object_candidates(context):
+        for obj in context.blend_data.objects:
             if obj.type == "ARMATURE":
                 if first_obj_exists:
                     return True
@@ -217,7 +207,7 @@ def multiple_armatures_exist(context: bpy.types.Object) -> bool:
 
 
 def current_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
-    objects = [obj for obj in object_candidates(context) if obj.type == "ARMATURE"]
+    objects = [obj for obj in context.blend_data.objects if obj.type == "ARMATURE"]
     if not objects:
         return None
 
@@ -253,7 +243,10 @@ def current_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
 
 
 def export_objects(
-    context: bpy.types.Context, export_invisibles: bool, export_only_selections: bool
+    context: bpy.types.Context,
+    export_invisibles: bool,
+    export_only_selections: bool,
+    armature_object_name: Optional[str],
 ) -> List[bpy.types.Object]:
     selected_objects = []
     if export_only_selections:
@@ -263,10 +256,24 @@ def export_objects(
     else:
         selected_objects = list(context.selectable_objects)
 
-    exclusion_types = ["LIGHT", "CAMERA"]
     objects = []
+
+    armature_object = None
+    if armature_object_name:
+        armature_object = context.blend_data.objects.get(armature_object_name)
+        if armature_object and armature_object.name in context.view_layer.objects:
+            objects.append(armature_object)
+        else:
+            armature_object = None
+    if not armature_object:
+        objects.extend(
+            obj
+            for obj in context.blend_data.objects
+            if obj.type == "ARMATURE" and obj.name in context.view_layer.objects
+        )
+
     for obj in selected_objects:
-        if obj.type in exclusion_types:
+        if obj.type in ["ARMATURE", "LIGHT", "CAMERA"]:
             continue
         if obj.name not in context.view_layer.objects:
             continue

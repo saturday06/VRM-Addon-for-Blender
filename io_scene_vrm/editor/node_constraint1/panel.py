@@ -211,7 +211,10 @@ def draw_node_constraint1_layout(
 ) -> None:
     preferences = get_preferences(context)
     objs = search.export_objects(
-        context, preferences.export_invisibles, export_only_selections=False
+        context,
+        preferences.export_invisibles,
+        export_only_selections=False,
+        armature_object_name=armature.name,
     )
     object_constraints, bone_constraints, _ = search.export_constraints(objs, armature)
     draw_roll_constraint_layout(

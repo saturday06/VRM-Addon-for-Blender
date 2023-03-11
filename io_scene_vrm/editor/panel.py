@@ -131,17 +131,18 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
             text=pgettext("Create VRM Model"),
             icon="OUTLINER_OB_ARMATURE",
         ).skip_heavy_armature_setup = True
-        vrm_validator_prop = layout.operator(
+        vrm_validator_op = layout.operator(
             validation.WM_OT_vrm_validator.bl_idname,
             text=pgettext("Validate VRM Model"),
             icon="VIEWZOOM",
         )
-        vrm_validator_prop.show_successful_message = True
+        vrm_validator_op.show_successful_message = True
         layout.prop(preferences, "export_invisibles")
         layout.prop(preferences, "export_only_selections")
 
         armature = search.current_armature(context)
         if armature:
+            vrm_validator_op.armature_object_name = armature.name
             layout.prop(
                 armature.data.vrm_addon_extension,
                 "spec_version",
