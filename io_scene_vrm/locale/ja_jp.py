@@ -179,7 +179,7 @@ translation_dictionary = {
         "*",
         'Node Constraint "{owner_name} / {constraint_name}" has a circular dependency',
     ): "ノードコンストレイント「{owner_name} / {constraint_name}」に循環依存関係が存在します。",
-    ("*", "Please add ARMATURE to selections"): "アーマチュアを選択範囲に含めてください",
+    ("*", "No armature exists."): "アーマチュアが存在しません。",
     (
         "*",
         'vertex index "{vertex_index}" is no weight in "{mesh_name}". '

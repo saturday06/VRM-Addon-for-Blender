@@ -201,7 +201,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 )
             )
         if armature_count == 0:
-            info_messages.append(pgettext("Please add ARMATURE to selections"))
+            info_messages.append(pgettext("No armature exists."))
 
         for obj in export_objects:
             if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES:
