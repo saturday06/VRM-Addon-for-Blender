@@ -164,6 +164,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             outline.set_rgb(name, value, default_value)
 
     def get_node_name(self, extra: Optional[str] = None) -> str:
+        if extra and extra.startswith("Mtoon1"):
+            return extra
         base = re.sub("PropertyGroup$", "", type(self).__name__)
         if extra is not None:
             return base + "." + extra
@@ -179,10 +181,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             in_node = material.node_tree.nodes.get(in_node_name)
             out_node = material.node_tree.nodes.get(out_node_name)
             if not isinstance(in_node, bpy.types.NodeReroute):
-                # logger.warning(f'No node reroute "{in_node_name}"')
                 return
             if not isinstance(out_node, bpy.types.NodeReroute):
-                logger.warning(f'No node reroute "{out_node_name}"')
                 return
 
             if not any(
@@ -199,10 +199,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             in_node = material.node_tree.nodes.get(in_node_name)
             out_node = material.node_tree.nodes.get(out_node_name)
             if not isinstance(in_node, bpy.types.NodeReroute):
-                # logger.warning(f'No node reroute "{in_node_name}"')
                 return
             if not isinstance(out_node, bpy.types.NodeReroute):
-                logger.warning(f'No node reroute "{out_node_name}"')
                 return
 
             disconnecting_link = {
@@ -219,6 +217,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if outline:
             outline.link_reroutes(base_node_name, connect)
 
+    # deprecated
     def switch_link_reroutes(self, base_node_name: str, up: bool) -> None:
         material = self.find_material()
 
@@ -233,13 +232,10 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             up_node = material.node_tree.nodes.get(up_node_name)
 
             if not isinstance(in_node, bpy.types.NodeReroute):
-                logger.warning(f'No node reroute "{in_node_name}"')
                 return
             if not isinstance(down_node, bpy.types.NodeReroute):
-                logger.warning(f'No node reroute "{down_node_name}"')
                 return
             if not isinstance(up_node, bpy.types.NodeReroute):
-                logger.warning(f'No node reroute "{up_node_name}"')
                 return
 
             disconnecting_socket = down_node.outputs[0] if up else up_node.outputs[0]
@@ -258,13 +254,10 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         down_node = material.node_tree.nodes.get(down_node_name)
         up_node = material.node_tree.nodes.get(up_node_name)
         if not isinstance(in_node, bpy.types.NodeReroute):
-            logger.warning(f'No node reroute "{in_node_name}"')
             return
         if not isinstance(down_node, bpy.types.NodeReroute):
-            logger.warning(f'No node reroute "{down_node_name}"')
             return
         if not isinstance(up_node, bpy.types.NodeReroute):
-            logger.warning(f'No node reroute "{up_node_name}"')
             return
 
         connecting_socket = up_node.outputs[0] if up else down_node.outputs[0]
@@ -319,8 +312,13 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         self.set_texture_uv("Image Width", max(image.size[0], 1) if image else 1)
         self.set_texture_uv("Image Height", max(image.size[1], 1) if image else 1)
 
-        self.link_reroutes(self.get_texture_node_name("Color"), bool(node.image))
-        self.link_reroutes(self.get_texture_node_name("Alpha"), bool(node.image))
+        self.link_reroutes(  # deprecated
+            self.get_texture_node_name("Color"), bool(node.image)
+        )
+        self.link_reroutes(  # deprecated
+            self.get_texture_node_name("Alpha"), bool(node.image)
+        )
+        self.set_bool(self.get_texture_node_name("Present"), bool(node.image))
 
         outline = self.find_outline_property_group(material)
         if outline:
@@ -1108,7 +1106,9 @@ class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     ]
 
     def update_source(self, _context: bpy.types.Context) -> None:
-        self.switch_link_reroutes(self.get_node_name("Normal"), up=bool(self.source))
+        self.switch_link_reroutes(  # deprecated
+            self.get_node_name("Normal"), up=bool(self.source)
+        )
         self.update_image(self.source)
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -1768,7 +1768,15 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         return not self.find_material().use_backface_culling
 
     def __set_double_sided(self, value: bool) -> None:
-        self.find_material().use_backface_culling = not value
+        material = self.find_material()
+        material.use_backface_culling = not value
+        self.set_bool("DoubleSided", value)
+        if material.vrm_addon_extension.mtoon1.is_outline_material:
+            return
+        outline_material = material.vrm_addon_extension.mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_material.vrm_addon_extension.mtoon1.double_sided = False
 
     double_sided: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Double Sided",  # noqa: F722
@@ -1883,7 +1891,11 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_is_outline_material(self, _context: bpy.types.Context) -> None:
         self.set_bool("IsOutlineMaterial", self.is_outline_material)
-        self.set_int("NormalScale", -1 if self.is_outline_material else 1)
+        self.set_int("NormalScale", -1 if self.is_outline_material else 1)  # deprecated
+        self.set_int("OutlineNormalScale", -1 if self.is_outline_material else 1)
+        self.set_bool(
+            "DoubleSided", False if self.is_outline_material else self.double_sided
+        )
 
     is_outline_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
         update=update_is_outline_material,
@@ -1905,9 +1917,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             self.extensions.vrmc_materials_mtoon.outline_width_multiply_texture,
             self.extensions.vrmc_materials_mtoon.uv_animation_mask_texture,
         ]
-
-    def link_material_output_surface(self, connect: bool) -> None:
-        self.link_reroutes("MaterialOutputSurface", connect)
 
 
 def reset_shader_node_group(

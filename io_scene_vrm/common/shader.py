@@ -128,9 +128,6 @@ def load_mtoon1_shader(
                 clear_node_tree(outline_group, clear_inputs_outputs=True)
             copy_node_tree(template_outline_group, outline_group)
 
-        mtoon1 = material.vrm_addon_extension.mtoon1
-        if mtoon1.enabled:
-            mtoon1.link_material_output_surface(connect=False)
         copy_node_tree(template_material.node_tree, material.node_tree)
     finally:
         if template_material and template_material.users <= 1:
