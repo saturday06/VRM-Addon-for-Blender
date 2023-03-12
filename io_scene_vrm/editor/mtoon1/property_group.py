@@ -171,38 +171,49 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
 
     def link_reroutes(self, base_node_name: str, connect: bool) -> None:
         material = self.find_material()
-        node_tree = material.node_tree
+
         in_node_name = base_node_name + "In"
-        in_node = node_tree.nodes.get(in_node_name)
         out_node_name = base_node_name + "Out"
-        out_node = node_tree.nodes.get(out_node_name)
-        if not isinstance(in_node, bpy.types.NodeReroute):
-            # logger.warning(f'No node reroute "{in_node_name}"')
-            return
-        if not isinstance(out_node, bpy.types.NodeReroute):
-            logger.warning(f'No node reroute "{out_node_name}"')
-            return
 
         if connect:
+            in_node = material.node_tree.nodes.get(in_node_name)
+            out_node = material.node_tree.nodes.get(out_node_name)
+            if not isinstance(in_node, bpy.types.NodeReroute):
+                # logger.warning(f'No node reroute "{in_node_name}"')
+                return
+            if not isinstance(out_node, bpy.types.NodeReroute):
+                logger.warning(f'No node reroute "{out_node_name}"')
+                return
+
             if not any(
                 1
-                for link in node_tree.links
+                for link in material.node_tree.links
                 if link.to_socket == in_node.inputs[0]
                 and link.from_socket == out_node.outputs[0]
             ):
-                node_tree.links.new(in_node.inputs[0], out_node.outputs[0])
+                material.node_tree.links.new(in_node.inputs[0], out_node.outputs[0])
             return
 
         while True:
+            # Refresh in_node/out_node. These nodes may be invalidated.
+            in_node = material.node_tree.nodes.get(in_node_name)
+            out_node = material.node_tree.nodes.get(out_node_name)
+            if not isinstance(in_node, bpy.types.NodeReroute):
+                # logger.warning(f'No node reroute "{in_node_name}"')
+                return
+            if not isinstance(out_node, bpy.types.NodeReroute):
+                logger.warning(f'No node reroute "{out_node_name}"')
+                return
+
             disconnecting_link = {
                 0: link
-                for link in node_tree.links
+                for link in material.node_tree.links
                 if link.to_socket == in_node.inputs[0]
                 and link.from_socket == out_node.outputs[0]
             }.get(0)
             if not disconnecting_link:
                 break
-            node_tree.links.remove(disconnecting_link)
+            material.node_tree.links.remove(disconnecting_link)
 
         outline = self.find_outline_property_group(material)
         if outline:
@@ -210,14 +221,42 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
 
     def switch_link_reroutes(self, base_node_name: str, up: bool) -> None:
         material = self.find_material()
-        node_tree = material.node_tree
-        in_node_name = base_node_name + "SwitchIn"
-        in_node = node_tree.nodes.get(in_node_name)
-        down_node_name = base_node_name + "SwitchDown"
-        down_node = node_tree.nodes.get(down_node_name)
-        up_node_name = base_node_name + "SwitchUp"
-        up_node = node_tree.nodes.get(up_node_name)
 
+        in_node_name = base_node_name + "SwitchIn"
+        down_node_name = base_node_name + "SwitchDown"
+        up_node_name = base_node_name + "SwitchUp"
+
+        while True:
+            # Refresh in_node/down_node/up_node. These nodes may be invalidated.
+            in_node = material.node_tree.nodes.get(in_node_name)
+            down_node = material.node_tree.nodes.get(down_node_name)
+            up_node = material.node_tree.nodes.get(up_node_name)
+
+            if not isinstance(in_node, bpy.types.NodeReroute):
+                logger.warning(f'No node reroute "{in_node_name}"')
+                return
+            if not isinstance(down_node, bpy.types.NodeReroute):
+                logger.warning(f'No node reroute "{down_node_name}"')
+                return
+            if not isinstance(up_node, bpy.types.NodeReroute):
+                logger.warning(f'No node reroute "{up_node_name}"')
+                return
+
+            disconnecting_socket = down_node.outputs[0] if up else up_node.outputs[0]
+            disconnecting_link = {
+                0: link
+                for link in material.node_tree.links
+                if link.to_socket == in_node.inputs[0]
+                and link.from_socket == disconnecting_socket
+            }.get(0)
+            if not disconnecting_link:
+                break
+            material.node_tree.links.remove(disconnecting_link)
+
+        # Refresh in_node/down_node/up_node. These nodes may be invalidated.
+        in_node = material.node_tree.nodes.get(in_node_name)
+        down_node = material.node_tree.nodes.get(down_node_name)
+        up_node = material.node_tree.nodes.get(up_node_name)
         if not isinstance(in_node, bpy.types.NodeReroute):
             logger.warning(f'No node reroute "{in_node_name}"')
             return
@@ -228,26 +267,14 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             logger.warning(f'No node reroute "{up_node_name}"')
             return
 
-        while True:
-            disconnecting_socket = down_node.outputs[0] if up else up_node.outputs[0]
-            disconnecting_link = {
-                0: link
-                for link in node_tree.links
-                if link.to_socket == in_node.inputs[0]
-                and link.from_socket == disconnecting_socket
-            }.get(0)
-            if not disconnecting_link:
-                break
-            node_tree.links.remove(disconnecting_link)
-
         connecting_socket = up_node.outputs[0] if up else down_node.outputs[0]
         if not any(
             1
-            for link in node_tree.links
+            for link in material.node_tree.links
             if link.to_socket == in_node.inputs[0]
             and link.from_socket == connecting_socket
         ):
-            node_tree.links.new(in_node.inputs[0], connecting_socket)
+            material.node_tree.links.new(in_node.inputs[0], connecting_socket)
 
         outline = self.find_outline_property_group(material)
         if outline:
