@@ -1611,6 +1611,26 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             json_dict["materials"] = material_dicts
 
     @staticmethod
+    def disable_mtoon1_material_nodes() -> List[str]:
+        disabled_material_names = []
+        for material in bpy.data.materials:
+            if not material:
+                continue
+            if material.vrm_addon_extension.mtoon1.enabled and material.use_nodes:
+                material.use_nodes = False
+                disabled_material_names.append(material.name)
+        return disabled_material_names
+
+    @staticmethod
+    def restore_mtoon1_material_nodes(disabled_material_names: List[str]) -> None:
+        for disabled_material_name in disabled_material_names:
+            material = bpy.data.materials.get(disabled_material_name)
+            if not material:
+                continue
+            if not material.use_nodes:
+                material.use_nodes = True
+
+    @staticmethod
     def unassign_normal_from_mtoon_primitive_morph_target(
         json_dict: Dict[str, Json],
         material_name_to_index_dict: Dict[str, int],
@@ -1668,6 +1688,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         vrm = self.armature.data.vrm_addon_extension.vrm1
         # dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes()
+        disabled_mtoon1_material_names = []
         try:
             self.setup_pose(
                 self.armature,
@@ -1691,7 +1712,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             self.overwrite_object_visibility_and_selection()
             self.mount_skinned_mesh_parent()
-
+            disabled_mtoon1_material_names = self.disable_mtoon1_material_nodes()
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = Path(temp_dir, "out.glb")
                 try:
@@ -1717,6 +1738,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     )
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:
+            self.restore_mtoon1_material_nodes(disabled_mtoon1_material_names)
             for bone in self.armature.pose.bones:
                 if self.extras_bone_name_key in bone:
                     del bone[self.extras_bone_name_key]
