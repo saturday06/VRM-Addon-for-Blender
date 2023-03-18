@@ -322,8 +322,9 @@ class AbstractBaseVrmImporter(ABC):
 
     @staticmethod
     def reset_material(material: bpy.types.Material) -> None:
+        if not material.use_nodes:
+            material.use_nodes = True
         shader.clear_node_tree(material.node_tree)
-        material.use_nodes = True
         material.alpha_threshold = 0.5
         material.blend_method = "OPAQUE"
         material.shadow_method = "OPAQUE"

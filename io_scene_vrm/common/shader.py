@@ -456,8 +456,11 @@ def copy_node(
 
 
 def clear_node_tree(
-    node_tree: bpy.types.NodeTree, clear_inputs_outputs: bool = False
+    node_tree: Optional[bpy.types.NodeTree], clear_inputs_outputs: bool = False
 ) -> None:
+    if node_tree is None:
+        return
+
     # node_tree.links.clear()
     while node_tree.links:
         node_tree.links.remove(node_tree.links[0])

@@ -407,6 +407,8 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):  # type: ign
         return {"FINISHED"}
 
     def convert_mtoon1_to_bsdf_principled(self, material: bpy.types.Material) -> None:
+        if not material.use_nodes:
+            material.use_nodes = True
         shader.clear_node_tree(material.node_tree, clear_inputs_outputs=True)
         shader_node = material.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
         output_node = material.node_tree.nodes.new("ShaderNodeOutputMaterial")
