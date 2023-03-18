@@ -677,10 +677,13 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             outline_material = context.blend_data.materials.new(
                 name=outline_material_name
             )
+            if not outline_material.use_nodes:
+                outline_material.use_nodes = True
+            if outline_material.diffuse_color[3] != 0.25:
+                outline_material.diffuse_color[3] = 0.25
+            if outline_material.roughness != 0:
+                outline_material.roughness = 0
             outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
-            outline_material.use_nodes = True
-            outline_material.diffuse_color[3] = 0.25
-            outline_material.roughness = 0
             shader.load_mtoon1_shader(context, outline_material)
             material.vrm_addon_extension.mtoon1.outline_material = outline_material
         if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:

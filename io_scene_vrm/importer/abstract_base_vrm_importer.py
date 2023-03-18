@@ -325,11 +325,16 @@ class AbstractBaseVrmImporter(ABC):
         if not material.use_nodes:
             material.use_nodes = True
         shader.clear_node_tree(material.node_tree)
-        material.alpha_threshold = 0.5
-        material.blend_method = "OPAQUE"
-        material.shadow_method = "OPAQUE"
-        material.use_backface_culling = False
-        material.show_transparent_back = False
+        if material.alpha_threshold != 0.5:
+            material.alpha_threshold = 0.5
+        if material.blend_method != "OPAQUE":
+            material.blend_method = "OPAQUE"
+        if material.shadow_method != "OPAQUE":
+            material.shadow_method = "OPAQUE"
+        if material.use_backface_culling:
+            material.use_backface_culling = False
+        if material.show_transparent_back:
+            material.show_transparent_back = False
         material.node_tree.nodes.new("ShaderNodeOutputMaterial")
 
     def make_material(self) -> None:
