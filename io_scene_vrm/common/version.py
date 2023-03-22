@@ -11,7 +11,7 @@ from .logging import get_logger
 
 logger = get_logger(__name__)
 
-MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (3, 4)
+MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (3, 5)
 
 
 @dataclass
