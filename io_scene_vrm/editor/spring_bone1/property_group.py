@@ -494,11 +494,20 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
         soft_max=2.0,
     )
 
+    def update_gravity_dir(self, _context: bpy.types.Context) -> None:
+        gravity_dir = Vector(self.gravity_dir)
+        normalized_gravity_dir = gravity_dir.normalized()
+        if (gravity_dir - normalized_gravity_dir).length > 0.0001:
+            self.gravity_dir = normalized_gravity_dir
+
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Gravity Dir",  # noqa: F722
         size=3,
+        min=-1,
+        max=1,
         default=(0, 0, -1),  # noqa: F722
         subtype="XYZ",  # noqa: F821
+        update=update_gravity_dir,
     )
 
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]

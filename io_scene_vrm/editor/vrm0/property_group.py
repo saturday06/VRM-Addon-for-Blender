@@ -2,6 +2,7 @@ import functools
 from typing import Dict
 
 import bpy
+from mathutils import Vector
 
 from ...common.logging import get_logger
 from ...common.vrm0.human_bone import (
@@ -466,8 +467,20 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power"  # noqa: F722
     )
+
+    def update_gravity_dir(self, _context: bpy.types.Context) -> None:
+        gravity_dir = Vector(self.gravity_dir)
+        normalized_gravity_dir = gravity_dir.normalized()
+        if (gravity_dir - normalized_gravity_dir).length > 0.0001:
+            self.gravity_dir = normalized_gravity_dir
+
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=3, name="Gravity Direction"  # noqa: F722
+        size=3,
+        min=-1,
+        max=1,
+        subtype="XYZ",  # noqa: F821
+        name="Gravity Direction",  # noqa: F722
+        update=update_gravity_dir,
     )
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Drag Force"  # noqa: F722
