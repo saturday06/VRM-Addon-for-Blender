@@ -32,7 +32,7 @@ jobs:
           key: ${{ matrix.archive_url }}-archive-3
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
-        run: Invoke-WebRequest -Uri "${{ matrix.archive_url }}" -OutFile blender.zip
+        run: Invoke-WebRequest -MaximumRetryCount 5 -Uri "${{ matrix.archive_url }}" -OutFile blender.zip
       - name: Test
         run: |
           Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
