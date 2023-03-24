@@ -193,8 +193,6 @@ jobs:
           LOG_LEVEL: NOTICE
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           VALIDATE_HTML: false
-          VALIDATE_JAVASCRIPT_ES: false
-          VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_FLAKE8: false
