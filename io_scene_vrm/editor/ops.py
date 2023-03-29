@@ -39,29 +39,35 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc]
             map(VRM_OT_simplify_vroid_bones.full__pattern.match, armature.bones.keys())
         )
 
-    @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(context.active_object) and context.active_object.mode != "EDIT"
-
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        for bone_name, bone in armature.data.bones.items():
-            left = VRM_OT_simplify_vroid_bones.left__pattern.sub("", bone_name)
-            if left != bone_name:
-                bone.name = left + "_L"
-                continue
 
-            right = VRM_OT_simplify_vroid_bones.right_pattern.sub("", bone_name)
-            if right != bone_name:
-                bone.name = right + "_R"
-                continue
+        back_to_edit_mode = False
+        try:
+            if context.active_object and context.active_object.mode == "EDIT":
+                bpy.ops.object.mode_set(mode="OBJECT")
+                back_to_edit_mode = True
 
-            a = VRM_OT_simplify_vroid_bones.full__pattern.sub("", bone_name)
-            if a != bone_name:
-                bone.name = a
-                continue
+            for bone_name, bone in armature.data.bones.items():
+                left = VRM_OT_simplify_vroid_bones.left__pattern.sub("", bone_name)
+                if left != bone_name:
+                    bone.name = left + "_L"
+                    continue
+
+                right = VRM_OT_simplify_vroid_bones.right_pattern.sub("", bone_name)
+                if right != bone_name:
+                    bone.name = right + "_R"
+                    continue
+
+                a = VRM_OT_simplify_vroid_bones.full__pattern.sub("", bone_name)
+                if a != bone_name:
+                    bone.name = a
+                    continue
+        finally:
+            if back_to_edit_mode:
+                bpy.ops.object.mode_set(mode="EDIT")
 
         return {"FINISHED"}
 
