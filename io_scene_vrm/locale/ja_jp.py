@@ -231,7 +231,7 @@ translation_dictionary = {
         "*",
         'image in material "{material_name}" is not put. Please set image.',
     ): "マテリアル「{material_name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
-    ("*", "Simplify VRoid Bones"): "VRoidのボーン名を短くする",
+    ("*", "Simplify VRoid Bone Name"): "VRoidのボーン名を短くする",
     ("*", "Current Pose"): "現在のポーズ",
     ("*", "Save Bone Mappings"): "ボーンの対応を保存",
     ("*", "Load Bone Mappings"): "ボーンの対応を読み込み",
