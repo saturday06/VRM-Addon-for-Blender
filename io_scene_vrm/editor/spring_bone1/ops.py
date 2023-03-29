@@ -16,7 +16,7 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):  # type: ignore[misc
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         armature = bpy.data.objects.get(self.armature_name)
-        if not isinstance(armature.data, bpy.types.Armature):
+        if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         collider = armature.data.vrm_addon_extension.spring_bone1.colliders.add()
         collider.uuid = uuid.uuid4().hex

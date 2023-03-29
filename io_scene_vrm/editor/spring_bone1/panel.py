@@ -105,7 +105,7 @@ def draw_spring_bone1_spring_bone_layout(
             vrm1_operator.VRM_OT_add_spring_bone1_collider.bl_idname,
             icon="ADD",
         )
-        add_collider_op.armature_name = armature.data.name
+        add_collider_op.armature_name = armature.name
 
     collider_groups_box = layout.box()
     collider_groups_row = collider_groups_box.row()
