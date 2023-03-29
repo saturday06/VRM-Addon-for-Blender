@@ -1,4 +1,5 @@
 import functools
+from sys import float_info
 from typing import Dict
 
 import bpy
@@ -471,7 +472,9 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
     def update_gravity_dir(self, _context: bpy.types.Context) -> None:
         gravity_dir = Vector(self.gravity_dir)
         normalized_gravity_dir = gravity_dir.normalized()
-        if (gravity_dir - normalized_gravity_dir).length > 0.0001:
+        if abs(normalized_gravity_dir.length) < float_info.epsilon:
+            self.gravity_dir = (0, 0, -1)
+        elif (gravity_dir - normalized_gravity_dir).length > 0.0001:
             self.gravity_dir = normalized_gravity_dir
 
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
