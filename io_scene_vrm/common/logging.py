@@ -1,4 +1,6 @@
 import logging as standard_logging
+import sys
+from os import environ
 
 
 class Logger:
@@ -27,4 +29,10 @@ class Logger:
 
 # https://docs.python.org/3.7/library/logging.html#logging.getLogger
 def get_logger(name: str) -> Logger:
-    return Logger(standard_logging.getLogger(name))
+    logger = standard_logging.getLogger(name)
+    if environ.get("BLENDER_VRM_LOGGING_LEVEL_DEBUG") == "yes":
+        logger.setLevel(standard_logging.DEBUG)
+        handler = standard_logging.StreamHandler(sys.stdout)
+        handler.setLevel(standard_logging.DEBUG)
+        logger.addHandler(handler)
+    return Logger(logger)
