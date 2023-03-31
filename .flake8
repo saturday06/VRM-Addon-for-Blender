@@ -7,6 +7,8 @@ extend-ignore =
 per-file-ignores =
     # Dynamically generated tests can have misspelt words
     tests/test_GENERATED_*.py:SC200
+    # Dynamically generated tests can have too long line
+    tests/test_GENERATED_*.py:E501
     # https://stackoverflow.com/a/68429294
     tests/blender_test_*.py:S101
     # TODO: Use new blender process execution
