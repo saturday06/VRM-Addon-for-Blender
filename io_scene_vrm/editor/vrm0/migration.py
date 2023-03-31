@@ -579,6 +579,17 @@ def remove_link_to_mesh_object(armature: bpy.types.Object) -> None:
             link_to_mesh.parent = None
 
 
+def fixup_gravity_dir(armature: bpy.types.Object) -> None:
+    ext = armature.data.vrm_addon_extension
+    if tuple(ext.addon_version) >= (2, 15, 4):
+        return
+
+    for bone_group in ext.vrm0.secondary_animation.bone_groups:
+        gravity_dir = list(bone_group.gravity_dir)
+        bone_group.gravity_dir[0] = gravity_dir[0] + 1  # Make a change
+        bone_group.gravity_dir = gravity_dir
+
+
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
@@ -607,6 +618,7 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
     migrate_legacy_custom_properties(armature)
     migrate_link_to_mesh_object(armature)
     remove_link_to_mesh_object(armature)
+    fixup_gravity_dir(armature)
 
     vrm0.humanoid.last_bone_names.clear()
     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
