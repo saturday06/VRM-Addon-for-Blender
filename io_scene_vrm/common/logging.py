@@ -10,6 +10,7 @@ class Logger:
 
     def __init__(self, logger: standard_logging.Logger) -> None:
         self.logger = logger
+        self.level = logger.level
 
     def debug(self, message: str) -> None:
         self.logger.debug(self.log_prefix("Debug") + message)
