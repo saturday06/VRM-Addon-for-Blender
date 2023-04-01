@@ -470,6 +470,14 @@ class SpringBone1ColliderGroupPropertyGroup(
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
+# https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#initialization
+class SpringBone1JointStatePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    initialized_as_tail: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
+    previous_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
+    current_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
+
+
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.joint.schema.json
 class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     node: bpy.props.PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
@@ -519,6 +527,8 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
         min=0,
         max=1.0,
     )
+
+    state: bpy.props.PointerProperty(type=SpringBone1JointStatePropertyGroup)  # type: ignore[valid-type]
 
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
@@ -595,6 +605,16 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):  # type: igno
     )
     springs: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=SpringBone1SpringPropertyGroup,
+    )
+
+    def update_enable_animation(self, _context: bpy.types.Context) -> None:
+        for spring in self.springs:
+            for joint in spring.joints:
+                joint.state.initialized = False
+
+    enable_animation: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="[Experimental!] Enable Animation",  # noqa: F722
+        update=update_enable_animation,
     )
 
     # for UI

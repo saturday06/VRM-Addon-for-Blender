@@ -375,4 +375,5 @@ translation_dictionary = {
     + " - 「サーフェス」に「MToon_unversioned」を指定\n"
     + " - 「サーフェス」に「TRANSPARENT_ZWRITE」を指定\n"
     + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n",
+    ("*", "[Experimental!] Enable Animation"): "[実験中機能です!] アニメーションを有効にする",
 }

@@ -29,6 +29,7 @@ from .editor.mtoon1 import panel as mtoon1_panel
 from .editor.mtoon1 import property_group as mtoon1_property_group
 from .editor.node_constraint1 import panel as node_constraint1_panel
 from .editor.node_constraint1 import property_group as node_constraint1_property_group
+from .editor.spring_bone1 import handler as spring_bone1_handler
 from .editor.spring_bone1 import ops as spring_bone1_ops
 from .editor.spring_bone1 import panel as spring_bone1_panel
 from .editor.spring_bone1 import property_group as spring_bone1_property_group
@@ -128,6 +129,7 @@ classes = [
     spring_bone1_property_group.SpringBone1ColliderReferencePropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderGroupPropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderGroupReferencePropertyGroup,
+    spring_bone1_property_group.SpringBone1JointStatePropertyGroup,
     spring_bone1_property_group.SpringBone1JointPropertyGroup,
     spring_bone1_property_group.SpringBone1SpringPropertyGroup,
     spring_bone1_property_group.SpringBone1SpringBonePropertyGroup,
@@ -350,6 +352,10 @@ def register(init_addon_version: object) -> None:
     bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
     bpy.app.handlers.save_pre.append(mtoon1_handler.save_pre)
+    bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
+    bpy.app.handlers.depsgraph_update_pre.append(
+        spring_bone1_handler.depsgraph_update_pre
+    )
 
     io_scene_gltf2_support.init_extras_export()
 
@@ -357,6 +363,10 @@ def register(init_addon_version: object) -> None:
 def unregister() -> None:
     migration.teardown_subscription()  # migration.setup_subscription()はload_postで呼ばれる
 
+    bpy.app.handlers.depsgraph_update_pre.remove(
+        spring_bone1_handler.depsgraph_update_pre
+    )
+    bpy.app.handlers.frame_change_pre.remove(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.save_pre.remove(mtoon1_handler.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(mtoon1_handler.depsgraph_update_pre)

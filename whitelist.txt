@@ -23,6 +23,7 @@ bindcode
 bip01
 bip02
 bmesh
+bone0
 bone1
 bone2
 bpy
@@ -96,6 +97,9 @@ isinf
 isnan
 iterdir
 ja
+joint0
+joint1
+joint2
 jsons
 keyblock
 khr

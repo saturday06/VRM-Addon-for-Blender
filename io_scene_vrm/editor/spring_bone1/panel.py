@@ -61,6 +61,8 @@ def draw_spring_bone1_spring_bone_layout(
 ) -> None:
     migrate(armature.name, defer=True)
 
+    layout.prop(spring_bone, "enable_animation")
+
     colliders_box = layout.box()
     colliders_row = colliders_box.row()
     colliders_row.alignment = "LEFT"
