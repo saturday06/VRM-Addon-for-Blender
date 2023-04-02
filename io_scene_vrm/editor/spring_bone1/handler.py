@@ -33,7 +33,7 @@ state = State()
 
 
 @dataclass(frozen=True)
-class WorldSphereCollider:
+class SphereWorldCollider:
     offset: Vector
     radius: float
 
@@ -48,7 +48,7 @@ class WorldSphereCollider:
 
 
 @dataclass(frozen=True)
-class WorldCapsuleCollider:
+class CapsuleWorldCollider:
     offset: Vector
     radius: float
     tail: Vector
@@ -174,7 +174,7 @@ def calculate_object_pose_bone_rotation_differences(
         return
 
     collider_uuid_to_world_collider: Dict[
-        str, Union[WorldSphereCollider, WorldCapsuleCollider]
+        str, Union[SphereWorldCollider, CapsuleWorldCollider]
     ] = {}
     for collider in spring_bone1.colliders:
         pose_bone = obj.pose.bones.get(collider.node.value)
@@ -185,7 +185,7 @@ def calculate_object_pose_bone_rotation_differences(
         if collider.shape_type == SpringBone1ColliderPropertyGroup.SHAPE_TYPE_SPHERE:
             offset = pose_bone_world_matrix @ Vector(collider.shape.sphere.offset)
             radius = collider.shape.sphere.radius
-            collider_uuid_to_world_collider[collider.uuid] = WorldSphereCollider(
+            collider_uuid_to_world_collider[collider.uuid] = SphereWorldCollider(
                 offset=offset,
                 radius=radius,
             )
@@ -193,14 +193,14 @@ def calculate_object_pose_bone_rotation_differences(
             offset = pose_bone_world_matrix @ Vector(collider.shape.capsule.offset)
             tail = pose_bone_world_matrix @ Vector(collider.shape.capsule.tail)
             radius = collider.shape.sphere.radius
-            collider_uuid_to_world_collider[collider.uuid] = WorldCapsuleCollider(
+            collider_uuid_to_world_collider[collider.uuid] = CapsuleWorldCollider(
                 offset=offset,
                 radius=radius,
                 tail=tail,
             )
 
     collider_group_uuid_to_world_colliders: Dict[
-        str, List[Union[WorldSphereCollider, WorldCapsuleCollider]]
+        str, List[Union[SphereWorldCollider, CapsuleWorldCollider]]
     ] = {}
     for collider_group in spring_bone1.collider_groups:
         for collider_reference in collider_group.colliders:
@@ -235,7 +235,7 @@ def calculate_spring_pose_bone_rotation_differences(
     spring: SpringBone1SpringPropertyGroup,
     pose_bone_and_rotation_differences: List[Tuple[bpy.types.PoseBone, Quaternion]],
     collider_group_uuid_to_world_colliders: Dict[
-        str, List[Union[WorldSphereCollider, WorldCapsuleCollider]]
+        str, List[Union[SphereWorldCollider, CapsuleWorldCollider]]
     ],
 ) -> None:
     inputs: List[
@@ -246,13 +246,13 @@ def calculate_spring_pose_bone_rotation_differences(
             bpy.types.PoseBone,
         ]
     ] = []
-    for head_spring_joint, tail_spring_joint in zip(spring.joints, spring.joints[1:]):
-        head_bone_name = head_spring_joint.node.value
+    for head_joint, tail_joint in zip(spring.joints, spring.joints[1:]):
+        head_bone_name = head_joint.node.value
         head_pose_bone = obj.pose.bones.get(head_bone_name)
         if not head_pose_bone:
             continue
 
-        tail_bone_name = tail_spring_joint.node.value
+        tail_bone_name = tail_joint.node.value
         tail_pose_bone = obj.pose.bones.get(tail_bone_name)
         if not tail_pose_bone:
             continue
@@ -268,16 +268,9 @@ def calculate_spring_pose_bone_rotation_differences(
             logger.error(f'"{head_bone_name}" and "{tail_bone_name}" are not parented')
             return
 
-        inputs.append(
-            (
-                head_spring_joint,
-                head_pose_bone,
-                tail_spring_joint,
-                tail_pose_bone,
-            )
-        )
+        inputs.append((head_joint, head_pose_bone, tail_joint, tail_pose_bone))
 
-    world_colliders: List[Union[WorldSphereCollider, WorldCapsuleCollider]] = []
+    world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]] = []
     for collider_group_reference in spring.collider_groups:
         collider_group_world_colliders = collider_group_uuid_to_world_colliders.get(
             collider_group_reference.collider_group_uuid
@@ -287,24 +280,19 @@ def calculate_spring_pose_bone_rotation_differences(
         world_colliders.extend(collider_group_world_colliders)
 
     next_head_pose_bone_before_rotation_matrix = None
-    for (
-        head_spring_joint,
-        head_pose_bone,
-        tail_spring_joint,
-        tail_pose_bone,
-    ) in inputs:
+    for head_joint, head_pose_bone, tail_joint, tail_pose_bone in inputs:
         if next_head_pose_bone_before_rotation_matrix is None:
             next_head_pose_bone_before_rotation_matrix = head_pose_bone.matrix
 
         (
             head_pose_bone_rotation_difference,
             next_head_pose_bone_before_rotation_matrix,
-        ) = calculate_spring_joint_pair_head_pose_bone_rotation_differences(
+        ) = calculate_joint_pair_head_pose_bone_rotation_differences(
             delta_time,
             obj,
-            head_spring_joint,
+            head_joint,
             head_pose_bone,
-            tail_spring_joint,
+            tail_joint,
             tail_pose_bone,
             next_head_pose_bone_before_rotation_matrix,
             head_pose_bone.matrix,
@@ -316,7 +304,7 @@ def calculate_spring_pose_bone_rotation_differences(
         )
 
 
-def calculate_spring_joint_pair_head_pose_bone_rotation_differences(
+def calculate_joint_pair_head_pose_bone_rotation_differences(
     delta_time: float,
     obj: bpy.types.Object,
     head_joint: SpringBone1JointPropertyGroup,
@@ -326,7 +314,7 @@ def calculate_spring_joint_pair_head_pose_bone_rotation_differences(
     next_head_pose_bone_before_rotation_matrix: Matrix,
     current_head_pose_bone_matrix: Matrix,
     current_tail_pose_bone_matrix: Matrix,
-    world_colliders: List[Union[WorldSphereCollider, WorldCapsuleCollider]],
+    world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]],
 ) -> Tuple[Quaternion, Matrix]:
     logger.debug(f"=== {head_pose_bone.name} -> {tail_pose_bone.name} ===")
     logger.debug(f"delta time={delta_time}")
