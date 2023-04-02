@@ -18,6 +18,7 @@ per-file-ignores =
     scripts/*.py:INP001
 
 dictionaries=en_US,python,technical
+whitelist=dictionary.txt
 
 ignore-names=
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/68f792c59c09abb10f70356ea6992750f9422744/example-addons/example_gltf_exporter_extension/__init__.py#L103

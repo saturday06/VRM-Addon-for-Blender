@@ -31,7 +31,7 @@
 !/docs/*.png
 !/docs/*.pptx
 !/docs/website/**
-!/whitelist.txt
+!/dictionary.txt
 !/io_scene_vrm/README.txt
 !/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
 
