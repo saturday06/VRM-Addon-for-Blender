@@ -154,6 +154,9 @@ def update_pose_bone_rotations(delta_time: float) -> None:
     for pose_bone, pose_bone_rotation_difference in pose_bone_and_rotation_differences:
         if pose_bone.rotation_mode != "QUATERNION":
             pose_bone.rotation_mode = "QUATERNION"
+        _axis, angle = pose_bone_rotation_difference.to_axis_angle()
+        if abs(angle) < float_info.epsilon:
+            continue
         pose_bone.rotation_quaternion = (
             pose_bone.rotation_quaternion @ pose_bone_rotation_difference
         )
