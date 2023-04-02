@@ -97,9 +97,6 @@ isinf
 isnan
 iterdir
 ja
-joint0
-joint1
-joint2
 jsons
 keyblock
 khr
@@ -110,7 +107,6 @@ lipsync
 loc
 lookat
 lv
-macos
 mainfile
 makedir
 maketrans
