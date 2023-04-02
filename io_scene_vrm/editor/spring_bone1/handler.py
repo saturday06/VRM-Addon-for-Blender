@@ -157,9 +157,7 @@ def update_pose_bone_rotations(delta_time: float) -> None:
         _axis, angle = pose_bone_rotation_difference.to_axis_angle()
         if abs(angle) < float_info.epsilon:
             continue
-        pose_bone.rotation_quaternion = (
-            pose_bone.rotation_quaternion @ pose_bone_rotation_difference
-        )
+        pose_bone.rotation_quaternion.rotate(pose_bone_rotation_difference)
 
 
 def calculate_object_pose_bone_rotation_differences(
