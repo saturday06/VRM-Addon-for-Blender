@@ -32,6 +32,10 @@ class State:
 state = State()
 
 
+def reset_state() -> None:
+    state.previous_datetime = None
+
+
 @dataclass(frozen=True)
 class SphereWorldCollider:
     offset: Vector

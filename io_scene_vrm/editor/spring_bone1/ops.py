@@ -3,6 +3,8 @@ from typing import Set
 
 import bpy
 
+from .handler import reset_state
+
 
 class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.add_spring_bone1_collider"
@@ -351,4 +353,25 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):  # type: igno
         if len(joints) <= self.joint_index:
             return {"CANCELLED"}
         joints.remove(self.joint_index)
+        return {"FINISHED"}
+
+
+class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):  # type: ignore[misc]
+    bl_idname = "vrm.reset_spring_bone1_animation_state"
+    bl_label = "Reset SpringBone Animation State"
+    bl_description = "Reset SpringBone Animation State"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
+            for joint in spring.joints:
+                joint.state.initialized_as_tail = False
+        reset_state()
         return {"FINISHED"}

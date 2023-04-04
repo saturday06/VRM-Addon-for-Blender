@@ -62,6 +62,7 @@ def draw_spring_bone1_spring_bone_layout(
     migrate(armature.name, defer=True)
 
     layout.prop(spring_bone, "enable_animation")
+    layout.operator(ops.VRM_OT_reset_spring_bone1_animation_state.bl_idname)
 
     colliders_box = layout.box()
     colliders_row = colliders_box.row()
