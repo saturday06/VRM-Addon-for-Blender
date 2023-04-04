@@ -20,8 +20,8 @@ logger = get_logger(__name__)
 
 if not persistent:  # for fake-bpy-modules
 
-    def persistent(_func: Callable[[object], None]) -> Callable[[object], None]:
-        raise NotImplementedError
+    def persistent(func: Callable[[object], None]) -> Callable[[object], None]:
+        return func
 
 
 @dataclass
