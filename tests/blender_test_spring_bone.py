@@ -5,7 +5,6 @@ from typing import List, Sequence
 import bpy
 
 from io_scene_vrm.editor.extension import VrmAddonArmatureExtensionPropertyGroup
-from io_scene_vrm.editor.spring_bone1 import handler
 
 
 def get_test_command_args() -> List[List[str]]:
@@ -94,7 +93,7 @@ def one_joint_extending_in_y_direction() -> None:
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0")
     assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1")
 
-    handler.update_pose_bone_rotations(1)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0")
@@ -102,7 +101,7 @@ def one_joint_extending_in_y_direction() -> None:
         armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
     )
 
-    handler.update_pose_bone_rotations(10000)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=10000)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(
@@ -166,7 +165,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0")
     assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1")
 
-    handler.update_pose_bone_rotations(1)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0")
@@ -174,7 +173,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
         armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
     )
 
-    handler.update_pose_bone_rotations(100000)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(
@@ -249,7 +248,7 @@ def two_joints_extending_in_y_direction() -> None:
     assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1")
     assert_vector3_equals(armature.pose.bones["joint2"].head, (0, 3, 0), "初期状態のjoint2")
 
-    handler.update_pose_bone_rotations(1)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0")
@@ -260,7 +259,7 @@ def two_joints_extending_in_y_direction() -> None:
         armature.pose.bones["joint2"].head, (0, 2.6824, -0.9280), "1秒後のjoint2"
     )
 
-    handler.update_pose_bone_rotations(100000)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(
@@ -342,7 +341,7 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
     assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1")
     assert_vector3_equals(armature.pose.bones["joint2"].head, (0, 3, 0), "初期状態のjoint2")
 
-    handler.update_pose_bone_rotations(1)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0")
@@ -353,7 +352,7 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
         armature.pose.bones["joint2"].head, (0, 2.6824, -0.9280), "1秒後のjoint2"
     )
 
-    handler.update_pose_bone_rotations(100000)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(
@@ -435,7 +434,7 @@ def two_joints_extending_in_y_direction_connected() -> None:
     assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1")
     assert_vector3_equals(armature.pose.bones["joint2"].head, (0, 3, 0), "初期状態のjoint2")
 
-    handler.update_pose_bone_rotations(1)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0")
@@ -446,7 +445,7 @@ def two_joints_extending_in_y_direction_connected() -> None:
         armature.pose.bones["joint2"].head, (0, 2.6824, -0.9280), "1秒後のjoint2"
     )
 
-    handler.update_pose_bone_rotations(100000)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(
@@ -513,7 +512,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0")
     assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1")
 
-    handler.update_pose_bone_rotations(1)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0")
@@ -521,7 +520,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
 
     armature.location = (0, 0, 1)
     bpy.context.view_layer.update()
-    handler.update_pose_bone_rotations(1)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "2秒後のjoint0")
@@ -531,7 +530,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
         "2秒後のjoint1",
     )
 
-    handler.update_pose_bone_rotations(1000000)
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1000000)
     bpy.context.view_layer.update()
 
     assert_vector3_equals(

@@ -1,9 +1,10 @@
 import uuid
+from sys import float_info
 from typing import Set
 
 import bpy
 
-from .handler import reset_state
+from .handler import reset_state, update_pose_bone_rotations
 
 
 class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):  # type: ignore[misc]
@@ -392,4 +393,24 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):  # type: ig
             for joint in spring.joints:
                 joint.state.initialized_as_tail = False
         reset_state()
+        return {"FINISHED"}
+
+
+class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):  # type: ignore[misc]
+    bl_idname = "vrm.update_spring_bone1_animation"
+    bl_label = "Update SpringBone Animation"
+    bl_description = "Update SpringBone Animation"
+    bl_options = {"REGISTER", "UNDO"}
+
+    delta_time: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    def execute(self, context: bpy.types.Context) -> Set[str]:
+        delta_time = self.delta_time
+        if abs(delta_time) < float_info.epsilon:
+            delta_time = float(context.scene.render.fps_base) / float(
+                context.scene.render.fps
+            )
+        update_pose_bone_rotations(delta_time)
         return {"FINISHED"}

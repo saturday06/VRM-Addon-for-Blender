@@ -266,6 +266,7 @@ classes = [
     spring_bone1_ops.VRM_OT_add_spring_bone1_spring_joint,
     spring_bone1_ops.VRM_OT_remove_spring_bone1_spring_joint,
     spring_bone1_ops.VRM_OT_reset_spring_bone1_animation_state,
+    spring_bone1_ops.VRM_OT_update_spring_bone1_animation,
     mtoon1_ops.VRM_OT_convert_material_to_mtoon1,
     mtoon1_ops.VRM_OT_convert_mtoon1_to_bsdf_principled,
     mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_tree,
