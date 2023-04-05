@@ -284,6 +284,7 @@ def draw_spring_bone1_spring_bone_layout(
                 )
                 add_spring_joint_op.armature_name = armature.name
                 add_spring_joint_op.spring_index = spring_index
+                add_spring_joint_op.guess_properties = True
 
                 spring_collider_groups_box = spring_column.box()
                 if spring.collider_groups:
