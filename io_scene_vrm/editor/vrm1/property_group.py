@@ -424,7 +424,7 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     input_max_value: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Input Max Value",  # noqa: F722
-        min=0.0,
+        min=0.0001,  # https://github.com/pixiv/three-vrm/issues/1197#issuecomment-1498492002
         max=180.0,
     )
     output_scale: bpy.props.FloatProperty(  # type: ignore[valid-type]

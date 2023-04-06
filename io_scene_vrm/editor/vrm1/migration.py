@@ -33,3 +33,18 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
             ).to_quaternion() @ Vector(look_at.offset_from_head_bone)
             look_at.offset_from_head_bone = list(world_translation)
 
+    if tuple(armature.data.vrm_addon_extension.addon_version) <= (2, 15, 5):
+        # Apply lower limit value
+        look_at = armature.data.vrm_addon_extension.vrm1.look_at
+        look_at.range_map_horizontal_inner.input_max_value = (
+            look_at.range_map_horizontal_inner.input_max_value
+        )
+        look_at.range_map_horizontal_outer.input_max_value = (
+            look_at.range_map_horizontal_outer.input_max_value
+        )
+        look_at.range_map_vertical_down.input_max_value = (
+            look_at.range_map_vertical_down.input_max_value
+        )
+        look_at.range_map_vertical_up.input_max_value = (
+            look_at.range_map_vertical_up.input_max_value
+        )
