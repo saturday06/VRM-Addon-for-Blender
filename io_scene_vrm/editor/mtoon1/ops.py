@@ -90,7 +90,9 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
             self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
             return
 
-        reset_shader_node_group(context, material)
+        reset_shader_node_group(
+            context, material, reset_node_tree=True, overwrite=False
+        )
 
     def convert_mtoon_unversioned_to_mtoon1(
         self,
@@ -266,7 +268,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
         if isinstance(uv_animation_scroll_y_speed_factor, float):
             uv_animation_scroll_y_speed_factor *= -1
 
-        shader.load_mtoon1_shader(context, material)
+        shader.load_mtoon1_shader(context, material, overwrite=True)
 
         root = material.vrm_addon_extension.mtoon1
         mtoon = root.extensions.vrmc_materials_mtoon
@@ -431,7 +433,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):  # type
         material = bpy.data.materials.get(self.material_name)
         if not isinstance(material, bpy.types.Material):
             return {"CANCELLED"}
-        reset_shader_node_group(context, material)
+        reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
         return {"FINISHED"}
 
 
@@ -684,7 +686,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             if outline_material.roughness != 0:
                 outline_material.roughness = 0
             outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
-            shader.load_mtoon1_shader(context, outline_material)
+            shader.load_mtoon1_shader(context, outline_material, overwrite=False)
             material.vrm_addon_extension.mtoon1.outline_material = outline_material
         if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:
             outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
@@ -828,7 +830,9 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             modifier.show_viewport = not modifier.show_viewport
 
         if reset_outline_material:
-            reset_shader_node_group(context, material, reset_node_tree=False)
+            reset_shader_node_group(
+                context, material, reset_node_tree=False, overwrite=False
+            )
 
     @staticmethod
     def refresh(
