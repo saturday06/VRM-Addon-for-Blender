@@ -625,6 +625,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
     def assign(
         context: bpy.types.Context, material: bpy.types.Material, obj: bpy.types.Object
     ) -> None:
+        shader.load_mtoon1_outline_geometry_node_group(context, overwrite=False)
         node_group = context.blend_data.node_groups.get(
             shader.OUTLINE_GEOMETRY_GROUP_NAME
         )
