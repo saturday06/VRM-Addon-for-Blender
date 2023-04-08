@@ -94,7 +94,8 @@ def load_mtoon1_outline_geometry_node_group(
             )
             clear_node_tree(outline_group, clear_inputs_outputs=True)
             copy_node_tree(template_outline_group, outline_group)
-        copy_node_tree(template_outline_group, outline_group)
+        elif overwrite:
+            copy_node_tree(template_outline_group, outline_group)
     finally:
         if template_outline_group and template_outline_group.users <= 1:
             bpy.data.node_groups.remove(template_outline_group)
