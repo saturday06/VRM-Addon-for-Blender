@@ -763,7 +763,12 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
         ):
             modifier[MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_USE_ATTRIBUTE_KEY] = 1
             modifier_input_changed = True
-        uv_map_value = "UVMap"
+
+        uv_map_value = {
+            0: uv_layer.name
+            for uv_layer in obj.data.uv_layers
+            if uv_layer and uv_layer.active_render
+        }.get(0, "UVMap")
         if (
             modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_ATTRIBUTE_NAME_KEY)
             != uv_map_value
