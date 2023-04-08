@@ -43,6 +43,15 @@ def load_mtoon1_outline_geometry_node_group(
     if not overwrite and OUTLINE_GEOMETRY_GROUP_NAME in bpy.data.node_groups:
         return
 
+    old_template_outline_group = bpy.data.node_groups.get(
+        OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
+    )
+    if old_template_outline_group:
+        logger.error(
+            f'Node Group "{OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME}" already exists'
+        )
+        old_template_outline_group.name += ".old"
+
     outline_node_tree_path = (
         str(Path(__file__).with_name("mtoon1_outline.blend")) + "/NodeTree"
     )
