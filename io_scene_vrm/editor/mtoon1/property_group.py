@@ -9,6 +9,7 @@ import mathutils
 
 from ...common import shader
 from ...common.logging import get_logger
+from ...common.preferences import VrmAddonPreferences
 
 logger = get_logger(__name__)
 
@@ -1694,6 +1695,13 @@ class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: i
 # https://github.com/vrm-c/vrm-specification/blob/8dc51ec7241be27ee95f159cefc0190a0e41967b/specification/VRMC_materials_mtoon-1.0-beta/schema/VRMC_materials_mtoon.schema.json
 class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain: List[str] = []
+
+    INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
+
+    addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
+        size=3,  # noqa: F722
+        default=INITIAL_ADDON_VERSION,
+    )
 
     pbr_metallic_roughness: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1PbrMetallicRoughnessPropertyGroup  # noqa: F722

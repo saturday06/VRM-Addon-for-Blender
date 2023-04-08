@@ -6,6 +6,7 @@ import bpy
 from ..common.preferences import get_preferences
 from ..common.version import addon_version
 from .extension import VrmAddonArmatureExtensionPropertyGroup
+from .mtoon1 import migration as mtoon1_migration
 from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
@@ -59,9 +60,6 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
 
 
 def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
-    preferences = get_preferences(bpy.context)
-    preferences.addon_version = addon_version()
-
     for obj in bpy.data.objects:
         if obj.type == "ARMATURE":
             if skip_non_migrated_armatures:
@@ -74,6 +72,12 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
                 ):
                     continue
             migrate(obj.name, defer=False)
+
+    context = bpy.context
+    mtoon1_migration.migrate(context)
+
+    preferences = get_preferences(context)
+    preferences.addon_version = addon_version()
 
 
 __object_name_subscription_owner = object()

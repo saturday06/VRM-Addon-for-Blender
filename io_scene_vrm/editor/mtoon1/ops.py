@@ -609,6 +609,7 @@ MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_Y_KEY = "Input_9"
 MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_X_KEY = "Input_10"
 MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_Y_KEY = "Input_11"
 MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY = "Input_12"
+MODIFIER_OBJECT_KEY = "Input_14"
 
 
 class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
@@ -823,6 +824,10 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             != extrude_mesh_individual
         ):
             modifier[MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY] = extrude_mesh_individual
+            modifier_input_changed = True
+
+        if modifier.get(MODIFIER_OBJECT_KEY) != obj:
+            modifier[MODIFIER_OBJECT_KEY] = obj
             modifier_input_changed = True
 
         # Apply input values

@@ -221,6 +221,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         material.use_backface_culling = True
 
         root = material.vrm_addon_extension.mtoon1
+        root.addon_version = addon_version()
         root.enabled = True
         mtoon = root.extensions.vrmc_materials_mtoon
 
