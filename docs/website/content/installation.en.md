@@ -15,15 +15,21 @@ Select `Add-ons` from the left menu when the preferences screen, and then press 
 
 ![](../images/installation2.png)
 
-When the File View window appears, select the add-on file you just downloaded.
+When the File View window appears, select the add-on file you just downloaded, make sure the filename ends with `.zip`, and press the `Install Add-on` button.
 
 ![](../images/installation3.png)
 
-Make sure "Community" is enabled.
+Make sure `Community` is enabled.
 
 ![](../images/installation4.png?1)
 
 Find `Import-Export: VRM format` in the add-on list view. There is a search box in the upper right corner if there are too many items to find.
+
+If you cannot find it, please make sure that all of the following conditions are met
+
+- The add-on file you downloaded is a zip file, but <u>you did not unzip it</u>.
+- The selected add-on filename ends with `.zip`.
+- `Community` at the top of the window is enabled.
 
 ![](../images/installation5.png?1)
 
