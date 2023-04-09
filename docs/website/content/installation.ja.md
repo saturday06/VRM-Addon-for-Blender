@@ -3,7 +3,7 @@ title: "アドオンのインストール"
 images: ["ja/images/installation.png"]
 ---
 
-**[最新版のダウンロード {{< release_ja >}}](https://github.com/saturday06/VRM-Addon-for-Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンファイルをダウンロードします。
+**[最新版のダウンロード {{< release_ja >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンファイルをダウンロードします。
 
 ダウンロードしたアドオンファイルはzipファイルになっていますが、<u>展開せずそのまま</u>利用します。もし展開した場合、展開されたデータはアドオンとして機能しないためです。
 

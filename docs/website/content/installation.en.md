@@ -3,7 +3,7 @@ title: "Installation"
 images: ["en/images/installation.png"]
 ---
 
-Download latest add-on file from **[Download Latest Version {{< release_utc >}}](https://github.com/saturday06/VRM-Addon-for-Blender/raw/release-archive/VRM_Addon_for_Blender-release.zip)**
+Download latest add-on file from **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**
 
 The downloaded add-on file is a zip file, but <u>please do not unzip it</u>, as the unzipped data will not function as an add-on.
 
