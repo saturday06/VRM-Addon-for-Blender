@@ -21,21 +21,25 @@ When the File View window appears, select the add-on file you just downloaded, m
 
 Make sure `Community` is enabled.
 
-![](../images/installation4.png?1)
+![](../images/installation4.png?3)
 
-Find `Import-Export: VRM format` in the add-on list view. There is a search box in the upper right corner if there are too many items to find.
+Find `Import-Export: VRM format` in the add-on list view.
+
+![](../images/installation5.png?3)
+
+There is a search box in the upper right corner if there are too many items to find.
+
+![](../images/installation6.png?3)
 
 If you cannot find it, please make sure that all of the following conditions are met
 
 - The add-on file you downloaded is a zip file, but <u>you did not unzip it</u>.
-- The installed add-on filename ends with `.zip`.
+- The selected add-on filename ends with `.zip`.
 - `Community` at the top of the window is enabled.
-
-![](../images/installation5.png?1)
 
 Press the checkbox to complete the installation of the add-on.
 
-![](../images/installation6.png)
+![](../images/installation7.png?3)
 
 ## Related links
 
