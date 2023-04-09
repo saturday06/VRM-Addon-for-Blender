@@ -28,7 +28,7 @@ Find `Import-Export: VRM format` in the add-on list view. There is a search box 
 If you cannot find it, please make sure that all of the following conditions are met
 
 - The add-on file you downloaded is a zip file, but <u>you did not unzip it</u>.
-- The selected add-on filename ends with `.zip`.
+- The installed add-on filename ends with `.zip`.
 - `Community` at the top of the window is enabled.
 
 ![](../images/installation5.png?1)
