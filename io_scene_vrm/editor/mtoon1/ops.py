@@ -1,6 +1,6 @@
 import math
 from sys import float_info
-from typing import Optional, Set, Tuple, cast
+from typing import List, Optional, Set, Tuple, cast
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
@@ -596,20 +596,8 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         return cast(Set[str], ImportHelper.invoke(self, context, event))
 
 
-MODIFIER_MATERIAL_KEY = "Input_1"
-MODIFIER_OUTLINE_MATERIAL_KEY = "Input_2"
-MODIFIER_OUTLINE_WIDTH_MODE_KEY = "Input_3"
-MODIFIER_OUTLINE_WIDTH_FACTOR_KEY = "Input_4"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_KEY = "Input_5"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_EXISTS_KEY = "Input_6"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_ATTRIBUTE_NAME_KEY = "Input_7_attribute_name"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_USE_ATTRIBUTE_KEY = "Input_7_use_attribute"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_X_KEY = "Input_8"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_Y_KEY = "Input_9"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_X_KEY = "Input_10"
-MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_Y_KEY = "Input_11"
-MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY = "Input_12"
-MODIFIER_OBJECT_KEY = "Input_14"
+def get_nodes_modifier_input_keys(modifier: bpy.types.Modifier) -> List[str]:
+    return [i.identifier for i in modifier.node_group.inputs]
 
 
 class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
@@ -658,7 +646,11 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                 continue
             if search_modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
                 continue
-            search_material = search_modifier.get(MODIFIER_MATERIAL_KEY)
+            input_keys = get_nodes_modifier_input_keys(search_modifier)
+            if len(input_keys) < 2:
+                continue
+            _geometry_key, material_key = input_keys[:2]
+            search_material = search_modifier.get(material_key)
             if not isinstance(search_material, bpy.types.Material):
                 continue
             if search_material.name != material.name:
@@ -729,52 +721,79 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
         if modifier.node_group != node_group:
             modifier.node_group = node_group
 
+        (
+            _geometry_key,
+            material_key,
+            outline_material_key,
+            outline_width_mode_key,
+            outline_width_factor_key,
+            outline_width_multiply_texture_key,
+            outline_width_multiply_texture_exists_key,
+            outline_width_multiply_texture_uv_key,
+            outline_width_multiply_texture_uv_offset_x_key,
+            outline_width_multiply_texture_uv_offset_y_key,
+            outline_width_multiply_texture_uv_scale_x_key,
+            outline_width_multiply_texture_uv_scale_y_key,
+            extrude_mesh_individual_key,
+            object_key,
+        ) = get_nodes_modifier_input_keys(modifier)
+
         modifier_input_changed = False
-        if modifier.get(MODIFIER_MATERIAL_KEY) != material:
-            modifier[MODIFIER_MATERIAL_KEY] = material
+
+        if modifier.get(material_key) != material:
+            modifier[material_key] = material
             modifier_input_changed = True
-        if modifier.get(MODIFIER_OUTLINE_MATERIAL_KEY) != outline_material:
-            modifier[MODIFIER_OUTLINE_MATERIAL_KEY] = outline_material
+
+        if modifier.get(outline_material_key) != outline_material:
+            modifier[outline_material_key] = outline_material
             modifier_input_changed = True
-        if modifier.get(MODIFIER_OUTLINE_WIDTH_MODE_KEY) != outline_width_mode_value:
-            modifier[MODIFIER_OUTLINE_WIDTH_MODE_KEY] = outline_width_mode_value
+
+        if modifier.get(outline_width_mode_key) != outline_width_mode_value:
+            modifier[outline_width_mode_key] = outline_width_mode_value
+            modifier_input_changed = True
+
+        if modifier.get(outline_width_factor_key) != mtoon.outline_width_factor:
+            modifier[outline_width_factor_key] = mtoon.outline_width_factor
             modifier_input_changed = True
 
         if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_FACTOR_KEY)
-            != mtoon.outline_width_factor
-        ):
-            modifier[MODIFIER_OUTLINE_WIDTH_FACTOR_KEY] = mtoon.outline_width_factor
-            modifier_input_changed = True
-        if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_KEY)
+            modifier.get(outline_width_multiply_texture_key)
             != mtoon.outline_width_multiply_texture.index.source
         ):
             modifier[
-                MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_KEY
+                outline_width_multiply_texture_key
             ] = mtoon.outline_width_multiply_texture.index.source
-            modifier[MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_EXISTS_KEY] = bool(
+            modifier_input_changed = True
+
+        if modifier.get(outline_width_multiply_texture_exists_key) != bool(
+            mtoon.outline_width_multiply_texture.index.source
+        ):
+            modifier[outline_width_multiply_texture_exists_key] = bool(
                 mtoon.outline_width_multiply_texture.index.source
             )
             modifier_input_changed = True
-        if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_USE_ATTRIBUTE_KEY)
-            != 1
-        ):
-            modifier[MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_USE_ATTRIBUTE_KEY] = 1
+
+        outline_width_multiply_texture_uv_use_attribute_key = (
+            outline_width_multiply_texture_uv_key + "_use_attribute"
+        )
+        if modifier.get(outline_width_multiply_texture_uv_use_attribute_key) != 1:
+            modifier[outline_width_multiply_texture_uv_use_attribute_key] = 1
             modifier_input_changed = True
 
+        outline_width_multiply_texture_uv_attribute_name_key = (
+            outline_width_multiply_texture_uv_key + "_attribute_name"
+        )
         uv_map_value = {
             0: uv_layer.name
             for uv_layer in obj.data.uv_layers
             if uv_layer and uv_layer.active_render
         }.get(0, "UVMap")
         if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_ATTRIBUTE_NAME_KEY)
+            modifier.get(outline_width_multiply_texture_uv_attribute_name_key)
             != uv_map_value
         ):
             modifier[
-                MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_ATTRIBUTE_NAME_KEY
+                outline_width_multiply_texture_uv_attribute_name_key
             ] = uv_map_value
             modifier_input_changed = True
 
@@ -786,36 +805,40 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             outline_width_multiply_texture_uv_scale_x,
             outline_width_multiply_texture_uv_scale_y,
         ) = mtoon.outline_width_multiply_texture.extensions.khr_texture_transform.scale
+
         if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_X_KEY)
+            modifier.get(outline_width_multiply_texture_uv_offset_x_key)
             != outline_width_multiply_texture_uv_offset_x
         ):
             modifier[
-                MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_X_KEY
+                outline_width_multiply_texture_uv_offset_x_key
             ] = outline_width_multiply_texture_uv_offset_x
             modifier_input_changed = True
+
         if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_Y_KEY)
+            modifier.get(outline_width_multiply_texture_uv_offset_y_key)
             != outline_width_multiply_texture_uv_offset_y
         ):
             modifier[
-                MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_OFFSET_Y_KEY
+                outline_width_multiply_texture_uv_offset_y_key
             ] = outline_width_multiply_texture_uv_offset_y
             modifier_input_changed = True
+
         if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_X_KEY)
+            modifier.get(outline_width_multiply_texture_uv_scale_x_key)
             != outline_width_multiply_texture_uv_scale_x
         ):
             modifier[
-                MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_X_KEY
+                outline_width_multiply_texture_uv_scale_x_key
             ] = outline_width_multiply_texture_uv_scale_x
             modifier_input_changed = True
+
         if (
-            modifier.get(MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_Y_KEY)
+            modifier.get(outline_width_multiply_texture_uv_scale_y_key)
             != outline_width_multiply_texture_uv_scale_y
         ):
             modifier[
-                MODIFIER_OUTLINE_WIDTH_MULTIPLY_TEXTURE_UV_SCALE_Y_KEY
+                outline_width_multiply_texture_uv_scale_y_key
             ] = outline_width_multiply_texture_uv_scale_y
             modifier_input_changed = True
 
@@ -824,15 +847,12 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             and not obj.data.use_auto_smooth
             and not any(polygon.use_smooth for polygon in obj.data.polygons)
         )
-        if (
-            modifier.get(MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY)
-            != extrude_mesh_individual
-        ):
-            modifier[MODIFIER_EXTRUDE_MESH_INDIVIDUAL_KEY] = extrude_mesh_individual
+        if modifier.get(extrude_mesh_individual_key) != extrude_mesh_individual:
+            modifier[extrude_mesh_individual_key] = extrude_mesh_individual
             modifier_input_changed = True
 
-        if modifier.get(MODIFIER_OBJECT_KEY) != obj:
-            modifier[MODIFIER_OBJECT_KEY] = obj
+        if modifier.get(object_key) != obj:
+            modifier[object_key] = obj
             modifier_input_changed = True
 
         # Apply input values
@@ -888,7 +908,11 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                     != shader.OUTLINE_GEOMETRY_GROUP_NAME
                 ):
                     continue
-                search_material = search_modifier.get(MODIFIER_MATERIAL_KEY)
+                input_keys = get_nodes_modifier_input_keys(search_modifier)
+                if len(input_keys) < 2:
+                    continue
+                _geometry_key, material_key = input_keys[:2]
+                search_material = search_modifier.get(material_key)
                 if (
                     isinstance(search_material, bpy.types.Material)
                     and search_material.name in outline_material_names

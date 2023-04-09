@@ -14,7 +14,7 @@ def migrate(context: bpy.types.Context) -> None:
         if not root.enabled:
             continue
 
-        if tuple(root.addon_version) < (2, 15, 7):
+        if tuple(root.addon_version) < (2, 15, 18):
             load_mtoon1_outline_geometry_node_group(
                 context, overwrite=outline_geometry_node_group_overwrite
             )
