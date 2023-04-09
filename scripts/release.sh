@@ -114,6 +114,18 @@ readme_zip_path="${PWD}/readme.zip"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$readme_zip_path"
 )
 
+gh_pages_branch_dir=$(mktemp -d)
+git worktree add "${gh_pages_branch_dir}" gh-pages
+mkdir -p "${gh_pages_branch_dir}/releases"
+cp "${prefix_name}-${release_postfix}.zip" "${gh_pages_branch_dir}/releases/"
+(
+  cd "$gh_pages_branch_dir"
+  git add .
+  git config --global user.email "isamu@leafytree.jp"
+  git config --global user.name "[BOT] Isamu Mogi"
+  git commit -m "[BOT] Update gh-pages"
+)
+
 addon_dir="$HOME/.config/blender/2.83/scripts/addons/${prefix_name}-README"
 if ! BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
   --background \
@@ -148,6 +160,10 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
 if [ "$release_postfix" = "release" ]; then
   (
     cd "$readme_branch_dir"
+    git push origin HEAD
+  )
+  (
+    cd "$gh_pages_branch_dir"
     git push origin HEAD
   )
 fi
