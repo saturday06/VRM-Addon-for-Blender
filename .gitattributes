@@ -15,5 +15,9 @@ go.mod text eol=lf
 go.sum text eol=lf
 poetry.lock text eol=lf
 
+# 昔はGitHubの "Code" -> "Download ZIP" からダウンロードしたファイルをアドオンとして扱う方式を採用していたが、現在は廃止している。
+# しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがって来てしまった。
+# デフォルトでユーザーが閲覧するREADMEブランチに関しては対策をしたが、他のmainブランチなどではできていない。
+# 対策ができていないブランチでの混乱を最小化するため、アーカイブする場合はソースコードをすべて除外しNotice.txtだけを含め、正しいダウンロード先を案内する。
 * export-ignore
 /Notice.txt -export-ignore

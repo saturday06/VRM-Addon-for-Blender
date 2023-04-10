@@ -55,6 +55,17 @@ def register() -> None:
         / ("_".join(map(str, bl_info["version"])) + ".zip")
     )
     if github_code_download_zip_path.exists():
+        # github_code_download_zip_pathにファイルが存在する場合、それに含まれているソースコードを展開する。
+        #
+        # このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
+        # しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
+        # ソースコード配置から離れてしまい、開発ツールのサポートが弱くなってしまうのでそのダウンロード方式は廃止した。
+        # しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがるため
+        # どうにかソースコード配置を変えずに、その方式でも動作するように頑張った結果がこれである。
+        #
+        # この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
+        # https://code.blender.org/2022/10/blender-extensions-platform/
+
         logger.warning(
             "%s Unzipping the partial add-on archive for "
             'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub ...',
