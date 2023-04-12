@@ -83,7 +83,10 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             return
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeValue):
-            logger.warning(f'No shader node value "{node_name}" for "{material.name}"')
+            if node_name != "Mtoon1Material.NormalScale":
+                logger.warning(
+                    f'No shader node value "{node_name}" for "{material.name}"'
+                )
             return
         node.outputs[0].default_value = value
 
