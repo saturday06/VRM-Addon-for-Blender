@@ -56,75 +56,43 @@ class CapsuleWorldCollider:
     offset: Vector
     radius: float
     tail: Vector
+    offset_to_tail_diff: Vector
+    offset_to_tail_diff_length_squared: float
 
     def calculate_collision(
         self, target: Vector, target_radius: float
     ) -> Tuple[Vector, float]:
         fallback_result = (Vector((0, 0, -1)), -0.01)
 
-        # offset側との球とターゲットが同一座標の場合
+        if abs(self.offset_to_tail_diff_length_squared) < float_info.epsilon:
+            return fallback_result
+
         offset_to_target_diff = target - self.offset
-        offset_to_target_diff_length = offset_to_target_diff.length
-        if offset_to_target_diff_length < float_info.epsilon:
+
+        # offsetとtailを含む直線上で、targetまでの最短の点を
+        # self.offset + (self.tail - self.offset) * offset_to_tail_ratio_for_nearest
+        # という式で表すためのoffset_to_tail_ratio_for_nearestを求める
+        offset_to_tail_ratio_for_nearest = (
+            self.offset_to_tail_diff.dot(offset_to_target_diff)
+            / self.offset_to_tail_diff_length_squared
+        )
+
+        # offsetからtailまでの線分の始点が0で終点が1なので、範囲外は切り取る
+        offset_to_tail_ratio_for_nearest = max(
+            0, min(1, offset_to_tail_ratio_for_nearest)
+        )
+
+        # targetまでの最短の点を計算し、衝突判定
+        nearest = (
+            self.offset + self.offset_to_tail_diff * offset_to_tail_ratio_for_nearest
+        )
+        nearest_to_target_diff = target - nearest
+        nearest_to_target_diff_length = nearest_to_target_diff.length
+        if nearest_to_target_diff_length < float_info.epsilon:
             return fallback_result
-
-        # tail側との球とターゲットが同一座標の場合
-        tail_to_target_diff = target - self.tail
-        tail_to_target_diff_length = tail_to_target_diff.length
-        if tail_to_target_diff_length < float_info.epsilon:
-            return fallback_result
-
-        normalized_offset_to_target_diff = (
-            offset_to_target_diff / offset_to_target_diff_length
-        )
-
-        # offsetとtailが同一座標の場合
-        offset_to_tail_diff = self.tail - self.offset
-        offset_to_tail_diff_length = offset_to_tail_diff.length
-        if offset_to_tail_diff_length < float_info.epsilon:
-            # 代わりにoffset側の球との衝突判定をする
-            return (
-                normalized_offset_to_target_diff,
-                offset_to_target_diff_length - target_radius - self.radius,
-            )
-
-        normalized_offset_to_tail_diff = (
-            offset_to_tail_diff / offset_to_tail_diff_length
-        )
-
-        # offset側の球との衝突判定
-        offset_cos = normalized_offset_to_target_diff.dot(
-            normalized_offset_to_tail_diff
-        )
-        if offset_cos < 0:
-            return (
-                normalized_offset_to_target_diff,
-                offset_to_target_diff_length - target_radius - self.radius,
-            )
-
-        # tail側の球との衝突判定
-        normalized_tail_to_target_diff = (
-            tail_to_target_diff / tail_to_target_diff_length
-        )
-        tail_cos = normalized_tail_to_target_diff.dot(-normalized_offset_to_tail_diff)
-        if tail_cos < 0:
-            return (
-                normalized_tail_to_target_diff,
-                tail_to_target_diff_length - target_radius - self.radius,
-            )
-
-        # 線分との衝突判定
-        offset_to_perpendicular = (
-            normalized_offset_to_tail_diff * offset_to_target_diff_length * offset_cos
-        )
-        perpendicular_to_target = offset_to_target_diff - offset_to_perpendicular
-        perpendicular_to_target_length = perpendicular_to_target.length
-        if perpendicular_to_target_length < float_info.epsilon:
-            return fallback_result
-
         return (
-            perpendicular_to_target / perpendicular_to_target_length,
-            perpendicular_to_target_length - target_radius - self.radius,
+            nearest_to_target_diff / nearest_to_target_diff_length,
+            nearest_to_target_diff_length - target_radius - self.radius,
         )
 
 
@@ -198,10 +166,13 @@ def calculate_object_pose_bone_rotation_differences(
             offset = pose_bone_world_matrix @ Vector(collider.shape.capsule.offset)
             tail = pose_bone_world_matrix @ Vector(collider.shape.capsule.tail)
             radius = collider.shape.sphere.radius
+            offset_to_tail_diff = tail - offset
             collider_uuid_to_world_collider[collider.uuid] = CapsuleWorldCollider(
                 offset=offset,
                 radius=radius,
                 tail=tail,
+                offset_to_tail_diff=offset_to_tail_diff,
+                offset_to_tail_diff_length_squared=offset_to_tail_diff.length_squared,
             )
 
     collider_group_uuid_to_world_colliders: Dict[
