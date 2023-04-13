@@ -3,6 +3,15 @@ from typing import Dict, Set, Tuple, cast
 
 import bpy
 
+if bpy.app.version < (3, 6, 0):
+    from io_scene_gltf2.blender.exp.gltf2_blender_image import (
+        ExportImage,
+    )  # pyright: reportMissingImports=false
+else:
+    from io_scene_gltf2.blender.exp.material.extensions.gltf2_blender_image import (
+        ExportImage,
+    )  # pyright: reportMissingImports=false
+
 
 class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ignore[misc]
     bl_label = "glTF 2.0 add-on is disabled"
@@ -26,10 +35,6 @@ class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ig
 def image_to_image_bytes(
     image: bpy.types.Image, export_settings: Dict[str, object]
 ) -> Tuple[bytes, str]:
-    from io_scene_gltf2.blender.exp.gltf2_blender_image import (
-        ExportImage,
-    )  # pyright: reportMissingImports=false
-
     export_image = ExportImage.from_blender_image(image)
 
     if image.file_format == "JPEG":
