@@ -682,14 +682,12 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             shader.load_mtoon1_shader(context, outline_material, overwrite=False)
             outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
             material.vrm_addon_extension.mtoon1.outline_material = outline_material
-        if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:
-            outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
         if outline_material.name != outline_material_name:
             outline_material.name = outline_material_name
-        if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:
-            outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
         if not outline_material.use_nodes:
             outline_material.use_nodes = True
+        if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:
+            outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
         if (
             outline_material.vrm_addon_extension.mtoon1.alpha_cutoff
             != material.vrm_addon_extension.mtoon1.alpha_cutoff
