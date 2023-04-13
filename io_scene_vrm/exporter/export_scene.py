@@ -301,6 +301,7 @@ def menu_export(menu_op: bpy.types.Operator, _context: bpy.types.Context) -> Non
         EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)"
     )
     export_op.armature_object_name = ""
+    export_op.ignore_warning = False
 
 
 class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[misc]
