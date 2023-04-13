@@ -94,7 +94,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},  # noqa: F821
     )
-    ignore_skippable_warning: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    ignore_warning: bpy.props.BoolProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},  # noqa: F821
     )
 
@@ -229,7 +229,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             self.errors,
             self.armature_object_name,
         )
-        if not self.ignore_skippable_warning and any(
+        if not self.ignore_warning and any(
             error.severity <= 1 for error in self.errors
         ):
             bpy.ops.wm.vrm_export_confirmation(
@@ -445,7 +445,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
             return {"CANCELLED"}
         bpy.ops.export_scene.vrm(
             "INVOKE_DEFAULT",
-            ignore_skippable_warning=True,
+            ignore_warning=True,
             armature_object_name=self.armature_object_name,
         )
         return {"FINISHED"}
