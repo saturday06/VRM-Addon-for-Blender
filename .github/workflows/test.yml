@@ -187,7 +187,7 @@ jobs:
           git ls-files "*.glsl" | xargs clang-format-12 -i
           git diff --exit-code
       - name: Super-Linter
-        uses: github/super-linter@v4
+        uses: github/super-linter@v5
         env:
           LINTER_RULES_PATH: /
           LOG_LEVEL: NOTICE
