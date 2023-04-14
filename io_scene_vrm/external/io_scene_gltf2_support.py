@@ -3,14 +3,10 @@ from typing import Dict, Set, Tuple, cast
 
 import bpy
 
-if bpy.app.version < (3, 6, 0):
-    from io_scene_gltf2.blender.exp.gltf2_blender_image import (
-        ExportImage,
-    )  # pyright: reportMissingImports=false
-else:
-    from io_scene_gltf2.blender.exp.material.extensions.gltf2_blender_image import (
-        ExportImage,
-    )  # pyright: reportMissingImports=false
+#
+# ここで `import io_scene_gltf2` をするとio_scene_gltf2が無効化されている場合全体を巻き込んで
+# エラーになる。そのため関数内でインポートするように注意する。
+#
 
 
 class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ignore[misc]
@@ -35,7 +31,15 @@ class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ig
 def image_to_image_bytes(
     image: bpy.types.Image, export_settings: Dict[str, object]
 ) -> Tuple[bytes, str]:
-    export_image = ExportImage.from_blender_image(image)
+    if bpy.app.version < (3, 6, 0):
+        from io_scene_gltf2.blender.exp import (
+            gltf2_blender_image,
+        )  # pyright: reportMissingImports=false
+    else:
+        from io_scene_gltf2.blender.exp.material.extensions import (
+            gltf2_blender_image,
+        )  # pyright: reportMissingImports=false
+    export_image = gltf2_blender_image.ExportImage.from_blender_image(image)
 
     if image.file_format == "JPEG":
         mime_type = "image/jpeg"
