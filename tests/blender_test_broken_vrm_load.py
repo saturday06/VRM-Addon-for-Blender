@@ -23,9 +23,7 @@ def get_test_command_args() -> List[List[str]]:
     return command_args
 
 
-def test() -> None:
-    vrm = sys.argv[sys.argv.index("--") + 1]
-
+def test(vrm: str) -> None:
     if bpy.app.version < (2, 93) and vrm == "draco.vrm":
         return
 
@@ -34,4 +32,4 @@ def test() -> None:
 
 
 if __name__ == "__main__":
-    test()
+    test(*sys.argv[slice(sys.argv.index("--") + 1, sys.maxsize)])

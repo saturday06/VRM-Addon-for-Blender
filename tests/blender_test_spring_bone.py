@@ -551,8 +551,7 @@ FUNCTIONS = [
 ]
 
 
-def test() -> None:
-    function_name = sys.argv[sys.argv.index("--") + 1]
+def test(function_name: str) -> None:
     function = {0: f for f in FUNCTIONS if f.__name__ == function_name}.get(0)
     if function is None:
         raise AssertionError(f"No function name: {function_name}")
@@ -560,4 +559,8 @@ def test() -> None:
 
 
 if __name__ == "__main__":
-    test()
+    if "--" in sys.argv:
+        test(*sys.argv[slice(sys.argv.index("--") + 1, sys.maxsize)])
+    else:
+        for arg in get_test_command_args():
+            test(*arg)

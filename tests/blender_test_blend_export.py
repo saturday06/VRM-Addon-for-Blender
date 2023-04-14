@@ -27,12 +27,12 @@ def get_test_command_args() -> List[List[str]]:
     return command_args
 
 
-def test() -> None:
+def test(blend_path_str: str) -> None:
     environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
     update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
     major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
 
-    blend = Path(sys.argv[sys.argv.index("--") + 1])
+    blend = Path(blend_path_str)
     in_path = blend_dir / blend
     if not in_path.exists():
         in_path = blend_dir / major_minor / blend
@@ -86,4 +86,4 @@ def test() -> None:
 
 
 if __name__ == "__main__":
-    test()
+    test(*sys.argv[slice(sys.argv.index("--") + 1, sys.maxsize)])
