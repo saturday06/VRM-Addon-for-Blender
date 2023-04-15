@@ -6,21 +6,21 @@ updates:
     target-branch: "main"
     schedule:
       interval: "daily"
+      time: "00:00"
     open-pull-requests-limit: 1
-    time: "00:00"
 
   - package-ecosystem: "pip"
     directory: "/"
     target-branch: "main"
     schedule:
       interval: "daily"
+      time: "01:00"
     open-pull-requests-limit: 1
-    time: "01:00"
 
   - package-ecosystem: "gomod"
     directory: "/docs/website"
     target-branch: "main"
     schedule:
       interval: "monthly"
+      time: "02:00"
     open-pull-requests-limit: 1
-    time: "02:00"
