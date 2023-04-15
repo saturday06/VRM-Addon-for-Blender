@@ -265,17 +265,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
     current_tail_pose_bone_matrix: Matrix,
     world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]],
 ) -> Tuple[Quaternion, Matrix]:
-    if head_pose_bone.parent:
-        current_head_parent_matrix = head_pose_bone.parent.matrix
-        current_head_parent_rest_object_matrix = (
-            head_pose_bone.parent.bone.convert_local_to_pose(
-                Matrix(), head_pose_bone.parent.bone.matrix_local
-            )
-        )
-    else:
-        current_head_parent_matrix = Matrix()
-        current_head_parent_rest_object_matrix = Matrix()
-
     current_head_rest_object_matrix = head_pose_bone.bone.convert_local_to_pose(
         Matrix(), head_pose_bone.bone.matrix_local
     )
@@ -284,6 +273,16 @@ def calculate_joint_pair_head_pose_bone_rotations(
     )
 
     if next_head_pose_bone_before_rotation_matrix is None:
+        if head_pose_bone.parent:
+            current_head_parent_matrix = head_pose_bone.parent.matrix
+            current_head_parent_rest_object_matrix = (
+                head_pose_bone.parent.bone.convert_local_to_pose(
+                    Matrix(), head_pose_bone.parent.bone.matrix_local
+                )
+            )
+        else:
+            current_head_parent_matrix = Matrix()
+            current_head_parent_rest_object_matrix = Matrix()
         next_head_pose_bone_before_rotation_matrix = current_head_parent_matrix @ (
             current_head_parent_rest_object_matrix.inverted_safe()
             @ current_head_rest_object_matrix
