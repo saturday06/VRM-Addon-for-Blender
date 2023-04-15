@@ -1,6 +1,4 @@
 import datetime
-import logging
-import math
 from dataclasses import dataclass
 from sys import float_info
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -9,14 +7,11 @@ import bpy
 from bpy.app.handlers import persistent
 from mathutils import Matrix, Quaternion, Vector
 
-from ...common.logging import get_logger
 from .property_group import (
     SpringBone1ColliderPropertyGroup,
     SpringBone1JointPropertyGroup,
     SpringBone1SpringPropertyGroup,
 )
-
-logger = get_logger(__name__)
 
 if not persistent:  # for fake-bpy-modules
 
@@ -94,24 +89,6 @@ class CapsuleWorldCollider:
             nearest_to_target_diff / nearest_to_target_diff_length,
             nearest_to_target_diff_length - target_radius - self.radius,
         )
-
-
-def dump(v: Union[Matrix, Vector, Quaternion, float, int]) -> str:
-    if logger.level > logging.DEBUG:
-        return "(omit)"
-
-    if isinstance(v, (float, int)):
-        return str(v)
-
-    if isinstance(v, Matrix):
-        t, r, s = v.decompose()
-        return f"Matrix(T={dump(t)},R={dump(r)},S={dump(s)})"
-
-    if isinstance(v, Vector):
-        return f"({v.x:.3f},{v.y:.3f},{v.z:.3f})"
-
-    x, y, z = [round(math.degrees(xyz)) for xyz in v.to_euler("XYZ")[:]]
-    return f"Euler({x},{y},{z})"
 
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#update-procedure
@@ -243,7 +220,6 @@ def calculate_spring_pose_bone_rotations(
                 break
             searching_tail_parent = searching_tail_parent.parent
         if not head_tail_parented:
-            logger.error(f'"{head_bone_name}" and "{tail_bone_name}" are not parented')
             return
 
         inputs.append((head_joint, head_pose_bone, tail_joint, tail_pose_bone))
@@ -289,9 +265,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
     current_tail_pose_bone_matrix: Matrix,
     world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]],
 ) -> Tuple[Quaternion, Matrix]:
-    logger.debug(f"=== {head_pose_bone.name} -> {tail_pose_bone.name} ===")
-    logger.debug(f"delta time={delta_time}")
-
     if head_pose_bone.parent:
         current_head_parent_matrix = head_pose_bone.parent.matrix
         current_head_parent_rest_object_matrix = (
@@ -306,14 +279,8 @@ def calculate_joint_pair_head_pose_bone_rotations(
     current_head_rest_object_matrix = head_pose_bone.bone.convert_local_to_pose(
         Matrix(), head_pose_bone.bone.matrix_local
     )
-    logger.debug(
-        f"headのconvert_local_to_poseの結果={dump(current_head_rest_object_matrix)}"
-    )
     current_tail_rest_object_matrix = tail_pose_bone.bone.convert_local_to_pose(
         Matrix(), tail_pose_bone.bone.matrix_local
-    )
-    logger.debug(
-        f"tailのconvert_local_to_poseの結果={dump(current_tail_rest_object_matrix)}"
     )
 
     if next_head_pose_bone_before_rotation_matrix is None:
@@ -351,33 +318,15 @@ def calculate_joint_pair_head_pose_bone_rotations(
         current_tail_rest_object_matrix.to_translation()
         - current_head_rest_object_matrix.to_translation()
     )
-    logger.debug(
-        f"head=>tailのconvert_local_to_poseの結果={dump(current_head_to_tail_rest_object_translation)}"
-    )
     stiffness_direction = (
         obj.matrix_world.to_quaternion() @ current_head_to_tail_rest_object_translation
     ).normalized()
     stiffness = stiffness_direction * delta_time * head_joint.stiffness
-    logger.debug(f"オブジェクトワールド位置={dump(obj.matrix_world.to_translation())}")
-    logger.debug(f"オブジェクト回転={dump(obj.matrix_world.to_quaternion())}")
-    logger.debug(f"Headボーンまでの回転={dump(head_pose_bone.matrix.to_quaternion())}")
-    logger.debug(f"Stiffness Direction={dump(stiffness_direction)}")
-    logger.debug(f"Stiffness Force={dump(stiffness)}")
     external = delta_time * Vector(head_joint.gravity_dir) * head_joint.gravity_power
 
     next_tail_world_translation = (
         current_tail_world_translation + inertia + stiffness + external
     )
-    logger.debug(f"ワールド重力={dump(external)}")
-    logger.debug(
-        f"前のTailのワールド位置={dump(Vector(tail_joint.state.previous_world_translation))}"
-    )
-    logger.debug(
-        f"現在のTailのワールド位置={dump(Vector(tail_joint.state.current_world_translation))}"
-    )
-    logger.debug(f"慣性力系数={dump(1.0 - head_joint.drag_force)}")
-    logger.debug(f"慣性力={dump(inertia)}")
-    logger.debug(f"次のTailの重力増加分ワールド位置={dump(next_tail_world_translation)}")
     head_tail_world_distance = (
         obj.matrix_world
         @ (
@@ -385,8 +334,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
             - current_tail_pose_bone_matrix.to_translation()
         )
     ).length
-    logger.debug(f"HeadとTailの距離={dump(head_tail_world_distance)}")
-    logger.debug(f"次のHeadのワールド位置={dump(next_head_world_translation)}")
 
     # 次のTailに距離の制約を適用
     next_tail_world_translation = (
@@ -411,25 +358,16 @@ def calculate_joint_pair_head_pose_bone_rotations(
             * head_tail_world_distance
         )
 
-    logger.debug(f"次のTailのワールド座標={dump(next_tail_world_translation)}")
     next_tail_object_local_translation = (
         obj.matrix_world.inverted_safe() @ next_tail_world_translation
     )
-    logger.debug(f"次のTailのオブジェクト座標={dump(next_tail_object_local_translation)}")
     next_head_rotation_start_target_local_translation = (
         current_head_rest_object_matrix.inverted_safe()
         @ current_tail_rest_object_matrix.to_translation()
     )
-    logger.debug(f"次のHeadの回転前行列={dump(next_head_pose_bone_before_rotation_matrix)}")
-    logger.debug(
-        f"次のHeadの回転前(rest)ターゲットローカル座標={dump(next_head_rotation_start_target_local_translation)}"
-    )
     next_head_rotation_end_target_local_translation = (
         next_head_pose_bone_before_rotation_matrix.inverted_safe()
         @ next_tail_object_local_translation
-    )
-    logger.debug(
-        f"次のHeadの回転後      ターゲットローカル座標={dump(next_head_rotation_end_target_local_translation)}"
     )
 
     next_head_pose_bone_rotation = Quaternion(
@@ -440,7 +378,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
             next_head_rotation_end_target_local_translation, 0
         ),
     )
-    logger.debug(f"q={dump(next_head_pose_bone_rotation)}")
+
     (
         next_head_pose_bone_translation,
         next_head_parent_pose_bone_object_rotation,
@@ -462,30 +400,11 @@ def calculate_joint_pair_head_pose_bone_rotations(
         @ current_head_rest_object_matrix.inverted_safe()
         @ current_tail_rest_object_matrix
     )
-    logger.debug(f"現在のTailポーズボーン行列={dump(current_tail_pose_bone_matrix)}")
-    logger.debug(
-        f"次の未回転Tailポーズボーン行列={dump(next_tail_pose_bone_before_rotation_matrix)}"
-    )
-    logger.debug(f"次のHeadポーズボーン行列={dump(next_head_pose_bone_matrix)}")
 
     tail_joint.state.previous_world_translation = list(
         tail_joint.state.current_world_translation
     )
     tail_joint.state.current_world_translation = list(next_tail_world_translation)
-
-    check_next_tail_world_translation = (
-        obj.matrix_world @ next_tail_pose_bone_before_rotation_matrix
-    ).to_translation()
-    if (
-        next_tail_world_translation - check_next_tail_world_translation
-    ).length_squared > 0.0000001:
-        message = (
-            "--- Next Tail World Location Missmatch: ---\n"
-            + f"  Initial={dump(next_tail_world_translation)}\n"
-            + f"  Matrix ={dump(check_next_tail_world_translation)}"
-        )
-        logger.error(message)
-        # raise ValueError(message)
 
     return (
         next_head_pose_bone_rotation
