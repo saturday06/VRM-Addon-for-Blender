@@ -116,26 +116,28 @@ def dump(v: Union[Matrix, Vector, Quaternion, float, int]) -> str:
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#update-procedure
 def update_pose_bone_rotations(delta_time: float) -> None:
-    pose_bone_and_rotation_differences: List[Tuple[bpy.types.PoseBone, Quaternion]] = []
+    pose_bone_and_rotations: List[Tuple[bpy.types.PoseBone, Quaternion]] = []
 
     for obj in bpy.data.objects:
-        calculate_object_pose_bone_rotation_differences(
-            delta_time, obj, pose_bone_and_rotation_differences
-        )
+        calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
 
-    for pose_bone, pose_bone_rotation_difference in pose_bone_and_rotation_differences:
+    for pose_bone, pose_bone_rotation in pose_bone_and_rotations:
         if pose_bone.rotation_mode != "QUATERNION":
             pose_bone.rotation_mode = "QUATERNION"
-        _axis, angle = pose_bone_rotation_difference.to_axis_angle()
-        if abs(angle) < float_info.epsilon:
+
+        # pose_bone.rotation_quaternionの代入は負荷が高いのでできるだけ実行しないようにする
+        angle_diff = pose_bone_rotation.rotation_difference(
+            pose_bone.rotation_quaternion
+        ).angle
+        if abs(angle_diff) < float_info.epsilon:
             continue
-        pose_bone.rotation_quaternion.rotate(pose_bone_rotation_difference)
+        pose_bone.rotation_quaternion = pose_bone_rotation
 
 
-def calculate_object_pose_bone_rotation_differences(
+def calculate_object_pose_bone_rotations(
     delta_time: float,
     obj: bpy.types.Object,
-    pose_bone_and_rotation_differences: List[Tuple[bpy.types.PoseBone, Quaternion]],
+    pose_bone_and_rotations: List[Tuple[bpy.types.PoseBone, Quaternion]],
 ) -> None:
     if obj.type != "ARMATURE":
         return
@@ -196,20 +198,20 @@ def calculate_object_pose_bone_rotation_differences(
             world_colliders.append(world_collider)
 
     for spring in spring_bone1.springs:
-        calculate_spring_pose_bone_rotation_differences(
+        calculate_spring_pose_bone_rotations(
             delta_time,
             obj,
             spring,
-            pose_bone_and_rotation_differences,
+            pose_bone_and_rotations,
             collider_group_uuid_to_world_colliders,
         )
 
 
-def calculate_spring_pose_bone_rotation_differences(
+def calculate_spring_pose_bone_rotations(
     delta_time: float,
     obj: bpy.types.Object,
     spring: SpringBone1SpringPropertyGroup,
-    pose_bone_and_rotation_differences: List[Tuple[bpy.types.PoseBone, Quaternion]],
+    pose_bone_and_rotations: List[Tuple[bpy.types.PoseBone, Quaternion]],
     collider_group_uuid_to_world_colliders: Dict[
         str, List[Union[SphereWorldCollider, CapsuleWorldCollider]]
     ],
@@ -257,13 +259,10 @@ def calculate_spring_pose_bone_rotation_differences(
 
     next_head_pose_bone_before_rotation_matrix = None
     for head_joint, head_pose_bone, tail_joint, tail_pose_bone in inputs:
-        if next_head_pose_bone_before_rotation_matrix is None:
-            next_head_pose_bone_before_rotation_matrix = head_pose_bone.matrix
-
         (
-            head_pose_bone_rotation_difference,
+            head_pose_bone_rotation,
             next_head_pose_bone_before_rotation_matrix,
-        ) = calculate_joint_pair_head_pose_bone_rotation_differences(
+        ) = calculate_joint_pair_head_pose_bone_rotations(
             delta_time,
             obj,
             head_joint,
@@ -275,25 +274,53 @@ def calculate_spring_pose_bone_rotation_differences(
             tail_pose_bone.matrix,
             world_colliders,
         )
-        pose_bone_and_rotation_differences.append(
-            (head_pose_bone, head_pose_bone_rotation_difference)
-        )
+        pose_bone_and_rotations.append((head_pose_bone, head_pose_bone_rotation))
 
 
-def calculate_joint_pair_head_pose_bone_rotation_differences(
+def calculate_joint_pair_head_pose_bone_rotations(
     delta_time: float,
     obj: bpy.types.Object,
     head_joint: SpringBone1JointPropertyGroup,
     head_pose_bone: bpy.types.PoseBone,
     tail_joint: SpringBone1JointPropertyGroup,
     tail_pose_bone: bpy.types.PoseBone,
-    next_head_pose_bone_before_rotation_matrix: Matrix,
+    next_head_pose_bone_before_rotation_matrix: Optional[Matrix],
     current_head_pose_bone_matrix: Matrix,
     current_tail_pose_bone_matrix: Matrix,
     world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]],
 ) -> Tuple[Quaternion, Matrix]:
     logger.debug(f"=== {head_pose_bone.name} -> {tail_pose_bone.name} ===")
     logger.debug(f"delta time={delta_time}")
+
+    if head_pose_bone.parent:
+        current_head_parent_matrix = head_pose_bone.parent.matrix
+        current_head_parent_rest_object_matrix = (
+            head_pose_bone.parent.bone.convert_local_to_pose(
+                Matrix(), head_pose_bone.parent.bone.matrix_local
+            )
+        )
+    else:
+        current_head_parent_matrix = Matrix()
+        current_head_parent_rest_object_matrix = Matrix()
+
+    current_head_rest_object_matrix = head_pose_bone.bone.convert_local_to_pose(
+        Matrix(), head_pose_bone.bone.matrix_local
+    )
+    logger.debug(
+        f"headのconvert_local_to_poseの結果={dump(current_head_rest_object_matrix)}"
+    )
+    current_tail_rest_object_matrix = tail_pose_bone.bone.convert_local_to_pose(
+        Matrix(), tail_pose_bone.bone.matrix_local
+    )
+    logger.debug(
+        f"tailのconvert_local_to_poseの結果={dump(current_tail_rest_object_matrix)}"
+    )
+
+    if next_head_pose_bone_before_rotation_matrix is None:
+        next_head_pose_bone_before_rotation_matrix = current_head_parent_matrix @ (
+            current_head_parent_rest_object_matrix.inverted_safe()
+            @ current_head_rest_object_matrix
+        )
 
     next_head_world_translation = (
         obj.matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
@@ -320,18 +347,6 @@ def calculate_joint_pair_head_pose_bone_rotation_differences(
         1.0 - head_joint.drag_force
     )
 
-    current_head_rest_object_matrix = head_pose_bone.bone.convert_local_to_pose(
-        Matrix(), head_pose_bone.bone.matrix_local
-    )
-    logger.debug(
-        f"headのconvert_local_to_poseの結果={dump(current_head_rest_object_matrix)}"
-    )
-    current_tail_rest_object_matrix = tail_pose_bone.bone.convert_local_to_pose(
-        Matrix(), tail_pose_bone.bone.matrix_local
-    )
-    logger.debug(
-        f"tailのconvert_local_to_poseの結果={dump(current_tail_rest_object_matrix)}"
-    )
     current_head_to_tail_rest_object_translation = (
         current_tail_rest_object_matrix.to_translation()
         - current_head_rest_object_matrix.to_translation()
@@ -364,8 +379,11 @@ def calculate_joint_pair_head_pose_bone_rotation_differences(
     logger.debug(f"慣性力={dump(inertia)}")
     logger.debug(f"次のTailの重力増加分ワールド位置={dump(next_tail_world_translation)}")
     head_tail_world_distance = (
-        current_head_pose_bone_matrix.to_translation()
-        - current_tail_pose_bone_matrix.to_translation()
+        obj.matrix_world
+        @ (
+            current_head_pose_bone_matrix.to_translation()
+            - current_tail_pose_bone_matrix.to_translation()
+        )
     ).length
     logger.debug(f"HeadとTailの距離={dump(head_tail_world_distance)}")
     logger.debug(f"次のHeadのワールド位置={dump(next_head_world_translation)}")
@@ -399,21 +417,22 @@ def calculate_joint_pair_head_pose_bone_rotation_differences(
     )
     logger.debug(f"次のTailのオブジェクト座標={dump(next_tail_object_local_translation)}")
     next_head_rotation_start_target_local_translation = (
-        current_head_pose_bone_matrix.inverted_safe()
-        @ current_tail_pose_bone_matrix.to_translation()
+        current_head_rest_object_matrix.inverted_safe()
+        @ current_tail_rest_object_matrix.to_translation()
     )
+    logger.debug(f"次のHeadの回転前行列={dump(next_head_pose_bone_before_rotation_matrix)}")
     logger.debug(
-        f"次のHeadの回転前ターゲットローカル座標={dump(next_head_rotation_start_target_local_translation)}"
+        f"次のHeadの回転前(rest)ターゲットローカル座標={dump(next_head_rotation_start_target_local_translation)}"
     )
     next_head_rotation_end_target_local_translation = (
         next_head_pose_bone_before_rotation_matrix.inverted_safe()
         @ next_tail_object_local_translation
     )
     logger.debug(
-        f"次のHeadの回転後ターゲットローカル座標={dump(next_head_rotation_end_target_local_translation)}"
+        f"次のHeadの回転後      ターゲットローカル座標={dump(next_head_rotation_end_target_local_translation)}"
     )
 
-    head_pose_bone_rotation_difference = Quaternion(
+    next_head_pose_bone_rotation = Quaternion(
         next_head_rotation_start_target_local_translation.cross(
             next_head_rotation_end_target_local_translation
         ),
@@ -421,16 +440,27 @@ def calculate_joint_pair_head_pose_bone_rotation_differences(
             next_head_rotation_end_target_local_translation, 0
         ),
     )
-    logger.debug(f"q={dump(head_pose_bone_rotation_difference)}")
+    logger.debug(f"q={dump(next_head_pose_bone_rotation)}")
+    (
+        next_head_pose_bone_translation,
+        next_head_parent_pose_bone_object_rotation,
+        next_head_pose_bone_scale,
+    ) = next_head_pose_bone_before_rotation_matrix.decompose()
+    next_head_pose_bone_object_rotation = (
+        next_head_parent_pose_bone_object_rotation @ next_head_pose_bone_rotation
+    )
     next_head_pose_bone_matrix = (
-        next_head_pose_bone_before_rotation_matrix
-        @ head_pose_bone_rotation_difference.to_matrix().to_4x4()
+        Matrix.Translation(next_head_pose_bone_translation)
+        @ next_head_pose_bone_object_rotation.to_matrix().to_4x4()
+        @ Matrix.Scale(next_head_pose_bone_scale[0], 4, Vector((1, 0, 0)))
+        @ Matrix.Scale(next_head_pose_bone_scale[1], 4, Vector((0, 1, 0)))
+        @ Matrix.Scale(next_head_pose_bone_scale[2], 4, Vector((0, 0, 1)))
     )
 
     next_tail_pose_bone_before_rotation_matrix = (
         next_head_pose_bone_matrix
-        @ current_head_pose_bone_matrix.inverted_safe()
-        @ current_tail_pose_bone_matrix
+        @ current_head_rest_object_matrix.inverted_safe()
+        @ current_tail_rest_object_matrix
     )
     logger.debug(f"現在のTailポーズボーン行列={dump(current_tail_pose_bone_matrix)}")
     logger.debug(
@@ -441,12 +471,26 @@ def calculate_joint_pair_head_pose_bone_rotation_differences(
     tail_joint.state.previous_world_translation = list(
         tail_joint.state.current_world_translation
     )
-    tail_joint.state.current_world_translation = list(
-        obj.matrix_world @ next_tail_pose_bone_before_rotation_matrix.to_translation()
-    )
+    tail_joint.state.current_world_translation = list(next_tail_world_translation)
+
+    check_next_tail_world_translation = (
+        obj.matrix_world @ next_tail_pose_bone_before_rotation_matrix
+    ).to_translation()
+    if (
+        next_tail_world_translation - check_next_tail_world_translation
+    ).length_squared > 0.0000001:
+        message = (
+            "--- Next Tail World Location Missmatch: ---\n"
+            + f"  Initial={dump(next_tail_world_translation)}\n"
+            + f"  Matrix ={dump(check_next_tail_world_translation)}"
+        )
+        logger.error(message)
+        # raise ValueError(message)
 
     return (
-        head_pose_bone_rotation_difference,
+        next_head_pose_bone_rotation
+        if head_pose_bone.bone.use_inherit_rotation
+        else next_head_pose_bone_object_rotation,
         next_tail_pose_bone_before_rotation_matrix,
     )
 
