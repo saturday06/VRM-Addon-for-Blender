@@ -7,6 +7,7 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 1
+    time: "00:00"
 
   - package-ecosystem: "pip"
     directory: "/"
@@ -14,6 +15,7 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 1
+    time: "01:00"
 
   - package-ecosystem: "gomod"
     directory: "/docs/website"
@@ -21,3 +23,4 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 1
+    time: "02:00"
