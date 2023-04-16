@@ -197,32 +197,55 @@ def calculate_spring_pose_bone_rotations(
         Tuple[
             SpringBone1JointPropertyGroup,
             bpy.types.PoseBone,
+            Matrix,
             SpringBone1JointPropertyGroup,
             bpy.types.PoseBone,
+            Matrix,
         ]
     ] = []
-    for head_joint, tail_joint in zip(spring.joints, spring.joints[1:]):
-        head_bone_name = head_joint.node.value
-        head_pose_bone = obj.pose.bones.get(head_bone_name)
-        if not head_pose_bone:
-            continue
 
-        tail_bone_name = tail_joint.node.value
-        tail_pose_bone = obj.pose.bones.get(tail_bone_name)
-        if not tail_pose_bone:
+    joints: List[
+        Tuple[
+            SpringBone1JointPropertyGroup,
+            bpy.types.PoseBone,
+            Matrix,
+        ]
+    ] = []
+    for joint in spring.joints:
+        bone_name = joint.node.value
+        pose_bone = obj.pose.bones.get(bone_name)
+        if not pose_bone:
             continue
+        rest_object_matrix = pose_bone.bone.convert_local_to_pose(
+            Matrix(), pose_bone.bone.matrix_local
+        )
+        joints.append((joint, pose_bone, rest_object_matrix))
 
+    for (head_joint, head_pose_bone, head_rest_object_matrix), (
+        tail_joint,
+        tail_pose_bone,
+        tail_rest_object_matrix,
+    ) in zip(joints, joints[1:]):
         head_tail_parented = False
         searching_tail_parent = tail_pose_bone.parent
         while searching_tail_parent:
-            if searching_tail_parent.name == head_bone_name:
+            if searching_tail_parent.name == head_pose_bone.name:
                 head_tail_parented = True
                 break
             searching_tail_parent = searching_tail_parent.parent
         if not head_tail_parented:
             return
 
-        inputs.append((head_joint, head_pose_bone, tail_joint, tail_pose_bone))
+        inputs.append(
+            (
+                head_joint,
+                head_pose_bone,
+                head_rest_object_matrix,
+                tail_joint,
+                tail_pose_bone,
+                tail_rest_object_matrix,
+            )
+        )
 
     world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]] = []
     for collider_group_reference in spring.collider_groups:
@@ -234,7 +257,14 @@ def calculate_spring_pose_bone_rotations(
         world_colliders.extend(collider_group_world_colliders)
 
     next_head_pose_bone_before_rotation_matrix = None
-    for head_joint, head_pose_bone, tail_joint, tail_pose_bone in inputs:
+    for (
+        head_joint,
+        head_pose_bone,
+        head_rest_object_matrix,
+        tail_joint,
+        tail_pose_bone,
+        tail_rest_object_matrix,
+    ) in inputs:
         (
             head_pose_bone_rotation,
             next_head_pose_bone_before_rotation_matrix,
@@ -243,11 +273,11 @@ def calculate_spring_pose_bone_rotations(
             obj,
             head_joint,
             head_pose_bone,
+            head_rest_object_matrix,
             tail_joint,
             tail_pose_bone,
+            tail_rest_object_matrix,
             next_head_pose_bone_before_rotation_matrix,
-            head_pose_bone.matrix,
-            tail_pose_bone.matrix,
             world_colliders,
         )
         pose_bone_and_rotations.append((head_pose_bone, head_pose_bone_rotation))
@@ -258,19 +288,15 @@ def calculate_joint_pair_head_pose_bone_rotations(
     obj: bpy.types.Object,
     head_joint: SpringBone1JointPropertyGroup,
     head_pose_bone: bpy.types.PoseBone,
+    current_head_rest_object_matrix: Matrix,
     tail_joint: SpringBone1JointPropertyGroup,
     tail_pose_bone: bpy.types.PoseBone,
+    current_tail_rest_object_matrix: Matrix,
     next_head_pose_bone_before_rotation_matrix: Optional[Matrix],
-    current_head_pose_bone_matrix: Matrix,
-    current_tail_pose_bone_matrix: Matrix,
     world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]],
 ) -> Tuple[Quaternion, Matrix]:
-    current_head_rest_object_matrix = head_pose_bone.bone.convert_local_to_pose(
-        Matrix(), head_pose_bone.bone.matrix_local
-    )
-    current_tail_rest_object_matrix = tail_pose_bone.bone.convert_local_to_pose(
-        Matrix(), tail_pose_bone.bone.matrix_local
-    )
+    current_head_pose_bone_matrix = head_pose_bone.matrix
+    current_tail_pose_bone_matrix = tail_pose_bone.matrix
 
     if next_head_pose_bone_before_rotation_matrix is None:
         if head_pose_bone.parent:
