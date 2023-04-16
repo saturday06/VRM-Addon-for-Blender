@@ -339,12 +339,14 @@ def calculate_joint_pair_head_pose_bone_rotations(
         1.0 - head_joint.drag_force
     )
 
-    current_head_to_tail_rest_object_translation = (
-        current_tail_rest_object_matrix.to_translation()
-        - current_head_rest_object_matrix.to_translation()
+    next_head_rotation_start_target_local_translation = (
+        current_head_rest_object_matrix.inverted_safe()
+        @ current_tail_rest_object_matrix.to_translation()
     )
     stiffness_direction = (
-        obj.matrix_world.to_quaternion() @ current_head_to_tail_rest_object_translation
+        obj.matrix_world.to_quaternion()
+        @ next_head_pose_bone_before_rotation_matrix.to_quaternion()
+        @ next_head_rotation_start_target_local_translation
     ).normalized()
     stiffness = stiffness_direction * delta_time * head_joint.stiffness
     external = delta_time * Vector(head_joint.gravity_dir) * head_joint.gravity_power
@@ -383,10 +385,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
     next_tail_object_local_translation = (
         obj.matrix_world.inverted_safe() @ next_tail_world_translation
-    )
-    next_head_rotation_start_target_local_translation = (
-        current_head_rest_object_matrix.inverted_safe()
-        @ current_tail_rest_object_matrix.to_translation()
     )
     next_head_rotation_end_target_local_translation = (
         next_head_pose_bone_before_rotation_matrix.inverted_safe()
