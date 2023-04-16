@@ -352,19 +352,17 @@ def calculate_joint_pair_head_pose_bone_rotations(
     next_tail_world_translation = (
         current_tail_world_translation + inertia + stiffness + external
     )
-    head_tail_world_distance = (
-        obj.matrix_world
-        @ (
-            current_head_pose_bone_matrix.to_translation()
-            - current_tail_pose_bone_matrix.to_translation()
-        )
+
+    head_to_tail_world_distance = (
+        obj.matrix_world @ current_head_pose_bone_matrix.to_translation()
+        - (obj.matrix_world @ current_tail_pose_bone_matrix.to_translation())
     ).length
 
     # 次のTailに距離の制約を適用
     next_tail_world_translation = (
         next_head_world_translation
         + (next_tail_world_translation - next_head_world_translation).normalized()
-        * head_tail_world_distance
+        * head_to_tail_world_distance
     )
     # コライダーの衝突を計算
     for world_collider in world_colliders:
@@ -380,7 +378,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
         next_tail_world_translation = (
             next_head_world_translation
             + (next_tail_world_translation - next_head_world_translation).normalized()
-            * head_tail_world_distance
+            * head_to_tail_world_distance
         )
 
     next_tail_object_local_translation = (
