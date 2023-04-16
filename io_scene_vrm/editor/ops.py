@@ -21,8 +21,8 @@ from .make_armature import ICYP_OT_make_armature
 
 class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.bones_rename"
-    bl_label = "Simplify VRoid Bone Name"
-    bl_description = "Simplify VRoid Bone Name"
+    bl_label = "Symmetrize VRoid Bone Names on X-Axis"
+    bl_description = "Make VRoid bone names X-axis mirror editable"
     bl_options = {"REGISTER", "UNDO"}
 
     left__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_L_")
