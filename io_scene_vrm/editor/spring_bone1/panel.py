@@ -35,7 +35,10 @@ def draw_spring_bone1_collider_layout(
     if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
         layout.prop_search(collider.node, "value", armature.data, "bones")
         layout.prop(collider, "shape_type")
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
+        if collider.bpy_object:
+            layout.prop(
+                collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Offset"
+            )
         layout.prop(collider.shape.sphere, "offset", text="")
         layout.separator(factor=0.5)
         layout.prop(collider.shape.sphere, "radius", slider=True)
@@ -47,9 +50,13 @@ def draw_spring_bone1_collider_layout(
         layout.separator(factor=0.5)
         layout.prop(collider.shape.capsule, "radius", slider=True)
         layout.separator(factor=0.5)
-        layout.prop(
-            collider.bpy_object.children[0], "name", icon="MESH_UVSPHERE", text="Tail"
-        )
+        if collider.bpy_object and collider.bpy_object.children:
+            layout.prop(
+                collider.bpy_object.children[0],
+                "name",
+                icon="MESH_UVSPHERE",
+                text="Tail",
+            )
         layout.prop(collider.shape.capsule, "tail", text="")
     layout.separator(factor=0.5)
 
