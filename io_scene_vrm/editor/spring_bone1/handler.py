@@ -442,14 +442,8 @@ def depsgraph_update_pre(_dummy: object) -> None:
 
 @persistent  # type: ignore[misc]
 def frame_change_pre(_dummy: object) -> None:
-    now = datetime.datetime.now()
-    previous_datetime = state.previous_datetime
-    if previous_datetime is None:
-        delta_time = float(bpy.context.scene.render.fps_base) / float(
-            bpy.context.scene.render.fps
-        )
-    else:
-        delta_time = (now - previous_datetime).total_seconds()
-    state.previous_datetime = now
-
+    state.previous_datetime = datetime.datetime.now()
+    delta_time = float(bpy.context.scene.render.fps_base) / float(
+        bpy.context.scene.render.fps
+    )
     update_pose_bone_rotations(delta_time)
