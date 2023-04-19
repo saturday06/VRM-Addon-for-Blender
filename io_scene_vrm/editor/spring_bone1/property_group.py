@@ -47,22 +47,22 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
                 f"Failed to get bpy object of {collider.name} in __get_offset()"
             )
             return (0, 0, 0)
-        bone = armature.data.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.value)
         if bone:
-            mat = (
-                bone.matrix_local.inverted()
+            matrix = (
+                bone.matrix.inverted()
                 @ armature.matrix_world.inverted()
                 @ collider.bpy_object.matrix_world
             )
         else:
-            mat = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
-        return to_tuple_3((mat).to_translation())
+            matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
+        return to_tuple_3(matrix.to_translation())
 
     def __set_offset(self, offset: object) -> None:
         backup_radius = self.__get_radius()
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
-        bone = armature.data.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.value)
         if not bone:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ Matrix.Translation(offset)
@@ -70,7 +70,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
             self.__set_radius(backup_radius)
             return
         collider.bpy_object.matrix_world = (
-            armature.matrix_world @ bone.matrix_local @ Matrix.Translation(offset)
+            armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
         )
         self.__set_radius(backup_radius)
 
@@ -135,22 +135,22 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
                 f"Failed to get bpy object of {collider.name} in __get_offset()"
             )
             return (0, 0, 0)
-        bone = armature.data.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.value)
         if bone:
-            mat = (
-                bone.matrix_local.inverted()
+            matrix = (
+                bone.matrix.inverted()
                 @ armature.matrix_world.inverted()
                 @ collider.bpy_object.matrix_world
             )
         else:
-            mat = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
-        return to_tuple_3((mat).to_translation())
+            matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
+        return to_tuple_3(matrix.to_translation())
 
     def __set_offset(self, offset: object) -> None:
         backup_radius = self.__get_radius()
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
-        bone = armature.data.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.value)
         if not bone:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ Matrix.Translation(offset)
@@ -158,7 +158,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             self.__set_radius(backup_radius)
             return
         collider.bpy_object.matrix_world = (
-            armature.matrix_world @ bone.matrix_local @ Matrix.Translation(offset)
+            armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
         )
         self.__set_radius(backup_radius)
 
@@ -167,25 +167,25 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         if not collider.bpy_object or not collider.bpy_object.children:
             logger.error(f"Failed to get bpy object of {collider.name} in __get_tail()")
             return (0, 0, 0)
-        bone = armature.data.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.value)
         if bone:
-            mat = (
-                bone.matrix_local.inverted()
+            matrix = (
+                bone.matrix.inverted()
                 @ armature.matrix_world.inverted()
                 @ collider.bpy_object.children[0].matrix_world
             )
         else:
-            mat = (
+            matrix = (
                 armature.matrix_world.inverted()
                 @ collider.bpy_object.children[0].matrix_world
             )
-        return to_tuple_3(mat.to_translation())
+        return to_tuple_3(matrix.to_translation())
 
     def __set_tail(self, offset: object) -> None:
         backup_radius = self.__get_radius()
         armature, collider = self.__find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
-        bone = armature.data.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.value)
         if not bone:
             collider.bpy_object.children[
                 0
@@ -193,7 +193,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             self.__set_radius(backup_radius)
             return
         collider.bpy_object.children[0].matrix_world = (
-            armature.matrix_world @ bone.matrix_local @ Matrix.Translation(offset)
+            armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
         )
         self.__set_radius(backup_radius)
 
