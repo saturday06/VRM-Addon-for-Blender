@@ -1,5 +1,5 @@
-import importlib
 from dataclasses import dataclass
+from importlib.util import module_from_spec, spec_from_file_location
 from os.path import getmtime
 from pathlib import Path
 from sys import float_info
@@ -72,13 +72,13 @@ def blender_restart_required() -> bool:
 
     cache.last_root_init_py_modification_time = root_init_py_modification_time
 
-    spec = importlib.util.spec_from_file_location(
+    spec = spec_from_file_location(
         "blender_vrm_addon_root_init_py_version_checking",
         root_init_py_path,
     )
     if spec is None:
         return False
-    mod = importlib.util.module_from_spec(spec)
+    mod = module_from_spec(spec)
     if spec.loader is None:
         return False
     spec.loader.exec_module(mod)

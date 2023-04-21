@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import contextlib
-import importlib.util
 import os
 import re
 import uuid
 from base64 import urlsafe_b64encode
 from collections import abc
+from importlib.util import module_from_spec, spec_from_file_location
 from os import environ
 from pathlib import Path
 
@@ -112,14 +112,14 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
 
     test_command_args_list: object = None
     try:
-        spec = importlib.util.spec_from_file_location(
+        spec = spec_from_file_location(
             "blender_vrm_addon_base_blender_test_case_generate_blender_test_case__"
             + path_without_ext,
             test_src_dir / path,
         )
         if spec is None:
             raise AssertionError("Failed to create module spec")
-        mod = importlib.util.module_from_spec(spec)
+        mod = module_from_spec(spec)
         if spec.loader is None:
             raise AssertionError("Failed to create module spec loader")
         spec.loader.exec_module(mod)
