@@ -186,20 +186,6 @@ jobs:
         run: |
           git ls-files "*.glsl" | xargs clang-format-12 -i
           git diff --exit-code
-      - name: Super-Linter
-        uses: github/super-linter@v5
-        env:
-          LINTER_RULES_PATH: /
-          LOG_LEVEL: NOTICE
-          MARKDOWN_CONFIG_FILE: .markdownlint.yaml
-          VALIDATE_HTML: false
-          VALIDATE_JSCPD: false
-          VALIDATE_PYTHON_BLACK: false
-          VALIDATE_PYTHON_FLAKE8: false
-          VALIDATE_PYTHON_ISORT: false
-          VALIDATE_PYTHON_MYPY: false
-          VALIDATE_PYTHON_PYLINT: false
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
@@ -208,6 +194,17 @@ jobs:
         run: poetry check
       - name: Install poetry dependencies
         run: poetry install
+      - name: Super-Linter
+        uses: github/super-linter@v5
+        env:
+          LINTER_RULES_PATH: /
+          LOG_LEVEL: NOTICE
+          MARKDOWN_CONFIG_FILE: .markdownlint.yaml
+          VALIDATE_HTML: false
+          VALIDATE_JSCPD: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_PYLINT: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Check source code formatting
         run: git ls-files "*.py" | xargs poetry run black --check --diff
       - name: Pylint
