@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+import importlib
 import math
 import re
 import statistics
@@ -1027,12 +1028,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 return fallback
 
             try:
-                from io_scene_gltf2.blender.exp.gltf2_blender_gather_materials import (
-                    gather_material,
-                )  # pyright: reportMissingImports=false
-            except ImportError:
+                gltf2_blender_gather_materials = importlib.import_module(
+                    "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials"
+                )
+            except ModuleNotFoundError:
                 logger.exception("Failed to import glTF 2.0 Add-on")
                 return fallback
+            gather_material = gltf2_blender_gather_materials.gather_material
 
             gltf2_io_material: Optional[object] = None
             try:

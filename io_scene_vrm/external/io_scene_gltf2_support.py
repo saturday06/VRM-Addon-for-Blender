@@ -1,4 +1,5 @@
 import datetime
+import importlib
 from typing import Dict, Set, Tuple, cast
 
 import bpy
@@ -32,13 +33,13 @@ def image_to_image_bytes(
     image: bpy.types.Image, export_settings: Dict[str, object]
 ) -> Tuple[bytes, str]:
     if bpy.app.version < (3, 6, 0):
-        from io_scene_gltf2.blender.exp import (
-            gltf2_blender_image,
-        )  # pyright: reportMissingImports=false
+        gltf2_blender_image = importlib.import_module(
+            "io_scene_gltf2.blender.exp.gltf2_blender_image"
+        )
     else:
-        from io_scene_gltf2.blender.exp.material.extensions import (
-            gltf2_blender_image,
-        )  # pyright: reportMissingImports=false
+        gltf2_blender_image = importlib.import_module(
+            "io_scene_gltf2.blender.exp.material.extensions.gltf2_blender_image"
+        )
     export_image = gltf2_blender_image.ExportImage.from_blender_image(image)
 
     if image.file_format == "JPEG":
@@ -63,17 +64,16 @@ def image_to_image_bytes(
 
 
 def init_extras_export() -> None:
-    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/com/gltf2_blender_extras.py#L20-L21
     try:
-        from io_scene_gltf2.blender.com.gltf2_blender_extras import (
-            BLACK_LIST,
-        )  # pyright: reportMissingImports=false
-    except ImportError:
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/com/gltf2_blender_extras.py#L20-L21
+        gltf2_blender_extras = importlib.import_module(
+            "io_scene_gltf2.blender.com.gltf2_blender_extras"
+        )
+    except ModuleNotFoundError:
         return
-
-    value = "vrm_addon_extension"
-    if value not in BLACK_LIST:
-        BLACK_LIST.append(value)
+    key = "vrm_addon_extension"
+    if key not in gltf2_blender_extras.BLACK_LIST:
+        gltf2_blender_extras.BLACK_LIST.append(key)
 
 
 def create_export_settings() -> Dict[str, object]:
