@@ -39,9 +39,32 @@ def register() -> None:
     logger = getLogger(__name__)
 
     if bpy.app.version < bl_info["blender"]:
+        message = (
+            "This add-on doesn't support Blender version less than {minimum_version}"
+            + " but the current version is {current_version}"
+        )
+        if (
+            bpy.app.version >= (2, 80)
+            and bpy.context.preferences.view.use_translate_interface
+            and bpy.app.translations.locale == "ja_JP"
+        ):
+            message = (
+                "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
+                + "お使いのBlenderのバージョンは{current_version}です。"
+            )
         raise NotImplementedError(
-            f"This add-on doesn't support Blender version less than {bl_info['blender']} "
-            + f"but the current version is {bpy.app.version}"
+            # pylint: disable=consider-using-f-string; for legacy Blender versions
+            """
+
+            ===========================================================
+            {}
+            ===========================================================
+            """.format(
+                message.format(
+                    minimum_version=".".join(map(str, bl_info["blender"])),
+                    current_version=".".join(map(str, bpy.app.version)),
+                )
+            )
         )
 
     # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_5_0/io_scene_vrm/common/logging.py#L5-L7
