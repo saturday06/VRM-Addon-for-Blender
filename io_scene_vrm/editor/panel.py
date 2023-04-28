@@ -181,7 +181,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
                 )
         if mode == "EDIT_MESH":
             layout.operator(
-                bpy.ops.mesh.symmetry_snap.idname_py(),  # pyright: reportFunctionMemberAccess=false
+                bpy.ops.mesh.symmetry_snap.idname_py(),  # pyright: ignore[reportFunctionMemberAccess]
                 icon="MOD_MIRROR",
             )
         # endregion draw_main
