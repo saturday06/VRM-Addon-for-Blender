@@ -18,6 +18,13 @@ th a {
   border-bottom-width: 0;
 }
 
+.prose :where(img):not(:where([class~="not-prose"] *)) {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
 .prose td a :where(img):not(:where([class~="not-prose"] *)) {
   margin-top: 0;
   margin-bottom: 0;
