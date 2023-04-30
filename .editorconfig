@@ -19,6 +19,7 @@ tab_width = unset
 trim_trailing_whitespace = unset
 
 [*.bat]
+charset = latin1
 end_of_line = crlf
 indent_size = 2
 
