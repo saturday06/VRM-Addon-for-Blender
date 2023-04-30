@@ -38,6 +38,9 @@ indent_size = 2
 [*.html]
 indent_size = 2
 
+[*.rb]
+indent_size = 2
+
 [*.js]
 indent_size = 2
 

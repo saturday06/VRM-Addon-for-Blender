@@ -8,6 +8,7 @@
 !*.jpeg
 !*.md
 !*.py
+!*.rb
 !/.clang-format
 !/.editorconfig
 !/.flake8
