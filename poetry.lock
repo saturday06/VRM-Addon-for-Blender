@@ -251,14 +251,14 @@ dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit", "pytest",
 
 [[package]]
 name = "flake8-no-pep420"
-version = "2.3.0"
+version = "2.4.0"
 description = "A flake8 plugin to ban PEP-420 implicit namespace packages."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "flake8-no-pep420-2.3.0.tar.gz", hash = "sha256:1b965a18508ac7842de288740aa43627d3a5bb2be64f7d5d70d55cb691c3de84"},
-    {file = "flake8_no_pep420-2.3.0-py3-none-any.whl", hash = "sha256:ccba3efa05c50b1c2712d78807cca81e563ab571d6b3bcb90228e87388704cf5"},
+    {file = "flake8_no_pep420-2.4.0-py3-none-any.whl", hash = "sha256:6f504c95109bce34b6f7020b531cf2a819efa5be3aa53f822e90f6244a83f051"},
+    {file = "flake8_no_pep420-2.4.0.tar.gz", hash = "sha256:69a1a3d5765b588c35be3d53778b2de1e67332ad12f32aa9083eba4cf4d3b5e7"},
 ]
 
 [package.dependencies]
