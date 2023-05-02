@@ -3,6 +3,7 @@ echo ============== Launching tutorial window ===============
 echo Please check following conditions:
 echo - Launched blender version is a latest lts.
 echo - Current screen zoom settings is 200%%.
+echo - Set the desktop background color to black.
 echo - In English, set the interface font to an empty string.
 echo - In Japanese, set the interface font to Meiryo.
 rem Blender uses customized NotoSansCJK but it cannot display Japanese Kanji correctly.
