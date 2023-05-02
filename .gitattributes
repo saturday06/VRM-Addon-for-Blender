@@ -8,6 +8,7 @@
 *.md text eol=lf
 *.py text eol=lf
 *.toml text eol=lf
+*.txt text eol=lf
 *.html text eol=lf
 *.yml text eol=lf
 .* text eol=lf
