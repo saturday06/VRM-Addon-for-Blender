@@ -5,6 +5,7 @@ echo - Launched blender version is a latest lts.
 echo - Current screen zoom settings is 200%%.
 echo - Set the desktop background color to black.
 echo - Simplify the file view as much as possible.
+echo - Make sure generated screenshot size is 1320x1080.
 echo - In English, set the interface font to an empty string.
 echo - In Japanese, set the interface font to Meiryo.
 rem Blender uses customized NotoSansCJK but it cannot display Japanese Kanji correctly.
@@ -13,5 +14,5 @@ rem And currently Yu Gothic is not available.
 echo ========================================================
 pause
 @echo on
-blender-launcher.exe --window-geometry 0 0 1320 1320
+blender-launcher.exe --window-geometry 0 0 1316 1020
 pause
