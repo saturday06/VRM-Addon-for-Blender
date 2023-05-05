@@ -14,7 +14,7 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 
 | [アドオンのインストール]({{< ref "installation" >}}) | [シンプルなVRMモデルを作る]({{< ref "create-simple-vrm-from-scratch" >}}) | [人型のVRMモデルを作る]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 | --- | --- | --- |
-| [![](images/installation.png)]({{< ref "installation" >}}) | [![](../../images/simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](../../images/humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
+| [![](../../images/installation.gif)]({{< ref "installation" >}}) | [![](../../images/simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](../../images/humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 
 ## 概要
 
@@ -28,7 +28,6 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 ## 編集
 
 - VRMエクステンションの編集パネル
-  !["UI Panel"](images/ui_panel.png)
 - VRM向けシェーダーノードグループ(※モックアップ程度の出来)
   - MToon_unversioned
   - TransparentZwrite

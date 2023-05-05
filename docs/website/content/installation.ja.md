@@ -21,15 +21,15 @@ images: ["ja/images/installation.png"]
 
 `コミュニティ` が有効になっていることを確認してください。
 
-![](../images/installation4.png?3)
+![](../images/installation4.png)
 
 次にアドオン一覧表示から `Import-Export: VRM format` を探します。
 
-![](../images/installation5.png?3)
+![](../images/installation5.png)
 
 表示項目が多くて探すのが大変な場合は右上に検索ボックスがあるので、そこに `VRM` と入力すると項目の絞り込みができます。
 
-![](../images/installation6.png?3)
+![](../images/installation6.png)
 
 探しても見つからない場合は、次について確認してください。
 
@@ -39,7 +39,7 @@ images: ["ja/images/installation.png"]
 
 チェックボックスを押すことでアドオンのインストールが完了します。
 
-![](../images/installation7.png?3)
+![](../images/installation7.png)
 
 ## 関連リンク
 

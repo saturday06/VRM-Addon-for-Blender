@@ -21,15 +21,15 @@ When the File View window appears, select the add-on file you just downloaded, m
 
 Make sure `Community` is enabled.
 
-![](../images/installation4.png?3)
+![](../images/installation4.png)
 
 Find `Import-Export: VRM format` in the add-on list view.
 
-![](../images/installation5.png?3)
+![](../images/installation5.png)
 
 There is a search box in the upper right corner if there are too many items to find.
 
-![](../images/installation6.png?3)
+![](../images/installation6.png)
 
 If you cannot find it, please make sure that all of the following conditions are met
 
@@ -39,7 +39,7 @@ If you cannot find it, please make sure that all of the following conditions are
 
 Press the checkbox to complete the installation of the add-on.
 
-![](../images/installation7.png?3)
+![](../images/installation7.png)
 
 ## Related links
 
