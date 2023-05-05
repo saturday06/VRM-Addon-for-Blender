@@ -19,12 +19,12 @@ crop_bottom = 0
 
 (0...image.rows).each do |row|
   break unless (0...image.columns).all? { |column| pixels[image.columns * row + column].alpha < 0.0001 }
-  crop_top = row
+  crop_top = row + 1
 end
 
 (0...image.rows).to_a.reverse.each.with_index do |row, i|
   break unless (0...image.columns).all? { |column| pixels[image.columns * row + column].alpha < 0.0001 }
-  crop_bottom = i
+  crop_bottom = i + 1
 end
 
 before_crop_columns = image.columns
