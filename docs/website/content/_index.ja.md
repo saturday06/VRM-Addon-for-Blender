@@ -16,6 +16,10 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 | --- | --- | --- |
 | [![](../../images/installation.gif)]({{< ref "installation" >}}) | [![](../../images/simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](../../images/humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 
+| [物理ベースのマテリアル設定]({{< ref "installation" >}}) | [アニメ風のマテリアル設定]({{< ref "create-simple-vrm-from-scratch" >}}) | |
+| --- | --- | --- |
+| [![](../../images/material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](../../images/material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](../../images/transparent.gif) |
+
 ## 概要
 
 BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加などのVRM関連機能を追加するアドオンです。バグ報告、機能要望、Pull Request等歓迎します。[バージョン 0.79](https://github.com/saturday06/VRM-Addon-for-Blender/archive/0_79.zip)以降の開発をオリジナル版のメンテナである[@iCyP](https://github.com/iCyP)さんから引き継ぎました。

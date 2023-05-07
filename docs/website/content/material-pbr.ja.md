@@ -1,5 +1,5 @@
 ---
-title: "物理ベースのマテリアルの設定"
+title: "物理ベースのマテリアル設定"
 description: "プリンシプルBSDFシェーダーを用いた物理ベースのマテリアルを設定します。"
 images: ["images/material_pbr.gif"]
 ---
@@ -8,8 +8,8 @@ images: ["images/material_pbr.gif"]
 
 ![](../../images/material_pbr.gif)
 
-VRM Add-on for Blenderでは、リアルな物理ベースのマテリアルの設定はBlenderのglTF 2.0アドオンの
-処理と全く同じ処理を行っています。詳しくは該当するドキュメントを参照ください
+VRM Add-on for Blenderでは、リアルな物理ベースのマテリアルの設定はBlenderのglTF 2.0アドオンの処理と全く同じ処理を行っています。
+詳しくは該当するドキュメントを参照ください
 
 https://docs.blender.org/manual/ja/2.83/addons/import_export/scene_gltf2.html#exported-materials
 
@@ -41,11 +41,11 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 
 ![](../images/material_pbr6.png)
 
-成功すると、表示の灰色っぽさが増します。
+成功すると、表示の灰色っぽさが増します。とはいえ変化はほとんどないですが、デフォルトのままだと色つけても表示に反映されないので注意してください。
 
 ![](../images/material_pbr7.png)
 
-この状態でマテリアルの設定を行います。右下の赤い球のアイコンのタブを選び `新規` ボタンを押します。
+この状態でマテリアルの設定を行います。右下の <img src="../../images/material_property_tab_icon.png"> アイコンのタブを選び `新規` ボタンを押します。
 
 ![](../images/material_pbr8.png)
 
@@ -86,4 +86,4 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 ## 関連リンク
 
 - [トップページ]({{< ref "/" >}})
-- [アニメ風マテリアルを設定する]({{< ref "material-mtoon" >}})
+- [アニメ風のマテリアル設定]({{< ref "material-mtoon" >}})
