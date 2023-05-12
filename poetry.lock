@@ -694,14 +694,14 @@ testutil = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.306"
+version = "1.1.307"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.306-py3-none-any.whl", hash = "sha256:008eb2a29584ae274a154d749cf81476a3073fb562a462eac8d43a753378b9db"},
-    {file = "pyright-1.1.306.tar.gz", hash = "sha256:16d5d198be64de497d5f9002000a271176c381e21b977ca5566cf779b643c9ed"},
+    {file = "pyright-1.1.307-py3-none-any.whl", hash = "sha256:6b360d2e018311bdf8acea73ef1f21bf0b5b502345aa94bc6763cf197b2e75b3"},
+    {file = "pyright-1.1.307.tar.gz", hash = "sha256:b7a8734fad4a2438b8bb0dfbe462f529c9d4eb31947bdae85b9b4e7a97ff6a49"},
 ]
 
 [package.dependencies]
