@@ -30,7 +30,7 @@ bl_info = {
 
 
 def register() -> None:
-    import zipfile
+    import tarfile
     from logging import getLogger
     from pathlib import Path
 
@@ -75,10 +75,10 @@ def register() -> None:
         Path(__file__).parent
         / ".github"
         / "vrm_addon_for_blender_private"
-        / ("_".join(map(str, bl_info["version"])) + ".zip")
+        / ("_".join(map(str, bl_info["version"])) + ".tar.xz")
     )
     if github_private_partial_code_archive_path.exists():
-        # github_code_download_zip_pathにファイルが存在する場合、それに含まれているソースコードを展開する。
+        # github_private_partial_code_archive_pathにファイルが存在する場合、それに含まれているソースコードを展開する。
         #
         # このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
         # しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
@@ -90,13 +90,13 @@ def register() -> None:
         # https://code.blender.org/2022/10/blender-extensions-platform/
 
         logger.warning(
-            "%s Unzipping the partial add-on archive for "
+            "%s Extracting the partial add-on archive for "
             'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub ...',
             log_warning_prefix,
         )
 
-        with zipfile.ZipFile(github_private_partial_code_archive_path, "r") as z:
-            z.extractall(Path(__file__).parent)
+        with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
+            tar_xz.extractall(Path(__file__).parent)
 
         try:
             github_private_partial_code_archive_path.unlink()

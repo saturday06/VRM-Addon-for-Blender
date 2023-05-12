@@ -77,10 +77,9 @@ readme_unzip_dir=$(mktemp -d)
 unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
 readme_base="${readme_unzip_dir}/${prefix_name}-${release_postfix}"
 rm "$readme_base/__init__.py"
-readme_zip_version=$(ruby -e "puts ARGV[0].split('.', 3).join('_')" "$bl_info_version")
-readme_zip_abs_path="${PWD}/${readme_zip_version}.zip"
-(cd "$readme_base" && zip -rT "$readme_zip_abs_path" .)
-advzip --recompress --shrink-insane --iter 20 "$readme_zip_abs_path"
+readme_tar_xz_version=$(ruby -e "puts ARGV[0].split('.', 3).join('_')" "$bl_info_version")
+readme_tar_xz_abs_path="${PWD}/${readme_tar_xz_version}.tar.xz"
+XZ_OPT='-9e' tar -C "$readme_base" -cvJf "$readme_tar_xz_abs_path" .
 
 archive_branch_dir=$(mktemp -d)
 git worktree add "${archive_branch_dir}" release-archive
@@ -88,7 +87,7 @@ rm -fr "${archive_branch_dir}/debug"
 mkdir -p "${archive_branch_dir}/debug"
 cp "${prefix_name}-${release_postfix}.zip" "${archive_branch_dir}/"
 if [ "$release_postfix" != "release" ]; then
-  cp "$readme_zip_abs_path" "${archive_branch_dir}/debug/"
+  cp "$readme_tar_xz_abs_path" "${archive_branch_dir}/debug/"
 fi
 (
   cd "${archive_branch_dir}"
@@ -102,16 +101,17 @@ readme_branch_dir=$(mktemp -d)
 git worktree add "${readme_branch_dir}" README
 readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
 find "$readme_addon_dir" -name "*.zip" -exec rm -v {} \;
-cp "${readme_zip_abs_path}" "${readme_addon_dir}/"
+find "$readme_addon_dir" -name "*.tar.xz" -exec rm -v {} \;
+cp "${readme_tar_xz_abs_path}" "${readme_addon_dir}/"
 cp io_scene_vrm/__init__.py "$readme_branch_dir/"
-readme_zip_path="${PWD}/readme.zip"
+github_downloaded_zip_path="${PWD}/readme.zip"
 (
   cd "$readme_branch_dir"
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
   git commit -m "docs: update the latest internal partial code [BOT]"
-  git archive HEAD --prefix=${prefix_name}-README/ --output="$readme_zip_path"
+  git archive HEAD --prefix=${prefix_name}-README/ --output="$github_downloaded_zip_path"
 )
 
 gh_pages_branch_dir=$(mktemp -d)
@@ -131,15 +131,15 @@ if ! BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
   --background \
   -noaudio \
   --python-exit-code 1 \
-  --python scripts/github_code_archive.py -- "$readme_zip_path" \
+  --python scripts/github_code_archive.py -- "$github_downloaded_zip_path" \
   ; then
   find "$addon_dir"
   exit 1
 fi
 
-installed_readme_zip_path="${addon_dir}/.github/vrm_addon_for_blender_private/${readme_zip_version}.zip"
-if [ -e "$installed_readme_zip_path" ]; then
-  echo Failed to remove "$installed_readme_zip_path"
+installed_readme_tar_xz_path="${addon_dir}/.github/vrm_addon_for_blender_private/${readme_tar_xz_version}.tar.xz"
+if [ -e "$installed_readme_tar_xz_path" ]; then
+  echo Failed to remove "$installed_readme_tar_xz_path"
   exit 1
 fi
 

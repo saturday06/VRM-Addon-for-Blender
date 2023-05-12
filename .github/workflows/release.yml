@@ -15,7 +15,7 @@ jobs:
         run: |
           apt-get update -qq
           apt-get dist-upgrade -y
-          apt-get install -y advancecomp blender curl git python3 python3-numpy ruby shellcheck
+          apt-get install -y advancecomp blender curl git python3 python3-numpy ruby shellcheck xz-utils
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
