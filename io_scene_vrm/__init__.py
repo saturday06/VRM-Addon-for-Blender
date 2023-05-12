@@ -102,7 +102,7 @@ def register() -> None:
                 path = Path(member.path)
                 if path.is_absolute():
                     continue
-                tar_xz.extract(member=member)
+                tar_xz.extract(member=member, path=Path(__file__).parent)
 
         try:
             github_private_partial_code_archive_path.unlink()
