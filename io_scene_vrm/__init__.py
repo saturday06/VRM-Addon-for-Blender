@@ -71,13 +71,13 @@ def register() -> None:
     log_warning_prefix = "[VRM Add-on:Warning]"
 
     # For users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.
-    github_code_download_zip_path = (
+    github_private_partial_code_archive_path = (
         Path(__file__).parent
         / ".github"
         / "vrm_addon_for_blender_private"
         / ("_".join(map(str, bl_info["version"])) + ".zip")
     )
-    if github_code_download_zip_path.exists():
+    if github_private_partial_code_archive_path.exists():
         # github_code_download_zip_pathにファイルが存在する場合、それに含まれているソースコードを展開する。
         #
         # このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
@@ -95,16 +95,16 @@ def register() -> None:
             log_warning_prefix,
         )
 
-        with zipfile.ZipFile(github_code_download_zip_path, "r") as z:
+        with zipfile.ZipFile(github_private_partial_code_archive_path, "r") as z:
             z.extractall(Path(__file__).parent)
 
         try:
-            github_code_download_zip_path.unlink()
+            github_private_partial_code_archive_path.unlink()
         except OSError:
             logger.exception(
                 "%s Failed to remove the partial add-on archive: %s",
                 log_warning_prefix,
-                github_code_download_zip_path,
+                github_private_partial_code_archive_path,
             )
 
         logger.warning("%s ...OK", log_warning_prefix)
