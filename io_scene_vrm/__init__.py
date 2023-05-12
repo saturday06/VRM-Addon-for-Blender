@@ -96,7 +96,13 @@ def register() -> None:
         )
 
         with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
-            tar_xz.extractall(Path(__file__).parent)
+            for member in tar_xz.getmembers():
+                if ".." in member.path or not (member.isfile() or member.isdir()):
+                    continue
+                path = Path(member.path)
+                if path.is_absolute():
+                    continue
+                tar_xz.extract(member=member)
 
         try:
             github_private_partial_code_archive_path.unlink()

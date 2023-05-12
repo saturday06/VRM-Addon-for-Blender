@@ -47,7 +47,6 @@ emissive
 endregion
 eval
 exeext
-extractall
 f00
 f2
 fabs
@@ -70,6 +69,7 @@ fs
 fsum
 func
 geocode
+getmembers
 getmtime
 geturl
 gl
@@ -93,6 +93,7 @@ img
 instancer
 inv
 invisibles
+isfile
 isinf
 isnan
 iterdir
