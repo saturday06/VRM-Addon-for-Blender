@@ -80,5 +80,5 @@ jobs:
           fi
           git config --global user.email "isamu@leafytree.jp"
           git config --global user.name "[BOT] Isamu Mogi"
-          git commit -m "[BOT] Update gh-pages"
+          git commit -m "docs: update to $GITHUB_SHA [BOT]"
           git push origin gh-pages

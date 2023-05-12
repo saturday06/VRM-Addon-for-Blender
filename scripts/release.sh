@@ -95,7 +95,7 @@ fi
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
-  git commit -m "Version $version"
+  git commit -m "docs: release $version [BOT]"
 )
 
 readme_branch_dir=$(mktemp -d)
@@ -110,7 +110,7 @@ readme_zip_path="${PWD}/readme.zip"
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
-  git commit -m "[BOT] Update README"
+  git commit -m "docs: update the latest internal partial code [BOT]"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$readme_zip_path"
 )
 
@@ -123,7 +123,7 @@ cp "${prefix_name}-${release_postfix}.zip" "${gh_pages_branch_dir}/releases/"
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
-  git commit -m "[BOT] Update gh-pages"
+  git commit -m "docs: deploy the latest release [BOT]"
 )
 
 addon_dir="$HOME/.config/blender/2.83/scripts/addons/${prefix_name}-README"
