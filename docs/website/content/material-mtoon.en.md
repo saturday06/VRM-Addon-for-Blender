@@ -10,7 +10,7 @@ Set an anime-style material to VRM.
 
 Please refer to the VRM documentation for detailed configuration items
 
-https://vrm.dev/univrm/shaders/shader_mtoon
+https://vrm.dev/en/univrm/shaders/shader_mtoon
 
 After starting Blender, delete the cube that is displayed from the beginning. First, select the cube by left-clicking on it.
 
