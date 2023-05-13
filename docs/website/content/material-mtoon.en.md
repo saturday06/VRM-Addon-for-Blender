@@ -70,7 +70,6 @@ The display color of the sphere turns white and the VRM anime-style material set
 
 ![](../images/material_mtoon9.png)
 
-
 As a sample setup, set the following
 
 - Set the `Lit Color, Alpha` to light blue
