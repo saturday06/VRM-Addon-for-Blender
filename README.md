@@ -56,9 +56,13 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 ## チュートリアル
 
-| [インストール方法](https://vrm-addon-for-blender.info/en/installation?locale_redirection) | [単純なVRMを作る](https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection) | [人型のVRMを作る](https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection) | [物理ベースのマテリアル設定](https://vrm-addon-for-blender.info/ja/material-pbr) | [アニメ風のマテリアル設定](https://vrm-addon-for-blender.info/ja/material-mtoon) |
-| :---: | :---: | :---: | :---: | :---: |
-| <a href="https://vrm-addon-for-blender.info/en/installation?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/installation.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/simple.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/humanoid.gif"></a> | <a href="https://vrm-addon-for-blender.info/ja/material-pbr"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/ja/material-mtoon"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> |
+| [インストール方法](https://vrm-addon-for-blender.info/en/installation?locale_redirection) | [単純なVRMを作る](https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection) | [人型のVRMを作る](https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection) |
+| :---: | :---: | :---: |
+| <a href="https://vrm-addon-for-blender.info/en/installation?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/installation.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/simple.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/humanoid.gif"></a> |
+
+| [物理ベースのマテリアル設定](https://vrm-addon-for-blender.info/ja/material-pbr) | [アニメ風のマテリアル設定](https://vrm-addon-for-blender.info/ja/material-mtoon) | |
+| :---: | :---: | :---: |
+| <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <img width="200" src="https://vrm-addon-for-blender.info/images/transparent.gif"> |
 
 ## 開発するには
 
