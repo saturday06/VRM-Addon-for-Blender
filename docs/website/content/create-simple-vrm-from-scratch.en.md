@@ -12,7 +12,7 @@ First, start Blender and make sure that the cube is displayed.
 
 ![](../images/simple1.png)
 
-Next, select `File` → `Export` → `VRM` from the menu.
+Next, select `File` → `Export` → `VRM (.vrm)` from the menu.
 
 ![](../images/simple2.png)
 

@@ -89,7 +89,7 @@ Finally, associate it with the `lower_leg.R` bone.
 
 ![](../images/humanoid20.png)
 
-Save this model as a VRM. Select `File` → `Export` → `VRM` from the menu.
+Save this model as a VRM. Select `File` → `Export` → `VRM (.vrm)` from the menu.
 
 ![](../images/simple2.png)
 
