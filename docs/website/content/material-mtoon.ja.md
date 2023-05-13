@@ -25,7 +25,7 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 
 ![](../images/material_pbr3.png)
 
-成功すると立方体が消えます。次に、マテリアルを設定用の球を追加します。3Dビューポート内にカーソルを置いた状態で、キーボードの `Shift` キーを押したまま `a` キーを押してください。するとオブジェクトの追加メニューが表示されるため `メッシュ` → `UV球` を選択してください。
+成功すると立方体が削除されます。次に、マテリアルを設定用の球を追加します。3Dビューポート内にカーソルを置いた状態で、キーボードの `Shift` キーを押したまま `a` キーを押してください。するとオブジェクトの追加メニューが表示されるため `メッシュ` → `UV球` を選択してください。
 
 ![](../images/material_mtoon1.png)
 
@@ -51,7 +51,7 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 
 ![](../images/material_mtoon6.png)
 
-球が若干明るくなります。デフォルトのままだと表示される色が指定した色よりも暗めになります。この状態でマテリアルの設定を行います。右下の <img src="../../images/material_property_tab_icon.png"> アイコンのタブを選び `新規` ボタンを押します。
+球が若干明るくなります。デフォルトのままだと表示される色が指定した色よりも暗めになります。次にマテリアルの設定を行います。右下の <img src="../../images/material_property_tab_icon.png"> アイコンのタブを選び `新規` ボタンを押します。
 
 ![](../images/material_mtoon7.png)
 
@@ -65,10 +65,10 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 
 サンプル設定として、次のように設定します。
 
-- Lit Color, Alphaを水色
-- Shade Colorを青
-- Shading Toonyを1
-- Shading Shiftを0
+- `Lit Color, Alpha` を水色
+- `Shade Color` を青
+- `Shading Toony` を1
+- `Shading Shift` を0
 
 ![](../images/material_mtoon10.png)
 
@@ -78,9 +78,9 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 
 アウトラインの設定が出るので、サンプル設定として次のように設定します。
 
-- Outlien Widthを0.03
-- 輪郭カラーを白
-- Outline LightingMixを0
+- `Outlien Width` を0.03
+- `輪郭カラー` を白
+- `Outline LightingMix` を0
 
 ![](../images/material_mtoon12.png)
 
@@ -90,7 +90,7 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 
 ファイル保存用のウィンドウが出るので、ファイル名と保存先を入力し `VRMをエクスポート` を押します。
 
-![](../images/material_pbr14.png)
+![](../images/material_mtoon14.png)
 
 成功するとVRMファイルが指定された場所に保存されます。
 
