@@ -193,8 +193,8 @@ def calculate_object_pose_bone_rotations(
             spring,
             pose_bone_and_rotations,
             collider_group_uuid_to_world_colliders,
-            Vector(spring.animation_state.previous_center_world_translation),
-            current_center_world_translation,
+            current_center_world_translation
+            - Vector(spring.animation_state.previous_center_world_translation),
         )
         spring.animation_state.previous_center_world_translation = (
             current_center_world_translation
@@ -209,8 +209,7 @@ def calculate_spring_pose_bone_rotations(
     collider_group_uuid_to_world_colliders: Dict[
         str, List[Union[SphereWorldCollider, CapsuleWorldCollider]]
     ],
-    previous_center_world_translation: Vector,
-    current_center_world_translation: Vector,
+    previous_to_current_center_world_translation: Vector,
 ) -> None:
     inputs: List[
         Tuple[
@@ -298,8 +297,7 @@ def calculate_spring_pose_bone_rotations(
             tail_rest_object_matrix,
             next_head_pose_bone_before_rotation_matrix,
             world_colliders,
-            previous_center_world_translation,
-            current_center_world_translation,
+            previous_to_current_center_world_translation,
         )
         pose_bone_and_rotations.append((head_pose_bone, head_pose_bone_rotation))
 
@@ -315,8 +313,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
     current_tail_rest_object_matrix: Matrix,
     next_head_pose_bone_before_rotation_matrix: Optional[Matrix],
     world_colliders: List[Union[SphereWorldCollider, CapsuleWorldCollider]],
-    previous_center_world_translation: Vector,
-    current_center_world_translation: Vector,
+    previous_to_current_center_world_translation: Vector,
 ) -> Tuple[Quaternion, Matrix]:
     current_head_pose_bone_matrix = head_pose_bone.matrix
     current_tail_pose_bone_matrix = tail_pose_bone.matrix
@@ -353,19 +350,18 @@ def calculate_joint_pair_head_pose_bone_rotations(
             initial_tail_world_translation
         )
 
-    previous_tail_world_translation = Vector(
-        tail_joint.animation_state.previous_world_translation
+    previous_tail_world_translation = (
+        Vector(tail_joint.animation_state.previous_world_translation)
+        + previous_to_current_center_world_translation
     )
     current_tail_world_translation = (
         Vector(tail_joint.animation_state.current_world_translation)
-        + current_center_world_translation
-        - previous_center_world_translation
+        + previous_to_current_center_world_translation
     )
 
-    inertia = (
-        (current_tail_world_translation - current_center_world_translation)
-        - (previous_tail_world_translation - previous_center_world_translation)
-    ) * (1.0 - head_joint.drag_force)
+    inertia = (current_tail_world_translation - previous_tail_world_translation) * (
+        1.0 - head_joint.drag_force
+    )
 
     next_head_rotation_start_target_local_translation = (
         current_head_rest_object_matrix.inverted_safe()
