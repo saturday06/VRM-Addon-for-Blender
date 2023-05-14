@@ -1052,6 +1052,140 @@ def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
     )
 
 
+def two_joints_extending_in_y_direction_center_move_to_z() -> None:
+    clean_scene()
+
+    bpy.ops.object.add(type="ARMATURE")
+    armature = bpy.context.object
+    armature.data.vrm_addon_extension.addon_version = addon_version
+    armature.data.vrm_addon_extension.spec_version = spec_version
+    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+
+    bpy.ops.object.mode_set(mode="EDIT")
+    joint_bone0 = armature.data.edit_bones.new("joint0")
+    joint_bone0.head = (0, 0, 0)
+    joint_bone0.tail = (0, 0.8, 0)
+
+    joint_bone1 = armature.data.edit_bones.new("joint1")
+    joint_bone1.parent = joint_bone0
+    joint_bone1.head = (0, 1, 0)
+    joint_bone1.tail = (0, 1.8, 0)
+
+    joint_bone2 = armature.data.edit_bones.new("joint2")
+    joint_bone2.parent = joint_bone1
+    joint_bone2.head = (0, 2, 0)
+    joint_bone2.tail = (0, 2.001, 0)
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
+        "FINISHED"
+    }
+    assert bpy.ops.vrm.add_spring_bone1_spring_joint(
+        armature_name=armature.name, spring_index=0
+    ) == {"FINISHED"}
+    assert bpy.ops.vrm.add_spring_bone1_spring_joint(
+        armature_name=armature.name, spring_index=0
+    ) == {"FINISHED"}
+    assert bpy.ops.vrm.add_spring_bone1_spring_joint(
+        armature_name=armature.name, spring_index=0
+    ) == {"FINISHED"}
+
+    spring = armature.data.vrm_addon_extension.spring_bone1.springs[0]
+    spring.center.value = "joint0"
+    joints = spring.joints
+    joints[0].node.value = "joint0"
+    joints[0].gravity_power = 0
+    joints[0].drag_force = 1
+    joints[0].stiffness = 0
+    joints[1].node.value = "joint1"
+    joints[1].gravity_power = 0
+    joints[1].drag_force = 1
+    joints[1].stiffness = 0
+    joints[2].node.value = "joint2"
+    joints[2].gravity_power = 0
+    joints[2].drag_force = 1
+    joints[2].stiffness = 0
+
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
+    bpy.context.view_layer.update()
+
+    armature.location = (0, 0, 1)
+
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
+    bpy.context.view_layer.update()
+
+    assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 0, 0), "1秒後のjoint0")
+    assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 1, 0), "1秒後のjoint1")
+    assert_vector3_equals(armature.pose.bones["joint2"].head, (0, 2, 0), "1秒後のjoint2")
+
+
+def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
+    clean_scene()
+
+    bpy.ops.object.add(type="ARMATURE")
+    armature = bpy.context.object
+    armature.data.vrm_addon_extension.addon_version = addon_version
+    armature.data.vrm_addon_extension.spec_version = spec_version
+    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+
+    bpy.ops.object.mode_set(mode="EDIT")
+    joint_bone0 = armature.data.edit_bones.new("joint0")
+    joint_bone0.head = (0, 0, 0)
+    joint_bone0.tail = (0, 0.8, 0)
+
+    joint_bone1 = armature.data.edit_bones.new("joint1")
+    joint_bone1.parent = joint_bone0
+    joint_bone1.head = (0, 1, 0)
+    joint_bone1.tail = (0, 1.8, 0)
+
+    joint_bone2 = armature.data.edit_bones.new("joint2")
+    joint_bone2.parent = joint_bone1
+    joint_bone2.head = (0, 2, 0)
+    joint_bone2.tail = (0, 2.001, 0)
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
+        "FINISHED"
+    }
+    assert bpy.ops.vrm.add_spring_bone1_spring_joint(
+        armature_name=armature.name, spring_index=0
+    ) == {"FINISHED"}
+    assert bpy.ops.vrm.add_spring_bone1_spring_joint(
+        armature_name=armature.name, spring_index=0
+    ) == {"FINISHED"}
+    assert bpy.ops.vrm.add_spring_bone1_spring_joint(
+        armature_name=armature.name, spring_index=0
+    ) == {"FINISHED"}
+
+    spring = armature.data.vrm_addon_extension.spring_bone1.springs[0]
+    spring.center.value = "joint0"
+    joints = spring.joints
+    joints[0].node.value = "joint0"
+    joints[0].gravity_power = 0
+    joints[0].drag_force = 1
+    joints[0].stiffness = 0
+    joints[1].node.value = "joint1"
+    joints[1].gravity_power = 0
+    joints[1].drag_force = 1
+    joints[1].stiffness = 0
+    joints[2].node.value = "joint2"
+    joints[2].gravity_power = 0
+    joints[2].drag_force = 1
+    joints[2].stiffness = 0
+
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
+    bpy.context.view_layer.update()
+
+    armature.location = (0, 0, 1)
+
+    bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
+    bpy.context.view_layer.update()
+
+    assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 0, 0), "1秒後のjoint0")
+    assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 1, 0), "1秒後のjoint1")
+    assert_vector3_equals(armature.pose.bones["joint2"].head, (0, 2, 0), "1秒後のjoint2")
+
+
 FUNCTIONS = [
     one_joint_extending_in_y_direction,
     one_joint_extending_in_y_direction_gravity_y_object_move_to_z,
@@ -1065,6 +1199,8 @@ FUNCTIONS = [
     two_joints_extending_in_y_direction_connected,
     two_joints_extending_in_y_direction_local_translation,
     two_joints_extending_in_y_direction_with_child_stiffness,
+    two_joints_extending_in_y_direction_center_move_to_z,
+    two_joints_extending_in_y_direction_center_move_to_z_no_inertia,
 ]
 
 

@@ -572,6 +572,12 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
+class SpringBone1SpringAnimationStatePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    initialized: bpy.props.BoolProperty()  # type: ignore[valid-type]
+
+    previous_center_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
+
+
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.spring.schema.json
 class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -594,6 +600,10 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
     )
     show_expanded_collider_groups: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Collider Groups"  # noqa: F722
+    )
+
+    animation_state: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1SpringAnimationStatePropertyGroup
     )
 
 
