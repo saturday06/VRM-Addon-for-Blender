@@ -1432,7 +1432,7 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
 class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ["pbr_metallic_roughness"]
 
-    def __update_base_color_factor(self, _context: bpy.types.Context) -> None:
+    def update_base_color_factor(self, _context: bpy.types.Context) -> None:
         self.set_rgba("BaseColorFactor", self.base_color_factor)
         self.set_value("BaseColorFactorAlpha", self.base_color_factor[3])
 
@@ -1442,7 +1442,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
         default=(1, 1, 1, 1),
         min=0,
         max=1,
-        update=__update_base_color_factor,
+        update=update_base_color_factor,
     )
 
     base_color_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -1775,10 +1775,10 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         set=set_alpha_mode,
     )
 
-    def __get_double_sided(self) -> bool:
+    def get_double_sided(self) -> bool:
         return not self.find_material().use_backface_culling
 
-    def __set_double_sided(self, value: bool) -> None:
+    def set_double_sided(self, value: bool) -> None:
         material = self.find_material()
         material.use_backface_culling = not value
         self.set_bool("DoubleSided", value)
@@ -1791,8 +1791,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     double_sided: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Double Sided",  # noqa: F722
-        get=__get_double_sided,
-        set=__set_double_sided,
+        get=get_double_sided,
+        set=set_double_sided,
     )
 
     def get_alpha_cutoff(self) -> float:
@@ -1840,7 +1840,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1MaterialExtensionsPropertyGroup  # noqa: F722
     )
 
-    def get_enabled(self, material: bpy.types.Material) -> bool:
+    def get_enabled_in_material(self, material: bpy.types.Material) -> bool:
         if self.is_outline_material:
             return False
         if not material.use_nodes:
@@ -1868,10 +1868,10 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         return bool(self.get("enabled"))
 
-    def __get_enabled(self) -> bool:
-        return self.get_enabled(self.find_material())
+    def get_enabled(self) -> bool:
+        return self.get_enabled_in_material(self.find_material())
 
-    def __set_enabled(self, value: bool) -> None:
+    def set_enabled(self, value: bool) -> None:
         material = self.find_material()
 
         if not value:
@@ -1884,7 +1884,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         if not material.use_nodes:
             material.use_nodes = True
-        if self.__get_enabled():
+        if self.get_enabled():
             return
 
         bpy.ops.vrm.convert_material_to_mtoon1(material_name=material.name)
@@ -1892,8 +1892,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     enabled: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Enable VRM MToon Material",  # noqa: F722
-        get=__get_enabled,
-        set=__set_enabled,
+        get=get_enabled,
+        set=set_enabled,
     )
 
     export_shape_key_normals: bpy.props.BoolProperty(  # type: ignore[valid-type]

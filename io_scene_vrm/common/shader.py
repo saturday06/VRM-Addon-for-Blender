@@ -12,7 +12,7 @@ from .logging import get_logger
 
 logger = get_logger(__name__)
 
-__file_names = [
+file_names = [
     "mtoon0.blend",
     "transparent_z_write.blend",
 ]
@@ -27,7 +27,7 @@ UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + " Template"
 
 
 def add_shaders() -> None:
-    for file_name in __file_names:
+    for file_name in file_names:
         path = Path(__file__).with_name(file_name)
         with bpy.data.libraries.load(str(path), link=False) as (data_from, data_to):
             for node_group in data_from.node_groups:
@@ -621,7 +621,7 @@ def copy_node_tree(
 def shader_node_group_import(shader_node_group_name: str) -> None:
     if shader_node_group_name in bpy.data.node_groups:
         return
-    for file_name in __file_names:
+    for file_name in file_names:
         path = str(Path(__file__).with_name(file_name)) + "/NodeTree"
         bpy.ops.wm.append(
             filepath=path + "/" + shader_node_group_name,

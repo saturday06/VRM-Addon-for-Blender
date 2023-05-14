@@ -26,7 +26,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def __get_value(self) -> str:
+    def get_value(self) -> str:
         if (
             not self.bpy_object
             or not self.bpy_object.name
@@ -35,7 +35,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             return ""
         return str(self.bpy_object.name)
 
-    def __set_value(self, value: object) -> None:
+    def set_value(self, value: object) -> None:
         if (
             not isinstance(value, str)
             or value not in bpy.data.objects
@@ -46,7 +46,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         self.bpy_object = bpy.data.objects[value]
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
-        get=__get_value, set=__set_value
+        get=get_value, set=set_value
     )
 
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -140,7 +140,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         return result
 
-    def __get_value(self) -> str:
+    def get_value(self) -> str:
         if not self.bone_uuid:
             return ""
         if not self.armature_data_name:
@@ -156,7 +156,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         return ""
 
-    def __set_value(self, value: object) -> None:
+    def set_value(self, value: object) -> None:
         armature: Optional[bpy.types.Armature] = None
 
         # アーマチュアの複製が行われた場合を考えてself.armature_data_nameの振り直しをする
@@ -248,8 +248,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Bone",  # noqa: F821
-        get=__get_value,
-        set=__set_value,
+        get=get_value,
+        set=set_value,
     )
     bone_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]

@@ -80,13 +80,13 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
     preferences.addon_version = addon_version()
 
 
-__object_name_subscription_owner = object()
-__bone_name_subscription_owner = object()
-__armature_name_subscription_owner = object()
-__setup_once: List[bool] = []  # mutableにするためlistを使う
+object_name_subscription_owner = object()
+bone_name_subscription_owner = object()
+armature_name_subscription_owner = object()
+setup_once: List[bool] = []  # mutableにするためlistを使う
 
 
-def __on_change_bpy_object_name() -> None:
+def on_change_bpy_object_name() -> None:
     for armature in bpy.data.armatures:
         ext = getattr(armature, "vrm_addon_extension", None)
         if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
@@ -102,7 +102,7 @@ def __on_change_bpy_object_name() -> None:
             collider.broadcast_bpy_object_name()
 
 
-def __on_change_bpy_bone_name() -> None:
+def on_change_bpy_bone_name() -> None:
     for armature in bpy.data.armatures:
         ext = getattr(armature, "vrm_addon_extension", None)
         if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
@@ -118,41 +118,41 @@ def __on_change_bpy_bone_name() -> None:
         )
 
 
-def __on_change_bpy_armature_name() -> None:
+def on_change_bpy_armature_name() -> None:
     migrate_all_objects(skip_non_migrated_armatures=True)
 
 
 def setup_subscription(load_post: bool) -> None:
     # 本来なら一度しか処理しないが、load_postから呼ばれた場合は強制的に処理する
     if load_post:
-        if __setup_once:
+        if setup_once:
             teardown_subscription()
-    elif __setup_once:
+    elif setup_once:
         return
-    __setup_once.append(True)
+    setup_once.append(True)
 
     object_name_subscribe_to = (bpy.types.Object, "name")
     bpy.msgbus.subscribe_rna(
         key=object_name_subscribe_to,
-        owner=__object_name_subscription_owner,
+        owner=object_name_subscription_owner,
         args=(),
-        notify=__on_change_bpy_object_name,
+        notify=on_change_bpy_object_name,
     )
 
     bone_name_subscribe_to = (bpy.types.Bone, "name")
     bpy.msgbus.subscribe_rna(
         key=bone_name_subscribe_to,
-        owner=__bone_name_subscription_owner,
+        owner=bone_name_subscription_owner,
         args=(),
-        notify=__on_change_bpy_bone_name,
+        notify=on_change_bpy_bone_name,
     )
 
     armature_name_subscribe_to = (bpy.types.Armature, "name")
     bpy.msgbus.subscribe_rna(
         key=armature_name_subscribe_to,
-        owner=__armature_name_subscription_owner,
+        owner=armature_name_subscription_owner,
         args=(),
-        notify=__on_change_bpy_armature_name,
+        notify=on_change_bpy_armature_name,
     )
 
     bpy.msgbus.publish_rna(key=object_name_subscribe_to)
@@ -161,7 +161,7 @@ def setup_subscription(load_post: bool) -> None:
 
 
 def teardown_subscription() -> None:
-    __setup_once.clear()
-    bpy.msgbus.clear_by_owner(__armature_name_subscription_owner)
-    bpy.msgbus.clear_by_owner(__bone_name_subscription_owner)
-    bpy.msgbus.clear_by_owner(__object_name_subscription_owner)
+    setup_once.clear()
+    bpy.msgbus.clear_by_owner(armature_name_subscription_owner)
+    bpy.msgbus.clear_by_owner(bone_name_subscription_owner)
+    bpy.msgbus.clear_by_owner(object_name_subscription_owner)

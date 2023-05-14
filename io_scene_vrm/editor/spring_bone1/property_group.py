@@ -29,7 +29,7 @@ def to_tuple_3(v: object) -> Tuple[float, float, float]:
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L7-L27
 class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def __find_armature_and_collider(
+    def find_armature_and_collider(
         self,
     ) -> Tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
         for obj in bpy.data.objects:
@@ -40,12 +40,10 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
                     return (obj, collider)
         raise ValueError("No armature")
 
-    def __get_offset(self) -> Tuple[float, float, float]:
-        armature, collider = self.__find_armature_and_collider()
+    def get_offset(self) -> Tuple[float, float, float]:
+        armature, collider = self.find_armature_and_collider()
         if not collider.bpy_object:
-            logger.error(
-                f"Failed to get bpy object of {collider.name} in __get_offset()"
-            )
+            logger.error(f"Failed to get bpy object of {collider.name} in get_offset()")
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.value)
         if bone:
@@ -58,36 +56,34 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
             matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
         return to_tuple_3(matrix.to_translation())
 
-    def __set_offset(self, offset: object) -> None:
-        backup_radius = self.__get_radius()
-        armature, collider = self.__find_armature_and_collider()
+    def set_offset(self, offset: object) -> None:
+        backup_radius = self.get_radius()
+        armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         bone = armature.pose.bones.get(collider.node.value)
         if not bone:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ Matrix.Translation(offset)
             )
-            self.__set_radius(backup_radius)
+            self.set_radius(backup_radius)
             return
         collider.bpy_object.matrix_world = (
             armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
         )
-        self.__set_radius(backup_radius)
+        self.set_radius(backup_radius)
 
-    def __get_radius(self) -> float:
-        _, collider = self.__find_armature_and_collider()
+    def get_radius(self) -> float:
+        _, collider = self.find_armature_and_collider()
         if not collider.bpy_object:
-            logger.error(
-                f"Failed to get bpy object of {collider.name} in __get_radius()"
-            )
+            logger.error(f"Failed to get bpy object of {collider.name} in get_radius()")
             return 0.0
         mean_scale = statistics.mean(
             abs(s) for s in collider.bpy_object.matrix_basis.to_scale()
         )
         return float(mean_scale * collider.bpy_object.empty_display_size)
 
-    def __set_radius(self, v: object) -> None:
-        armature, collider = self.__find_armature_and_collider()
+    def set_radius(self, v: object) -> None:
+        armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (
@@ -100,8 +96,8 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
-        get=__get_offset,
-        set=__set_offset,
+        get=get_offset,
+        set=set_offset,
     )
 
     radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -110,14 +106,14 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         default=0.0,
         soft_max=1.0,
         unit="LENGTH",  # noqa: F821
-        get=__get_radius,
-        set=__set_radius,
+        get=get_radius,
+        set=set_radius,
     )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L28-L58
 class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def __find_armature_and_collider(
+    def find_armature_and_collider(
         self,
     ) -> Tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
         for obj in bpy.data.objects:
@@ -128,12 +124,10 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
                     return (obj, collider)
         raise ValueError("No armature")
 
-    def __get_offset(self) -> Tuple[float, float, float]:
-        armature, collider = self.__find_armature_and_collider()
+    def get_offset(self) -> Tuple[float, float, float]:
+        armature, collider = self.find_armature_and_collider()
         if not collider.bpy_object:
-            logger.error(
-                f"Failed to get bpy object of {collider.name} in __get_offset()"
-            )
+            logger.error(f"Failed to get bpy object of {collider.name} in get_offset()")
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.value)
         if bone:
@@ -146,26 +140,26 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
         return to_tuple_3(matrix.to_translation())
 
-    def __set_offset(self, offset: object) -> None:
-        backup_radius = self.__get_radius()
-        armature, collider = self.__find_armature_and_collider()
+    def set_offset(self, offset: object) -> None:
+        backup_radius = self.get_radius()
+        armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         bone = armature.pose.bones.get(collider.node.value)
         if not bone:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ Matrix.Translation(offset)
             )
-            self.__set_radius(backup_radius)
+            self.set_radius(backup_radius)
             return
         collider.bpy_object.matrix_world = (
             armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
         )
-        self.__set_radius(backup_radius)
+        self.set_radius(backup_radius)
 
-    def __get_tail(self) -> Tuple[float, float, float]:
-        armature, collider = self.__find_armature_and_collider()
+    def get_tail(self) -> Tuple[float, float, float]:
+        armature, collider = self.find_armature_and_collider()
         if not collider.bpy_object or not collider.bpy_object.children:
-            logger.error(f"Failed to get bpy object of {collider.name} in __get_tail()")
+            logger.error(f"Failed to get bpy object of {collider.name} in get_tail()")
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.value)
         if bone:
@@ -181,36 +175,34 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             )
         return to_tuple_3(matrix.to_translation())
 
-    def __set_tail(self, offset: object) -> None:
-        backup_radius = self.__get_radius()
-        armature, collider = self.__find_armature_and_collider()
+    def set_tail(self, offset: object) -> None:
+        backup_radius = self.get_radius()
+        armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         bone = armature.pose.bones.get(collider.node.value)
         if not bone:
             collider.bpy_object.children[
                 0
             ].matrix_world = armature.matrix_world @ Matrix.Translation(offset)
-            self.__set_radius(backup_radius)
+            self.set_radius(backup_radius)
             return
         collider.bpy_object.children[0].matrix_world = (
             armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
         )
-        self.__set_radius(backup_radius)
+        self.set_radius(backup_radius)
 
-    def __get_radius(self) -> float:
-        _, collider = self.__find_armature_and_collider()
+    def get_radius(self) -> float:
+        _, collider = self.find_armature_and_collider()
         if not collider.bpy_object:
-            logger.error(
-                f"Failed to get bpy object of {collider.name} in __get_radius()"
-            )
+            logger.error(f"Failed to get bpy object of {collider.name} in get_radius()")
             return 0.0
         mean_scale = statistics.mean(
             abs(s) for s in collider.bpy_object.matrix_basis.to_scale()
         )
         return float(mean_scale * collider.bpy_object.empty_display_size)
 
-    def __set_radius(self, v: object) -> None:
-        armature, collider = self.__find_armature_and_collider()
+    def set_radius(self, v: object) -> None:
+        armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (
@@ -224,8 +216,8 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
-        get=__get_offset,
-        set=__set_offset,
+        get=get_offset,
+        set=set_offset,
     )
 
     radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -234,8 +226,8 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         default=0.0,
         soft_max=1.0,
         unit="LENGTH",  # noqa: F821
-        get=__get_radius,
-        set=__set_radius,
+        get=get_radius,
+        set=set_radius,
     )
 
     tail: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -243,8 +235,8 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
-        get=__get_tail,
-        set=__set_tail,
+        get=get_tail,
+        set=set_tail,
     )
 
 
@@ -302,7 +294,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         (SHAPE_TYPE_CAPSULE, "Capsule", "", 1),
     ]
 
-    def __update_shape_type(self, context: bpy.types.Context) -> None:
+    def update_shape_type(self, context: bpy.types.Context) -> None:
         if (
             self.bpy_object
             and self.bpy_object.parent
@@ -313,7 +305,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     shape_type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=shape_type_items,
         name="Shape",  # noqa: F821
-        update=__update_shape_type,
+        update=update_shape_type,
     )
 
     # for View3D
@@ -384,11 +376,11 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 
 
 class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def __get_collider_name(self) -> str:
+    def get_collider_name(self) -> str:
         value = self.get("collider_name", "")
         return value if isinstance(value, str) else str(value)
 
-    def __set_collider_name(self, value: object) -> None:
+    def set_collider_name(self, value: object) -> None:
         if not isinstance(value, str):
             value = str(value)
         self.name = value  # pylint: disable=attribute-defined-outside-init
@@ -413,7 +405,7 @@ class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # typ
                     return
 
     collider_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        get=__get_collider_name, set=__set_collider_name
+        get=get_collider_name, set=set_collider_name
     )
     collider_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -423,11 +415,11 @@ class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):  # typ
 class SpringBone1ColliderGroupPropertyGroup(
     bpy.types.PropertyGroup, bpy.types.ID  # type: ignore[misc]
 ):
-    def __get_vrm_name(self) -> str:
+    def get_vrm_name(self) -> str:
         value = self.get("vrm_name", "")
         return value if isinstance(value, str) else str(value)
 
-    def __set_vrm_name(self, vrm_name: object) -> None:
+    def set_vrm_name(self, vrm_name: object) -> None:
         if not isinstance(vrm_name, str):
             vrm_name = str(vrm_name)
         self["vrm_name"] = vrm_name
@@ -453,7 +445,7 @@ class SpringBone1ColliderGroupPropertyGroup(
                 return
 
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Name", get=__get_vrm_name, set=__set_vrm_name  # noqa: F722, F821
+        name="Name", get=get_vrm_name, set=set_vrm_name  # noqa: F722, F821
     )
 
     colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
@@ -537,11 +529,11 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
 
 
 class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def __get_collider_group_name(self) -> str:
+    def get_collider_group_name(self) -> str:
         value = self.get("collider_group_name", "")
         return value if isinstance(value, str) else str(value)
 
-    def __set_collider_group_name(self, value: object) -> None:
+    def set_collider_group_name(self, value: object) -> None:
         if not isinstance(value, str):
             value = str(value)
         self.name = value  # pylint: disable=attribute-defined-outside-init
@@ -566,7 +558,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  
                     return
 
     collider_group_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        get=__get_collider_group_name, set=__set_collider_group_name
+        get=get_collider_group_name, set=set_collider_group_name
     )
     collider_group_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]

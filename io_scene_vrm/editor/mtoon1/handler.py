@@ -27,7 +27,7 @@ def update_mtoon1_outline() -> Optional[float]:
             (
                 str(material_slot.material.name),
                 bool(
-                    material_slot.material.vrm_addon_extension.mtoon1.get_enabled(
+                    material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
                         material_slot.material
                     )
                 ),
