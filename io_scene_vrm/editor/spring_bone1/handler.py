@@ -200,13 +200,23 @@ def calculate_object_pose_bone_rotations(
             current_center_world_translation = (
                 obj.matrix_world @ center_pose_bone.matrix
             ).to_translation()
+            previous_center_world_translation = Vector(
+                spring.animation_state.previous_center_world_translation
+            )
+            previous_to_current_center_world_translation = (
+                current_center_world_translation - previous_center_world_translation
+            )
+            if not spring.animation_state.use_center_space:
+                spring.animation_state.previous_center_world_translation = (
+                    current_center_world_translation.copy()
+                )
+                spring.animation_state.use_center_space = True
         else:
             current_center_world_translation = Vector((0, 0, 0))
-        if not spring.animation_state.initialized:
-            spring.animation_state.previous_center_world_translation = (
-                current_center_world_translation.copy()
-            )
-            spring.animation_state.initialized = True
+            previous_to_current_center_world_translation = Vector((0, 0, 0))
+            if spring.animation_state.use_center_space:
+                spring.animation_state.use_center_space = False
+
         calculate_spring_pose_bone_rotations(
             delta_time,
             obj,
