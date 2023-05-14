@@ -451,7 +451,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
     )
 
     tail_joint.animation_state.previous_world_translation = list(
-        tail_joint.animation_state.current_world_translation
+        current_tail_world_translation
     )
     tail_joint.animation_state.current_world_translation = list(
         next_tail_world_translation
