@@ -491,17 +491,20 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         spring_bone: SpringBone1SpringBonePropertyGroup,
         bone_name_to_index_dict: Dict[str, int],
         collider_group_uuid_to_index_dict: Dict[str, int],
+        armature: bpy.types.Object,
     ) -> List[Json]:
         spring_dicts: List[Json] = []
         for spring in spring_bone.springs:
             spring_dict = {"name": spring.vrm_name}
 
-            center_index = bone_name_to_index_dict.get(spring.center.value)
-            if isinstance(center_index, int):
-                spring_dict["center"] = center_index
-
+            first_bone: Optional[bpy.types.Bone] = None
             joint_dicts = []
             for joint in spring.joints:
+                bone = armature.data.bones.get(joint.node.value)
+                if not bone:
+                    continue
+                if first_bone is None:
+                    first_bone = bone
                 node_index = bone_name_to_index_dict.get(joint.node.value)
                 if not isinstance(node_index, int):
                     continue
@@ -522,6 +525,20 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             if joint_dicts:
                 spring_dict["joints"] = joint_dicts
+
+            center_bone = armature.data.bones.get(spring.center.value)
+            if center_bone:
+                center_bone_is_ancestor_of_first_bone = False
+                ancestor_of_first_bone = first_bone
+                while ancestor_of_first_bone:
+                    if center_bone == ancestor_of_first_bone:
+                        center_bone_is_ancestor_of_first_bone = True
+                        break
+                    ancestor_of_first_bone = ancestor_of_first_bone.parent
+                if center_bone_is_ancestor_of_first_bone:
+                    center_index = bone_name_to_index_dict.get(spring.center.value)
+                    if isinstance(center_index, int):
+                        spring_dict["center"] = center_index
 
             collider_group_indices = []
             for collider_group_reference in spring.collider_groups:
@@ -2079,6 +2096,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             spring_bone,
             bone_name_to_index_dict,
             collider_group_uuid_to_index_dict,
+            self.armature,
         )
         if spring_bone_spring_dicts:
             spring_bone_dict["springs"] = spring_bone_spring_dicts

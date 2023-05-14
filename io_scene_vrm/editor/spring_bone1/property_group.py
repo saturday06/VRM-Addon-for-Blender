@@ -573,7 +573,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):  
 
 
 class SpringBone1SpringAnimationStatePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    initialized: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    use_center_space: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     previous_center_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
 

@@ -175,7 +175,27 @@ def calculate_object_pose_bone_rotations(
             world_colliders.append(world_collider)
 
     for spring in spring_bone1.springs:
+        joints = spring.joints
+        if not joints:
+            continue
+        first_joint = joints[0]
+        first_pose_bone = obj.pose.bones.get(first_joint.node.value)
+        if not first_pose_bone:
+            continue
+
         center_pose_bone = obj.pose.bones.get(spring.center.value)
+
+        # https://github.com/vrm-c/vrm-specification/blob/7279e169ac0dcf37e7d81b2adcad9107101d7e25/specification/VRMC_springBone-1.0/README.md#center-space
+        center_pose_bone_is_ancestor_of_first_pose_bone = False
+        ancestor_of_first_pose_bone = first_pose_bone
+        while ancestor_of_first_pose_bone:
+            if center_pose_bone == ancestor_of_first_pose_bone:
+                center_pose_bone_is_ancestor_of_first_pose_bone = True
+                break
+            ancestor_of_first_pose_bone = ancestor_of_first_pose_bone.parent
+        if not center_pose_bone_is_ancestor_of_first_pose_bone:
+            center_pose_bone = None
+
         if center_pose_bone:
             current_center_world_translation = (
                 obj.matrix_world @ center_pose_bone.matrix
@@ -193,9 +213,9 @@ def calculate_object_pose_bone_rotations(
             spring,
             pose_bone_and_rotations,
             collider_group_uuid_to_world_colliders,
-            current_center_world_translation
-            - Vector(spring.animation_state.previous_center_world_translation),
+            previous_to_current_center_world_translation,
         )
+
         spring.animation_state.previous_center_world_translation = (
             current_center_world_translation
         )
