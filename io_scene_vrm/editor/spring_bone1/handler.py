@@ -318,22 +318,24 @@ def calculate_joint_pair_head_pose_bone_rotations(
         obj.matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
     )
 
-    if not tail_joint.state.initialized_as_tail:
+    if not tail_joint.animation_state.initialized_as_tail:
         initial_tail_world_translation = (
             obj.matrix_world @ current_tail_pose_bone_matrix
         ).to_translation()
-        tail_joint.state.initialized_as_tail = True
-        tail_joint.state.previous_world_translation = list(
+        tail_joint.animation_state.initialized_as_tail = True
+        tail_joint.animation_state.previous_world_translation = list(
             initial_tail_world_translation
         )
-        tail_joint.state.current_world_translation = list(
+        tail_joint.animation_state.current_world_translation = list(
             initial_tail_world_translation
         )
 
     previous_tail_world_translation = Vector(
-        tail_joint.state.previous_world_translation
+        tail_joint.animation_state.previous_world_translation
     )
-    current_tail_world_translation = Vector(tail_joint.state.current_world_translation)
+    current_tail_world_translation = Vector(
+        tail_joint.animation_state.current_world_translation
+    )
 
     inertia = (current_tail_world_translation - previous_tail_world_translation) * (
         1.0 - head_joint.drag_force
@@ -422,10 +424,12 @@ def calculate_joint_pair_head_pose_bone_rotations(
         @ current_tail_rest_object_matrix
     )
 
-    tail_joint.state.previous_world_translation = list(
-        tail_joint.state.current_world_translation
+    tail_joint.animation_state.previous_world_translation = list(
+        tail_joint.animation_state.current_world_translation
     )
-    tail_joint.state.current_world_translation = list(next_tail_world_translation)
+    tail_joint.animation_state.current_world_translation = list(
+        next_tail_world_translation
+    )
 
     return (
         next_head_pose_bone_rotation

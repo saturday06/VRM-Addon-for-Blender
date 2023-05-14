@@ -471,7 +471,7 @@ class SpringBone1ColliderGroupPropertyGroup(
 
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#initialization
-class SpringBone1JointStatePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class SpringBone1JointAnimationStatePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     initialized_as_tail: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     previous_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
@@ -528,7 +528,9 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
         max=1.0,
     )
 
-    state: bpy.props.PointerProperty(type=SpringBone1JointStatePropertyGroup)  # type: ignore[valid-type]
+    animation_state: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1JointAnimationStatePropertyGroup,
+    )
 
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]

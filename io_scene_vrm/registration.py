@@ -140,7 +140,7 @@ classes = [
     spring_bone1_property_group.SpringBone1ColliderReferencePropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderGroupPropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderGroupReferencePropertyGroup,
-    spring_bone1_property_group.SpringBone1JointStatePropertyGroup,
+    spring_bone1_property_group.SpringBone1JointAnimationStatePropertyGroup,
     spring_bone1_property_group.SpringBone1JointPropertyGroup,
     spring_bone1_property_group.SpringBone1SpringPropertyGroup,
     spring_bone1_property_group.SpringBone1SpringBonePropertyGroup,
