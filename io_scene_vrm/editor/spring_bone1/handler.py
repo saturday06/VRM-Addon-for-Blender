@@ -442,7 +442,7 @@ def depsgraph_update_pre(_dummy: object) -> None:
 
 @persistent  # type: ignore[misc]
 def frame_change_pre(_dummy: object) -> None:
-    state.previous_datetime = datetime.datetime.now()
+    state.previous_datetime = datetime.datetime.now(datetime.timezone.utc)
     delta_time = float(bpy.context.scene.render.fps_base) / float(
         bpy.context.scene.render.fps
     )
