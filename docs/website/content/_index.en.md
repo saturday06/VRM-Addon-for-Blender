@@ -34,13 +34,3 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 ## Export
 
 - Support VRM 0.0, 1.0
-
-## Tutorials for the legacy version 1.x, 0.x
-
-### Export (Japanese)
-
-https://qiita.com/iCyP/items/61af0ea93c604e37bed6
-
-### In-out-modify video tutorial (Japanese)
-
-https://www.nicovideo.jp/watch/sm36033523

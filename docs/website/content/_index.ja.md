@@ -41,13 +41,3 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 ## エクスポート
 
 - VRM 0.0, 1.0のエクスポート
-
-## 旧バージョン(1.x)のチュートリアル
-
-### VRM出力チュートリアル
-
-https://qiita.com/iCyP/items/61af0ea93c604e37bed6
-
-### VRM編集の動画チュートリアル
-
-https://www.nicovideo.jp/watch/sm36033523
