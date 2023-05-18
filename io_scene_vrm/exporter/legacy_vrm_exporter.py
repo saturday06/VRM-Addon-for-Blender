@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import bmesh
 import bpy
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert, deep, gltf, shader
 from ..common.deep import Json, make_json
@@ -688,12 +688,24 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         uv_offset_scaling_node is not None
                         and uv_offset_scaling_node.type == "MAPPING'"
                     ):
-                        mtoon_vector_dict[texture_key] = [
-                            uv_offset_scaling_node.inputs["Location"].default_value[0],
-                            uv_offset_scaling_node.inputs["Location"].default_value[1],
-                            uv_offset_scaling_node.inputs["Scale"].default_value[0],
-                            uv_offset_scaling_node.inputs["Scale"].default_value[1],
-                        ]
+                        if bpy.app.version <= (2, 80):
+                            mtoon_vector_dict[texture_key] = [
+                                uv_offset_scaling_node.translation[0],
+                                uv_offset_scaling_node.translation[1],
+                                uv_offset_scaling_node.scale[0],
+                                uv_offset_scaling_node.scale[1],
+                            ]
+                        else:
+                            mtoon_vector_dict[texture_key] = [
+                                uv_offset_scaling_node.inputs["Location"].default_value[
+                                    0
+                                ],
+                                uv_offset_scaling_node.inputs["Location"].default_value[
+                                    1
+                                ],
+                                uv_offset_scaling_node.inputs["Scale"].default_value[0],
+                                uv_offset_scaling_node.inputs["Scale"].default_value[1],
+                            ]
                     else:
                         mtoon_vector_dict[texture_key] = [0, 0, 1, 1]
                     main_texture_transform = LegacyVrmExporter.KhrTextureTransform(
@@ -1022,6 +1034,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             pbr_dict: Dict[str, Json] = {}
             pbr_dict["name"] = b_mat.name
+
+            if bpy.app.version < (2, 83):
+                return fallback
 
             try:
                 gltf2_blender_gather_materials = importlib.import_module(
@@ -2765,3 +2780,20 @@ def normalize_weights_compatible_with_gl_float(
             break
 
     return weights
+
+
+def matrix_loc_rot_scale(
+    loc: Sequence[Union[int, float]],
+    rot: Quaternion,
+    scale: Sequence[Union[int, float]],
+) -> Matrix:
+    if bpy.app.version >= (2, 83):
+        return Matrix.LocRotScale(loc, rot, scale)
+
+    return (
+        Matrix.Translation(loc)
+        @ rot.to_matrix().to_4x4()
+        @ Matrix.Scale(scale[0], 4, (1, 0, 0))
+        @ Matrix.Scale(scale[1], 4, (0, 1, 0))
+        @ Matrix.Scale(scale[2], 4, (0, 0, 1))
+    )
