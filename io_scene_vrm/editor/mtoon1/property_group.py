@@ -777,11 +777,6 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
     def update_source(self, _context: bpy.types.Context) -> None:
         self.update_image(self.source)
 
-    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Image,  # noqa: F722
-        update=update_source,
-    )
-
 
 class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     material_property_chain = [
@@ -789,6 +784,11 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         "base_color_texture",
         "index",
     ]
+
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=Mtoon1TexturePropertyGroup.update_source,
+    )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1BaseColorSamplerPropertyGroup  # noqa: F722
@@ -802,6 +802,11 @@ class Mtoon1ShadeMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         "shade_multiply_texture",
         "index",
     ]
+
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=Mtoon1TexturePropertyGroup.update_source,
+    )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadeMultiplySamplerPropertyGroup  # noqa: F722
@@ -820,6 +825,11 @@ class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         )
         self.update_image(self.source)
 
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=update_source,
+    )
+
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalSamplerPropertyGroup  # noqa: F722
     )
@@ -833,6 +843,11 @@ class Mtoon1ShadingShiftTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         "index",
     ]
 
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=Mtoon1TexturePropertyGroup.update_source,
+    )
+
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftSamplerPropertyGroup  # noqa: F722
     )
@@ -843,6 +858,11 @@ class Mtoon1EmissiveTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         "emissive_texture",
         "index",
     ]
+
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=Mtoon1TexturePropertyGroup.update_source,
+    )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1EmissiveSamplerPropertyGroup  # noqa: F722
@@ -857,6 +877,11 @@ class Mtoon1RimMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         "index",
     ]
 
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=Mtoon1TexturePropertyGroup.update_source,
+    )
+
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1RimMultiplySamplerPropertyGroup  # noqa: F722
     )
@@ -869,6 +894,11 @@ class Mtoon1MatcapTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         "matcap_texture",
         "index",
     ]
+
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=Mtoon1TexturePropertyGroup.update_source,
+    )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MatcapSamplerPropertyGroup  # noqa: F722
@@ -883,12 +913,19 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
         "index",
     ]
 
-    def update_source(self, context: bpy.types.Context) -> None:
+    def update_outline_width_multiply_texture_source(
+        self, context: bpy.types.Context
+    ) -> None:
         mtoon = (
             self.find_material().vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
         )
         mtoon.update_outline_geometry(context)
-        super().update_source(context)
+        self.update_source(context)
+
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=update_outline_width_multiply_texture_source,
+    )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1OutlineWidthMultiplySamplerPropertyGroup  # noqa: F722
@@ -902,6 +939,11 @@ class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         "uv_animation_mask_texture",
         "index",
     ]
+
+    source: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Image,  # noqa: F722
+        update=Mtoon1TexturePropertyGroup.update_source,
+    )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1UvAnimationMaskSamplerPropertyGroup  # noqa: F722
@@ -947,8 +989,6 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         self.extensions.khr_texture_transform.scale = backup.scale
         # pylint: enable=attribute-defined-outside-init
 
-    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
-
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -962,6 +1002,7 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1BaseColorTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -975,6 +1016,7 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.normalTextureInfo.schema.json
@@ -995,6 +1037,7 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/c5d1afdc4d59c292cb4fd6d54cad1dc0c4d19c60/specification/VRMC_materials_mtoon-1.0/schema/mtoon.shadingShiftTexture.schema.json
@@ -1019,6 +1062,7 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
@@ -1033,6 +1077,7 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1EmissiveTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -1046,6 +1091,7 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -1059,6 +1105,7 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MatcapTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
@@ -1074,6 +1121,7 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -1087,6 +1135,7 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
+    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.pbrMetallicRoughness.schema.json#L9-L26
