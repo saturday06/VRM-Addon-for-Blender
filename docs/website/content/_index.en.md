@@ -6,9 +6,9 @@ images: ["en/images/top.png"]
 
 ![](images/top.png)
 
-VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender version 2.83 or later.
-
 **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**<small> / [Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
+
+VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender version 2.83 or later.
 
 ## Tutorials
 
