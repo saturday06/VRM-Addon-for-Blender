@@ -381,6 +381,20 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         if outline:
             outline.update_texture_scale(_context)
 
+    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+        name="Offset",  # noqa: F821
+        size=2,
+        default=(0, 0),
+        update=update_texture_offset,
+    )
+
+    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+        name="Scale",  # noqa: F821
+        size=2,
+        default=(1, 1),
+        update=update_texture_scale,
+    )
+
 
 class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
@@ -391,20 +405,6 @@ class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
         "extensions",
         "khr_texture_transform",
     ]
-
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
 
 
 class Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup(
@@ -418,20 +418,6 @@ class Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup(
         "khr_texture_transform",
     ]
 
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
-
 
 class Mtoon1NormalKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
@@ -441,20 +427,6 @@ class Mtoon1NormalKhrTextureTransformPropertyGroup(
         "extensions",
         "khr_texture_transform",
     ]
-
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
 
 
 class Mtoon1ShadingShiftKhrTextureTransformPropertyGroup(
@@ -468,20 +440,6 @@ class Mtoon1ShadingShiftKhrTextureTransformPropertyGroup(
         "khr_texture_transform",
     ]
 
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
-
 
 class Mtoon1EmissiveKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
@@ -491,20 +449,6 @@ class Mtoon1EmissiveKhrTextureTransformPropertyGroup(
         "extensions",
         "khr_texture_transform",
     ]
-
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
 
 
 class Mtoon1RimMultiplyKhrTextureTransformPropertyGroup(
@@ -518,20 +462,6 @@ class Mtoon1RimMultiplyKhrTextureTransformPropertyGroup(
         "khr_texture_transform",
     ]
 
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
-
 
 class Mtoon1MatcapKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
@@ -543,20 +473,6 @@ class Mtoon1MatcapKhrTextureTransformPropertyGroup(
         "extensions",
         "khr_texture_transform",
     ]
-
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
 
 
 class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
@@ -609,20 +525,6 @@ class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
         "extensions",
         "khr_texture_transform",
     ]
-
-    offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
-        size=2,
-        default=(0, 0),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_offset,
-    )
-
-    scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
-        size=2,
-        default=(1, 1),
-        update=Mtoon1KhrTextureTransformPropertyGroup.update_texture_scale,
-    )
 
 
 class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
@@ -761,6 +663,30 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         wrap_t = self.WRAP_ID_TO_NUMBER.get(self.wrap_t, self.WRAP_DEFAULT_NUMBER)
         self.set_texture_uv("Wrap T", wrap_t)
 
+    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=mag_filter_items,
+        name="Mag Filter",  # noqa: F722
+    )
+
+    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=min_filter_items,
+        name="Min Filter",  # noqa: F722
+    )
+
+    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=wrap_items,
+        name="Wrap S",  # noqa: F722
+        default=WRAP_DEFAULT_ID,
+        update=update_wrap_s,
+    )
+
+    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=wrap_items,
+        name="Wrap T",  # noqa: F722
+        default=WRAP_DEFAULT_ID,
+        update=update_wrap_t,
+    )
+
 
 class Mtoon1BaseColorSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     material_property_chain = [
@@ -769,30 +695,6 @@ class Mtoon1BaseColorSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "index",
         "sampler",
     ]
-
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
 
 
 class Mtoon1ShadeMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
@@ -804,30 +706,6 @@ class Mtoon1ShadeMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "sampler",
     ]
 
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
-
 
 class Mtoon1NormalSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     material_property_chain = [
@@ -835,30 +713,6 @@ class Mtoon1NormalSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "index",
         "sampler",
     ]
-
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
 
 
 class Mtoon1ShadingShiftSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
@@ -870,30 +724,6 @@ class Mtoon1ShadingShiftSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "sampler",
     ]
 
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
-
 
 class Mtoon1EmissiveSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     material_property_chain = [
@@ -901,30 +731,6 @@ class Mtoon1EmissiveSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "index",
         "sampler",
     ]
-
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
 
 
 class Mtoon1RimMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
@@ -936,30 +742,6 @@ class Mtoon1RimMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "sampler",
     ]
 
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
-
 
 class Mtoon1MatcapSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     material_property_chain = [
@@ -969,30 +751,6 @@ class Mtoon1MatcapSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "index",
         "sampler",
     ]
-
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
 
 
 class Mtoon1OutlineWidthMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
@@ -1004,30 +762,6 @@ class Mtoon1OutlineWidthMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup)
         "sampler",
     ]
 
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
-
 
 class Mtoon1UvAnimationMaskSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
     material_property_chain = [
@@ -1037,30 +771,6 @@ class Mtoon1UvAnimationMaskSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
         "index",
         "sampler",
     ]
-
-    mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
-    )
-
-    min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
-    )
-
-    wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_s,
-    )
-
-    wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
-        update=Mtoon1SamplerPropertyGroup.update_wrap_t,
-    )
 
 
 class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
