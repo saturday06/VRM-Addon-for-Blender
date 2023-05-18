@@ -92,7 +92,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
 
 
 def use_legacy_importer_exporter() -> bool:
-    return tuple(bpy.app.version) < (2, 83)
+    return False
 
 
 def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:

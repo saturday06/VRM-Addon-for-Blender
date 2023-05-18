@@ -558,24 +558,18 @@ class AbstractBaseVrmImporter(ABC):
 
         uv_map_node = b_mat.node_tree.nodes.new("ShaderNodeUVMap")
         uv_offset_tiling_node = b_mat.node_tree.nodes.new("ShaderNodeMapping")
-        if bpy.app.version < (2, 81):
-            uv_offset_tiling_node.translation[0] = uv_offset_tiling_value[0]
-            uv_offset_tiling_node.translation[1] = uv_offset_tiling_value[1]
-            uv_offset_tiling_node.scale[0] = uv_offset_tiling_value[2]
-            uv_offset_tiling_node.scale[1] = uv_offset_tiling_value[3]
-        else:
-            uv_offset_tiling_node.inputs["Location"].default_value[
-                0
-            ] = uv_offset_tiling_value[0]
-            uv_offset_tiling_node.inputs["Location"].default_value[
-                1
-            ] = uv_offset_tiling_value[1]
-            uv_offset_tiling_node.inputs["Scale"].default_value[
-                0
-            ] = uv_offset_tiling_value[2]
-            uv_offset_tiling_node.inputs["Scale"].default_value[
-                1
-            ] = uv_offset_tiling_value[3]
+        uv_offset_tiling_node.inputs["Location"].default_value[
+            0
+        ] = uv_offset_tiling_value[0]
+        uv_offset_tiling_node.inputs["Location"].default_value[
+            1
+        ] = uv_offset_tiling_value[1]
+        uv_offset_tiling_node.inputs["Scale"].default_value[0] = uv_offset_tiling_value[
+            2
+        ]
+        uv_offset_tiling_node.inputs["Scale"].default_value[1] = uv_offset_tiling_value[
+            3
+        ]
 
         b_mat.node_tree.links.new(
             uv_offset_tiling_node.inputs[0], uv_map_node.outputs[0]
