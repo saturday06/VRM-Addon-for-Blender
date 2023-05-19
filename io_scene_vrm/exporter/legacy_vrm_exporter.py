@@ -1038,10 +1038,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if bpy.app.version < (2, 83):
                 return fallback
 
-            try:
-                gltf2_blender_gather_materials = importlib.import_module(
+            if bpy.app.version >= (3, 6):
+                module_name = (
+                    "io_scene_gltf2.blender.exp.material.gltf2_blender_gather_materials"
+                )
+            else:
+                module_name = (
                     "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials"
                 )
+            try:
+                gltf2_blender_gather_materials = importlib.import_module(module_name)
             except ModuleNotFoundError:
                 logger.exception("Failed to import glTF 2.0 Add-on")
                 return fallback
