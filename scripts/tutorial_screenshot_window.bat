@@ -7,10 +7,10 @@ echo - Set the desktop background color to black.
 echo - Simplify the file view as much as possible.
 echo - Make sure generated screenshot size is 1320x1080.
 echo - In English, set the interface font to an empty string.
-echo - In Japanese, set the interface font to Meiryo.
+echo - In Japanese, set the interface font to "Meiryo Regular" (meiryo.ttc).
 rem Blender uses customized NotoSansCJK but it cannot display Japanese Kanji correctly.
 rem We need to use NotoSansCJKjp instead. But it's not installed on the system.
-rem And currently Yu Gothic is not available.
+rem And I think "Yu Gothic" looks thin and not suitable for screenshots.
 echo ========================================================
 pause
 @echo on
