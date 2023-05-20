@@ -1,7 +1,18 @@
 ---
+title: "VRM Add-on for Blender"
 description: "VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender."
 images: ["en/images/top.png"]
 ---
+
+<style>
+main header {
+  display: none;
+}
+
+main article.prose section :where(p, img):not(:where([class~=not-prose] *)) {
+  margin-top: 0;
+}
+</style>
 
 ![](images/top.png)
 
