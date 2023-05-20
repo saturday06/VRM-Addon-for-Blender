@@ -52,13 +52,13 @@ Then move the mouse down and select `Rendered`.
 
 If successful, the direction of the unlit areas will change. However, there is little change in the display, but note that the coloring is not reflected in the display if the default setting is used.
 
-Next, set the view transformation settings. Select the tab with the <img src="../../images/scene_property_tab_icon.png"> icon in the lower right corner, then go to `Color Management` and set `View Transform` to `Standard`.
+Next, set the view transformation settings. Select the tab with the "<img src="../../images/scene_property_tab_icon.png">" icon in the lower right corner, then go to `Color Management` and set `View Transform` to `Standard`.
 
 ![](../images/material_mtoon6.png)
 
 The sphere will be slightly brighter. If the default is left unchanged, the color displayed will be darker than the specified color.
 
-Next, configure the material settings. Select the tab with the <img src="../../images/material_property_tab_icon.png"> icon in the lower right corner and press the `New` button.
+Next, configure the material settings. Select the tab with the "<img src="../../images/material_property_tab_icon.png">" icon in the lower right corner and press the `New` button.
 
 ![](../images/material_mtoon7.png)
 

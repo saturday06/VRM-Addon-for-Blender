@@ -46,7 +46,7 @@ If successful, the grayish color of the display will increase. However, there is
 
 ![](../images/material_pbr7.png)
 
-In this state, set the material settings. Select the tab with the <img src="../../images/material_property_tab_icon.png"> icon in the lower right corner and press the `New` button.
+In this state, set the material settings. Select the tab with the "<img src="../../images/material_property_tab_icon.png">" icon in the lower right corner and press the `New` button.
 
 ![](../images/material_pbr8.png)
 

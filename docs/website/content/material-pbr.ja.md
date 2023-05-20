@@ -45,7 +45,7 @@ Blenderを起動したら、初めから表示されている立方体を削除�
 
 ![](../images/material_pbr7.png)
 
-この状態でマテリアルの設定を行います。右下の <img src="../../images/material_property_tab_icon.png"> アイコンのタブを選び `新規` ボタンを押します。
+この状態でマテリアルの設定を行います。右下の「<img src="../../images/material_property_tab_icon.png">」アイコンのタブを選び `新規` ボタンを押します。
 
 ![](../images/material_pbr8.png)
 
