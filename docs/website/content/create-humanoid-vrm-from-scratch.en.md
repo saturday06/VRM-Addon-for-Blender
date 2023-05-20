@@ -21,15 +21,17 @@ This add-on uses armature to represent the skeletal structure of the human figur
 
 ![](../images/humanoid3.png)
 
-We will use the default Cube as a torso. Select `Cube` from the `Scene Collection` in the upper right corner, select `Scale:` from `Item` in the sidebar, and set all values to `0.2` to make it small enough to be used as a torso.
+We will use the default Cube as a torso.
+
+Select the Cube in the 3D Viewport, select the tab with the "<img src="../../images/object_property_tab_icon.png">" icon in the lower right corner, go to `Transform` > `Scale`, and set all values to `0.2` to make it small enough to be used as a torso.
 
 ![](../images/humanoid4.png)
 
-We associate the torso with the bones of the armature. Select the tab with the square icon in the lower right corner, go to `Relations`, and set `Parent` to `Armature`, `Parent Type` to `Bone`, and `Parent Bone` to `spine`. The torso will move to the spine of the 3D model.
+We associate the torso with the bones of the armature. Go to `Relations`, and set `Parent` to `Armature`, `Parent Type` to `Bone`, and `Parent Bone` to `spine`. The torso will move to the spine of the 3D model.
 
 ![](../images/humanoid5.png)
 
-The next step is to create the head, press `Shift + A` in the 3D viewport to bring up an additional menu, select `Mesh` -> `UV Sphere`.
+The next step is to create the head, press `Shift + a` in the 3D viewport to bring up an additional menu, select `Mesh` -> `UV Sphere`.
 
 ![](../images/humanoid6.png)
 
@@ -37,15 +39,17 @@ A `Sphere` will be added.
 
 ![](../images/humanoid7.png)
 
-It is too big so we will shrink it. Select the `Sphere` or from the `Scene Collection` in the upper right corner, then select `Scale:` from the `Item` in the sidebar and set all values to `0.25`.
+It is too big so we will shrink it.
+
+Select the tab with the "<img src="../../images/object_property_tab_icon.png">" icon in the lower right corner, go to `Transform` > `Scale`, and set all values to `0.25`.
 
 ![](../images/humanoid8.png)
 
-Associate this sphere with the armature's bone. Select the tab with the square icon in the lower right corner, go to `Relations`, set `Parent` to `Armature`, set `Parent Type` to `Bone`, and set `Parent Bone` to `head`. The sphere will move to the head of the 3D model.
+Associate this sphere with the armature's bone. Go to `Relations`, and set `Parent` to `Armature`, `Parent Type` to `Bone`, and `Parent Bone` to `head`. The sphere will move to the head of the 3D model.
 
 ![](../images/humanoid9.png)
 
-Next, we will add the limbs: in the 3D viewport, press `Shift + A` to bring up the Add menu, and select `Mesh` -> `Ico Sphere`.
+Next, we will add the limbs: in the 3D viewport, press `Shift + a` to bring up the Add menu, and select `Mesh` -> `Ico Sphere`.
 
 ![](../images/humanoid10.png)
 
@@ -57,7 +61,7 @@ You can then set up the new Ico Sphere to be added. We feel that the radius is t
 
 ![](../images/humanoid12.png)
 
-Associate the Ico sphere with the armature bones of the limbs. Select the tab with the square icon in the lower right corner, go to `Relations`, set `Parent` to `Armature`, set `Parent Type` to `Bone`, and set `Parent Bone` to `upper_arm.L`. The sphere will move to the left upper arm of the 3D model.
+Select the tab with the "<img src="../../images/object_property_tab_icon.png">" icon in the lower right corner, go to `Relations`, set `Parent` to `Armature`, set `Parent Type` to `Bone`, and set `Parent Bone` to `upper_arm.L`. The sphere will move to the left upper arm of the 3D model.
 
 ![](../images/humanoid13.png)
 
@@ -95,7 +99,7 @@ Save this model as a VRM. Select `File` → `Export` → `VRM (.vrm)` from the m
 
 Enter the filename and destination when the File View window appears and press `Export VRM`.
 
-![](../images/simple3.png)
+![](../images/humanoid21.png)
 
 If successful, the VRM file will be saved to the specified location.
 
