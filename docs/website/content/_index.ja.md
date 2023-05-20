@@ -26,7 +26,7 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 | --- | --- | --- |
 | [![](../../images/installation.gif)]({{< ref "installation" >}}) | [![](../../images/simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](../../images/humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 
-| [物理ベースのマテリアル設定]({{< ref "installation" >}}) | [アニメ風のマテリアル設定]({{< ref "create-simple-vrm-from-scratch" >}}) | |
+| [物理ベースのマテリアル設定]({{< ref "material-pbr" >}}) | [アニメ風のマテリアル設定]({{< ref "material-mtoon" >}}) | |
 | --- | --- | --- |
 | [![](../../images/material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](../../images/material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](../../images/transparent.gif) |
 
