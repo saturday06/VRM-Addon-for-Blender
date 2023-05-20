@@ -29,6 +29,14 @@ th a {
   margin: 0;
 }
 
+main article:first-child section:first-child p:first-child {
+  margin-top: 0;
+}
+
+main article:first-child section:first-child p:first-child img:first-child {
+  margin-top: 0;
+}
+
 .prose :where(img[src$=".png"]):not(:where([class~="not-prose"] *)) {
   width: 660px;
 }
