@@ -48,7 +48,7 @@ jobs:
               --location \
               --output hugo_extended.tar.gz \
               --header "Accept: application/vnd.github.v3+json" \
-              https://github.com/gohugoio/hugo/releases/download/v0.91.2/hugo_extended_0.91.2_Linux-64bit.tar.gz
+              https://github.com/gohugoio/hugo/releases/download/v0.111.3/hugo_extended_0.111.3_Linux-64bit.tar.gz
             tar xf hugo_extended.tar.gz
           popd
 
