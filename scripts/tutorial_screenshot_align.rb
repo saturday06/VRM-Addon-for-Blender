@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "pathname"
 require "rmagick"
 
 input_path = ARGV[0]
@@ -43,6 +44,14 @@ while rows % 12 != 0 do
 end
 crop_pad_image = Magick::Image.new(image.columns, rows).matte_floodfill(1, 1)
 crop_pad_image.composite!(image, Magick::NorthGravity, Magick::OverCompositeOp)
+
+# avif
+# crop_pad_image.write(Pathname(input_path).sub_ext(".avif")) do |options|
+#   options.quality = 80
+#   options.define("heic", "speed", 0)
+# end
+
+# png
 zopflipng_input_path = input_path + ".tmp.png"
 crop_pad_image.write(zopflipng_input_path)
 system("zopflipng", "-my", zopflipng_input_path, input_path) or fail
