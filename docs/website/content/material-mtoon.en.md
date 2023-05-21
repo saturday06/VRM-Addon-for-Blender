@@ -85,7 +85,7 @@ Scroll the display and set the `Outline` item to `World Coordinates`.
 
 When the outline settings appear, set the following as a sample setting.
 
-- Set the `Outlien Width` to 0.03
+- Set the `Outline Width` to 0.03
 - Set the `Outline Color` to white
 - Set the `Outline LightingMix` to 0
 

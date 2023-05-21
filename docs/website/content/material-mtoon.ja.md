@@ -78,7 +78,7 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 
 アウトラインの設定が出るので、サンプル設定として次のように設定します。
 
-- `Outlien Width` を0.03
+- `Outline Width` を0.03
 - `輪郭カラー` を白
 - `Outline LightingMix` を0
 
