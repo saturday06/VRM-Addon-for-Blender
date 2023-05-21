@@ -3,6 +3,7 @@
 import contextlib
 import os
 import re
+import sys
 import uuid
 from base64 import urlsafe_b64encode
 from collections import abc
@@ -215,3 +216,5 @@ def generate_dynamic_gui_tests() -> None:
 if __name__ in ["__main__", "blender_vrm_addon_run_scripts_generate_dynamic_tests"]:
     generate_dynamic_tests()
     generate_dynamic_gui_tests()
+    if __name__ == "__main__":
+        sys.exit(0)
