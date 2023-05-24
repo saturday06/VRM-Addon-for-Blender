@@ -38,20 +38,27 @@ def register() -> None:
 
     logger = getLogger(__name__)
 
+    # Raise a NotImplementedError if the Blender version is too old to support.
     if bpy.app.version < bl_info["blender"]:
-        message = (
+        default_message = (
             "This add-on doesn't support Blender version less than {minimum_version}"
             + " but the current version is {current_version}"
         )
+        messages = {
+            "ja_JP": (
+                "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
+                + "お使いのBlenderのバージョンは{current_version}です。"
+            ),
+        }
+
         if (
             bpy.app.version >= (2, 80)
             and bpy.context.preferences.view.use_translate_interface
-            and bpy.app.translations.locale == "ja_JP"
         ):
-            message = (
-                "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
-                + "お使いのBlenderのバージョンは{current_version}です。"
-            )
+            message = messages.get(bpy.app.translations.locale, default_message)
+        else:
+            message = default_message
+
         raise NotImplementedError(
             # pylint: disable=consider-using-f-string; for legacy Blender versions
             """
