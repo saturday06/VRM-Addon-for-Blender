@@ -40,14 +40,11 @@
 *~
 *.DS_Store
 *.blend1
-*.pyc
-.vscode/.ropeproject/config.py
-.vscode/.ropeproject/objectdb
-.vscode/tasks.json
 /tests/test_GENERATED_*
-/venv/
+/.idea/
 /.venv/
-
+/.vscode/
+__pycache__/
 /docs/website/.hugo_build.lock
 /docs/website/public/
 /docs/website/resources/_gen/
