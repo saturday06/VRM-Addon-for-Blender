@@ -114,13 +114,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         texture: Mtoon1TexturePropertyGroup,
         texture_dict: Dict[str, Json],
-        linear: bool,
+        non_color: bool,
     ) -> None:
         source = texture_dict.get("source")
         if isinstance(source, int):
             image = self.images.get(source)
             if image:
-                if linear:
+                if non_color:
                     image.colorspace_settings.name = "Non-Color"
                 else:
                     image.colorspace_settings.name = "sRGB"
