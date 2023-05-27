@@ -18,6 +18,7 @@ jobs:
           - https://download.blender.org/release/Blender2.83/blender-2.83.12-windows64.zip
           - https://download.blender.org/release/Blender2.93/blender-2.93.9-windows-x64.zip
           - https://download.blender.org/release/Blender3.3/blender-3.3.0-windows-x64.zip
+          - https://builder.blender.org/download/daily/blender-3.6.0-beta+v36.e2a75814ac9f-windows.amd64-release.zip
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
@@ -53,6 +54,7 @@ jobs:
           - https://download.blender.org/release/Blender2.83/blender-2.83.12-macOS.dmg
           - https://download.blender.org/release/Blender2.93/blender-2.93.9-macos-x64.dmg
           - https://download.blender.org/release/Blender3.3/blender-3.3.0-macos-x64.dmg
+          - https://builder.blender.org/download/daily/blender-3.6.0-beta+v36.4c5998ee0bc2-darwin.x86_64-release.dmg
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
