@@ -10,7 +10,7 @@ Set up realistic physics-based materials for VRM.
 
 In VRM Add-on for Blender, realistic physics-based material settings are handled exactly the same way as in Blender's glTF 2.0 add-on. Please refer to the appropriate documentation for more information.
 
-https://docs.blender.org/manual/en/2.83/addons/import_export/scene_gltf2.html#exported-materials
+https://docs.blender.org/manual/en/2.93/addons/import_export/scene_gltf2.html#exported-materials
 
 After starting Blender, delete the cube that is displayed from the beginning. First, select the cube by left-clicking on it.
 

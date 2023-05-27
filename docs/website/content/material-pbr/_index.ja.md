@@ -11,7 +11,7 @@ images: ["images/material_pbr.gif"]
 VRM Add-on for Blenderでは、リアルな物理ベースのマテリアルの設定はBlenderのglTF 2.0アドオンの処理と全く同じ処理を行っています。
 詳しくは該当するドキュメントを参照ください
 
-https://docs.blender.org/manual/ja/2.83/addons/import_export/scene_gltf2.html#exported-materials
+https://docs.blender.org/manual/ja/2.93/addons/import_export/scene_gltf2.html#exported-materials
 
 Blenderを起動したら、初めから表示されている立方体を削除します。まずその立方体にマウスの左クリックして選択します。
 

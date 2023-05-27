@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bookworm
 ARG CI
 ENV CI=$CI
 
@@ -16,7 +16,7 @@ RUN apt-get update -qq \
         "fvwm=*" \
         "less=*" \
         "mesa-utils=*" \
-        "netcat=*" \
+        "netcat-openbsd=*" \
         "openjdk-17-jre=*" \
         "procps=*" \
         "python3-numpy=*" \

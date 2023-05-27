@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         archive_url:
-          - https://download.blender.org/release/Blender2.83/blender-2.83.12-windows64.zip
           - https://download.blender.org/release/Blender2.93/blender-2.93.9-windows-x64.zip
           - https://download.blender.org/release/Blender3.3/blender-3.3.0-windows-x64.zip
           - https://download.blender.org/release/Blender3.6/blender-3.6.0-windows-x64.zip
@@ -51,7 +50,6 @@ jobs:
     strategy:
       matrix:
         archive_url:
-          - https://download.blender.org/release/Blender2.83/blender-2.83.12-macOS.dmg
           - https://download.blender.org/release/Blender2.93/blender-2.93.9-macos-x64.dmg
           - https://download.blender.org/release/Blender3.3/blender-3.3.0-macos-x64.dmg
           - https://download.blender.org/release/Blender3.6/blender-3.6.0-macos-x64.dmg
