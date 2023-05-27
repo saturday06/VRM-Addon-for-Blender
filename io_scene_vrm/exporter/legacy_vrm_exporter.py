@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import bmesh
 import bpy
-from mathutils import Matrix, Quaternion, Vector
+from mathutils import Matrix, Vector
 
 from ..common import convert, deep, gltf, shader
 from ..common.deep import Json, make_json
@@ -2786,20 +2786,3 @@ def normalize_weights_compatible_with_gl_float(
             break
 
     return weights
-
-
-def matrix_loc_rot_scale(
-    loc: Sequence[Union[int, float]],
-    rot: Quaternion,
-    scale: Sequence[Union[int, float]],
-) -> Matrix:
-    if bpy.app.version >= (2, 83):
-        return Matrix.LocRotScale(loc, rot, scale)
-
-    return (
-        Matrix.Translation(loc)
-        @ rot.to_matrix().to_4x4()
-        @ Matrix.Scale(scale[0], 4, (1, 0, 0))
-        @ Matrix.Scale(scale[1], 4, (0, 1, 0))
-        @ Matrix.Scale(scale[2], 4, (0, 0, 1))
-    )
