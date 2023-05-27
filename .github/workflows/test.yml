@@ -46,7 +46,7 @@ jobs:
           path: tests/resources/vrm/*/temp
 
   test-macos:
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       matrix:
         archive_url:
@@ -200,6 +200,7 @@ jobs:
           LINTER_RULES_PATH: /
           LOG_LEVEL: NOTICE
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
+          GITHUB_ACTIONS_CONFIG_FILE: .github/actionlint.yaml
           VALIDATE_HTML: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_ISORT: false

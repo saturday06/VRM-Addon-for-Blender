@@ -11,6 +11,7 @@
 *.toml text eol=lf
 *.txt text eol=lf
 *.html text eol=lf
+*.yaml text eol=lf
 *.yml text eol=lf
 .* text eol=lf
 go.mod text eol=lf

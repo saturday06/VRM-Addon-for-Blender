@@ -17,6 +17,7 @@
 !/.gitmodules
 !/.pylintrc.ci
 !/.github/workflows/*.yml
+!/.github/*.yaml
 !/.github/*.yml
 !/.markdownlint.yaml
 !/LICENSE
