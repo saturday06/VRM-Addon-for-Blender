@@ -19,7 +19,7 @@ from bpy.app.translations import pgettext
 
 from ..common import deep
 from ..common.binary_reader import BinaryReader
-from ..common.convert import deep_dict_or, float3_or, float4_or, str_or
+from ..common.convert import float3_or, float4_or, str_or
 from ..common.deep import Json
 from ..common.fs import (
     create_unique_indexed_directory_path,
@@ -28,7 +28,6 @@ from ..common.fs import (
 from ..common.gl import GL_TRIANGLES
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
-from ..common.mtoon0_constants import MaterialMtoon0, MaterialTransparentZWrite
 from .license_validation import validate_license
 
 logger = get_logger(__name__)
@@ -65,48 +64,104 @@ class PyNode:
     skin_id: Optional[int] = None
 
 
-@dataclass
-class PyMaterial:
-    name: str = ""
-    shader_name: str = ""
+@dataclass(frozen=True)
+class Vrm0MaterialProperty:
+    name: str
+    shader: str
+    render_queue: Optional[int]
+    keyword_map: Dict[str, bool]
+    tag_map: Dict[str, str]
+    float_properties: Dict[str, float]
+    vector_properties: Dict[str, List[float]]
+    texture_properties: Dict[str, int]
 
+    @staticmethod
+    def create(json_dict: Json) -> "Vrm0MaterialProperty":
+        fallback = Vrm0MaterialProperty(
+            name="Undefined",
+            shader="VRM_USE_GLTFSHADER",
+            render_queue=None,
+            keyword_map={},
+            tag_map={},
+            float_properties={},
+            vector_properties={},
+            texture_properties={},
+        )
+        if not isinstance(json_dict, dict):
+            return fallback
 
-class PyMaterialGltf(PyMaterial):
-    pass
+        name = json_dict.get("name")
+        if not isinstance(name, str):
+            name = fallback.name
 
+        shader = json_dict.get("shader")
+        if not isinstance(shader, str):
+            shader = fallback.shader
 
-class PyMaterialTransparentZWrite(PyMaterial):
-    def __init__(self) -> None:
-        super().__init__()
-        self.float_props_dict: Dict[str, Optional[float]] = {
-            prop: None for prop in MaterialTransparentZWrite.float_props
-        }
-        self.vector_props_dict: Dict[str, Optional[List[float]]] = {
-            prop: None for prop in MaterialTransparentZWrite.vector_props
-        }
-        self.texture_index_dict: Dict[str, Optional[int]] = {
-            tex: None for tex in MaterialTransparentZWrite.texture_index_list
-        }
+        render_queue = json_dict.get("renderQueue")
+        if not isinstance(render_queue, int):
+            render_queue = fallback.render_queue
 
+        raw_keyword_map = json_dict.get("keywordMap")
+        if isinstance(raw_keyword_map, dict):
+            keyword_map = {
+                k: v for k, v in raw_keyword_map.items() if isinstance(v, bool)
+            }
+        else:
+            keyword_map = fallback.keyword_map
 
-class PyMaterialMtoon(PyMaterial):
-    def __init__(self) -> None:
-        super().__init__()
-        self.float_props_dict: Dict[str, Optional[float]] = {
-            prop: None for prop in MaterialMtoon0.float_props_exchange_dict
-        }
-        self.vector_props_dict: Dict[str, Optional[Sequence[float]]] = {
-            prop: None for prop in MaterialMtoon0.vector_props_exchange_dict
-        }
-        self.texture_index_dict: Dict[str, Optional[int]] = {
-            prop: None for prop in MaterialMtoon0.texture_kind_exchange_dict
-        }
-        self.keyword_dict: Dict[str, bool] = {
-            kw: False for kw in MaterialMtoon0.keyword_list
-        }
-        self.tag_dict: Dict[str, Optional[str]] = {
-            tag: None for tag in MaterialMtoon0.tagmap_list
-        }
+        raw_tag_map = json_dict.get("tagMap")
+        if isinstance(raw_tag_map, dict):
+            tag_map = {k: v for k, v in raw_tag_map.items() if isinstance(v, str)}
+        else:
+            tag_map = fallback.tag_map
+
+        raw_float_properties = json_dict.get("floatProperties")
+        if isinstance(raw_float_properties, dict):
+            float_properties = {
+                k: v
+                for k, v in raw_float_properties.items()
+                if isinstance(v, (float, int))
+            }
+        else:
+            float_properties = fallback.float_properties
+
+        raw_vector_properties = json_dict.get("vectorProperties")
+        if isinstance(raw_vector_properties, dict):
+            vector_properties: Dict[str, List[float]] = {}
+            for k, v in raw_vector_properties.items():
+                if not isinstance(v, list):
+                    continue
+                float_v: List[float] = []
+                ok = True
+                for e in v:
+                    if not isinstance(e, (float, int)):
+                        ok = False
+                        break
+                    float_v.append(float(e))
+                if ok:
+                    vector_properties[k] = float_v
+        else:
+            vector_properties = fallback.vector_properties
+
+        raw_texture_properties = json_dict.get("textureProperties")
+        if isinstance(raw_texture_properties, dict):
+            texture_properties = {
+                k: v for k, v in raw_texture_properties.items() if isinstance(v, int)
+            }
+        else:
+            texture_properties = fallback.texture_properties
+
+        return Vrm0MaterialProperty(
+            name=name,
+            shader=shader,
+            render_queue=render_queue,
+            keyword_map=keyword_map,
+            tag_map=tag_map,
+            float_properties=float_properties,
+            vector_properties=vector_properties,
+            texture_properties=texture_properties,
+        )
 
 
 @dataclass
@@ -128,7 +183,9 @@ class ParseResult:
     hips_node_index: Optional[int] = None
     image_properties: List[ImageProperties] = field(init=False, default_factory=list)
     meshes: List[List[PyMesh]] = field(init=False, default_factory=list)
-    materials: List[PyMaterial] = field(init=False, default_factory=list)
+    vrm0_material_properties: List[Vrm0MaterialProperty] = field(
+        init=False, default_factory=list
+    )
     nodes_dict: Dict[int, PyNode] = field(init=False, default_factory=dict)
     origin_nodes_dict: Dict[
         int, Union[Tuple[PyNode, int], Tuple[PyNode, int, int]]
@@ -161,96 +218,6 @@ def create_py_bone(node: Dict[str, Json]) -> PyNode:
         v_node.skin_id = skin_id
 
     return v_node
-
-
-def create_py_material(ext_mat: Dict[str, Json]) -> Optional[PyMaterial]:
-    shader = ext_mat.get("shader")
-    if not isinstance(shader, str):
-        return None
-
-    # standard, or VRM unsupported shader(no saved)
-    if shader not in ["VRM/MToon", "VRM/UnlitTransparentZWrite"]:
-        return PyMaterialGltf()
-
-    # "MToon or Transparent_Zwrite"
-    if shader == "VRM/MToon":
-        mtoon = PyMaterialMtoon()
-        mtoon.name = str_or(ext_mat.get("name"), "")
-        mtoon.shader_name = str_or(ext_mat.get("shader"), "")
-
-        # region check unknown props exist
-        float_properties_dict = {
-            k: float(v)
-            for k, v in deep_dict_or(ext_mat.get("floatProperties"), {}).items()
-            if isinstance(v, (float, int))
-        }
-
-        vector_properties_dict = {
-            k: [float(v) for v in l if isinstance(v, (int, float))]
-            for k, l in deep_dict_or(ext_mat.get("vectorProperties"), {}).items()
-            if isinstance(l, list)
-        }
-
-        texture_properties_dict = {
-            k: v
-            for k, v in deep_dict_or(ext_mat.get("textureProperties"), {}).items()
-            if isinstance(v, int)
-        }
-
-        keyword_map_dict = {
-            k: bool(v) for k, v in deep_dict_or(ext_mat.get("keywordMap"), {}).items()
-        }
-
-        subset = {
-            "float": float_properties_dict.keys() - mtoon.float_props_dict.keys(),
-            "vector": vector_properties_dict.keys() - mtoon.vector_props_dict.keys(),
-            "texture": texture_properties_dict.keys() - mtoon.texture_index_dict.keys(),
-            "keyword": keyword_map_dict.keys() - mtoon.keyword_dict.keys(),
-        }
-        for k, _subset in subset.items():
-            if _subset:
-                ext_mat_name = ext_mat.get("name")
-                logger.warning(f"Unknown {k} properties {_subset} in {ext_mat_name}")
-        # endregion check unknown props exist
-
-        mtoon.float_props_dict.update(float_properties_dict)
-        mtoon.vector_props_dict.update(vector_properties_dict)
-        mtoon.texture_index_dict.update(texture_properties_dict)
-        mtoon.keyword_dict.update(keyword_map_dict)
-        tag_map_dict = {
-            k: v
-            for k, v in deep_dict_or(ext_mat.get("tagMap"), {}).items()
-            if isinstance(v, str)
-        }
-        mtoon.tag_dict.update(tag_map_dict)
-        return mtoon
-
-    if shader == "VRM/UnlitTransparentZWrite":
-        transparent_z_write = PyMaterialTransparentZWrite()
-        transparent_z_write.name = str_or(ext_mat.get("name"), "")
-        transparent_z_write.shader_name = str_or(ext_mat.get("shader"), "")
-        transparent_z_write.float_props_dict = {
-            k: float(v)
-            for k, v in deep_dict_or(ext_mat.get("floatProperties"), {}).items()
-            if isinstance(v, (float, int))
-        }
-        transparent_z_write.vector_props_dict = {
-            k: [float(v) for v in l if isinstance(v, (int, float))]
-            for k, l in deep_dict_or(ext_mat.get("vectorProperties"), {}).items()
-            if isinstance(l, list)
-        }
-        transparent_z_write.texture_index_dict = {
-            k: v
-            for k, v in deep_dict_or(ext_mat.get("textureProperties"), {}).items()
-            if isinstance(v, int)
-        }
-        return transparent_z_write
-
-    # ここには入らないはず
-    logger.error(
-        f"Unknown(or legacy) shader :material {ext_mat['name']} is {ext_mat['shader']}"
-    )
-    return None
 
 
 def remove_unsafe_path_chars(filename: str) -> str:
@@ -683,28 +650,21 @@ class VrmParser:
         material_dicts = self.json_dict.get("materials")
         if not isinstance(material_dicts, list):
             return
-        vrm_extension_material_properties = deep.get(
-            self.json_dict,
-            ["extensions", "VRM", "materialProperties"],
-            default=[{"shader": "VRM_USE_GLTFSHADER"}] * len(material_dicts),
-        )
-        if not isinstance(vrm_extension_material_properties, list):
-            return
+        for index in range(len(material_dicts)):
+            parse_result.vrm0_material_properties.append(
+                Vrm0MaterialProperty.create(
+                    deep.get(
+                        self.json_dict,
+                        ["extensions", "VRM", "materialProperties", index],
+                    )
+                )
+            )
 
-        for ext_mat in vrm_extension_material_properties:
-            if not isinstance(ext_mat, dict):
-                continue
-            material = create_py_material(ext_mat)
-            if material is None:
-                continue
-            parse_result.materials.append(material)
-
-        # skinをパース ->バイナリの中身はskinning実装の横着用
-        # skinのjointsの(nodesの)indexをvertsのjoints_0は指定してる
-        # inverseBindMatrices: 単にスキニングするときの逆行列。読み込み不要なのでしない(自前計算もできる、めんどいけど)
-        # ついでに[i][3]ではなく、[3][i]にマイナスx,y,zが入っている。 ここで詰まった。(出力時に)
-        # joints:JOINTS_0の指定node番号のindex
-
+    # skinをパース ->バイナリの中身はskinning実装の横着用
+    # skinのjointsの(nodesの)indexをvertsのjoints_0は指定してる
+    # inverseBindMatrices: 単にスキニングするときの逆行列。読み込み不要なのでしない(自前計算もできる、めんどいけど)
+    # ついでに[i][3]ではなく、[3][i]にマイナスx,y,zが入っている。 ここで詰まった。(出力時に)
+    # joints:JOINTS_0の指定node番号のindex
     def skin_read(self, parse_result: ParseResult) -> None:
         skin_dicts = self.json_dict.get("skins")
         if not isinstance(skin_dicts, list):

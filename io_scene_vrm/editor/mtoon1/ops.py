@@ -9,18 +9,20 @@ from bpy_extras.io_utils import ImportHelper
 from ...common import convert, shader
 from .. import search
 from .property_group import (
-    Mtoon1BaseColorTextureInfoPropertyGroup,
-    Mtoon1EmissiveTextureInfoPropertyGroup,
-    Mtoon1MatcapTextureInfoPropertyGroup,
+    Mtoon0ReceiveShadowTexturePropertyGroup,
+    Mtoon0ShadingGradeTexturePropertyGroup,
+    Mtoon1BaseColorTexturePropertyGroup,
+    Mtoon1EmissiveTexturePropertyGroup,
+    Mtoon1MatcapTexturePropertyGroup,
     Mtoon1MaterialPropertyGroup,
-    Mtoon1NormalTextureInfoPropertyGroup,
-    Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup,
-    Mtoon1RimMultiplyTextureInfoPropertyGroup,
+    Mtoon1NormalTexturePropertyGroup,
+    Mtoon1OutlineWidthMultiplyTexturePropertyGroup,
+    Mtoon1RimMultiplyTexturePropertyGroup,
     Mtoon1SamplerPropertyGroup,
-    Mtoon1ShadeMultiplyTextureInfoPropertyGroup,
-    Mtoon1ShadingShiftTextureInfoPropertyGroup,
+    Mtoon1ShadeMultiplyTexturePropertyGroup,
+    Mtoon1ShadingShiftTexturePropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
-    Mtoon1UvAnimationMaskTextureInfoPropertyGroup,
+    Mtoon1UvAnimationMaskTexturePropertyGroup,
     Mtoon1VrmcMaterialsMtoonPropertyGroup,
     reset_shader_node_group,
 )
@@ -476,28 +478,30 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         options={"HIDDEN"},  # noqa: F821
     )
 
-    target_texture_info_items = [
-        (Mtoon1BaseColorTextureInfoPropertyGroup.__name__, "", "", "NONE", 0),
-        (Mtoon1ShadeMultiplyTextureInfoPropertyGroup.__name__, "", "", "NONE", 1),
-        (Mtoon1NormalTextureInfoPropertyGroup.__name__, "", "", "NONE", 2),
-        (Mtoon1ShadingShiftTextureInfoPropertyGroup.__name__, "", "", "NONE", 3),
-        (Mtoon1EmissiveTextureInfoPropertyGroup.__name__, "", "", "NONE", 4),
-        (Mtoon1RimMultiplyTextureInfoPropertyGroup.__name__, "", "", "NONE", 5),
-        (Mtoon1MatcapTextureInfoPropertyGroup.__name__, "", "", "NONE", 6),
+    target_texture_items = [
+        (Mtoon1BaseColorTexturePropertyGroup.__name__, "", "", "NONE", 0),
+        (Mtoon1ShadeMultiplyTexturePropertyGroup.__name__, "", "", "NONE", 1),
+        (Mtoon1NormalTexturePropertyGroup.__name__, "", "", "NONE", 2),
+        (Mtoon1ShadingShiftTexturePropertyGroup.__name__, "", "", "NONE", 3),
+        (Mtoon1EmissiveTexturePropertyGroup.__name__, "", "", "NONE", 4),
+        (Mtoon1RimMultiplyTexturePropertyGroup.__name__, "", "", "NONE", 5),
+        (Mtoon1MatcapTexturePropertyGroup.__name__, "", "", "NONE", 6),
         (
-            Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup.__name__,
+            Mtoon1OutlineWidthMultiplyTexturePropertyGroup.__name__,
             "",
             "",
             "NONE",
             7,
         ),
-        (Mtoon1UvAnimationMaskTextureInfoPropertyGroup.__name__, "", "", "NONE", 8),
+        (Mtoon1UvAnimationMaskTexturePropertyGroup.__name__, "", "", "NONE", 8),
+        (Mtoon0ReceiveShadowTexturePropertyGroup.__name__, "", "", "NONE", 9),
+        (Mtoon0ShadingGradeTexturePropertyGroup.__name__, "", "", "NONE", 10),
     ]
 
-    target_texture_info: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    target_texture: bpy.props.EnumProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},  # noqa: F821
-        items=target_texture_info_items,
-        name="Target Texture Info",  # noqa: F722
+        items=target_texture_items,
+        name="Target Texture",  # noqa: F722
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
@@ -515,82 +519,30 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         if not isinstance(material, bpy.types.Material):
             return {"FINISHED"}
 
-        root = material.vrm_addon_extension.mtoon1
-        mtoon = root.extensions.vrmc_materials_mtoon
+        gltf = material.vrm_addon_extension.mtoon1
+        mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        if self.target_texture_info == Mtoon1BaseColorTextureInfoPropertyGroup.__name__:
-            root.pbr_metallic_roughness.base_color_texture.index.source = image
+        for texture in [
+            gltf.pbr_metallic_roughness.base_color_texture.index,
+            mtoon.shade_multiply_texture.index,
+            gltf.normal_texture.index,
+            mtoon.shading_shift_texture.index,
+            gltf.emissive_texture.index,
+            mtoon.rim_multiply_texture.index,
+            mtoon.matcap_texture.index,
+            mtoon.outline_width_multiply_texture.index,
+            mtoon.uv_animation_mask_texture.index,
+            gltf.mtoon0_receive_shadow_texture,
+            gltf.mtoon0_shading_grade_texture,
+        ]:
+            if self.target_texture != type(texture).__name__:
+                continue
+            texture.source = image
             if created:
-                image.colorspace_settings.name = (
-                    Mtoon1BaseColorTextureInfoPropertyGroup.colorspace
-                )
-        elif (
-            self.target_texture_info
-            == Mtoon1ShadeMultiplyTextureInfoPropertyGroup.__name__
-        ):
-            mtoon.shade_multiply_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1ShadeMultiplyTextureInfoPropertyGroup.colorspace
-                )
-        elif self.target_texture_info == Mtoon1NormalTextureInfoPropertyGroup.__name__:
-            root.normal_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1NormalTextureInfoPropertyGroup.colorspace
-                )
-        elif (
-            self.target_texture_info
-            == Mtoon1ShadingShiftTextureInfoPropertyGroup.__name__
-        ):
-            mtoon.shading_shift_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1ShadingShiftTextureInfoPropertyGroup.colorspace
-                )
-        elif (
-            self.target_texture_info == Mtoon1EmissiveTextureInfoPropertyGroup.__name__
-        ):
-            root.emissive_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1EmissiveTextureInfoPropertyGroup.colorspace
-                )
-        elif (
-            self.target_texture_info
-            == Mtoon1RimMultiplyTextureInfoPropertyGroup.__name__
-        ):
-            mtoon.rim_multiply_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1RimMultiplyTextureInfoPropertyGroup.colorspace
-                )
-        elif self.target_texture_info == Mtoon1MatcapTextureInfoPropertyGroup.__name__:
-            mtoon.matcap_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1MatcapTextureInfoPropertyGroup.colorspace
-                )
-        elif (
-            self.target_texture_info
-            == Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup.__name__
-        ):
-            mtoon.outline_width_multiply_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup.colorspace
-                )
-        elif (
-            self.target_texture_info
-            == Mtoon1UvAnimationMaskTextureInfoPropertyGroup.__name__
-        ):
-            mtoon.uv_animation_mask_texture.index.source = image
-            if created:
-                image.colorspace_settings.name = (
-                    Mtoon1UvAnimationMaskTextureInfoPropertyGroup.colorspace
-                )
+                image.colorspace_settings.name = type(texture).colorspace
+            return {"FINISHED"}
 
-        return {"FINISHED"}
+        return {"CANCELLED"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         self.filepath = ""

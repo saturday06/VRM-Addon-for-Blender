@@ -1,3 +1,4 @@
+from sys import float_info
 from typing import Dict, List, Tuple
 
 from ..common import deep, gltf
@@ -132,6 +133,62 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Json]:
                         collider_groups[i] = original_index_to_sorted_index[
                             collider_group
                         ]
+
+    vrm0_material_properties = vrm0_extension.get("materialProperties")
+    if isinstance(vrm0_material_properties, list):
+        for vrm0_material_property in vrm0_material_properties:
+            if not isinstance(vrm0_material_property, dict):
+                continue
+            if vrm0_material_property.get("shader") != "VRM/MToon":
+                continue
+
+            keyword_map = vrm0_material_property.get("keywordMap")
+            if not isinstance(keyword_map, dict):
+                keyword_map = {}
+
+            vrm0_float_properties = vrm0_material_property.get("floatProperties")
+            if isinstance(vrm0_float_properties, dict):
+                if vrm0_float_properties.get("_OutlineWidthMode", 0) == 0:
+                    vrm0_float_properties["_OutlineWidth"] = 0
+                    vrm0_float_properties["_OutlineColorMode"] = 0
+                    vrm0_float_properties["_OutlineLightingMix"] = 0
+                    if "MTOON_OUTLINE_COLOR_FIXED" in keyword_map:
+                        del keyword_map["MTOON_OUTLINE_COLOR_FIXED"]
+                    if "MTOON_OUTLINE_COLOR_MIXED" in keyword_map:
+                        del keyword_map["MTOON_OUTLINE_COLOR_MIXED"]
+
+                if vrm0_float_properties.get("_OutlineWidthMode") != 2:
+                    vrm0_float_properties["_OutlineScaledMaxDistance"] = 1
+
+                if vrm0_float_properties.get("_OutlineColorMode") == 0:
+                    vrm0_float_properties["_OutlineLightingMix"] = 0
+
+                outline_lighting_mix = vrm0_float_properties.get("_OutlineLightingMix")
+                if (
+                    isinstance(outline_lighting_mix, (float, int))
+                    and abs(outline_lighting_mix) < float_info.epsilon
+                ):
+                    vrm0_float_properties["_OutlineColorMode"] = 0
+                    if "MTOON_OUTLINE_COLOR_MIXED" in keyword_map:
+                        del keyword_map["MTOON_OUTLINE_COLOR_MIXED"]
+                    if "MTOON_OUTLINE_COLOR_FIXED" not in keyword_map:
+                        keyword_map["MTOON_OUTLINE_COLOR_FIXED"] = True
+
+            vrm0_vector_properties = vrm0_material_property.get("vectorProperties")
+            if isinstance(vrm0_vector_properties, dict):
+                vrm0_emission_color = vrm0_vector_properties.get("_EmissionColor")
+                if (
+                    isinstance(vrm0_emission_color, list)
+                    and len(vrm0_emission_color) == 4
+                ):
+                    vrm0_emission_color[3] = 1
+
+                vrm0_outline_color = vrm0_vector_properties.get("_OutlineColor")
+                if (
+                    isinstance(vrm0_outline_color, list)
+                    and len(vrm0_outline_color) == 4
+                ):
+                    vrm0_outline_color[3] = 1
 
     return vrm_json
 

@@ -114,16 +114,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         texture: Mtoon1TexturePropertyGroup,
         texture_dict: Dict[str, Json],
-        non_color: bool,
     ) -> None:
         source = texture_dict.get("source")
         if isinstance(source, int):
             image = self.images.get(source)
             if image:
-                if non_color:
-                    image.colorspace_settings.name = "Non-Color"
-                else:
-                    image.colorspace_settings.name = "sRGB"
+                image.colorspace_settings.name = texture.colorspace
                 texture.source = image
 
         sampler = texture_dict.get("sampler")
@@ -186,7 +182,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         texture_info: Mtoon1TextureInfoPropertyGroup,
         texture_info_dict: Dict[str, Json],
-        non_color: bool,
     ) -> None:
         index = texture_info_dict.get("index")
         if isinstance(index, int):
@@ -194,7 +189,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(texture_dicts, list) and 0 <= index < len(texture_dicts):
                 texture_dict = texture_dicts[index]
                 if isinstance(texture_dict, dict):
-                    self.assign_texture(texture_info.index, texture_dict, non_color)
+                    self.assign_texture(texture_info.index, texture_dict)
 
         khr_texture_transform_dict = deep.get(
             texture_info_dict, ["extensions", "KHR_texture_transform"]
@@ -240,7 +235,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 self.assign_texture_info(
                     root.pbr_metallic_roughness.base_color_texture,
                     base_color_texture_dict,
-                    non_color=False,
                 )
 
         alpha_mode = gltf_dict.get("alphaMode")
@@ -260,7 +254,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 root.normal_texture,
                 normal_texture_dict,
-                non_color=True,
             )
             normal_texture_scale = normal_texture_dict.get("scale")
             if isinstance(normal_texture_scale, (float, int)):
@@ -275,7 +268,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 root.emissive_texture,
                 emissive_texture_dict,
-                non_color=False,
             )
 
         shade_color_factor = shader.rgb_or_none(mtoon_dict.get("shadeColorFactor"))
@@ -287,7 +279,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 mtoon.shade_multiply_texture,
                 shade_multiply_texture_dict,
-                non_color=False,
             )
 
         transparent_with_z_write = mtoon_dict.get("transparentWithZWrite")
@@ -309,7 +300,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 mtoon.shading_shift_texture,
                 shading_shift_texture_dict,
-                non_color=True,
             )
             shading_shift_texture_scale = shading_shift_texture_dict.get("scale")
             if isinstance(shading_shift_texture_scale, (float, int)):
@@ -332,7 +322,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 mtoon.matcap_texture,
                 matcap_texture_dict,
-                non_color=False,
             )
 
         parametric_rim_color_factor = mtoon_dict.get("parametricRimColorFactor")
@@ -356,7 +345,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 mtoon.rim_multiply_texture,
                 rim_multiply_texture_dict,
-                non_color=False,
             )
 
         rim_lighting_mix_factor = mtoon_dict.get("rimLightingMixFactor")
@@ -378,7 +366,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 mtoon.outline_width_multiply_texture,
                 outline_width_multiply_texture_dict,
-                non_color=True,
             )
 
         outline_color_factor = shader.rgb_or_none(mtoon_dict.get("outlineColorFactor"))
@@ -394,7 +381,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             self.assign_texture_info(
                 mtoon.uv_animation_mask_texture,
                 uv_animation_mask_texture_dict,
-                non_color=True,
             )
 
         uv_animation_rotation_speed_factor = mtoon_dict.get(

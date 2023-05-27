@@ -32,7 +32,7 @@ def draw_texture_info(
         texture_info,
         "show_expanded",
         emboss=False,
-        text=texture_info.panel_label,
+        text=texture_info.index.panel_label,
         translate=False,
         icon="TRIA_DOWN" if texture_info.show_expanded else "TRIA_RIGHT",
     )
@@ -45,7 +45,7 @@ def draw_texture_info(
         icon="FILEBROWSER",
     )
     import_image_file_op.material_name = material_name
-    import_image_file_op.target_texture_info = type(texture_info).__name__
+    import_image_file_op.target_texture = type(texture_info.index).__name__
     if color_factor_attr_name:
         input_layout.separator(factor=0.5)
         input_layout.prop(base_property_group, color_factor_attr_name, text="")
@@ -58,14 +58,14 @@ def draw_texture_info(
         box.prop(texture_info.index.source.colorspace_settings, "name")
         if (
             texture_info.index.source.colorspace_settings.name
-            != texture_info.colorspace
+            != texture_info.index.colorspace
         ):
             box.box().label(
                 text=pgettext(
                     'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
                 ).format(
-                    texture_label=texture_info.label,
-                    colorspace=pgettext(texture_info.colorspace),
+                    texture_label=texture_info.index.label,
+                    colorspace=pgettext(texture_info.index.colorspace),
                     input_colorspace=pgettext("Input Color Space"),
                 ),
                 icon="ERROR",
@@ -88,6 +88,63 @@ def draw_texture_info(
                 icon="ERROR",
             )
 
+    return input_layout
+
+
+def draw_mtoon0_texture(
+    material_name: str,
+    parent_layout: bpy.types.UILayout,
+    base_property_group: bpy.types.PropertyGroup,
+    texture_attr_name: str,
+    scalar_factor_attr_name: Optional[str] = None,
+) -> bpy.types.UILayout:
+    texture = getattr(base_property_group, texture_attr_name)
+    layout = parent_layout.split(factor=0.3)
+    toggle_layout = layout.row()
+    toggle_layout.alignment = "LEFT"
+    toggle_layout.prop(
+        texture,
+        "show_expanded",
+        emboss=False,
+        text=texture.panel_label,
+        translate=False,
+        icon="TRIA_DOWN" if texture.show_expanded else "TRIA_RIGHT",
+    )
+    input_layout = layout.row(align=True)
+    input_layout.prop(texture, "source", text="")
+    import_image_file_op = input_layout.operator(
+        VRM_OT_import_mtoon1_texture_image_file.bl_idname,
+        text="",
+        translate=False,
+        icon="FILEBROWSER",
+    )
+    import_image_file_op.material_name = material_name
+    import_image_file_op.target_texture = type(texture).__name__
+
+    input_layout.separator(factor=0.5)
+    input_layout.prop(base_property_group, scalar_factor_attr_name, text="")
+
+    if not texture.show_expanded:
+        return input_layout
+
+    box = parent_layout.box().column()
+    if texture.source:
+        box.prop(texture.source.colorspace_settings, "name")
+        if texture.source.colorspace_settings.name != texture.colorspace:
+            box.box().label(
+                text=pgettext(
+                    'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
+                ).format(
+                    texture_label=texture.label,
+                    colorspace=pgettext(texture.colorspace),
+                    input_colorspace=pgettext("Input Color Space"),
+                ),
+                icon="ERROR",
+            )
+    box.prop(texture.sampler, "mag_filter")
+    box.prop(texture.sampler, "min_filter")
+    box.prop(texture.sampler, "wrap_s")
+    box.prop(texture.sampler, "wrap_t")
     return input_layout
 
 
@@ -267,6 +324,28 @@ def draw_mtoon1_material(
     uv_animation_box.prop(mtoon1, "uv_animation_scroll_x_speed_factor")
     uv_animation_box.prop(mtoon1, "uv_animation_scroll_y_speed_factor")
     uv_animation_box.prop(mtoon1, "uv_animation_rotation_speed_factor")
+
+    layout.prop(gltf, "show_expanded_mtoon0")
+    if gltf.show_expanded_mtoon0:
+        mtoon0_box = layout.box().column()
+        mtoon0_box.prop(gltf, "mtoon0_front_cull_mode")
+        draw_mtoon0_texture(
+            material.name,
+            mtoon0_box,
+            ext.mtoon1,
+            "mtoon0_receive_shadow_texture",
+            "mtoon0_receive_shadow_rate",
+        )
+        draw_mtoon0_texture(
+            material.name,
+            mtoon0_box,
+            ext.mtoon1,
+            "mtoon0_shading_grade_texture",
+            "mtoon0_shading_grade_rate",
+        )
+        mtoon0_box.prop(gltf, "mtoon0_light_color_attenuation", slider=True)
+        mtoon0_box.prop(gltf, "mtoon0_rim_lighting_mix", slider=True)
+        mtoon0_box.prop(gltf, "mtoon0_outline_scaled_max_distance", slider=True)
 
     layout.operator(
         VRM_OT_reset_mtoon1_material_shader_node_tree.bl_idname

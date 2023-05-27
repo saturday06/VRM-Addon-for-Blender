@@ -1,22 +1,7 @@
 from typing import Dict, Optional
 
 
-class MaterialTransparentZWrite:
-    float_props = [
-        "_MainTex",
-        "_Cutoff",
-        "_BlendMode",
-        "_CullMode",
-        "_VColBlendMode",
-        "_SrcBlend",
-        "_DstBlend",
-        "_ZWrite",
-    ]
-    texture_index_list = ["_MainTex"]
-    vector_props = ["_Color"]
-
-
-class MaterialMtoon0:
+class MtoonUnversioned:
     # {key = MToonProp, val = ShaderNodeGroup_member_name}
     version = 32
     float_props_exchange_dict: Dict[str, Optional[str]] = {
@@ -73,17 +58,3 @@ class MaterialMtoon0:
     vector_props_exchange_dict = {}
     vector_props_exchange_dict.update(vector_base_props_exchange_dict)
     vector_props_exchange_dict.update(texture_kind_exchange_dict)
-
-    keyword_list = [
-        "_NORMALMAP",
-        "_ALPHATEST_ON",
-        "_ALPHABLEND_ON",
-        "_ALPHAPREMULTIPLY_ON",
-        "MTOON_OUTLINE_WIDTH_WORLD",
-        "MTOON_OUTLINE_WIDTH_SCREEN",
-        "MTOON_OUTLINE_COLOR_FIXED",
-        "MTOON_OUTLINE_COLOR_MIXED",
-        "MTOON_DEBUG_NORMAL",
-        "MTOON_DEBUG_LITSHADERATE",
-    ]
-    tagmap_list = ["RenderType"]

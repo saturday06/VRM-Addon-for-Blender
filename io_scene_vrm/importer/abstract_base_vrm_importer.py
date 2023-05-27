@@ -5,28 +5,32 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-
 import copy
 import json
 import math
 import uuid
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Sequence, Set
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import bpy
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
 from ..common.deep import Json
 from ..common.gl import GL_MIRRORED_REPEAT, GL_NEAREST, GL_REPEAT
 from ..common.logging import get_logger
-from ..common.mtoon0_constants import MaterialMtoon0
 from ..common.preferences import get_preferences
-from ..common.shader import shader_node_group_import
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration, ops
 from ..editor.extension import VrmAddonArmatureExtensionPropertyGroup
+from ..editor.mtoon1.property_group import (
+    Mtoon0TexturePropertyGroup,
+    Mtoon1MaterialPropertyGroup,
+    Mtoon1SamplerPropertyGroup,
+    Mtoon1TextureInfoPropertyGroup,
+    Mtoon1TexturePropertyGroup,
+)
 from ..editor.vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
@@ -37,13 +41,7 @@ from ..editor.vrm0.property_group import (
     Vrm0PropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
-from .vrm_parser import (
-    ParseResult,
-    PyMaterial,
-    PyMaterialGltf,
-    PyMaterialMtoon,
-    PyMaterialTransparentZWrite,
-)
+from .vrm_parser import ParseResult, Vrm0MaterialProperty
 
 logger = get_logger(__name__)
 
@@ -338,48 +336,27 @@ class AbstractBaseVrmImporter(ABC):
         material.node_tree.nodes.new("ShaderNodeOutputMaterial")
 
     def make_material(self) -> None:
-        # 適当なので要調整
-        for index, mat in enumerate(self.parse_result.materials):
-            if isinstance(mat, PyMaterialGltf):
+        shader_to_build_method = {
+            "VRM/MToon": self.build_material_from_mtoon0,
+            "VRM/UnlitTransparentZWrite": self.build_material_from_transparent_z_write,
+        }
+
+        for index, material_property in enumerate(
+            self.parse_result.vrm0_material_properties
+        ):
+            build_method = shader_to_build_method.get(material_property.shader)
+            if not build_method:
                 continue
-            b_mat = self.materials.get(index)
-            if not b_mat:
-                b_mat = bpy.data.materials.new(mat.name)
-            self.reset_material(b_mat)
-            b_mat["shader_name"] = mat.shader_name
-            if isinstance(mat, PyMaterialMtoon):
-                self.build_material_from_mtoon(b_mat, mat)
-            elif isinstance(mat, PyMaterialTransparentZWrite):
-                self.build_material_from_transparent_z_write(b_mat, mat)
-            else:
-                logger.warning(f"Unknown material {mat.name}")
-            self.node_placer(self.find_material_output_node(b_mat))
+
+            material = self.materials.get(index)
+            if not material:
+                material = bpy.data.materials.new(material_property.name)
+                self.materials[index] = material
+
+            self.reset_material(material)
+            build_method(material, material_property)
 
     # region material_util func
-    def set_material_transparent(
-        self,
-        b_mat: bpy.types.Material,
-        pymat: PyMaterial,
-        transparent_mode: str,
-    ) -> None:
-        if transparent_mode == "OPAQUE":
-            pass
-        elif transparent_mode == "CUTOUT":
-            b_mat.blend_method = "CLIP"
-            if isinstance(pymat, PyMaterialMtoon):  # TODO: TransparentZWrite?
-                b_mat.alpha_threshold = pymat.float_props_dict.get("_Cutoff", 0.5)
-            else:
-                b_mat.alpha_threshold = getattr(pymat, "alphaCutoff", 0.5)
-
-            b_mat.shadow_method = "CLIP"
-        else:  # Z_TRANSPARENCY or Z()_zwrite
-            if "transparent_shadow_method" in dir(b_mat):  # old blender 2.80 beta
-                b_mat.blend_method = "HASHED"
-                b_mat.transparent_shadow_method = "HASHED"
-            else:
-                b_mat.blend_method = "HASHED"
-                b_mat.shadow_method = "HASHED"
-
     def connect_value_node(
         self,
         material: bpy.types.ShaderNode,
@@ -484,240 +461,401 @@ class AbstractBaseVrmImporter(ABC):
         node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
         return node_group
 
-    def node_placer(self, parent_node: bpy.types.ShaderNode) -> None:
-        bottom_pos = [parent_node.location[0] - 200, parent_node.location[1]]
-        for child_node in [
-            link.from_node for socket in parent_node.inputs for link in socket.links
-        ]:
-            if child_node.type != "GROUP":
-                child_node.hide = True
-            child_node.location = bottom_pos
-            bottom_pos[1] -= 40
-            for _ in [
-                link.from_node for socket in child_node.inputs for link in socket.links
-            ]:
-                self.node_placer(child_node)
-
     # endregion material_util func
 
-    def build_material_from_mtoon(
-        self, b_mat: bpy.types.Material, pymat: PyMaterialMtoon
+    def assign_mtoon0_texture(
+        self,
+        texture: Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup],
+        texture_index: Optional[int],
+    ) -> bool:
+        if texture_index is None:
+            return False
+        texture_dicts = self.parse_result.json_dict.get("textures")
+        if not isinstance(texture_dicts, list):
+            return False
+        if not 0 <= texture_index < len(texture_dicts):
+            return False
+        texture_dict = texture_dicts[texture_index]
+        if not isinstance(texture_dict, dict):
+            return False
+
+        source = texture_dict.get("source")
+        if isinstance(source, int):
+            image = self.images.get(source)
+            if image:
+                image.colorspace_settings.name = texture.colorspace
+                texture.source = image
+
+        sampler = texture_dict.get("sampler")
+        samplers = self.parse_result.json_dict.get("samplers")
+        if not isinstance(sampler, int) or not isinstance(samplers, list):
+            return True
+        if not 0 <= sampler < len(samplers):
+            return True
+
+        sampler_dict = samplers[sampler]
+        if not isinstance(sampler_dict, dict):
+            return True
+
+        mag_filter = sampler_dict.get("magFilter")
+        if isinstance(mag_filter, int):
+            mag_filter_id = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
+                mag_filter
+            )
+            if isinstance(mag_filter_id, str):
+                texture.sampler.mag_filter = mag_filter_id
+
+        min_filter = sampler_dict.get("minFilter")
+        if isinstance(min_filter, int):
+            min_filter_id = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
+                min_filter
+            )
+            if isinstance(min_filter_id, str):
+                texture.sampler.min_filter = min_filter_id
+
+        wrap_s = sampler_dict.get("wrapS")
+        if isinstance(wrap_s, int):
+            wrap_s_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_s)
+            if isinstance(wrap_s_id, str):
+                texture.sampler.wrap_s = wrap_s_id
+
+        wrap_t = sampler_dict.get("wrapT")
+        if isinstance(wrap_t, int):
+            wrap_t_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_t)
+            if isinstance(wrap_t_id, str):
+                texture.sampler.wrap_t = wrap_t_id
+
+        return True
+
+    def assign_mtoon0_texture_info(
+        self,
+        texture_info: Mtoon1TextureInfoPropertyGroup,
+        texture_index: Optional[int],
+        uv_transform: Tuple[float, float, float, float],
     ) -> None:
-        shader_node_group_name = "MToon_unversioned"
-        sphere_add_vector_node_group_name = "matcap_vector"
-        shader_node_group_import(shader_node_group_name)
-        shader_node_group_import(sphere_add_vector_node_group_name)
+        if not self.assign_mtoon0_texture(texture_info.index, texture_index):
+            return
 
-        sg = self.node_group_create(b_mat, shader_node_group_name)
-        b_mat.node_tree.links.new(
-            self.find_material_output_node(b_mat).inputs["Surface"],
-            sg.outputs["Emission"],
+        texture_info.extensions.khr_texture_transform.offset = (
+            uv_transform[0],
+            uv_transform[1],
+        )
+        texture_info.extensions.khr_texture_transform.scale = (
+            uv_transform[2],
+            uv_transform[3],
         )
 
-        float_prop_exchange_dict = MaterialMtoon0.float_props_exchange_dict
-        for k, v in pymat.float_props_dict.items():
-            if k == "_CullMode":
-                if v == 2:  # 0: no cull 1:front cull 2:back cull
-                    b_mat.use_backface_culling = True
-                elif v == 0:
-                    b_mat.use_backface_culling = False
-            if k in [
-                key for key, val in float_prop_exchange_dict.items() if val is not None
-            ]:
-                if v is not None:
-                    self.connect_value_node(
-                        b_mat, v, sg.inputs[float_prop_exchange_dict[k]]
-                    )
-            else:
-                b_mat[k] = v
+    def build_material_from_mtoon0(
+        self, material: bpy.types.Material, vrm0_material_property: Vrm0MaterialProperty
+    ) -> None:
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
+        material.use_backface_culling = True
 
-        for k, v in pymat.keyword_dict.items():
-            b_mat[k] = v
+        gltf = material.vrm_addon_extension.mtoon1
+        gltf.addon_version = addon_version()
+        gltf.enabled = True
+        gltf.show_expanded_mtoon0 = True
+        mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        uv_offset_tiling_value: Sequence[float] = [0, 0, 1, 1]
-        vector_props_dict = MaterialMtoon0.vector_props_exchange_dict
-        for k, vec in pymat.vector_props_dict.items():
-            if k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
-                self.connect_rgb_node(
-                    b_mat,
-                    vec,
-                    sg.inputs[vector_props_dict[k]],
-                    default_color=[1, 1, 1, 1],
-                )
-            elif k == "_RimColor":
-                self.connect_rgb_node(
-                    b_mat,
-                    vec,
-                    sg.inputs[vector_props_dict[k]],
-                    default_color=[0, 0, 0, 1],
-                )
-            elif k == "_MainTex" and vec is not None:
-                uv_offset_tiling_value = vec
-            else:
-                b_mat[k] = vec
+        gltf.alpha_mode = gltf.ALPHA_MODE_OPAQUE
+        blend_mode = vrm0_material_property.float_properties.get("_BlendMode")
+        if blend_mode is not None:
+            if math.fabs(blend_mode - 1) < 0.001:
+                gltf.alpha_mode = gltf.ALPHA_MODE_MASK
+            elif math.fabs(blend_mode - 2) < 0.001:
+                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND
+            elif math.fabs(blend_mode - 3) < 0.001:
+                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND
+                mtoon.transparent_with_z_write = True
 
-        uv_map_node = b_mat.node_tree.nodes.new("ShaderNodeUVMap")
-        uv_offset_tiling_node = b_mat.node_tree.nodes.new("ShaderNodeMapping")
-        if bpy.app.version < (2, 81):
-            uv_offset_tiling_node.translation[0] = uv_offset_tiling_value[0]
-            uv_offset_tiling_node.translation[1] = uv_offset_tiling_value[1]
-            uv_offset_tiling_node.scale[0] = uv_offset_tiling_value[2]
-            uv_offset_tiling_node.scale[1] = uv_offset_tiling_value[3]
+        cutoff = vrm0_material_property.float_properties.get("_Cutoff")
+        if cutoff is not None:
+            gltf.alpha_cutoff = cutoff
+
+        gltf.double_sided = True
+        cull_mode = vrm0_material_property.float_properties.get("_CullMode")
+        if cull_mode is not None:
+            if math.fabs(cull_mode - 1) < 0.001:
+                gltf.mtoon0_front_cull_mode = True
+            elif math.fabs(cull_mode - 2) < 0.001:
+                gltf.double_sided = False
+
+        base_color_factor = shader.rgba_or_none(
+            vrm0_material_property.vector_properties.get("_Color")
+        )
+        if base_color_factor:
+            gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
+
+        raw_uv_transform = vrm0_material_property.vector_properties.get("_MainTex")
+        if raw_uv_transform is None or len(raw_uv_transform) != 4:
+            uv_transform = (0.0, 0.0, 1.0, 1.0)
         else:
-            uv_offset_tiling_node.inputs["Location"].default_value[
-                0
-            ] = uv_offset_tiling_value[0]
-            uv_offset_tiling_node.inputs["Location"].default_value[
-                1
-            ] = uv_offset_tiling_value[1]
-            uv_offset_tiling_node.inputs["Scale"].default_value[
-                0
-            ] = uv_offset_tiling_value[2]
-            uv_offset_tiling_node.inputs["Scale"].default_value[
-                1
-            ] = uv_offset_tiling_value[3]
+            uv_transform = (
+                raw_uv_transform[0],
+                raw_uv_transform[1],
+                raw_uv_transform[2],
+                raw_uv_transform[3],
+            )
 
-        b_mat.node_tree.links.new(
-            uv_offset_tiling_node.inputs[0], uv_map_node.outputs[0]
+        self.assign_mtoon0_texture_info(
+            gltf.pbr_metallic_roughness.base_color_texture,
+            vrm0_material_property.texture_properties.get("_MainTex"),
+            uv_transform,
         )
 
-        def connect_uv_map_to_texture(texture_node: bpy.types.ShaderNode) -> None:
-            b_mat.node_tree.links.new(
-                texture_node.inputs[0], uv_offset_tiling_node.outputs[0]
+        shade_color_factor = shader.rgb_or_none(
+            vrm0_material_property.vector_properties.get("_ShadeColor")
+        )
+        if shade_color_factor:
+            mtoon.shade_color_factor = shade_color_factor
+
+        self.assign_mtoon0_texture_info(
+            mtoon.shade_multiply_texture,
+            vrm0_material_property.texture_properties.get("_ShadeTexture"),
+            uv_transform,
+        )
+
+        self.assign_mtoon0_texture_info(
+            gltf.normal_texture,
+            vrm0_material_property.texture_properties.get("_BumpMap"),
+            uv_transform,
+        )
+        normal_texture_scale = vrm0_material_property.float_properties.get("_BumpScale")
+        if isinstance(normal_texture_scale, (float, int)):
+            gltf.normal_texture.scale = float(normal_texture_scale)
+
+        shading_shift_0x = vrm0_material_property.float_properties.get("_ShadeShift")
+        if shading_shift_0x is None:
+            shading_shift_0x = 0
+
+        shading_toony_0x = vrm0_material_property.float_properties.get("_ShadeToony")
+        if shading_toony_0x is None:
+            shading_toony_0x = 0
+
+        mtoon.shading_shift_factor = convert.mtoon_shading_shift_0_to_1(
+            shading_toony_0x, shading_shift_0x
+        )
+
+        mtoon.shading_toony_factor = convert.mtoon_shading_toony_0_to_1(
+            shading_toony_0x, shading_shift_0x
+        )
+
+        indirect_light_intensity = vrm0_material_property.float_properties.get(
+            "_IndirectLightIntensity"
+        )
+        if indirect_light_intensity is not None:
+            mtoon.gi_equalization_factor = convert.mtoon_intensity_to_gi_equalization(
+                indirect_light_intensity
+            )
+        else:
+            mtoon.gi_equalization_factor = 0.5
+
+        raw_emissive_factor = shader.rgb_or_none(
+            vrm0_material_property.vector_properties.get("_EmissionColor")
+        ) or (0, 0, 0)
+        max_color_component_value = max(raw_emissive_factor)
+        if max_color_component_value > 1:
+            gltf.emissive_factor = list(
+                Vector(raw_emissive_factor) / max_color_component_value
+            )
+            gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
+                max_color_component_value
+            )
+        else:
+            gltf.emissive_factor = raw_emissive_factor
+
+        self.assign_mtoon0_texture_info(
+            gltf.emissive_texture,
+            vrm0_material_property.texture_properties.get("_EmissionMap"),
+            uv_transform,
+        )
+
+        self.assign_mtoon0_texture_info(
+            mtoon.matcap_texture,
+            vrm0_material_property.texture_properties.get("_SphereAdd"),
+            (0, 0, 1, 1),
+        )
+
+        parametric_rim_color_factor = shader.rgb_or_none(
+            vrm0_material_property.vector_properties.get("_RimColor")
+        )
+        if parametric_rim_color_factor:
+            mtoon.parametric_rim_color_factor = parametric_rim_color_factor
+
+        parametric_rim_fresnel_power_factor = (
+            vrm0_material_property.float_properties.get("_RimFresnelPower")
+        )
+        if isinstance(parametric_rim_fresnel_power_factor, (float, int)):
+            mtoon.parametric_rim_fresnel_power_factor = (
+                parametric_rim_fresnel_power_factor
             )
 
-        tex_dict = MaterialMtoon0.texture_kind_exchange_dict
+        mtoon.parametric_rim_lift_factor = vrm0_material_property.float_properties.get(
+            "_RimLift", 0
+        )
 
-        for tex_name, tex_index in pymat.texture_index_dict.items():
-            if tex_index is None:
-                continue
-            texture_dicts = self.parse_result.json_dict.get("textures")
-            if not isinstance(texture_dicts, list):
-                continue
-            if not 0 <= tex_index < len(texture_dicts):
-                continue
-            texture_dict = texture_dicts[tex_index]
-            if not isinstance(texture_dict, dict):
-                continue
-            image_index = texture_dict.get("source")
-            if image_index not in self.images:
-                continue
-            if tex_name not in tex_dict:
-                if "unknown_texture" not in b_mat:
-                    b_mat["unknown_texture"] = {}
-                b_mat["unknown_texture"].update({tex_name: texture_dict.get("name")})
-                logger.warning(f"Unknown texture {tex_name}")
-            elif tex_name == "_MainTex":
-                main_tex_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    sg.inputs[tex_dict[tex_name]],
-                    sg.inputs[tex_dict[tex_name] + "Alpha"],
-                )
-                if main_tex_node:
-                    connect_uv_map_to_texture(main_tex_node)
-            elif tex_name == "_BumpMap":
-                # If .blend file already has VRM that is imported by older version,
-                # 'sg' has old 'MToon_unversioned', which has 'inputs["NomalmapTexture"]'. # noqa: SC100
-                # But 'tex_dict' holds name that is corrected, and it causes KeyError to reference 'sg' with it
-                color_socket_name = "NomalmapTexture"
-                if tex_dict[tex_name] in sg.inputs:
-                    color_socket_name = tex_dict[tex_name]
+        self.assign_mtoon0_texture_info(
+            mtoon.rim_multiply_texture,
+            vrm0_material_property.texture_properties.get("_RimTexture"),
+            uv_transform,
+        )
 
-                normalmap_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    color_socket_to_connect=sg.inputs[color_socket_name],
-                )
-                if normalmap_node:
-                    try:
-                        normalmap_node.image.colorspace_settings.name = "Non-Color"
-                    except TypeError:  # non-colorが無いとき
-                        normalmap_node.image.colorspace_settings.name = (
-                            "Linear"  # 2.80 beta互換性コード
-                        )
-                    connect_uv_map_to_texture(normalmap_node)
-            elif tex_name == "_ReceiveShadowTexture":
-                rs_tex_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    alpha_socket_to_connect=sg.inputs[tex_dict[tex_name] + "_alpha"],
-                )
-                if rs_tex_node:
-                    connect_uv_map_to_texture(rs_tex_node)
-            elif tex_name == "_SphereAdd":
-                tex_node = self.connect_texture_node(
-                    b_mat,
-                    tex_index,
-                    color_socket_to_connect=sg.inputs[tex_dict[tex_name]],
-                )
-                if tex_node:
-                    b_mat.node_tree.links.new(
-                        tex_node.inputs["Vector"],
-                        self.node_group_create(
-                            b_mat, sphere_add_vector_node_group_name
-                        ).outputs["Vector"],
-                    )
-            else:
-                if tex_dict.get(tex_name) is not None:  # Shade,Emissive,Rim,UVanimMask
-                    other_tex_node = self.connect_texture_node(
-                        b_mat,
-                        tex_index,
-                        color_socket_to_connect=sg.inputs[tex_dict[tex_name]],
-                    )
-                    if other_tex_node:
-                        connect_uv_map_to_texture(other_tex_node)
-                else:
-                    logger.warning(f"{tex_name} is unknown texture")
+        # https://github.com/vrm-c/UniVRM/blob/7c9919ef47a25c04100a2dcbe6a75dff49ef4857/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L287-L290
+        mtoon.rim_lighting_mix_factor = 1.0
+        rim_lighting_mix = vrm0_material_property.float_properties.get(
+            "_RimLightingMix"
+        )
+        if rim_lighting_mix is not None:
+            gltf.mtoon0_rim_lighting_mix = rim_lighting_mix
 
-        transparent_mode_float = pymat.float_props_dict["_BlendMode"]
-        # Z-WriteかどうかはMToon 1.0風のValue Nodeに保存する
-        # https://github.com/vrm-c/UniVRM/blob/master/Assets/VRMShaders/VRM10/MToon10/Resources/VRM10/vrmc_materials_mtoon.shader#L7
-        transparent_with_z_write_value = 0.0
-        # https://github.com/Santarh/MToon/blob/v3.8/MToon/Scripts/Enums.cs#L23-L29
-        transparent_mode = "OPAQUE"
-        if transparent_mode_float is None:
-            pass
-        elif math.fabs(transparent_mode_float - 1) < 0.001:
-            transparent_mode = "CUTOUT"
-        elif math.fabs(transparent_mode_float - 2) < 0.001:
-            transparent_mode = "Z_TRANSPARENCY"
-        elif math.fabs(transparent_mode_float - 3) < 0.001:
-            transparent_mode = "Z_TRANSPARENCY"
-            transparent_with_z_write_value = 1.0
+        centimeter_to_meter = 0.01
+        one_hundredth = 0.01
 
-        transparent_with_z_write_input = sg.inputs.get("TransparentWithZWrite")
-        if transparent_with_z_write_input:
-            self.connect_value_node(
-                b_mat, transparent_with_z_write_value, transparent_with_z_write_input
+        outline_width_mode = int(
+            round(vrm0_material_property.float_properties.get("_OutlineWidthMode", 0))
+        )
+
+        outline_width = vrm0_material_property.float_properties.get("_OutlineWidth")
+        if outline_width is None:
+            outline_width = 0.0
+
+        if outline_width_mode == 0:
+            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE
+        elif outline_width_mode == 1:
+            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES
+            mtoon.outline_width_factor = max(0.0, outline_width * centimeter_to_meter)
+        else:
+            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
+            mtoon.outline_width_factor = max(0.0, outline_width * one_hundredth * 0.5)
+            outline_scaled_max_distance = vrm0_material_property.float_properties.get(
+                "_OutlineScaledMaxDistance"
+            )
+            if outline_scaled_max_distance is not None:
+                gltf.mtoon0_outline_scaled_max_distance = outline_scaled_max_distance
+
+        self.assign_mtoon0_texture_info(
+            mtoon.outline_width_multiply_texture,
+            vrm0_material_property.texture_properties.get("_OutlineWidthTexture"),
+            uv_transform,
+        )
+
+        outline_color_factor = shader.rgb_or_none(
+            vrm0_material_property.vector_properties.get("_OutlineColor")
+        )
+        if outline_color_factor:
+            mtoon.outline_color_factor = outline_color_factor
+
+        outline_color_mode = vrm0_material_property.float_properties.get(
+            "_OutlineColorMode"
+        )
+        if (
+            outline_color_mode is not None
+            and math.fabs(outline_color_mode - 1) < 0.00001
+        ):
+            mtoon.outline_lighting_mix_factor = (
+                vrm0_material_property.float_properties.get("_OutlineLightingMix") or 1
+            )
+        else:
+            mtoon.outline_lighting_mix_factor = 0  # Fixed Color
+
+        self.assign_mtoon0_texture_info(
+            mtoon.uv_animation_mask_texture,
+            vrm0_material_property.texture_properties.get("_UvAnimMaskTexture"),
+            uv_transform,
+        )
+
+        uv_animation_rotation_speed_factor = (
+            vrm0_material_property.float_properties.get("_UvAnimRotation")
+        )
+        if isinstance(uv_animation_rotation_speed_factor, (float, int)):
+            mtoon.uv_animation_rotation_speed_factor = (
+                uv_animation_rotation_speed_factor
             )
 
-        self.set_material_transparent(b_mat, pymat, transparent_mode)
+        uv_animation_scroll_x_speed_factor = (
+            vrm0_material_property.float_properties.get("_UvAnimScrollX")
+        )
+        if isinstance(uv_animation_scroll_x_speed_factor, (float, int)):
+            mtoon.uv_animation_scroll_x_speed_factor = (
+                uv_animation_scroll_x_speed_factor
+            )
+
+        uv_animation_scroll_y_speed_factor = (
+            vrm0_material_property.float_properties.get("_UvAnimScrollY")
+        )
+        if isinstance(uv_animation_scroll_y_speed_factor, (float, int)):
+            mtoon.uv_animation_scroll_y_speed_factor = (
+                -uv_animation_scroll_y_speed_factor
+            )
+
+        light_color_attenuation = vrm0_material_property.float_properties.get(
+            "_LightColorAttenuation"
+        )
+        if light_color_attenuation is not None:
+            gltf.mtoon0_light_color_attenuation = light_color_attenuation
+
+        self.assign_mtoon0_texture(
+            gltf.mtoon0_receive_shadow_texture,
+            vrm0_material_property.texture_properties.get("_ReceiveShadowTexture"),
+        )
+
+        gltf.mtoon0_receive_shadow_rate = vrm0_material_property.float_properties.get(
+            "_ReceiveShadowRate", 0.5
+        )
+
+        self.assign_mtoon0_texture(
+            gltf.mtoon0_shading_grade_texture,
+            vrm0_material_property.texture_properties.get("_ShadingGradeTexture"),
+        )
+
+        gltf.mtoon0_shading_grade_rate = vrm0_material_property.float_properties.get(
+            "_ShadingGradeRate", 0.5
+        )
+
+        if vrm0_material_property.render_queue is not None:
+            gltf.mtoon0_render_queue = vrm0_material_property.render_queue
 
     def build_material_from_transparent_z_write(
-        self, b_mat: bpy.types.Material, pymat: PyMaterialTransparentZWrite
+        self,
+        material: bpy.types.Material,
+        vrm0_material_property: Vrm0MaterialProperty,
     ) -> None:
-        z_write_transparent_sg = "TRANSPARENT_ZWRITE"
-        shader_node_group_import(z_write_transparent_sg)
-        sg = self.node_group_create(b_mat, z_write_transparent_sg)
-        b_mat.node_tree.links.new(
-            self.find_material_output_node(b_mat).inputs["Surface"],
-            sg.outputs["Emission"],
-        )
+        root = material.vrm_addon_extension.mtoon1
+        root.enabled = True
+        mtoon1 = root.extensions.vrmc_materials_mtoon
 
-        for k, float_value in pymat.float_props_dict.items():
-            b_mat[k] = float_value
-        for k, vec_value in pymat.vector_props_dict.items():
-            b_mat[k] = vec_value
-        for tex_name, tex_index_value in pymat.texture_index_dict.items():
-            if tex_name == "_MainTex" and tex_index_value is not None:
-                self.connect_texture_node(
-                    b_mat,
-                    tex_index_value,
-                    sg.inputs["Main_Texture"],
-                    sg.inputs["Main_Alpha"],
-                )
-        self.set_material_transparent(b_mat, pymat, "Z_TRANSPARENCY")
+        main_texture_index = vrm0_material_property.texture_properties.get("_MainTex")
+        main_texture_image = None
+        if isinstance(main_texture_index, int):
+            texture_dicts = self.parse_result.json_dict.get("textures")
+            if isinstance(texture_dicts, list) and 0 <= main_texture_index < len(
+                texture_dicts
+            ):
+                texture_dict = texture_dicts[main_texture_index]
+                if isinstance(texture_dict, dict):
+                    image_index = texture_dict.get("source")
+                    if isinstance(image_index, int):
+                        main_texture_image = self.images.get(image_index)
+        if main_texture_image:
+            root.pbr_metallic_roughness.base_color_texture.index.source = (
+                main_texture_image
+            )
+            root.emissive_texture.index.source = main_texture_image
+            mtoon1.shade_multiply_texture.index.source = main_texture_image
+
+        root.pbr_metallic_roughness.base_color_factor = (0, 0, 0, 1)
+        root.emissive_factor = (1, 1, 1)
+
+        root.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
+        root.alpha_cutoff = 0.5
+        root.double_sided = False
+        mtoon1.transparent_with_z_write = True
+        mtoon1.shade_color_factor = (0, 0, 0)
+        mtoon1.shading_toony = 0.95
+        mtoon1.shading_shift = -0.05
+        mtoon1.rim_lighting_mix_factor = 1
+        mtoon1.parametric_rim_fresnel_power_factor = 5
+        mtoon1.parametric_rim_lift_factor = 0
 
     # endregion material
 

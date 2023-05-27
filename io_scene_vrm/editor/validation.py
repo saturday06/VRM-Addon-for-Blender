@@ -8,7 +8,7 @@ from mathutils import Vector
 
 from ..common import gltf, shader, version
 from ..common.logging import get_logger
-from ..common.mtoon0_constants import MaterialMtoon0
+from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.preferences import get_preferences
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -508,7 +508,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         for node, material in search.shader_nodes_and_materials(used_materials):
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
-                for texture_val in MaterialMtoon0.texture_kind_exchange_dict.values():
+                for texture_val in MtoonUnversioned.texture_kind_exchange_dict.values():
                     if texture_val == "ReceiveShadow_Texture":
                         texture_val += "_alpha"
                     node_material_input_check(
@@ -519,7 +519,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         error_messages,
                         used_images,
                     )
-                for float_val in MaterialMtoon0.float_props_exchange_dict.values():
+                for float_val in MtoonUnversioned.float_props_exchange_dict.values():
                     if float_val is None:
                         continue
                     node_material_input_check(
@@ -530,7 +530,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         node,
                         material,
                         "RGB",
-                        MaterialMtoon0.vector_props_exchange_dict[k],
+                        MtoonUnversioned.vector_props_exchange_dict[k],
                         error_messages,
                         used_images,
                     )
@@ -563,26 +563,34 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             mtoon1 = mat.vrm_addon_extension.mtoon1
             if not mtoon1.enabled:
                 continue
-            for texture_info in mtoon1.all_textures():
+
+            for texture in mtoon1.all_textures(
+                downgrade_to_mtoon0=armature is None
+                or armature.data.vrm_addon_extension.is_vrm0()
+            ):
+                source = texture.source
+                if not source:
+                    continue
+                if source not in used_images:
+                    used_images.append(source)
+                if source.colorspace_settings.name == texture.colorspace:
+                    continue
+                skippable_warning_messages.append(
+                    pgettext(
+                        'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
+                        + ' in Material "{name}"'
+                    ).format(
+                        name=mat.name,
+                        texture_label=source.name,
+                        colorspace=pgettext(texture.colorspace),
+                        input_colorspace=pgettext("Input Color Space"),
+                    )
+                )
+
+            for texture_info in mtoon1.all_texture_info():
                 source = texture_info.index.source
                 if source and source not in used_images:
                     used_images.append(source)
-
-                if (
-                    source
-                    and source.colorspace_settings.name != texture_info.colorspace
-                ):
-                    skippable_warning_messages.append(
-                        pgettext(
-                            'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
-                            + ' in Material "{name}"'
-                        ).format(
-                            name=mat.name,
-                            texture_label=texture_info.label,
-                            colorspace=pgettext(texture_info.colorspace),
-                            input_colorspace=pgettext("Input Color Space"),
-                        )
-                    )
 
                 if (
                     armature is None
@@ -614,7 +622,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                                 'Material "{name}" {texture}\'s Offset and Scale are ignored in VRM 0.0'
                             ).format(
                                 name=mat.name,
-                                texture=texture_info.label,
+                                texture=texture_info.index.label,
                             )
                         )
                 elif (
@@ -629,25 +637,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                             + "the Lit Color Texture"
                         ).format(
                             name=mat.name,
-                            texture=texture_info.label,
+                            texture=texture_info.index.label,
                         )
                     )
-
-        for image in used_images:
-            if (
-                image.source == "FILE"
-                and not image.is_dirty
-                and image.packed_file is None
-                and not Path(image.filepath_from_user()).exists()
-            ):
-                error_messages.append(
-                    pgettext(
-                        '"{image_name}" is not found in file path "{image_filepath}". '
-                        + "Please load file of it in Blender."
-                    ).format(
-                        image_name=image.name, image_filepath=image.filepath_from_user()
-                    )
-                )
 
         if armature is not None and armature.data.vrm_addon_extension.is_vrm0():
             if export_fb_ngon_encoding:
@@ -703,6 +695,22 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                             )
                         )
             # endregion blend_shape_master
+
+        for image in used_images:
+            if (
+                image.source == "FILE"
+                and not image.is_dirty
+                and image.packed_file is None
+                and not Path(image.filepath_from_user()).exists()
+            ):
+                error_messages.append(
+                    pgettext(
+                        '"{image_name}" is not found in file path "{image_filepath}". '
+                        + "Please load file of it in Blender."
+                    ).format(
+                        image_name=image.name, image_filepath=image.filepath_from_user()
+                    )
+                )
 
         error_collection.clear()
 
