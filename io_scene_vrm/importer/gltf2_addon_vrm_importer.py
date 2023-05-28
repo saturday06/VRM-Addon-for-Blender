@@ -130,7 +130,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         samplers = self.parse_result.json_dict.get("samplers")
         if not isinstance(sampler, int) or not isinstance(samplers, list):
             return
-        if not 0 <= len(samplers) < sampler:
+        if not 0 <= sampler < len(samplers):
             return
 
         sampler_dict = samplers[sampler]
