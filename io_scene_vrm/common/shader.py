@@ -14,7 +14,6 @@ logger = get_logger(__name__)
 
 file_names = [
     "mtoon0.blend",
-    "transparent_z_write.blend",
 ]
 
 OUTLINE_GEOMETRY_GROUP_NAME = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
