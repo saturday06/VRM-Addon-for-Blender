@@ -13,13 +13,14 @@ import bpy
 import mathutils
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, gltf, shader
+from ..common import convert, deep, shader
 from ..common.deep import Json
 from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
 from ..common.gl import GL_FLOAT, GL_UNSIGNED_SHORT
+from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -215,10 +216,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.reset_material(material)
         material.use_backface_culling = True
 
-        root = material.vrm_addon_extension.mtoon1
-        root.addon_version = addon_version()
-        root.enabled = True
-        mtoon = root.extensions.vrmc_materials_mtoon
+        gltf = material.vrm_addon_extension.mtoon1
+        gltf.addon_version = addon_version()
+        gltf.enabled = True
+        mtoon = gltf.extensions.vrmc_materials_mtoon
 
         pbr_metallic_roughness_dict = gltf_dict.get("pbrMetallicRoughness")
         if isinstance(pbr_metallic_roughness_dict, dict):
@@ -226,47 +227,47 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 pbr_metallic_roughness_dict.get("baseColorFactor")
             )
             if base_color_factor:
-                root.pbr_metallic_roughness.base_color_factor = base_color_factor
+                gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
 
             base_color_texture_dict = pbr_metallic_roughness_dict.get(
                 "baseColorTexture"
             )
             if isinstance(base_color_texture_dict, dict):
                 self.assign_texture_info(
-                    root.pbr_metallic_roughness.base_color_texture,
+                    gltf.pbr_metallic_roughness.base_color_texture,
                     base_color_texture_dict,
                 )
 
         alpha_mode = gltf_dict.get("alphaMode")
-        if alpha_mode in root.ALPHA_MODE_IDS:
-            root.alpha_mode = alpha_mode
+        if alpha_mode in gltf.ALPHA_MODE_IDS:
+            gltf.alpha_mode = alpha_mode
 
         alpha_cutoff = gltf_dict.get("alphaCutoff")
         if isinstance(alpha_cutoff, (float, int)):
-            root.alpha_cutoff = float(alpha_cutoff)
+            gltf.alpha_cutoff = float(alpha_cutoff)
 
         double_sided = gltf_dict.get("doubleSided")
         if isinstance(double_sided, bool):
-            root.double_sided = double_sided
+            gltf.double_sided = double_sided
 
         normal_texture_dict = gltf_dict.get("normalTexture")
         if isinstance(normal_texture_dict, dict):
             self.assign_texture_info(
-                root.normal_texture,
+                gltf.normal_texture,
                 normal_texture_dict,
             )
             normal_texture_scale = normal_texture_dict.get("scale")
             if isinstance(normal_texture_scale, (float, int)):
-                root.normal_texture.scale = float(normal_texture_scale)
+                gltf.normal_texture.scale = float(normal_texture_scale)
 
         emissive_factor = shader.rgb_or_none(gltf_dict.get("emissiveFactor"))
         if emissive_factor:
-            root.emissive_factor = emissive_factor
+            gltf.emissive_factor = emissive_factor
 
         emissive_texture_dict = gltf_dict.get("emissiveTexture")
         if isinstance(emissive_texture_dict, dict):
             self.assign_texture_info(
-                root.emissive_texture,
+                gltf.emissive_texture,
                 emissive_texture_dict,
             )
 
@@ -680,7 +681,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         return result
 
     def import_gltf2_with_indices(self) -> None:
-        json_dict, body_binary = gltf.parse_glb(self.parse_result.filepath.read_bytes())
+        json_dict, body_binary = parse_glb(self.parse_result.filepath.read_bytes())
 
         for key in ["nodes", "materials", "meshes"]:
             if key not in json_dict or not isinstance(json_dict[key], list):
@@ -1052,12 +1053,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         if not isinstance(max_value, (float, int)) or math.isnan(
                             max_value
                         ):
-                            max_values[i] = gltf.FLOAT_POSITIVE_MAX
+                            max_values[i] = FLOAT_POSITIVE_MAX
                         elif math.isinf(max_value):
                             max_values[i] = (
-                                gltf.FLOAT_POSITIVE_MAX
+                                FLOAT_POSITIVE_MAX
                                 if max_value > 0
-                                else gltf.FLOAT_NEGATIVE_MAX
+                                else FLOAT_NEGATIVE_MAX
                             )
 
                 min_values = accessor_dict.get("min")
@@ -1066,12 +1067,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         if not isinstance(min_value, (float, int)) or math.isnan(
                             min_value
                         ):
-                            min_values[i] = gltf.FLOAT_NEGATIVE_MAX
+                            min_values[i] = FLOAT_NEGATIVE_MAX
                         elif math.isinf(min_value):
                             min_values[i] = (
-                                gltf.FLOAT_POSITIVE_MAX
+                                FLOAT_POSITIVE_MAX
                                 if min_value > 0
-                                else gltf.FLOAT_NEGATIVE_MAX
+                                else FLOAT_NEGATIVE_MAX
                             )
 
         if self.parse_result.spec_version_number < (1, 0):
@@ -1081,7 +1082,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         full_vrm_import_success = False
         with tempfile.TemporaryDirectory() as temp_dir:
             indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
-            indexed_vrm_filepath.write_bytes(gltf.pack_glb(json_dict, body_binary))
+            indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
             try:
                 bpy.ops.import_scene.gltf(
                     filepath=str(indexed_vrm_filepath),
@@ -1104,7 +1105,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 del json_dict["animations"]
             with tempfile.TemporaryDirectory() as temp_dir:
                 indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
-                indexed_vrm_filepath.write_bytes(gltf.pack_glb(json_dict, body_binary))
+                indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
                 try:
                     bpy.ops.import_scene.gltf(
                         filepath=str(indexed_vrm_filepath),

@@ -6,7 +6,8 @@ import bpy
 from bpy.app.translations import pgettext
 from mathutils import Vector
 
-from ..common import gltf, shader, version
+from ..common import shader, version
+from ..common.gltf import RGBA_INPUT_NAMES, TEXTURE_INPUT_NAMES, VAL_INPUT_NAMES
 from ..common.logging import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.preferences import get_preferences
@@ -535,15 +536,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     )
             # GLTF
             elif node.node_tree["SHADER"] == "GLTF":
-                for k in gltf.TEXTURE_INPUT_NAMES:
+                for k in TEXTURE_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "TEX_IMAGE", k, error_messages, used_images
                     )
-                for k in gltf.VAL_INPUT_NAMES:
+                for k in VAL_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "VALUE", k, error_messages, used_images
                     )
-                for k in gltf.RGBA_INPUT_NAMES:
+                for k in RGBA_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "RGB", k, error_messages, used_images
                     )
@@ -559,11 +560,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 )
 
         for mat in used_materials:
-            mtoon1 = mat.vrm_addon_extension.mtoon1
-            if not mtoon1.enabled:
+            gltf = mat.vrm_addon_extension.mtoon1
+            if not gltf.enabled:
                 continue
 
-            for texture in mtoon1.all_textures(
+            for texture in gltf.all_textures(
                 downgrade_to_mtoon0=armature is None
                 or armature.data.vrm_addon_extension.is_vrm0()
             ):
@@ -586,7 +587,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     )
                 )
 
-            for texture_info in mtoon1.all_texture_info():
+            for texture_info in gltf.all_texture_info():
                 source = texture_info.index.source
                 if source and source not in used_images:
                     used_images.append(source)
@@ -599,17 +600,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     continue
 
                 base_scale = (
-                    mtoon1.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale
+                    gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale
                 )
                 base_offset = (
-                    mtoon1.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset
+                    gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset
                 )
                 scale = texture_info.extensions.khr_texture_transform.scale
                 offset = texture_info.extensions.khr_texture_transform.offset
-                if (
-                    texture_info
-                    == mtoon1.extensions.vrmc_materials_mtoon.matcap_texture
-                ):
+                if texture_info == gltf.extensions.vrmc_materials_mtoon.matcap_texture:
                     if (
                         abs(scale[0]) > 0
                         or abs(scale[1]) > 0

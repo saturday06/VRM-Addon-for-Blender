@@ -50,10 +50,9 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
     def find_outline_property_group(
         cls, material: bpy.types.Material
     ) -> Optional[bpy.types.PropertyGroup]:
-        mtoon1 = material.vrm_addon_extension.mtoon1
-        if mtoon1.is_outline_material:
+        if material.vrm_addon_extension.mtoon1.is_outline_material:
             return None
-        outline_material = mtoon1.outline_material
+        outline_material = material.vrm_addon_extension.mtoon1.outline_material
         if not outline_material:
             return None
         if material.name == outline_material.name:
@@ -2105,22 +2104,22 @@ def reset_shader_node_group(
     reset_node_tree: bool,
     overwrite: bool,
 ) -> None:
-    root = material.vrm_addon_extension.mtoon1
-    mtoon = root.extensions.vrmc_materials_mtoon
+    gltf = material.vrm_addon_extension.mtoon1
+    mtoon = gltf.extensions.vrmc_materials_mtoon
 
-    base_color_factor = list(root.pbr_metallic_roughness.base_color_factor)
-    base_color_texture = root.pbr_metallic_roughness.base_color_texture.backup()
-    alpha_mode_blend_method_hashed = root.alpha_mode_blend_method_hashed
-    alpha_mode = root.alpha_mode
-    double_sided = root.double_sided
-    alpha_cutoff = root.alpha_cutoff
-    normal_texture = root.normal_texture.backup()
-    normal_texture_scale = root.normal_texture.scale
-    emissive_texture = root.emissive_texture.backup()
-    emissive_factor = list(root.emissive_factor)
-    export_shape_key_normals = root.export_shape_key_normals
+    base_color_factor = list(gltf.pbr_metallic_roughness.base_color_factor)
+    base_color_texture = gltf.pbr_metallic_roughness.base_color_texture.backup()
+    alpha_mode_blend_method_hashed = gltf.alpha_mode_blend_method_hashed
+    alpha_mode = gltf.alpha_mode
+    double_sided = gltf.double_sided
+    alpha_cutoff = gltf.alpha_cutoff
+    normal_texture = gltf.normal_texture.backup()
+    normal_texture_scale = gltf.normal_texture.scale
+    emissive_texture = gltf.emissive_texture.backup()
+    emissive_factor = list(gltf.emissive_factor)
+    export_shape_key_normals = gltf.export_shape_key_normals
     emissive_strength = (
-        root.extensions.khr_materials_emissive_strength.emissive_strength
+        gltf.extensions.khr_materials_emissive_strength.emissive_strength
     )
 
     transparent_with_z_write = mtoon.transparent_with_z_write
@@ -2151,25 +2150,25 @@ def reset_shader_node_group(
 
     if reset_node_tree:
         shader.load_mtoon1_shader(context, material, overwrite)
-        if root.outline_material:
-            shader.load_mtoon1_shader(context, root.outline_material, overwrite)
+        if gltf.outline_material:
+            shader.load_mtoon1_shader(context, gltf.outline_material, overwrite)
 
-    root.is_outline_material = False
-    if root.outline_material:
-        root.outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
+    gltf.is_outline_material = False
+    if gltf.outline_material:
+        gltf.outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
 
-    root.pbr_metallic_roughness.base_color_factor = base_color_factor
-    root.pbr_metallic_roughness.base_color_texture.restore(base_color_texture)
-    root.alpha_mode_blend_method_hashed = alpha_mode_blend_method_hashed
-    root.alpha_mode = alpha_mode
-    root.double_sided = double_sided
-    root.alpha_cutoff = alpha_cutoff
-    root.normal_texture.restore(normal_texture)
-    root.normal_texture.scale = normal_texture_scale
-    root.emissive_texture.restore(emissive_texture)
-    root.emissive_factor = emissive_factor
-    root.export_shape_key_normals = export_shape_key_normals
-    root.extensions.khr_materials_emissive_strength.emissive_strength = (
+    gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
+    gltf.pbr_metallic_roughness.base_color_texture.restore(base_color_texture)
+    gltf.alpha_mode_blend_method_hashed = alpha_mode_blend_method_hashed
+    gltf.alpha_mode = alpha_mode
+    gltf.double_sided = double_sided
+    gltf.alpha_cutoff = alpha_cutoff
+    gltf.normal_texture.restore(normal_texture)
+    gltf.normal_texture.scale = normal_texture_scale
+    gltf.emissive_texture.restore(emissive_texture)
+    gltf.emissive_factor = emissive_factor
+    gltf.export_shape_key_normals = export_shape_key_normals
+    gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
         emissive_strength
     )
 

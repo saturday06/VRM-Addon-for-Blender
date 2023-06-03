@@ -273,15 +273,15 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
 
         shader.load_mtoon1_shader(context, material, overwrite=True)
 
-        root = material.vrm_addon_extension.mtoon1
-        mtoon = root.extensions.vrmc_materials_mtoon
+        gltf = material.vrm_addon_extension.mtoon1
+        mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        root.alpha_mode = alpha_mode
-        root.alpha_cutoff = alpha_cutoff
+        gltf.alpha_mode = alpha_mode
+        gltf.alpha_cutoff = alpha_cutoff
         mtoon.transparent_with_z_write = transparent_with_z_write
-        root.pbr_metallic_roughness.base_color_factor = base_color_factor
+        gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
         self.assign_mtoon_unversioned_image(
-            root.pbr_metallic_roughness.base_color_texture,
+            gltf.pbr_metallic_roughness.base_color_texture,
             base_color_texture,
             uv_offset,
             uv_scale,
@@ -294,13 +294,13 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
             uv_scale,
         )
         self.assign_mtoon_unversioned_image(
-            root.normal_texture,
+            gltf.normal_texture,
             normal_texture,
             uv_offset,
             uv_scale,
         )
         if normal_texture_scale is not None:
-            root.normal_texture.scale = normal_texture_scale
+            gltf.normal_texture.scale = normal_texture_scale
 
         mtoon.shading_shift_factor = shading_shift_factor
         mtoon.shading_toony_factor = shading_toony_factor
@@ -308,9 +308,9 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
         if gi_equalization_factor is not None:
             mtoon.gi_equalization_factor = gi_equalization_factor
 
-        root.emissive_factor = emissive_factor
+        gltf.emissive_factor = emissive_factor
         self.assign_mtoon_unversioned_image(
-            root.emissive_texture,
+            gltf.emissive_texture,
             emissive_texture,
             uv_offset,
             uv_scale,

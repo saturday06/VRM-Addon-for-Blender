@@ -10,15 +10,14 @@ def migrate(context: bpy.types.Context) -> None:
         if not material:
             continue
 
-        root = material.vrm_addon_extension.mtoon1
-        if not root.enabled:
+        if not material.vrm_addon_extension.mtoon1.enabled:
             continue
 
-        if tuple(root.addon_version) < (2, 15, 18):
+        if tuple(material.vrm_addon_extension.mtoon1.addon_version) < (2, 15, 18):
             load_mtoon1_outline_geometry_node_group(
                 context, overwrite=outline_geometry_node_group_overwrite
             )
             outline_geometry_node_group_overwrite = False
             bpy.ops.vrm.refresh_mtoon1_outline(material_name=material.name)
 
-        root.addon_version = addon_version()
+        material.vrm_addon_extension.mtoon1.addon_version = addon_version()

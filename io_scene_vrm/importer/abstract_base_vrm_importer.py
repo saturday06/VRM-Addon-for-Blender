@@ -820,9 +820,9 @@ class AbstractBaseVrmImporter(ABC):
         material: bpy.types.Material,
         vrm0_material_property: Vrm0MaterialProperty,
     ) -> None:
-        root = material.vrm_addon_extension.mtoon1
-        root.enabled = True
-        mtoon1 = root.extensions.vrmc_materials_mtoon
+        gltf = material.vrm_addon_extension.mtoon1
+        gltf.enabled = True
+        mtoon = gltf.extensions.vrmc_materials_mtoon
 
         main_texture_index = vrm0_material_property.texture_properties.get("_MainTex")
         main_texture_image = None
@@ -837,25 +837,25 @@ class AbstractBaseVrmImporter(ABC):
                     if isinstance(image_index, int):
                         main_texture_image = self.images.get(image_index)
         if main_texture_image:
-            root.pbr_metallic_roughness.base_color_texture.index.source = (
+            gltf.pbr_metallic_roughness.base_color_texture.index.source = (
                 main_texture_image
             )
-            root.emissive_texture.index.source = main_texture_image
-            mtoon1.shade_multiply_texture.index.source = main_texture_image
+            gltf.emissive_texture.index.source = main_texture_image
+            mtoon.shade_multiply_texture.index.source = main_texture_image
 
-        root.pbr_metallic_roughness.base_color_factor = (0, 0, 0, 1)
-        root.emissive_factor = (1, 1, 1)
+        gltf.pbr_metallic_roughness.base_color_factor = (0, 0, 0, 1)
+        gltf.emissive_factor = (1, 1, 1)
 
-        root.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
-        root.alpha_cutoff = 0.5
-        root.double_sided = False
-        mtoon1.transparent_with_z_write = True
-        mtoon1.shade_color_factor = (0, 0, 0)
-        mtoon1.shading_toony = 0.95
-        mtoon1.shading_shift = -0.05
-        mtoon1.rim_lighting_mix_factor = 1
-        mtoon1.parametric_rim_fresnel_power_factor = 5
-        mtoon1.parametric_rim_lift_factor = 0
+        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
+        gltf.alpha_cutoff = 0.5
+        gltf.double_sided = False
+        mtoon.transparent_with_z_write = True
+        mtoon.shade_color_factor = (0, 0, 0)
+        mtoon.shading_toony = 0.95
+        mtoon.shading_shift = -0.05
+        mtoon.rim_lighting_mix_factor = 1
+        mtoon.parametric_rim_fresnel_power_factor = 5
+        mtoon.parametric_rim_lift_factor = 0
 
     def load_vrm0_extensions(self) -> None:
         armature = self.armature

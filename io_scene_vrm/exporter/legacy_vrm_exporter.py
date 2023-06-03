@@ -19,7 +19,7 @@ import bmesh
 import bpy
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, gltf, shader
+from ..common import convert, deep, shader
 from ..common.deep import Json, make_json
 from ..common.gl import (
     GL_FLOAT,
@@ -32,6 +32,12 @@ from ..common.gl import (
     GL_REPEAT,
     GL_UNSIGNED_INT,
     GL_UNSIGNED_SHORT,
+)
+from ..common.gltf import (
+    FLOAT_NEGATIVE_MAX,
+    FLOAT_POSITIVE_MAX,
+    TEXTURE_INPUT_NAMES,
+    pack_glb,
 )
 from ..common.logging import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
@@ -231,7 +237,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             used_images.append(n.image)
             elif node.node_tree["SHADER"] == "GLTF":
                 mat["vrm_shader"] = "GLTF"
-                for k in gltf.TEXTURE_INPUT_NAMES:
+                for k in TEXTURE_INPUT_NAMES:
                     if node.inputs[k].links:
                         n = node.inputs[k].links[0].from_node
                         if n.image not in used_images:
@@ -249,10 +255,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         # MToon 1.0 downgraded
         for mat in used_materials:
-            mtoon1 = mat.vrm_addon_extension.mtoon1
-            if not mtoon1.enabled:
+            if not mat.vrm_addon_extension.mtoon1.enabled:
                 continue
-            for texture in mtoon1.all_textures(downgrade_to_mtoon0=True):
+            for texture in mat.vrm_addon_extension.mtoon1.all_textures(
+                downgrade_to_mtoon0=True
+            ):
                 source = texture.source
                 if source and source not in used_images:
                     used_images.append(source)
@@ -1257,13 +1264,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         def make_mtoon1_downgraded_mat_dict(
             b_mat: bpy.types.Material,
         ) -> Tuple[Dict[str, Json], Dict[str, Json]]:
-            root = b_mat.vrm_addon_extension.mtoon1
-            mtoon = root.extensions.vrmc_materials_mtoon
+            gltf = b_mat.vrm_addon_extension.mtoon1
+            mtoon = gltf.extensions.vrmc_materials_mtoon
 
             material_dict: Dict[str, Json] = {
                 "name": b_mat.name,
-                "alphaMode": root.alpha_mode,
-                "doubleSided": root.double_sided,
+                "alphaMode": gltf.alpha_mode,
+                "doubleSided": gltf.double_sided,
                 "extensions": {"KHR_materials_unlit": {}},
             }
             pbr_metallic_roughness_dict: Dict[str, Json] = {
@@ -1276,21 +1283,21 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             vector_properties: Dict[str, Sequence[float]] = {}
             texture_properties: Dict[str, int] = {}
             pbr_metallic_roughness_dict["baseColorFactor"] = list(
-                root.pbr_metallic_roughness.base_color_factor
+                gltf.pbr_metallic_roughness.base_color_factor
             )
             khr_texture_transform = (
-                root.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform
+                gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform
             )
 
             vector_properties["_Color"] = list(
-                root.pbr_metallic_roughness.base_color_factor
+                gltf.pbr_metallic_roughness.base_color_factor
             )
 
             if assign_dict(
                 pbr_metallic_roughness_dict,
                 "baseColorTexture",
                 add_mtoon1_downgraded_texture_info(
-                    root.pbr_metallic_roughness.base_color_texture,
+                    gltf.pbr_metallic_roughness.base_color_texture,
                     texture_properties,
                     "_MainTex",
                     vector_properties,
@@ -1313,12 +1320,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 khr_texture_transform,
             )
 
-            float_properties["_BumpScale"] = root.normal_texture.scale
+            float_properties["_BumpScale"] = gltf.normal_texture.scale
             if assign_dict(
                 material_dict,
                 "normalTexture",
                 add_mtoon1_downgraded_texture_info(
-                    root.normal_texture,
+                    gltf.normal_texture,
                     texture_properties,
                     "_BumpMap",
                     vector_properties,
@@ -1327,16 +1334,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             ):
                 normal_texture_dict = material_dict.get("normalTexture")
                 if isinstance(normal_texture_dict, dict):
-                    normal_texture_dict["scale"] = root.normal_texture.scale
+                    normal_texture_dict["scale"] = gltf.normal_texture.scale
                 keyword_map["_NORMALMAP"] = True
 
             add_mtoon1_downgraded_texture(
-                root.mtoon0_shading_grade_texture,
+                gltf.mtoon0_shading_grade_texture,
                 texture_properties,
                 "_ShadingGradeTexture",
                 vector_properties,
             )
-            float_properties["_ShadingGradeRate"] = root.mtoon0_shading_grade_rate
+            float_properties["_ShadingGradeRate"] = gltf.mtoon0_shading_grade_rate
 
             float_properties["_ShadeShift"] = convert.mtoon_shading_shift_1_to_0(
                 mtoon.shading_toony_factor, mtoon.shading_shift_factor
@@ -1347,16 +1354,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             float_properties[
                 "_IndirectLightIntensity"
             ] = convert.mtoon_gi_equalization_to_intensity(mtoon.gi_equalization_factor)
-            float_properties["_RimLightingMix"] = root.mtoon0_rim_lighting_mix
+            float_properties["_RimLightingMix"] = gltf.mtoon0_rim_lighting_mix
             float_properties[
                 "_RimFresnelPower"
             ] = mtoon.parametric_rim_fresnel_power_factor
             float_properties["_RimLift"] = mtoon.parametric_rim_lift_factor
 
             emissive_strength = (
-                root.extensions.khr_materials_emissive_strength.emissive_strength
+                gltf.extensions.khr_materials_emissive_strength.emissive_strength
             )
-            emissive_factor = Vector(root.emissive_factor)
+            emissive_factor = Vector(gltf.emissive_factor)
             hdr_emissive_factor = emissive_factor * emissive_strength
             vector_properties["_EmissionColor"] = list(hdr_emissive_factor) + [1]
             # TODO:
@@ -1367,7 +1374,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 material_dict,
                 "emissiveTexture",
                 add_mtoon1_downgraded_texture_info(
-                    root.emissive_texture,
+                    gltf.emissive_texture,
                     texture_properties,
                     "_EmissionMap",
                     vector_properties,
@@ -1450,10 +1457,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     set_mtoon_outline_keywords(keyword_map, False, True, False, True)
 
             float_properties["_Cutoff"] = 0.5
-            root.mtoon0_render_queue = (
-                root.mtoon0_render_queue
+            gltf.mtoon0_render_queue = (
+                gltf.mtoon0_render_queue
             )  # call "mtoon0_render_queue()"
-            if root.alpha_mode == root.ALPHA_MODE_OPAQUE:
+            if gltf.alpha_mode == gltf.ALPHA_MODE_OPAQUE:
                 blend_mode = 0
                 src_blend = 1
                 dst_blend = 0
@@ -1461,23 +1468,23 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 alphatest_on = False
                 render_queue = -1
                 render_type = "Opaque"
-            elif root.alpha_mode == root.ALPHA_MODE_MASK:
+            elif gltf.alpha_mode == gltf.ALPHA_MODE_MASK:
                 blend_mode = 1
                 src_blend = 1
                 dst_blend = 0
                 z_write = 1
                 alphatest_on = True
-                render_queue = root.mtoon0_render_queue
+                render_queue = gltf.mtoon0_render_queue
                 render_type = "TransparentCutout"
-                float_properties["_Cutoff"] = root.alpha_cutoff
-                material_dict["alphaCutoff"] = root.alpha_cutoff
+                float_properties["_Cutoff"] = gltf.alpha_cutoff
+                material_dict["alphaCutoff"] = gltf.alpha_cutoff
             elif not mtoon.transparent_with_z_write:
                 blend_mode = 2
                 src_blend = 5
                 dst_blend = 10
                 z_write = 0
                 alphatest_on = False
-                render_queue = root.mtoon0_render_queue
+                render_queue = gltf.mtoon0_render_queue
                 render_type = "Transparent"
             else:
                 blend_mode = 3
@@ -1485,17 +1492,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 dst_blend = 10
                 z_write = 1
                 alphatest_on = False
-                render_queue = root.mtoon0_render_queue
+                render_queue = gltf.mtoon0_render_queue
                 render_type = "Transparent"
-                float_properties["_Cutoff"] = root.alpha_cutoff  # for compatibility
+                float_properties["_Cutoff"] = gltf.alpha_cutoff  # for compatibility
 
             add_mtoon1_downgraded_texture(
-                root.mtoon0_receive_shadow_texture,
+                gltf.mtoon0_receive_shadow_texture,
                 texture_properties,
                 "_ReceiveShadowTexture",
                 vector_properties,
             )
-            float_properties["_ReceiveShadowRate"] = root.mtoon0_receive_shadow_rate
+            float_properties["_ReceiveShadowRate"] = gltf.mtoon0_receive_shadow_rate
 
             keyword_map["_ALPHABLEND_ON"] = b_mat.blend_method not in ("OPAQUE", "CLIP")
             keyword_map["_ALPHAPREMULTIPLY_ON"] = False
@@ -1509,7 +1516,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             tag_map["RenderType"] = render_type
 
             float_properties["_MToonVersion"] = MtoonUnversioned.version
-            if root.mtoon0_front_cull_mode:
+            if gltf.mtoon0_front_cull_mode:
                 float_properties["_CullMode"] = 1
             elif b_mat.use_backface_culling:
                 float_properties["_CullMode"] = 2
@@ -1519,10 +1526,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             float_properties["_DebugMode"] = 0
             float_properties[
                 "_LightColorAttenuation"
-            ] = root.mtoon0_light_color_attenuation
+            ] = gltf.mtoon0_light_color_attenuation
             float_properties[
                 "_OutlineScaledMaxDistance"
-            ] = root.mtoon0_outline_scaled_max_distance
+            ] = gltf.mtoon0_outline_scaled_max_distance
 
             keyword_map["MTOON_DEBUG_NORMAL"] = False
             keyword_map["MTOON_DEBUG_LITSHADERATE"] = False
@@ -1932,7 +1939,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             }
 
             v_group_name_dict = {i: vg.name for i, vg in enumerate(mesh.vertex_groups)}
-            fmin, fmax = gltf.FLOAT_NEGATIVE_MAX, gltf.FLOAT_POSITIVE_MAX
+            fmin, fmax = FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX
             unique_vertex_id = 0
             # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
             unique_vertex_dict: Dict[Tuple[object, ...], int] = {}
@@ -2803,7 +2810,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             del self.json_dict["meshes"]
         if not self.json_dict["materials"]:
             del self.json_dict["materials"]
-        self.result = gltf.pack_glb(self.json_dict, bin_chunk)
+        self.result = pack_glb(self.json_dict, bin_chunk)
 
     def cleanup(self) -> None:
         if self.use_dummy_armature:

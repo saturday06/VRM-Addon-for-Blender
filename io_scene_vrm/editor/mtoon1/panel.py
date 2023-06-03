@@ -161,7 +161,7 @@ def draw_mtoon1_material(
 
     is_vrm0 = search.current_armature_is_vrm0(context)
     gltf = ext.mtoon1
-    mtoon1 = gltf.extensions.vrmc_materials_mtoon
+    mtoon = gltf.extensions.vrmc_materials_mtoon
 
     # https://github.com/vrm-c/UniVRM/blob/v0.102.0/Assets/VRMShaders/VRM10/MToon10/Editor/MToonInspector.cs#L14
     layout.label(text="Rendering", translate=False)
@@ -170,9 +170,9 @@ def draw_mtoon1_material(
     if gltf.alpha_mode == gltf.ALPHA_MODE_MASK:
         rendering_box.prop(gltf, "alpha_cutoff", slider=True)
     if gltf.alpha_mode == gltf.ALPHA_MODE_BLEND:
-        rendering_box.prop(mtoon1, "transparent_with_z_write")
+        rendering_box.prop(mtoon, "transparent_with_z_write")
     rendering_box.prop(gltf, "double_sided")
-    rendering_box.prop(mtoon1, "render_queue_offset_number", slider=True)
+    rendering_box.prop(mtoon, "render_queue_offset_number", slider=True)
 
     layout.label(text="Lighting", translate=False)
     lighting_box = layout.box().column()
@@ -190,7 +190,7 @@ def draw_mtoon1_material(
         ext.mtoon1,
         is_vrm0,
         lighting_box,
-        mtoon1,
+        mtoon,
         "shade_multiply_texture",
         "shade_color_factor",
     )
@@ -205,24 +205,24 @@ def draw_mtoon1_material(
     normal_texture_layout.separator(factor=0.5)
     normal_texture_layout.prop(gltf.normal_texture, "scale")
 
-    lighting_box.prop(mtoon1, "shading_toony_factor", slider=True)
-    lighting_box.prop(mtoon1, "shading_shift_factor", slider=True)
+    lighting_box.prop(mtoon, "shading_toony_factor", slider=True)
+    lighting_box.prop(mtoon, "shading_shift_factor", slider=True)
     shading_shift_texture_layout = draw_texture_info(
         material.name,
         ext.mtoon1,
         is_vrm0,
         lighting_box,
-        mtoon1,
+        mtoon,
         "shading_shift_texture",
     )
     shading_shift_texture_layout.separator(factor=0.5)
-    shading_shift_texture_layout.prop(mtoon1.shading_shift_texture, "scale")
+    shading_shift_texture_layout.prop(mtoon.shading_shift_texture, "scale")
 
     # UniVRM (MIT License)
     # https://github.com/vrm-c/UniVRM/blob/d2b4ad1964b754341873f2a1b093d58e1df1713f/Assets/VRMShaders/VRM10/MToon10/Editor/MToonInspector.cs#L120-L128
     if (
-        not mtoon1.shading_shift_texture.index.source
-        and mtoon1.shading_toony_factor - mtoon1.shading_shift_factor < 1.0 - 0.001
+        not mtoon.shading_shift_texture.index.source
+        and mtoon.shading_toony_factor - mtoon.shading_shift_factor < 1.0 - 0.001
     ):
         lighting_box.box().label(
             text="The lit area includes non-lit area.", icon="ERROR"
@@ -230,7 +230,7 @@ def draw_mtoon1_material(
 
     layout.label(text="Global Illumination", translate=False)
     gi_box = layout.box()
-    gi_box.prop(mtoon1, "gi_equalization_factor", slider=True)
+    gi_box.prop(mtoon, "gi_equalization_factor", slider=True)
 
     layout.label(text="Emission", translate=False)
     emission_box = layout.box().column()
@@ -256,29 +256,29 @@ def draw_mtoon1_material(
         ext.mtoon1,
         is_vrm0,
         rim_lighting_box,
-        mtoon1,
+        mtoon,
         "rim_multiply_texture",
     )
-    rim_lighting_box.prop(mtoon1, "rim_lighting_mix_factor", slider=True)
+    rim_lighting_box.prop(mtoon, "rim_lighting_mix_factor", slider=True)
     draw_texture_info(
         material.name,
         ext.mtoon1,
         is_vrm0,
         rim_lighting_box,
-        mtoon1,
+        mtoon,
         "matcap_texture",
         "matcap_factor",
     )
-    rim_lighting_box.row().prop(mtoon1, "parametric_rim_color_factor")
-    rim_lighting_box.prop(mtoon1, "parametric_rim_fresnel_power_factor", slider=True)
-    rim_lighting_box.prop(mtoon1, "parametric_rim_lift_factor", slider=True)
+    rim_lighting_box.row().prop(mtoon, "parametric_rim_color_factor")
+    rim_lighting_box.prop(mtoon, "parametric_rim_fresnel_power_factor", slider=True)
+    rim_lighting_box.prop(mtoon, "parametric_rim_lift_factor", slider=True)
 
     layout.label(text="Outline", translate=False)
     outline_box = layout.box().column()
-    outline_box.prop(mtoon1, "outline_width_mode")
+    outline_box.prop(mtoon, "outline_width_mode")
     if (
         bpy.app.version >= (3, 3)
-        and mtoon1.outline_width_mode
+        and mtoon.outline_width_mode
         == Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
     ):
         outline_warning_message = pgettext(
@@ -293,7 +293,7 @@ def draw_mtoon1_material(
                 text=outline_warning_line, icon="BLANK1" if index else "INFO"
             )
     if (
-        mtoon1.outline_width_mode
+        mtoon.outline_width_mode
         != Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
     ):
         outline_width_multiply_texture_layout = draw_texture_info(
@@ -301,15 +301,15 @@ def draw_mtoon1_material(
             ext.mtoon1,
             is_vrm0,
             outline_box,
-            mtoon1,
+            mtoon,
             "outline_width_multiply_texture",
         )
         outline_width_multiply_texture_layout.separator(factor=0.5)
         outline_width_multiply_texture_layout.prop(
-            mtoon1, "outline_width_factor", slider=True, text=""
+            mtoon, "outline_width_factor", slider=True, text=""
         )
-        outline_box.row().prop(mtoon1, "outline_color_factor")
-        outline_box.prop(mtoon1, "outline_lighting_mix_factor", slider=True)
+        outline_box.row().prop(mtoon, "outline_color_factor")
+        outline_box.prop(mtoon, "outline_lighting_mix_factor", slider=True)
 
     layout.label(text="UV Animation", translate=False)
     uv_animation_box = layout.box().column()
@@ -318,12 +318,12 @@ def draw_mtoon1_material(
         ext.mtoon1,
         is_vrm0,
         uv_animation_box,
-        mtoon1,
+        mtoon,
         "uv_animation_mask_texture",
     )
-    uv_animation_box.prop(mtoon1, "uv_animation_scroll_x_speed_factor")
-    uv_animation_box.prop(mtoon1, "uv_animation_scroll_y_speed_factor")
-    uv_animation_box.prop(mtoon1, "uv_animation_rotation_speed_factor")
+    uv_animation_box.prop(mtoon, "uv_animation_scroll_x_speed_factor")
+    uv_animation_box.prop(mtoon, "uv_animation_scroll_y_speed_factor")
+    uv_animation_box.prop(mtoon, "uv_animation_rotation_speed_factor")
 
     layout.prop(gltf, "show_expanded_mtoon0")
     if gltf.show_expanded_mtoon0:
