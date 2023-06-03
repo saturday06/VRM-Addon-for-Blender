@@ -116,7 +116,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     obj = obj.parent
                     continue
                 self.mounted_object_names.append(obj.name)
-                matrix_world = obj.matrix_world
+                matrix_world = obj.matrix_world.copy()
                 obj.parent = armature
                 obj.matrix_world = matrix_world
                 break
@@ -126,7 +126,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             obj = bpy.data.objects.get(mounted_object_name)
             if not obj:
                 continue
-            matrix_world = obj.matrix_world
+            matrix_world = obj.matrix_world.copy()
             obj.parent = None
             obj.matrix_world = matrix_world
 

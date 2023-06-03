@@ -95,7 +95,9 @@ class AbstractBaseVrmImporter(ABC):
                 and obj.parent_bone in armature.data.bones
                 and obj.name in self.bone_child_object_world_matrices
             ):
-                obj.matrix_world = self.bone_child_object_world_matrices[obj.name]
+                obj.matrix_world = self.bone_child_object_world_matrices[
+                    obj.name
+                ].copy()
 
     def setup_vrm0_humanoid_bones(self) -> None:
         armature = self.armature
