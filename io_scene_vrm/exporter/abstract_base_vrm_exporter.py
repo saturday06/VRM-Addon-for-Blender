@@ -4,9 +4,9 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
 
 import bpy
+from mathutils import Matrix
 
 from ..common import shader
-from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.deep import Json, make_json
 from ..external import io_scene_gltf2_support
 
@@ -17,8 +17,8 @@ class AbstractBaseVrmExporter(ABC):
         context: bpy.types.Context,
     ) -> None:
         self.context = context
-        self.original_pose_library: Optional[bpy.types.Action] = None
-        self.saved_current_pose_library: Optional[bpy.types.Action] = None
+        self.saved_current_pose_matrix_basis_dict: Dict[str, Matrix] = {}
+        self.saved_current_pose_matrix_dict: Dict[str, Matrix] = {}
         self.saved_pose_position: Optional[str] = None
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
@@ -34,10 +34,10 @@ class AbstractBaseVrmExporter(ABC):
     def setup_pose(
         self,
         armature: bpy.types.Object,
-        user_pose_library: Optional[bpy.types.Action],
-        user_pose_marker_name: str,
+        action: Optional[bpy.types.Action],
+        pose_marker_name: str,
     ) -> None:
-        if tuple(bpy.app.version) >= (3, 5):
+        if not action or action.name not in bpy.data.actions:
             return
 
         if self.context.view_layer.objects.active is not None:
@@ -47,64 +47,54 @@ class AbstractBaseVrmExporter(ABC):
         bpy.ops.object.mode_set(mode="POSE")
 
         self.saved_pose_position = armature.data.pose_position
+        armature.data.pose_position = "POSE"
 
-        pose_library: Optional[bpy.types.Action] = None
-        pose_index: Optional[int] = None
-        if (
-            user_pose_library
-            and user_pose_library.name in bpy.data.actions
-            and user_pose_marker_name
-        ):
-            pose_library = user_pose_library
-            if pose_library:
-                for search_pose_index, search_pose_marker in enumerate(
-                    pose_library.pose_markers.values()
-                ):
-                    if search_pose_marker.name == user_pose_marker_name:
-                        pose_index = search_pose_index
-                        armature.data.pose_position = "POSE"
-                        break
+        pose_marker_frame = 0
+        if pose_marker_name:
+            for search_pose_marker in action.pose_markers.values():
+                if search_pose_marker.name == pose_marker_name:
+                    pose_marker_frame = search_pose_marker.frame
+                    break
 
-        self.original_pose_library = armature.pose_library
-        self.saved_current_pose_library = bpy.data.actions.new(
-            INTERNAL_NAME_PREFIX + self.export_id + "SavedCurrentPoseLibrary"
-        )
+        bpy.context.view_layer.update()
+        self.saved_current_pose_matrix_basis_dict = {
+            bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
+        }
+        self.saved_current_pose_matrix_dict = {
+            bone.name: bone.matrix.copy() for bone in armature.pose.bones
+        }
 
-        armature.pose_library = self.saved_current_pose_library
-        bpy.ops.poselib.pose_add(
-            name=INTERNAL_NAME_PREFIX + self.export_id + "SavedCurrentPose"
-        )
-
-        if pose_library and pose_index is not None:
-            armature.pose_library = pose_library
-            bpy.ops.poselib.apply_pose(pose_index=pose_index)
+        armature.pose.apply_pose_from_action(action, evaluation_time=pose_marker_frame)
+        bpy.context.view_layer.update()
 
     def restore_pose(self, armature: bpy.types.Object) -> None:
-        if tuple(bpy.app.version) >= (3, 5):
-            return
-
         if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
         self.context.view_layer.objects.active = armature
+        bpy.context.view_layer.update()
         bpy.ops.object.mode_set(mode="POSE")
 
-        if self.saved_current_pose_library:
-            armature.pose_library = self.saved_current_pose_library
-            bpy.ops.poselib.apply_pose(pose_index=0)
-            bpy.ops.poselib.unlink()
+        bones = [bone for bone in armature.pose.bones if not bone.parent]
+        while bones:
+            bone = bones.pop()
+            matrix_basis = self.saved_current_pose_matrix_basis_dict.get(bone.name)
+            if matrix_basis is not None:
+                bone.matrix_basis = matrix_basis
+            bones.extend(bone.children)
+        bpy.context.view_layer.update()
 
-        armature.pose_library = self.original_pose_library
-
-        if (
-            self.saved_current_pose_library
-            and not self.saved_current_pose_library.users
-        ):
-            bpy.data.actions.remove(self.saved_current_pose_library)
+        bones = [bone for bone in armature.pose.bones if not bone.parent]
+        while bones:
+            bone = bones.pop()
+            matrix = self.saved_current_pose_matrix_dict.get(bone.name)
+            if matrix is not None:
+                bone.matrix = matrix
+            bones.extend(bone.children)
+        bpy.context.view_layer.update()
 
         if self.saved_pose_position:
             armature.data.pose_position = self.saved_pose_position
-
         bpy.ops.object.mode_set(mode="OBJECT")
 
     @staticmethod

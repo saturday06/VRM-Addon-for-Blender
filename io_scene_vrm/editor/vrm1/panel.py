@@ -233,28 +233,26 @@ def draw_vrm1_humanoid_layout(
 
     armature_box = layout
 
-    if tuple(bpy.app.version) < (3, 5):
-        t_pose_box = armature_box.box()
-        column = t_pose_box.row().column()
-        column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
+    t_pose_box = armature_box.box()
+    column = t_pose_box.row().column()
+    column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
+    if bpy.app.version < (3, 0):
         column.label(text="Pose Library")
-        column.prop_search(
-            humanoid, "pose_library", bpy.data, "actions", text="", translate=False
-        )
+    else:
+        column.label(text="Pose Asset")
+    column.prop_search(
+        humanoid, "pose_library", bpy.data, "actions", text="", translate=False
+    )
+    if humanoid.pose_library and humanoid.pose_library.pose_markers:
         column.label(text="Pose")
-        if humanoid.pose_library and humanoid.pose_library.name in bpy.data.actions:
-            column.prop_search(
-                humanoid,
-                "pose_marker_name",
-                humanoid.pose_library,
-                "pose_markers",
-                text="",
-                translate=False,
-            )
-        else:
-            pose_marker_name_empty_box = column.box()
-            pose_marker_name_empty_box.scale_y = 0.5
-            pose_marker_name_empty_box.label(text="Current Pose")
+        column.prop_search(
+            humanoid,
+            "pose_marker_name",
+            humanoid.pose_library,
+            "pose_markers",
+            text="",
+            translate=False,
+        )
 
     bone_operator_column = layout.column()
     bone_operator_column.operator(
