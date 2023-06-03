@@ -311,7 +311,7 @@ class AbstractBaseVrmImporter(ABC):
                 if isinstance(image_index, int) and image_index in self.images:
                     self.images[image_index].use_fake_user = True
 
-    # region material
+    # material
     @staticmethod
     def find_material_output_node(material: bpy.types.Material) -> bpy.types.ShaderNode:
         if material.node_tree:
@@ -358,7 +358,7 @@ class AbstractBaseVrmImporter(ABC):
             self.reset_material(material)
             build_method(material, material_property)
 
-    # region material_util func
+    # material_util func
     def connect_value_node(
         self,
         material: bpy.types.ShaderNode,
@@ -462,8 +462,6 @@ class AbstractBaseVrmImporter(ABC):
         node_group = material.node_tree.nodes.new("ShaderNodeGroup")
         node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
         return node_group
-
-    # endregion material_util func
 
     def assign_mtoon0_texture(
         self,
@@ -858,8 +856,6 @@ class AbstractBaseVrmImporter(ABC):
         mtoon1.rim_lighting_mix_factor = 1
         mtoon1.parametric_rim_fresnel_power_factor = 5
         mtoon1.parametric_rim_lift_factor = 0
-
-    # endregion material
 
     def load_vrm0_extensions(self) -> None:
         armature = self.armature

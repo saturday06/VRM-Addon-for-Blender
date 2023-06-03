@@ -122,7 +122,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
         layout = self.layout
         preferences = get_preferences(context)
 
-        # region draw_main
+        # draw_main
         layout.operator(
             make_armature.ICYP_OT_make_armature.bl_idname,
             text=pgettext("Create VRM Model"),
@@ -171,7 +171,6 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
                         icon="INFO",
                         text=pgettext("A light is required"),
                     )
-        # endregion draw_main
 
 
 class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc]

@@ -419,8 +419,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         sampler_dict: Dict[Tuple[int, int, int, int], int] = {}
         texture_dict: Dict[Tuple[int, int], int] = {}
 
-        # region texture func
-
+        # texture func
         def add_texture(
             image_name: str,
             wrap_s_type: int,
@@ -476,9 +475,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     for tex in texture_dict
                 ]
 
-        # endregion texture func
-
-        # region function separate by shader
+        # function separate by shader
         def pbr_fallback(
             b_mat: bpy.types.Material,
             base_color: Optional[Sequence[float]] = None,
@@ -1543,8 +1540,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             return mtoon_dict, material_dict
 
-        # endregion function separate by shader
-
         for b_mat in search.export_materials(self.export_objects):
             material_properties_dict: Dict[str, Json] = {}
             pbr_dict: Dict[str, Json] = {}
@@ -1880,7 +1875,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             self.axis_blender_to_glb(relate_pos)
                         )
 
-            # region hell
             # Check added to resolve https://github.com/saturday06/VRM-Addon-for-Blender/issues/70
             if self.context.view_layer.objects.active is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
@@ -1915,7 +1909,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             bm = bmesh.new()
             bm.from_mesh(mesh_data)
 
-            # region temporary used
+            # temporary used
             material_dicts = self.json_dict.get("materials")
             if not isinstance(material_dicts, list):
                 material_dicts = []
@@ -1946,7 +1940,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 i: uvlayer.name for i, uvlayer in enumerate(mesh_data.uv_layers)
             }
 
-            # endregion  temporary_used
             primitive_index_bin_dict: Dict[Optional[int], bytearray] = {
                 mat_id_dict[mat.name]: bytearray()
                 for mat in mesh.material_slots
@@ -2303,7 +2296,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             mesh_dicts.append(mesh_dict)
             bm.free()
-            # endregion hell
 
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -2373,13 +2365,14 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             self.json_dict["meshes"] = mesh_dicts
 
         # materialProperties は material_to_dict()で処理する
-        # region vrm_extension
+        # vrm extension
         meta = self.armature.data.vrm_addon_extension.vrm0.meta
         vrm_extension_dict: Dict[str, Json] = {
             "exporterVersion": self.exporter_name(),
             "specVersion": "0.0",
         }
-        # region meta
+
+        # meta
         vrm_extension_meta_dict = {
             "title": meta.title,
             "version": meta.version,
@@ -2427,9 +2420,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     },
                 )
                 vrm_extension_meta_dict["texture"] = len(texture_dicts) - 1
-        # endregion meta
 
-        # region humanoid
+        # humanoid
         node_name_id_dict = {
             node_dict.get("name"): i
             for i, node_dict in enumerate(node_dicts)
@@ -2483,9 +2475,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         humanoid_dict["lowerLegTwist"] = humanoid.lower_leg_twist
         humanoid_dict["feetSpacing"] = humanoid.feet_spacing
         humanoid_dict["hasTranslationDoF"] = humanoid.has_translation_dof
-        # endregion humanoid
 
-        # region firstPerson
+        # firstPerson
         first_person_dict: Dict[str, Json] = {}
         vrm_extension_dict["firstPerson"] = first_person_dict
         first_person = self.armature.data.vrm_addon_extension.vrm0.first_person
@@ -2558,8 +2549,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 "xRange": look_at.x_range,
                 "yRange": look_at.y_range,
             }
-        # endregion firstPerson
-        # region blendShapeMaster
+
+        # blendShapeMaster
         blend_shape_group_dicts: List[Json] = []
         blend_shape_master_dict: Dict[str, Json] = {
             "blendShapeGroups": blend_shape_group_dicts
@@ -2624,9 +2615,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             blend_shape_group_dict["isBinary"] = blend_shape_group.is_binary
             blend_shape_group_dicts.append(blend_shape_group_dict)
-        # endregion blendShapeMaster
 
-        # region secondaryAnimation
+        # secondaryAnimation
         secondary_animation_dict: Dict[str, Json] = {}
         vrm_extension_dict["secondaryAnimation"] = secondary_animation_dict
         collider_group_dicts: List[Json] = []
@@ -2645,7 +2635,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             collider_group.name for collider_group in filtered_collider_groups
         ]
 
-        # region boneGroup
+        # boneGroup
         bone_group_dicts: List[Json] = []
         secondary_animation_dict["boneGroups"] = bone_group_dicts
         for bone_group in secondary_animation.bone_groups:
@@ -2677,9 +2667,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             bone_group_dict["colliderGroups"] = collider_group_indices
             bone_group_dicts.append(bone_group_dict)
-        # endregion boneGroup
 
-        # region colliderGroups
+        # colliderGroups
         for collider_group in filtered_collider_groups:
             collider_group_dict: Dict[str, Json] = {}
             collider_dicts: List[Json] = []
@@ -2721,8 +2710,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     "z": -offset_z,
                 }
                 collider_dicts.append(collider_dict)
-        # endregion colliderGroups
-        # endregion secondaryAnimation
+
         extensions_dict = self.json_dict.get("extensions")
         if not isinstance(extensions_dict, dict):
             extensions_dict = {}
@@ -2732,9 +2720,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             base_vrm_extension_dict = {}
             extensions_dict["VRM"] = base_vrm_extension_dict
         base_vrm_extension_dict.update(vrm_extension_dict)
-        # endregion vrm_extension
 
-        # region secondary
+        # secondary
         node_dicts.append(
             {
                 "name": "secondary",
@@ -2746,7 +2733,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
         if isinstance(first_scene_nodes, list):
             first_scene_nodes.append(len(node_dicts) - 1)
-        # endregion secondary
 
     def fill_empty_material(self) -> None:
         # clusterではマテリアル無しのプリミティブが許可されないため、空のマテリアルを付与する。

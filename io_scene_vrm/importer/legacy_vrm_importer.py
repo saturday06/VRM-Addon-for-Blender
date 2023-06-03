@@ -64,7 +64,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         bones: Dict[int, bpy.types.Bone] = {}
         armature_edit_bones: Dict[int, bpy.types.Bone] = {}
 
-        # region bone recursive func
+        # bone recursive func
         def bone_chain(node_id: int, parent_node_id: int) -> None:
             if node_id == -1:  # 自身がrootのrootの時
                 return
@@ -94,7 +94,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 Vector(parent_pos) + Vector(self.axis_glb_to_blender(py_bone.position))
             )
 
-            # region temporary tail pos(glTF doesn't have bone. there defines as joints )
+            # temporary tail pos(glTF doesn't have bone. there defines as joints )
             def vector_length(bone_vector: List[float]) -> float:
                 return sqrt(
                     pow(bone_vector[0], 2)
@@ -138,7 +138,6 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
                 b.tail = tuple(Vector(b.head) + mean_relate_pos)
 
-            # endregion tail pos
             bones[node_id] = b
 
             if parent_node_id != -1:
@@ -147,7 +146,6 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 for x in py_bone.children:
                     bone_nodes.append((x, node_id))
 
-        # endregion bone recursive func
         root_node_set = list(dict.fromkeys(self.parse_result.skins_root_node_list))
         if root_node_set:
             root_nodes = root_node_set
@@ -244,7 +242,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             obj = bpy.data.objects.new(pymesh[0].name, b_mesh)
             obj.parent = self.armature
             self.meshes[pymesh[0].object_id] = obj
-            # region obj setting
+            # obj setting
             # origin 0:Vtype_Node 1:mesh 2:skin
             origin = None
             for key_is_node_id, node in self.parse_result.origin_nodes_dict.items():
@@ -285,9 +283,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 )
             scene = self.context.scene
             scene.collection.objects.link(obj)
-            # endregion obj setting
 
-            # region  vertex groupの作成
+            # vertex groupの作成
             if origin is not None:
                 skin_index = list(origin)[2]
                 if not isinstance(skin_index, int):
@@ -313,7 +310,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                         for v_index, (joint_ids, weights) in enumerate(
                             zip(prim.JOINTS_0, prim.WEIGHTS_0)
                         ):
-                            # region VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
+                            # VRoidがJoints:[18,18,0,0]とかで格納してるからその処理を
                             normalized_joint_ids = list(dict.fromkeys(joint_ids))
 
                             # for deterministic export
@@ -361,7 +358,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
                             for i, k in enumerate(joint_ids):
                                 normalized_joint_dict[k] += weights[i]
-                            # endregion VroidがJoints:[18,18,0,0]とかで格納してるからその処理を
+
                             for joint_id, weight in normalized_joint_dict.items():
                                 node_id = nodes_index_list[joint_id]
                                 # TODO bone名の不具合などでリネームが発生してるとうまくいかない
@@ -380,9 +377,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                                     # 頂点はまとめてリストで追加できるようにしかなってない
                                     vg.add([joint_id], weight, "REPLACE")
                 obj.modifiers.new("amt", "ARMATURE").object = self.armature
-            # endregion  vertex groupの作成
 
-            # region uv
+            # uv
             flatten_vrm_mesh_vert_index = [v for verts in face_indices for v in verts]
 
             for prim in pymesh:
@@ -405,9 +401,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                     else:
                         uv_flag = False
                         break
-            # endregion uv
 
-            # region Normal #TODO
+            # Normal #TODO
             bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.object.select_all(action="DESELECT")
             self.context.view_layer.objects.active = obj
@@ -435,9 +430,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                     list(map(self.axis_glb_to_blender, normalized_normal))
                 )
             b_mesh.use_auto_smooth = True
-            # endregion Normal
 
-            # region material適用
+            # material適用
             face_length = 0
             for i, prim in enumerate(pymesh):
                 if (
@@ -455,9 +449,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 for n in range(primitive_length_list[i][1]):
                     b_mesh.polygons[face_length + n].material_index = mat_index
                 face_length += primitive_length_list[i][1] + 1
-            # endregion material適用
 
-            # region vertex_color
+            # vertex_color
             # なぜかこれだけ面基準で、loose verts and edgesに色は塗れない
             # また、2.79では頂点カラーにalpha(4要素目)がないから完全対応は無理だったが
             # 2.80では4要素になった模様
@@ -484,9 +477,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                     else:
                         vc_flag = False
                         break
-            # endregion vertex_color
 
-            # region shape_key
+            # shape_key
             # shapekey_data_factory with cache
             def absolutize_morph_positions(
                 base_points: List[List[float]],
@@ -549,7 +541,6 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                         shape_data = []
                     for i, co in enumerate(shape_data):
                         keyblock.data[i].co = co
-            # endregion shape_key
             # progress update
             mesh_progress += mesh_progress_unit
             wm.progress_update(progress + mesh_progress)

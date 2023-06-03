@@ -540,7 +540,7 @@ class VrmParser:
                     deep.get(mesh_dict, ["extensions", "FB_ngon_encoding"]), dict
                 )
 
-                # region 頂点index
+                # 頂点index
                 if primitive_dict.get("mode", 4) != GL_TRIANGLES:
                     # TODO その他メッシュタイプ対応
                     primitive_mode = primitive_dict.get("mode")
@@ -560,8 +560,6 @@ class VrmParser:
                         for x in range(0, len(scalar_face_indices), 3)
                     ]
 
-                # endregion 頂点index
-
                 # ここから頂点属性
                 vertex_attributes = primitive_dict.get("attributes")
                 if not isinstance(vertex_attributes, dict):
@@ -574,7 +572,7 @@ class VrmParser:
                         continue
                     vrm_mesh.__setattr__(attr_key, self.decoded_binary[attr_value])
 
-                # region TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
+                # TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
                 legacy_uv_flag = False  # f***
                 gen = str(deep.get(self.json_dict, ["assets", "generator"], ""))
                 if re.match("UniGLTF", gen):
@@ -594,7 +592,6 @@ class VrmParser:
                     else:
                         break
                 # blenderとは上下反対のuv,それはblenderに書き込むときに直す
-                # endregion TEXCOORD_FIX
 
                 # meshに当てられるマテリアルの場所を記録
                 material_index = primitive_dict.get("material")

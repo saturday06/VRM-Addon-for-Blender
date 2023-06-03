@@ -83,7 +83,7 @@ class IcypTemplateMeshMaker:
         args = self.args
         bm = bmesh.new()
         head_size = self.head_size
-        # region body
+        # body
 
         # make neck
         neck_bone = self.get_humanoid_bone("neck")
@@ -120,9 +120,8 @@ class IcypTemplateMeshMaker:
         self.make_half_cube(
             bm, [hips_size, head_size * 3 / 4, hips_bone.length], hips_bone.head_local
         )
-        # endregion body
 
-        # region arm
+        # arm
         left_arm_bones = [
             self.get_humanoid_bone(v)
             for v in HumanBoneSpecifications.left_arm_req
@@ -143,9 +142,8 @@ class IcypTemplateMeshMaker:
                 bm, base_xz, top_xz, b.length, [0, 0, 0], b.matrix_local
             )
         # TODO Thumb rotation
-        # endregion arm
 
-        # region leg
+        # leg
         # TODO
         left_leg_bones = [
             self.get_humanoid_bone(v)
@@ -194,7 +192,6 @@ class IcypTemplateMeshMaker:
                 [0, 0, 0],
                 b.matrix_local,
             )
-        # endregion leg
 
         bm.to_mesh(mesh)
         bm.free()

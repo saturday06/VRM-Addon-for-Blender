@@ -469,7 +469,7 @@ class GlslDrawObj:
         depth_matrix = v_matrix @ p_matrix  # reuse in main shader
         depth_matrix.transpose()
 
-        # region shader depth path
+        # shader depth path
         with offscreen.bind():
             bgl.glClearColor(10, 10, 10, 1)
             bgl.glClear(bgl.GL_COLOR_BUFFER_BIT | bgl.GL_DEPTH_BUFFER_BIT)
@@ -503,9 +503,8 @@ class GlslDrawObj:
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
                 depth_bat.draw(depth_shader)  # type: ignore[attr-defined]
-        # endregion shader depth path
 
-        # region shader main
+        # shader main
         vp_mat = bpy.context.region_data.perspective_matrix
         projection_mat = bpy.context.region_data.window_matrix
         view_dir = bpy.context.region_data.view_matrix[2][:3]
@@ -613,7 +612,6 @@ class GlslDrawObj:
                     toon_shader.uniform_int(k, 1 + i)
 
                 toon_bat.draw(toon_shader)  # type: ignore[attr-defined]
-        # endregion shader main
 
     draw_func: Optional[bpy.types.Object] = None
     build_mesh_func: Optional[bpy.types.Object] = None
@@ -665,7 +663,6 @@ class GlslDrawObj:
         bpy.ops.wm.redraw_timer(type="DRAW", iterations=1)  # Force redraw
 
 
-# region util func
 def ortho_proj_mat(
     left: float, right: float, bottom: float, top: float, near: float, far: float
 ) -> Matrix:
@@ -705,6 +702,3 @@ def lookat_cross(
         mat4[i][2] = z[i]
         mat4[3][i] = n[i]
     return mat4
-
-
-# endregion util func

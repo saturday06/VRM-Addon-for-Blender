@@ -155,7 +155,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         armature: Optional[bpy.types.Object] = None
         node_names = []
 
-        # region export object seeking
+        # export object seeking
         preferences = get_preferences(context)
         export_invisibles = bool(preferences.export_invisibles)
         export_only_selections = bool(preferences.export_only_selections)
@@ -372,7 +372,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         break
 
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
-        # endregion export object seeking
 
         if armature is not None and armature.data.vrm_addon_extension.is_vrm1():
             for obj in export_objects:
@@ -650,7 +649,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     )
                 )
 
-            # region first_person
+            # first_person
             first_person = armature.data.vrm_addon_extension.vrm0.first_person
             if not first_person.first_person_bone.value:
                 info_messages.append(
@@ -659,9 +658,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         + 'Set VRM HumanBone "head" instead automatically.'
                     )
                 )
-            # endregion first_person
 
-            # region blend_shape_master
+            # blend_shape_master
             # TODO material value and material existence
             blend_shape_master = (
                 armature.data.vrm_addon_extension.vrm0.blend_shape_master
@@ -694,7 +692,6 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                                 shape_key_name=bind.index,
                             )
                         )
-            # endregion blend_shape_master
 
         for image in used_images:
             if (

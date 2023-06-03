@@ -45,7 +45,6 @@ editmode
 ee
 emissive
 emissivefactor
-endregion
 eval
 exeext
 f00
