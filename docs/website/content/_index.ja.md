@@ -44,7 +44,6 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加な�
 - VRMエクステンションの編集パネル
 - VRM向けシェーダーノードグループ(※モックアップ程度の出来)
   - MToon_unversioned
-  - TransparentZwrite
 - VRM向けHumanoid Armature追加機能
   - (これを使わないとエクスポート出来ません)(絶対に出来ないとは言ってないけど圧倒的に楽)
 

@@ -38,7 +38,7 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 ## Edit
 
 - Add VRM Extension Panel
-- Add a VRM like shader as Node Group (MToon_unversioned, TransparentZwrite)(Please use these node groups and direct link it to TEX_IMAGE, RGBA, VALUE, and Material output Nodes for export).
+- Add a VRM like shader as Node Group (MToon_unversioned)(Please use these node groups and direct link it to TEX_IMAGE, RGBA, VALUE, and Material output Nodes for export).
 - Add a humanoid armature for VRM (T-Pose, Required Bones, and appending custom properties to need export VRM (reference to VRM extensions textblock, and bone tagging))
 
 ## Export
