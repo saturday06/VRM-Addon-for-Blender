@@ -20,6 +20,10 @@ Please download the add-on from this website: [https://vrm-addon-for-blender.inf
 | :---: | :---: | :---: |
 | <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <img width="200" src="https://vrm-addon-for-blender.info/images/transparent.gif"> |
 
+## Overview
+
+This add-on adds VRM-related functions to Blender, such as importing and exporting VRM, adding VRM Humanoid and setting MToon shaders. Bug reports, feature requests, pull requests, etc. are welcome. I have taken over the development after [Version 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79) from the author, [@iCyP](https://github.com/iCyP).
+
 ## Development
 
 The source code for development is in the <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a> branch. Its <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/io_scene_vrm">`io_scene_vrm`</a> folder is a main body of the add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
@@ -63,6 +67,10 @@ BlenderにVRM関連機能を追加するアドオンです。
 | [物理ベースのマテリアル設定](https://vrm-addon-for-blender.info/ja/material-pbr) | [アニメ風のマテリアル設定](https://vrm-addon-for-blender.info/ja/material-mtoon) | |
 | :---: | :---: | :---: |
 | <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <img width="200" src="https://vrm-addon-for-blender.info/images/transparent.gif"> |
+
+## 概要
+
+BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加やMToonシェーダーの設定などのVRM関連機能を追加するアドオンです。バグ報告、機能要望、Pull Request等歓迎します。[バージョン 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79)以降の開発を作者である[@iCyP](https://github.com/iCyP)さんから引き継ぎました。
 
 ## 開発するには
 
