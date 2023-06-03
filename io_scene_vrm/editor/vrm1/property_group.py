@@ -416,7 +416,13 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     human_bones: bpy.props.PointerProperty(type=Vrm1HumanBonesPropertyGroup)  # type: ignore[valid-type]
 
     # for T-Pose
-    pose_library: bpy.props.PointerProperty(type=bpy.types.Action)  # type: ignore[valid-type]
+    def update_pose_library(self, _context: bpy.types.Context) -> None:
+        self.pose_marker_name = ""
+
+    pose_library: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Action,
+        update=update_pose_library,
+    )
     pose_marker_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
 
