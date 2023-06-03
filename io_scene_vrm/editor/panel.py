@@ -7,7 +7,6 @@ from . import (
     detail_mesh_maker,
     make_armature,
     mesh_from_bone_envelopes,
-    ops,
     search,
     validation,
 )
@@ -119,10 +118,8 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
         self.layout.label(icon="OBJECT_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
-        active_object = context.active_object
         mode = context.mode
         layout = self.layout
-        object_type = active_object.type if active_object else None
         preferences = get_preferences(context)
 
         # region draw_main
@@ -174,16 +171,6 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
                         icon="INFO",
                         text=pgettext("A light is required"),
                     )
-            if object_type == "MESH":
-                layout.operator(
-                    ops.VRM_OT_vroid2vrc_lipsync_from_json_recipe.bl_idname,
-                    icon="EXPERIMENTAL",
-                )
-        if mode == "EDIT_MESH":
-            layout.operator(
-                bpy.ops.mesh.symmetry_snap.idname_py(),  # pyright: ignore[reportFunctionMemberAccess]
-                icon="MOD_MIRROR",
-            )
         # endregion draw_main
 
 
