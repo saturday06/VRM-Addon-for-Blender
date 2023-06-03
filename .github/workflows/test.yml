@@ -67,7 +67,7 @@ jobs:
           key: ${{ matrix.archive_url }}-archive-3
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
-        run: curl -fsLS "${{ matrix.archive_url }}" -o blender.dmg
+        run: curl -fsLS --retry 5 --retry-all-errors "${{ matrix.archive_url }}" -o blender.dmg
       - name: Test
         run: |
           hdiutil attach blender.dmg
