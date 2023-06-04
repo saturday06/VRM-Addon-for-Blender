@@ -525,7 +525,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[m
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
         layout.label(
-            text="複数のアーマチュアが存在します。VRMとしてエクスポートするアーマチュアを選択してください。",
+            text="Multiple armatures were found; please select one to export as VRM.",
             icon="ERROR",
         )
 
