@@ -175,14 +175,14 @@ files = [
 graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
-name = "fake-bpy-module-2-83"
+name = "fake-bpy-module-2-93"
 version = "20210701"
 description = "Collection of the fake Blender Python API module for the code completion."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "fake-bpy-module-2.83-20210701.tar.gz", hash = "sha256:7ae58827ef6fdfacc344eab4dd41455231f52b692c680f96c880cb444a3771fe"},
-    {file = "fake_bpy_module_2.83-20210701-py3-none-any.whl", hash = "sha256:c834efd7bf978a80d8eda61be2b869271f9d5650e0b160d189f070454470a963"},
+    {file = "fake-bpy-module-2.93-20210701.tar.gz", hash = "sha256:20c372c63424ace23422ae9117ab45cfdb3c3f1a8a6550d50926cb3ca3eef999"},
+    {file = "fake_bpy_module_2.93-20210701-py3-none-any.whl", hash = "sha256:565a8094c0c45fa0ff02964943f8a02a4a530d56707fbc70848e4a72a40bbc7d"},
 ]
 
 [[package]]
@@ -549,13 +549,13 @@ flake8 = ">=5.0.0"
 
 [[package]]
 name = "platformdirs"
-version = "3.5.3"
+version = "3.8.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "platformdirs-3.5.3-py3-none-any.whl", hash = "sha256:0ade98a4895e87dc51d47151f7d2ec290365a585151d97b4d8d6312ed6132fed"},
-    {file = "platformdirs-3.5.3.tar.gz", hash = "sha256:e48fabd87db8f3a7df7150a4a5ea22c546ee8bc39bc2473244730d4b56d2cc4e"},
+    {file = "platformdirs-3.8.0-py3-none-any.whl", hash = "sha256:ca9ed98ce73076ba72e092b23d3c93ea6c4e186b3f1c3dad6edd98ff6ffcca2e"},
+    {file = "platformdirs-3.8.0.tar.gz", hash = "sha256:b0cabcb11063d21a0b261d557acb0a9d2126350e63b70cdf7db6347baea456dc"},
 ]
 
 [package.extras]
@@ -714,13 +714,13 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "setuptools"
-version = "67.8.0"
+version = "68.0.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.8.0-py3-none-any.whl", hash = "sha256:5df61bf30bb10c6f756eb19e7c9f3b473051f48db77fddbe06ff2ca307df9a6f"},
-    {file = "setuptools-67.8.0.tar.gz", hash = "sha256:62642358adc77ffa87233bc4d2354c4b2682d214048f500964dbe760ccedf102"},
+    {file = "setuptools-68.0.0-py3-none-any.whl", hash = "sha256:11e52c67415a381d10d6b462ced9cfb97066179f0e871399e006c4ab101fc85f"},
+    {file = "setuptools-68.0.0.tar.gz", hash = "sha256:baf1fdb41c6da4cd2eae722e135500da913332ab3f2f5c7d33af9b492acb5235"},
 ]
 
 [package.extras]
@@ -777,13 +777,13 @@ files = [
 
 [[package]]
 name = "typing-extensions"
-version = "4.6.3"
+version = "4.7.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "typing_extensions-4.6.3-py3-none-any.whl", hash = "sha256:88a4153d8505aabbb4e13aacb7c486c2b4a33ca3b3f807914a9b4c844c471c26"},
-    {file = "typing_extensions-4.6.3.tar.gz", hash = "sha256:d91d5919357fe7f681a9f2b5b4cb2a5f1ef0a1e9f59c4d8ff0d3491e05c0ffd5"},
+    {file = "typing_extensions-4.7.0-py3-none-any.whl", hash = "sha256:5d8c9dac95c27d20df12fb1d97b9793ab8b2af8a3a525e68c80e21060c161771"},
+    {file = "typing_extensions-4.7.0.tar.gz", hash = "sha256:935ccf31549830cda708b42289d44b6f74084d616a00be651601a4f968e77c82"},
 ]
 
 [[package]]
@@ -873,4 +873,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "579235e38a48776dc1d1522239372b3f4af5bb58fd3ebf655d79f916b84c4e29"
+content-hash = "29d89142442f4b11b3cced07da0e1fe8186e4b0273d264cf86ad8ebe61739074"

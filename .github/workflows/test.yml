@@ -195,7 +195,7 @@ jobs:
         run: git ls-files "*.py" | xargs poetry run black --check --diff
       - name: Pylint
         run: |
-          poetry remove fake-bpy-module-2.83 # pylint and fake-bpy-module are incompatible
+          poetry remove fake-bpy-module-2.93 # pylint and fake-bpy-module are incompatible
           git ls-files "*.py" | xargs poetry run pylint --rcfile .pylintrc.ci
           git checkout .
           poetry install
