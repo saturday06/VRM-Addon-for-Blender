@@ -273,12 +273,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         ):
             used_images.append(ext.vrm0.meta.texture)
 
-        image_to_image_index = (
-            lambda used_image: bpy.data.images.index(used_image)
-            if used_image in bpy.data.images.items()
-            else len(bpy.data.images) + used_images.index(used_image)
-        )
-        for image in sorted(used_images, key=image_to_image_index):
+        for image in used_images:
             image_bin, filetype = io_scene_gltf2_support.image_to_image_bytes(
                 image, self.gltf2_addon_export_settings
             )
