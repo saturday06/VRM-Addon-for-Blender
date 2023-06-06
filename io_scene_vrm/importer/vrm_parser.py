@@ -570,7 +570,7 @@ class VrmParser:
                         self.decoded_binary
                     ):
                         continue
-                    vrm_mesh.__setattr__(attr_key, self.decoded_binary[attr_value])
+                    setattr(vrm_mesh, attr_key, self.decoded_binary[attr_value])
 
                 # TEXCOORD_FIX [ 古いUniVRM誤り: uv.y = -uv.y ->修復 uv.y = 1 - ( -uv.y ) => uv.y=1+uv.y]
                 legacy_uv_flag = False  # f***
