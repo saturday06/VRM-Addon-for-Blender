@@ -89,8 +89,8 @@ def diff(
                 f"{path}: left length is {len(left)} but right length is {len(right)}"
             ]
         diffs = []
-        for i, _ in enumerate(left):
-            diffs.extend(diff(left[i], right[i], float_tolerance, f"{path}[{i}]"))
+        for i, (l, r) in enumerate(zip(left, right)):
+            diffs.extend(diff(l, r, float_tolerance, f"{path}[{i}]"))
         return diffs
 
     if isinstance(left, dict):
