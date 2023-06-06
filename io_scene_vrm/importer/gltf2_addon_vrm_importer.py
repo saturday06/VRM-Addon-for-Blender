@@ -2240,7 +2240,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
                 "FINISHED"
             }:
-                raise Exception(
+                raise ValueError(
                     f'Failed to add spring bone 1.0 collider to "{armature.name}"'
                 )
 
@@ -2355,7 +2355,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if bpy.ops.vrm.add_spring_bone1_collider_group(
                 armature_name=armature_name
             ) != {"FINISHED"}:
-                raise Exception(
+                raise ValueError(
                     f"Failed to add spring bone 1.0 collider group to {armature_name}"
                 )
 
@@ -2377,7 +2377,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     armature_name=armature_name,
                     collider_group_index=collider_group_index,
                 ) != {"FINISHED"}:
-                    raise Exception(
+                    raise ValueError(
                         "Failed to assign spring bone 1.0 collider to collider group "
                         + f"{collider_group_index} in {armature_name}"
                     )

@@ -310,7 +310,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                                 continue
                             parent = human_bone_specification.parent()
                             if parent is None:
-                                raise Exception(
+                                raise ValueError(
                                     f"Fatal: {human_bone_specification.name} has no parent"
                                 )
                             child_human_bone = human_bone_name_to_human_bone[
