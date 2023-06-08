@@ -1,3 +1,5 @@
+from typing import Optional
+
 import bpy
 from bpy.app.translations import pgettext
 
@@ -12,6 +14,7 @@ from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
 from . import ops as vrm1_ops
 from .property_group import (
+    Vrm1CustomExpressionPropertyGroup,
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
@@ -515,7 +518,7 @@ def draw_vrm1_expression_layout(
     layout: bpy.types.UILayout,
     name: str,
     expression: Vrm1ExpressionPropertyGroup,
-    removable: bool,
+    custom_expression: Optional[Vrm1CustomExpressionPropertyGroup],
 ) -> None:
     blend_data = context.blend_data
 
@@ -533,6 +536,10 @@ def draw_vrm1_expression_layout(
         return
 
     box = layout.box().column()
+
+    if custom_expression:
+        box.row().prop(custom_expression, "custom_name")
+
     row = box.row()
     row.alignment = "LEFT"
     row.prop(
@@ -658,7 +665,7 @@ def draw_vrm1_expression_layout(
     box.prop(expression, "override_look_at")
     box.prop(expression, "override_mouth")
 
-    if removable:
+    if custom_expression:
         remove_custom_expression_op = box.operator(
             vrm1_ops.VRM_OT_remove_vrm1_expressions_custom_expression.bl_idname,
             icon="REMOVE",
@@ -676,20 +683,26 @@ def draw_vrm1_expressions_layout(
     migrate(armature.name, defer=True)
 
     column = layout.column()
-    for (
-        name,
-        expression,
-    ) in expressions.all_name_to_expression_dict().items():
-        removable = name not in expressions.preset_name_to_expression_dict()
+    for name, expression in expressions.preset_name_to_expression_dict().items():
         draw_vrm1_expression_layout(
-            armature, context, column, name, expression, removable
+            armature, context, column, name, expression, custom_expression=None
+        )
+
+    for custom_expression in expressions.custom:
+        draw_vrm1_expression_layout(
+            armature,
+            context,
+            column,
+            custom_expression.custom_name,
+            custom_expression.expression,
+            custom_expression,
         )
 
     add_custom_expression_op = layout.operator(
         vrm1_ops.VRM_OT_add_vrm1_expressions_custom_expression.bl_idname,
         icon="ADD",
     )
-    add_custom_expression_op.custom_expression_name = "New"
+    add_custom_expression_op.custom_expression_name = "new"
     add_custom_expression_op.armature_name = armature.name
 
 

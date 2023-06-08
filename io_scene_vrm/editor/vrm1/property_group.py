@@ -1,5 +1,6 @@
 import functools
-from typing import Dict, List
+import sys
+from typing import Dict, List, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -591,7 +592,41 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
 
 
 class Vrm1CustomExpressionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    custom_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    def get_custom_name(self) -> str:
+        return str(self.get("custom_name", ""))
+
+    def set_custom_name(self, value: str) -> None:
+        if not value or self.get("custom_name") == value:
+            return
+
+        vrm1: Optional[Vrm1PropertyGroup] = None
+        for search_armature in bpy.data.armatures:
+            ext = search_armature.vrm_addon_extension
+            for custom_expression in ext.vrm1.expressions.custom:
+                if custom_expression != self:
+                    continue
+                vrm1 = search_armature.vrm_addon_extension.vrm1
+                break
+        if vrm1 is None:
+            logger.error(f"No armature extension for {self}")
+            return
+
+        expressions = vrm1.expressions
+        all_expression_names = expressions.all_name_to_expression_dict().keys()
+        custom_name = value
+        for index in range(sys.maxsize):
+            if index > 0:
+                custom_name = f"{value}.{index:03}"
+            if custom_name not in all_expression_names:
+                break
+
+        self["custom_name"] = custom_name
+
+    custom_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        name="Name",  # noqa: F821
+        get=get_custom_name,
+        set=set_custom_name,
+    )
     expression: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
 
 
