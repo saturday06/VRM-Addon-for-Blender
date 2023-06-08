@@ -345,7 +345,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         material_color_bind_dicts: List[Dict[str, Json]] = []
         for material_color_bind in expression.material_color_binds:
-            if not material_color_bind.material or material_color_bind.material.name:
+            if (
+                not material_color_bind.material
+                or not material_color_bind.material.name
+            ):
                 continue
             material_index = material_name_to_index_dict.get(
                 material_color_bind.material.name
@@ -366,7 +369,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         for texture_transform_bind in expression.texture_transform_binds:
             if (
                 not texture_transform_bind.material
-                or texture_transform_bind.material.name
+                or not texture_transform_bind.material.name
             ):
                 continue
             material_index = material_name_to_index_dict.get(
