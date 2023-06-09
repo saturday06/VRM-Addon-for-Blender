@@ -1,28 +1,28 @@
 ---
 title: "Create Simple VRM"
 description: "Convert the cube displayed from the beginning when you start Blender to a VRM model."
-images: ["images/simple.gif"]
+images: ["img/simple.gif"]
 ---
 
 Convert the cube displayed from the beginning when you start Blender to a VRM model.
 
-![](../../images/simple.gif)
+![](simple.gif)
 
 First, start Blender and make sure that the cube is displayed.
 
-![](../images/simple1.png)
+![](1.en.png)
 
 Next, select `File` → `Export` → `VRM (.vrm)` from the menu.
 
-![](../images/simple2.png)
+![](2.en.png)
 
 Enter the filename and destination when the File View window appears and press `Export VRM`.
 
-![](../images/simple3.png)
+![](3.en.png)
 
 If successful, the VRM file will be saved to the specified location.
 
-![](../../images/simple.gif)
+![](simple.gif)
 
 You can check the operation on this page.
 

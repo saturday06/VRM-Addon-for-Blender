@@ -1,28 +1,28 @@
 ---
 title: "シンプルなVRMモデルを作る"
 description: "Blenderを起動したときにはじめから表示されている立方体をそのままVRMモデルにします。"
-images: ["images/simple.gif"]
+images: ["img/simple.gif"]
 ---
 
 Blenderを起動したときにはじめから表示されている立方体をそのままVRMモデルにします。
 
-![](../../images/simple.gif)
+![](simple.gif)
 
 まずはBlenderを起動し、立方体が表示されていることを確認します。
 
-![](../images/simple1.png)
+![](1.ja.png)
 
 次にメニューの `ファイル` → `エクスポート` → `VRM (.vrm)`を選択します。
 
-![](../images/simple2.png)
+![](2.ja.png)
 
 ファイル保存用のウィンドウが出るので、ファイル名と保存先を入力し `Export VRM` を押します。
 
-![](../images/simple3.png)
+![](3.ja.png)
 
 成功するとVRMファイルが指定された場所に保存されます。
 
-![](../../images/simple.gif)
+![](simple.gif)
 
 こちらのページで動作確認ができます。
 

@@ -1,7 +1,7 @@
 ---
 title: "VRM Add-on for Blender"
 description: "VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。"
-images: ["ja/images/top.png"]
+images: ["ja/top.ja.png"]
 ---
 
 <style>
@@ -14,7 +14,7 @@ main article.prose section :where(p, img):not(:where([class~=not-prose] *)) {
 }
 </style>
 
-![](images/top.png)
+![](top.ja.png)
 
 **[最新版のダウンロード {{< release_ja >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**<small> / [過去のバージョン一覧](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
 
@@ -24,11 +24,11 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 
 | [アドオンのインストール]({{< ref "installation" >}}) | [シンプルなVRMモデルを作る]({{< ref "create-simple-vrm-from-scratch" >}}) | [人型のVRMモデルを作る]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 | --- | --- | --- |
-| [![](../../images/installation.gif)]({{< ref "installation" >}}) | [![](../../images/simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](../../images/humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
+| [![](installation.gif)]({{< ref "installation" >}}) | [![](simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 
 | [物理ベースのマテリアル設定]({{< ref "material-pbr" >}}) | [アニメ風のマテリアル設定]({{< ref "material-mtoon" >}}) | |
 | --- | --- | --- |
-| [![](../../images/material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](../../images/material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](../../images/transparent.gif) |
+| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](transparent.gif) |
 
 ## 概要
 

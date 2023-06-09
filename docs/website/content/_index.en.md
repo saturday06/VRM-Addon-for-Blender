@@ -1,7 +1,7 @@
 ---
 title: "VRM Add-on for Blender"
 description: "VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender."
-images: ["en/images/top.png"]
+images: ["en/top.en.png"]
 ---
 
 <style>
@@ -14,7 +14,7 @@ main article.prose section :where(p, img):not(:where([class~=not-prose] *)) {
 }
 </style>
 
-![](images/top.png)
+![](top.en.png)
 
 **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**<small> / [Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
 
@@ -24,11 +24,11 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 
 | [Installation]({{< ref "installation" >}}) | [Create Simple VRM]({{< ref "create-simple-vrm-from-scratch" >}}) | [Create Humanoid VRM]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 | --- | --- | --- |
-| [![](../../images/installation.gif)]({{< ref "installation" >}}) | [![](../../images/simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](../../images/humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
+| [![](installation.gif)]({{< ref "installation" >}}) | [![](simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 
 | [Create Physics Based Material]({{< ref "material-pbr" >}}) | [Create Anime Style Material]({{< ref "material-mtoon" >}}) | |
 | --- | --- | --- |
-| [![](../../images/material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](../../images/material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](../../images/transparent.gif) |
+| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](transparent.gif) |
 
 ## Overview
 

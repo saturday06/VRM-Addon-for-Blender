@@ -18,30 +18,17 @@ th a {
   border-bottom-width: 0;
 }
 
-.prose :where(img):not(:where([class~="not-prose"] *)) {
-  width: auto;
-  max-width: 100%;
-}
-
-.prose :where(img[src$=".gif"]):not(:where([class~="not-prose"] *)) {
-  width: 240px;
-  line-height: 0;
-  margin: 0;
-}
-
-.prose :where(img[src$=".png"]):not(:where([class~="not-prose"] *)) {
-  width: 660px;
-}
-
-.prose :where(img[src$="_property_tab_icon.png"]):not(:where([class~="not-prose"] *)) {
-  width: 16px;
-  height: 16px;
-  display: inline;
-  margin: auto;
-  padding: auto;
-}
-
 .prose td a :where(img):not(:where([class~="not-prose"] *)) {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+main#main-content > section.mt-10.prose > p.py-8.border-t {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+main#main-content > section.mt-10.prose > p.py-8.border-t > em {
+  display: none;
 }

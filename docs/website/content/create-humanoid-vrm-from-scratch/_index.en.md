@@ -1,109 +1,109 @@
 ---
 title: "Create Humanoid VRM"
 description: "We will create a simple Humanoid VRM model."
-images: ["images/humanoid.gif"]
+images: ["img/humanoid.gif"]
 ---
 
 We will create a simple Humanoid VRM model.
 
-![](../../images/humanoid.gif)
+![](humanoid.gif)
 
 After starting Blender, place the mouse cursor on the 3D Viewport and press the `n` key.
 
-![](../images/humanoid1.png)
+![](1.en.png)
 
 This will open a Sidebar from the right side. Select the `VRM` tab and click the `Create VRM Model` button.
 
-![](../images/humanoid2.png)
+![](2.en.png)
 
 Then an armature suitable for VRM output will be created automatically. An armature represents the bone structure of a 3D model.
 This add-on uses armature to represent the skeletal structure of the human figure in VRM.
 
-![](../images/humanoid3.png)
+![](3.en.png)
 
 We will use the default Cube as a torso.
 
-Select the Cube in the 3D Viewport, select the tab with the "<img src="../../images/object_property_tab_icon.png">" icon in the lower right corner, go to `Transform` > `Scale`, and set all values to `0.2` to make it small enough to be used as a torso.
+Select the Cube in the 3D Viewport, select the tab with the "![](object_property_tab_icon.png)" icon in the lower right corner, go to `Transform` > `Scale`, and set all values to `0.2` to make it small enough to be used as a torso.
 
-![](../images/humanoid4.png)
+![](4.en.png)
 
 We associate the torso with the bones of the armature. Go to `Relations`, and set `Parent` to `Armature`, `Parent Type` to `Bone`, and `Parent Bone` to `spine`. The torso will move to the spine of the 3D model.
 
-![](../images/humanoid5.png)
+![](5.en.png)
 
 The next step is to create the head, press `Shift + a` in the 3D viewport to bring up an additional menu, select `Mesh` -> `UV Sphere`.
 
-![](../images/humanoid6.png)
+![](6.en.png)
 
 A `Sphere` will be added.
 
-![](../images/humanoid7.png)
+![](7.en.png)
 
 It is too big so we will shrink it.
 
-Select the tab with the "<img src="../../images/object_property_tab_icon.png">" icon in the lower right corner, go to `Transform` > `Scale`, and set all values to `0.25`.
+Select the tab with the "![](object_property_tab_icon.png)" icon in the lower right corner, go to `Transform` > `Scale`, and set all values to `0.25`.
 
-![](../images/humanoid8.png)
+![](8.en.png)
 
 Associate this sphere with the armature's bone. Go to `Relations`, and set `Parent` to `Armature`, `Parent Type` to `Bone`, and `Parent Bone` to `head`. The sphere will move to the head of the 3D model.
 
-![](../images/humanoid9.png)
+![](9.en.png)
 
 Next, we will add the limbs: in the 3D viewport, press `Shift + a` to bring up the Add menu, and select `Mesh` -> `Ico Sphere`.
 
-![](../images/humanoid10.png)
+![](10.en.png)
 
 The `Icosphere` will be added, and at the same time, you will see `> Add Ico Sphere` in the lower-left corner of the 3D viewport. Click on this message.
 
-![](../images/humanoid11.png)
+![](11.en.png)
 
 You can then set up the new Ico Sphere to be added. We feel that the radius is too large so we will change the radius value to `0.1 m`.
 
-![](../images/humanoid12.png)
+![](12.en.png)
 
-Select the tab with the "<img src="../../images/object_property_tab_icon.png">" icon in the lower right corner, go to `Relations`, set `Parent` to `Armature`, set `Parent Type` to `Bone`, and set `Parent Bone` to `upper_arm.L`. The sphere will move to the left upper arm of the 3D model.
+Select the tab with the "![](object_property_tab_icon.png)" icon in the lower right corner, go to `Relations`, set `Parent` to `Armature`, set `Parent Type` to `Bone`, and set `Parent Bone` to `upper_arm.L`. The sphere will move to the left upper arm of the 3D model.
 
-![](../images/humanoid13.png)
+![](13.en.png)
 
 Add the Ico sphere as before, and now associate it with the `hand.L` bone. The Ico sphere will move to the left hand.
 
-![](../images/humanoid14.png)
+![](14.en.png)
 
 Similarly, we will associate it with the `upper_arm.R` bone.
 
-![](../images/humanoid15.png)
+![](15.en.png)
 
 Associate with the `hand.R` bone.
 
-![](../images/humanoid16.png)
+![](16.en.png)
 
 Associate with the `upper_leg.L` bone.
 
-![](../images/humanoid17.png)
+![](17.en.png)
 
 Associate with the `lower_leg.L` bone.
 
-![](../images/humanoid18.png)
+![](18.en.png)
 
 Associate with the `upper_leg.R` bone.
 
-![](../images/humanoid19.png)
+![](19.en.png)
 
 Finally, associate it with the `lower_leg.R` bone.
 
-![](../images/humanoid20.png)
+![](20.en.png)
 
 Save this model as a VRM. Select `File` → `Export` → `VRM (.vrm)` from the menu.
 
-![](../images/simple2.png)
+![](21.en.png)
 
 Enter the filename and destination when the File View window appears and press `Export VRM`.
 
-![](../images/humanoid21.png)
+![](22.en.png)
 
 If successful, the VRM file will be saved to the specified location.
 
-![](../../images/humanoid.gif)
+![](humanoid.gif)
 
 You can check the operation on this page.
 

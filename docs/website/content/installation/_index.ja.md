@@ -1,6 +1,6 @@
 ---
 title: "アドオンのインストール"
-images: ["ja/images/installation.png"]
+images: ["img/installation.gif"]
 ---
 
 **[最新版のダウンロード {{< release_ja >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンファイルをダウンロードします。
@@ -9,27 +9,27 @@ images: ["ja/images/installation.png"]
 
 次にBlenderを起動し、メニューの `編集` → `プリファレンス` を選択します。
 
-![](../images/installation1.png)
+![](1.ja.png)
 
 設定画面が出るので、左メニューの `アドオン` を選択後、右上の `インストール` ボタンを押します。
 
-![](../images/installation2.png)
+![](2.ja.png)
 
 ファイルを開くウィンドウが表示されるため、先ほどダウンロードしたアドオンファイルを選択し、ファイル名の末尾が `.zip` になっていることを確認してから `アドオンをインストール` ボタンを押します。
 
-![](../images/installation3.png)
+![](3.ja.png)
 
 `コミュニティ` が有効になっていることを確認してください。
 
-![](../images/installation4.png)
+![](4.ja.png)
 
 次にアドオン一覧表示から `Import-Export: VRM format` を探します。
 
-![](../images/installation5.png)
+![](5.ja.png)
 
 表示項目が多くて探すのが大変な場合は右上に検索ボックスがあるので、そこに `VRM` と入力すると項目の絞り込みができます。
 
-![](../images/installation6.png)
+![](6.ja.png)
 
 探しても見つからない場合は、次について確認してください。
 
@@ -39,7 +39,7 @@ images: ["ja/images/installation.png"]
 
 チェックボックスを押すことでアドオンのインストールが完了します。
 
-![](../images/installation7.png)
+![](7.ja.png)
 
 ## 関連リンク
 
