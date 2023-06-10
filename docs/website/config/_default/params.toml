@@ -11,7 +11,7 @@ autoSwitchAppearance = false
 showAppearanceSwitcher = false
 copyright = "&copy; 2022 - 2023 saturday06"
 
-logo = "images/logo.png" # https://openclipart.org/detail/277988/gear-icons
+# header.logo = "img/logo.png" # https://openclipart.org/detail/277988/gear-icons
 mainSections = ["section1", "section2"]
 # robots = ""
 
