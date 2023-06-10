@@ -75,7 +75,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         default=False,
     )
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Don't overwrite existing texture folder (limit:100,000)",  # noqa: F722
+        name="Don't overwrite existing texture folder",  # noqa: F722
         default=True,
     )
     set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]

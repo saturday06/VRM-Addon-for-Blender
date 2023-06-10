@@ -1,10 +1,11 @@
+import sys
 from pathlib import Path
 from typing import Optional
 
 
 def create_unique_indexed_directory_path(path: Path) -> Path:
     name = path.name
-    for count in range(100000):
+    for count in range(sys.maxsize):
         count_str = f".{count}" if count else ""
         path = path.with_name(name + count_str)
         try:
@@ -18,7 +19,7 @@ def create_unique_indexed_directory_path(path: Path) -> Path:
 def create_unique_indexed_file_path(path: Path, binary: Optional[bytes] = None) -> Path:
     suffix = path.suffix
     stem = path.stem
-    for count in range(100000):
+    for count in range(sys.maxsize):
         count_str = f".{count}" if count else ""
         path = path.with_name(stem + count_str + suffix)
 

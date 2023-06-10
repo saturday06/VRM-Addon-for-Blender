@@ -37,7 +37,6 @@ This add-on adds VRM-related functions to Blender, such as importing and exporti
 ## Import
 
 - Support VRM 0.0, 1.0
-- If the "Extract texture images into the folder" option is enabled, the add-on makes a texture folder for each import (max:100,000 character name).
 
 ## Edit
 
