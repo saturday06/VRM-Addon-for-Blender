@@ -1514,11 +1514,17 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain: List[str] = ["extensions", "vrmc_materials_mtoon"]
 
+    def update_transparent_with_z_write(self, _context: bpy.types.Context) -> None:
+        self.set_bool("TransparentWithZWrite", self.transparent_with_z_write)
+        # call update_mtoon0_render_queue()
+        material = self.find_material()
+        material.vrm_addon_extension.mtoon1.mtoon0_render_queue = (
+            material.vrm_addon_extension.mtoon1.mtoon0_render_queue
+        )
+
     transparent_with_z_write: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Transparent With ZWrite Mode",  # noqa: F722
-        update=lambda self, _context: self.set_bool(
-            "TransparentWithZWrite", self.transparent_with_z_write
-        ),
+        update=update_transparent_with_z_write,
     )
 
     render_queue_offset_number: bpy.props.IntProperty(  # type: ignore[valid-type]
