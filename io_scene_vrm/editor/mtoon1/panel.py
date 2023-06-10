@@ -346,6 +346,7 @@ def draw_mtoon1_material(
         mtoon0_box.prop(gltf, "mtoon0_light_color_attenuation", slider=True)
         mtoon0_box.prop(gltf, "mtoon0_rim_lighting_mix", slider=True)
         mtoon0_box.prop(gltf, "mtoon0_outline_scaled_max_distance", slider=True)
+        mtoon0_box.prop(gltf, "mtoon0_render_queue", slider=True)
 
     layout.operator(
         VRM_OT_reset_mtoon1_material_shader_node_tree.bl_idname
