@@ -84,6 +84,7 @@ Scroll the display and set the `Outline` item to `World Coordinates`.
 ![](14.en.png)
 
 When the outline settings appear, set the following as a sample setting.
+(This outline display is only compatible with Blender 3.5 or later and 3.3)
 
 - Set the `Outline Width` to 0.03
 - Set the `Outline Color` to white
