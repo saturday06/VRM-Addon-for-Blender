@@ -28,7 +28,7 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 
 | [物理ベースのマテリアル設定]({{< ref "material-pbr" >}}) | [アニメ風のマテリアル設定]({{< ref "material-mtoon" >}}) | |
 | --- | --- | --- |
-| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](transparent.gif) |
+| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](tutorial_placeholder.gif) |
 
 ## 概要
 

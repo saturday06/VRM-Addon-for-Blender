@@ -28,7 +28,7 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 
 | [Create Physics Based Material]({{< ref "material-pbr" >}}) | [Create Anime Style Material]({{< ref "material-mtoon" >}}) | |
 | --- | --- | --- |
-| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](transparent.gif) |
+| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | ![](tutorial_placeholder.gif) |
 
 ## Overview
 
