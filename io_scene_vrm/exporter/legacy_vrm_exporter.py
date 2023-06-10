@@ -1361,9 +1361,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             emissive_factor = Vector(gltf.emissive_factor)
             hdr_emissive_factor = emissive_factor * emissive_strength
             vector_properties["_EmissionColor"] = list(hdr_emissive_factor) + [1]
-            # TODO:
-            # if emissive_factor.length_squared > 0:
-            # material_dict["emissiveFactor"] = list(emissive_factor)
+            if emissive_factor.length_squared > 0:
+                material_dict["emissiveFactor"] = list(emissive_factor)
 
             assign_dict(
                 material_dict,
