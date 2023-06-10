@@ -18,7 +18,7 @@ Please download the add-on from this website: [https://vrm-addon-for-blender.inf
 
 | [Create Physics Based Material](https://vrm-addon-for-blender.info/ja/material-pbr) | [Create Anime Style Material](https://vrm-addon-for-blender.info/ja/material-mtoon) | |
 | :---: | :---: | :---: |
-| <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <img width="200" src="https://vrm-addon-for-blender.info/images/transparent.gif"> |
+| <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <img width="200" src="https://vrm-addon-for-blender.info/images/tutorial_placeholder.gif"> |
 
 ## Overview
 
@@ -66,7 +66,7 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 | [物理ベースのマテリアル設定](https://vrm-addon-for-blender.info/ja/material-pbr) | [アニメ風のマテリアル設定](https://vrm-addon-for-blender.info/ja/material-mtoon) | |
 | :---: | :---: | :---: |
-| <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <img width="200" src="https://vrm-addon-for-blender.info/images/transparent.gif"> |
+| <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <img width="200" src="https://vrm-addon-for-blender.info/images/tutorial_placeholder.gif"> |
 
 ## 概要
 
