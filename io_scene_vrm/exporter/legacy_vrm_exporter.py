@@ -689,24 +689,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         uv_offset_scaling_node is not None
                         and uv_offset_scaling_node.type == "MAPPING'"
                     ):
-                        if bpy.app.version <= (2, 80):
-                            mtoon_vector_dict[texture_key] = [
-                                uv_offset_scaling_node.translation[0],
-                                uv_offset_scaling_node.translation[1],
-                                uv_offset_scaling_node.scale[0],
-                                uv_offset_scaling_node.scale[1],
-                            ]
-                        else:
-                            mtoon_vector_dict[texture_key] = [
-                                uv_offset_scaling_node.inputs["Location"].default_value[
-                                    0
-                                ],
-                                uv_offset_scaling_node.inputs["Location"].default_value[
-                                    1
-                                ],
-                                uv_offset_scaling_node.inputs["Scale"].default_value[0],
-                                uv_offset_scaling_node.inputs["Scale"].default_value[1],
-                            ]
+                        mtoon_vector_dict[texture_key] = [
+                            uv_offset_scaling_node.inputs["Location"].default_value[0],
+                            uv_offset_scaling_node.inputs["Location"].default_value[1],
+                            uv_offset_scaling_node.inputs["Scale"].default_value[0],
+                            uv_offset_scaling_node.inputs["Scale"].default_value[1],
+                        ]
                     else:
                         mtoon_vector_dict[texture_key] = [0, 0, 1, 1]
                     main_texture_transform = LegacyVrmExporter.KhrTextureTransform(
