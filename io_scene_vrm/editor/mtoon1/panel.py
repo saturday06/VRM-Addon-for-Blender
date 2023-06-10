@@ -398,7 +398,7 @@ class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc]
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return isinstance(context.material, bpy.types.Material)
+        return bool(context.material)
 
     def draw(self, context: bpy.types.Context) -> None:
         draw_material(context, self.layout)
