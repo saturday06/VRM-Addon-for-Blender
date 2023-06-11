@@ -1,7 +1,7 @@
 ---
 title: "Create Simple VRM"
 description: "Convert the cube displayed from the beginning when you start Blender to a VRM model."
-images: ["img/simple.gif"]
+images: ["images/simple.gif"]
 ---
 
 Convert the cube displayed from the beginning when you start Blender to a VRM model.

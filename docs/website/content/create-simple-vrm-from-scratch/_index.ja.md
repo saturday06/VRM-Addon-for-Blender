@@ -1,7 +1,7 @@
 ---
 title: "シンプルなVRMモデルを作る"
 description: "Blenderを起動したときにはじめから表示されている立方体をそのままVRMモデルにします。"
-images: ["img/simple.gif"]
+images: ["images/simple.gif"]
 ---
 
 Blenderを起動したときにはじめから表示されている立方体をそのままVRMモデルにします。

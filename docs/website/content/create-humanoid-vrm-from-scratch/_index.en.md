@@ -1,7 +1,7 @@
 ---
 title: "Create Humanoid VRM"
 description: "We will create a simple Humanoid VRM model."
-images: ["img/humanoid.gif"]
+images: ["images/humanoid.gif"]
 ---
 
 We will create a simple Humanoid VRM model.

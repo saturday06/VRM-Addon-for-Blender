@@ -1,7 +1,7 @@
 ---
 title: "人型のVRMモデルを作る"
 description: "シンプルな人型のVRMモデルを作ります。"
-images: ["img/humanoid.gif"]
+images: ["images/humanoid.gif"]
 ---
 
 シンプルな人型のVRMモデルを作ります。

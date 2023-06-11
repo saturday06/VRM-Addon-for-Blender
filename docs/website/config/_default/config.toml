@@ -44,7 +44,7 @@ googleAnalytics = 'G-L4E126M2JR'
 
 [author]
   # name = "author"
-  # image = "img/author.jpg"
+  # image = "images/author.jpg"
   # bio = "A little bit about you"
   links = [
   #   { email = "mailto:hello@your_domain.com" },

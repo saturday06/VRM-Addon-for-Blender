@@ -3,7 +3,7 @@
 {{- $height := false -}}
 {{- $url := urls.Parse .Destination -}}
 {{- if (not (or $url.Host $url.IsAbs)) -}}
-  {{- with (or ($.Page.Resources.GetMatch .Destination) (resources.GetMatch (path.Join "img" .Destination))) -}}
+  {{- with (or ($.Page.Resources.GetMatch .Destination) (resources.GetMatch (path.Join "images" .Destination))) -}}
     {{- $src = .RelPermalink -}}
     {{- $width = .Width -}}
     {{- $height = .Height -}}

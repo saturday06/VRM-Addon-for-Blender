@@ -1,7 +1,7 @@
 ---
 title: "Create Anime Style Material"
 description: "Set up an anime-style material with MToon shaders."
-images: ["img/material_mtoon.gif"]
+images: ["images/material_mtoon.gif"]
 ---
 
 Set an anime-style material to VRM.

@@ -1,7 +1,7 @@
 ---
 title: "Create Physics Based Material"
 description: "Set up physics-based materials using Principled BSDF shaders."
-images: ["img/material_pbr.gif"]
+images: ["images/material_pbr.gif"]
 ---
 
 Set up realistic physics-based materials for VRM.

@@ -1,6 +1,6 @@
 ---
 title: "アドオンのインストール"
-images: ["img/installation.gif"]
+images: ["images/installation.gif"]
 ---
 
 **[最新版のダウンロード {{< release_ja >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンファイルをダウンロードします。
