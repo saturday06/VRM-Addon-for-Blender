@@ -293,7 +293,6 @@ def copy_node(
     to_node.show_texture = from_node.show_texture
     to_node.use_custom_color = from_node.use_custom_color
     to_node.width = from_node.width
-    to_node.width_hidden = from_node.width_hidden
 
     if isinstance(from_node, bpy.types.NodeFrame):
         to_node.shrink = from_node.shrink
@@ -450,8 +449,6 @@ def copy_node(
         to_node.parametrization = from_node.parametrization
     if isinstance(from_node, bpy.types.ShaderNodeBsdfHair):
         to_node.component = from_node.component
-    if isinstance(from_node, bpy.types.ShaderNodeBsdfGlossy):
-        to_node.distribution = from_node.distribution
     if isinstance(from_node, bpy.types.ShaderNodeBsdfGlass):
         to_node.distribution = from_node.distribution
     if isinstance(from_node, bpy.types.ShaderNodeBsdfAnisotropic):
@@ -487,6 +484,11 @@ def copy_node(
         to_node.clamp_result = from_node.clamp_result
         to_node.data_type = from_node.data_type
         to_node.factor_mode = from_node.factor_mode
+
+    if bpy.app.version < (4, 0):
+        to_node.width_hidden = from_node.width_hidden
+        if isinstance(from_node, bpy.types.ShaderNodeBsdfGlossy):
+            to_node.distribution = from_node.distribution
 
 
 def clear_node_tree(
