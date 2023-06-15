@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 import bpy
-import gpu
-from gpu_extras.batch import batch_for_shader
 from mathutils import Matrix, Vector
 
 from ...common.mtoon_unversioned import MtoonUnversioned
@@ -211,6 +209,8 @@ class GlslDrawObj:
     bounding_size = [1.0, 1.0, 1.0]
 
     def __init__(self) -> None:
+        import gpu
+
         GlslDrawObj.instance = self
         self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
         self.materials = {}
@@ -371,6 +371,9 @@ class GlslDrawObj:
     batches: Optional[List[Tuple[bpy.types.Material, object, object]]] = None
 
     def build_batches(self) -> None:
+        import gpu
+        from gpu_extras.batch import batch_for_shader
+
         if self.toon_shader is None:
             self.toon_shader = gpu.types.GPUShader(
                 vertexcode=self.toon_vertex_shader,
