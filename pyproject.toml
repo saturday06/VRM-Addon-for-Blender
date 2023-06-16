@@ -6,8 +6,8 @@ authors = ["Isamu Mogi <isamu@leafytree.jp>", "iCyP"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
 "fake-bpy-module-2.83" = "20210701"
+python = "^3.9"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "*"
@@ -26,10 +26,10 @@ pylint = "*"
 pyright = "*"
 
 [tool.black]
-target-version = ['py37']
+target-version = ['py39']
 
 [tool.mypy]
-python_version = 3.7
+python_version = 3.9
 strict = true
 disallow_any_explicit = true
 
@@ -46,7 +46,7 @@ module = [
 ignore_missing_imports = true
 
 [tool.pyright]
-pythonVersion = "3.7"
+pythonVersion = "3.9"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 
