@@ -17,7 +17,7 @@ jobs:
         run: |
           gh pr checkout "$PR_NUMBER"
 
-          for retry in $(seq 60 -1 0); do
+          for retry in $(seq 180 -1 0); do
             if [ "$retry" = "0" ]; then
               echo Timeout
               exit 1
