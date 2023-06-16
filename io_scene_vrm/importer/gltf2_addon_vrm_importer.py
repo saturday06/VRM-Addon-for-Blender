@@ -19,7 +19,7 @@ from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
-from ..common.gl import GL_FLOAT, GL_UNSIGNED_SHORT
+from ..common.gl import GL_FLOAT, GL_LINEAR, GL_REPEAT, GL_UNSIGNED_SHORT
 from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.version import addon_version
@@ -704,17 +704,49 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         legacy_image_name_prefix = self.import_id + "Image"
         image_dicts = json_dict.get("images")
-        if bpy.app.version < (3, 1) and isinstance(image_dicts, list):
+        if isinstance(image_dicts, list):
             for image_index, image_dict in enumerate(image_dicts):
-                if not isinstance(image_dict, dict):
-                    continue
-                name = image_dict.get("name")
-                if not isinstance(name, str) or not name:
-                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
-                    name = f"Image_{image_index}"
-                image_dict["name"] = (
-                    legacy_image_name_prefix + str(image_index) + "_" + name
-                )
+                texture_dicts = json_dict.get("textures")
+                if not isinstance(texture_dicts, list) or not [
+                    True
+                    for texture_dict in texture_dicts
+                    if isinstance(texture_dict, dict)
+                    and texture_dict.get("source") == image_index
+                ]:
+                    sampler_dicts = json_dict.get("samplers")
+                    if not isinstance(sampler_dicts, list):
+                        sampler_dicts = []
+                        json_dict["samplers"] = sampler_dicts
+                    sampler_index = len(sampler_dicts)
+                    sampler_dicts.append(
+                        {
+                            "magFilter": GL_LINEAR,
+                            "minFilter": GL_LINEAR,
+                            "wrapS": GL_REPEAT,
+                            "wrapT": GL_REPEAT,
+                        }
+                    )
+
+                    if not isinstance(texture_dicts, list):
+                        texture_dicts = []
+                        json_dict["textures"] = texture_dicts
+                    texture_dicts.append(
+                        {
+                            "sampler": sampler_index,
+                            "source": image_index,
+                        }
+                    )
+
+                if bpy.app.version < (3, 1):
+                    if not isinstance(image_dict, dict):
+                        continue
+                    name = image_dict.get("name")
+                    if not isinstance(name, str) or not name:
+                        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
+                        name = f"Image_{image_index}"
+                    image_dict["name"] = (
+                        legacy_image_name_prefix + str(image_index) + "_" + name
+                    )
 
         mesh_dicts = json_dict.get("meshes")
         if isinstance(mesh_dicts, list):
