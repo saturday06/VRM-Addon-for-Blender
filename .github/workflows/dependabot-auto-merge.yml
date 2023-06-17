@@ -17,19 +17,21 @@ jobs:
         run: |
           gh pr checkout "$PR_NUMBER"
 
-          for retry in $(seq 60 -1 0); do
+          for retry in $(seq 180 -1 0); do
             if [ "$retry" = "0" ]; then
               echo Timeout
+              cat statusCheckRollup.json || true
+              cat checkRuns.json || true
               exit 1
             fi
 
             sleep 60
 
-            gh pr status --json statusCheckRollup --jq . | tee statusCheckRollup.json
-            jq '.currentBranch.statusCheckRollup[] | select(.workflowName != $ENV.GITHUB_WORKFLOW)' statusCheckRollup.json | tee CheckRuns.json
-            if [ "$(jq .status CheckRuns.json | uniq)" != '"COMPLETED"' ]; then
+            gh pr status --json statusCheckRollup --jq . > statusCheckRollup.json
+            jq '.currentBranch.statusCheckRollup[] | select(.workflowName != $ENV.GITHUB_WORKFLOW)' statusCheckRollup.json > checkRuns.json
+            if [ "$(jq .status checkRuns.json | uniq)" != '"COMPLETED"' ]; then
               continue
-            elif [ "$(jq .conclusion CheckRuns.json | uniq)" != '"SUCCESS"' ]; then
+            elif [ "$(jq .conclusion checkRuns.json | uniq)" != '"SUCCESS"' ]; then
               echo Skip
               exit 0
             fi
