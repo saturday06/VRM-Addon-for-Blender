@@ -516,7 +516,6 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[m
             if obj.type != "ARMATURE":
                 continue
             candidate = self.armature_object_name_candidates.add()
-            candidate.name = obj.name
             candidate.value = obj.name
         return cast(
             Set[str], context.window_manager.invoke_props_dialog(self, width=600)

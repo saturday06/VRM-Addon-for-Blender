@@ -73,8 +73,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
             if bone_name not in new_candidates:
                 continue
             candidate = self.node_candidates.add()
-            candidate.value = bone_name  # for logic
-            candidate.name = bone_name  # for view
+            candidate.value = bone_name
 
     def specification(self) -> HumanBoneSpecification:
         name = HumanBoneName.from_str(self.bone)

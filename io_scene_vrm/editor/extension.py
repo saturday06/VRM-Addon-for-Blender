@@ -53,7 +53,6 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
         for mesh_object_name in mesh_object_names:
             n = ext.mesh_object_names.add()
             n.value = mesh_object_name
-            n.name = mesh_object_name  # for UI
 
 
 class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]

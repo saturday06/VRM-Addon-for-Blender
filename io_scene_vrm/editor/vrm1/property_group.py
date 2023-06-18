@@ -51,8 +51,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             if bone_name not in new_candidates:
                 continue
             candidate = self.node_candidates.add()
-            candidate.value = bone_name  # for logic
-            candidate.name = bone_name  # for view
+            candidate.value = bone_name
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json

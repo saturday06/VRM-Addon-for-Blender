@@ -14,14 +14,38 @@ HumanBoneSpecification = TypeVar(
 
 
 class StringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def get_value(self) -> str:
+        value = self.get("value")
+        if isinstance(value, str):
+            return value
+        return str(value)
+
+    def set_value(self, value: str) -> None:
+        self.name = value  # pylint: disable=attribute-defined-outside-init
+        self["value"] = value
+
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="String Value"  # noqa: F722
+        name="String Value",  # noqa: F722
+        get=get_value,
+        set=set_value,
     )
 
 
 class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def get_value(self) -> float:
+        value = self.get("value")
+        if isinstance(value, (float, int)):
+            return float(value)
+        return 0.0
+
+    def set_value(self, value: float) -> None:
+        self.name = str(value)  # pylint: disable=attribute-defined-outside-init
+        self["value"] = value
+
     value: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Float Value"  # noqa: F722
+        name="Float Value",  # noqa: F722
+        get=get_value,
+        set=set_value,
     )
 
 
