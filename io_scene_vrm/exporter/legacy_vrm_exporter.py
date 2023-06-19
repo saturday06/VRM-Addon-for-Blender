@@ -313,7 +313,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             return node
 
         human_bone_node_names = [
-            human_bone.node.value
+            human_bone.node.bone_name
             for human_bone in self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
         ]
 
@@ -2089,7 +2089,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                     self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
                                 ):
                                     if human_bone.bone == "hips":
-                                        bone_name = human_bone.node.value
+                                        bone_name = human_bone.node.bone_name
                                 if (
                                     bone_name is None
                                     or bone_name not in self.armature.data.bones
@@ -2424,13 +2424,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             for human_bone in humanoid.human_bones:
                 if (
                     human_bone.bone != human_bone_name
-                    or not human_bone.node.value
-                    or human_bone.node.value not in node_name_id_dict
+                    or not human_bone.node.bone_name
+                    or human_bone.node.bone_name not in node_name_id_dict
                 ):
                     continue
                 human_bone_dict = {
                     "bone": human_bone_name,
-                    "node": node_name_id_dict[human_bone.node.value],
+                    "node": node_name_id_dict[human_bone.node.bone_name],
                     "useDefaultValues": human_bone.use_default_values,
                 }
                 human_bone_dicts.append(human_bone_dict)
@@ -2470,13 +2470,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         vrm_extension_dict["firstPerson"] = first_person_dict
         first_person = self.armature.data.vrm_addon_extension.vrm0.first_person
 
-        if first_person.first_person_bone.value:
+        if first_person.first_person_bone.bone_name:
             first_person_dict["firstPersonBone"] = node_name_id_dict[
-                first_person.first_person_bone.value
+                first_person.first_person_bone.bone_name
             ]
         else:
             name = [
-                human_bone.node.value
+                human_bone.node.bone_name
                 for human_bone in self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
                 if human_bone.bone == "head"
             ][0]
@@ -2494,16 +2494,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         for mesh_annotation in first_person.mesh_annotations:
             if (
                 mesh_annotation.mesh
-                and mesh_annotation.mesh.value
-                and mesh_annotation.mesh.value in bpy.data.objects
-                and bpy.data.objects[mesh_annotation.mesh.value].type == "MESH"
+                and mesh_annotation.mesh.mesh_object_name
+                and mesh_annotation.mesh.mesh_object_name in bpy.data.objects
+                and bpy.data.objects[mesh_annotation.mesh.mesh_object_name].type
+                == "MESH"
             ):
                 matched_mesh_indices = [
                     i
                     for i, mesh_dict in enumerate(mesh_dicts)
                     if isinstance(mesh_dict, dict)
                     and mesh_dict.get("name")
-                    == bpy.data.objects[mesh_annotation.mesh.value].data.name
+                    == bpy.data.objects[mesh_annotation.mesh.mesh_object_name].data.name
                 ]
                 mesh_index = (matched_mesh_indices + [-1])[0]
             else:
@@ -2567,9 +2568,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             blend_shape_group_dict["binds"] = bind_dicts = []
             for bind in blend_shape_group.binds:
                 bind_dict: Dict[str, object] = {}
-                mesh = self.mesh_name_to_index.get(bind.mesh.value)
+                mesh = self.mesh_name_to_index.get(bind.mesh.mesh_object_name)
                 if mesh is None:
-                    logger.warning(f"{bind.mesh.value} => None")
+                    logger.warning(f"{bind.mesh.mesh_object_name} => None")
                     continue
                 bind_dict["mesh"] = mesh
 
@@ -2617,8 +2618,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             collider_group
             for collider_group in secondary_animation.collider_groups
             if collider_group.node
-            and collider_group.node.value
-            and collider_group.node.value in node_name_id_dict
+            and collider_group.node.bone_name
+            and collider_group.node.bone_name in node_name_id_dict
         ]
         collider_group_names = [
             collider_group.name for collider_group in filtered_collider_groups
@@ -2639,12 +2640,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     "z": bone_group.gravity_dir[1],
                 },
                 "dragForce": bone_group.drag_force,
-                "center": node_name_id_dict.get(bone_group.center.value, -1),
+                "center": node_name_id_dict.get(bone_group.center.bone_name, -1),
                 "hitRadius": bone_group.hit_radius,
                 "bones": [
-                    node_name_id_dict[bone.value]
+                    node_name_id_dict[bone.bone_name]
                     for bone in bone_group.bones
-                    if bone.value in node_name_id_dict
+                    if bone.bone_name in node_name_id_dict
                 ],
             }
             collider_group_indices: List[int] = []
@@ -2663,7 +2664,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             collider_dicts: List[Json] = []
             collider_group_dict["colliders"] = collider_dicts
             collider_group_dicts.append(collider_group_dict)
-            collider_group_dict["node"] = node_name_id_dict[collider_group.node.value]
+            collider_group_dict["node"] = node_name_id_dict[
+                collider_group.node.bone_name
+            ]
 
             for collider in collider_group.colliders:
                 collider_object = collider.bpy_object

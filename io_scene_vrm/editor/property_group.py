@@ -3,6 +3,7 @@ from typing import Dict, Iterator, Optional, Set, TypeVar, Union
 
 import bpy
 
+from ..common.logging import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
 
@@ -11,6 +12,8 @@ HumanBoneSpecification = TypeVar(
     vrm0_human_bone.HumanBoneSpecification,
     vrm1_human_bone.HumanBoneSpecification,
 )
+
+logger = get_logger(__name__)
 
 
 class StringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -50,7 +53,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
-    def get_value(self) -> str:
+    def get_mesh_object_name(self) -> str:
         if (
             not self.bpy_object
             or not self.bpy_object.name
@@ -59,7 +62,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             return ""
         return str(self.bpy_object.name)
 
-    def set_value(self, value: object) -> None:
+    def set_mesh_object_name(self, value: object) -> None:
         if (
             not isinstance(value, str)
             or value not in bpy.data.objects
@@ -69,8 +72,28 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             return
         self.bpy_object = bpy.data.objects[value]
 
+    mesh_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        get=get_mesh_object_name, set=set_mesh_object_name
+    )
+
+    def get_value(self) -> str:
+        logger.warning(
+            "MeshObjectPropertyGroup.value is deprecated."
+            + " Use MeshObjectPropertyGroup.mesh_object_name instead."
+        )
+        return str(self.mesh_object_name)
+
+    def set_value(self, value: str) -> None:
+        logger.warning(
+            "MeshObjectPropertyGroup.value is deprecated."
+            + " Use MeshObjectPropertyGroup.mesh_object_name instead."
+        )
+        self.mesh_object_name = value
+
+    # "value" is deprecated. Use "mesh_object_name" instead
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
-        get=get_value, set=set_value
+        get=get_value,
+        set=set_value,
     )
 
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -164,7 +187,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         return result
 
-    def get_value(self) -> str:
+    def get_bone_name(self) -> str:
         if not self.bone_uuid:
             return ""
         if not self.armature_data_name:
@@ -180,7 +203,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
         return ""
 
-    def set_value(self, value: object) -> None:
+    def set_bone_name(self, value: object) -> None:
         armature: Optional[bpy.types.Armature] = None
 
         # アーマチュアの複製が行われた場合を考えてself.armature_data_nameの振り直しをする
@@ -233,11 +256,11 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         vrm0_bpy_bone_name_to_human_bone_specification: Dict[
             str, vrm0_human_bone.HumanBoneSpecification
         ] = {
-            human_bone.node.value: vrm0_human_bone.HumanBoneSpecifications.get(
+            human_bone.node.bone_name: vrm0_human_bone.HumanBoneSpecifications.get(
                 vrm0_human_bone.HumanBoneName(human_bone.bone)
             )
             for human_bone in ext.vrm0.humanoid.human_bones
-            if human_bone.node.value
+            if human_bone.node.bone_name
             and vrm0_human_bone.HumanBoneName.from_str(human_bone.bone) is not None
         }
 
@@ -253,11 +276,11 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         vrm1_bpy_bone_name_to_human_bone_specification: Dict[
             str, vrm1_human_bone.HumanBoneSpecification
         ] = {
-            human_bone.node.value: vrm1_human_bone.HumanBoneSpecifications.get(
+            human_bone.node.bone_name: vrm1_human_bone.HumanBoneSpecifications.get(
                 human_bone_name
             )
             for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
-            if human_bone.node.value
+            if human_bone.node.bone_name
         }
 
         for (
@@ -270,6 +293,27 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
                 vrm1_bpy_bone_name_to_human_bone_specification,
             )
 
+    bone_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        name="Bone",  # noqa: F821
+        get=get_bone_name,
+        set=set_bone_name,
+    )
+
+    def get_value(self) -> str:
+        logger.warning(
+            "BonePropertyGroup.value is deprecated."
+            + " Use BonePropertyGroup.bone_name instead."
+        )
+        return str(self.bone_name)
+
+    def set_value(self, value: str) -> None:
+        logger.warning(
+            "BonePropertyGroup.value is deprecated."
+            + " Use BonePropertyGroup.bone_name instead."
+        )
+        self.bone_name = value
+
+    # "value" is deprecated. Use "bone_name" instead
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Bone",  # noqa: F821
         get=get_value,

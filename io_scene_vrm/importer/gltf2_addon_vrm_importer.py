@@ -1478,14 +1478,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         human_bones = addon_extension.vrm1.humanoid.human_bones
         for name, human_bone in human_bones.human_bone_name_to_human_bone().items():
             if (
-                human_bone.node.value
-                and human_bone.node.value not in human_bone.node_candidates
+                human_bone.node.bone_name
+                and human_bone.node.bone_name not in human_bone.node_candidates
             ):
                 # Invalid bone structure
                 return
 
             spec = HumanBoneSpecifications.get(name)
-            if spec.requirement and not human_bone.node.value:
+            if spec.requirement and not human_bone.node.bone_name:
                 # Missing required bones
                 return
 
@@ -1499,9 +1499,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 human_bone_name,
                 human_bone,
             ) in human_bones.human_bone_name_to_human_bone().items():
-                if not human_bone.node.value:
+                if not human_bone.node.bone_name:
                     continue
-                bone_name_to_human_bone_name[human_bone.node.value] = human_bone_name
+                bone_name_to_human_bone_name[
+                    human_bone.node.bone_name
+                ] = human_bone_name
 
             bpy.ops.object.mode_set(mode="EDIT")
 
@@ -2015,7 +2017,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             bone_name = self.bone_names.get(node_index)
             if not isinstance(bone_name, str) or bone_name in assigned_bone_names:
                 continue
-            human_bone_name_to_human_bone[human_bone_name].node.value = bone_name
+            human_bone_name_to_human_bone[human_bone_name].node.bone_name = bone_name
             assigned_bone_names.append(bone_name)
 
     def load_vrm1_first_person(
@@ -2039,7 +2041,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(node, int):
                 mesh_object_name = self.mesh_object_names.get(node)
                 if isinstance(mesh_object_name, str):
-                    mesh_annotation.node.value = mesh_object_name
+                    mesh_annotation.node.mesh_object_name = mesh_object_name
 
             type_ = mesh_annotation_dict.get("type")
             if type_ in ["auto", "both", "thirdPersonOnly", "firstPersonOnly"]:
@@ -2138,7 +2140,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not mesh_obj:
                 continue
 
-            morph_target_bind.node.value = mesh_obj.name
+            morph_target_bind.node.mesh_object_name = mesh_obj.name
             index = morph_target_bind_dict.get("index")
             if not isinstance(index, int):
                 continue
@@ -2286,9 +2288,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(node_index, int):
                 bone_name = self.bone_names.get(node_index)
                 if isinstance(bone_name, str):
-                    collider.node.value = bone_name
+                    collider.node.bone_name = bone_name
                     collider.bpy_object.name = f"{bone_name} Collider"
-                    bone = armature.data.bones.get(collider.node.value)
+                    bone = armature.data.bones.get(collider.node.bone_name)
 
             shape_dict = collider_dict.get("shape")
             if not isinstance(shape_dict, dict):
@@ -2449,7 +2451,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(center_index, int):
                 bone_name = self.bone_names.get(center_index)
                 if bone_name:
-                    spring.center.value = bone_name
+                    spring.center.bone_name = bone_name
 
             joint_dicts = spring_dict.get("joints")
             if not isinstance(joint_dicts, list):
@@ -2469,7 +2471,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(node_index, int):
                     bone_name = self.bone_names.get(node_index)
                     if bone_name:
-                        joint.node.value = bone_name
+                        joint.node.bone_name = bone_name
 
                 hit_radius = joint_dict.get("hitRadius")
                 if isinstance(hit_radius, (int, float)):

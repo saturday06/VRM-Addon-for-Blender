@@ -11,25 +11,25 @@ def test() -> None:
 
     spine_bone = [b for b in humanoid.human_bones if b.bone == "spine"][0]
     chest_bone = [b for b in humanoid.human_bones if b.bone == "chest"][0]
-    spine_bone.node.value = "chest"
-    chest_bone.node.value = "spine"
+    spine_bone.node.bone_name = "chest"
+    chest_bone.node.bone_name = "spine"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
-    spine_bone.node.value = "spine"
-    chest_bone.node.value = "chest"
+    spine_bone.node.bone_name = "spine"
+    chest_bone.node.bone_name = "chest"
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
     right_little_distal_bone = [
         b for b in humanoid.human_bones if b.bone == "rightLittleDistal"
     ][0]
-    right_little_distal_bone.node.value = "spine"
+    right_little_distal_bone.node.bone_name = "spine"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
-    right_little_distal_bone.node.value = "hips"
+    right_little_distal_bone.node.bone_name = "hips"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
-    right_little_distal_bone.node.value = "little_distal.L"
+    right_little_distal_bone.node.bone_name = "little_distal.L"
     assert bpy.ops.vrm.model_validate() == {"CANCELLED"}
-    right_little_distal_bone.node.value = ""
+    right_little_distal_bone.node.bone_name = ""
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
-    right_little_distal_bone.node.value = "little_distal.R"
+    right_little_distal_bone.node.bone_name = "little_distal.R"
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
 

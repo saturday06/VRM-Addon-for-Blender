@@ -45,7 +45,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         if not collider.bpy_object:
             logger.error(f"Failed to get bpy object of {collider.name} in get_offset()")
             return (0, 0, 0)
-        bone = armature.pose.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.bone_name)
         if bone:
             matrix = (
                 bone.matrix.inverted()
@@ -60,7 +60,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
-        bone = armature.pose.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.bone_name)
         if not bone:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ Matrix.Translation(offset)
@@ -129,7 +129,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         if not collider.bpy_object:
             logger.error(f"Failed to get bpy object of {collider.name} in get_offset()")
             return (0, 0, 0)
-        bone = armature.pose.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.bone_name)
         if bone:
             matrix = (
                 bone.matrix.inverted()
@@ -144,7 +144,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
-        bone = armature.pose.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.bone_name)
         if not bone:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ Matrix.Translation(offset)
@@ -161,7 +161,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         if not collider.bpy_object or not collider.bpy_object.children:
             logger.error(f"Failed to get bpy object of {collider.name} in get_tail()")
             return (0, 0, 0)
-        bone = armature.pose.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.bone_name)
         if bone:
             matrix = (
                 bone.matrix.inverted()
@@ -179,7 +179,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
-        bone = armature.pose.bones.get(collider.node.value)
+        bone = armature.pose.bones.get(collider.node.bone_name)
         if not bone:
             collider.bpy_object.children[
                 0
@@ -321,8 +321,8 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         self, context: bpy.types.Context, armature: bpy.types.Object
     ) -> None:
         collider_prefix = armature.data.name
-        if self.node and self.node.value:
-            collider_prefix = self.node.value
+        if self.node and self.node.bone_name:
+            collider_prefix = self.node.bone_name
 
         if not self.bpy_object or not self.bpy_object.name:
             obj = bpy.data.objects.new(
@@ -361,11 +361,11 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
             if end_object.empty_display_type != "SPHERE":
                 end_object.empty_display_type = "SPHERE"
 
-        if self.node.value:
+        if self.node.bone_name:
             if self.bpy_object.parent_type != "BONE":
                 self.bpy_object.parent_type = "BONE"
-            if self.bpy_object.parent_bone != self.node.value:
-                self.bpy_object.parent_bone = self.node.value
+            if self.bpy_object.parent_bone != self.node.bone_name:
+                self.bpy_object.parent_bone = self.node.bone_name
         else:
             if self.bpy_object.parent_type != "OBJECT":
                 self.bpy_object.parent_type = "OBJECT"

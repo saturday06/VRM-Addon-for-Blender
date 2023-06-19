@@ -522,7 +522,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
                     human_bone
                 ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
                     if human_bone.bone == vrm_bone_name:
-                        human_bone.node.value = bpy_bone_name
+                        human_bone.node.bone_name = bpy_bone_name
                         break
         self.make_extension_setting_and_metas(armature)
         if not self.skip_heavy_armature_setup:
@@ -531,7 +531,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
     @classmethod
     def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
         vrm0 = armature.data.vrm_addon_extension.vrm0
-        vrm0.first_person.first_person_bone.value = "head"
+        vrm0.first_person.first_person_bone.bone_name = "head"
         vrm0.first_person.first_person_offset = (0, 0, 0.06)
         vrm0.first_person.look_at_horizontal_inner.y_range = 8
         vrm0.first_person.look_at_horizontal_outer.y_range = 12

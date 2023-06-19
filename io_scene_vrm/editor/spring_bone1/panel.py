@@ -33,7 +33,7 @@ def draw_spring_bone1_collider_layout(
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
-        layout.prop_search(collider.node, "value", armature.data, "bones")
+        layout.prop_search(collider.node, "bone_name", armature.data, "bones")
         layout.prop(collider, "shape_type")
         if collider.bpy_object:
             layout.prop(
@@ -43,7 +43,7 @@ def draw_spring_bone1_collider_layout(
         layout.separator(factor=0.5)
         layout.prop(collider.shape.sphere, "radius", slider=True)
     elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
-        layout.prop_search(collider.node, "value", armature.data, "bones")
+        layout.prop_search(collider.node, "bone_name", armature.data, "bones")
         layout.prop(collider, "shape_type")
         layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
         layout.prop(collider.shape.capsule, "offset", text="")
@@ -245,7 +245,7 @@ def draw_spring_bone1_spring_bone_layout(
                 )
                 spring_column.prop_search(
                     spring.center,
-                    "value",
+                    "bone_name",
                     armature.data,
                     "bones",
                     text="Center",
@@ -261,14 +261,16 @@ def draw_spring_bone1_spring_bone_layout(
                             "show_expanded",
                             icon="TRIA_DOWN" if joint.show_expanded else "TRIA_RIGHT",
                             emboss=False,
-                            text=joint.node.value if joint.node.value else "(EMPTY)",
+                            text=joint.node.bone_name
+                            if joint.node.bone_name
+                            else "(EMPTY)",
                             translate=False,
                         )
                         if not joint.show_expanded:
                             continue
 
                         box = spring_joints_box.box().column()
-                        box.prop_search(joint.node, "value", armature.data, "bones")
+                        box.prop_search(joint.node, "bone_name", armature.data, "bones")
                         box.prop(joint, "stiffness", slider=True)
                         box.prop(joint, "gravity_power", slider=True)
                         box.prop(joint, "gravity_dir")

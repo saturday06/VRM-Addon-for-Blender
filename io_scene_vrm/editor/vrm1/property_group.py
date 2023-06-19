@@ -300,7 +300,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             if specification is None:
                 logger.error(f"No '{name}'")
                 continue
-            if not human_bone.node.value:
+            if not human_bone.node.bone_name:
                 if specification.requirement:
                     messages.append(
                         pgettext('Please assign Required VRM Bone "{name}".').format(
@@ -321,7 +321,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             if not parent_specification:
                 logger.error(f"No parent specification for '{name}'")
                 continue
-            if not parent.node.value:
+            if not parent.node.bone_name:
                 messages.append(
                     pgettext(
                         'Please assign "{parent_name}" because "{name}" requires it as its child bone.'
@@ -351,14 +351,14 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         fixup = True
         while fixup:
             fixup = False
-            found_node_values = []
+            found_node_bone_names = []
             for human_bone in human_bones.human_bone_name_to_human_bone().values():
-                if not human_bone.node.value:
+                if not human_bone.node.bone_name:
                     continue
-                if human_bone.node.value not in found_node_values:
-                    found_node_values.append(human_bone.node.value)
+                if human_bone.node.bone_name not in found_node_bone_names:
+                    found_node_bone_names.append(human_bone.node.bone_name)
                     continue
-                human_bone.node.value = ""
+                human_bone.node.bone_name = ""
                 fixup = True
                 break
 
@@ -395,9 +395,9 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             last_bone_name = human_bones.last_bone_names.add()
             last_bone_name.value = bone_name
         bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
-            human_bone.node.value: HumanBoneSpecifications.get(human_bone_name)
+            human_bone.node.bone_name: HumanBoneSpecifications.get(human_bone_name)
             for human_bone_name, human_bone in human_bones.human_bone_name_to_human_bone().items()
-            if human_bone.node.value
+            if human_bone.node.bone_name
         }
 
         for (

@@ -22,7 +22,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
         armature = context.active_object.data
         ext = armature.vrm_addon_extension
         first_person = ext.vrm0.first_person
-        first_person_bone = armature.bones[first_person.first_person_bone.value]
+        first_person_bone = armature.bones[first_person.first_person_bone.bone_name]
         gizmo = self.gizmos.new("GIZMO_GT_move_3d")
         gizmo.target_set_prop("offset", first_person, "first_person_bone_offset")
         gizmo.matrix_basis = first_person_bone.matrix_local
@@ -43,5 +43,5 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
         ext = armature.vrm_addon_extension
         gizmo = self.first_person_gizmo
         first_person = ext.vrm0.first_person
-        first_person_bone = armature.bones[first_person.first_person_bone.value]
+        first_person_bone = armature.bones[first_person.first_person_bone.bone_name]
         gizmo.matrix_basis = first_person_bone.matrix_local

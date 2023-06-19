@@ -19,8 +19,8 @@ def test() -> None:
         if human_bone.bone == "head"
     ][0]
     assert (
-        b.node.value == new_head_name
-    ), f"head is expected to {new_head_name} but {b.node.value}"
+        b.node.bone_name == new_head_name
+    ), f"head is expected to {new_head_name} but {b.node.bone_name}"
 
 
 if __name__ == "__main__":

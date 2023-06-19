@@ -156,9 +156,9 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
         for human_bone in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
             if human_bone.bone not in HumanBoneSpecifications.all_names:
                 continue
-            if not human_bone.node.value:
+            if not human_bone.node.bone_name:
                 continue
-            mappings[human_bone.bone] = human_bone.node.value
+            mappings[human_bone.bone] = human_bone.node.bone_name
 
         Path(self.filepath).write_bytes(
             json.dumps(mappings, sort_keys=True, indent=4)
@@ -204,7 +204,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
                 human_bone
             ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
                 if human_bone.bone == human_bone_name:
-                    human_bone.node.value = bpy_bone_name
+                    human_bone.node.bone_name = bpy_bone_name
                     found = True
                     break
             if found:
@@ -214,7 +214,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
                 armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
             )
             human_bone.bone = human_bone_name
-            human_bone.node.value = bpy_bone_name
+            human_bone.node.bone_name = bpy_bone_name
 
         return {"FINISHED"}
 

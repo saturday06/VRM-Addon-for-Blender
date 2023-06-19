@@ -49,7 +49,7 @@ def draw_vrm1_bone_prop_search(
 ) -> None:
     layout.prop_search(
         human_bone.node,
-        "value",
+        "bone_name",
         human_bone,
         "node_candidates",
         text="",
@@ -342,7 +342,7 @@ def draw_vrm1_first_person_layout(
         row = box.row()
         row.prop_search(
             mesh_annotation.node,
-            "value",
+            "mesh_object_name",
             context.scene.vrm_addon_extension,
             "mesh_object_names",
             text="",
@@ -558,26 +558,28 @@ def draw_vrm1_expression_layout(
             bind_box = box.box().column()
             bind_box.prop_search(
                 bind.node,
-                "value",
+                "mesh_object_name",
                 context.scene.vrm_addon_extension,
                 "mesh_object_names",
                 text="Mesh",
                 icon="OUTLINER_OB_MESH",
             )
             if (
-                bind.node.value
-                and bind.node.value in blend_data.objects
-                and blend_data.objects[bind.node.value].data
-                and blend_data.objects[bind.node.value].data.shape_keys
-                and blend_data.objects[bind.node.value].data.shape_keys.key_blocks
+                bind.node.mesh_object_name
+                and bind.node.mesh_object_name in blend_data.objects
+                and blend_data.objects[bind.node.mesh_object_name].data
+                and blend_data.objects[bind.node.mesh_object_name].data.shape_keys
                 and blend_data.objects[
-                    bind.node.value
+                    bind.node.mesh_object_name
+                ].data.shape_keys.key_blocks
+                and blend_data.objects[
+                    bind.node.mesh_object_name
                 ].data.shape_keys.key_blocks.keys()
             ):
                 bind_box.prop_search(
                     bind,
                     "index",
-                    blend_data.objects[bind.node.value].data.shape_keys,
+                    blend_data.objects[bind.node.mesh_object_name].data.shape_keys,
                     "key_blocks",
                     text="Shape key",
                 )

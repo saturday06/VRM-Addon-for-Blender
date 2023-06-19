@@ -135,7 +135,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             for human_bone in self.human_bones:
                 if human_bone.bone != name:
                     continue
-                if human_bone.node.value not in human_bone.node_candidates:
+                if human_bone.node.bone_name not in human_bone.node_candidates:
                     return False
         return True
 
@@ -174,11 +174,11 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             last_bone_name.value = bone_name
 
         bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
-            human_bone.node.value: HumanBoneSpecifications.get(
+            human_bone.node.bone_name: HumanBoneSpecifications.get(
                 HumanBoneName(human_bone.bone)
             )
             for human_bone in humanoid.human_bones
-            if human_bone.node.value
+            if human_bone.node.bone_name
             and HumanBoneName.from_str(human_bone.bone) is not None
         }
 
@@ -233,14 +233,14 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         fixup = True
         while fixup:
             fixup = False
-            found_node_values = []
+            found_node_bone_names = []
             for human_bone in humanoid.human_bones:
-                if not human_bone.node.value:
+                if not human_bone.node.bone_name:
                     continue
-                if human_bone.node.value not in found_node_values:
-                    found_node_values.append(human_bone.node.value)
+                if human_bone.node.bone_name not in found_node_bone_names:
+                    found_node_bone_names.append(human_bone.node.bone_name)
                     continue
-                human_bone.node.value = ""
+                human_bone.node.bone_name = ""
                 refresh = True
                 fixup = True
                 break
@@ -441,13 +441,13 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
 
     def refresh(self, armature: bpy.types.Object) -> None:
         self.name = (
-            str(self.node.value) if self.node and self.node.value else ""
+            str(self.node.bone_name) if self.node and self.node.bone_name else ""
         ) + f"#{self.uuid}"
         for index, collider in reversed(list(enumerate(list(self.colliders)))):
             if not collider.bpy_object or not collider.bpy_object.name:
                 self.colliders.remove(index)
             else:
-                collider.refresh(armature, self.node.value)
+                collider.refresh(armature, self.node.bone_name)
         for (
             bone_group
         ) in armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:

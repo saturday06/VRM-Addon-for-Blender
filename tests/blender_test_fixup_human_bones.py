@@ -12,34 +12,34 @@ def test() -> None:
 
     human_bones = armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
 
-    original = [(str(b.node.value), str(b.bone)) for b in human_bones]
+    original = [(str(b.node.bone_name), str(b.bone)) for b in human_bones]
 
     human_bone1 = human_bones.add()
     human_bone1.bone = "NoHumanBone"
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    assert original == [(str(b.node.value), str(b.bone)) for b in human_bones]
+    assert original == [(str(b.node.bone_name), str(b.bone)) for b in human_bones]
 
     human_bone2 = human_bones.add()
     human_bone2.bone = HumanBoneName.CHEST.value
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    assert original == [(str(b.node.value), str(b.bone)) for b in human_bones]
+    assert original == [(str(b.node.bone_name), str(b.bone)) for b in human_bones]
 
     human_bones.add()
     human_bones.add()
     human_bones.add()
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    assert original == [(str(b.node.value), str(b.bone)) for b in human_bones]
+    assert original == [(str(b.node.bone_name), str(b.bone)) for b in human_bones]
 
     chest_bone = [b for b in human_bones if b.bone == HumanBoneName.CHEST.value][0]
     spine_bone = [b for b in human_bones if b.bone == HumanBoneName.SPINE.value][0]
-    chest_bone.node.value = HumanBoneName.SPINE.value
-    assert spine_bone.node.value == HumanBoneName.SPINE.value
-    assert chest_bone.node.value == HumanBoneName.SPINE.value
+    chest_bone.node.bone_name = HumanBoneName.SPINE.value
+    assert spine_bone.node.bone_name == HumanBoneName.SPINE.value
+    assert chest_bone.node.bone_name == HumanBoneName.SPINE.value
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    assert spine_bone.node.value == HumanBoneName.SPINE.value
-    assert not chest_bone.node.value
-    chest_bone.node.value = HumanBoneName.CHEST.value
-    assert original == [(str(b.node.value), str(b.bone)) for b in human_bones]
+    assert spine_bone.node.bone_name == HumanBoneName.SPINE.value
+    assert not chest_bone.node.bone_name
+    chest_bone.node.bone_name = HumanBoneName.CHEST.value
+    assert original == [(str(b.node.bone_name), str(b.bone)) for b in human_bones]
 
     hips_index = next(
         i for i, b in enumerate(human_bones) if b.bone == HumanBoneName.HIPS.value
@@ -47,9 +47,11 @@ def test() -> None:
     human_bones.remove(hips_index)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
     hips_bone = [b for b in human_bones if b.bone == HumanBoneName.HIPS.value][0]
-    assert not hips_bone.node.value
-    hips_bone.node.value = "hips"
-    assert set(original) == set((str(b.node.value), str(b.bone)) for b in human_bones)
+    assert not hips_bone.node.bone_name
+    hips_bone.node.bone_name = "hips"
+    assert set(original) == set(
+        (str(b.node.bone_name), str(b.bone)) for b in human_bones
+    )
 
 
 if __name__ == "__main__":

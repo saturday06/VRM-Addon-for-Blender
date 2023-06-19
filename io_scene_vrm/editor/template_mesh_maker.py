@@ -38,7 +38,7 @@ class IcypTemplateMeshMaker:
         return self.args.armature_obj.data.bones.get(
             self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones[
                 tmp_dict[bone]
-            ].node.value,
+            ].node.bone_name,
             None,
         )
 

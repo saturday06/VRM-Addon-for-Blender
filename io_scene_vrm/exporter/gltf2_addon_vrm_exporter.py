@@ -243,7 +243,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             human_bone_name,
             human_bone,
         ) in humanoid.human_bones.human_bone_name_to_human_bone().items():
-            index = bone_name_to_index_dict.get(human_bone.node.value)
+            index = bone_name_to_index_dict.get(human_bone.node.bone_name)
             if isinstance(index, int):
                 human_bones_dict[human_bone_name.value] = {"node": index}
 
@@ -258,10 +258,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     ) -> Dict[str, Json]:
         mesh_annotation_dicts: List[Json] = []
         for mesh_annotation in first_person.mesh_annotations:
-            if not mesh_annotation.node or not mesh_annotation.node.value:
+            if not mesh_annotation.node or not mesh_annotation.node.mesh_object_name:
                 continue
             node_index = mesh_object_name_to_node_index_dict.get(
-                mesh_annotation.node.value
+                mesh_annotation.node.mesh_object_name
             )
             if not isinstance(node_index, int):
                 continue
@@ -319,15 +319,18 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         }
         morph_target_bind_dicts = []
         for morph_target_bind in expression.morph_target_binds:
-            if not morph_target_bind.node or not morph_target_bind.node.value:
+            if (
+                not morph_target_bind.node
+                or not morph_target_bind.node.mesh_object_name
+            ):
                 continue
             node_index = mesh_object_name_to_node_index_dict.get(
-                morph_target_bind.node.value
+                morph_target_bind.node.mesh_object_name
             )
             if not isinstance(node_index, int):
                 continue
             morph_targets = mesh_object_name_to_morph_target_names_dict.get(
-                morph_target_bind.node.value
+                morph_target_bind.node.mesh_object_name
             )
             if not isinstance(morph_targets, list):
                 continue
@@ -431,7 +434,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         collider_uuid_to_index_dict = {}
         for collider in spring_bone.colliders:
             collider_dict: Dict[str, Json] = {}
-            node_index = bone_name_to_index_dict.get(collider.node.value)
+            node_index = bone_name_to_index_dict.get(collider.node.bone_name)
             if not isinstance(node_index, int):
                 continue
             collider_dict["node"] = node_index
@@ -504,12 +507,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             first_bone: Optional[bpy.types.Bone] = None
             joint_dicts = []
             for joint in spring.joints:
-                bone = armature.data.bones.get(joint.node.value)
+                bone = armature.data.bones.get(joint.node.bone_name)
                 if not bone:
                     continue
                 if first_bone is None:
                     first_bone = bone
-                node_index = bone_name_to_index_dict.get(joint.node.value)
+                node_index = bone_name_to_index_dict.get(joint.node.bone_name)
                 if not isinstance(node_index, int):
                     continue
                 joint_dicts.append(
@@ -530,7 +533,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if joint_dicts:
                 spring_dict["joints"] = joint_dicts
 
-            center_bone = armature.data.bones.get(spring.center.value)
+            center_bone = armature.data.bones.get(spring.center.bone_name)
             if center_bone:
                 center_bone_is_ancestor_of_first_bone = False
                 ancestor_of_first_bone = first_bone
@@ -540,7 +543,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         break
                     ancestor_of_first_bone = ancestor_of_first_bone.parent
                 if center_bone_is_ancestor_of_first_bone:
-                    center_index = bone_name_to_index_dict.get(spring.center.value)
+                    center_index = bone_name_to_index_dict.get(spring.center.bone_name)
                     if isinstance(center_index, int):
                         spring_dict["center"] = center_index
 

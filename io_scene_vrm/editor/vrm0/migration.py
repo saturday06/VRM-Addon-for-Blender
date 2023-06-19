@@ -157,7 +157,7 @@ def migrate_vrm0_first_person(
 
     first_person_bone = first_person_dict.get("firstPersonBone")
     if isinstance(first_person_bone, str):
-        first_person.first_person_bone.value = first_person_bone
+        first_person.first_person_bone.bone_name = first_person_bone
 
     first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
         first_person_dict.get("firstPersonBoneOffset")
@@ -180,10 +180,10 @@ def migrate_vrm0_first_person(
                 if mesh in bpy.data.meshes:
                     for obj in bpy.data.objects:
                         if obj.data == bpy.data.meshes[mesh]:
-                            mesh_annotation.mesh.value = obj.name
+                            mesh_annotation.mesh.mesh_object_name = obj.name
                             break
                 elif mesh in bpy.data.objects and bpy.data.objects[mesh].type == "MESH":
-                    mesh_annotation.mesh.value = bpy.data.objects[mesh].name
+                    mesh_annotation.mesh.mesh_object_name = bpy.data.objects[mesh].name
 
             first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
             if (
@@ -272,14 +272,14 @@ def migrate_vrm0_blend_shape_groups(
                         mesh = bpy.data.meshes[mesh_name]
                         for obj in bpy.data.objects:
                             if obj.data == mesh:
-                                bind.mesh.value = obj.name
+                                bind.mesh.mesh_object_name = obj.name
                                 break
                     elif (
                         mesh_name in bpy.data.objects
                         and bpy.data.objects[mesh_name].type == "MESH"
                     ):
                         obj = bpy.data.objects[mesh_name]
-                        bind.mesh.value = obj.name
+                        bind.mesh.mesh_object_name = obj.name
                         mesh = obj.data
                     else:
                         mesh = None
@@ -350,7 +350,7 @@ def migrate_vrm0_secondary_animation(
     for bone_name, collider_objects in bone_name_to_collider_objects.items():
         collider_group = secondary_animation.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
-        collider_group.node.value = bone_name
+        collider_group.node.bone_name = bone_name
         for collider_object in collider_objects:
             collider_prop = collider_group.colliders.add()
             collider_prop.bpy_object = collider_object
@@ -393,7 +393,7 @@ def migrate_vrm0_secondary_animation(
 
         center = bone_group_dict.get("center")
         if isinstance(center, str):
-            bone_group.center.value = center
+            bone_group.center.bone_name = center
 
         hit_radius = bone_group_dict.get("hitRadius")
         if isinstance(hit_radius, (int, float)):
@@ -405,7 +405,7 @@ def migrate_vrm0_secondary_animation(
                 bone_prop = bone_group.bones.add()
                 if not isinstance(bone, str):
                     continue
-                bone_prop.value = bone
+                bone_prop.bone_name = bone
 
         collider_group_node_names = bone_group_dict.get("colliderGroups")
         if not isinstance(collider_group_node_names, list):
@@ -415,7 +415,7 @@ def migrate_vrm0_secondary_animation(
             if not isinstance(collider_group_node_name, str):
                 continue
             for collider_group in secondary_animation.collider_groups:
-                if collider_group.node.value != collider_group_node_name:
+                if collider_group.node.bone_name != collider_group_node_name:
                     continue
                 collider_group_name = bone_group.collider_groups.add()
                 collider_group_name.value = collider_group.name
@@ -460,7 +460,7 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
 
         for human_bone in ext.vrm0.humanoid.human_bones:
             if human_bone.bone == human_bone_name:
-                human_bone.node.value = bpy_bone_name
+                human_bone.node.bone_name = bpy_bone_name
                 break
 
 
@@ -546,7 +546,7 @@ def migrate_link_to_mesh_object(armature: bpy.types.Object) -> None:
             or link_to_mesh.parent.type != "MESH"
         ):
             continue
-        mesh.value = link_to_mesh.parent.name
+        mesh.mesh_object_name = link_to_mesh.parent.name
 
 
 def remove_link_to_mesh_object(armature: bpy.types.Object) -> None:
@@ -593,8 +593,8 @@ def fixup_gravity_dir(armature: bpy.types.Object) -> None:
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
-    return vrm0.first_person.first_person_bone.value or all(
-        (human_bone.bone != "head" or not human_bone.node.value)
+    return vrm0.first_person.first_person_bone.bone_name or all(
+        (human_bone.bone != "head" or not human_bone.node.bone_name)
         for human_bone in vrm0.humanoid.human_bones
     )
 
@@ -609,10 +609,12 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
     for bone_group in vrm0.secondary_animation.bone_groups:
         bone_group.refresh(armature)
 
-    if not vrm0.first_person.first_person_bone.value:
+    if not vrm0.first_person.first_person_bone.bone_name:
         for human_bone in vrm0.humanoid.human_bones:
             if human_bone.bone == "head":
-                vrm0.first_person.first_person_bone.value = human_bone.node.value
+                vrm0.first_person.first_person_bone.bone_name = (
+                    human_bone.node.bone_name
+                )
                 break
 
     migrate_legacy_custom_properties(armature)
@@ -628,7 +630,7 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
 
     if vrm0.humanoid.initial_automatic_bone_assignment:
         vrm0.humanoid.initial_automatic_bone_assignment = False
-        if all(not b.node.value for b in vrm0.humanoid.human_bones):
+        if all(not b.node.bone_name for b in vrm0.humanoid.human_bones):
             bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
                 armature_name=armature.name
             )

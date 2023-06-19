@@ -84,8 +84,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         humanoid.check_last_bone_names_and_update(armature.data.name, defer=readonly)
         for human_bone in humanoid.human_bones:
             if (
-                not human_bone.node.value
-                or human_bone.node.value in human_bone.node_candidates
+                not human_bone.node.bone_name
+                or human_bone.node.bone_name in human_bone.node_candidates
             ):
                 continue
             messages.append(
@@ -93,7 +93,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
                     + 'Please confirm "VRM" Panel → "VRM 0.x Humanoid" → {human_bone}.'
                 ).format(
-                    bone=human_bone.node.value,
+                    bone=human_bone.node.bone_name,
                     human_bone=human_bone.specification().title,
                 )
             )
@@ -112,8 +112,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             human_bone,
         ) in human_bones.human_bone_name_to_human_bone().items():
             if (
-                not human_bone.node.value
-                or human_bone.node.value in human_bone.node_candidates
+                not human_bone.node.bone_name
+                or human_bone.node.bone_name in human_bone.node_candidates
             ):
                 continue
 
@@ -123,7 +123,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
                     + 'Please confirm "VRM" Panel → "Humanoid" → {human_bone}.'
                 ).format(
-                    bone=human_bone.node.value,
+                    bone=human_bone.node.bone_name,
                     human_bone=specification.title,
                 )
             )
@@ -289,8 +289,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                             continue
                         if (
                             human_bone.node
-                            and human_bone.node.value
-                            and human_bone.node.value in armature.data.bones
+                            and human_bone.node.bone_name
+                            and human_bone.node.bone_name in armature.data.bones
                         ):
                             continue
                         all_required_bones_exist = False
@@ -320,8 +320,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                                 parent.name
                             ]
                             if (
-                                child_human_bone.node.value
-                                and not parent_human_bone.node.value
+                                child_human_bone.node.bone_name
+                                and not parent_human_bone.node.bone_name
                             ):
                                 error_messages.append(
                                     pgettext(
@@ -343,8 +343,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         if any(
                             human_bone.bone == humanoid_name
                             and human_bone.node
-                            and human_bone.node.value
-                            and human_bone.node.value in armature.data.bones
+                            and human_bone.node.bone_name
+                            and human_bone.node.bone_name in armature.data.bones
                             for human_bone in human_bones
                         ):
                             continue
@@ -388,7 +388,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
                 joint_bone_names = []
                 for joint in spring.joints:
-                    bone_name = joint.node.value
+                    bone_name = joint.node.bone_name
                     if bone_name and bone_name not in joint_bone_names:
                         joint_bone_names.append(bone_name)
 
@@ -649,7 +649,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
             # first_person
             first_person = armature.data.vrm_addon_extension.vrm0.first_person
-            if not first_person.first_person_bone.value:
+            if not first_person.first_person_bone.bone_name:
                 info_messages.append(
                     pgettext(
                         "firstPersonBone is not found. "

@@ -622,11 +622,11 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
             for human_bone in humanoid.human_bones:
                 if (
                     human_bone.bone != human_bone_name.value
-                    or human_bone.node.value in human_bone.node_candidates
+                    or human_bone.node.bone_name in human_bone.node_candidates
                     or bone_name not in human_bone.node_candidates
                 ):
                     continue
-                human_bone.node.value = bone_name
+                human_bone.node.bone_name = bone_name
                 break
 
         return {"FINISHED"}

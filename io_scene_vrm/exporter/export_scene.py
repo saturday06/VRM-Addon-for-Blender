@@ -187,7 +187,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                 defer=False,
             )
             humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
-            if all(b.node.value not in b.node_candidates for b in humanoid.human_bones):
+            if all(
+                b.node.bone_name not in b.node_candidates for b in humanoid.human_bones
+            ):
                 bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
                     armature_name=armature.name
                 )
@@ -205,7 +207,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             )
             human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
             if all(
-                human_bone.node.value not in human_bone.node_candidates
+                human_bone.node.bone_name not in human_bone.node_candidates
                 for human_bone in human_bones.human_bone_name_to_human_bone().values()
             ):
                 bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(

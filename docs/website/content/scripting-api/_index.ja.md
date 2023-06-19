@@ -81,8 +81,8 @@ spine_bone.tail = (0, 0, 1)
 
 bpy.ops.object.mode_set(mode="OBJECT")
 
-armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.hips.node.value = "hips"
-armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.spine.node.value = "spine"
+armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.hips.node.bone_name = "hips"
+armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.spine.node.bone_name = "spine"
 ```
 
 ## VRM MToonマテリアルの値を設定

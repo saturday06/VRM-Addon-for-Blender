@@ -129,7 +129,7 @@ def calculate_object_pose_bone_rotations(
         str, Union[SphereWorldCollider, CapsuleWorldCollider]
     ] = {}
     for collider in spring_bone1.colliders:
-        pose_bone = obj.pose.bones.get(collider.node.value)
+        pose_bone = obj.pose.bones.get(collider.node.bone_name)
         if not pose_bone:
             continue
         pose_bone_world_matrix = obj.matrix_world @ pose_bone.matrix
@@ -179,11 +179,11 @@ def calculate_object_pose_bone_rotations(
         if not joints:
             continue
         first_joint = joints[0]
-        first_pose_bone = obj.pose.bones.get(first_joint.node.value)
+        first_pose_bone = obj.pose.bones.get(first_joint.node.bone_name)
         if not first_pose_bone:
             continue
 
-        center_pose_bone = obj.pose.bones.get(spring.center.value)
+        center_pose_bone = obj.pose.bones.get(spring.center.bone_name)
 
         # https://github.com/vrm-c/vrm-specification/blob/7279e169ac0dcf37e7d81b2adcad9107101d7e25/specification/VRMC_springBone-1.0/README.md#center-space
         center_pose_bone_is_ancestor_of_first_pose_bone = False
@@ -260,7 +260,7 @@ def calculate_spring_pose_bone_rotations(
         ]
     ] = []
     for joint in spring.joints:
-        bone_name = joint.node.value
+        bone_name = joint.node.bone_name
         pose_bone = obj.pose.bones.get(bone_name)
         if not pose_bone:
             continue

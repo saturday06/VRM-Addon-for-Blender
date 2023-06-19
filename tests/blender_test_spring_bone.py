@@ -88,11 +88,11 @@ def one_joint_extending_in_y_direction() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].drag_force = 1
     joints[1].stiffness = 0
@@ -159,11 +159,11 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].drag_force = 1
     joints[1].stiffness = 0
@@ -234,11 +234,11 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> Non
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
     joints[0].stiffness = 1
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 0
     joints[1].drag_force = 1
     joints[1].stiffness = 1
@@ -311,15 +311,15 @@ def two_joints_extending_in_y_direction() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].drag_force = 1
     joints[1].stiffness = 0
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 1
     joints[2].drag_force = 1
     joints[2].stiffness = 0
@@ -402,15 +402,15 @@ def two_joints_extending_in_y_direction_roll() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].drag_force = 1
     joints[1].stiffness = 0
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 1
     joints[2].drag_force = 1
     joints[2].stiffness = 0
@@ -494,15 +494,15 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].drag_force = 1
     joints[1].stiffness = 0
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 1
     joints[2].drag_force = 1
     joints[2].stiffness = 0
@@ -586,15 +586,15 @@ def two_joints_extending_in_y_direction_connected() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].drag_force = 1
     joints[1].stiffness = 0
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 1
     joints[2].drag_force = 1
     joints[2].stiffness = 0
@@ -666,12 +666,12 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].gravity_dir = (0, 1, 0)
     joints[0].drag_force = 0
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].gravity_dir = (0, 1, 0)
     joints[1].drag_force = 0
@@ -747,11 +747,11 @@ def one_joint_extending_in_y_direction_rounding_180_degree() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1  # はじめに重力で勢いをつける
     joints[0].drag_force = 0
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 0
     joints[1].drag_force = 0
     joints[1].stiffness = 0
@@ -814,15 +814,15 @@ def two_joints_extending_in_y_direction_root_down() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 1
     joints[1].drag_force = 1
     joints[1].stiffness = 0
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 1
     joints[2].drag_force = 1
     joints[2].stiffness = 0
@@ -898,15 +898,15 @@ def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 0
     joints[1].drag_force = 1
     joints[1].stiffness = 1
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 0
     joints[2].drag_force = 1
     joints[2].stiffness = 0
@@ -1015,11 +1015,11 @@ def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
     ) == {"FINISHED"}
 
     joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
     joints[0].stiffness = 1
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 0
     joints[1].drag_force = 1
     joints[1].stiffness = 1
@@ -1091,17 +1091,17 @@ def two_joints_extending_in_y_direction_center_move_to_z() -> None:
     ) == {"FINISHED"}
 
     spring = armature.data.vrm_addon_extension.spring_bone1.springs[0]
-    spring.center.value = "joint0"
+    spring.center.bone_name = "joint0"
     joints = spring.joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 0
     joints[1].drag_force = 1
     joints[1].stiffness = 0
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 0
     joints[2].drag_force = 1
     joints[2].stiffness = 0
@@ -1165,17 +1165,17 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
     ) == {"FINISHED"}
 
     spring = armature.data.vrm_addon_extension.spring_bone1.springs[0]
-    spring.center.value = "joint0"
+    spring.center.bone_name = "joint0"
     joints = spring.joints
-    joints[0].node.value = "joint0"
+    joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
     joints[0].stiffness = 0
-    joints[1].node.value = "joint1"
+    joints[1].node.bone_name = "joint1"
     joints[1].gravity_power = 0
     joints[1].drag_force = 1
     joints[1].stiffness = 0
-    joints[2].node.value = "joint2"
+    joints[2].node.bone_name = "joint2"
     joints[2].gravity_power = 0
     joints[2].drag_force = 1
     joints[2].stiffness = 0

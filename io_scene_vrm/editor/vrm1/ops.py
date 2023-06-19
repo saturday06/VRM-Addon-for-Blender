@@ -542,7 +542,10 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
         vrm0_humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
         if vrm0_humanoid.all_required_bones_are_assigned():
             for vrm0_human_bone in vrm0_humanoid.human_bones:
-                if vrm0_human_bone.node.value not in vrm0_human_bone.node_candidates:
+                if (
+                    vrm0_human_bone.node.bone_name
+                    not in vrm0_human_bone.node_candidates
+                ):
                     continue
                 vrm0_name = Vrm0HumanBoneName.from_str(vrm0_human_bone.bone)
                 if not vrm0_name:
@@ -553,9 +556,9 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
                     logger.error(f"Invalid VRM0 bone name: {vrm0_name}")
                     continue
                 human_bone = human_bone_name_to_human_bone.get(vrm1_name)
-                if vrm0_human_bone.node.value not in human_bone.node_candidates:
+                if vrm0_human_bone.node.bone_name not in human_bone.node_candidates:
                     continue
-                human_bone.node.value = vrm0_human_bone.node.value
+                human_bone.node.bone_name = vrm0_human_bone.node.bone_name
 
         for (
             bone_name,
@@ -568,11 +571,11 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
             for search_name, human_bone in human_bone_name_to_human_bone.items():
                 if (
                     specification.name != search_name
-                    or human_bone.node.value in human_bone.node_candidates
+                    or human_bone.node.bone_name in human_bone.node_candidates
                     or bone_name not in human_bone.node_candidates
                 ):
                     continue
-                human_bone.node.value = bone_name
+                human_bone.node.bone_name = bone_name
                 break
 
         return {"FINISHED"}

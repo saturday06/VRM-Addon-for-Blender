@@ -49,7 +49,7 @@ def bone_prop_search(
 
     layout.prop_search(
         props.node,
-        "value",
+        "bone_name",
         props,
         "node_candidates",
         text="",
@@ -419,7 +419,9 @@ def draw_vrm0_first_person_layout(
         VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
             context.scene.name
         )
-    layout.prop_search(first_person.first_person_bone, "value", armature.data, "bones")
+    layout.prop_search(
+        first_person.first_person_bone, "bone_name", armature.data, "bones"
+    )
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
     box = layout.box()
@@ -430,7 +432,7 @@ def draw_vrm0_first_person_layout(
         row = box.row()
         row.prop_search(
             mesh_annotation.mesh,
-            "value",
+            "mesh_object_name",
             context.scene.vrm_addon_extension,
             "mesh_object_names",
             icon="OUTLINER_OB_MESH",
@@ -575,26 +577,28 @@ def draw_vrm0_blend_shape_master_layout(
                 bind_box = box.box()
                 bind_box.prop_search(
                     bind.mesh,
-                    "value",
+                    "mesh_object_name",
                     context.scene.vrm_addon_extension,
                     "mesh_object_names",
                     text="Mesh",
                     icon="OUTLINER_OB_MESH",
                 )
                 if (
-                    bind.mesh.value
-                    and bind.mesh.value in blend_data.objects
-                    and blend_data.objects[bind.mesh.value].data
-                    and blend_data.objects[bind.mesh.value].data.shape_keys
-                    and blend_data.objects[bind.mesh.value].data.shape_keys.key_blocks
+                    bind.mesh.mesh_object_name
+                    and bind.mesh.mesh_object_name in blend_data.objects
+                    and blend_data.objects[bind.mesh.mesh_object_name].data
+                    and blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys
                     and blend_data.objects[
-                        bind.mesh.value
+                        bind.mesh.mesh_object_name
+                    ].data.shape_keys.key_blocks
+                    and blend_data.objects[
+                        bind.mesh.mesh_object_name
                     ].data.shape_keys.key_blocks.keys()
                 ):
                     bind_box.prop_search(
                         bind,
                         "index",
-                        blend_data.objects[bind.mesh.value].data.shape_keys,
+                        blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys,
                         "key_blocks",
                         text="Shape key",
                     )
@@ -760,12 +764,14 @@ def draw_vrm0_secondary_animation_layout(
 
         text = ""
         if bone_group.bones:
-            text = "(" + ", ".join(str(bone.value) for bone in bone_group.bones) + ")"
+            text = (
+                "(" + ", ".join(str(bone.bone_name) for bone in bone_group.bones) + ")"
+            )
 
-        if bone_group.center.value:
+        if bone_group.center.bone_name:
             if text:
                 text = " - " + text
-            text = bone_group.center.value + text
+            text = bone_group.center.bone_name + text
 
         if bone_group.comment:
             if text:
@@ -797,7 +803,7 @@ def draw_vrm0_secondary_animation_layout(
         box.separator()
         box.prop_search(
             bone_group.center,
-            "value",
+            "bone_name",
             data,
             "bones",
             icon="PIVOT_MEDIAN",
@@ -820,7 +826,7 @@ def draw_vrm0_secondary_animation_layout(
         if bone_group.show_expanded_bones:
             for bone_index, bone in enumerate(bone_group.bones):
                 bone_row = box.split(align=True, factor=0.7)
-                bone_row.prop_search(bone, "value", data, "bones", text="")
+                bone_row.prop_search(bone, "bone_name", data, "bones", text="")
                 remove_bone_op = bone_row.operator(
                     vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_bone.bl_idname,
                     icon="REMOVE",
@@ -905,7 +911,7 @@ def draw_vrm0_secondary_animation_layout(
         box = collider_groups_box.box()
         row = box.row()
         box.label(text=collider_group.name)
-        box.prop_search(collider_group.node, "value", armature.data, "bones")
+        box.prop_search(collider_group.node, "bone_name", armature.data, "bones")
 
         box.label(text="Colliders:")
         for collider_index, collider in enumerate(collider_group.colliders):
@@ -930,7 +936,7 @@ def draw_vrm0_secondary_animation_layout(
         )
         add_collider_op.armature_name = armature.name
         add_collider_op.collider_group_index = collider_group_index
-        add_collider_op.bone_name = collider_group.node.value
+        add_collider_op.bone_name = collider_group.node.bone_name
 
         remove_collider_group_op = box.operator(
             vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group.bl_idname,

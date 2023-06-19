@@ -115,15 +115,15 @@ class AbstractBaseVrmImporter(ABC):
         human_bones = addon_extension.vrm0.humanoid.human_bones
         for human_bone in human_bones:
             if (
-                human_bone.node.value
-                and human_bone.node.value not in human_bone.node_candidates
+                human_bone.node.bone_name
+                and human_bone.node.bone_name not in human_bone.node_candidates
             ):
                 # has error
                 return
 
         for humanoid_name in HumanBoneSpecifications.required_names:
             if not any(
-                human_bone.bone == humanoid_name and human_bone.node.value
+                human_bone.bone == humanoid_name and human_bone.node.bone_name
                 for human_bone in human_bones
             ):
                 # has error
@@ -135,12 +135,12 @@ class AbstractBaseVrmImporter(ABC):
 
             bone_name_to_human_bone_name: Dict[str, HumanBoneName] = {}
             for human_bone in human_bones:
-                if not human_bone.node.value:
+                if not human_bone.node.bone_name:
                     continue
                 name = HumanBoneName.from_str(human_bone.bone)
                 if not name:
                     continue
-                bone_name_to_human_bone_name[human_bone.node.value] = name
+                bone_name_to_human_bone_name[human_bone.node.bone_name] = name
 
             bpy.ops.object.mode_set(mode="EDIT")
 
@@ -232,11 +232,11 @@ class AbstractBaseVrmImporter(ABC):
                 if (
                     human_bone.bone
                     not in [HumanBoneName.LEFT_EYE.value, HumanBoneName.RIGHT_EYE.value]
-                    or not human_bone.node.value
+                    or not human_bone.node.bone_name
                 ):
                     continue
 
-                bone = armature.data.edit_bones.get(human_bone.node.value)
+                bone = armature.data.edit_bones.get(human_bone.node.bone_name)
                 if not bone or bone.children:
                     continue
 
@@ -1007,7 +1007,7 @@ class AbstractBaseVrmImporter(ABC):
                 else:
                     human_bone = humanoid.human_bones.add()
                 human_bone.bone = bone
-                human_bone.node.value = self.bone_names[node]
+                human_bone.node.bone_name = self.bone_names[node]
 
                 use_default_values = human_bone_dict.get("useDefaultValues")
                 if isinstance(use_default_values, bool):
@@ -1073,7 +1073,9 @@ class AbstractBaseVrmImporter(ABC):
 
         first_person_bone = first_person_dict.get("firstPersonBone")
         if isinstance(first_person_bone, int) and first_person_bone in self.bone_names:
-            first_person.first_person_bone.value = self.bone_names[first_person_bone]
+            first_person.first_person_bone.bone_name = self.bone_names[
+                first_person_bone
+            ]
 
         first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
             first_person_dict.get("firstPersonBoneOffset")
@@ -1093,7 +1095,7 @@ class AbstractBaseVrmImporter(ABC):
 
                 mesh = mesh_annotation_dict.get("mesh")
                 if isinstance(mesh, int) and mesh in self.meshes:
-                    mesh_annotation.mesh.value = self.meshes[mesh].name
+                    mesh_annotation.mesh.mesh_object_name = self.meshes[mesh].name
 
                 first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
                 if (
@@ -1195,7 +1197,7 @@ class AbstractBaseVrmImporter(ABC):
                         weight = 0
 
                     bind = blend_shape_group.binds.add()
-                    bind.mesh.value = self.meshes[mesh].name
+                    bind.mesh.mesh_object_name = self.meshes[mesh].name
                     bind.index = self.meshes[mesh].data.shape_keys.key_blocks.keys()[
                         index + 1
                     ]
@@ -1262,7 +1264,7 @@ class AbstractBaseVrmImporter(ABC):
                 continue
 
             bone_name = self.bone_names[node]
-            collider_group.node.value = bone_name
+            collider_group.node.bone_name = bone_name
             collider_dicts = collider_group_dict.get("colliders")
             if not isinstance(collider_dicts, list):
                 continue
@@ -1352,7 +1354,7 @@ class AbstractBaseVrmImporter(ABC):
 
             center = bone_group_dict.get("center")
             if isinstance(center, int) and center in self.bone_names:
-                bone_group.center.value = self.bone_names[center]
+                bone_group.center.bone_name = self.bone_names[center]
 
             hit_radius = bone_group_dict.get("hitRadius")
             if isinstance(hit_radius, (int, float)):
