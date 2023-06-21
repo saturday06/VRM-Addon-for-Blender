@@ -82,22 +82,6 @@ jobs:
           name: VRMs
           path: tests/resources/vrm/*/temp
 
-  test-linux-gui:
-    if: false
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Test
-        run: |
-          ./scripts/generate_dynamic_tests.py
-          python3 -m unittest tests.test_GENERATED_gui
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: Captured Video
-          path: latest_capture.ogv
   lint:
     runs-on: ubuntu-22.04
     steps:
