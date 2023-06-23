@@ -21,6 +21,9 @@ OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME = (
     INTERNAL_NAME_PREFIX + OUTLINE_GEOMETRY_GROUP_NAME + " Template"
 )
 
+OUTPUT_GROUP_NAME = "VRM Add-on MToon 1.0 Output Revision 1"
+OUTPUT_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + OUTPUT_GROUP_NAME + " Template"
+
 UV_GROUP_NAME = "VRM Add-on MToon 1.0 UV Revision 1"
 UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + " Template"
 
@@ -115,6 +118,11 @@ def load_mtoon1_shader(
         logger.error(f'Material "{material_name}" already exists')
         old_material.name += ".old"
 
+    old_template_output_group = bpy.data.node_groups.get(OUTPUT_GROUP_TEMPLATE_NAME)
+    if old_template_output_group:
+        logger.error(f'Node Group "{OUTPUT_GROUP_TEMPLATE_NAME}" already exists')
+        old_template_output_group.name += ".old"
+
     old_template_uv_group = bpy.data.node_groups.get(UV_GROUP_TEMPLATE_NAME)
     if old_template_uv_group:
         logger.error(f'Node Group "{UV_GROUP_TEMPLATE_NAME}" already exists')
@@ -123,6 +131,7 @@ def load_mtoon1_shader(
     material_path = str(Path(__file__).with_name("mtoon1.blend")) + "/Material"
 
     template_uv_group = None
+    template_output_group = None
     template_material = None
 
     # https://git.blender.org/gitweb/gitweb.cgi/blender.git/blob/v2.83:/source/blender/windowmanager/intern/wm_files_link.c#l84
@@ -152,6 +161,10 @@ def load_mtoon1_shader(
         if not template_uv_group:
             raise ValueError("No " + UV_GROUP_TEMPLATE_NAME)
 
+        template_output_group = bpy.data.node_groups.get(OUTPUT_GROUP_TEMPLATE_NAME)
+        if not template_output_group:
+            raise ValueError("No " + OUTPUT_GROUP_TEMPLATE_NAME)
+
         template_material = bpy.data.materials.get(material_name)
         if not template_material:
             raise ValueError("No " + material_name)
@@ -164,10 +177,20 @@ def load_mtoon1_shader(
         elif overwrite:
             copy_node_tree(template_uv_group, uv_group)
 
+        output_group = bpy.data.node_groups.get(OUTPUT_GROUP_NAME)
+        if not output_group:
+            output_group = bpy.data.node_groups.new(OUTPUT_GROUP_NAME, "ShaderNodeTree")
+            clear_node_tree(output_group, clear_inputs_outputs=True)
+            copy_node_tree(template_output_group, output_group)
+        elif overwrite:
+            copy_node_tree(template_output_group, output_group)
+
         copy_node_tree(template_material.node_tree, material.node_tree)
     finally:
         if template_material and template_material.users <= 1:
             bpy.data.materials.remove(template_material)
+        if template_output_group and template_output_group.users <= 1:
+            bpy.data.node_groups.remove(template_output_group)
         if template_uv_group and template_uv_group.users <= 1:
             bpy.data.node_groups.remove(template_uv_group)
         if edit_mode:
@@ -250,19 +273,23 @@ def copy_shader_node_group(
     from_node: bpy.types.Node,
     to_node: bpy.types.Node,
 ) -> None:
-    if not from_node.node_tree.name.startswith(UV_GROUP_TEMPLATE_NAME):
+    if from_node.node_tree.name.startswith(UV_GROUP_TEMPLATE_NAME):
+        uv_group = bpy.data.node_groups.get(UV_GROUP_NAME)
+        if not uv_group:
+            logger.error("MToon UV Group Not Found")
+            return
+        to_node.node_tree = uv_group
+    elif from_node.node_tree.name.startswith(OUTPUT_GROUP_TEMPLATE_NAME):
+        output_group = bpy.data.node_groups.get(OUTPUT_GROUP_NAME)
+        if not output_group:
+            logger.error("MToon Output Group Not Found")
+            return
+        to_node.node_tree = output_group
+    else:
         logger.error(
             "Importing ShaderNodeGroup doesn't be supported yet: "
             + f"{from_node.node_tree.name}"
         )
-        return
-
-    uv_group = bpy.data.node_groups.get(UV_GROUP_NAME)
-    if not uv_group:
-        logger.error("UV Group Not Found")
-        return
-
-    to_node.node_tree = uv_group
 
 
 def copy_node(
