@@ -1,6 +1,6 @@
 ---
-title: "Installation"
-
+title: "Add-on Installation"
+images: ["images/installation.gif"]
 ---
 
 Download latest add-on file from **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**
