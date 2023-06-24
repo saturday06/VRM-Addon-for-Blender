@@ -1,8 +1,16 @@
 ---
-title: "PythonスクリプトのAPI利用サンプル"
-description: "VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。"
-images: ["ja/top.ja.png"]
+title: "Pythonスクリプトによる自動化サンプル"
+description: "Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。"
+images: ["images/scripting_api.png"]
 ---
+
+<!-- TableOfContentsの設定は自動でやりたい -->
+- [VRMファイルのインポート](#vrmファイルのインポート)
+- [VRMファイルのエクスポート](#vrmファイルのエクスポート)
+- [VRMメタデータの設定](#vrmメタデータの設定)
+- [VRMボーンの設定](#vrmボーンの設定)
+- [VRM MToonマテリアルの値を設定](#vrm-mtoonマテリアルの値を設定)
+- [VRMのキャラクターを動的に生成しファイルにエクスポート](#vrmのキャラクターを動的に生成しファイルにエクスポート)
 
 ## VRMファイルのインポート
 
@@ -18,10 +26,15 @@ if result != {"FINISHED"}:
 
 ```python
 import bpy
+from pathlib import Path
 
-result = bpy.ops.export_scene.vrm(filepath="path_to_your_new_vrm_model.vrm")
+
+output_filepath = str(Path.home() / "path_to_your_new_vrm_model.vrm")
+result = bpy.ops.export_scene.vrm(filepath=output_filepath)
 if result != {"FINISHED"}:
     raise Exception(f"Failed to export vrm: {result}")
+
+print(f"{output_filepath=}")
 ```
 
 ## VRMメタデータの設定
@@ -99,7 +112,7 @@ gltf = material.vrm_addon_extension.mtoon1
 gltf.pbr_metallic_roughness.base_color_factor = (0, 1, 0, 1)
 gltf.pbr_metallic_roughness.base_color_texture.index.source = image
 
-# for all textures
+# base_color_texture以外のテクスチャにも同様の設定が可能
 gltf.pbr_metallic_roughness.base_color_texture.index.sampler.mag_filter = "NEAREST"  # or "LINEAR"
 gltf.pbr_metallic_roughness.base_color_texture.index.sampler.min_filter = "NEAREST"  # or "LINEAR", "NEAREST_MIPMAP_NEAREST", "LINEAR_MIPMAP_NEAREST", "NEAREST_MIPMAP_LINEAR", "LINEAR_MIPMAP_LINEAR"
 gltf.pbr_metallic_roughness.base_color_texture.index.sampler.wrap_s = "REPEAT"  # or "CLAMP_TO_EDGE", "MIRRORED_REPEAT"
@@ -144,7 +157,7 @@ mtoon.uv_animation_scroll_y_speed_factor = 0
 mtoon.uv_animation_rotation_speed_factor = 0
 ```
 
-## VRMとして必要なデータを全て動的に生成し、VRMとしてエクスポート
+## VRMのキャラクターを動的に生成しファイルにエクスポート
 
 ![](humanoid.gif)
 
@@ -152,6 +165,7 @@ mtoon.uv_animation_rotation_speed_factor = 0
 
 ```python
 import bpy
+from pathlib import Path
 
 bpy.ops.icyp.make_basic_armature()
 
@@ -223,4 +237,11 @@ right_lower_leg = bpy.context.active_object
 right_lower_leg.parent = armature
 right_lower_leg.parent_bone = humanoid.human_bones.right_lower_leg.node.bone_name
 right_lower_leg.parent_type = "BONE"
+
+output_filepath = str(Path.home() / "path_to_your_vrm_model.vrm")
+result = bpy.ops.export_scene.vrm(filepath=output_filepath)
+if result != {"FINISHED"}:
+    raise Exception(f"Failed to export vrm: {result}")
+
+print(f"{output_filepath=}")
 ```
