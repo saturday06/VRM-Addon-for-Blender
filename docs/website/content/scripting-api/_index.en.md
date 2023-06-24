@@ -28,7 +28,6 @@ if result != {"FINISHED"}:
 import bpy
 from pathlib import Path
 
-
 output_filepath = str(Path.home() / "path_to_your_new_vrm_model.vrm")
 result = bpy.ops.export_scene.vrm(filepath=output_filepath)
 if result != {"FINISHED"}:
