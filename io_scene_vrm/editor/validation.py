@@ -609,8 +609,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 offset = texture_info.extensions.khr_texture_transform.offset
                 if texture_info == gltf.extensions.vrmc_materials_mtoon.matcap_texture:
                     if (
-                        abs(scale[0]) > 0
-                        or abs(scale[1]) > 0
+                        abs(scale[0] - 1) > 0
+                        or abs(scale[1] - 1) > 0
                         or abs(offset[0]) > 0
                         or abs(offset[1]) > 0
                     ):
