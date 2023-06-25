@@ -315,3 +315,49 @@ def menu_import(
     menu_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
     menu_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
+
+
+class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
+    bl_idname = "import_scene.vrma"
+    bl_label = "Import VRM Animation"
+    bl_description = "Import VRM Animation"
+    bl_options = {"REGISTER", "UNDO"}
+
+    filename_ext = ".vrma"
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+        default="*.vrma", options={"HIDDEN"}  # noqa: F722,F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> Set[str]:
+        foo()
+        return {"FINISHED"}
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+        return cast(Set[str], ImportHelper.invoke(self, context, event))
+
+
+def foo() -> None:
+    import bpy
+
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete()
+    while bpy.data.collections:
+        bpy.data.collections.remove(bpy.data.collections[0])
+
+    bpy.ops.icyp.make_basic_armature()
+    assert bpy.ops.vrm.model_validate() == {"FINISHED"}
+
+    armature = bpy.context.active_object
+    print(str(armature))
+
+    action = bpy.data.actions.new(name="new action")
+    action.frame_end = 70
+
+    if not armature.animation_data:
+        armature.animation_data_create()
+    armature.animation_data.action = action
+
+    armature.location = (0, 0, 0)
+    armature.keyframe_insert(data_path="location", frame=0)
+    armature.location = (1, 0, 0)
+    armature.keyframe_insert(data_path="location", frame=50)
