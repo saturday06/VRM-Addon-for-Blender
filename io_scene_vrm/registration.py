@@ -312,7 +312,6 @@ classes = [
     import_scene.LicenseConfirmation,
     import_scene.WM_OT_vrm_license_confirmation,
     import_scene.IMPORT_SCENE_OT_vrm,
-    import_scene.IMPORT_SCENE_OT_vrma,
     import_scene.VRM_PT_import_unsupported_blender_version_warning,
     # importer.blend_model.ICYP_OT_select_helper,
     preferences.VrmAddonPreferences,
