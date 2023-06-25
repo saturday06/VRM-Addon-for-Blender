@@ -5,7 +5,7 @@ import itertools
 import struct
 from os import environ
 from pathlib import Path
-from typing import Dict, Set, Tuple, Union, cast
+from typing import Dict, List, Set, Tuple, Union, cast
 from urllib.parse import urlparse
 
 import bpy
@@ -13,6 +13,7 @@ from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
+from ..common.deep import Json
 from ..common.gl import GL_FLOAT
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
@@ -347,10 +348,10 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):  # type: ignore[mi
 
 def generate_vrma(filepath: Path) -> None:
     human_bones_dict = {}
-    node_dicts = []
-    accessor_dicts = []
-    buffer_view_dicts = []
-    buffer_dicts = [{"byteLength": 0}]
+    node_dicts: List[Dict[str, Json]] = []
+    accessor_dicts: List[Dict[str, Json]] = []
+    buffer_view_dicts: List[Dict[str, Json]] = []
+    buffer_dicts: List[Dict[str, Json]] = [{"byteLength": 0}]
 
     hips_node_index = len(node_dicts)
     node_dicts.append(
@@ -370,7 +371,7 @@ def generate_vrma(filepath: Path) -> None:
     }
     inputs = list(input_output.keys())
     buffer_input_bytes = struct.pack("<" + "f" * len(inputs), *inputs)
-    buffer_input_dict = {
+    buffer_input_dict: Dict[str, Json] = {
         "uri": "data:application/gltf-buffer;base64,"
         + base64.b64encode(buffer_input_bytes).decode("ascii"),
         "byteLength": len(buffer_input_bytes),
@@ -378,7 +379,7 @@ def generate_vrma(filepath: Path) -> None:
     buffer_input_index = len(buffer_dicts)
     buffer_dicts.append(buffer_input_dict)
 
-    outputs = list(functools.reduce(itertools.chain, input_output.values(), []))
+    outputs: List[Tuple[float, float, float]] = list(functools.reduce(itertools.chain, input_output.values(), []))
     print(str(outputs))
     buffer_output_bytes = struct.pack("<" + "f" * len(outputs), *outputs)
     buffer_output_dict = {
