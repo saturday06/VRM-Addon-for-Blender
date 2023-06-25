@@ -1,13 +1,20 @@
+import base64
 import contextlib
+import functools
+import itertools
+import struct
 from os import environ
 from pathlib import Path
-from typing import Set, Union, cast
+from typing import Dict, Set, Tuple, Union, cast
+from urllib.parse import urlparse
 
 import bpy
 from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
+from ..common.gl import GL_FLOAT
+from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor.ops import VRM_OT_open_url_in_web_browser
@@ -329,15 +336,140 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):  # type: ignore[mi
     )
 
     def execute(self, _context: bpy.types.Context) -> Set[str]:
-        foo()
-        return {"FINISHED"}
+        filepath = Path(self.filepath)
+        if not filepath.is_file():
+            return {"CANCELLED"}
+        return wip(filepath)
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
         return cast(Set[str], ImportHelper.invoke(self, context, event))
 
 
-def foo() -> None:
+def generate_vrma(filepath: Path) -> None:
+    human_bones_dict = {}
+    node_dicts = []
+    accessor_dicts = []
+    buffer_view_dicts = []
+    buffer_dicts = [{"byteLength": 0}]
+
+    hips_node_index = len(node_dicts)
+    node_dicts.append(
+        {
+            "name": "hips",
+        }
+    )
+    human_bones_dict = {
+        "hips": {"node": hips_node_index},
+    }
+
+    input_output: Dict[float, Tuple[float, float, float]] = {
+        0.0: (0, 0, 0),
+        0.1: (0, 0, 0.1),
+        0.2: (0, 0, 0.2),
+        0.3: (0, 0, 0.3),
+    }
+    inputs = list(input_output.keys())
+    buffer_input_bytes = struct.pack("<" + "f" * len(inputs), *inputs)
+    buffer_input_dict = {
+        "uri": "data:application/gltf-buffer;base64,"
+        + base64.b64encode(buffer_input_bytes).decode("ascii"),
+        "byteLength": len(buffer_input_bytes),
+    }
+    buffer_input_index = len(buffer_dicts)
+    buffer_dicts.append(buffer_input_dict)
+
+    outputs = list(functools.reduce(itertools.chain, input_output.values(), []))
+    print(str(outputs))
+    buffer_output_bytes = struct.pack("<" + "f" * len(outputs), *outputs)
+    buffer_output_dict = {
+        "uri": "data:application/gltf-buffer;base64,"
+        + base64.b64encode(buffer_output_bytes).decode("ascii"),
+        "byteLength": len(buffer_output_bytes),
+    }
+    buffer_output_index = len(buffer_dicts)
+    buffer_dicts.append(buffer_output_dict)
+
+    hips_translation_sampler_input_buffer_view_index = len(buffer_view_dicts)
+    buffer_view_dicts.append(
+        {
+            "buffer": buffer_input_index,
+            "byteLength": len(buffer_input_bytes),
+        }
+    )
+    hips_translation_sampler_output_buffer_view_index = len(buffer_view_dicts)
+    buffer_view_dicts.append(
+        {
+            "buffer": buffer_output_index,
+            "byteLength": len(buffer_output_bytes),
+        }
+    )
+
+    hips_translation_sampler_input_accessor_index = len(accessor_dicts)
+    accessor_dicts.append(
+        {
+            "bufferView": hips_translation_sampler_input_buffer_view_index,
+            "componentType": GL_FLOAT,
+            "count": 0,
+            "type": "SCALAR",
+            # TODO: sparse
+        }
+    )
+    # "VEC3" float XYZ translation vector
+    hips_translation_sampler_output_accessor_index = len(accessor_dicts)
+    accessor_dicts.append(
+        {
+            "bufferView": hips_translation_sampler_output_buffer_view_index,
+            "componentType": GL_FLOAT,
+            "count": 0,
+            "type": "VEC3",
+            # TODO: sparse
+        }
+    )
+
+    hips_translation_sampler_dict = {
+        "input": hips_translation_sampler_input_accessor_index,
+        "interpolation": "LINEAR",
+        "output": hips_translation_sampler_output_accessor_index,
+    }
+
+    animation_sampler_dicts = []
+    hips_translation_sampler_index = len(animation_sampler_dicts)
+    animation_sampler_dicts.append(hips_translation_sampler_dict)
+
+    hips_translation_channel_dict = {
+        "sampler": hips_translation_sampler_index,
+        "target": {"node": hips_node_index, "path": "translation"},
+    }
+
+    animation_channel_dicts = [hips_translation_channel_dict]
+
+    vrma_dict = {
+        "nodes": node_dicts,
+        "buffers": buffer_dicts,
+        "bufferViews": buffer_view_dicts,
+        "accessors": accessor_dicts,
+        "animations": [
+            {
+                "channels": animation_channel_dicts,
+                "samplers": animation_sampler_dicts,
+            }
+        ],
+        "extensions": {
+            "VRMC_vrm_animation": {
+                "humanoid": {
+                    "humanBones": human_bones_dict,
+                },
+            },
+        },
+    }
+
+    filepath.write_bytes(pack_glb(vrma_dict, bytearray()))
+
+
+def wip(filepath: Path) -> Set[str]:
     import bpy
+
+    generate_vrma(filepath)
 
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
@@ -350,6 +482,160 @@ def foo() -> None:
     armature = bpy.context.active_object
     print(str(armature))
 
+    vrma_dict, _bytes = parse_glb(filepath.read_bytes())
+    print(vrma_dict)
+
+    node_dicts = vrma_dict.get("nodes")
+    if not isinstance(node_dicts, list) or not node_dicts:
+        return {"CANCELLED"}
+    animation_dicts = vrma_dict.get("animations")
+    if not isinstance(animation_dicts, list) or not animation_dicts:
+        return {"CANCELLED"}
+    animation_dict = animation_dicts[0]
+    if not isinstance(animation_dict, dict):
+        return {"CANCELLED"}
+    animation_channel_dicts = animation_dict.get("channels")
+    if not isinstance(animation_channel_dicts, list) or not animation_channel_dicts:
+        return {"CANCELLED"}
+    animation_sampler_dicts = animation_dict.get("samplers")
+    if not isinstance(animation_sampler_dicts, list) or not animation_sampler_dicts:
+        return {"CANCELLED"}
+
+    extensions_dict = vrma_dict.get("extensions")
+    if not isinstance(extensions_dict, dict):
+        return {"CANCELLED"}
+    vrmc_vrm_animation_dict = extensions_dict.get("VRMC_vrm_animation")
+    if not isinstance(vrmc_vrm_animation_dict, dict):
+        return {"CANCELLED"}
+    humanoid_dict = vrmc_vrm_animation_dict.get("humanoid")
+    if not isinstance(humanoid_dict, dict):
+        return {"CANCELLED"}
+    human_bones_dict = humanoid_dict.get("humanBones")
+    if not isinstance(human_bones_dict, dict):
+        return {"CANCELLED"}
+    hips_dict = human_bones_dict.get("hips")
+    if not isinstance(hips_dict, dict):
+        return {"CANCELLED"}
+    hips_node_index = hips_dict.get("node")
+    if not isinstance(hips_node_index, int):
+        return {"CANCELLED"}
+    if not 0 <= hips_node_index < len(node_dicts):
+        return {"CANCELLED"}
+    hips_node_dict = node_dicts[hips_node_index]
+    if not isinstance(hips_node_dict, dict):
+        return {"CANCELLED"}
+    accessor_dicts = vrma_dict.get("accessors")
+    if not isinstance(accessor_dicts, list):
+        return {"CANCELLED"}
+    buffer_view_dicts = vrma_dict.get("bufferViews")
+    if not isinstance(buffer_view_dicts, list):
+        return {"CANCELLED"}
+    buffer_dicts = vrma_dict.get("buffers")
+    if not isinstance(buffer_dicts, list):
+        return {"CANCELLED"}
+
+    # search hips translation animation channel
+    for animation_channel_dict in animation_channel_dicts:
+        target_dict = animation_channel_dict.get("target")
+        if not isinstance(target_dict, dict):
+            continue
+        if target_dict.get("node") != hips_node_index:
+            continue
+        if target_dict.get("path") != "translation":
+            continue
+        animation_sampler_index = animation_channel_dict.get("sampler")
+        if not isinstance(animation_sampler_index, int):
+            continue
+        if not 0 <= animation_sampler_index < len(animation_sampler_dicts):
+            continue
+        animation_sampler_dict = animation_sampler_dicts[animation_sampler_index]
+        if not isinstance(animation_sampler_dict, dict):
+            continue
+
+        input_index = animation_sampler_dict.get("input")
+        if not isinstance(input_index, int):
+            continue
+        if not 0 <= input_index < len(accessor_dicts):
+            continue
+        input_accessor_dict = accessor_dicts[input_index]
+        if not isinstance(input_accessor_dict, dict):
+            continue
+        input_buffer_view_index = input_accessor_dict.get("bufferView")
+        if not isinstance(input_buffer_view_index, int):
+            continue
+        if not 0 <= input_buffer_view_index < len(buffer_view_dicts):
+            continue
+        input_buffer_view_dict = buffer_view_dicts[input_buffer_view_index]
+        if not isinstance(input_buffer_view_dict, dict):
+            continue
+        input_buffer_index = input_buffer_view_dict.get("buffer")
+        if not isinstance(input_buffer_index, int):
+            continue
+        if not 0 <= input_buffer_index < len(buffer_dicts):
+            continue
+        input_buffer_dict = buffer_dicts[input_buffer_index]
+        uri = input_buffer_dict.get("uri")
+        if not isinstance(uri, str):
+            continue
+        try:
+            parsed_url = urlparse(uri)
+        except ValueError:
+            continue
+        if parsed_url.scheme != "data":
+            continue
+        prefix = "application/gltf-buffer;base64,"
+        print(f"{parsed_url.path}")
+        if not parsed_url.path.startswith(prefix):  # TODO: all variants
+            continue
+        base64_input_bytes = parsed_url.path.removeprefix(prefix)
+        input_bytes = base64.b64decode(base64_input_bytes)
+        inputs = struct.unpack("<" + "f" * int(len(input_bytes) / 4), input_bytes)
+        print(f"{inputs=}")
+
+        output_index = animation_sampler_dict.get("output")
+        if not isinstance(output_index, int):
+            continue
+        if not 0 <= output_index < len(accessor_dicts):
+            continue
+        output_accessor_dict = accessor_dicts[output_index]
+        if not isinstance(output_accessor_dict, dict):
+            continue
+        output_buffer_view_index = output_accessor_dict.get("bufferView")
+        if not isinstance(output_buffer_view_index, int):
+            continue
+        if not 0 <= output_buffer_view_index < len(buffer_view_dicts):
+            continue
+        output_buffer_view_dict = buffer_view_dicts[output_buffer_view_index]
+        if not isinstance(output_buffer_view_dict, dict):
+            continue
+        output_buffer_index = output_buffer_view_dict.get("buffer")
+        if not isinstance(output_buffer_index, int):
+            continue
+        if not 0 <= output_buffer_index < len(buffer_dicts):
+            continue
+        output_buffer_dict = buffer_dicts[output_buffer_index]
+        uri = output_buffer_dict.get("uri")
+        if not isinstance(uri, str):
+            continue
+        try:
+            parsed_url = urlparse(uri)
+        except ValueError:
+            continue
+        if parsed_url.scheme != "data":
+            continue
+        print(f"{parsed_url.path}")
+        if not parsed_url.path.startswith(prefix):  # TODO: all variants
+            continue
+        base64_output_bytes = parsed_url.path.removeprefix(prefix)
+        output_bytes = base64.b64decode(base64_output_bytes)
+        outputs = struct.unpack("<" + "f" * int(len(output_bytes) / 4), output_bytes)
+        for timestamp, translation in zip(
+            inputs, [tuple(outputs[i : i + 3]) for i in range(0, len(outputs), 3)]
+        ):
+            print(f"{timestamp=} {translation=}")
+
+    print("OK")
+
     action = bpy.data.actions.new(name="new action")
     action.frame_end = 70
 
@@ -361,3 +647,5 @@ def foo() -> None:
     armature.keyframe_insert(data_path="location", frame=0)
     armature.location = (1, 0, 0)
     armature.keyframe_insert(data_path="location", frame=50)
+
+    return {"FINISHED"}
