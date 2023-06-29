@@ -23,7 +23,7 @@ expected_path = (
     / "tests"
     / "resources"
     / "vrm"
-    / "2.83"
+    / "2.93"
     / "out"
     / "triangle.vrm"
 )
