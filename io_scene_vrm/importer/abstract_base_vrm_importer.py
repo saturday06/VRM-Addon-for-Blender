@@ -1367,7 +1367,7 @@ class AbstractBaseVrmImporter(ABC):
                     if not isinstance(bone, int) or bone not in self.bone_names:
                         continue
 
-                    bone_prop.value = self.bone_names[bone]
+                    bone_prop.bone_name = self.bone_names[bone]
 
             collider_group_dicts = bone_group_dict.get("colliderGroups")
             if isinstance(collider_group_dicts, list):
