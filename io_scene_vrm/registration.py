@@ -77,6 +77,10 @@ def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> Non
     ):
         return
 
+    bpy.app.handlers.depsgraph_update_pre.remove(
+        depsgraph_update_pre_once_if_load_post_is_unavailable
+    )
+
     shader.add_shaders()
     migration.migrate_all_objects()
     migration.setup_subscription(load_post=False)
