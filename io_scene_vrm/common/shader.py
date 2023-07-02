@@ -217,8 +217,7 @@ def copy_socket_interface(
     if bpy.app.version >= (3, 0, 0):
         to_socket.attribute_domain = from_socket.attribute_domain
         to_socket.bl_label = from_socket.bl_label
-    if bpy.app.version >= (2, 93, 0):
-        to_socket.description = from_socket.description
+    to_socket.description = from_socket.description
     to_socket.name = from_socket.name
 
 

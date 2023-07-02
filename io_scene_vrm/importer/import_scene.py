@@ -267,46 +267,37 @@ def create_blend_model(
     context: bpy.types.Context,
     license_validation: bool,
 ) -> Set[str]:
-    legacy_importer = use_legacy_importer_exporter()
-    has_ui_localization = bpy.app.version < (2, 83)
-    ui_localization = False
-    if has_ui_localization:
-        ui_localization = context.preferences.view.use_international_fonts
-    try:
-        if not legacy_importer:
-            with contextlib.suppress(RetryUsingLegacyVrmImporter):
-                parse_result = VrmParser(
-                    Path(addon.filepath),
-                    addon.extract_textures_into_folder,
-                    addon.make_new_texture_folder,
-                    license_validation=license_validation,
-                    legacy_importer=False,
-                ).parse()
+    if not use_legacy_importer_exporter():
+        with contextlib.suppress(RetryUsingLegacyVrmImporter):
+            parse_result = VrmParser(
+                Path(addon.filepath),
+                addon.extract_textures_into_folder,
+                addon.make_new_texture_folder,
+                license_validation=license_validation,
+                legacy_importer=False,
+            ).parse()
 
-                Gltf2AddonVrmImporter(
-                    context,
-                    parse_result,
-                    addon.extract_textures_into_folder,
-                    addon.make_new_texture_folder,
-                ).import_vrm()
-                return {"FINISHED"}
+            Gltf2AddonVrmImporter(
+                context,
+                parse_result,
+                addon.extract_textures_into_folder,
+                addon.make_new_texture_folder,
+            ).import_vrm()
+            return {"FINISHED"}
 
-        parse_result = VrmParser(
-            Path(addon.filepath),
-            addon.extract_textures_into_folder,
-            addon.make_new_texture_folder,
-            license_validation=license_validation,
-            legacy_importer=True,
-        ).parse()
-        LegacyVrmImporter(
-            context,
-            parse_result,
-            addon.extract_textures_into_folder,
-            addon.make_new_texture_folder,
-        ).import_vrm()
-    finally:
-        if has_ui_localization and ui_localization:
-            context.preferences.view.use_international_fonts = ui_localization
+    parse_result = VrmParser(
+        Path(addon.filepath),
+        addon.extract_textures_into_folder,
+        addon.make_new_texture_folder,
+        license_validation=license_validation,
+        legacy_importer=True,
+    ).parse()
+    LegacyVrmImporter(
+        context,
+        parse_result,
+        addon.extract_textures_into_folder,
+        addon.make_new_texture_folder,
+    ).import_vrm()
 
     return {"FINISHED"}
 

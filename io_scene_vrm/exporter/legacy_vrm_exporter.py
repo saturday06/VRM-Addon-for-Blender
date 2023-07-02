@@ -1024,9 +1024,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pbr_dict: Dict[str, Json] = {}
             pbr_dict["name"] = b_mat.name
 
-            if bpy.app.version < (2, 83):
-                return fallback
-
             if bpy.app.version >= (3, 6):
                 module_name = (
                     "io_scene_gltf2.blender.exp.material.gltf2_blender_gather_materials"
@@ -1050,17 +1047,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     gltf2_io_material = gather_material(
                         b_mat, 0, self.gltf2_addon_export_settings
                     )
-                elif bpy.app.version >= (2, 91):
+                else:
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/abd8380e19dbe5e5fb9042513ad6b744032bc9bc/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
                     gltf2_io_material = gather_material(
                         b_mat, self.gltf2_addon_export_settings
-                    )
-                else:
-                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/ac3471cae42b34fc69fda75fa404117272fa9560/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
-                    gltf2_io_material = gather_material(
-                        b_mat,
-                        not b_mat.use_backface_culling,
-                        self.gltf2_addon_export_settings,
                     )
 
                 alpha_cutoff = getattr(gltf2_io_material, "alpha_cutoff", None)

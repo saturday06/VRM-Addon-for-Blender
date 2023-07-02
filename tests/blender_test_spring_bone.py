@@ -46,10 +46,7 @@ def clean_scene() -> None:
     bpy.ops.object.delete()
     while bpy.data.collections:
         bpy.data.collections.remove(bpy.data.collections[0])
-    if bpy.app.version < (2, 93):
-        bpy.ops.outliner.orphans_purge()
-    else:
-        bpy.ops.outliner.orphans_purge(do_recursive=True)
+    bpy.ops.outliner.orphans_purge(do_recursive=True)
 
 
 def one_joint_extending_in_y_direction() -> None:

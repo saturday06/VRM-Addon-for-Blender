@@ -24,9 +24,6 @@ def get_test_command_args() -> List[List[str]]:
 
 
 def test(vrm: str) -> None:
-    if bpy.app.version < (2, 93) and vrm == "draco.vrm":
-        return
-
     in_path = vrm_dir / vrm
     assert bpy.ops.import_scene.vrm(filepath=str(in_path)) == {"FINISHED"}
 
