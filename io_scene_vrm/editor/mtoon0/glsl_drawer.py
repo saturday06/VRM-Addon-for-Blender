@@ -412,7 +412,7 @@ class GlslDrawObj:
                     batches.insert(0, (mat, toon_batch, depth_batch))
 
     def glsl_draw(self) -> None:
-        if tuple(bpy.app.version) >= (3, 7):
+        if bpy.app.version >= (3, 7):
             return
 
         import bgl

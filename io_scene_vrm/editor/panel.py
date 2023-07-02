@@ -155,7 +155,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
                     depress=True,
                 )
             elif (
-                tuple(bpy.app.version) < (3, 7)
+                bpy.app.version < (3, 7)
                 and armature
                 and not armature.data.vrm_addon_extension.is_vrm1()
             ):
