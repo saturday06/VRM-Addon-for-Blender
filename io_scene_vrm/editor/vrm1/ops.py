@@ -496,7 +496,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator): 
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.vrm_addon_extension.vrm1.expressions
+        expressions = armature.data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
