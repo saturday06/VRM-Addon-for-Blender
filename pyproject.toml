@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-"fake-bpy-module-2.93" = "20210701"
+"fake-bpy-module-2.93" = "20220615"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "*"

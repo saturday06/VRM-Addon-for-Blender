@@ -176,13 +176,13 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "fake-bpy-module-2-93"
-version = "20210701"
+version = "20220615"
 description = "Collection of the fake Blender Python API module for the code completion."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "fake-bpy-module-2.93-20210701.tar.gz", hash = "sha256:20c372c63424ace23422ae9117ab45cfdb3c3f1a8a6550d50926cb3ca3eef999"},
-    {file = "fake_bpy_module_2.93-20210701-py3-none-any.whl", hash = "sha256:565a8094c0c45fa0ff02964943f8a02a4a530d56707fbc70848e4a72a40bbc7d"},
+    {file = "fake-bpy-module-2.93-20220615.tar.gz", hash = "sha256:070bca4876450d5a2aeb744d130bf0a0ca8c97e4d9d77f77bc79cf8f33026eee"},
+    {file = "fake_bpy_module_2.93-20220615-py3-none-any.whl", hash = "sha256:d63e2e8de985c9745affbda11e3923506b6ad793e86a35b02087476687fb4561"},
 ]
 
 [[package]]
@@ -873,4 +873,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "29d89142442f4b11b3cced07da0e1fe8186e4b0273d264cf86ad8ebe61739074"
+content-hash = "c7e854e8920c2e9d343ce2e512c6a64a2110bc67086946ba67aad45104663e7c"
