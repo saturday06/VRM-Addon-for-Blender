@@ -30,99 +30,8 @@ bl_info = {
 
 
 def register() -> None:
-    import tarfile
-    from logging import getLogger
-    from pathlib import Path
-
-    import bpy
-
-    logger = getLogger(__name__)
-
-    # Raise a NotImplementedError if the Blender version is too old to support.
-    if bpy.app.version < bl_info["blender"]:
-        default_message = (
-            "This add-on doesn't support Blender version less than {minimum_version}"
-            + " but the current version is {current_version}"
-        )
-        messages = {
-            "ja_JP": (
-                "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
-                + "お使いのBlenderのバージョンは{current_version}です。"
-            ),
-        }
-
-        if (
-            bpy.app.version >= (2, 80)
-            and bpy.context.preferences.view.use_translate_interface
-        ):
-            message = messages.get(bpy.app.translations.locale, default_message)
-        else:
-            message = default_message
-
-        raise NotImplementedError(
-            # pylint: disable=consider-using-f-string; for legacy Blender versions
-            """
-
-            ===========================================================
-            {}
-            ===========================================================
-            """.format(
-                message.format(
-                    minimum_version=".".join(map(str, bl_info["blender"])),
-                    current_version=".".join(map(str, bpy.app.version)),
-                )
-            )
-        )
-
-    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_5_0/io_scene_vrm/common/logging.py#L5-L7
-    log_warning_prefix = "[VRM Add-on:Warning]"
-
-    # For users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub.
-    github_private_partial_code_archive_path = (
-        Path(__file__).parent
-        / ".github"
-        / "vrm_addon_for_blender_private"
-        / ("_".join(map(str, bl_info["version"])) + ".tar.xz")
-    )
-    if github_private_partial_code_archive_path.exists():
-        # github_private_partial_code_archive_pathにファイルが存在する場合、それに含まれているソースコードを展開する。
-        #
-        # このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
-        # しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
-        # ソースコード配置から離れてしまい、開発ツールのサポートが弱くなってしまうのでそのダウンロード方式は廃止した。
-        # しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがるため
-        # どうにかソースコード配置を変えずに、その方式でも動作するように頑張った結果がこれである。
-        #
-        # この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
-        # https://code.blender.org/2022/10/blender-extensions-platform/
-
-        logger.warning(
-            "%s Extracting the partial add-on archive for "
-            'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub ...',
-            log_warning_prefix,
-        )
-
-        with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
-            for member in tar_xz.getmembers():
-                if ".." in member.path or not (member.isfile() or member.isdir()):
-                    continue
-                path = Path(member.path)
-                if path.is_absolute():
-                    continue
-                tar_xz.extract(
-                    member=member, path=Path(__file__).parent, set_attrs=False
-                )
-
-        try:
-            github_private_partial_code_archive_path.unlink()
-        except OSError:
-            logger.exception(
-                "%s Failed to remove the partial add-on archive: %s",
-                log_warning_prefix,
-                github_private_partial_code_archive_path,
-            )
-
-        logger.warning("%s ...OK", log_warning_prefix)
+    raise_error_if_current_blender_is_not_supported()
+    extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
     # support unzipping the partial add-on archive.
@@ -141,6 +50,105 @@ def unregister() -> None:
     from . import registration
 
     registration.unregister()
+
+
+def raise_error_if_current_blender_is_not_supported() -> None:
+    import bpy
+
+    if bpy.app.version >= bl_info["blender"]:
+        return
+
+    default_message = (
+        "This add-on doesn't support Blender version less than {minimum_version}"
+        + " but the current version is {current_version}"
+    )
+    translated_messages = {
+        "ja_JP": (
+            "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
+            + "お使いのBlenderのバージョンは{current_version}です。"
+        ),
+    }
+
+    if (
+        bpy.app.version >= (2, 80)
+        and bpy.context.preferences.view.use_translate_interface
+    ):
+        message = translated_messages.get(bpy.app.translations.locale, default_message)
+    else:
+        message = default_message
+
+    raise NotImplementedError(
+        # pylint: disable=consider-using-f-string; for legacy Blender versions
+        """
+
+        ===========================================================
+        {}
+        ===========================================================
+        """.format(
+            message.format(
+                minimum_version=".".join(map(str, bl_info["blender"])),
+                current_version=".".join(map(str, bpy.app.version)),
+            )
+        )
+    )
+
+
+def extract_github_private_partial_code_archive_if_necessary() -> None:
+    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、足りないソースコードを展開する。
+
+    このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
+    しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
+    ソースコード配置から離れてしまい、開発ツールのサポートが弱くなってしまうのでそのダウンロード方式は廃止した。
+    しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがるため
+    どうにかソースコード配置を変えずに、その方式でも動作するように頑張った結果がこれである。
+
+    この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
+    https://code.blender.org/2022/10/blender-extensions-platform/
+    """
+
+    import tarfile
+    from logging import getLogger
+    from pathlib import Path
+
+    logger = getLogger(__name__)
+
+    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_5_0/io_scene_vrm/common/logging.py#L5-L7
+    log_warning_prefix = "[VRM Add-on:Warning]"
+
+    github_private_partial_code_archive_path = (
+        Path(__file__).parent
+        / ".github"
+        / "vrm_addon_for_blender_private"
+        / ("_".join(map(str, bl_info["version"])) + ".tar.xz")
+    )
+    if not github_private_partial_code_archive_path.exists():
+        return
+
+    logger.warning(
+        "%s Extracting the partial add-on archive for "
+        'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub ...',
+        log_warning_prefix,
+    )
+
+    with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
+        for member in tar_xz.getmembers():
+            if ".." in member.path or not (member.isfile() or member.isdir()):
+                continue
+            path = Path(member.path)
+            if path.is_absolute():
+                continue
+            tar_xz.extract(member=member, path=Path(__file__).parent, set_attrs=False)
+
+    try:
+        github_private_partial_code_archive_path.unlink()
+    except OSError:
+        logger.exception(
+            "%s Failed to remove the partial add-on archive: %s",
+            log_warning_prefix,
+            github_private_partial_code_archive_path,
+        )
+
+    logger.warning("%s ...OK", log_warning_prefix)
 
 
 class glTF2ImportUserExtension:
