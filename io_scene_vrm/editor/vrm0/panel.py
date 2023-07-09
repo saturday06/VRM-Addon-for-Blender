@@ -69,7 +69,9 @@ def draw_vrm0_humanoid_operators_layout(
     ).armature_name = armature.name
     save_load_row = bone_operator_column.split(factor=0.5, align=True)
     save_load_row.operator(
-        ops.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT", text="Save", 
+        ops.VRM_OT_save_human_bone_mappings.bl_idname,
+        icon="EXPORT",
+        text="Save",
     )
     save_load_row.operator(
         ops.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT", text="Load"
@@ -543,8 +545,14 @@ def draw_vrm0_blend_shape_master_layout(
     blend_data = context.blend_data
 
     row = layout.row()
-    row.template_list(VRM_UL_vrm0_blend_shape_group.bl_idname, "",
-                    blend_shape_master, "blend_shape_groups", blend_shape_master, "active_blend_shape_group_index")
+    row.template_list(
+        VRM_UL_vrm0_blend_shape_group.bl_idname,
+        "",
+        blend_shape_master,
+        "blend_shape_groups",
+        blend_shape_master,
+        "active_blend_shape_group_index",
+    )
     blend_shape_group_index = blend_shape_master.active_blend_shape_group_index
 
     column = row.column(align=True)
@@ -561,8 +569,12 @@ def draw_vrm0_blend_shape_master_layout(
     # for blend_shape_group_index, blend_shape_group in enumerate(
     #     blend_shape_master.blend_shape_groups
     # ):
-    if 0 <= blend_shape_group_index and blend_shape_group_index < len(blend_shape_master.blend_shape_groups):
-        blend_shape_group = blend_shape_master.blend_shape_groups[blend_shape_group_index]
+    if 0 <= blend_shape_group_index and blend_shape_group_index < len(
+        blend_shape_master.blend_shape_groups
+    ):
+        blend_shape_group = blend_shape_master.blend_shape_groups[
+            blend_shape_group_index
+        ]
         # row = layout.row()
         # row.alignment = "LEFT"
         # row.prop(
@@ -575,7 +587,7 @@ def draw_vrm0_blend_shape_master_layout(
         # )
         # if not blend_shape_group.show_expanded:
         #     continue
-        #box = layout.box()
+        # box = layout.box()
         box = layout.box()
         box.prop(blend_shape_group, "name")
         box.prop(blend_shape_group, "preset_name")
@@ -593,8 +605,14 @@ def draw_vrm0_blend_shape_master_layout(
         box = layout.box()
         box.label(text="Binds", icon="MESH_DATA")
         row = box.row()
-        row.template_list(VRM_UL_vrm0_blend_shape_bind.bl_idname, "",
-                blend_shape_group, "binds", blend_shape_group, "active_bind_index")
+        row.template_list(
+            VRM_UL_vrm0_blend_shape_bind.bl_idname,
+            "",
+            blend_shape_group,
+            "binds",
+            blend_shape_group,
+            "active_bind_index",
+        )
         bind_index = blend_shape_group.active_bind_index
         column = row.column(align=True)
         add_blend_shape_bind_op = column.operator(
@@ -604,12 +622,11 @@ def draw_vrm0_blend_shape_master_layout(
         add_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
         remove_blend_shape_bind_op = column.operator(
             vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind.bl_idname,
-            icon="REMOVE", text=""
+            icon="REMOVE",
+            text="",
         )
         remove_blend_shape_bind_op.armature_name = armature.name
-        remove_blend_shape_bind_op.blend_shape_group_index = (
-            blend_shape_group_index
-        )
+        remove_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
         remove_blend_shape_bind_op.bind_index = bind_index
         # if blend_shape_group.show_expanded_binds:
         # for bind_index, bind in enumerate(blend_shape_group.binds):
@@ -617,9 +634,7 @@ def draw_vrm0_blend_shape_master_layout(
             bind = blend_shape_group.binds[bind_index]
             bind_box = box.column()
             row = bind_box.row()
-            row.prop_search(
-                bind.mesh, "value", blend_data, "meshes", text="Mesh"
-            )
+            row.prop_search(bind.mesh, "value", blend_data, "meshes", text="Mesh")
             if (
                 bind.mesh.value
                 and bind.mesh.value in blend_data.meshes
@@ -651,8 +666,14 @@ def draw_vrm0_blend_shape_master_layout(
         box = layout.box()
         box.label(text="Material Values", icon="MATERIAL")
         row = box.row()
-        row.template_list(VRM_UL_vrm0_material_value_bind.bl_idname, "",
-                blend_shape_group, "material_values", blend_shape_group, "active_material_value_index")
+        row.template_list(
+            VRM_UL_vrm0_material_value_bind.bl_idname,
+            "",
+            blend_shape_group,
+            "material_values",
+            blend_shape_group,
+            "active_material_value_index",
+        )
         material_value_index = blend_shape_group.active_material_value_index
         column = row.column(align=False)
         add_material_value_op = column.operator(
@@ -662,20 +683,19 @@ def draw_vrm0_blend_shape_master_layout(
         add_material_value_op.blend_shape_group_index = blend_shape_group_index
         remove_material_value_op = column.operator(
             vrm0_ops.VRM_OT_remove_vrm0_material_value_bind.bl_idname,
-            icon="REMOVE", text=""
+            icon="REMOVE",
+            text="",
         )
         remove_material_value_op.armature_name = armature.name
-        remove_material_value_op.blend_shape_group_index = (
-            blend_shape_group_index
-        )
-        remove_material_value_op.material_value_index = material_value_index                
-        if 0 <= material_value_index and material_value_index < len(blend_shape_group.material_values):
+        remove_material_value_op.blend_shape_group_index = blend_shape_group_index
+        remove_material_value_op.material_value_index = material_value_index
+        if 0 <= material_value_index and material_value_index < len(
+            blend_shape_group.material_values
+        ):
             material_value = blend_shape_group.material_values[material_value_index]
             material_value_box = box.column()
             row = material_value_box.row()
-            row.prop_search(
-                material_value, "material", blend_data, "materials"
-            )
+            row.prop_search(material_value, "material", blend_data, "materials")
             material_value_box.prop(material_value, "property_name")
             for (
                 target_value_index,
@@ -692,19 +712,17 @@ def draw_vrm0_blend_shape_master_layout(
                     icon="REMOVE",
                 )
                 remove_target_value_op.armature_name = armature.name
-                remove_target_value_op.blend_shape_group_index = (
-                    blend_shape_group_index
-                )
+                remove_target_value_op.blend_shape_group_index = blend_shape_group_index
                 remove_target_value_op.material_value_index = material_value_index
                 remove_target_value_op.target_value_index = target_value_index
             add_target_value_op = material_value_box.operator(
                 vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value.bl_idname,
-                icon="ADD", text=""
+                icon="ADD",
+                text="",
             )
             add_target_value_op.armature_name = armature.name
             add_target_value_op.blend_shape_group_index = blend_shape_group_index
             add_target_value_op.material_value_index = material_value_index
-
 
     for blend_shape_group_index, blend_shape_group in enumerate(
         blend_shape_master.blend_shape_groups
@@ -915,85 +933,98 @@ class VRM_PT_vrm0_blend_shape_master_ui(bpy.types.Panel):  # type: ignore[misc]
 class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_secondary_animation_group"
 
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        secondary_animation = data
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
         bone_group = item
-        if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            text = f"(Spring Bone {index})" if bone_group.comment == "" else bone_group.comment
+        if self.layout_type in {"DEFAULT", "COMPACT"}:
+            text = (
+                f"(Spring Bone {index})"
+                if bone_group.comment == ""
+                else bone_group.comment
+            )
             if bone_group:
                 layout.label(text=text, icon="GROUP_BONE")
                 # layout.prop(bone_group, "comment", text="", emboss=False, icon_value=icon)
             else:
                 layout.label(text="", translate=False, icon_value=icon)
-        elif self.layout_type in {'GRID'}:
-            layout.alignment = 'CENTER'
+        elif self.layout_type in {"GRID"}:
+            layout.alignment = "CENTER"
             layout.label(text="", icon_value=icon)
 
 
 class VRM_UL_vrm0_secondary_animation_group_collider_group(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_secondary_animation_group_collider_group"
 
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        secondary_animation = data
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
         collider_group = item
-        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+        if self.layout_type in {"DEFAULT", "COMPACT"}:
             if collider_group:
                 layout.label(text=collider_group.name, icon="SPHERE")
             else:
                 layout.label(text="", translate=False, icon_value=icon)
-        elif self.layout_type in {'GRID'}:
-            layout.alignment = 'CENTER'
+        elif self.layout_type in {"GRID"}:
+            layout.alignment = "CENTER"
             layout.label(text="", icon_value=icon)
 
 
 class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_blend_shape_group"
 
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        blend_shape_master = data
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
         blend_shape_group = item
-        _icon = blend_shape_group.bl_rna.properties['preset_name'].enum_items[blend_shape_group.preset_name].icon 
-        if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            if blend_shape_group:   
-                layout.label(text=blend_shape_group.name,  icon=_icon)
+        _icon = (
+            blend_shape_group.bl_rna.properties["preset_name"]
+            .enum_items[blend_shape_group.preset_name]
+            .icon
+        )
+        if self.layout_type in {"DEFAULT", "COMPACT"}:
+            if blend_shape_group:
+                layout.label(text=blend_shape_group.name, icon=_icon)
                 # layout.prop(blend_shape_group, "preset_name", text="")
             else:
                 layout.label(text="", translate=False, icon_value=icon)
-        elif self.layout_type in {'GRID'}:
-            layout.alignment = 'CENTER'
+        elif self.layout_type in {"GRID"}:
+            layout.alignment = "CENTER"
             layout.label(text="", icon_value=icon)
 
 
 class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_blend_shape_bind"
 
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        blend_shape_group = data
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
         blend_shape_bind = item
-        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+        if self.layout_type in {"DEFAULT", "COMPACT"}:
             if blend_shape_bind:
-                layout.label(text=str(blend_shape_bind.mesh), icon="MESH_DATA")                
+                layout.label(text=str(blend_shape_bind.mesh), icon="MESH_DATA")
             else:
                 layout.label(text="", translate=False, icon_value=icon)
-        elif self.layout_type in {'GRID'}:
-            layout.alignment = 'CENTER'
+        elif self.layout_type in {"GRID"}:
+            layout.alignment = "CENTER"
             layout.label(text="", icon_value=icon)
 
 
 class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_material_value_bind"
 
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        blend_shape_group = data
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
         material_value_bind = item
-        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+        if self.layout_type in {"DEFAULT", "COMPACT"}:
             if material_value_bind:
                 layout.label(text=str(material_value_bind.material), icon="MATERIAL")
-                # layout.prop(blend_shape_group, "preset_name")                
+                # layout.prop(blend_shape_group, "preset_name")
             else:
                 layout.label(text="", translate=False, icon_value=icon)
-        elif self.layout_type in {'GRID'}:
-            layout.alignment = 'CENTER'
+        elif self.layout_type in {"GRID"}:
+            layout.alignment = "CENTER"
             layout.label(text="", icon_value=icon)
 
 
