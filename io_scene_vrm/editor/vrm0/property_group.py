@@ -513,19 +513,21 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         name="Active Material Value Index", default=0  # noqa: F722
     )
 
-    def update_preview(self, _context: bpy.types.Context) -> None:
+    def update_preview(self, context: bpy.types.Context) -> None:
+        blend_data = context.blend_data
         for bind in self.binds:
-            if bind.mesh.link_to_mesh is None:
+            mesh_object = blend_data.objects.get(bind.mesh.mesh_object_name)
+            if not mesh_object or mesh_object.type != "MESH":
                 continue
-            if bind.mesh.link_to_mesh.parent is None:
+            mesh = mesh_object.data
+            if (
+                not mesh.shape_keys
+                or not mesh.shape_keys.key_blocks
+                or bind.index not in mesh.shape_keys.key_blocks
+            ):
                 continue
-            if bind.mesh.link_to_mesh.parent.data is None:
-                continue
-            mesh = bind.mesh.link_to_mesh.parent.data
-            index = bind.index
-            weight = bind.weight
-            value = weight * self.preview  # Lerp 0.0 * (1 - a) + weight * a
-            mesh.shape_keys.key_blocks[index].value = value
+            value = bind.weight * self.preview  # Lerp 0.0 * (1 - a) + weight * a
+            mesh.shape_keys.key_blocks[bind.index].value = value
 
     preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Preview",  # noqa: F821
