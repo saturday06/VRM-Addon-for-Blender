@@ -462,8 +462,8 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         description="Name of the blendshape group",  # noqa: F722
     )
     preset_name_items = [
-        ("unknown", "unknown", "", "NONE", 0),
-        ("neutral", "neutral", "", "NONE", 1),
+        ("unknown", "unknown", "", "SHAPEKEY_DATA", 0),
+        ("neutral", "neutral", "", "BLANK1", 1),
         ("a", "a", "", "EVENT_A", 2),
         ("i", "i", "", "EVENT_I", 3),
         ("u", "u", "", "EVENT_U", 4),
