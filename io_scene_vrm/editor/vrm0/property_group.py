@@ -352,15 +352,6 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
         type=Vrm0DegreeMapPropertyGroup, name="lookAt Vertical Up"  # noqa: F722
     )
 
-    # For UI
-    page_items = [
-        ("page1", "Page 1", "", "NONE", 0),
-        ("page2", "Page 2", "", "NONE", 1),
-    ]
-    page: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=page_items, name="Page"  # noqa: F821
-    )
-
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -837,13 +828,6 @@ class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):  # type: ign
     )
     active_collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         name="Active Collider Group Index", default=0  # noqa: F722
-    )
-    page_items = [
-        ("page1", "Page 1", "", "NONE", 0),
-        ("page2", "Page 2", "", "NONE", 1),
-    ]
-    page: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=page_items, name="Page"  # noqa: F821
     )
 
 
