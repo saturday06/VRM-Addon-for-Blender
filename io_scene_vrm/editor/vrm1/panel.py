@@ -613,7 +613,14 @@ def draw_vrm1_expression_layout(
             bind_box = box.box().column()
             bind_box.prop_search(bind, "material", blend_data, "materials")
             bind_box.prop(bind, "type")
-            bind_box.prop(bind, "target_value")
+            target_value_split = bind_box.split(factor=0.5)
+            target_value_split.label(text="Target Value:")
+            if bind.type == "color":
+                target_value_split.prop(bind, "target_value", text="", translate=False)
+            else:
+                target_value_split.prop(
+                    bind, "target_value_as_rgb", text="", translate=False
+                )
 
             remove_bind_op = bind_box.operator(
                 vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind.bl_idname,

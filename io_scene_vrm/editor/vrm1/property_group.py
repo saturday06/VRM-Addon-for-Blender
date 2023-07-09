@@ -1,6 +1,7 @@
 import functools
 import sys
-from typing import Dict, List, Optional
+from collections import abc
+from typing import Dict, List, Optional, Tuple
 
 import bpy
 from bpy.app.translations import pgettext
@@ -529,6 +530,36 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
     target_value: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Target Value",  # noqa: F722
         size=4,  # noqa: F722
+        subtype="COLOR",  # noqa: F821
+        min=0,
+        max=1,  # TODO: hdr emission color?
+    )
+
+    def get_target_value_as_rgb(self) -> Tuple[float, float, float]:
+        return (
+            float(self.target_value[0]),
+            float(self.target_value[1]),
+            float(self.target_value[2]),
+        )
+
+    def set_target_value_as_rgb(self, value: object) -> None:
+        if not isinstance(value, abc.Sequence):
+            return
+        if len(value) < 3:
+            return
+        self.target_value = (
+            float(value[0]),
+            float(value[1]),
+            float(value[2]),
+            float(self.target_value[3]),
+        )
+
+    target_value_as_rgb: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+        name="Target Value",  # noqa: F722
+        size=3,  # noqa: F722
+        subtype="COLOR",  # noqa: F821
+        get=get_target_value_as_rgb,
+        set=set_target_value_as_rgb,
     )
 
 
