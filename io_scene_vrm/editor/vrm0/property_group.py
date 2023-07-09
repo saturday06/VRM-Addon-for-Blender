@@ -463,7 +463,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     )
     preset_name_items = [
         ("unknown", "unknown", "", "SHAPEKEY_DATA", 0),
-        ("neutral", "neutral", "", "BLANK1", 1),
+        ("neutral", "neutral", "", "VIEW_ORTHO", 1),
         ("a", "a", "", "EVENT_A", 2),
         ("i", "i", "", "EVENT_I", 3),
         ("u", "u", "", "EVENT_U", 4),
