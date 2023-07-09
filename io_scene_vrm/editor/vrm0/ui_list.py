@@ -178,8 +178,12 @@ class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):  # type: ignore[misc]
 
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if material_value_bind:
-                layout.label(text=str(material_value_bind.material), icon="MATERIAL")
-                # layout.prop(blend_shape_group, "preset_name")
+                name = ""
+                if material_value_bind.material:
+                    name = material_value_bind.material.name
+                    if material_value_bind.property_name:
+                        name += " / " + material_value_bind.property_name
+                layout.label(text=name, icon="MATERIAL")
             else:
                 layout.label(text="", translate=False, icon_value=icon)
         elif self.layout_type in {"GRID"}:
