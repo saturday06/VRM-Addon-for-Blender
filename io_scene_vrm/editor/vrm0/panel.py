@@ -11,10 +11,15 @@ from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
 from . import ops as vrm0_ops
 from .property_group import (
+    Vrm0BlendShapeBindPropertyGroup,
+    Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
     Vrm0HumanoidPropertyGroup,
+    Vrm0MaterialValueBindPropertyGroup,
     Vrm0MetaPropertyGroup,
+    Vrm0SecondaryAnimationColliderGroupPropertyGroup,
+    Vrm0SecondaryAnimationGroupPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
 
@@ -930,13 +935,25 @@ class VRM_PT_vrm0_blend_shape_master_ui(bpy.types.Panel):  # type: ignore[misc]
             )
 
 
-class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):
+class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):  # type: ignore[misc]
     bl_idname = "VRM_UL_vrm0_secondary_animation_group"
 
     def draw_item(
-        self, context, layout, data, item, icon, active_data, active_propname, index
-    ):
+        self,
+        _context: bpy.types.Context,
+        layout: bpy.types.UILayout,
+        _data: object,
+        item: object,
+        icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
         bone_group = item
+        if not isinstance(bone_group, Vrm0SecondaryAnimationGroupPropertyGroup):
+            return
+
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             text = (
                 f"(Spring Bone {index})"
@@ -953,13 +970,27 @@ class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):
             layout.label(text="", icon_value=icon)
 
 
-class VRM_UL_vrm0_secondary_animation_group_collider_group(bpy.types.UIList):
+class VRM_UL_vrm0_secondary_animation_group_collider_group(bpy.types.UIList):  # type: ignore[misc]
     bl_idname = "VRM_UL_vrm0_secondary_animation_group_collider_group"
 
     def draw_item(
-        self, context, layout, data, item, icon, active_data, active_propname, index
-    ):
+        self,
+        _context: bpy.types.Context,
+        layout: bpy.types.UILayout,
+        _data: object,
+        item: object,
+        icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        _index: int,
+        _flt_flag: int,
+    ) -> None:
         collider_group = item
+        if not isinstance(
+            collider_group, Vrm0SecondaryAnimationColliderGroupPropertyGroup
+        ):
+            return
+
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if collider_group:
                 layout.label(text=collider_group.name, icon="SPHERE")
@@ -970,13 +1001,25 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(bpy.types.UIList):
             layout.label(text="", icon_value=icon)
 
 
-class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
+class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
     bl_idname = "VRM_UL_vrm0_blend_shape_group"
 
     def draw_item(
-        self, context, layout, data, item, icon, active_data, active_propname, index
-    ):
+        self,
+        _context: bpy.types.Context,
+        layout: bpy.types.UILayout,
+        _data: object,
+        item: object,
+        icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        _index: int,
+        _flt_flag: int,
+    ) -> None:
         blend_shape_group = item
+        if not isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
+            return
+
         _icon = (
             blend_shape_group.bl_rna.properties["preset_name"]
             .enum_items[blend_shape_group.preset_name]
@@ -993,13 +1036,25 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
             layout.label(text="", icon_value=icon)
 
 
-class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):
+class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
     bl_idname = "VRM_UL_vrm0_blend_shape_bind"
 
     def draw_item(
-        self, context, layout, data, item, icon, active_data, active_propname, index
-    ):
+        self,
+        _context: bpy.types.Context,
+        layout: bpy.types.UILayout,
+        _data: object,
+        item: object,
+        icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        _index: int,
+        _flt_flag: int,
+    ) -> None:
         blend_shape_bind = item
+        if not isinstance(blend_shape_bind, Vrm0BlendShapeBindPropertyGroup):
+            return
+
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if blend_shape_bind:
                 layout.label(text=str(blend_shape_bind.mesh), icon="MESH_DATA")
@@ -1010,13 +1065,25 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):
             layout.label(text="", icon_value=icon)
 
 
-class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):
+class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):  # type: ignore[misc]
     bl_idname = "VRM_UL_vrm0_material_value_bind"
 
     def draw_item(
-        self, context, layout, data, item, icon, active_data, active_propname, index
-    ):
+        self,
+        _context: bpy.types.Context,
+        layout: bpy.types.UILayout,
+        _data: object,
+        item: object,
+        icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        _index: int,
+        _flt_flag: int,
+    ) -> None:
         material_value_bind = item
+        if not isinstance(material_value_bind, Vrm0MaterialValueBindPropertyGroup):
+            return
+
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if material_value_bind:
                 layout.label(text=str(material_value_bind.material), icon="MATERIAL")

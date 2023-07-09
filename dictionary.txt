@@ -211,6 +211,7 @@ topbar
 tpos
 transzw
 tri
+tria
 tris
 tz
 ui
