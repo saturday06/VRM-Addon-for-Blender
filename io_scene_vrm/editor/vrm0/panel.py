@@ -560,57 +560,33 @@ def draw_vrm0_blend_shape_master_layout(
     )
     blend_shape_group_index = blend_shape_master.active_blend_shape_group_index
 
-    column = row.column(align=True)
-    add_blend_shape_group_op = column.operator(
+    list_side_column = row.column(align=True)
+    add_blend_shape_group_op = list_side_column.operator(
         vrm0_ops.VRM_OT_add_vrm0_blend_shape_group.bl_idname, icon="ADD", text=""
     )
     add_blend_shape_group_op.name = "New"
     add_blend_shape_group_op.armature_name = armature.name
-    remove_blend_shape_group_op = column.operator(
+    remove_blend_shape_group_op = list_side_column.operator(
         vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group.bl_idname, icon="REMOVE", text=""
     )
     remove_blend_shape_group_op.armature_name = armature.name
     remove_blend_shape_group_op.blend_shape_group_index = blend_shape_group_index
-    # for blend_shape_group_index, blend_shape_group in enumerate(
-    #     blend_shape_master.blend_shape_groups
-    # ):
-    if 0 <= blend_shape_group_index and blend_shape_group_index < len(
-        blend_shape_master.blend_shape_groups
-    ):
+
+    if 0 <= blend_shape_group_index < len(blend_shape_master.blend_shape_groups):
         blend_shape_group = blend_shape_master.blend_shape_groups[
             blend_shape_group_index
         ]
-        # row = layout.row()
-        # row.alignment = "LEFT"
-        # row.prop(
-        #     blend_shape_group,
-        #     "show_expanded",
-        #     icon="TRIA_DOWN" if blend_shape_group.show_expanded else "TRIA_RIGHT",
-        #     emboss=False,
-        #     text=blend_shape_group.name + " / " + blend_shape_group.preset_name,
-        #     translate=False,
-        # )
-        # if not blend_shape_group.show_expanded:
-        #     continue
-        # box = layout.box()
         box = layout.box()
-        box.prop(blend_shape_group, "name")
-        box.prop(blend_shape_group, "preset_name")
+        column = box.column()
+        column.prop(blend_shape_group, "name")
+        column.prop(blend_shape_group, "preset_name")
+        column.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
+        column.separator(factor=0.5)
 
-        box.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
-        box.separator()
-        # row = box.row()
-        # row.alignment = "LEFT"
-        # row.prop(
-        #     blend_shape_group,
-        #     "show_expanded_binds",
-        #     icon="TRIA_DOWN" if blend_shape_group.show_expanded_binds else "TRIA_RIGHT",
-        #     emboss=False,
-        # )
-        box = layout.box()
+        box = column.box()
         box.label(text="Binds", icon="MESH_DATA")
-        row = box.row()
-        row.template_list(
+        binds_row = box.row()
+        binds_row.template_list(
             VRM_UL_vrm0_blend_shape_bind.bl_idname,
             "",
             blend_shape_group,
@@ -618,14 +594,15 @@ def draw_vrm0_blend_shape_master_layout(
             blend_shape_group,
             "active_bind_index",
         )
+
         bind_index = blend_shape_group.active_bind_index
-        column = row.column(align=True)
-        add_blend_shape_bind_op = column.operator(
+        binds_side_column = binds_row.column(align=True)
+        add_blend_shape_bind_op = binds_side_column.operator(
             vrm0_ops.VRM_OT_add_vrm0_blend_shape_bind.bl_idname, icon="ADD", text=""
         )
         add_blend_shape_bind_op.armature_name = armature.name
         add_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
-        remove_blend_shape_bind_op = column.operator(
+        remove_blend_shape_bind_op = binds_side_column.operator(
             vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind.bl_idname,
             icon="REMOVE",
             text="",
@@ -633,9 +610,8 @@ def draw_vrm0_blend_shape_master_layout(
         remove_blend_shape_bind_op.armature_name = armature.name
         remove_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
         remove_blend_shape_bind_op.bind_index = bind_index
-        # if blend_shape_group.show_expanded_binds:
-        # for bind_index, bind in enumerate(blend_shape_group.binds):
-        if 0 <= bind_index and bind_index < len(blend_shape_group.binds):
+
+        if 0 <= bind_index < len(blend_shape_group.binds):
             bind = blend_shape_group.binds[bind_index]
             bind_box = box.column()
             row = bind_box.row()
@@ -664,21 +640,11 @@ def draw_vrm0_blend_shape_master_layout(
                 )
             bind_box.prop(bind, "weight")
 
-        # row = box.row()
-        # row.alignment = "LEFT"
-        # row.prop(
-        #     blend_shape_group,
-        #     "show_expanded_material_values",
-        #     icon="TRIA_DOWN"
-        #     if blend_shape_group.show_expanded_material_values
-        #     else "TRIA_RIGHT",
-        #     emboss=False,
-        # )
-        box.separator()
-        box = layout.box()
+        column.separator(factor=0.2)
+        box = column.box()
         box.label(text="Material Values", icon="MATERIAL")
-        row = box.row()
-        row.template_list(
+        material_value_binds_row = box.row()
+        material_value_binds_row.template_list(
             VRM_UL_vrm0_material_value_bind.bl_idname,
             "",
             blend_shape_group,
@@ -687,13 +653,13 @@ def draw_vrm0_blend_shape_master_layout(
             "active_material_value_index",
         )
         material_value_index = blend_shape_group.active_material_value_index
-        column = row.column(align=False)
-        add_material_value_op = column.operator(
+        material_value_binds_side_column = material_value_binds_row.column(align=True)
+        add_material_value_op = material_value_binds_side_column.operator(
             vrm0_ops.VRM_OT_add_vrm0_material_value_bind.bl_idname, icon="ADD", text=""
         )
         add_material_value_op.armature_name = armature.name
         add_material_value_op.blend_shape_group_index = blend_shape_group_index
-        remove_material_value_op = column.operator(
+        remove_material_value_op = material_value_binds_side_column.operator(
             vrm0_ops.VRM_OT_remove_vrm0_material_value_bind.bl_idname,
             icon="REMOVE",
             text="",
@@ -701,9 +667,8 @@ def draw_vrm0_blend_shape_master_layout(
         remove_material_value_op.armature_name = armature.name
         remove_material_value_op.blend_shape_group_index = blend_shape_group_index
         remove_material_value_op.material_value_index = material_value_index
-        if 0 <= material_value_index and material_value_index < len(
-            blend_shape_group.material_values
-        ):
+
+        if 0 <= material_value_index < len(blend_shape_group.material_values):
             material_value = blend_shape_group.material_values[material_value_index]
             material_value_box = box.column()
             row = material_value_box.row()

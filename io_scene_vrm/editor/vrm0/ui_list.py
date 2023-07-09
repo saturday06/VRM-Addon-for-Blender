@@ -94,15 +94,19 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
         if not isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
             return
 
-        _icon = (
+        icon = (
             blend_shape_group.bl_rna.properties["preset_name"]
             .enum_items[blend_shape_group.preset_name]
             .icon
         )
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if blend_shape_group:
-                layout.label(text=blend_shape_group.name, icon=_icon)
-                # layout.prop(blend_shape_group, "preset_name", text="")
+                layout.label(
+                    text=(
+                        blend_shape_group.name + " / " + blend_shape_group.preset_name
+                    ),
+                    icon=icon,
+                )
             else:
                 layout.label(text="", translate=False, icon_value=icon)
         elif self.layout_type in {"GRID"}:
@@ -115,7 +119,7 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
+        context: bpy.types.Context,
         layout: bpy.types.UILayout,
         _data: object,
         item: object,
@@ -125,13 +129,27 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
         _index: int,
         _flt_flag: int,
     ) -> None:
+        blend_data = context.blend_data
         blend_shape_bind = item
         if not isinstance(blend_shape_bind, Vrm0BlendShapeBindPropertyGroup):
             return
 
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if blend_shape_bind:
-                layout.label(text=str(blend_shape_bind.mesh), icon="MESH_DATA")
+                name = blend_shape_bind.mesh.mesh_object_name
+                mesh_object = blend_data.objects.get(
+                    blend_shape_bind.mesh.mesh_object_name
+                )
+                if (
+                    mesh_object
+                    and mesh_object.type == "MESH"
+                    and mesh_object.data
+                    and mesh_object.data.shape_keys
+                ):
+                    keys = mesh_object.data.shape_keys.key_blocks.keys()
+                    if blend_shape_bind.index in keys:
+                        name += " / " + blend_shape_bind.index
+                layout.label(text=name, icon="MESH_DATA")
             else:
                 layout.label(text="", translate=False, icon_value=icon)
         elif self.layout_type in {"GRID"}:
