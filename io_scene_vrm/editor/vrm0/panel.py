@@ -616,8 +616,14 @@ def draw_vrm0_blend_shape_master_layout(
             bind_box = box.column()
             row = bind_box.row()
             row.prop_search(
-                bind.mesh, "mesh_object_name", blend_data, "meshes", text="Mesh"
+                bind.mesh,
+                "mesh_object_name",
+                context.scene.vrm_addon_extension,
+                "mesh_object_names",
+                text="Mesh",
+                icon="OUTLINER_OB_MESH",
             )
+
             if (
                 bind.mesh.mesh_object_name
                 and bind.mesh.mesh_object_name in blend_data.objects
