@@ -510,7 +510,8 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.materialColorBind.schema.json
 class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Material  # noqa: F821
+        name="Material",  # noqa: F821
+        type=bpy.types.Material,  # noqa: F821
     )
 
     type_items = [
@@ -522,10 +523,12 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
         ("outlineColor", "Outline Color", "", 4),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=type_items  # noqa: F722
+        name="Type",  # noqa: F821
+        items=type_items,  # noqa: F722
     )
     target_value: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=4  # noqa: F722
+        name="Target Value",  # noqa: F722
+        size=4,  # noqa: F722
     )
 
 
