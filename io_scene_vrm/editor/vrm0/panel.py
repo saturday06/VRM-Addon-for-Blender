@@ -639,19 +639,26 @@ def draw_vrm0_blend_shape_master_layout(
             bind = blend_shape_group.binds[bind_index]
             bind_box = box.column()
             row = bind_box.row()
-            row.prop_search(bind.mesh, "value", blend_data, "meshes", text="Mesh")
+            row.prop_search(
+                bind.mesh, "mesh_object_name", blend_data, "meshes", text="Mesh"
+            )
             if (
-                bind.mesh.value
-                and bind.mesh.value in blend_data.meshes
-                and blend_data.meshes[bind.mesh.value]
-                and blend_data.meshes[bind.mesh.value].shape_keys
-                and blend_data.meshes[bind.mesh.value].shape_keys.key_blocks
-                and blend_data.meshes[bind.mesh.value].shape_keys.key_blocks.keys()
+                bind.mesh.mesh_object_name
+                and bind.mesh.mesh_object_name in blend_data.objects
+                and blend_data.objects[bind.mesh.mesh_object_name].type == "MESH"
+                and blend_data.objects[bind.mesh.mesh_object_name].data
+                and blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys
+                and blend_data.objects[
+                    bind.mesh.mesh_object_name
+                ].data.shape_keys.key_blocks
+                and blend_data.objects[
+                    bind.mesh.mesh_object_name
+                ].data.shape_keys.key_blocks.keys()
             ):
                 bind_box.prop_search(
                     bind,
                     "index",
-                    blend_data.meshes[bind.mesh.value].shape_keys,
+                    blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys,
                     "key_blocks",
                     text="Shape key",
                 )
