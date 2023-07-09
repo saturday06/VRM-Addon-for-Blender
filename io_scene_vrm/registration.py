@@ -36,6 +36,7 @@ from .editor.spring_bone1 import property_group as spring_bone1_property_group
 from .editor.vrm0 import ops as vrm0_ops
 from .editor.vrm0 import panel as vrm0_panel
 from .editor.vrm0 import property_group as vrm0_property_group
+from .editor.vrm0 import ui_list as vrm0_ui_list
 from .editor.vrm1 import ops as vrm1_ops
 from .editor.vrm1 import panel as vrm1_panel
 from .editor.vrm1 import property_group as vrm1_property_group
@@ -212,11 +213,11 @@ classes = [
     panel.VRM_PT_controller_unsupported_blender_version_warning,
     panel.VRM_PT_controller,
     panel.VRM_PT_vrm_armature_object_property,
-    vrm0_panel.VRM_UL_vrm0_secondary_animation_group,
-    vrm0_panel.VRM_UL_vrm0_secondary_animation_group_collider_group,
-    vrm0_panel.VRM_UL_vrm0_blend_shape_group,
-    vrm0_panel.VRM_UL_vrm0_blend_shape_bind,
-    vrm0_panel.VRM_UL_vrm0_material_value_bind,
+    vrm0_ui_list.VRM_UL_vrm0_blend_shape_bind,
+    vrm0_ui_list.VRM_UL_vrm0_blend_shape_group,
+    vrm0_ui_list.VRM_UL_vrm0_material_value_bind,
+    vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group_collider_group,
+    vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group,
     vrm0_panel.VRM_PT_vrm0_meta_armature_object_property,
     vrm0_panel.VRM_PT_vrm0_meta_ui,
     vrm0_panel.VRM_PT_vrm0_humanoid_armature_object_property,
