@@ -115,7 +115,7 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
     bl_category = "VRM"
 
     def draw_header(self, _context: bpy.types.Context) -> None:
-        self.layout.label(icon="OBJECT_DATA")
+        self.layout.label(icon="TOOL_SETTINGS")
 
     def draw(self, context: bpy.types.Context) -> None:
         mode = context.mode

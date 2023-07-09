@@ -135,7 +135,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
 class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
     bl_idname = "vrm.save_human_bone_mappings"
     bl_label = "Save Bone Mappings"
-    bl_description = ""
+    bl_description = "Save Bone Mappings"
     bl_options = {"REGISTER"}
 
     filename_ext = ".json"
@@ -174,7 +174,7 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
 class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
     bl_idname = "vrm.load_human_bone_mappings"
     bl_label = "Load Bone Mappings"
-    bl_description = ""
+    bl_description = "Load Bone Mappings"
     bl_options = {"REGISTER", "UNDO"}
 
     filename_ext = ".json"
