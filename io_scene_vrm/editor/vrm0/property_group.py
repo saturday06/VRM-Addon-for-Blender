@@ -517,13 +517,6 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     )
 
     # for UI
-    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    show_expanded_binds: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Binds"  # noqa: F821
-    )
-    show_expanded_material_values: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Material Values"  # noqa: F722
-    )
     active_bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         name="Active Bind Index", default=0  # noqa: F722
     )
