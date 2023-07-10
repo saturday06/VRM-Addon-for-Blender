@@ -54,6 +54,110 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
             n = ext.mesh_object_names.add()
             n.value = mesh_object_name
 
+    vrm0_material_gltf_property_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup
+    )
+
+    vrm0_material_mtoon0_property_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup
+    )
+
+    @staticmethod
+    def update_vrm0_material_property_names(scene_name: str) -> None:
+        scene = bpy.data.scenes.get(scene_name)
+        if not scene:
+            logger.error(f'No scene "{scene_name}"')
+            return
+        ext = scene.vrm_addon_extension
+
+        # Unity 2022.3.4 + UniVRM 0.112.0
+        gltf_property_names = [
+            "_Color",
+            "_MainTex_ST",
+            "_MainTex_ST_S",
+            "_MainTex_ST_T",
+            "_MetallicGlossMap_ST",
+            "_MetallicGlossMap_ST_S",
+            "_MetallicGlossMap_ST_T",
+            "_BumpMap_ST",
+            "_BumpMap_ST_S",
+            "_BumpMap_ST_T",
+            "_ParallaxMap_ST",
+            "_ParallaxMap_ST_S",
+            "_ParallaxMap_ST_T",
+            "_OcclusionMap_ST",
+            "_OcclusionMap_ST_S",
+            "_OcclusionMap_ST_T",
+            "_EmissionColor",
+            "_EmissionMap_ST",
+            "_EmissionMap_ST_S",
+            "_EmissionMap_ST_T",
+            "_DetailMask_ST",
+            "_DetailMask_ST_S",
+            "_DetailMask_ST_T",
+            "_DetailAlbedoMap_ST",
+            "_DetailAlbedoMap_ST_S",
+            "_DetailAlbedoMap_ST_T",
+            "_DetailNormalMap_ST",
+            "_DetailNormalMap_ST_S",
+            "_DetailNormalMap_ST_T",
+        ]
+
+        if gltf_property_names != [
+            str(n.value) for n in ext.vrm0_material_gltf_property_names
+        ]:
+            ext.vrm0_material_gltf_property_names.clear()
+            for gltf_property_name in gltf_property_names:
+                n = ext.vrm0_material_gltf_property_names.add()
+                n.value = gltf_property_name
+
+        # UniVRM 0.112.0
+        mtoon0_property_names = [
+            "_Color",
+            "_ShadeColor",
+            "_MainTex_ST",
+            "_MainTex_ST_S",
+            "_MainTex_ST_T",
+            "_ShadeTexture_ST",
+            "_ShadeTexture_ST_S",
+            "_ShadeTexture_ST_T",
+            "_BumpMap_ST",
+            "_BumpMap_ST_S",
+            "_BumpMap_ST_T",
+            "_ReceiveShadowTexture_ST",
+            "_ReceiveShadowTexture_ST_S",
+            "_ReceiveShadowTexture_ST_T",
+            "_ShadingGradeTexture_ST",
+            "_ShadingGradeTexture_ST_S",
+            "_ShadingGradeTexture_ST_T",
+            "_RimColor",
+            "_RimTexture_ST",
+            "_RimTexture_ST_S",
+            "_RimTexture_ST_T",
+            "_SphereAdd_ST",
+            "_SphereAdd_ST_S",
+            "_SphereAdd_ST_T",
+            "_EmissionColor",
+            "_EmissionMap_ST",
+            "_EmissionMap_ST_S",
+            "_EmissionMap_ST_T",
+            "_OutlineWidthTexture_ST",
+            "_OutlineWidthTexture_ST_S",
+            "_OutlineWidthTexture_ST_T",
+            "_OutlineColor",
+            "_UvAnimMaskTexture_ST",
+            "_UvAnimMaskTexture_ST_S",
+            "_UvAnimMaskTexture_ST_T",
+        ]
+
+        if mtoon0_property_names != [
+            str(n.value) for n in ext.vrm0_material_mtoon0_property_names
+        ]:
+            ext.vrm0_material_mtoon0_property_names.clear()
+            for mtoon0_property_name in mtoon0_property_names:
+                n = ext.vrm0_material_mtoon0_property_names.add()
+                n.value = mtoon0_property_name
+
 
 class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -295,6 +399,9 @@ def update_internal_cache(context: bpy.types.Context) -> None:
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
             armature.name, defer=False
         )
+    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
+        context.scene.name
+    )
 
 
 class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]

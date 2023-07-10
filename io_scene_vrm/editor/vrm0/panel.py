@@ -584,9 +584,9 @@ def draw_vrm0_blend_shape_master_layout(
         column.prop(blend_shape_group, "preview", icon="PLAY")
         column.separator(factor=0.5)
 
-        box = column.box()
-        box.label(text="Binds", icon="MESH_DATA")
-        binds_row = box.row()
+        binds_box = column.box()
+        binds_box.label(text="Binds", icon="MESH_DATA")
+        binds_row = binds_box.row()
         binds_row.template_list(
             VRM_UL_vrm0_blend_shape_bind.bl_idname,
             "",
@@ -614,9 +614,8 @@ def draw_vrm0_blend_shape_master_layout(
 
         if 0 <= bind_index < len(blend_shape_group.binds):
             bind = blend_shape_group.binds[bind_index]
-            bind_box = box.column()
-            row = bind_box.row()
-            row.prop_search(
+            bind_column = binds_box.column()
+            bind_column.prop_search(
                 bind.mesh,
                 "mesh_object_name",
                 context.scene.vrm_addon_extension,
@@ -638,19 +637,19 @@ def draw_vrm0_blend_shape_master_layout(
                     bind.mesh.mesh_object_name
                 ].data.shape_keys.key_blocks.keys()
             ):
-                bind_box.prop_search(
+                bind_column.prop_search(
                     bind,
                     "index",
                     blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys,
                     "key_blocks",
                     text="Shape key",
                 )
-            bind_box.prop(bind, "weight")
+            bind_column.prop(bind, "weight")
 
         column.separator(factor=0.2)
-        box = column.box()
-        box.label(text="Material Values", icon="MATERIAL")
-        material_value_binds_row = box.row()
+        material_value_binds_box = column.box()
+        material_value_binds_box.label(text="Material Values", icon="MATERIAL")
+        material_value_binds_row = material_value_binds_box.row()
         material_value_binds_row.template_list(
             VRM_UL_vrm0_material_value_bind.bl_idname,
             "",
@@ -677,16 +676,49 @@ def draw_vrm0_blend_shape_master_layout(
 
         if 0 <= material_value_index < len(blend_shape_group.material_values):
             material_value = blend_shape_group.material_values[material_value_index]
-            material_value_box = box.column()
-            row = material_value_box.row()
-            row.prop_search(material_value, "material", blend_data, "materials")
-            material_value_box.prop(material_value, "property_name")
+            material_value_column = material_value_binds_box.column()
+            material_value_column.prop_search(
+                material_value, "material", blend_data, "materials"
+            )
+
+            if not material_value.material:
+                material_value_column.prop(
+                    material_value, "property_name", icon="PROPERTIES"
+                )
+            else:
+                material = material_value.material
+                ext = material.vrm_addon_extension
+                node = search.vrm_shader_node(material)
+                if bpy.app.version >= (3, 2):
+                    extra_search_options = {"results_are_suggestions": True}
+                else:
+                    extra_search_options = {}
+                if ext.mtoon1.enabled or (
+                    node and node.node_tree["SHADER"] == "MToon_unversioned"
+                ):
+                    material_value_column.prop_search(
+                        material_value,
+                        "property_name",
+                        context.scene.vrm_addon_extension,
+                        "vrm0_material_mtoon0_property_names",
+                        icon="PROPERTIES",
+                        **extra_search_options,
+                    )
+                else:
+                    material_value_column.prop_search(
+                        material_value,
+                        "property_name",
+                        context.scene.vrm_addon_extension,
+                        "vrm0_material_gltf_property_names",
+                        icon="PROPERTIES",
+                        **extra_search_options,
+                    )
+
             for (
                 target_value_index,
                 target_value,
             ) in enumerate(material_value.target_value):
-                # target_value_row = material_value_box.split(align=True, factor=0.7)
-                target_value_row = material_value_box.row()
+                target_value_row = material_value_column.row()
                 target_value_row.prop(
                     target_value, "value", text=f"Value {target_value_index}"
                 )
@@ -699,10 +731,9 @@ def draw_vrm0_blend_shape_master_layout(
                 remove_target_value_op.blend_shape_group_index = blend_shape_group_index
                 remove_target_value_op.material_value_index = material_value_index
                 remove_target_value_op.target_value_index = target_value_index
-            add_target_value_op = material_value_box.operator(
+            add_target_value_op = material_value_column.operator(
                 vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value.bl_idname,
                 icon="ADD",
-                text="",
             )
             add_target_value_op.armature_name = armature.name
             add_target_value_op.blend_shape_group_index = blend_shape_group_index

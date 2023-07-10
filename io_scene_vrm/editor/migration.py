@@ -5,7 +5,10 @@ import bpy
 
 from ..common.preferences import get_preferences
 from ..common.version import addon_version
-from .extension import VrmAddonArmatureExtensionPropertyGroup
+from .extension import (
+    VrmAddonArmatureExtensionPropertyGroup,
+    VrmAddonSceneExtensionPropertyGroup,
+)
 from .mtoon1 import migration as mtoon1_migration
 from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
@@ -74,6 +77,9 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
             migrate(obj.name, defer=False)
 
     context = bpy.context
+    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
+        context.scene.name
+    )
     mtoon1_migration.migrate(context)
 
     preferences = get_preferences(context)
