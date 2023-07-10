@@ -8,7 +8,10 @@ from mathutils import Matrix
 
 from . import migration
 from .template_mesh_maker import IcypTemplateMeshMaker
-from .vrm0.property_group import Vrm0HumanoidPropertyGroup
+from .vrm0.property_group import (
+    Vrm0BlendShapeGroupPropertyGroup,
+    Vrm0HumanoidPropertyGroup,
+)
 
 MIN_BONE_LENGTH = 0.00001  # 10μm
 AUTO_BONE_CONNECTION_DISTANCE = 0.000001  # 1μm
@@ -542,31 +545,12 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         vrm0.meta.reference = "undefined"
         vrm0.meta.title = "undefined"
         vrm0.meta.version = "undefined"
-        for name in [
-            "Neutral",
-            "A",
-            "I",
-            "U",
-            "E",
-            "O",
-            "Blink",
-            "Joy",
-            "Angry",
-            "Sorrow",
-            "Fun",
-            "LookUp",
-            "LookDown",
-            "LookLeft",
-            "LookRight",
-            "Blink_L",
-            "Blink_R",
-        ]:
-            # str.lower() is locale dependent.
-            preset_name = name.encode().lower().decode()
-
+        for preset in Vrm0BlendShapeGroupPropertyGroup.presets:
+            if preset.name == "unknown":
+                continue
             blend_shape_group = vrm0.blend_shape_master.blend_shape_groups.add()
-            blend_shape_group.name = name
-            blend_shape_group.preset_name = preset_name
+            blend_shape_group.name = preset.default_blend_shape_group_name
+            blend_shape_group.preset_name = preset.name
 
 
 def connect_parent_tail_and_child_head_if_very_close_position(

@@ -1,4 +1,5 @@
 import functools
+from dataclasses import dataclass
 from typing import Dict
 
 import bpy
@@ -461,27 +462,44 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         name="Name",  # noqa: F821
         description="Name of the blendshape group",  # noqa: F722
     )
-    preset_name_items = [
-        ("unknown", "unknown", "", "SHAPEKEY_DATA", 0),
-        ("neutral", "neutral", "", "VIEW_ORTHO", 1),
-        ("a", "a", "", "EVENT_A", 2),
-        ("i", "i", "", "EVENT_I", 3),
-        ("u", "u", "", "EVENT_U", 4),
-        ("e", "e", "", "EVENT_E", 5),
-        ("o", "o", "", "EVENT_O", 6),
-        ("blink", "blink", "", "HIDE_ON", 7),
-        ("joy", "joy", "", "HEART", 8),
-        ("angry", "angry", "", "ORPHAN_DATA", 9),
-        ("sorrow", "sorrow", "", "MOD_FLUIDSIM", 10),
-        ("fun", "fun", "", "LIGHT_SUN", 11),
-        ("lookup", "lookup", "", "ANCHOR_TOP", 12),
-        ("lookdown", "lookdown", "", "ANCHOR_BOTTOM", 13),
-        ("lookleft", "lookleft", "", "ANCHOR_RIGHT", 14),
-        ("lookright", "lookright", "", "ANCHOR_LEFT", 15),
-        ("blink_l", "blink_l", "", "HIDE_ON", 16),
-        ("blink_r", "blink_r", "", "HIDE_ON", 17),
+
+    @dataclass
+    class Preset:
+        identifier: str
+        name: str
+        description: str
+        icon: str
+        number: int
+        default_blend_shape_group_name: str
+
+    presets = [
+        Preset("unknown", "unknown", "", "SHAPEKEY_DATA", 0, "Unknown"),
+        Preset("neutral", "neutral", "", "VIEW_ORTHO", 1, "Neutral"),
+        Preset("a", "a", "", "EVENT_A", 2, "A"),
+        Preset("i", "i", "", "EVENT_I", 3, "I"),
+        Preset("u", "u", "", "EVENT_U", 4, "U"),
+        Preset("e", "e", "", "EVENT_E", 5, "E"),
+        Preset("o", "o", "", "EVENT_O", 6, "O"),
+        Preset("blink", "blink", "", "HIDE_ON", 7, "Blink"),
+        Preset("joy", "joy", "", "HEART", 8, "Joy"),
+        Preset("angry", "angry", "", "ORPHAN_DATA", 9, "Angry"),
+        Preset("sorrow", "sorrow", "", "MOD_FLUIDSIM", 10, "Sorrow"),
+        Preset("fun", "fun", "", "LIGHT_SUN", 11, "Fun"),
+        Preset("lookup", "lookup", "", "ANCHOR_TOP", 12, "LookUp"),
+        Preset("lookdown", "lookdown", "", "ANCHOR_BOTTOM", 13, "LookDown"),
+        Preset("lookleft", "lookleft", "", "ANCHOR_RIGHT", 14, "LookLeft"),
+        Preset("lookright", "lookright", "", "ANCHOR_LEFT", 15, "LookRight"),
+        Preset("blink_l", "blink_l", "", "HIDE_ON", 16, "Blink_L"),
+        Preset("blink_r", "blink_r", "", "HIDE_ON", 17, "Blink_R"),
     ]
-    PRESET_NAME_VALUES = [preset_name_item[0] for preset_name_item in preset_name_items]
+
+    preset_name_items = [
+        (preset.identifier, preset.name, preset.description, preset.icon, preset.number)
+        for preset in presets
+    ]
+
+    PRESET_NAME_VALUES = [preset.identifier for preset in presets]
+
     preset_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=preset_name_items,
         name="Preset",  # noqa: F821
