@@ -34,7 +34,7 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
         ext = scene.vrm_addon_extension
 
         mesh_object_names = [obj.name for obj in bpy.data.objects if obj.type == "MESH"]
-        up_to_date = mesh_object_names == ext.mesh_object_names[:]
+        up_to_date = mesh_object_names == [str(n.value) for n in ext.mesh_object_names]
 
         if up_to_date:
             return
