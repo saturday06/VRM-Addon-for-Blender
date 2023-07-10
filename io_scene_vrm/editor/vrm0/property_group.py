@@ -625,14 +625,14 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
     stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type] # noqa: SC200
         name="Stiffness",  # noqa: F821
         min=0.0,
-        max=4.0,
+        soft_max=4.0,
         subtype="FACTOR",  # noqa: F821
         description="Stiffness of the springs",  # noqa: F722
     )
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power",  # noqa: F722
         min=0.0,
-        max=2.0,
+        soft_max=2.0,
         subtype="FACTOR",  # noqa: F821
         description="Gravity power of the springs",  # noqa: F722
     )
@@ -667,7 +667,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
     hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Hit Radius",  # noqa: F722
         min=0.0,
-        max=0.5,
+        soft_max=0.5,
         subtype="DISTANCE",  # noqa: F821
         description="Hit Radius of the springs",  # noqa: F722
     )
