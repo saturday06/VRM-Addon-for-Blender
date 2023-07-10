@@ -769,14 +769,15 @@ class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):  # type: ignore[misc]
 
 def draw_vrm1_meta_layout(
     armature: bpy.types.Object,
-    context: bpy.types.Context,
+    _context: bpy.types.Context,
     layout: bpy.types.UILayout,
     meta: Vrm1MetaPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
-    blend_data = context.blend_data
 
-    layout.prop_search(meta, "thumbnail_image", blend_data, "images")
+    thumbnail_column = layout.column()
+    thumbnail_column.label(text="Thumbnail:")
+    thumbnail_column.template_ID_preview(meta, "thumbnail_image")
 
     layout.prop(meta, "vrm_name", icon="FILE_BLEND")
     layout.prop(meta, "version", icon="LINENUMBERS_ON")

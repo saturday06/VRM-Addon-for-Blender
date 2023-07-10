@@ -1175,14 +1175,15 @@ class VRM_PT_vrm0_secondary_animation_ui(bpy.types.Panel):  # type: ignore[misc]
 
 def draw_vrm0_meta_layout(
     armature: bpy.types.Object,
-    context: bpy.types.Context,
+    _context: bpy.types.Context,
     layout: bpy.types.UILayout,
     meta: Vrm0MetaPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
-    blend_data = context.blend_data
 
-    layout.prop_search(meta, "texture", blend_data, "images", text="Thumbnail")
+    thumbnail_column = layout.column()
+    thumbnail_column.label(text="Thumbnail:")
+    thumbnail_column.template_ID_preview(meta, "texture")
 
     layout.prop(meta, "title", icon="FILE_BLEND")
     layout.prop(meta, "version", icon="LINENUMBERS_ON")
