@@ -546,11 +546,11 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         vrm0.meta.title = "undefined"
         vrm0.meta.version = "undefined"
         for preset in Vrm0BlendShapeGroupPropertyGroup.presets:
-            if preset.name == "unknown":
+            if preset.identifier == "unknown":
                 continue
             blend_shape_group = vrm0.blend_shape_master.blend_shape_groups.add()
             blend_shape_group.name = preset.default_blend_shape_group_name
-            blend_shape_group.preset_name = preset.name
+            blend_shape_group.preset_name = preset.identifier
 
 
 def connect_parent_tail_and_child_head_if_very_close_position(

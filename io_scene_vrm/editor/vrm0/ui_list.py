@@ -83,7 +83,7 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
         layout: bpy.types.UILayout,
         _data: object,
         item: object,
-        icon: int,
+        _icon: int,
         _active_data: object,
         _active_prop_name: str,
         _index: int,
@@ -93,22 +93,21 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
         if not isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
             return
 
-        icon = (
-            blend_shape_group.bl_rna.properties["preset_name"]
-            .enum_items[blend_shape_group.preset_name]
-            .icon
-        )
+        enum_item = blend_shape_group.bl_rna.properties["preset_name"].enum_items[
+            blend_shape_group.preset_name
+        ]
+
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", icon_value=icon)
+            layout.label(text="", icon_value=enum_item.icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        text = blend_shape_group.name + " / " + blend_shape_group.preset_name
+        text = blend_shape_group.name + " / " + enum_item.name
         split = layout.split(align=True, factor=0.55)
-        split.label(text=text, icon=icon)
+        split.label(text=text, icon=enum_item.icon)
         split.prop(blend_shape_group, "preview")
 
 

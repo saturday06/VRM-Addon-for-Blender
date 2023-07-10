@@ -2539,9 +2539,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         vrm_extension_dict["blendShapeMaster"] = blend_shape_master_dict
 
         remaining_preset_names = [
-            preset.name
-            for preset in Vrm0BlendShapeGroupPropertyGroup.presets
-            if preset.name != "unknown"
+            preset_name
+            for preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
+            if preset_name != "unknown"
         ]
 
         # meshを名前からid
@@ -2617,7 +2617,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             name = {
                 0: preset.default_blend_shape_group_name
                 for preset in Vrm0BlendShapeGroupPropertyGroup.presets
-                if preset.name == preset_name
+                if preset.identifier == preset_name
             }.get(0, preset_name.capitalize())
             blend_shape_group_dicts.append(
                 {
