@@ -1,5 +1,7 @@
+import difflib
 import math
 from collections import abc
+from json import dumps as json_dumps
 from typing import Dict, List, Union
 
 from .logging import get_logger
@@ -85,9 +87,23 @@ def diff(
         if not isinstance(right, list):
             return [f"{path}: left is list but right is {type(right)}"]
         if len(left) != len(right):
-            return [
+            result = [
                 f"{path}: left length is {len(left)} but right length is {len(right)}"
             ]
+            left_json_str = json_dumps(left, indent=4)
+            right_json_str = json_dumps(right, indent=4)
+            unified_diff = [
+                line.rstrip()
+                for line in difflib.unified_diff(
+                    right_json_str.splitlines(keepends=True),
+                    left_json_str.splitlines(keepends=True),
+                    f"{path}/right",
+                    f"{path}/left",
+                )
+            ]
+            if len(unified_diff) > 1000:
+                return result
+            return result + unified_diff
         diffs = []
         for i, (l, r) in enumerate(zip(left, right)):
             diffs.extend(diff(l, r, float_tolerance, f"{path}[{i}]"))
