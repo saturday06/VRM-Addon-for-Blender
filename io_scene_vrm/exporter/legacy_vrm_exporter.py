@@ -51,6 +51,7 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
+from ..editor.vrm0.property_group import Vrm0BlendShapeGroupPropertyGroup
 from ..external import io_scene_gltf2_support
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
@@ -2537,6 +2538,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         }
         vrm_extension_dict["blendShapeMaster"] = blend_shape_master_dict
 
+        remaining_preset_names = [
+            preset_name
+            for preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
+            if preset_name != "unknown"
+        ]
+
         # meshを名前からid
         # weightを0-1から0-100に
         # shape_indexを名前からindexに
@@ -2553,6 +2560,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             if not blend_shape_group.preset_name:
                 continue
+
+            if blend_shape_group.preset_name != "unknown":
+                if blend_shape_group.preset_name not in remaining_preset_names:
+                    continue
+                remaining_preset_names.remove(blend_shape_group.preset_name)
+
             blend_shape_group_dict["presetName"] = blend_shape_group.preset_name
 
             blend_shape_group_dict["binds"] = bind_dicts = []
@@ -2595,6 +2608,26 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             blend_shape_group_dict["isBinary"] = blend_shape_group.is_binary
             blend_shape_group_dicts.append(blend_shape_group_dict)
+
+        for preset_name in remaining_preset_names:
+            if first_person.look_at_type_name == "Bone" and preset_name.startswith(
+                "look"
+            ):
+                continue
+            name = {
+                0: preset.default_blend_shape_group_name
+                for preset in Vrm0BlendShapeGroupPropertyGroup.presets
+                if preset.identifier == preset_name
+            }.get(0, preset_name.capitalize())
+            blend_shape_group_dicts.append(
+                {
+                    "name": name,
+                    "presetName": preset_name,
+                    "binds": [],
+                    "materialValues": [],
+                    "isBinary": False,
+                }
+            )
 
         # secondaryAnimation
         secondary_animation_dict: Dict[str, Json] = {}

@@ -17,6 +17,11 @@ from .property_group import (
     Vrm0MetaPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
+from .ui_list import (
+    VRM_UL_vrm0_blend_shape_bind,
+    VRM_UL_vrm0_blend_shape_group,
+    VRM_UL_vrm0_material_value_bind,
+)
 
 
 def active_object_is_vrm0_armature(context: bpy.types.Context) -> bool:
@@ -69,7 +74,9 @@ def draw_vrm0_humanoid_operators_layout(
     ).armature_name = armature.name
     save_load_row = bone_operator_column.split(factor=0.5, align=True)
     save_load_row.operator(
-        ops.VRM_OT_save_human_bone_mappings.bl_idname, icon="EXPORT", text="Save"
+        ops.VRM_OT_save_human_bone_mappings.bl_idname,
+        icon="EXPORT",
+        text="Save",
     )
     save_load_row.operator(
         ops.VRM_OT_load_human_bone_mappings.bl_idname, icon="IMPORT", text="Load"
@@ -423,7 +430,7 @@ def draw_vrm0_first_person_layout(
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
     box = layout.box()
-    box.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
+    box.label(text="Mesh Annotations", icon="RESTRICT_RENDER_OFF")
     for mesh_annotation_index, mesh_annotation in enumerate(
         first_person.mesh_annotations
     ):
@@ -444,9 +451,10 @@ def draw_vrm0_first_person_layout(
         remove_mesh_annotation_op.armature_name = armature.name
         remove_mesh_annotation_op.mesh_annotation_index = mesh_annotation_index
     add_mesh_annotation_op = box.operator(
-        vrm0_ops.VRM_OT_add_vrm0_first_person_mesh_annotation.bl_idname
+        vrm0_ops.VRM_OT_add_vrm0_first_person_mesh_annotation.bl_idname, icon="ADD"
     )
     add_mesh_annotation_op.armature_name = armature.name
+    layout.separator()
     box = layout.box()
     box.label(text="Look At Horizontal Inner", icon="FULLSCREEN_EXIT")
     box.prop(first_person.look_at_horizontal_inner, "curve")
@@ -540,153 +548,196 @@ def draw_vrm0_blend_shape_master_layout(
             context.scene.name
         )
     blend_data = context.blend_data
-    for blend_shape_group_index, blend_shape_group in enumerate(
-        blend_shape_master.blend_shape_groups
-    ):
-        row = layout.row()
-        row.alignment = "LEFT"
-        row.prop(
-            blend_shape_group,
-            "show_expanded",
-            icon="TRIA_DOWN" if blend_shape_group.show_expanded else "TRIA_RIGHT",
-            emboss=False,
-            text=blend_shape_group.name + " / " + blend_shape_group.preset_name,
-            translate=False,
-        )
-        if not blend_shape_group.show_expanded:
-            continue
 
-        box = layout.box()
-        box.prop(blend_shape_group, "name")
-        box.prop(blend_shape_group, "preset_name")
+    row = layout.row()
+    row.template_list(
+        VRM_UL_vrm0_blend_shape_group.bl_idname,
+        "",
+        blend_shape_master,
+        "blend_shape_groups",
+        blend_shape_master,
+        "active_blend_shape_group_index",
+    )
+    blend_shape_group_index = blend_shape_master.active_blend_shape_group_index
 
-        box.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
-        box.separator()
-        row = box.row()
-        row.alignment = "LEFT"
-        row.prop(
-            blend_shape_group,
-            "show_expanded_binds",
-            icon="TRIA_DOWN" if blend_shape_group.show_expanded_binds else "TRIA_RIGHT",
-            emboss=False,
-        )
-        if blend_shape_group.show_expanded_binds:
-            for bind_index, bind in enumerate(blend_shape_group.binds):
-                bind_box = box.box()
-                bind_box.prop_search(
-                    bind.mesh,
-                    "mesh_object_name",
-                    context.scene.vrm_addon_extension,
-                    "mesh_object_names",
-                    text="Mesh",
-                    icon="OUTLINER_OB_MESH",
-                )
-                if (
-                    bind.mesh.mesh_object_name
-                    and bind.mesh.mesh_object_name in blend_data.objects
-                    and blend_data.objects[bind.mesh.mesh_object_name].data
-                    and blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys
-                    and blend_data.objects[
-                        bind.mesh.mesh_object_name
-                    ].data.shape_keys.key_blocks
-                    and blend_data.objects[
-                        bind.mesh.mesh_object_name
-                    ].data.shape_keys.key_blocks.keys()
-                ):
-                    bind_box.prop_search(
-                        bind,
-                        "index",
-                        blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys,
-                        "key_blocks",
-                        text="Shape key",
-                    )
-                bind_box.prop(bind, "weight")
-                remove_blend_shape_bind_op = bind_box.operator(
-                    vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind.bl_idname,
-                    icon="REMOVE",
-                )
-                remove_blend_shape_bind_op.armature_name = armature.name
-                remove_blend_shape_bind_op.blend_shape_group_index = (
-                    blend_shape_group_index
-                )
-                remove_blend_shape_bind_op.bind_index = bind_index
-            add_blend_shape_bind_op = box.operator(
-                vrm0_ops.VRM_OT_add_vrm0_blend_shape_bind.bl_idname, icon="ADD"
-            )
-            add_blend_shape_bind_op.armature_name = armature.name
-            add_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
-
-        row = box.row()
-        row.alignment = "LEFT"
-        row.prop(
-            blend_shape_group,
-            "show_expanded_material_values",
-            icon="TRIA_DOWN"
-            if blend_shape_group.show_expanded_material_values
-            else "TRIA_RIGHT",
-            emboss=False,
-        )
-        if blend_shape_group.show_expanded_material_values:
-            for material_value_index, material_value in enumerate(
-                blend_shape_group.material_values
-            ):
-                material_value_box = box.box()
-                material_value_box.prop_search(
-                    material_value, "material", blend_data, "materials"
-                )
-                material_value_box.prop(material_value, "property_name")
-                for (
-                    target_value_index,
-                    target_value,
-                ) in enumerate(material_value.target_value):
-                    target_value_row = material_value_box.split(align=True, factor=0.7)
-                    target_value_row.prop(
-                        target_value, "value", text=f"Value {target_value_index}"
-                    )
-                    remove_target_value_op = target_value_row.operator(
-                        vrm0_ops.VRM_OT_remove_vrm0_material_value_bind_target_value.bl_idname,
-                        text="Remove",
-                        icon="REMOVE",
-                    )
-                    remove_target_value_op.armature_name = armature.name
-                    remove_target_value_op.blend_shape_group_index = (
-                        blend_shape_group_index
-                    )
-                    remove_target_value_op.material_value_index = material_value_index
-                    remove_target_value_op.target_value_index = target_value_index
-                add_target_value_op = material_value_box.operator(
-                    vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value.bl_idname,
-                    icon="ADD",
-                )
-                add_target_value_op.armature_name = armature.name
-                add_target_value_op.blend_shape_group_index = blend_shape_group_index
-                add_target_value_op.material_value_index = material_value_index
-
-                remove_material_value_op = material_value_box.operator(
-                    vrm0_ops.VRM_OT_remove_vrm0_material_value_bind.bl_idname,
-                    icon="REMOVE",
-                )
-                remove_material_value_op.armature_name = armature.name
-                remove_material_value_op.blend_shape_group_index = (
-                    blend_shape_group_index
-                )
-                remove_material_value_op.material_value_index = material_value_index
-            add_material_value_op = box.operator(
-                vrm0_ops.VRM_OT_add_vrm0_material_value_bind.bl_idname, icon="ADD"
-            )
-            add_material_value_op.armature_name = armature.name
-            add_material_value_op.blend_shape_group_index = blend_shape_group_index
-
-        remove_blend_shape_group_op = box.operator(
-            vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group.bl_idname, icon="REMOVE"
-        )
-        remove_blend_shape_group_op.armature_name = armature.name
-        remove_blend_shape_group_op.blend_shape_group_index = blend_shape_group_index
-    add_blend_shape_group_op = layout.operator(
-        vrm0_ops.VRM_OT_add_vrm0_blend_shape_group.bl_idname, icon="ADD"
+    list_side_column = row.column(align=True)
+    add_blend_shape_group_op = list_side_column.operator(
+        vrm0_ops.VRM_OT_add_vrm0_blend_shape_group.bl_idname, icon="ADD", text=""
     )
     add_blend_shape_group_op.name = "New"
     add_blend_shape_group_op.armature_name = armature.name
+    remove_blend_shape_group_op = list_side_column.operator(
+        vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group.bl_idname, icon="REMOVE", text=""
+    )
+    remove_blend_shape_group_op.armature_name = armature.name
+    remove_blend_shape_group_op.blend_shape_group_index = blend_shape_group_index
+
+    if 0 <= blend_shape_group_index < len(blend_shape_master.blend_shape_groups):
+        blend_shape_group = blend_shape_master.blend_shape_groups[
+            blend_shape_group_index
+        ]
+        box = layout.box()
+        column = box.column()
+        column.prop(blend_shape_group, "name")
+        column.prop(blend_shape_group, "preset_name")
+        column.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
+        column.prop(blend_shape_group, "preview", icon="PLAY")
+        column.separator(factor=0.5)
+
+        binds_box = column.box()
+        binds_box.label(text="Binds", icon="MESH_DATA")
+        binds_row = binds_box.row()
+        binds_row.template_list(
+            VRM_UL_vrm0_blend_shape_bind.bl_idname,
+            "",
+            blend_shape_group,
+            "binds",
+            blend_shape_group,
+            "active_bind_index",
+        )
+
+        bind_index = blend_shape_group.active_bind_index
+        binds_side_column = binds_row.column(align=True)
+        add_blend_shape_bind_op = binds_side_column.operator(
+            vrm0_ops.VRM_OT_add_vrm0_blend_shape_bind.bl_idname, icon="ADD", text=""
+        )
+        add_blend_shape_bind_op.armature_name = armature.name
+        add_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
+        remove_blend_shape_bind_op = binds_side_column.operator(
+            vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind.bl_idname,
+            icon="REMOVE",
+            text="",
+        )
+        remove_blend_shape_bind_op.armature_name = armature.name
+        remove_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
+        remove_blend_shape_bind_op.bind_index = bind_index
+
+        if 0 <= bind_index < len(blend_shape_group.binds):
+            bind = blend_shape_group.binds[bind_index]
+            bind_column = binds_box.column()
+            bind_column.prop_search(
+                bind.mesh,
+                "mesh_object_name",
+                context.scene.vrm_addon_extension,
+                "mesh_object_names",
+                text="Mesh",
+                icon="OUTLINER_OB_MESH",
+            )
+
+            if (
+                bind.mesh.mesh_object_name
+                and bind.mesh.mesh_object_name in blend_data.objects
+                and blend_data.objects[bind.mesh.mesh_object_name].type == "MESH"
+                and blend_data.objects[bind.mesh.mesh_object_name].data
+                and blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys
+                and blend_data.objects[
+                    bind.mesh.mesh_object_name
+                ].data.shape_keys.key_blocks
+                and blend_data.objects[
+                    bind.mesh.mesh_object_name
+                ].data.shape_keys.key_blocks.keys()
+            ):
+                bind_column.prop_search(
+                    bind,
+                    "index",
+                    blend_data.objects[bind.mesh.mesh_object_name].data.shape_keys,
+                    "key_blocks",
+                    text="Shape key",
+                )
+            bind_column.prop(bind, "weight")
+
+        column.separator(factor=0.2)
+        material_value_binds_box = column.box()
+        material_value_binds_box.label(text="Material Values", icon="MATERIAL")
+        material_value_binds_row = material_value_binds_box.row()
+        material_value_binds_row.template_list(
+            VRM_UL_vrm0_material_value_bind.bl_idname,
+            "",
+            blend_shape_group,
+            "material_values",
+            blend_shape_group,
+            "active_material_value_index",
+        )
+        material_value_index = blend_shape_group.active_material_value_index
+        material_value_binds_side_column = material_value_binds_row.column(align=True)
+        add_material_value_op = material_value_binds_side_column.operator(
+            vrm0_ops.VRM_OT_add_vrm0_material_value_bind.bl_idname, icon="ADD", text=""
+        )
+        add_material_value_op.armature_name = armature.name
+        add_material_value_op.blend_shape_group_index = blend_shape_group_index
+        remove_material_value_op = material_value_binds_side_column.operator(
+            vrm0_ops.VRM_OT_remove_vrm0_material_value_bind.bl_idname,
+            icon="REMOVE",
+            text="",
+        )
+        remove_material_value_op.armature_name = armature.name
+        remove_material_value_op.blend_shape_group_index = blend_shape_group_index
+        remove_material_value_op.material_value_index = material_value_index
+
+        if 0 <= material_value_index < len(blend_shape_group.material_values):
+            material_value = blend_shape_group.material_values[material_value_index]
+            material_value_column = material_value_binds_box.column()
+            material_value_column.prop_search(
+                material_value, "material", blend_data, "materials"
+            )
+
+            if not material_value.material:
+                material_value_column.prop(
+                    material_value, "property_name", icon="PROPERTIES"
+                )
+            else:
+                material = material_value.material
+                ext = material.vrm_addon_extension
+                node = search.vrm_shader_node(material)
+                if bpy.app.version >= (3, 2):
+                    extra_search_options = {"results_are_suggestions": True}
+                else:
+                    extra_search_options = {}
+                if ext.mtoon1.enabled or (
+                    node and node.node_tree["SHADER"] == "MToon_unversioned"
+                ):
+                    material_value_column.prop_search(
+                        material_value,
+                        "property_name",
+                        context.scene.vrm_addon_extension,
+                        "vrm0_material_mtoon0_property_names",
+                        icon="PROPERTIES",
+                        **extra_search_options,
+                    )
+                else:
+                    material_value_column.prop_search(
+                        material_value,
+                        "property_name",
+                        context.scene.vrm_addon_extension,
+                        "vrm0_material_gltf_property_names",
+                        icon="PROPERTIES",
+                        **extra_search_options,
+                    )
+
+            for (
+                target_value_index,
+                target_value,
+            ) in enumerate(material_value.target_value):
+                target_value_row = material_value_column.row()
+                target_value_row.prop(
+                    target_value, "value", text=f"Value {target_value_index}"
+                )
+                remove_target_value_op = target_value_row.operator(
+                    vrm0_ops.VRM_OT_remove_vrm0_material_value_bind_target_value.bl_idname,
+                    text="",
+                    icon="REMOVE",
+                )
+                remove_target_value_op.armature_name = armature.name
+                remove_target_value_op.blend_shape_group_index = blend_shape_group_index
+                remove_target_value_op.material_value_index = material_value_index
+                remove_target_value_op.target_value_index = target_value_index
+            add_target_value_op = material_value_column.operator(
+                vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value.bl_idname,
+                icon="ADD",
+            )
+            add_target_value_op.armature_name = armature.name
+            add_target_value_op.blend_shape_group_index = blend_shape_group_index
+            add_target_value_op.material_value_index = material_value_index
 
 
 class VRM_PT_vrm0_blend_shape_master_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
@@ -1007,14 +1058,15 @@ class VRM_PT_vrm0_secondary_animation_ui(bpy.types.Panel):  # type: ignore[misc]
 
 def draw_vrm0_meta_layout(
     armature: bpy.types.Object,
-    context: bpy.types.Context,
+    _context: bpy.types.Context,
     layout: bpy.types.UILayout,
     meta: Vrm0MetaPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
-    blend_data = context.blend_data
 
-    layout.prop_search(meta, "texture", blend_data, "images", text="Thumbnail")
+    thumbnail_column = layout.column()
+    thumbnail_column.label(text="Thumbnail:")
+    thumbnail_column.template_ID_preview(meta, "texture")
 
     layout.prop(meta, "title", icon="FILE_BLEND")
     layout.prop(meta, "version", icon="LINENUMBERS_ON")

@@ -613,7 +613,14 @@ def draw_vrm1_expression_layout(
             bind_box = box.box().column()
             bind_box.prop_search(bind, "material", blend_data, "materials")
             bind_box.prop(bind, "type")
-            bind_box.prop(bind, "target_value")
+            target_value_split = bind_box.split(factor=0.5)
+            target_value_split.label(text="Target Value:")
+            if bind.type == "color":
+                target_value_split.prop(bind, "target_value", text="", translate=False)
+            else:
+                target_value_split.prop(
+                    bind, "target_value_as_rgb", text="", translate=False
+                )
 
             remove_bind_op = bind_box.operator(
                 vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind.bl_idname,
@@ -762,14 +769,15 @@ class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):  # type: ignore[misc]
 
 def draw_vrm1_meta_layout(
     armature: bpy.types.Object,
-    context: bpy.types.Context,
+    _context: bpy.types.Context,
     layout: bpy.types.UILayout,
     meta: Vrm1MetaPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
-    blend_data = context.blend_data
 
-    layout.prop_search(meta, "thumbnail_image", blend_data, "images")
+    thumbnail_column = layout.column()
+    thumbnail_column.label(text="Thumbnail:")
+    thumbnail_column.template_ID_preview(meta, "thumbnail_image")
 
     layout.prop(meta, "vrm_name", icon="FILE_BLEND")
     layout.prop(meta, "version", icon="LINENUMBERS_ON")

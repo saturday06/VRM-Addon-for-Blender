@@ -1,6 +1,7 @@
 import functools
 import sys
-from typing import Dict, List, Optional
+from collections import abc
+from typing import Dict, List, Optional, Tuple
 
 import bpy
 from bpy.app.translations import pgettext
@@ -510,7 +511,8 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.materialColorBind.schema.json
 class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Material  # noqa: F821
+        name="Material",  # noqa: F821
+        type=bpy.types.Material,  # noqa: F821
     )
 
     type_items = [
@@ -522,10 +524,42 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
         ("outlineColor", "Outline Color", "", 4),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=type_items  # noqa: F722
+        name="Type",  # noqa: F821
+        items=type_items,  # noqa: F722
     )
     target_value: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=4  # noqa: F722
+        name="Target Value",  # noqa: F722
+        size=4,  # noqa: F722
+        subtype="COLOR",  # noqa: F821
+        min=0,
+        max=1,  # TODO: hdr emission color?
+    )
+
+    def get_target_value_as_rgb(self) -> Tuple[float, float, float]:
+        return (
+            float(self.target_value[0]),
+            float(self.target_value[1]),
+            float(self.target_value[2]),
+        )
+
+    def set_target_value_as_rgb(self, value: object) -> None:
+        if not isinstance(value, abc.Sequence):
+            return
+        if len(value) < 3:
+            return
+        self.target_value = (
+            float(value[0]),
+            float(value[1]),
+            float(value[2]),
+            float(self.target_value[3]),
+        )
+
+    target_value_as_rgb: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+        name="Target Value",  # noqa: F722
+        size=3,  # noqa: F722
+        subtype="COLOR",  # noqa: F821
+        get=get_target_value_as_rgb,
+        set=set_target_value_as_rgb,
     )
 
 

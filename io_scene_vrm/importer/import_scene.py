@@ -242,7 +242,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):  # type: ignore[misc]
                     text=pgettext("For more information please check following URL.")
                 )
                 if VRM_OT_open_url_in_web_browser.supported(license_confirmation.url):
-                    split = box.split(factor=0.85)
+                    split = box.split(factor=0.85, align=True)
                     split.prop(
                         license_confirmation,
                         "url",

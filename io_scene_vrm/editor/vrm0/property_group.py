@@ -1,4 +1,5 @@
 import functools
+from dataclasses import dataclass
 from typing import Dict
 
 import bpy
@@ -118,6 +119,8 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
     pose_library: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Action,
+        name="Pose Library",  # noqa: F722
+        description="Pose library for T Pose",  # noqa: F722
         update=update_pose_library,
     )
     pose_marker_name: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -271,30 +274,47 @@ class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L32-L41
 class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Mesh", type=MeshObjectPropertyGroup  # noqa: F821
+        name="Mesh",  # noqa: F821
+        type=MeshObjectPropertyGroup,  # noqa: F821
+        description="Mesh on restrict render in the first person camera",  # noqa: F722
     )
     first_person_flag_items = [
-        ("Auto", "Auto", "", 0),
-        ("FirstPersonOnly", "First-Person Only", "", 1),
-        ("ThirdPersonOnly", "Third-Person Only", "", 2),
-        ("Both", "Both", "", 3),
+        ("Auto", "Auto", "Auto restrict render", 0),
+        (
+            "FirstPersonOnly",
+            "First-Person Only",
+            "(Maybe needless) Restrict render in the third person camera",
+            1,
+        ),
+        (
+            "ThirdPersonOnly",
+            "Third-Person Only",
+            "Restrict render in the first person camera for face, hairs or hat",
+            2,
+        ),
+        ("Both", "Both", "No restrict render for body, arms or legs", 3),
     ]
     FIRST_PERSON_FLAG_VALUES = [
         first_person_flag_item[0] for first_person_flag_item in first_person_flag_items
     ]
     first_person_flag: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=first_person_flag_items, name="First Person Flag"  # noqa: F722
+        items=first_person_flag_items,
+        name="First Person Flag",  # noqa: F722
+        description="Restrict render in the first person camera",  # noqa: F722
     )
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L50-L91
 class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     first_person_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="First-Person Bone", type=BonePropertyGroup  # noqa: F722
+        name="First Person Bone",  # noqa: F722
+        type=BonePropertyGroup,
+        description="Bone to follow the first person camera",  # noqa: F722
     )
     first_person_bone_offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        name="First-Person Bone Offset",  # noqa: F722
+        name="First Person Bone Offset",  # noqa: F722
+        description="Offset from the first person bone to follow the first person camera",  # noqa: F722
         subtype="TRANSLATION",  # noqa: F821
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
@@ -303,14 +323,22 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
         name="Mesh Annotations", type=Vrm0MeshAnnotationPropertyGroup  # noqa: F722
     )
     look_at_type_name_items = [
-        ("Bone", "Bone", "Bone", "BONE_DATA", 0),
-        ("BlendShape", "Blend Shape", "Blend Shape", "SHAPEKEY_DATA", 1),
+        ("Bone", "Bone", "Use bones to eye movement", "BONE_DATA", 0),
+        (
+            "BlendShape",
+            "Blend Shape",
+            "Use blend Shapes of VRM Blend Shape Proxy to eye movement.",
+            "SHAPEKEY_DATA",
+            1,
+        ),
     ]
     LOOK_AT_TYPE_NAME_VALUES = [
         look_at_type_name_item[0] for look_at_type_name_item in look_at_type_name_items
     ]
     look_at_type_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=look_at_type_name_items, name="Look At Type Name"  # noqa: F722
+        items=look_at_type_name_items,
+        name="Look At Type Name",  # noqa: F722
+        description="How to eye movement",  # noqa: F722
     )
     look_at_horizontal_inner: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm0DegreeMapPropertyGroup, name="Look At Horizontal Inner"  # noqa: F722
@@ -335,7 +363,11 @@ class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
         name="Index"  # noqa: F821
     )
     weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Weight", min=0, default=1, max=1  # noqa: F821
+        name="Weight",  # noqa: F821
+        min=0,
+        default=1,
+        max=1,  # noqa: F821
+        subtype="FACTOR",  # noqa: F821
     )
 
 
@@ -355,31 +387,51 @@ class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L62-L99
 class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Name"  # noqa: F821
+        name="Name",  # noqa: F821
+        description="Name of the blendshape group",  # noqa: F722
     )
-    preset_name_items = [
-        ("unknown", "unknown", "", "NONE", 0),
-        ("neutral", "neutral", "", "NONE", 1),
-        ("a", "a", "", "EVENT_A", 2),
-        ("i", "i", "", "EVENT_I", 3),
-        ("u", "u", "", "EVENT_U", 4),
-        ("e", "e", "", "EVENT_E", 5),
-        ("o", "o", "", "EVENT_O", 6),
-        ("blink", "blink", "", "HIDE_ON", 7),
-        ("joy", "joy", "", "HEART", 8),
-        ("angry", "angry", "", "ORPHAN_DATA", 9),
-        ("sorrow", "sorrow", "", "MOD_FLUIDSIM", 10),
-        ("fun", "fun", "", "LIGHT_SUN", 11),
-        ("lookup", "lookup", "", "ANCHOR_TOP", 12),
-        ("lookdown", "lookdown", "", "ANCHOR_BOTTOM", 13),
-        ("lookleft", "lookleft", "", "ANCHOR_RIGHT", 14),
-        ("lookright", "lookright", "", "ANCHOR_LEFT", 15),
-        ("blink_l", "blink_l", "", "HIDE_ON", 16),
-        ("blink_r", "blink_r", "", "HIDE_ON", 17),
+
+    @dataclass
+    class Preset:
+        identifier: str
+        name: str
+        description: str
+        icon: str
+        number: int
+        default_blend_shape_group_name: str
+
+    presets = [
+        Preset("unknown", "Unknown", "", "SHAPEKEY_DATA", 0, "Unknown"),
+        Preset("neutral", "Neutral", "", "VIEW_ORTHO", 1, "Neutral"),
+        Preset("a", "A", "", "EVENT_A", 2, "A"),
+        Preset("i", "I", "", "EVENT_I", 3, "I"),
+        Preset("u", "U", "", "EVENT_U", 4, "U"),
+        Preset("e", "E", "", "EVENT_E", 5, "E"),
+        Preset("o", "O", "", "EVENT_O", 6, "O"),
+        Preset("blink", "Blink", "", "HIDE_ON", 7, "Blink"),
+        Preset("joy", "Joy", "", "HEART", 8, "Joy"),
+        Preset("angry", "Angry", "", "ORPHAN_DATA", 9, "Angry"),
+        Preset("sorrow", "Sorrow", "", "MOD_FLUIDSIM", 10, "Sorrow"),
+        Preset("fun", "Fun", "", "LIGHT_SUN", 11, "Fun"),
+        Preset("lookup", "Look Up", "", "ANCHOR_TOP", 12, "LookUp"),
+        Preset("lookdown", "Look Down", "", "ANCHOR_BOTTOM", 13, "LookDown"),
+        Preset("lookleft", "Look Left", "", "ANCHOR_RIGHT", 14, "LookLeft"),
+        Preset("lookright", "Look Right", "", "ANCHOR_LEFT", 15, "LookRight"),
+        Preset("blink_l", "Blink_L", "", "HIDE_ON", 16, "Blink_L"),
+        Preset("blink_r", "Blink_R", "", "HIDE_ON", 17, "Blink_R"),
     ]
-    PRESET_NAME_VALUES = [preset_name_item[0] for preset_name_item in preset_name_items]
+
+    preset_name_items = [
+        (preset.identifier, preset.name, preset.description, preset.icon, preset.number)
+        for preset in presets
+    ]
+
+    PRESET_NAME_VALUES = [preset.identifier for preset in presets]
+
     preset_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=preset_name_items, name="Preset"  # noqa: F821
+        items=preset_name_items,
+        name="Preset",  # noqa: F821
+        description="Preset name in VRM avatar",  # noqa: F722
     )
     binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=Vrm0BlendShapeBindPropertyGroup, name="Binds"  # noqa: F821
@@ -388,16 +440,40 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         type=Vrm0MaterialValueBindPropertyGroup, name="Material Values"  # noqa: F722
     )
     is_binary: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Is Binary"  # noqa: F722
+        name="Is Binary",  # noqa: F722
+        description="Use binary change in the blendshape group",  # noqa: F722
     )
 
     # for UI
-    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    show_expanded_binds: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Binds"  # noqa: F821
+    active_bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Bind Index", default=0  # noqa: F722
     )
-    show_expanded_material_values: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Material Values"  # noqa: F722
+    active_material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Material Value Index", default=0  # noqa: F722
+    )
+
+    def update_preview(self, context: bpy.types.Context) -> None:
+        blend_data = context.blend_data
+        for bind in self.binds:
+            mesh_object = blend_data.objects.get(bind.mesh.mesh_object_name)
+            if not mesh_object or mesh_object.type != "MESH":
+                continue
+            mesh = mesh_object.data
+            if (
+                not mesh.shape_keys
+                or not mesh.shape_keys.key_blocks
+                or bind.index not in mesh.shape_keys.key_blocks
+            ):
+                continue
+            value = bind.weight * self.preview  # Lerp 0.0 * (1 - a) + weight * a
+            mesh.shape_keys.key_blocks[bind.index].value = value
+
+    preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Preview",  # noqa: F821
+        min=0,
+        max=1,
+        subtype="FACTOR",  # noqa: F821
+        update=update_preview,  # noqa: F821
     )
 
 
@@ -464,13 +540,22 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L32-L67
 class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     comment: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Comment"  # noqa: F821
+        name="Comment",  # noqa: F821
+        description="Comment about the purpose of the springs",  # noqa: F722
     )
     stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type] # noqa: SC200
-        name="Stiffness"  # noqa: F821
+        name="Stiffness",  # noqa: F821
+        min=0.0,
+        soft_max=4.0,
+        subtype="FACTOR",  # noqa: F821
+        description="Stiffness of the springs",  # noqa: F722
     )
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Gravity Power"  # noqa: F722
+        name="Gravity Power",  # noqa: F722
+        min=0.0,
+        soft_max=2.0,
+        subtype="FACTOR",  # noqa: F821
+        description="Gravity power of the springs",  # noqa: F722
     )
 
     def update_gravity_dir(self, _context: bpy.types.Context) -> None:
@@ -485,23 +570,37 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
         max=1,
         subtype="XYZ",  # noqa: F821
         name="Gravity Direction",  # noqa: F722
+        description="Gravity direction of the springs",  # noqa: F722
         update=update_gravity_dir,
     )
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Drag Force"  # noqa: F722
+        name="Drag Force",  # noqa: F722
+        min=0.0,
+        max=1.0,
+        subtype="FACTOR",  # noqa: F821
+        description="Drag Force of the springs",  # noqa: F722
     )
     center: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Center", type=BonePropertyGroup  # noqa: F821
+        name="Center",  # noqa: F821
+        type=BonePropertyGroup,
+        description="Origin of Physics simulation to stop the springs on moving",  # noqa: F722
     )
     hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Hit Radius"  # noqa: F722
+        name="Hit Radius",  # noqa: F722
+        min=0.0,
+        soft_max=0.5,
+        subtype="DISTANCE",  # noqa: F821
+        description="Hit Radius of the springs",  # noqa: F722
     )
     bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Bones", type=BonePropertyGroup  # noqa: F821
+        name="Bones",  # noqa: F821
+        type=BonePropertyGroup,
+        description="Bones of the spring roots",  # noqa: F722
     )
     collider_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Collider Group",  # noqa: F722
         type=StringPropertyGroup,
+        description="Enabled collider Groups of the springs",  # noqa: F722
     )
 
     # for UI
@@ -587,48 +686,62 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     ]
 
     title: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Title"  # noqa: F821
+        name="Title",  # noqa: F821
+        description="Title of the avatar",  # noqa: F722
     )
     version: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Version"  # noqa: F821
+        name="Version",  # noqa: F821
+        description="Version of the avatar",  # noqa: F722
     )
     author: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Author"  # noqa: F821
+        name="Author",  # noqa: F821
+        description="Author of the avatar",  # noqa: F722
     )
     contact_information: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Contact Information",  # noqa: F722
+        description="Contact Information about the avatar",  # noqa: F722
     )
     reference: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Reference"  # noqa: F821
+        name="Reference",  # noqa: F821
+        description="Referenced works about the avatar",  # noqa: F722
     )
     allowed_user_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=allowed_user_name_items,
         name="Allowed User",  # noqa: F722
+        description="Allowed user of the avatar",  # noqa: F722
     )
     violent_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
         items=violent_ussage_name_items,  # noqa: SC200
         name="Violent Usage",  # noqa: F722
+        description="Violent usage of the avatar",  # noqa: F722
     )
     sexual_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
         items=sexual_ussage_name_items,  # noqa: SC200
         name="Sexual Usage",  # noqa: F722
+        description="Sexual Usage of the avatar",  # noqa: F722
     )
     commercial_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
         items=commercial_ussage_name_items,  # noqa: SC200
         name="Commercial Usage",  # noqa: F722
+        description="Commercial Usage of the avatar",  # noqa: F722
     )
     other_permission_url: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Other Permission URL",  # noqa: F722
+        description="URL about other permissions of the avatar",  # noqa: F722
     )
     license_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=license_name_items,
         name="License",  # noqa: F821
+        description="License of the avatar",  # noqa: F722
     )
     other_license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Other License URL",  # noqa: F722
+        description="URL about other License of the avatar",  # noqa: F722
     )
     texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Thumbnail", type=bpy.types.Image  # noqa: F821
+        name="Thumbnail",  # noqa: F821
+        type=bpy.types.Image,
+        description="Thumbnail of the avatar",  # noqa: F722
     )
 
 
@@ -636,6 +749,11 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     blend_shape_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Blend Shape Group", type=Vrm0BlendShapeGroupPropertyGroup  # noqa: F722
+    )
+
+    # for UI
+    active_blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Blend Shape Group Index", default=0  # noqa: F722
     )
 
 
@@ -650,6 +768,14 @@ class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):  # type: ign
         type=Vrm0SecondaryAnimationColliderGroupPropertyGroup,
     )
 
+    # for UI
+    active_bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Bone Group Index", default=0  # noqa: F722
+    )
+    active_collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        name="Active Collider Group Index", default=0  # noqa: F722
+    )
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_extensions.cs#L8-L48
 class Vrm0PropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
@@ -660,7 +786,7 @@ class Vrm0PropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         name="VRM Humanoid", type=Vrm0HumanoidPropertyGroup  # noqa: F722
     )
     first_person: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="VRM First-Person", type=Vrm0FirstPersonPropertyGroup  # noqa: F722
+        name="VRM First Person", type=Vrm0FirstPersonPropertyGroup  # noqa: F722
     )
     blend_shape_master: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="VRM Blend Shape Master",  # noqa: F722
