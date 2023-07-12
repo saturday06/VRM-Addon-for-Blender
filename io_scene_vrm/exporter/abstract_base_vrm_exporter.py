@@ -97,6 +97,25 @@ class AbstractBaseVrmExporter(ABC):
             armature.data.pose_position = self.saved_pose_position
         bpy.ops.object.mode_set(mode="OBJECT")
 
+    def clear_blend_shape_proxy_previews(
+        self, armature: bpy.types.Object
+    ) -> List[float]:
+        ext = armature.data.vrm_addon_extension
+        saved_previews = []
+        for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
+            saved_previews.append(blend_shape_group.preview)
+            blend_shape_group.preview = 0
+        return saved_previews
+
+    def restore_blend_shape_proxy_previews(
+        self, armature: bpy.types.Object, previews: List[float]
+    ) -> None:
+        ext = armature.data.vrm_addon_extension
+        for blend_shape_group, blend_shape_preview in zip(
+            ext.vrm0.blend_shape_master.blend_shape_groups, previews
+        ):
+            blend_shape_group.preview = blend_shape_preview
+
     @staticmethod
     def hide_mtoon1_outline_geometry_nodes() -> List[Tuple[str, str]]:
         object_name_to_modifier_names = []

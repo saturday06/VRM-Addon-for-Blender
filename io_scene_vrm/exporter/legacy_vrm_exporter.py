@@ -113,6 +113,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
         wm.progress_begin(0, 11)
+        blend_shape_previews = self.clear_blend_shape_proxy_previews(self.armature)
         object_name_and_modifier_names = self.hide_mtoon1_outline_geometry_nodes()
         try:
             self.setup_pose(
@@ -146,6 +147,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 self.restore_pose(self.armature)
                 self.restore_mtoon1_outline_geometry_nodes(
                     object_name_and_modifier_names
+                )
+                self.restore_blend_shape_proxy_previews(
+                    self.armature, blend_shape_previews
                 )
                 self.cleanup()
             finally:
