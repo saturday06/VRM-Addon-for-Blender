@@ -348,6 +348,9 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: 
     ]
 
     def update_spec_version(self, _context: bpy.types.Context) -> None:
+        for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
+            blend_shape_group.preview = 0
+
         if self.spec_version == self.SPEC_VERSION_VRM0:
             vrm0_hidden = False
             vrm1_hidden = True
