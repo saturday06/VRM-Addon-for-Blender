@@ -2613,6 +2613,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             blend_shape_group_dict["isBinary"] = blend_shape_group.is_binary
             blend_shape_group_dicts.append(blend_shape_group_dict)
 
+        # VirtualMotionCapture requires some blend shape presets https://twitter.com/sh_akira/status/1674237253231714305
+        # (The VRM specification does not require them. UniVRM 0.112.0 can be configured not to output them.)
         for preset_name in remaining_preset_names:
             if first_person.look_at_type_name == "Bone" and preset_name.startswith(
                 "look"
