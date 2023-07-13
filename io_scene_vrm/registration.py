@@ -216,7 +216,7 @@ classes = [
     vrm0_ui_list.VRM_UL_vrm0_blend_shape_bind,
     vrm0_ui_list.VRM_UL_vrm0_blend_shape_group,
     vrm0_ui_list.VRM_UL_vrm0_material_value_bind,
-    vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group_collider_group,
+    vrm0_ui_list.VRM_UL_vrm0_secondary_animation_collider_group,
     vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group,
     vrm0_panel.VRM_PT_vrm0_meta_armature_object_property,
     vrm0_panel.VRM_PT_vrm0_meta_ui,

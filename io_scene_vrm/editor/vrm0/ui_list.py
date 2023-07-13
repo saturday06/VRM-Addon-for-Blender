@@ -42,8 +42,8 @@ class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):  # type: ignore[m
         layout.label(text=text, icon="GROUP_BONE")
 
 
-class VRM_UL_vrm0_secondary_animation_group_collider_group(bpy.types.UIList):  # type: ignore[misc]
-    bl_idname = "VRM_UL_vrm0_secondary_animation_group_collider_group"
+class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):  # type: ignore[misc]
+    bl_idname = "VRM_UL_vrm0_secondary_animation_collider_group"
 
     def draw_item(
         self,
