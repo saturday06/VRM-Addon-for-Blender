@@ -10,8 +10,19 @@ a {
   word-break: break-all;
 }
 
-th a {
+.prose th, td {
+  vertical-align: baseline;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.prose th, td a {
   font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.prose tr {
+  border-bottom-width: 0;
 }
 
 .prose thead {

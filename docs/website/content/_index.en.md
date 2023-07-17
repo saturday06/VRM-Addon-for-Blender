@@ -25,9 +25,8 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 | [Installation]({{< ref "installation" >}}) | [Create Simple VRM]({{< ref "create-simple-vrm-from-scratch" >}}) | [Create Humanoid VRM]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
 | --- | --- | --- |
 | [![](installation.png)]({{< ref "installation" >}}) | [![](simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
-
+| | | |
 | [Create Physics Based Material]({{< ref "material-pbr" >}}) | [Create Anime Style Material]({{< ref "material-mtoon" >}}) | [Automation with Python scripts]({{< ref "scripting-api" >}}) |
-| --- | --- | --- |
 | [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | [![](scripting_api.png)]({{< ref "scripting-api" >}}) |
 
 ## Overview
