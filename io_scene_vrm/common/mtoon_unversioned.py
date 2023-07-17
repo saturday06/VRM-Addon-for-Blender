@@ -1,10 +1,10 @@
-from typing import Dict, Optional
+from typing import Optional
 
 
 class MtoonUnversioned:
     # {key = MToonProp, val = ShaderNodeGroup_member_name}
     version = 32
-    float_props_exchange_dict: Dict[str, Optional[str]] = {
+    float_props_exchange_dict: dict[str, Optional[str]] = {
         "_MToonVersion": None,
         "_Cutoff": "CutoffRate",
         "_BumpScale": "BumpScale",
@@ -35,7 +35,7 @@ class MtoonUnversioned:
         "_IsFirstSetup": None,
     }
 
-    texture_kind_exchange_dict: Dict[str, str] = {
+    texture_kind_exchange_dict: dict[str, str] = {
         "_MainTex": "MainTexture",
         "_ShadeTexture": "ShadeTexture",
         "_BumpMap": "NormalmapTexture",
@@ -47,7 +47,7 @@ class MtoonUnversioned:
         "_OutlineWidthTexture": "OutlineWidthTexture",
         "_UvAnimMaskTexture": "UV_Animation_Mask_Texture",  # TODO ####
     }
-    vector_base_props_exchange_dict: Dict[str, str] = {
+    vector_base_props_exchange_dict: dict[str, str] = {
         "_Color": "DiffuseColor",
         "_ShadeColor": "ShadeColor",
         "_EmissionColor": "EmissionColor",

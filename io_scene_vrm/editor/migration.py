@@ -1,5 +1,4 @@
 import functools
-from typing import List
 
 import bpy
 
@@ -89,7 +88,7 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
 object_name_subscription_owner = object()
 bone_name_subscription_owner = object()
 armature_name_subscription_owner = object()
-setup_once: List[bool] = []  # mutableにするためlistを使う
+setup_once: list[bool] = []  # mutableにするためlistを使う
 
 
 def on_change_bpy_object_name() -> None:

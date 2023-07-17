@@ -3,7 +3,7 @@ import tempfile
 from os import environ
 from pathlib import Path
 from sys import float_info
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import bpy
 from mathutils import Matrix, Quaternion
@@ -38,7 +38,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def __init__(
         self,
         context: bpy.types.Context,
-        export_objects: List[bpy.types.Object],
+        export_objects: list[bpy.types.Object],
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
@@ -70,8 +70,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.extras_material_name_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MaterialName"
         )
-        self.object_visibility_and_selection: Dict[str, Tuple[bool, bool]] = {}
-        self.mounted_object_names: List[str] = []
+        self.object_visibility_and_selection: dict[str, tuple[bool, bool]] = {}
+        self.mounted_object_names: list[str] = []
 
     def overwrite_object_visibility_and_selection(self) -> None:
         self.object_visibility_and_selection.clear()
@@ -182,12 +182,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_meta_dict(
         meta: Vrm1MetaPropertyGroup,
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
-    ) -> Dict[str, Json]:
-        meta_dict: Dict[str, Json] = {
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> dict[str, Json]:
+        meta_dict: dict[str, Json] = {
             "licenseUrl": "https://vrm.dev/licenses/1.0/",
             "name": meta.vrm_name if meta.vrm_name else "undefined",
             "version": meta.version if meta.version else "undefined",
@@ -236,9 +236,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_humanoid_dict(
         humanoid: Vrm1HumanoidPropertyGroup,
-        bone_name_to_index_dict: Dict[str, int],
-    ) -> Dict[str, Json]:
-        human_bones_dict: Dict[str, Json] = {}
+        bone_name_to_index_dict: dict[str, int],
+    ) -> dict[str, Json]:
+        human_bones_dict: dict[str, Json] = {}
         for (
             human_bone_name,
             human_bone,
@@ -254,9 +254,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_first_person_dict(
         first_person: Vrm1FirstPersonPropertyGroup,
-        mesh_object_name_to_node_index_dict: Dict[str, int],
-    ) -> Dict[str, Json]:
-        mesh_annotation_dicts: List[Json] = []
+        mesh_object_name_to_node_index_dict: dict[str, int],
+    ) -> dict[str, Json]:
+        mesh_annotation_dicts: list[Json] = []
         for mesh_annotation in first_person.mesh_annotations:
             if not mesh_annotation.node or not mesh_annotation.node.mesh_object_name:
                 continue
@@ -278,7 +278,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_look_at_dict(
         look_at: Vrm1LookAtPropertyGroup,
-    ) -> Dict[str, Json]:
+    ) -> dict[str, Json]:
         return {
             "offsetFromHeadBone": [
                 look_at.offset_from_head_bone[0],
@@ -307,10 +307,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_expression_dict(
         expression: Vrm1ExpressionPropertyGroup,
-        mesh_object_name_to_node_index_dict: Dict[str, int],
-        mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]],
-        material_name_to_index_dict: Dict[str, int],
-    ) -> Dict[str, Json]:
+        mesh_object_name_to_node_index_dict: dict[str, int],
+        mesh_object_name_to_morph_target_names_dict: dict[str, list[str]],
+        material_name_to_index_dict: dict[str, int],
+    ) -> dict[str, Json]:
         expression_dict = {
             "isBinary": expression.is_binary,
             "overrideBlink": expression.override_blink,
@@ -346,7 +346,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if morph_target_bind_dicts:
             expression_dict["morphTargetBinds"] = morph_target_bind_dicts
 
-        material_color_bind_dicts: List[Dict[str, Json]] = []
+        material_color_bind_dicts: list[dict[str, Json]] = []
         for material_color_bind in expression.material_color_binds:
             if (
                 not material_color_bind.material
@@ -372,7 +372,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if material_color_bind_dicts:
             expression_dict["materialColorBinds"] = material_color_bind_dicts
 
-        texture_transform_binds: List[Dict[str, Json]] = []
+        texture_transform_binds: list[dict[str, Json]] = []
         for texture_transform_bind in expression.texture_transform_binds:
             if (
                 not texture_transform_bind.material
@@ -399,11 +399,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_expressions_dict(
         expressions: Vrm1ExpressionsPropertyGroup,
-        mesh_object_name_to_node_index_dict: Dict[str, int],
-        mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]],
-        material_name_to_index_dict: Dict[str, int],
-    ) -> Dict[str, Json]:
-        preset_dict: Dict[str, Json] = {}
+        mesh_object_name_to_node_index_dict: dict[str, int],
+        mesh_object_name_to_morph_target_names_dict: dict[str, list[str]],
+        material_name_to_index_dict: dict[str, int],
+    ) -> dict[str, Json]:
+        preset_dict: dict[str, Json] = {}
         for (
             preset_name,
             expression,
@@ -414,7 +414,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 mesh_object_name_to_morph_target_names_dict,
                 material_name_to_index_dict,
             )
-        custom_dict: Dict[str, Json] = {}
+        custom_dict: dict[str, Json] = {}
         for custom_expression in expressions.custom:
             custom_dict[
                 custom_expression.custom_name
@@ -432,19 +432,19 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_spring_bone_collider_dicts(
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        bone_name_to_index_dict: Dict[str, int],
-    ) -> Tuple[List[Json], Dict[str, int]]:
-        collider_dicts: List[Json] = []
+        bone_name_to_index_dict: dict[str, int],
+    ) -> tuple[list[Json], dict[str, int]]:
+        collider_dicts: list[Json] = []
         collider_uuid_to_index_dict = {}
         for collider in spring_bone.colliders:
-            collider_dict: Dict[str, Json] = {}
+            collider_dict: dict[str, Json] = {}
             node_index = bone_name_to_index_dict.get(collider.node.bone_name)
             if not isinstance(node_index, int):
                 continue
             collider_dict["node"] = node_index
 
             if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
-                shape_dict: Dict[str, Json] = {
+                shape_dict: dict[str, Json] = {
                     "sphere": {
                         "offset": list(collider.shape.sphere.offset),
                         "radius": collider.shape.sphere.radius,
@@ -470,9 +470,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_spring_bone_collider_group_dicts(
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        collider_uuid_to_index_dict: Dict[str, int],
-    ) -> Tuple[List[Json], Dict[str, int]]:
-        collider_group_dicts: List[Json] = []
+        collider_uuid_to_index_dict: dict[str, int],
+    ) -> tuple[list[Json], dict[str, int]]:
+        collider_group_dicts: list[Json] = []
         collider_group_uuid_to_index_dict = {}
         for collider_group in spring_bone.collider_groups:
             collider_group_dict = {"name": collider_group.vrm_name}
@@ -500,11 +500,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_spring_bone_spring_dicts(
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        bone_name_to_index_dict: Dict[str, int],
-        collider_group_uuid_to_index_dict: Dict[str, int],
+        bone_name_to_index_dict: dict[str, int],
+        collider_group_uuid_to_index_dict: dict[str, int],
         armature: bpy.types.Object,
-    ) -> List[Json]:
-        spring_dicts: List[Json] = []
+    ) -> list[Json]:
+        spring_dicts: list[Json] = []
         for spring in spring_bone.springs:
             spring_dict = {"name": spring.vrm_name}
 
@@ -570,8 +570,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         constraint: Union[
             bpy.types.CopyRotationConstraint, bpy.types.DampedTrackConstraint
         ],
-        object_name_to_index_dict: Dict[str, int],
-        bone_name_to_index_dict: Dict[str, int],
+        object_name_to_index_dict: dict[str, int],
+        bone_name_to_index_dict: dict[str, int],
     ) -> Optional[int]:
         if constraint.target.type == "ARMATURE" and constraint.subtarget:
             return bone_name_to_index_dict.get(constraint.subtarget)
@@ -581,13 +581,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def create_constraint_dict(
         name: str,
         constraints: search.ExportConstraint,
-        object_name_to_index_dict: Dict[str, int],
-        bone_name_to_index_dict: Dict[str, int],
-    ) -> Dict[str, Json]:
+        object_name_to_index_dict: dict[str, int],
+        bone_name_to_index_dict: dict[str, int],
+    ) -> dict[str, Json]:
         roll_constraint = constraints.roll_constraints.get(name)
         aim_constraint = constraints.aim_constraints.get(name)
         rotation_constraint = constraints.rotation_constraints.get(name)
-        constraint_dict: Dict[str, Json] = {}
+        constraint_dict: dict[str, Json] = {}
         if roll_constraint:
             source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
                 roll_constraint,
@@ -638,8 +638,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def create_mtoon0_khr_texture_transform(
         node: bpy.types.Node, texture_input_name: str
-    ) -> Dict[str, Json]:
-        default: Dict[str, Json] = {
+    ) -> dict[str, Json]:
+        default: dict[str, Json] = {
             "offset": [0, 0],
             "scale": [1, 1],
         }
@@ -683,11 +683,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def find_or_create_image(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
-        image_name_to_index_dict: Dict[str, int],
+        image_name_to_index_dict: dict[str, int],
         image: bpy.types.Image,
-        gltf2_addon_export_settings: Dict[str, object],
+        gltf2_addon_export_settings: dict[str, object],
     ) -> int:
         # TODO: Verify alignment requirement and optimize
         while len(body_binary) % 32 == 0:
@@ -735,12 +735,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_mtoon1_texture_info_dict(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
         texture_info: Mtoon1TextureInfoPropertyGroup,
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
-    ) -> Optional[Dict[str, Json]]:
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> Optional[dict[str, Json]]:
         image = texture_info.index.source
         if not image:
             return None
@@ -753,7 +753,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             gltf2_addon_export_settings,
         )
 
-        sampler_dict: Dict[str, Json] = {
+        sampler_dict: dict[str, Json] = {
             "magFilter": Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
                 texture_info.index.sampler.mag_filter
             ],
@@ -801,7 +801,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict["extensionsUsed"] = extensions_used
 
         khr_texture_transform = texture_info.extensions.khr_texture_transform
-        khr_texture_transform_dict: Dict[str, Json] = {
+        khr_texture_transform_dict: dict[str, Json] = {
             "offset": list(khr_texture_transform.offset),
             "scale": list(khr_texture_transform.scale),
         }
@@ -813,13 +813,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_mtoon0_texture_info_dict(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
         node: bpy.types.Node,
         texture_input_name: str,
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
-    ) -> Optional[Dict[str, Json]]:
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> Optional[dict[str, Json]]:
         image_name_and_sampler_type = shader.get_image_name_and_sampler_type(
             node, texture_input_name
         )
@@ -835,7 +835,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             gltf2_addon_export_settings,
         )
 
-        sampler_dict: Dict[str, Json] = {
+        sampler_dict: dict[str, Json] = {
             "magFilter": filter_type,
             "minFilter": filter_type,
             "wrapS": wrap_type,
@@ -889,12 +889,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_mtoon1_material_dict(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
-    ) -> Dict[str, Json]:
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> dict[str, Json]:
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
             extensions_used = []
@@ -908,14 +908,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             extensions_used.append("VRMC_materials_mtoon")
 
         # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs
-        mtoon_dict: Dict[str, Json] = {
+        mtoon_dict: dict[str, Json] = {
             "specVersion": "1.0",
         }
 
         gltf = material.vrm_addon_extension.mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        extensions_dict: Dict[str, Json] = {
+        extensions_dict: dict[str, Json] = {
             "KHR_materials_unlit": {},
             "KHR_materials_emissive_strength": {
                 "emissiveStrength": gltf.extensions.khr_materials_emissive_strength.emissive_strength,
@@ -923,8 +923,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "VRMC_materials_mtoon": mtoon_dict,
         }
 
-        material_dict: Dict[str, Json] = {"name": material.name}
-        pbr_metallic_roughness_dict: Dict[str, Json] = {}
+        material_dict: dict[str, Json] = {"name": material.name}
+        pbr_metallic_roughness_dict: dict[str, Json] = {}
 
         material_dict["alphaMode"] = gltf.alpha_mode
         mtoon_dict["transparentWithZWrite"] = mtoon.transparent_with_z_write
@@ -1077,15 +1077,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_legacy_gltf_material_dict(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
         node: bpy.types.Node,
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
-    ) -> Dict[str, Json]:
-        material_dict: Dict[str, Json] = {"name": material.name}
-        pbr_metallic_roughness_dict: Dict[str, Json] = {}
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> dict[str, Json]:
+        material_dict: dict[str, Json] = {"name": material.name}
+        pbr_metallic_roughness_dict: dict[str, Json] = {}
 
         if material.blend_method == "OPAQUE":
             material_dict["alphaMode"] = "OPAQUE"
@@ -1201,13 +1201,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_legacy_transparent_zwrite_material_dict(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
         node: bpy.types.Node,
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
-    ) -> Dict[str, Json]:
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> dict[str, Json]:
         # https://vrm-c.github.io/UniVRM/en/implementation/transparent_zwrite.html#mtoon-unlit
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
@@ -1219,19 +1219,19 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if "VRMC_materials_mtoon" not in extensions_used:
             extensions_used.append("VRMC_materials_mtoon")
 
-        mtoon_dict: Dict[str, Json] = {
+        mtoon_dict: dict[str, Json] = {
             "specVersion": "1.0",
         }
-        extensions_dict: Dict[str, Json] = {
+        extensions_dict: dict[str, Json] = {
             "KHR_materials_unlit": {},
             "VRMC_materials_mtoon": mtoon_dict,
         }
 
-        material_dict: Dict[str, Json] = {
+        material_dict: dict[str, Json] = {
             "name": material.name,
             "emissiveFactor": [1, 1, 1],
         }
-        pbr_metallic_roughness_dict: Dict[str, Json] = {
+        pbr_metallic_roughness_dict: dict[str, Json] = {
             "baseColorFactor": [0, 0, 0, 1],
         }
 
@@ -1266,13 +1266,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def create_mtoon_unversioned_material_dict(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
         node: bpy.types.Node,
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
-    ) -> Dict[str, Json]:
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> dict[str, Json]:
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
             extensions_used = []
@@ -1284,16 +1284,16 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             extensions_used.append("VRMC_materials_mtoon")
 
         # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs
-        mtoon_dict: Dict[str, Json] = {
+        mtoon_dict: dict[str, Json] = {
             "specVersion": "1.0",
         }
-        extensions_dict: Dict[str, Json] = {
+        extensions_dict: dict[str, Json] = {
             "KHR_materials_unlit": {},
             "VRMC_materials_mtoon": mtoon_dict,
         }
 
-        material_dict: Dict[str, Json] = {"name": material.name}
-        pbr_metallic_roughness_dict: Dict[str, Json] = {}
+        material_dict: dict[str, Json] = {"name": material.name}
+        pbr_metallic_roughness_dict: dict[str, Json] = {}
 
         if material.blend_method == "OPAQUE":
             material_dict["alphaMode"] = "OPAQUE"
@@ -1566,11 +1566,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def save_vrm_materials(
-        json_dict: Dict[str, Json],
+        json_dict: dict[str, Json],
         body_binary: bytearray,
-        material_name_to_index_dict: Dict[str, int],
-        image_name_to_index_dict: Dict[str, int],
-        gltf2_addon_export_settings: Dict[str, object],
+        material_name_to_index_dict: dict[str, int],
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
     ) -> None:
         material_dicts = json_dict.get("materials")
         if not isinstance(material_dicts, list):
@@ -1639,7 +1639,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             json_dict["materials"] = material_dicts
 
     @staticmethod
-    def disable_mtoon1_material_nodes() -> List[str]:
+    def disable_mtoon1_material_nodes() -> list[str]:
         disabled_material_names = []
         for material in bpy.data.materials:
             if not material:
@@ -1650,7 +1650,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         return disabled_material_names
 
     @staticmethod
-    def restore_mtoon1_material_nodes(disabled_material_names: List[str]) -> None:
+    def restore_mtoon1_material_nodes(disabled_material_names: list[str]) -> None:
         for disabled_material_name in disabled_material_names:
             material = bpy.data.materials.get(disabled_material_name)
             if not material:
@@ -1660,8 +1660,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def unassign_normal_from_mtoon_primitive_morph_target(
-        json_dict: Dict[str, Json],
-        material_name_to_index_dict: Dict[str, int],
+        json_dict: dict[str, Json],
+        material_name_to_index_dict: dict[str, int],
     ) -> None:
         mesh_dicts = json_dict.get("meshes")
         if not isinstance(mesh_dicts, list):
@@ -1792,11 +1792,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict, body_binary = parse_glb(extra_name_assigned_glb)
         body_binary = bytearray(body_binary)
 
-        bone_name_to_index_dict: Dict[str, int] = {}
-        object_name_to_index_dict: Dict[str, int] = {}
-        image_name_to_index_dict: Dict[str, int] = {}
-        mesh_object_name_to_node_index_dict: Dict[str, int] = {}
-        mesh_object_name_to_morph_target_names_dict: Dict[str, List[str]] = {}
+        bone_name_to_index_dict: dict[str, int] = {}
+        object_name_to_index_dict: dict[str, int] = {}
+        image_name_to_index_dict: dict[str, int] = {}
+        mesh_object_name_to_node_index_dict: dict[str, int] = {}
+        mesh_object_name_to_morph_target_names_dict: dict[str, list[str]] = {}
 
         # https://github.com/KhronosGroup/glTF/blob/b6e0fcc6d8e9f83347aa8b2e3df085b81590a65c/specification/2.0/schema/glTF.schema.json
         gltf_root_non_empty_array_keys = [
@@ -2016,7 +2016,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 }
                 use_node_constraint = True
 
-        material_name_to_index_dict: Dict[str, int] = {}
+        material_name_to_index_dict: dict[str, int] = {}
         material_dicts = json_dict.get("materials")
         if not isinstance(material_dicts, list):
             material_dicts = []
@@ -2087,7 +2087,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         }
 
         spring_bone = self.armature.data.vrm_addon_extension.spring_bone1
-        spring_bone_dict: Dict[str, Json] = {}
+        spring_bone_dict: dict[str, Json] = {}
 
         (
             spring_bone_collider_dicts,
@@ -2160,7 +2160,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
 
 def find_node_world_matrix(
-    node_dicts: List[Json],
+    node_dicts: list[Json],
     target_node_index: int,
     parent_node_index: Optional[int],
 ) -> Optional[Matrix]:
@@ -2210,7 +2210,7 @@ def find_node_world_matrix(
     return None
 
 
-def get_node_matrix(node_dict: Dict[str, Json]) -> Matrix:
+def get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
     matrix = node_dict.get("matrix")
     if isinstance(matrix, list):
         if len(matrix) != 16:
@@ -2245,7 +2245,7 @@ def get_node_matrix(node_dict: Dict[str, Json]) -> Matrix:
     return location_matrix @ rotation_matrix @ scale_matrix
 
 
-def set_node_matrix(node_dict: Dict[str, Json], matrix: Matrix) -> None:
+def set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:
     if "matrix" in node_dict:
         del node_dict["matrix"]
     location, rotation, scale = matrix.decompose()

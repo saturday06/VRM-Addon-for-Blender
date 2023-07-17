@@ -2,7 +2,6 @@
 
 import glob
 import sys
-from typing import List
 
 from io_scene_vrm.common import deep, gltf
 from io_scene_vrm.common.deep import Json
@@ -20,7 +19,7 @@ def clean(path: str) -> None:
         json_dict["extensionsUsed"] = extensions_used
     extensions_used.clear()
 
-    base_extensions_dicts: List[Json] = []
+    base_extensions_dicts: list[Json] = []
     base_extensions_dicts.append(json_dict)
 
     for mesh_dict in deep.get_list(json_dict, ["meshes"], []):

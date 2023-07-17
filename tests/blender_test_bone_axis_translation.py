@@ -1,5 +1,4 @@
 import math
-from typing import Tuple
 
 from mathutils import Matrix, Vector
 
@@ -7,8 +6,8 @@ from io_scene_vrm.editor.extension import VrmAddonBoneExtensionPropertyGroup
 
 
 def assert_axis_translation(
-    in_point: Tuple[float, float, float],
-    out_point: Tuple[float, float, float],
+    in_point: tuple[float, float, float],
+    out_point: tuple[float, float, float],
     axis_translation: str,
 ) -> None:
     in_vec = Vector(in_point)

@@ -2,7 +2,6 @@ import shutil
 import sys
 from os import environ, getenv
 from pathlib import Path
-from typing import List
 
 import bpy
 
@@ -21,8 +20,8 @@ vrm_dir = Path(
 )
 
 
-def get_test_command_args() -> List[List[str]]:
-    command_args: List[List[str]] = []
+def get_test_command_args() -> list[list[str]]:
+    command_args: list[list[str]] = []
     for vrm, extract_textures in [
         (v, e)
         for e in ["false", "true"]

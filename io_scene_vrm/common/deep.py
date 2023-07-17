@@ -1,8 +1,8 @@
 import difflib
 import math
-from collections import abc
+from collections.abc import Iterable, Mapping
 from json import dumps as json_dumps
-from typing import Dict, List, Union
+from typing import Union
 
 from .logging import get_logger
 
@@ -14,8 +14,8 @@ Json = Union[
     int,
     float,
     str,
-    List["Json"],
-    Dict[str, "Json"],
+    list["Json"],
+    dict[str, "Json"],
 ]
 
 
@@ -30,15 +30,15 @@ def make_json(v: object) -> Json:
         return v
     if isinstance(v, str):
         return v
-    if isinstance(v, abc.Mapping):
-        result: Dict[str, Json] = {}
+    if isinstance(v, Mapping):
+        result: dict[str, Json] = {}
         for key, value in v.items():
             if isinstance(key, str):
                 result[key] = make_json(value)
                 continue
             logger.warning(f"{key} {type(key)} is unrecognized type for dict key")
         return result
-    if isinstance(v, abc.Iterable):
+    if isinstance(v, Iterable):
         return [make_json(x) for x in v]
 
     logger.warning(f"{v} {type(v)} is unrecognized type")
@@ -47,7 +47,7 @@ def make_json(v: object) -> Json:
 
 def get(
     json: Json,
-    attrs: List[Union[int, str]],
+    attrs: list[Union[int, str]],
     default: Json = None,
 ) -> Json:
     if json is None:
@@ -70,9 +70,9 @@ def get(
 
 def get_list(
     json: Json,
-    attrs: List[Union[int, str]],
-    default: List[Json],
-) -> List[Json]:
+    attrs: list[Union[int, str]],
+    default: list[Json],
+) -> list[Json]:
     result = get(json, attrs, default)
     return result if isinstance(result, list) else default
 
@@ -82,7 +82,7 @@ def diff(
     right: Json,
     float_tolerance: float = 0,
     path: str = "",
-) -> List[str]:
+) -> list[str]:
     if isinstance(left, list):
         if not isinstance(right, list):
             return [f"{path}: left is list but right is {type(right)}"]

@@ -1,8 +1,8 @@
 import functools
 import re
-from collections import abc
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import bpy
 import mathutils
@@ -30,13 +30,13 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         raise AssertionError(f"No matching material: {type(self)} {chain}")
 
     @classmethod
-    def get_material_property_chain(cls) -> List[str]:
+    def get_material_property_chain(cls) -> list[str]:
         chain = getattr(cls, "material_property_chain", None)
         if not isinstance(chain, list):
             raise NotImplementedError(
                 f"No material property chain: {cls}.{type(chain)} => {chain}",
             )
-        result: List[str] = []
+        result: list[str] = []
         for property_name in list(chain):
             if isinstance(property_name, str):
                 result.append(property_name)
@@ -111,7 +111,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         self,
         name: str,
         value: object,
-        default_value: Optional[Tuple[float, float, float, float]] = None,
+        default_value: Optional[tuple[float, float, float, float]] = None,
     ) -> None:
         if not default_value:
             default_value = (0.0, 0.0, 0.0, 0.0)
@@ -121,7 +121,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not isinstance(node, bpy.types.ShaderNodeRGB):
             logger.warning(f'No shader node rgb "{node_name}"')
             return
-        if not isinstance(value, abc.Iterable):
+        if not isinstance(value, Iterable):
             node.outputs[0].default_value = default_value
             return
         list_value = list(value)
@@ -139,7 +139,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         self,
         name: str,
         value: object,
-        default_value: Optional[Tuple[float, float, float]] = None,
+        default_value: Optional[tuple[float, float, float]] = None,
     ) -> None:
         if not default_value:
             default_value = (0.0, 0.0, 0.0)
@@ -151,7 +151,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             return
         if isinstance(value, mathutils.Color):
             value = [value.r, value.g, value.b]
-        elif not isinstance(value, abc.Iterable):
+        elif not isinstance(value, Iterable):
             node.outputs[0].default_value = default_value + (1.0,)
             return
         list_value = list(value)
@@ -589,10 +589,10 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         ("NEAREST", "Nearest", "", 9728),
         ("LINEAR", "Linear", "", 9729),
     ]
-    MAG_FILTER_NUMBER_TO_ID: Dict[int, str] = {
+    MAG_FILTER_NUMBER_TO_ID: dict[int, str] = {
         filter[-1]: filter[0] for filter in mag_filter_items
     }
-    MAG_FILTER_ID_TO_NUMBER: Dict[str, int] = {
+    MAG_FILTER_ID_TO_NUMBER: dict[str, int] = {
         filter[0]: filter[-1] for filter in mag_filter_items
     }
 
@@ -635,10 +635,10 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
             9987,
         ),
     ]
-    MIN_FILTER_NUMBER_TO_ID: Dict[int, str] = {
+    MIN_FILTER_NUMBER_TO_ID: dict[int, str] = {
         filter[-1]: filter[0] for filter in min_filter_items
     }
-    MIN_FILTER_ID_TO_NUMBER: Dict[str, int] = {
+    MIN_FILTER_ID_TO_NUMBER: dict[str, int] = {
         filter[0]: filter[-1] for filter in min_filter_items
     }
 
@@ -651,8 +651,8 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         ("MIRRORED_REPEAT", "Mirrored Repeat", "", 33648),
         (WRAP_DEFAULT_ID, "Repeat", "", WRAP_DEFAULT_NUMBER),
     ]
-    WRAP_NUMBER_TO_ID: Dict[int, str] = {wrap[-1]: wrap[0] for wrap in wrap_items}
-    WRAP_ID_TO_NUMBER: Dict[str, int] = {wrap[0]: wrap[-1] for wrap in wrap_items}
+    WRAP_NUMBER_TO_ID: dict[int, str] = {wrap[-1]: wrap[0] for wrap in wrap_items}
+    WRAP_ID_TO_NUMBER: dict[str, int] = {wrap[0]: wrap[-1] for wrap in wrap_items}
 
     def update_wrap_s(self, _context: bpy.types.Context) -> None:
         wrap_s = self.WRAP_ID_TO_NUMBER.get(self.wrap_s, self.WRAP_DEFAULT_NUMBER)
@@ -951,8 +951,8 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         min_filter: str
         wrap_s: str
         wrap_t: str
-        offset: Tuple[float, float]
-        scale: Tuple[float, float]
+        offset: tuple[float, float]
+        scale: tuple[float, float]
 
     def backup(self) -> TextureInfoBackup:
         return Mtoon1TextureInfoPropertyGroup.TextureInfoBackup(
@@ -1006,7 +1006,7 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.normalTextureInfo.schema.json
 class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain: List[str] = ["normal_texture"]
+    material_property_chain: list[str] = ["normal_texture"]
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalTexturePropertyGroup  # noqa: F722
@@ -1023,7 +1023,7 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/c5d1afdc4d59c292cb4fd6d54cad1dc0c4d19c60/specification/VRMC_materials_mtoon-1.0/schema/mtoon.shadingShiftTexture.schema.json
 class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain: List[str] = [
+    material_property_chain: list[str] = [
         "extensions",
         "vrmc_materials_mtoon",
         "shading_shift_texture",
@@ -1161,7 +1161,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 
 
 class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain: List[str] = ["extensions", "vrmc_materials_mtoon"]
+    material_property_chain: list[str] = ["extensions", "vrmc_materials_mtoon"]
 
     def update_transparent_with_z_write(self, _context: bpy.types.Context) -> None:
         self.set_bool("TransparentWithZWrite", self.transparent_with_z_write)
@@ -1387,7 +1387,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
 # https://github.com/KhronosGroup/glTF/blob/d997b7dc7e426bc791f5613475f5b4490da0b099/extensions/2.0/Khronos/KHR_materials_emissive_strength/schema/glTF.KHR_materials_emissive_strength.schema.json
 class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain: List[str] = [
+    material_property_chain: list[str] = [
         "extensions",
         "khr_materials_emissive_strength",
     ]
@@ -1413,7 +1413,7 @@ class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: i
 
 # https://github.com/vrm-c/vrm-specification/blob/8dc51ec7241be27ee95f159cefc0190a0e41967b/specification/VRMC_materials_mtoon-1.0-beta/schema/VRMC_materials_mtoon.schema.json
 class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain: List[str] = []
+    material_property_chain: list[str] = []
 
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
@@ -1625,7 +1625,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=bpy.types.Material,
     )
 
-    def all_texture_info(self) -> List[Mtoon1TextureInfoPropertyGroup]:
+    def all_texture_info(self) -> list[Mtoon1TextureInfoPropertyGroup]:
         return [
             self.pbr_metallic_roughness.base_color_texture,
             self.normal_texture,
@@ -1640,7 +1640,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     def all_textures(
         self, downgrade_to_mtoon0: bool
-    ) -> List[Mtoon0TexturePropertyGroup]:
+    ) -> list[Mtoon0TexturePropertyGroup]:
         # TODO: remove code duplication
         return (
             [

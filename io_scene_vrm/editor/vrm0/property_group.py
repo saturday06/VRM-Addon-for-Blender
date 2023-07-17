@@ -1,6 +1,5 @@
 import functools
 from dataclasses import dataclass
-from typing import Dict
 
 import bpy
 from mathutils import Vector
@@ -53,7 +52,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
     def update_node_candidates(
         self,
         armature_data: bpy.types.Armature,
-        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
+        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     ) -> None:
         human_bone_name = HumanBoneName.from_str(self.bone)
         if human_bone_name is None:
@@ -176,7 +175,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             last_bone_name = humanoid.last_bone_names.add()
             last_bone_name.value = bone_name
 
-        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
+        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
             human_bone.node.bone_name: HumanBoneSpecifications.get(
                 HumanBoneName(human_bone.bone)
             )

@@ -1,5 +1,6 @@
 import sys
-from typing import Sequence, cast
+from collections.abc import Sequence
+from typing import cast
 from unittest import TestCase
 
 from io_scene_vrm.exporter import legacy_vrm_exporter

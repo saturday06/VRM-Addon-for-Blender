@@ -5,28 +5,28 @@ https://opensource.org/licenses/mit-license.php
 
 """
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from ..common.deep import Json, make_json
 
 
 class GlbBinCollection:
     def __init__(self) -> None:
-        self.vertex_attribute_bins: List[GlbBin] = []  # Glb_bin list
-        self.image_bins: List[ImageBin] = []
+        self.vertex_attribute_bins: list[GlbBin] = []  # Glb_bin list
+        self.image_bins: list[ImageBin] = []
         self.bin = bytearray()
 
-    def pack_all(self) -> Tuple[Dict[str, Json], bytes]:
-        bin_dict: Dict[str, Json] = {}
+    def pack_all(self) -> tuple[dict[str, Json], bytes]:
+        bin_dict: dict[str, Json] = {}
         byte_offset = 0
-        buffer_view_dicts: List[Json] = []
+        buffer_view_dicts: list[Json] = []
         bin_dict["bufferViews"] = buffer_view_dicts
-        accessor_dicts: List[Json] = []
+        accessor_dicts: list[Json] = []
         bin_dict["accessors"] = accessor_dicts
 
         for vab in self.vertex_attribute_bins:
             self.bin.extend(vab.bin)
-            vab_dict: Dict[str, Json] = {
+            vab_dict: dict[str, Json] = {
                 "bufferView": self.get_new_buffer_view_id(),
                 "byteOffset": 0,
                 "type": vab.array_type,
@@ -48,7 +48,7 @@ class GlbBinCollection:
             byte_offset += vab.bin_length
 
         if self.image_bins:
-            image_dicts: List[Json] = []
+            image_dicts: list[Json] = []
             bin_dict["images"] = image_dicts
             for img in self.image_bins:
                 self.bin.extend(img.bin)
@@ -118,7 +118,7 @@ class GlbBin(BaseBin):
         array_type: str,
         component_type: int,
         array_count: int,
-        min_max_tuple: Optional[List[List[float]]],
+        min_max_tuple: Optional[list[list[float]]],
         glb_bin_collection: GlbBinCollection,
     ) -> None:
         if isinstance(binary, bytearray):

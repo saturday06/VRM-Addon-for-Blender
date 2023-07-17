@@ -1,8 +1,8 @@
 import math
-from collections import abc
+from collections.abc import Iterable
 from pathlib import Path
 from sys import float_info
-from typing import Dict, Optional, Tuple
+from typing import Optional
 
 import bpy
 
@@ -294,7 +294,7 @@ def copy_shader_node_group(
 def copy_node(
     from_node: bpy.types.Node,
     to_node: bpy.types.Node,
-    from_to: Dict[bpy.types.Node, bpy.types.Node],
+    from_to: dict[bpy.types.Node, bpy.types.Node],
 ) -> None:
     to_node.color = from_node.color
     to_node.height = from_node.height
@@ -580,7 +580,7 @@ def copy_node_tree(
             )
         copy_socket_interface(from_output, to_output)
 
-    from_to: Dict[bpy.types.Node, bpy.types.Node] = {}
+    from_to: dict[bpy.types.Node, bpy.types.Node] = {}
 
     for from_node in from_node_tree.nodes:
         to_node = to_node_tree.nodes.new(from_node.bl_idname)
@@ -659,7 +659,7 @@ def shader_node_group_import(shader_node_group_name: str) -> None:
 
 def get_image_name_and_sampler_type(
     shader_node: bpy.types.Node, input_socket_name: str
-) -> Optional[Tuple[str, int, int]]:
+) -> Optional[tuple[str, int, int]]:
     if (
         input_socket_name == "NormalmapTexture"
         and "NormalmapTexture" not in shader_node.inputs
@@ -741,8 +741,8 @@ def get_float_value(
 
 def rgba_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
-) -> Optional[Tuple[float, float, float, float]]:
-    if not isinstance(vs, abc.Iterable):
+) -> Optional[tuple[float, float, float, float]]:
+    if not isinstance(vs, Iterable):
         return None
 
     rgba = []
@@ -767,7 +767,7 @@ def get_rgba_value(
     input_socket_name: str,
     min_value: float = -float_info.max,
     max_value: float = float_info.max,
-) -> Optional[Tuple[float, float, float, float]]:
+) -> Optional[tuple[float, float, float, float]]:
     socket = shader_node.inputs.get(input_socket_name)
     if not socket:
         return None
@@ -791,8 +791,8 @@ def get_rgba_value(
 
 def rgb_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
-) -> Optional[Tuple[float, float, float]]:
-    if not isinstance(vs, abc.Iterable):
+) -> Optional[tuple[float, float, float]]:
+    if not isinstance(vs, Iterable):
         return None
 
     rgb = []
@@ -817,7 +817,7 @@ def get_rgb_value(
     input_socket_name: str,
     min_value: float = -float_info.max,
     max_value: float = float_info.max,
-) -> Optional[Tuple[float, float, float]]:
+) -> Optional[tuple[float, float, float]]:
     socket = shader_node.inputs.get(input_socket_name)
     if not socket:
         return None

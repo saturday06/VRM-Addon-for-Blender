@@ -1,5 +1,4 @@
 from sys import float_info
-from typing import Dict, List, Tuple
 
 from ..common import deep, gltf
 from ..common.deep import Json, make_json
@@ -15,7 +14,7 @@ def human_bone_sort_key(human_bone_dict: Json) -> int:
     return node
 
 
-def create_vrm_json_dict(data: bytes) -> Dict[str, Json]:
+def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
     vrm_json, binary_chunk = gltf.parse_glb(data)
 
     vrm_json["~accessors_decoded"] = make_json(decode_bin(vrm_json, binary_chunk))
@@ -89,7 +88,7 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Json]:
         if isinstance(vrm0_collider_group_dicts, list):
 
             def sort_collider_groups_with_index_key(
-                collider_group_with_index: Tuple[int, Json]
+                collider_group_with_index: tuple[int, Json]
             ) -> int:
                 (_, collider_group) = collider_group_with_index
                 if not isinstance(collider_group, dict):
@@ -193,7 +192,7 @@ def create_vrm_json_dict(data: bytes) -> Dict[str, Json]:
     return vrm_json
 
 
-def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> List[str]:
+def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> list[str]:
     return deep.diff(
         create_vrm_json_dict(before), create_vrm_json_dict(after), float_tolerance
     )

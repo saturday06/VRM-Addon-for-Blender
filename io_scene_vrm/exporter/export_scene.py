@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Set, cast
+from typing import cast
 
 import bpy
 from bpy.app.translations import pgettext
@@ -98,7 +98,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         options={"HIDDEN"},  # noqa: F821
     )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         if not self.filepath:
             return {"CANCELLED"}
 
@@ -145,7 +145,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         Path(self.filepath).write_bytes(vrm_bin)
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
         preferences = get_preferences(context)
         (
             self.export_invisibles,
@@ -162,7 +162,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             bpy.ops.export_scene
         ):
             return cast(
-                Set[str],
+                set[str],
                 bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
                     "INVOKE_DEFAULT",
                 ),
@@ -239,7 +239,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             )
             return {"CANCELLED"}
 
-        return cast(Set[str], ExportHelper.invoke(self, context, event))
+        return cast(set[str], ExportHelper.invoke(self, context, event))
 
     def draw(self, _context: bpy.types.Context) -> None:
         pass  # Is needed to get panels available
@@ -315,7 +315,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
         options={"HIDDEN"},  # noqa: F821
     )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         preferences = get_preferences(context)
         export_invisibles = bool(preferences.export_invisibles)
         export_only_selections = bool(preferences.export_only_selections)
@@ -354,9 +354,9 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
         )
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
         return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=800)
+            set[str], context.window_manager.invoke_props_dialog(self, width=800)
         )
 
     def draw(self, context: bpy.types.Context) -> None:
@@ -443,7 +443,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
         name="Export Anyway",  # noqa: F722
     )
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> set[str]:
         if not self.export_anyway:
             return {"CANCELLED"}
         bpy.ops.export_scene.vrm(
@@ -453,14 +453,14 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
         )
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
         validation.WM_OT_vrm_validator.detect_errors(
             context,
             self.errors,
             self.armature_object_name,
         )
         return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=800)
+            set[str], context.window_manager.invoke_props_dialog(self, width=800)
         )
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -497,7 +497,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[m
         options={"HIDDEN"},  # noqa: F821
     )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         if not self.armature_object_name:
             return {"CANCELLED"}
         armature_object = context.blend_data.objects.get(self.armature_object_name)
@@ -508,7 +508,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[m
         )
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
         if not self.armature_object_name:
             armature_object = search.current_armature(context)
             if armature_object:
@@ -520,7 +520,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[m
             candidate = self.armature_object_name_candidates.add()
             candidate.value = obj.name
         return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=600)
+            set[str], context.window_manager.invoke_props_dialog(self, width=600)
         )
 
     def draw(self, _context: bpy.types.Context) -> None:

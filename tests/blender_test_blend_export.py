@@ -2,7 +2,6 @@ import shutil
 import sys
 from os import environ, getenv
 from pathlib import Path
-from typing import List
 
 import bpy
 
@@ -19,9 +18,9 @@ vrm_dir = resources_dir / "vrm"
 blend_dir = resources_dir / "blend"
 
 
-def get_test_command_args() -> List[List[str]]:
+def get_test_command_args() -> list[list[str]]:
     names = [blend_path.name for blend_path in blend_dir.glob("**/*.blend")]
-    command_args: List[List[str]] = [
+    command_args: list[list[str]] = [
         [name] for name in sorted(list(dict.fromkeys(names)))
     ]
     return command_args

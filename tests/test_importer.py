@@ -1,4 +1,3 @@
-from typing import List
 from unittest import TestCase
 
 from io_scene_vrm.importer import license_validation
@@ -31,7 +30,7 @@ class TestImporter(TestCase):
             ),
         ]:
             with self.subTest(url):
-                confirmation_props: List[
+                confirmation_props: list[
                     license_validation.LicenseConfirmationRequiredProp
                 ] = []
                 license_validation.validate_license_url(url, "key", confirmation_props)

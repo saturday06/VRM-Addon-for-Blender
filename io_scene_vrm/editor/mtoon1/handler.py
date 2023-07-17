@@ -1,5 +1,6 @@
 import time
-from typing import Callable, List, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional
 
 import bpy
 from bpy.app.handlers import persistent
@@ -15,7 +16,7 @@ if not persistent:  # for fake-bpy-modules
         return func
 
 
-previous_object_material_state: List[List[Optional[Tuple[str, bool, bool]]]] = []
+previous_object_material_state: list[list[Optional[tuple[str, bool, bool]]]] = []
 
 
 def update_mtoon1_outline() -> Optional[float]:

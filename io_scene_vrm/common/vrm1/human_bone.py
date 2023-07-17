@@ -8,7 +8,7 @@ https://opensource.org/licenses/mit-license.php
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Optional
 
 from ..vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ..vrm0.human_bone import HumanBoneSpecification as Vrm0HumanBoneSpecification
@@ -91,7 +91,7 @@ class HumanBoneName(Enum):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/humanoid.md#humanoid-bone-parent-child-relationship
-HumanBoneStructure = Dict[HumanBoneName, "HumanBoneStructure"]
+HumanBoneStructure = dict[HumanBoneName, "HumanBoneStructure"]
 HUMAN_BONE_STRUCTURE: HumanBoneStructure = {
     HumanBoneName.HIPS: {
         HumanBoneName.SPINE: {
@@ -196,7 +196,7 @@ class HumanBoneSpecification:
     requirement: bool
     parent_requirement: bool
     parent_name: Optional[HumanBoneName]
-    children_names: List[HumanBoneName]
+    children_names: list[HumanBoneName]
     vrm0_name: Vrm0HumanBoneName
 
     def parent(self) -> Optional["HumanBoneSpecification"]:
@@ -204,10 +204,10 @@ class HumanBoneSpecification:
             return None
         return HumanBoneSpecifications.get(self.parent_name)
 
-    def children(self) -> List["HumanBoneSpecification"]:
+    def children(self) -> list["HumanBoneSpecification"]:
         return list(map(HumanBoneSpecifications.get, self.children_names))
 
-    def connected(self) -> List["HumanBoneSpecification"]:
+    def connected(self) -> list["HumanBoneSpecification"]:
         children = self.children()
         parent = self.parent()
         if parent is None:
@@ -268,7 +268,7 @@ class HumanBoneSpecification:
     def find_children_human_bone_names(
         human_bone_name: HumanBoneName,
         human_bone_structure: HumanBoneStructure,
-    ) -> List[HumanBoneName]:
+    ) -> list[HumanBoneName]:
         for (
             next_human_bone_name,
             next_human_bone_structure,
@@ -296,7 +296,7 @@ class HumanBoneSpecification:
 
 
 def create_and_append_human_bone_specification(
-    human_bone_specifications: List[HumanBoneSpecification],
+    human_bone_specifications: list[HumanBoneSpecification],
     human_bone_name: HumanBoneName,
     vrm0_human_bone_specification: Vrm0HumanBoneSpecification,
     requirement: bool,
@@ -313,7 +313,7 @@ def create_and_append_human_bone_specification(
 
 
 class HumanBoneSpecifications:
-    all_human_bones: List[HumanBoneSpecification] = []
+    all_human_bones: list[HumanBoneSpecification] = []
 
     # https://github.com/vrm-c/vrm-specification/blob/6a996eb151770149ea4534b1edb70d913bb4014e/specification/VRMC_vrm-1.0-beta/humanoid.md#list-of-humanoid-bones
     # Torso
@@ -711,11 +711,11 @@ class HumanBoneSpecifications:
         parent_requirement=True,
     )
 
-    human_bone_name_to_human_bone: Dict[HumanBoneName, HumanBoneSpecification] = {
+    human_bone_name_to_human_bone: dict[HumanBoneName, HumanBoneSpecification] = {
         human_bone.name: human_bone for human_bone in all_human_bones
     }
 
-    all_names: List[str] = [b.name.value for b in all_human_bones]
+    all_names: list[str] = [b.name.value for b in all_human_bones]
 
     @staticmethod
     def get(name: HumanBoneName) -> HumanBoneSpecification:

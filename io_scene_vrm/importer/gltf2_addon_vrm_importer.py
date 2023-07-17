@@ -7,7 +7,7 @@ import shutil
 import struct
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Optional, Union
 
 import bpy
 import mathutils
@@ -71,8 +71,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         )
         self.import_id = Gltf2AddonImporterUserExtension.update_current_import_id()
         self.temp_object_name_count = 0
-        self.object_names: Dict[int, str] = {}
-        self.mesh_object_names: Dict[int, str] = {}
+        self.object_names: dict[int, str] = {}
+        self.mesh_object_names: dict[int, str] = {}
 
     def import_vrm(self) -> None:
         wm = self.context.window_manager
@@ -114,7 +114,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def assign_texture(
         self,
         texture: Mtoon1TexturePropertyGroup,
-        texture_dict: Dict[str, Json],
+        texture_dict: dict[str, Json],
     ) -> None:
         source = texture_dict.get("source")
         if isinstance(source, int):
@@ -165,7 +165,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def assign_khr_texture_transform(
         self,
         khr_texture_transform: Mtoon1KhrTextureTransformPropertyGroup,
-        khr_texture_transform_dict: Dict[str, Json],
+        khr_texture_transform_dict: dict[str, Json],
     ) -> None:
         offset = khr_texture_transform_dict.get("offset")
         if isinstance(offset, list):
@@ -182,7 +182,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def assign_texture_info(
         self,
         texture_info: Mtoon1TextureInfoPropertyGroup,
-        texture_info_dict: Dict[str, Json],
+        texture_info_dict: dict[str, Json],
     ) -> None:
         index = texture_info_dict.get("index")
         if isinstance(index, int):
@@ -202,7 +202,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
 
     def make_mtoon1_material(
-        self, material_index: int, gltf_dict: Dict[str, Json]
+        self, material_index: int, gltf_dict: dict[str, Json]
     ) -> None:
         mtoon_dict = deep.get(gltf_dict, ["extensions", "VRMC_materials_mtoon"])
         if not isinstance(mtoon_dict, dict):
@@ -416,8 +416,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(material_dict, dict):
                 self.make_mtoon1_material(index, material_dict)
 
-    def find_vrm0_bone_node_indices(self) -> List[int]:
-        result: List[int] = []
+    def find_vrm0_bone_node_indices(self) -> list[int]:
+        result: list[int] = []
         vrm0_dict = self.parse_result.vrm0_extension
 
         first_person_bone_index = deep.get(
@@ -461,8 +461,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                             result.append(bone_index)
         return list(dict.fromkeys(result))  # Remove duplicates
 
-    def find_vrm1_bone_node_indices(self) -> List[int]:
-        result: List[int] = []
+    def find_vrm1_bone_node_indices(self) -> list[int]:
+        result: list[int] = []
         vrm1_dict = self.parse_result.vrm1_extension
         human_bones_dict = deep.get(vrm1_dict, ["humanoid", "humanBones"])
         if isinstance(human_bones_dict, dict):
@@ -474,7 +474,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     result.append(node_index)
         return list(dict.fromkeys(result))  # Remove duplicates
 
-    def find_spring_bone1_bone_node_indices(self) -> List[int]:
+    def find_spring_bone1_bone_node_indices(self) -> list[int]:
         spring_bone1_dict = deep.get(
             self.parse_result.json_dict,
             ["extensions", "VRMC_springBone"],
@@ -482,7 +482,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if not isinstance(spring_bone1_dict, dict):
             return []
 
-        result: List[int] = []
+        result: list[int] = []
 
         collider_dicts = spring_bone1_dict.get("colliders")
         if isinstance(collider_dicts, list):
@@ -517,7 +517,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         return list(dict.fromkeys(result))  # Remove duplicates
 
-    def find_vrm_bone_node_indices(self) -> List[int]:
+    def find_vrm_bone_node_indices(self) -> list[int]:
         # TODO: SkinnedMeshRenderer root <=> skin.skeleton???
         return list(
             dict.fromkeys(  # Remove duplicates
@@ -531,7 +531,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     # 特に注意するべきもの:
     # - ルートボーン
     # - メッシュがペアレンティングされているボーン
-    def find_retain_node_indices(self, scene_dict: Dict[str, Json]) -> List[int]:
+    def find_retain_node_indices(self, scene_dict: dict[str, Json]) -> list[int]:
         scene_node_index_jsons = scene_dict.get("nodes")
         if not isinstance(scene_node_index_jsons, list):
             return []
@@ -555,7 +555,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         bone_node_indices = self.find_vrm_bone_node_indices()
 
         # シーンノードツリーのうち、hipsボーンが存在するツリーの全てのノードを集める。また、そのツリーのルートノードもボーン扱いする。
-        all_scene_node_indices: List[int] = []
+        all_scene_node_indices: list[int] = []
         hips_found = False
         for scene_node_index in scene_node_indices:
             all_scene_node_indices.clear()
@@ -649,11 +649,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def find_middle_bone_indices(
         self,
-        node_dicts: List[Dict[str, Json]],
-        bone_node_indices: List[int],
+        node_dicts: list[dict[str, Json]],
+        bone_node_indices: list[int],
         bone_node_index: int,
-        middle_bone_node_indices: List[int],
-    ) -> List[int]:
+        middle_bone_node_indices: list[int],
+    ) -> list[int]:
         if not 0 <= bone_node_index < len(node_dicts):
             return []
         node_dict = node_dicts[bone_node_index]
@@ -1494,7 +1494,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         try:
             self.context.view_layer.objects.active = armature
 
-            bone_name_to_human_bone_name: Dict[str, HumanBoneName] = {}
+            bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
             for (
                 human_bone_name,
                 human_bone,
@@ -1508,7 +1508,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             bpy.ops.object.mode_set(mode="EDIT")
 
             # ボーンの子が複数ある場合そのボーン名からテールを向ける先の子ボーン名を拾えるdictを作る
-            bone_name_to_main_child_bone_name: Dict[str, str] = {}
+            bone_name_to_main_child_bone_name: dict[str, str] = {}
             for (
                 bone_name,
                 human_bone_name,
@@ -1584,19 +1584,19 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     bone = parent
 
             # ヒューマンボーンとその先祖ボーンを得る
-            human_bone_tree_bone_names: Set[str] = set()
+            human_bone_tree_bone_names: set[str] = set()
             for bone_name in bone_name_to_human_bone_name:
                 bone = armature.data.edit_bones.get(bone_name)
                 while bone:
                     human_bone_tree_bone_names.add(bone.name)
                     bone = bone.parent
 
-            bone_name_to_axis_translation: Dict[str, str] = {}
+            bone_name_to_axis_translation: dict[str, str] = {}
 
             human_bone_tree_bones = []
             non_human_bone_tree_bones = []
-            constraint_node_index_to_source_index: Dict[int, int] = {}
-            constraint_node_index_groups: List[Set[int]] = []
+            constraint_node_index_to_source_index: dict[int, int] = {}
+            constraint_node_index_groups: list[set[int]] = []
             nodes = self.parse_result.json_dict.get("nodes")
             if not isinstance(nodes, list):
                 nodes = []
@@ -1753,7 +1753,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 z_negated_vector = z_vector.copy()
                 z_negated_vector.negate()
 
-                bone_length_and_axis_translations: List[Tuple[float, str]] = [
+                bone_length_and_axis_translations: list[tuple[float, str]] = [
                     (
                         target_vector.dot(x_vector),
                         VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_X_TO_Y_ID,
@@ -2263,7 +2263,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_spring_bone1_colliders(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: Dict[str, Json],
+        spring_bone_dict: dict[str, Json],
         armature: bpy.types.Object,
     ) -> None:
         collider_dicts = spring_bone_dict.get("colliders")
@@ -2376,7 +2376,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_spring_bone1_collider_groups(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: Dict[str, Json],
+        spring_bone_dict: dict[str, Json],
         armature_name: str,
     ) -> None:
         collider_group_dicts = spring_bone_dict.get("colliderGroups")
@@ -2428,7 +2428,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def load_spring_bone1_springs(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: Dict[str, Json],
+        spring_bone_dict: dict[str, Json],
         armature_name: str,
     ) -> None:
         spring_dicts = spring_bone_dict.get("springs")

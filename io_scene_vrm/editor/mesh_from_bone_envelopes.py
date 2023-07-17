@@ -1,5 +1,4 @@
 from math import ceil
-from typing import Set
 
 import bpy
 from mathutils import Vector
@@ -17,7 +16,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
     def poll(cls, _context: bpy.types.Context) -> bool:
         return True
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         self.build_mesh(context)
         return {"FINISHED"}
 

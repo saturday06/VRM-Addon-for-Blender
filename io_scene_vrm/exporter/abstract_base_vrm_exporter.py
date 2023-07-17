@@ -1,7 +1,7 @@
 import secrets
 import string
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import bpy
 from mathutils import Matrix
@@ -17,8 +17,8 @@ class AbstractBaseVrmExporter(ABC):
         context: bpy.types.Context,
     ) -> None:
         self.context = context
-        self.saved_current_pose_matrix_basis_dict: Dict[str, Matrix] = {}
-        self.saved_current_pose_matrix_dict: Dict[str, Matrix] = {}
+        self.saved_current_pose_matrix_basis_dict: dict[str, Matrix] = {}
+        self.saved_current_pose_matrix_dict: dict[str, Matrix] = {}
         self.saved_pose_position: Optional[str] = None
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
@@ -99,7 +99,7 @@ class AbstractBaseVrmExporter(ABC):
 
     def clear_blend_shape_proxy_previews(
         self, armature: bpy.types.Object
-    ) -> List[float]:
+    ) -> list[float]:
         ext = armature.data.vrm_addon_extension
         saved_previews = []
         for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
@@ -108,7 +108,7 @@ class AbstractBaseVrmExporter(ABC):
         return saved_previews
 
     def restore_blend_shape_proxy_previews(
-        self, armature: bpy.types.Object, previews: List[float]
+        self, armature: bpy.types.Object, previews: list[float]
     ) -> None:
         ext = armature.data.vrm_addon_extension
         for blend_shape_group, blend_shape_preview in zip(
@@ -117,7 +117,7 @@ class AbstractBaseVrmExporter(ABC):
             blend_shape_group.preview = blend_shape_preview
 
     @staticmethod
-    def hide_mtoon1_outline_geometry_nodes() -> List[Tuple[str, str]]:
+    def hide_mtoon1_outline_geometry_nodes() -> list[tuple[str, str]]:
         object_name_to_modifier_names = []
         for obj in bpy.data.objects:
             for modifier in obj.modifiers:
@@ -133,7 +133,7 @@ class AbstractBaseVrmExporter(ABC):
 
     @staticmethod
     def restore_mtoon1_outline_geometry_nodes(
-        object_name_to_modifier_names: List[Tuple[str, str]]
+        object_name_to_modifier_names: list[tuple[str, str]]
     ) -> None:
         for object_name, modifier_name in object_name_to_modifier_names:
             obj = bpy.data.objects.get(object_name)
@@ -146,9 +146,9 @@ class AbstractBaseVrmExporter(ABC):
 
 
 def assign_dict(
-    target: Dict[str, Json],
+    target: dict[str, Json],
     key: str,
-    value: Union[Json, Tuple[float, float, float], Tuple[float, float, float, float]],
+    value: Union[Json, tuple[float, float, float], tuple[float, float, float, float]],
     default_value: Json = None,
 ) -> bool:
     if value is None or value == default_value:

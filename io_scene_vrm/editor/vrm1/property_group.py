@@ -1,7 +1,7 @@
 import functools
 import sys
-from collections import abc
-from typing import Dict, List, Optional, Tuple
+from collections.abc import Sequence
+from typing import Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -36,7 +36,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         self,
         armature_data: bpy.types.Armature,
         target: HumanBoneSpecification,
-        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
+        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     ) -> None:
         new_candidates = BonePropertyGroup.find_bone_candidates(
             armature_data,
@@ -233,7 +233,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
 
     def human_bone_name_to_human_bone(
         self,
-    ) -> Dict[HumanBoneName, Vrm1HumanBonePropertyGroup]:
+    ) -> dict[HumanBoneName, Vrm1HumanBonePropertyGroup]:
         return {
             HumanBoneName.HIPS: self.hips,
             HumanBoneName.SPINE: self.spine,
@@ -292,7 +292,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
             HumanBoneName.RIGHT_LITTLE_DISTAL: self.right_little_distal,
         }
 
-    def error_messages(self) -> List[str]:
+    def error_messages(self) -> list[str]:
         messages = []
 
         human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
@@ -395,7 +395,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         for bone_name in bone_names:
             last_bone_name = human_bones.last_bone_names.add()
             last_bone_name.value = bone_name
-        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification] = {
+        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
             human_bone.node.bone_name: HumanBoneSpecifications.get(human_bone_name)
             for human_bone_name, human_bone in human_bones.human_bone_name_to_human_bone().items()
             if human_bone.node.bone_name
@@ -535,7 +535,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
         max=1,  # TODO: hdr emission color?
     )
 
-    def get_target_value_as_rgb(self) -> Tuple[float, float, float]:
+    def get_target_value_as_rgb(self) -> tuple[float, float, float]:
         return (
             float(self.target_value[0]),
             float(self.target_value[1]),
@@ -543,7 +543,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
         )
 
     def set_target_value_as_rgb(self, value: object) -> None:
-        if not isinstance(value, abc.Sequence):
+        if not isinstance(value, Sequence):
             return
         if len(value) < 3:
             return
@@ -688,7 +688,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
         type=Vrm1CustomExpressionPropertyGroup  # noqa: F722
     )
 
-    def preset_name_to_expression_dict(self) -> Dict[str, Vrm1ExpressionPropertyGroup]:
+    def preset_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
         return {
             "happy": self.happy,
             "angry": self.angry,
@@ -710,7 +710,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
             "lookRight": self.look_right,
         }
 
-    def all_name_to_expression_dict(self) -> Dict[str, Vrm1ExpressionPropertyGroup]:
+    def all_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
         result = self.preset_name_to_expression_dict()
         for custom_expression in self.custom:
             result[custom_expression.custom_name] = custom_expression.expression

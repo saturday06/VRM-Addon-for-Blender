@@ -1,6 +1,6 @@
 from pathlib import Path
 from sys import float_info
-from typing import Dict, List, Optional, Set, cast
+from typing import Optional, cast
 
 import bpy
 from bpy.app.translations import pgettext
@@ -34,7 +34,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
     errors: bpy.props.CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
     armature_object_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         self.detect_errors(
             context,
             self.errors,
@@ -54,7 +54,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             return {"CANCELLED"}
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
         self.detect_errors(
             context,
             self.errors,
@@ -68,7 +68,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         ):
             return {"FINISHED"}
         return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=800)
+            set[str], context.window_manager.invoke_props_dialog(self, width=800)
         )
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -76,7 +76,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
     @staticmethod
     def validate_bone_order_vrm0(
-        messages: List[str],
+        messages: list[str],
         armature: bpy.types.Object,
         readonly: bool,
     ) -> None:
@@ -101,7 +101,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
     @staticmethod
     def validate_bone_order_vrm1(
-        messages: List[str],
+        messages: list[str],
         armature: bpy.types.Object,
         readonly: bool,
     ) -> None:
@@ -131,7 +131,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
     @staticmethod
     def validate_bone_order(
-        messages: List[str],
+        messages: list[str],
         armature: bpy.types.Object,
         readonly: bool,
     ) -> None:
@@ -384,7 +384,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         ).format(name=obj.name)
                     )
 
-            joint_chain_bone_names_to_spring_vrm_name: Dict[str, str] = {}
+            joint_chain_bone_names_to_spring_vrm_name: dict[str, str] = {}
             for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
                 joint_bone_names = []
                 for joint in spring.joints:
@@ -430,7 +430,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     )
 
         used_materials = search.export_materials(export_objects)
-        used_images: List[bpy.types.Image] = []
+        used_images: list[bpy.types.Image] = []
         bones_name = []
         if armature is not None:
             bones_name = [b.name for b in armature.data.bones]
@@ -807,8 +807,8 @@ def node_material_input_check(
     material: bpy.types.Material,
     expect_node_type: str,
     shader_val: str,
-    messages: List[str],
-    used_images: List[bpy.types.Image],
+    messages: list[str],
+    used_images: list[bpy.types.Image],
 ) -> None:
     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
     #

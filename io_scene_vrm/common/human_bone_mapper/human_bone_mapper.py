@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Tuple
+from typing import Optional
 
 import bpy
 
@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 
 def match_count(
-    armature: bpy.types.Armature, mapping: Dict[str, HumanBoneSpecification]
+    armature: bpy.types.Armature, mapping: dict[str, HumanBoneSpecification]
 ) -> int:
     count = 0
 
@@ -58,8 +58,8 @@ def match_count(
 
 
 def match_counts(
-    armature: bpy.types.Armature, mapping: Dict[str, HumanBoneSpecification]
-) -> Tuple[int, int]:
+    armature: bpy.types.Armature, mapping: dict[str, HumanBoneSpecification]
+) -> tuple[int, int]:
     required_mapping = {
         bpy_name: required_specification
         for bpy_name, required_specification in mapping.items()
@@ -69,9 +69,9 @@ def match_counts(
 
 
 def sorted_required_first(
-    mapping: Dict[str, HumanBoneSpecification]
-) -> Dict[str, HumanBoneSpecification]:
-    sorted_mapping: Dict[str, HumanBoneSpecification] = {}
+    mapping: dict[str, HumanBoneSpecification]
+) -> dict[str, HumanBoneSpecification]:
+    sorted_mapping: dict[str, HumanBoneSpecification] = {}
     for bpy_name, specification in mapping.items():
         if specification.requirement:
             sorted_mapping[bpy_name] = specification
@@ -83,7 +83,7 @@ def sorted_required_first(
 
 def create_human_bone_mapping(
     armature: bpy.types.Object,
-) -> Dict[str, HumanBoneSpecification]:
+) -> dict[str, HumanBoneSpecification]:
     ((required_count, _all_count), name, mapping) = sorted(
         [
             (match_counts(armature.data, mapping), name, mapping)

@@ -1,8 +1,6 @@
-from typing import Dict
-
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-mapping: Dict[str, HumanBoneSpecification] = {
+mapping: dict[str, HumanBoneSpecification] = {
     "Head": HumanBoneSpecifications.HEAD,
     "RightEye": HumanBoneSpecifications.RIGHT_EYE,
     "LeftEye": HumanBoneSpecifications.LEFT_EYE,

@@ -1,8 +1,9 @@
 import collections
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Tuple
+from typing import Optional
 
 import bpy
 from mathutils import Matrix, Vector
@@ -18,7 +19,7 @@ class ICYP_OT_draw_model(bpy.types.Operator):  # type: ignore[misc]
     bl_description = "Draw selected with MToon of GLSL"
     bl_options = {"REGISTER"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         GlslDrawObj()
         preferences = get_preferences(context)
         GlslDrawObj.draw_func_add(
@@ -33,7 +34,7 @@ class ICYP_OT_remove_draw_model(bpy.types.Operator):  # type: ignore[misc]
     bl_description = "remove draw function"
     bl_options = {"REGISTER"}
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> set[str]:
         GlslDrawObj.draw_func_remove()
         return {"FINISHED"}
 
@@ -42,15 +43,15 @@ class MtoonGlsl:
     main_node: Optional[bpy.types.Node] = None
     alpha_method = None
 
-    float_dict: Dict[str, float]
-    vector_dict: Dict[str, List[float]]
-    texture_dict: Dict[str, bpy.types.Image]
+    float_dict: dict[str, float]
+    vector_dict: dict[str, list[float]]
+    texture_dict: dict[str, bpy.types.Image]
     cull_mode = "BACK"
 
     def make_small_image(
         self,
         name: str,
-        color: Tuple[float, float, float, float] = (1, 1, 1, 1),
+        color: tuple[float, float, float, float] = (1, 1, 1, 1),
         color_space: str = "sRGB",
     ) -> bpy.types.Image:
         image = bpy.data.images.new(name, 1, 1)
@@ -117,7 +118,7 @@ class MtoonGlsl:
             )
         return float(main_node.inputs[val_name].default_value)
 
-    def get_color(self, vec_name: str) -> List[float]:
+    def get_color(self, vec_name: str) -> list[float]:
         main_node = self.main_node
         if main_node is None:
             raise ValueError("main node is None")
@@ -144,7 +145,7 @@ class MtoonGlsl:
             if node.type == "OUTPUT_MATERIAL":
                 self.main_node = node.inputs["Surface"].links[0].from_node
 
-        self.float_dict: Dict[str, float] = {}
+        self.float_dict: dict[str, float] = {}
         self.vector_dict = {}
         self.texture_dict = {}
         for k in MtoonUnversioned.float_props_exchange_dict.values():
@@ -169,12 +170,12 @@ class MtoonGlsl:
 
 @dataclass
 class GlMesh:
-    pos: Dict[object, object] = field(default_factory=dict)
-    normals: Dict[object, object] = field(default_factory=dict)
-    uvs: Dict[object, object] = field(default_factory=dict)
-    tangents: Dict[object, object] = field(default_factory=dict)
-    index_per_mat: Dict[bpy.types.Material, object] = field(default_factory=dict)
-    mat_list: List[MtoonGlsl] = field(default_factory=list)
+    pos: dict[object, object] = field(default_factory=dict)
+    normals: dict[object, object] = field(default_factory=dict)
+    uvs: dict[object, object] = field(default_factory=dict)
+    tangents: dict[object, object] = field(default_factory=dict)
+    index_per_mat: dict[bpy.types.Material, object] = field(default_factory=dict)
+    mat_list: list[MtoonGlsl] = field(default_factory=list)
     index_per_mat = field(default_factory=dict)  # material : vert index
 
 
@@ -197,12 +198,12 @@ class GlslDrawObj:
     executor = None
     toon_shader = None
     depth_shader = None
-    objs: List[bpy.types.Object] = []
+    objs: list[bpy.types.Object] = []
     light = None
     offscreen = None
-    materials: Dict[str, MtoonGlsl] = {}
+    materials: dict[str, MtoonGlsl] = {}
     instance: Optional["GlslDrawObj"] = None
-    draw_objs: List[bpy.types.Object] = []
+    draw_objs: list[bpy.types.Object] = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
     bounding_center = [0.0, 0.0, 0.0]
@@ -221,7 +222,7 @@ class GlslDrawObj:
             ThreadPoolExecutor()  # TODO: Fix it!!!
         )
 
-    scene_meshes: List[GlMesh] = []
+    scene_meshes: list[GlMesh] = []
 
     @staticmethod
     def build_scene(_dummy: None = None) -> None:
@@ -288,7 +289,7 @@ class GlslDrawObj:
                 for i, v in count_list.items()
             }
 
-            def job_pos() -> Dict[object, object]:
+            def job_pos() -> dict[object, object]:
                 if scene_mesh.index_per_mat is None:
                     raise ValueError("scene mesh index per mat is None")
                 return {
@@ -301,7 +302,7 @@ class GlslDrawObj:
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_normal() -> Dict[object, object]:
+            def job_normal() -> dict[object, object]:
                 if tmp_mesh.has_custom_normals:
                     return {
                         k: [
@@ -322,7 +323,7 @@ class GlslDrawObj:
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_uv() -> Dict[object, object]:
+            def job_uv() -> dict[object, object]:
                 return {
                     k: [
                         st[lo].uv
@@ -333,7 +334,7 @@ class GlslDrawObj:
                     for i, k in enumerate(scene_mesh.index_per_mat.keys())
                 }
 
-            def job_tangent() -> Dict[object, object]:
+            def job_tangent() -> dict[object, object]:
                 return {
                     k: [
                         tmp_mesh.loops[lo].tangent
@@ -368,7 +369,7 @@ class GlslDrawObj:
 
         glsl_draw_obj.build_batches()
 
-    batches: Optional[List[Tuple[bpy.types.Material, object, object]]] = None
+    batches: Optional[list[tuple[bpy.types.Material, object, object]]] = None
 
     def build_batches(self) -> None:
         import gpu

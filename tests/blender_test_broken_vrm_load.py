@@ -1,7 +1,6 @@
 import sys
 from os import environ
 from pathlib import Path
-from typing import List
 
 import bpy
 
@@ -15,9 +14,9 @@ resources_dir = Path(
 vrm_dir = resources_dir / "vrm" / "broken"
 
 
-def get_test_command_args() -> List[List[str]]:
+def get_test_command_args() -> list[list[str]]:
     names = [blend_path.name for blend_path in vrm_dir.glob("*.vrm")]
-    command_args: List[List[str]] = [
+    command_args: list[list[str]] = [
         [name] for name in sorted(list(dict.fromkeys(names)))
     ]
     return command_args

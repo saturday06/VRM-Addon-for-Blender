@@ -1,5 +1,6 @@
 import uuid
-from typing import Dict, Iterator, Optional, Set, TypeVar, Union
+from collections.abc import Iterator
+from typing import Optional, TypeVar, Union
 
 import bpy
 
@@ -130,11 +131,11 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def find_bone_candidates(
         armature_data: bpy.types.Armature,
         target: HumanBoneSpecification,
-        bpy_bone_name_to_human_bone_specification: Dict[str, HumanBoneSpecification],
-    ) -> Set[str]:
+        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
+    ) -> set[str]:
         bones = armature_data.bones
-        result: Set[str] = set(bones.keys())
-        remove_bones_tree: Union[Set[bpy.types.Bone], Set[bpy.types.EditBone]] = set()
+        result: set[str] = set(bones.keys())
+        remove_bones_tree: Union[set[bpy.types.Bone], set[bpy.types.EditBone]] = set()
 
         for (
             bpy_bone_name,
@@ -253,7 +254,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(armature)
 
-        vrm0_bpy_bone_name_to_human_bone_specification: Dict[
+        vrm0_bpy_bone_name_to_human_bone_specification: dict[
             str, vrm0_human_bone.HumanBoneSpecification
         ] = {
             human_bone.node.bone_name: vrm0_human_bone.HumanBoneSpecifications.get(
@@ -273,7 +274,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         human_bone_name_to_human_bone = (
             ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
         )
-        vrm1_bpy_bone_name_to_human_bone_specification: Dict[
+        vrm1_bpy_bone_name_to_human_bone_specification: dict[
             str, vrm1_human_bone.HumanBoneSpecification
         ] = {
             human_bone.node.bone_name: vrm1_human_bone.HumanBoneSpecifications.get(

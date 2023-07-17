@@ -1,13 +1,13 @@
-from collections import abc
+from collections.abc import Iterable
 from sys import float_info
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 from .deep import Json, make_json
 
 
 def vrm_json_vector3_to_tuple(
     value: object,
-) -> Optional[Tuple[float, float, float]]:
+) -> Optional[tuple[float, float, float]]:
     if not isinstance(value, dict):
         return None
     x = value.get("x")
@@ -22,8 +22,8 @@ def vrm_json_vector3_to_tuple(
     return (float(x), float(y), float(z))
 
 
-def vrm_json_curve_to_list(curve: object) -> Optional[List[float]]:
-    if not isinstance(curve, abc.Iterable):
+def vrm_json_curve_to_list(curve: object) -> Optional[list[float]]:
+    if not isinstance(curve, Iterable):
         return None
     values = [float(v) if isinstance(v, (int, float)) else 0 for v in curve]
     while len(values) < 8:
@@ -33,8 +33,8 @@ def vrm_json_curve_to_list(curve: object) -> Optional[List[float]]:
     return values
 
 
-def vrm_json_array_to_float_vector(json: object, defaults: List[float]) -> List[float]:
-    if not isinstance(json, abc.Iterable) or isinstance(json, str):
+def vrm_json_array_to_float_vector(json: object, defaults: list[float]) -> list[float]:
+    if not isinstance(json, Iterable) or isinstance(json, str):
         return defaults
 
     input_values = list(json)
@@ -102,7 +102,7 @@ def mtoon_intensity_to_gi_equalization(gi_intensity_0x: float) -> float:
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L40-L46
 def get_shading_range_0x(
     shading_toony_0x: float, shading_shift_0x: float
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     range_min = shading_shift_0x
     range_max = (1 - shading_toony_0x) + shading_toony_0x * shading_shift_0x
     return (range_min, range_max)
@@ -125,11 +125,11 @@ def float_or(v: object, default: float) -> float:
 
 
 def float4_or(
-    v: object, default: Tuple[float, float, float, float]
-) -> Tuple[float, float, float, float]:
-    if not isinstance(v, abc.Iterable):
+    v: object, default: tuple[float, float, float, float]
+) -> tuple[float, float, float, float]:
+    if not isinstance(v, Iterable):
         return default
-    result: List[float] = []
+    result: list[float] = []
     for x in v:
         if len(result) == 4:
             return default
@@ -145,11 +145,11 @@ def float4_or(
 
 
 def float3_or(
-    v: object, default: Tuple[float, float, float]
-) -> Tuple[float, float, float]:
-    if not isinstance(v, abc.Iterable):
+    v: object, default: tuple[float, float, float]
+) -> tuple[float, float, float]:
+    if not isinstance(v, Iterable):
         return default
-    result: List[float] = []
+    result: list[float] = []
     for x in v:
         if len(result) == 3:
             return default
@@ -170,7 +170,7 @@ def str_or(v: object, default: str) -> str:
     return default
 
 
-def deep_dict_or(v: object, default: Dict[str, Json]) -> Dict[str, Json]:
+def deep_dict_or(v: object, default: dict[str, Json]) -> dict[str, Json]:
     d = make_json(v)
     if isinstance(d, dict):
         return d

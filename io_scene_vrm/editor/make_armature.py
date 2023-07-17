@@ -1,7 +1,7 @@
 import functools
 from math import radians
 from sys import float_info
-from typing import Dict, Optional, Set, Tuple
+from typing import Optional
 
 import bpy
 from mathutils import Matrix
@@ -113,7 +113,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
 
     armature_obj = None
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         if (
             context.view_layer.objects.active is not None
             and context.view_layer.objects.active.mode != "OBJECT"
@@ -141,7 +141,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
 
     def make_armature(
         self, context: bpy.types.Context
-    ) -> Tuple[bpy.types.Object, Dict[str, str]]:
+    ) -> tuple[bpy.types.Object, dict[str, str]]:
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
 
@@ -149,8 +149,8 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
 
         def bone_add(
             name: str,
-            head_pos: Tuple[float, float, float],
-            tail_pos: Tuple[float, float, float],
+            head_pos: tuple[float, float, float],
+            tail_pos: tuple[float, float, float],
             parent_bone: Optional[bpy.types.Bone] = None,
             radius: float = 0.1,
             roll: float = 0,
@@ -170,12 +170,12 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         # bone_type = "leg" or "arm" for roll setting
         def x_mirror_bones_add(
             base_name: str,
-            right_head_pos: Tuple[float, float, float],
-            right_tail_pos: Tuple[float, float, float],
-            parent_bones: Tuple[bpy.types.Bone, bpy.types.Bone],
+            right_head_pos: tuple[float, float, float],
+            right_tail_pos: tuple[float, float, float],
+            parent_bones: tuple[bpy.types.Bone, bpy.types.Bone],
             radius: float = 0.1,
             bone_type: str = "other",
-        ) -> Tuple[bpy.types.Bone, bpy.types.Bone]:
+        ) -> tuple[bpy.types.Bone, bpy.types.Bone]:
             right_roll = 0
             left_roll = 0
             if bone_type == "arm":
@@ -206,20 +206,20 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
             return left_bone, right_bone
 
         def x_add(
-            pos_a: Tuple[float, float, float], add_x: float
-        ) -> Tuple[float, float, float]:
+            pos_a: tuple[float, float, float], add_x: float
+        ) -> tuple[float, float, float]:
             pos = [p_a + _add for p_a, _add in zip(pos_a, [add_x, 0, 0])]
             return (pos[0], pos[1], pos[2])
 
         def y_add(
-            pos_a: Tuple[float, float, float], add_y: float
-        ) -> Tuple[float, float, float]:
+            pos_a: tuple[float, float, float], add_y: float
+        ) -> tuple[float, float, float]:
             pos = [p_a + _add for p_a, _add in zip(pos_a, [0, add_y, 0])]
             return (pos[0], pos[1], pos[2])
 
         def z_add(
-            pos_a: Tuple[float, float, float], add_z: float
-        ) -> Tuple[float, float, float]:
+            pos_a: tuple[float, float, float], add_z: float
+        ) -> tuple[float, float, float]:
             pos = [p_a + _add for p_a, _add in zip(pos_a, [0, 0, add_z])]
             return (pos[0], pos[1], pos[2])
 
@@ -374,12 +374,12 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
 
         def fingers(
             finger_name: str,
-            proximal_pos: Tuple[float, float, float],
+            proximal_pos: tuple[float, float, float],
             finger_len_sum: float,
-        ) -> Tuple[
-            Tuple[bpy.types.Bone, bpy.types.Bone],
-            Tuple[bpy.types.Bone, bpy.types.Bone],
-            Tuple[bpy.types.Bone, bpy.types.Bone],
+        ) -> tuple[
+            tuple[bpy.types.Bone, bpy.types.Bone],
+            tuple[bpy.types.Bone, bpy.types.Bone],
+            tuple[bpy.types.Bone, bpy.types.Bone],
         ]:
             finger_normalize = 1 / (
                 self.finger_1_2_ratio * self.finger_2_3_ratio
@@ -516,7 +516,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         return armature, bone_name_all_dict
 
     def setup_as_vrm(
-        self, armature: bpy.types.Object, compare_dict: Dict[str, str]
+        self, armature: bpy.types.Object, compare_dict: dict[str, str]
     ) -> None:
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         if not self.skip_heavy_armature_setup:

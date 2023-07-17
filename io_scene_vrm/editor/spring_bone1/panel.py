@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 import bpy
 
@@ -414,7 +414,7 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[mi
     @classmethod
     def active_armature_and_collider(
         cls, context: bpy.types.Context
-    ) -> Optional[Tuple[bpy.types.Object, SpringBone1ColliderPropertyGroup]]:
+    ) -> Optional[tuple[bpy.types.Object, SpringBone1ColliderPropertyGroup]]:
         if (
             not context.active_object
             or context.active_object.type != "EMPTY"

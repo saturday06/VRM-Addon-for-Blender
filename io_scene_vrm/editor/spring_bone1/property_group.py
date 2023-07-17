@@ -1,8 +1,7 @@
 import statistics
 import uuid
-from collections import abc
+from collections.abc import Iterable
 from sys import float_info
-from typing import Tuple
 
 import bpy
 from mathutils import Matrix, Vector
@@ -13,10 +12,10 @@ from ..property_group import BonePropertyGroup
 logger = get_logger(__name__)
 
 
-def to_tuple_3(v: object) -> Tuple[float, float, float]:
+def to_tuple_3(v: object) -> tuple[float, float, float]:
     if isinstance(v, Vector):
         return (v.x, v.y, v.z)
-    if not isinstance(v, abc.Iterable):
+    if not isinstance(v, Iterable):
         raise ValueError(f"{v} is not an iterable or mathutils.Vector")
     v = list(v)
     if len(v) != 3:
@@ -31,7 +30,7 @@ def to_tuple_3(v: object) -> Tuple[float, float, float]:
 class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def find_armature_and_collider(
         self,
-    ) -> Tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
+    ) -> tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
         for obj in bpy.data.objects:
             if obj.type != "ARMATURE":
                 continue
@@ -40,7 +39,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
                     return (obj, collider)
         raise ValueError("No armature")
 
-    def get_offset(self) -> Tuple[float, float, float]:
+    def get_offset(self) -> tuple[float, float, float]:
         armature, collider = self.find_armature_and_collider()
         if not collider.bpy_object:
             logger.error(f"Failed to get bpy object of {collider.name} in get_offset()")
@@ -115,7 +114,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
 class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     def find_armature_and_collider(
         self,
-    ) -> Tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
+    ) -> tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
         for obj in bpy.data.objects:
             if obj.type != "ARMATURE":
                 continue
@@ -124,7 +123,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
                     return (obj, collider)
         raise ValueError("No armature")
 
-    def get_offset(self) -> Tuple[float, float, float]:
+    def get_offset(self) -> tuple[float, float, float]:
         armature, collider = self.find_armature_and_collider()
         if not collider.bpy_object:
             logger.error(f"Failed to get bpy object of {collider.name} in get_offset()")
@@ -156,7 +155,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         )
         self.set_radius(backup_radius)
 
-    def get_tail(self) -> Tuple[float, float, float]:
+    def get_tail(self) -> tuple[float, float, float]:
         armature, collider = self.find_armature_and_collider()
         if not collider.bpy_object or not collider.bpy_object.children:
             logger.error(f"Failed to get bpy object of {collider.name} in get_tail()")

@@ -1,8 +1,6 @@
-from typing import Dict
-
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-mapping_template: Dict[str, HumanBoneSpecification] = {
+mapping_template: dict[str, HumanBoneSpecification] = {
     "Head": HumanBoneSpecifications.HEAD,
     "REye": HumanBoneSpecifications.RIGHT_EYE,
     "LEye": HumanBoneSpecifications.LEFT_EYE,
@@ -59,7 +57,7 @@ mapping_template: Dict[str, HumanBoneSpecification] = {
 }
 
 
-def prefixed_mapping(key_prefix: str) -> Dict[str, HumanBoneSpecification]:
+def prefixed_mapping(key_prefix: str) -> dict[str, HumanBoneSpecification]:
     return {key_prefix + k: v for k, v in mapping_template.items()}
 
 

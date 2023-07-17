@@ -1,4 +1,5 @@
-from typing import Callable, List, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional
 
 import bmesh
 import bpy
@@ -199,8 +200,8 @@ class IcypTemplateMeshMaker:
     def make_cube(
         self,
         bm: BMesh,
-        xyz: List[float],
-        translation: Optional[List[float]] = None,
+        xyz: list[float],
+        translation: Optional[list[float]] = None,
         rot_matrix: Optional[Matrix] = None,
     ) -> None:
         points = self.cubic_points(xyz, translation, rot_matrix)
@@ -209,7 +210,7 @@ class IcypTemplateMeshMaker:
             bm.faces.new([verts[i] for i in poly])
 
     def make_half_cube(
-        self, bm: BMesh, xyz: List[float], translation: List[float]
+        self, bm: BMesh, xyz: list[float], translation: list[float]
     ) -> None:
         points = self.half_cubic_points(xyz, translation)
         verts = [bm.verts.new(p) for p in points]
@@ -218,10 +219,10 @@ class IcypTemplateMeshMaker:
 
     def cubic_points(
         self,
-        xyz: List[float],
-        translation: Optional[List[float]] = None,
+        xyz: list[float],
+        translation: Optional[list[float]] = None,
         rot_matrix: Optional[Matrix] = None,
-    ) -> List[Vector]:
+    ) -> list[Vector]:
         if translation is None:
             translation = [0, 0, 0]
         if rot_matrix is None:
@@ -255,16 +256,16 @@ class IcypTemplateMeshMaker:
     ]
 
     def half_cubic_points(
-        self, xyz: List[float], translation: List[float]
-    ) -> Tuple[
-        Tuple[float, float, float],
-        Tuple[float, float, float],
-        Tuple[float, float, float],
-        Tuple[float, float, float],
-        Tuple[float, float, float],
-        Tuple[float, float, float],
-        Tuple[float, float, float],
-        Tuple[float, float, float],
+        self, xyz: list[float], translation: list[float]
+    ) -> tuple[
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
     ]:
         x = xyz[0]
         y = xyz[1]
@@ -294,8 +295,8 @@ class IcypTemplateMeshMaker:
     def make_half_trapezoid(
         self,
         bm: BMesh,
-        head_xz: List[float],
-        tail_xz: List[float],
+        head_xz: list[float],
+        tail_xz: list[float],
         height: float,
         matrix: Matrix,
     ) -> None:
@@ -306,11 +307,11 @@ class IcypTemplateMeshMaker:
 
     def half_trapezoid_points(
         self,
-        head_xz: List[float],
-        tail_xz: List[float],
+        head_xz: list[float],
+        tail_xz: list[float],
         height: float,
         matrix: Matrix,
-    ) -> List[Vector]:
+    ) -> list[Vector]:
         if matrix is None:
             matrix = Matrix.Identity(4)
         hx = head_xz[0]
@@ -341,10 +342,10 @@ class IcypTemplateMeshMaker:
     def make_trapezoid(
         self,
         bm: BMesh,
-        head_xz: List[float],
-        tail_xz: List[float],
+        head_xz: list[float],
+        tail_xz: list[float],
         height: float,
-        translation: Optional[List[float]] = None,
+        translation: Optional[list[float]] = None,
         rot_matrix: Optional[Matrix] = None,
     ) -> None:
         points = self.trapezoid_points(
@@ -357,12 +358,12 @@ class IcypTemplateMeshMaker:
     # 台形 軸方向高さ
     def trapezoid_points(
         self,
-        head_xz: List[float],
-        tail_xz: List[float],
+        head_xz: list[float],
+        tail_xz: list[float],
         height: float,
-        translation: Optional[List[float]] = None,
+        translation: Optional[list[float]] = None,
         rot_matrix: Optional[Matrix] = None,
-    ) -> List[Vector]:
+    ) -> list[Vector]:
         if translation is None:
             translation = [0, 0, 0]
         if rot_matrix is None:

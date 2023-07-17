@@ -1,7 +1,7 @@
 import contextlib
 from os import environ
 from pathlib import Path
-from typing import Set, Union, cast
+from typing import Union, cast
 
 import bpy
 from bpy.app.translations import pgettext
@@ -99,7 +99,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         default=True,
     )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         filepath = Path(self.filepath)
         if not filepath.is_file():
             return {"CANCELLED"}
@@ -123,7 +123,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
             import_anyway = True
 
         return cast(
-            Set[str],
+            set[str],
             bpy.ops.wm.vrm_license_warning(
                 execution_context,
                 import_anyway=import_anyway,
@@ -134,7 +134,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
             ),
         )
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
         preferences = get_preferences(context)
         (
             self.set_shading_type_to_material_on_import,
@@ -152,12 +152,12 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
             bpy.ops.import_scene
         ):
             return cast(
-                Set[str],
+                set[str],
                 bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
                     "INVOKE_DEFAULT",
                 ),
             )
-        return cast(Set[str], ImportHelper.invoke(self, context, event))
+        return cast(set[str], ImportHelper.invoke(self, context, event))
 
 
 class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc]
@@ -213,7 +213,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):  # type: ignore[misc]
     extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
     make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         filepath = Path(self.filepath)
         if not filepath.is_file():
             return {"CANCELLED"}
@@ -225,9 +225,9 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):  # type: ignore[misc]
             license_validation=False,
         )
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
         return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=600)
+            set[str], context.window_manager.invoke_props_dialog(self, width=600)
         )
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -266,7 +266,7 @@ def create_blend_model(
     addon: Union[IMPORT_SCENE_OT_vrm, WM_OT_vrm_license_confirmation],
     context: bpy.types.Context,
     license_validation: bool,
-) -> Set[str]:
+) -> set[str]:
     if not use_legacy_importer_exporter():
         with contextlib.suppress(RetryUsingLegacyVrmImporter):
             parse_result = VrmParser(

@@ -10,7 +10,7 @@ import json
 import math
 import uuid
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Optional, Sequence, Union
 
 import bpy
 from mathutils import Matrix, Vector
@@ -59,21 +59,21 @@ class AbstractBaseVrmImporter(ABC):
         self.extract_textures_into_folder = extract_textures_into_folder
         self.make_new_texture_folder = make_new_texture_folder
 
-        self.meshes: Dict[int, bpy.types.Object] = {}
-        self.images: Dict[int, bpy.types.Image] = {}
+        self.meshes: dict[int, bpy.types.Object] = {}
+        self.images: dict[int, bpy.types.Image] = {}
         self.armature: Optional[bpy.types.Object] = None
-        self.bone_names: Dict[int, str] = {}
-        self.materials: Dict[int, bpy.types.Material] = {}
-        self.primitive_obj_dict: Optional[Dict[Optional[int], List[float]]] = None
+        self.bone_names: dict[int, str] = {}
+        self.materials: dict[int, bpy.types.Material] = {}
+        self.primitive_obj_dict: Optional[dict[Optional[int], list[float]]] = None
         self.mesh_joined_objects = None
-        self.bone_child_object_world_matrices: Dict[str, Matrix] = {}
+        self.bone_child_object_world_matrices: dict[str, Matrix] = {}
 
     @abstractmethod
     def import_vrm(self) -> None:
         pass
 
     @staticmethod
-    def axis_glb_to_blender(vec3: Sequence[float]) -> List[float]:
+    def axis_glb_to_blender(vec3: Sequence[float]) -> list[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
     def save_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
@@ -133,7 +133,7 @@ class AbstractBaseVrmImporter(ABC):
         try:
             self.context.view_layer.objects.active = armature
 
-            bone_name_to_human_bone_name: Dict[str, HumanBoneName] = {}
+            bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
             for human_bone in human_bones:
                 if not human_bone.node.bone_name:
                     continue
@@ -376,7 +376,7 @@ class AbstractBaseVrmImporter(ABC):
         material: bpy.types.ShaderNode,
         color: Optional[Sequence[float]],
         socket_to_connect: bpy.types.NodeSocketColor,
-        default_color: Optional[List[float]] = None,
+        default_color: Optional[list[float]] = None,
     ) -> bpy.types.ShaderNodeRGB:
         rgb_node = material.node_tree.nodes.new("ShaderNodeRGB")
         rgb_node.label = socket_to_connect.name
@@ -445,7 +445,7 @@ class AbstractBaseVrmImporter(ABC):
     def connect_with_color_multiply_node(
         self,
         material: bpy.types.ShaderNode,
-        color: List[float],
+        color: list[float],
         tex_index: int,
         socket_to_connect: bpy.types.NodeSocketColor,
     ) -> bpy.types.ShaderNodeMixRGB:
@@ -531,7 +531,7 @@ class AbstractBaseVrmImporter(ABC):
         self,
         texture_info: Mtoon1TextureInfoPropertyGroup,
         texture_index: Optional[int],
-        uv_transform: Tuple[float, float, float, float],
+        uv_transform: tuple[float, float, float, float],
     ) -> None:
         if not self.assign_mtoon0_texture(texture_info.index, texture_index):
             return
@@ -1497,7 +1497,7 @@ class ICYP_OT_select_helper(bpy.types.Operator):  # type: ignore[misc]
 
     bpy.types.Scene.icyp_select_helper_select_list = []
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         bpy.ops.object.mode_set(mode="OBJECT")
         for vid in bpy.types.Scene.icyp_select_helper_select_list:
             context.active_object.data.vertices[vid].select = True

@@ -1,5 +1,3 @@
-from typing import Dict
-
 import bpy
 from bpy.app.translations import pgettext
 
@@ -27,8 +25,8 @@ def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
 def draw_roll_constraint_layout(
     layout: bpy.types.UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
-    object_constraints: Dict[str, bpy.types.CopyRotationConstraint],
-    bone_constraints: Dict[str, bpy.types.CopyRotationConstraint],
+    object_constraints: dict[str, bpy.types.CopyRotationConstraint],
+    bone_constraints: dict[str, bpy.types.CopyRotationConstraint],
 ) -> None:
     constraints_box = layout.box()
     constraints_row = constraints_box.row()
@@ -88,8 +86,8 @@ def draw_roll_constraint_layout(
 def draw_aim_constraint_layout(
     layout: bpy.types.UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
-    object_constraints: Dict[str, bpy.types.DampedTrackConstraint],
-    bone_constraints: Dict[str, bpy.types.DampedTrackConstraint],
+    object_constraints: dict[str, bpy.types.DampedTrackConstraint],
+    bone_constraints: dict[str, bpy.types.DampedTrackConstraint],
 ) -> None:
     constraints_box = layout.box()
     constraints_row = constraints_box.row()
@@ -145,8 +143,8 @@ def draw_aim_constraint_layout(
 def draw_rotation_constraint_layout(
     layout: bpy.types.UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
-    object_constraints: Dict[str, bpy.types.CopyRotationConstraint],
-    bone_constraints: Dict[str, bpy.types.CopyRotationConstraint],
+    object_constraints: dict[str, bpy.types.CopyRotationConstraint],
+    bone_constraints: dict[str, bpy.types.CopyRotationConstraint],
 ) -> None:
     constraints_box = layout.box()
     constraints_row = constraints_box.row()

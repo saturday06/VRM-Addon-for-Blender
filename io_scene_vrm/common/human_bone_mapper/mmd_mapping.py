@@ -1,5 +1,3 @@
-from typing import Dict, List, Tuple
-
 import bpy
 
 from ..logging import get_logger
@@ -7,8 +5,8 @@ from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
 logger = get_logger(__name__)
 
-mmd_bone_name_and_human_bone_specification_pairs: List[
-    Tuple[str, HumanBoneSpecification]
+mmd_bone_name_and_human_bone_specification_pairs: list[
+    tuple[str, HumanBoneSpecification]
 ] = [
     ("頭", HumanBoneSpecifications.HEAD),
     ("右目", HumanBoneSpecifications.RIGHT_EYE),
@@ -74,8 +72,8 @@ mmd_bone_name_and_human_bone_specification_pairs: List[
 
 def create_config(
     armature: bpy.types.Object,
-) -> Tuple[str, Dict[str, HumanBoneSpecification]]:
-    mmd_bone_name_to_bpy_bone_name: Dict[str, str] = {}
+) -> tuple[str, dict[str, HumanBoneSpecification]]:
+    mmd_bone_name_to_bpy_bone_name: dict[str, str] = {}
     for bone in armature.pose.bones:
         # https://github.com/UuuNyaa/blender_mmd_tools/blob/97861e3c32ba423833b6c5fc3432127b1ec1182a/mmd_tools/properties/__init__.py#L45-L46
         mmd_bone = getattr(bone, "mmd_bone", None)
@@ -89,7 +87,7 @@ def create_config(
 
         mmd_bone_name_to_bpy_bone_name[name_j] = bone.name
 
-    mapping: Dict[str, HumanBoneSpecification] = {}
+    mapping: dict[str, HumanBoneSpecification] = {}
     for (
         mmd_bone_name,
         human_bone_specification,

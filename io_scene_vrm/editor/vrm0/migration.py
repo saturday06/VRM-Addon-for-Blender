@@ -1,7 +1,6 @@
 import contextlib
 import json
 import uuid
-from typing import Dict, List
 
 import bpy
 
@@ -332,7 +331,7 @@ def migrate_vrm0_secondary_animation(
     bone_group_dicts: Json,
     armature: bpy.types.Object,
 ) -> None:
-    bone_name_to_collider_objects: Dict[str, List[bpy.types.Object]] = {}
+    bone_name_to_collider_objects: dict[str, list[bpy.types.Object]] = {}
     for collider_object in [
         child
         for child in armature.children

@@ -3,7 +3,7 @@ from importlib.util import module_from_spec, spec_from_file_location
 from os.path import getmtime
 from pathlib import Path
 from sys import float_info
-from typing import Optional, Tuple
+from typing import Optional
 
 import bpy
 
@@ -39,7 +39,7 @@ def trigger_clear_addon_version_cache() -> None:
     bpy.app.timers.register(clear_addon_version_cache, first_interval=0.5)
 
 
-def addon_version() -> Tuple[int, int, int]:
+def addon_version() -> tuple[int, int, int]:
     # To avoid circular reference call __import__() in the function local scope.
     v = __import__(".".join(__name__.split(".")[:-2])).bl_info.get("version")
     if (

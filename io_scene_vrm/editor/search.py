@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from sys import float_info
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import bpy
 from bpy.app.translations import pgettext
@@ -18,7 +18,7 @@ MESH_CONVERTIBLE_OBJECT_TYPES = [
 ]
 
 
-def export_materials(objects: List[bpy.types.Object]) -> List[bpy.types.Material]:
+def export_materials(objects: list[bpy.types.Object]) -> list[bpy.types.Material]:
     result = []
     for obj in objects:
         if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
@@ -70,8 +70,8 @@ def vrm_shader_node(material: bpy.types.Material) -> Optional[bpy.types.Node]:
 
 
 def shader_nodes_and_materials(
-    materials: List[bpy.types.Material],
-) -> List[Tuple[bpy.types.Node, bpy.types.Material]]:
+    materials: list[bpy.types.Material],
+) -> list[tuple[bpy.types.Node, bpy.types.Material]]:
     result = []
     for material in materials:
         node = vrm_shader_node(material)
@@ -83,11 +83,11 @@ def shader_nodes_and_materials(
 def object_distance(
     left: bpy.types.Object,
     right: bpy.types.Object,
-    collection_child_to_parent: Dict[
+    collection_child_to_parent: dict[
         bpy.types.Collection, Optional[bpy.types.Collection]
     ],
-) -> Tuple[int, int, int, int]:
-    left_collection_path: List[bpy.types.Collection] = []
+) -> tuple[int, int, int, int]:
+    left_collection_path: list[bpy.types.Collection] = []
     left_collections = [
         collection
         for collection in left.users_collection
@@ -99,7 +99,7 @@ def object_distance(
             left_collection_path.insert(0, left_collection)
             left_collection = collection_child_to_parent.get(left_collection)
 
-    right_collection_path: List[bpy.types.Collection] = []
+    right_collection_path: list[bpy.types.Collection] = []
     right_collections = [
         collection
         for collection in right.users_collection
@@ -119,12 +119,12 @@ def object_distance(
         left_collection_path.pop(0)
         right_collection_path.pop(0)
 
-    left_parent_path: List[bpy.types.Object] = []
+    left_parent_path: list[bpy.types.Object] = []
     while left:
         left_parent_path.insert(0, left)
         left = left.parent
 
-    right_parent_path: List[bpy.types.Object] = []
+    right_parent_path: list[bpy.types.Object] = []
     while right:
         right_parent_path.insert(0, right)
         right = right.parent
@@ -220,7 +220,7 @@ def current_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
     if not active_object:
         return objects[0]
 
-    collection_child_to_parent: Dict[
+    collection_child_to_parent: dict[
         bpy.types.Collection, Optional[bpy.types.Collection]
     ] = {context.scene.collection: None}
 
@@ -231,7 +231,7 @@ def current_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
             collections.append(child)
             collection_child_to_parent[child] = parent
 
-    min_distance: Optional[Tuple[int, int, int, int]] = None
+    min_distance: Optional[tuple[int, int, int, int]] = None
     nearest_object: Optional[bpy.types.Object] = None
     for obj in objects:
         distance = object_distance(active_object, obj, collection_child_to_parent)
@@ -247,7 +247,7 @@ def export_objects(
     export_invisibles: bool,
     export_only_selections: bool,
     armature_object_name: Optional[str],
-) -> List[bpy.types.Object]:
+) -> list[bpy.types.Object]:
     selected_objects = []
     if export_only_selections:
         selected_objects = list(context.selected_objects)
@@ -286,14 +286,14 @@ def export_objects(
 
 @dataclass(frozen=True)
 class ExportConstraint:
-    roll_constraints: Dict[str, bpy.types.CopyRotationConstraint]
-    aim_constraints: Dict[str, bpy.types.DampedTrackConstraint]
-    rotation_constraints: Dict[str, bpy.types.CopyRotationConstraint]
+    roll_constraints: dict[str, bpy.types.CopyRotationConstraint]
+    aim_constraints: dict[str, bpy.types.DampedTrackConstraint]
+    rotation_constraints: dict[str, bpy.types.CopyRotationConstraint]
 
 
 def is_roll_constraint(
     constraint: bpy.types.Constraint,
-    objs: List[bpy.types.Object],
+    objs: list[bpy.types.Object],
     armature: bpy.types.Object,
 ) -> bool:
     return (
@@ -318,7 +318,7 @@ def is_roll_constraint(
 
 def is_aim_constraint(
     constraint: bpy.types.Constraint,
-    objs: List[bpy.types.Object],
+    objs: list[bpy.types.Object],
     armature: bpy.types.Object,
 ) -> bool:
     return (
@@ -340,7 +340,7 @@ def is_aim_constraint(
 
 def is_rotation_constraint(
     constraint: bpy.types.Constraint,
-    objs: List[bpy.types.Object],
+    objs: list[bpy.types.Object],
     armature: bpy.types.Object,
 ) -> bool:
     return (
@@ -369,12 +369,12 @@ def is_rotation_constraint(
 
 
 def export_object_constraints(
-    objs: List[bpy.types.Object],
+    objs: list[bpy.types.Object],
     armature: bpy.types.Object,
 ) -> ExportConstraint:
-    roll_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
-    aim_constraints: Dict[str, bpy.types.DampedTrackConstraint] = {}
-    rotation_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
+    roll_constraints: dict[str, bpy.types.CopyRotationConstraint] = {}
+    aim_constraints: dict[str, bpy.types.DampedTrackConstraint] = {}
+    rotation_constraints: dict[str, bpy.types.CopyRotationConstraint] = {}
 
     for obj in objs:
         for constraint in obj.constraints:
@@ -396,12 +396,12 @@ def export_object_constraints(
 
 
 def export_bone_constraints(
-    objs: List[bpy.types.Object],
+    objs: list[bpy.types.Object],
     armature: bpy.types.Object,
 ) -> ExportConstraint:
-    roll_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
-    aim_constraints: Dict[str, bpy.types.DampedTrackConstraint] = {}
-    rotation_constraints: Dict[str, bpy.types.CopyRotationConstraint] = {}
+    roll_constraints: dict[str, bpy.types.CopyRotationConstraint] = {}
+    aim_constraints: dict[str, bpy.types.DampedTrackConstraint] = {}
+    rotation_constraints: dict[str, bpy.types.CopyRotationConstraint] = {}
 
     for bone in armature.pose.bones:
         for constraint in bone.constraints:
@@ -423,10 +423,10 @@ def export_bone_constraints(
 
 
 def export_constraints(
-    objs: List[bpy.types.Object],
+    objs: list[bpy.types.Object],
     armature: bpy.types.Object,
-) -> Tuple[ExportConstraint, ExportConstraint, List[str]]:
-    messages: List[str] = []
+) -> tuple[ExportConstraint, ExportConstraint, list[str]]:
+    messages: list[str] = []
     object_constraints = export_object_constraints(objs, armature)
     bone_constraints = export_bone_constraints(objs, armature)
 
@@ -436,7 +436,7 @@ def export_constraints(
     all_rotation_constraints = list(
         object_constraints.rotation_constraints.values()
     ) + list(bone_constraints.rotation_constraints.values())
-    all_constraints: List[bpy.types.CopyRotationConstraint] = (
+    all_constraints: list[bpy.types.CopyRotationConstraint] = (
         all_roll_constraints
         + all_rotation_constraints
         # TODO: Aim Constraint's circular dependency detection
@@ -444,7 +444,7 @@ def export_constraints(
         # + list(bone_constraints.aim_constraints.values())
     )
 
-    excluded_constraints: List[
+    excluded_constraints: list[
         Union[
             bpy.types.CopyRotationConstraint,
             bpy.types.DampedTrackConstraint,

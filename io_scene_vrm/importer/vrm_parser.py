@@ -9,10 +9,11 @@ import contextlib
 import re
 import sys
 import tempfile
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from itertools import repeat
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Optional, Union
 
 import bpy
 from bpy.app.translations import pgettext
@@ -37,17 +38,17 @@ logger = get_logger(__name__)
 class PyMesh:
     object_id: int
     name: str = ""
-    face_indices: List[List[int]] = field(default_factory=list)
+    face_indices: list[list[int]] = field(default_factory=list)
     skin_id: Optional[int] = None
     material_index: int = 0
     POSITION_accessor: Optional[int] = None
-    POSITION: Optional[List[List[float]]] = None
-    JOINTS_0: Optional[List[List[int]]] = None
-    WEIGHTS_0: Optional[List[List[float]]] = None
-    NORMAL: Optional[List[List[float]]] = None
+    POSITION: Optional[list[list[float]]] = None
+    JOINTS_0: Optional[list[list[int]]] = None
+    WEIGHTS_0: Optional[list[list[float]]] = None
+    NORMAL: Optional[list[list[float]]] = None
     vert_normal_normalized: Optional[bool] = None
     morph_target_point_list_and_accessor_index_dict: Optional[
-        Dict[str, List[object]]
+        dict[str, list[object]]
     ] = None
     has_FB_ngon_encoding: bool = False  # noqa: N815
 
@@ -58,7 +59,7 @@ class PyNode:
     position: Sequence[float]
     rotation: Sequence[float]
     scale: Sequence[float]
-    children: Optional[List[int]] = None
+    children: Optional[list[int]] = None
     blend_bone: Optional[bpy.types.Bone] = None
     mesh_id: Optional[int] = None
     skin_id: Optional[int] = None
@@ -69,11 +70,11 @@ class Vrm0MaterialProperty:
     name: str
     shader: str
     render_queue: Optional[int]
-    keyword_map: Dict[str, bool]
-    tag_map: Dict[str, str]
-    float_properties: Dict[str, float]
-    vector_properties: Dict[str, List[float]]
-    texture_properties: Dict[str, int]
+    keyword_map: dict[str, bool]
+    tag_map: dict[str, str]
+    float_properties: dict[str, float]
+    vector_properties: dict[str, list[float]]
+    texture_properties: dict[str, int]
 
     @staticmethod
     def create(json_dict: Json) -> "Vrm0MaterialProperty":
@@ -128,11 +129,11 @@ class Vrm0MaterialProperty:
 
         raw_vector_properties = json_dict.get("vectorProperties")
         if isinstance(raw_vector_properties, dict):
-            vector_properties: Dict[str, List[float]] = {}
+            vector_properties: dict[str, list[float]] = {}
             for k, v in raw_vector_properties.items():
                 if not isinstance(v, list):
                     continue
-                float_v: List[float] = []
+                float_v: list[float] = []
                 ok = True
                 for e in v:
                     if not isinstance(e, (float, int)):
@@ -174,27 +175,27 @@ class ImageProperties:
 @dataclass
 class ParseResult:
     filepath: Path
-    json_dict: Dict[str, Json] = field(default_factory=dict)
-    spec_version_number: Tuple[int, int] = (0, 0)
+    json_dict: dict[str, Json] = field(default_factory=dict)
+    spec_version_number: tuple[int, int] = (0, 0)
     spec_version_str: str = "0.0"
     spec_version_is_stable: bool = True
-    vrm0_extension: Dict[str, Json] = field(init=False, default_factory=dict)
-    vrm1_extension: Dict[str, Json] = field(init=False, default_factory=dict)
+    vrm0_extension: dict[str, Json] = field(init=False, default_factory=dict)
+    vrm1_extension: dict[str, Json] = field(init=False, default_factory=dict)
     hips_node_index: Optional[int] = None
-    image_properties: List[ImageProperties] = field(init=False, default_factory=list)
-    meshes: List[List[PyMesh]] = field(init=False, default_factory=list)
-    vrm0_material_properties: List[Vrm0MaterialProperty] = field(
+    image_properties: list[ImageProperties] = field(init=False, default_factory=list)
+    meshes: list[list[PyMesh]] = field(init=False, default_factory=list)
+    vrm0_material_properties: list[Vrm0MaterialProperty] = field(
         init=False, default_factory=list
     )
-    nodes_dict: Dict[int, PyNode] = field(init=False, default_factory=dict)
-    origin_nodes_dict: Dict[
-        int, Union[Tuple[PyNode, int], Tuple[PyNode, int, int]]
+    nodes_dict: dict[int, PyNode] = field(init=False, default_factory=dict)
+    origin_nodes_dict: dict[
+        int, Union[tuple[PyNode, int], tuple[PyNode, int, int]]
     ] = field(init=False, default_factory=dict)
-    skins_joints_list: List[List[int]] = field(init=False, default_factory=list)
-    skins_root_node_list: List[int] = field(init=False, default_factory=list)
+    skins_joints_list: list[list[int]] = field(init=False, default_factory=list)
+    skins_root_node_list: list[int] = field(init=False, default_factory=list)
 
 
-def create_py_bone(node: Dict[str, Json]) -> PyNode:
+def create_py_bone(node: dict[str, Json]) -> PyNode:
     v_node = PyNode(
         name=str_or(node.get("name"), "tmp"),
         position=float3_or(node.get("translation"), (0, 0, 0)),
@@ -274,11 +275,11 @@ def remove_unsafe_path_chars(filename: str) -> str:
 
 #  "accessorの順に" データを読み込んでリストにしたものを返す
 def decode_bin(
-    json_dict: Dict[str, Json], binary: bytes
-) -> List[List[Union[int, float, List[int], List[float]]]]:
+    json_dict: dict[str, Json], binary: bytes
+) -> list[list[Union[int, float, list[int], list[float]]]]:
     br = BinaryReader(binary)
     # This list indexed by accessor index
-    decoded_binary: List[List[Union[int, float, List[int], List[float]]]] = []
+    decoded_binary: list[list[Union[int, float, list[int], list[float]]]] = []
     buffer_view_dicts = json_dict.get("bufferViews")
     if not isinstance(buffer_view_dicts, list):
         buffer_view_dicts = []
@@ -310,7 +311,7 @@ def decode_bin(
         if not isinstance(buffer_view_byte_offset, int):
             buffer_view_byte_offset = 0
         br.set_pos(buffer_view_byte_offset)
-        data_list: List[Union[int, float, List[int], List[float]]] = []
+        data_list: list[Union[int, float, list[int], list[float]]] = []
         accessor_count = accessor_dict.get("count")
         if not isinstance(accessor_count, int):
             accessor_count = 0
@@ -338,10 +339,10 @@ class VrmParser:
     make_new_texture_folder: bool
     license_validation: bool
     legacy_importer: bool
-    decoded_binary: List[List[Union[int, float, List[int], List[float]]]] = field(
+    decoded_binary: list[list[Union[int, float, list[int], list[float]]]] = field(
         init=False, default_factory=list
     )
-    json_dict: Dict[str, Json] = field(init=False, default_factory=dict)
+    json_dict: dict[str, Json] = field(init=False, default_factory=dict)
 
     def parse(self) -> ParseResult:
         # bin chunkは一つだけであることを期待
@@ -386,7 +387,7 @@ class VrmParser:
             self.vrm0_extension_read(parse_result, vrm0_dict)
 
     def vrm0_extension_read(
-        self, parse_result: ParseResult, vrm0_dict: Dict[str, Json]
+        self, parse_result: ParseResult, vrm0_dict: dict[str, Json]
     ) -> None:
         spec_version = vrm0_dict.get("specVersion")
         if isinstance(spec_version, str):
@@ -411,7 +412,7 @@ class VrmParser:
         parse_result.hips_node_index = hips_node_index
 
     def vrm1_extension_read(
-        self, parse_result: ParseResult, vrm1_dict: Dict[str, Json]
+        self, parse_result: ParseResult, vrm1_dict: dict[str, Json]
     ) -> None:
         parse_result.vrm1_extension = vrm1_dict
         parse_result.spec_version_number = (1, 0)

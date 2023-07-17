@@ -1,7 +1,7 @@
 import math
 from dataclasses import dataclass
 from sys import float_info
-from typing import Optional, Set, Tuple, cast
+from typing import Optional, cast
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
@@ -38,7 +38,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
         options={"HIDDEN"}  # noqa: F821
     )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         material = bpy.data.materials.get(self.material_name)
         if not isinstance(material, bpy.types.Material):
             return {"CANCELLED"}
@@ -48,9 +48,9 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
     @staticmethod
     def assign_mtoon_unversioned_image(
         texture_info: Mtoon1TextureInfoPropertyGroup,
-        image_name_and_sampler_type: Optional[Tuple[str, int, int]],
-        uv_offset: Tuple[float, float],
-        uv_scale: Tuple[float, float],
+        image_name_and_sampler_type: Optional[tuple[str, int, int]],
+        uv_offset: tuple[float, float],
+        uv_scale: tuple[float, float],
     ) -> None:
         texture_info.extensions.khr_texture_transform.offset = uv_offset
         texture_info.extensions.khr_texture_transform.scale = uv_scale
@@ -404,7 +404,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):  # type: ign
         options={"HIDDEN"}  # noqa: F821
     )
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> set[str]:
         material = bpy.data.materials.get(self.material_name)
         if not isinstance(material, bpy.types.Material):
             return {"CANCELLED"}
@@ -432,7 +432,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):  # type
         options={"HIDDEN"}  # noqa: F821
     )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         material = bpy.data.materials.get(self.material_name)
         if not isinstance(material, bpy.types.Material):
             return {"CANCELLED"}
@@ -504,7 +504,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         name="Target Texture",  # noqa: F722
     )
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> set[str]:
         filepath = self.filepath
         if not isinstance(filepath, str):
             return {"CANCELLED"}
@@ -544,9 +544,9 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
         return {"CANCELLED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
         self.filepath = ""
-        return cast(Set[str], ImportHelper.invoke(self, context, event))
+        return cast(set[str], ImportHelper.invoke(self, context, event))
 
 
 @dataclass(frozen=True)
@@ -832,6 +832,6 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                     continue
                 obj.modifiers.remove(search_modifier)
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         self.refresh(context, self.material_name)
         return {"FINISHED"}

@@ -1,7 +1,7 @@
 import itertools
 import sys
+from collections.abc import Callable, Sequence
 from math import radians, sqrt
-from typing import Callable, Dict, List, Sequence, Set, Tuple
 
 import bpy
 from mathutils import Matrix, Vector
@@ -61,8 +61,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         self.context.scene.collection.objects.link(self.armature)
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
-        bones: Dict[int, bpy.types.Bone] = {}
-        armature_edit_bones: Dict[int, bpy.types.Bone] = {}
+        bones: dict[int, bpy.types.Bone] = {}
+        armature_edit_bones: dict[int, bpy.types.Bone] = {}
 
         # bone recursive func
         def bone_chain(node_id: int, parent_node_id: int) -> None:
@@ -95,7 +95,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             )
 
             # temporary tail pos(glTF doesn't have bone. there defines as joints )
-            def vector_length(bone_vector: List[float]) -> float:
+            def vector_length(bone_vector: list[float]) -> float:
                 return sqrt(
                     pow(bone_vector[0], 2)
                     + pow(bone_vector[1], 2)
@@ -166,7 +166,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                     root_nodes.append(node)
 
         # generate edit_bones sorted by node_id for deterministic vrm output
-        def find_connected_node_ids(parent_node_ids: Sequence[int]) -> Set[int]:
+        def find_connected_node_ids(parent_node_ids: Sequence[int]) -> set[int]:
             node_ids = set(parent_node_ids)
             for parent_node_id in parent_node_ids:
                 py_bone = self.parse_result.nodes_dict[parent_node_id]
@@ -202,8 +202,8 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         self.primitive_obj_dict = {
             pymesh[0].object_id: [] for pymesh in self.parse_result.meshes
         }
-        morph_cache_dict: Dict[
-            Tuple[int, int], List[List[float]]
+        morph_cache_dict: dict[
+            tuple[int, int], list[list[float]]
         ] = {}  # key:tuple(POSITION,targets.POSITION),value:points_data
         # mesh_obj_build
         mesh_progress = 0.0
@@ -297,7 +297,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                 for prim in pymesh:
                     if prim.JOINTS_0 is not None and prim.WEIGHTS_0 is not None:
                         # 使うkey(bone名)のvalueを空のリストで初期化(中身まで全部内包表記で?キモすぎるからしない。
-                        vg_dict: Dict[str, List[Tuple[int, float]]] = {
+                        vg_dict: dict[str, list[tuple[int, float]]] = {
                             self.parse_result.nodes_dict[
                                 nodes_index_list[joint_id]
                             ].name: []
@@ -315,11 +315,11 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
                             # for deterministic export
                             def sort_by_vg_dict_key(
-                                sort_data: Tuple[
+                                sort_data: tuple[
                                     int,
-                                    List[int],
-                                    List[int],
-                                    Dict[str, List[Tuple[int, float]]],
+                                    list[int],
+                                    list[int],
+                                    dict[str, list[tuple[int, float]]],
                                 ]
                             ) -> int:
                                 (
@@ -337,7 +337,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                                 return len(keys) + sort_joint_ids.index(sort_joint_id)
 
                             get_first_element: Callable[
-                                [Tuple[int, object, object, object]], int
+                                [tuple[int, object, object, object]], int
                             ] = lambda input: input[0]
                             sorted_joint_ids = map(
                                 get_first_element,
@@ -352,7 +352,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                                 ),
                             )
 
-                            normalized_joint_dict: Dict[int, float] = {
+                            normalized_joint_dict: dict[int, float] = {
                                 joint_id: 0 for joint_id in sorted_joint_ids
                             }
 
@@ -481,10 +481,10 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             # shape_key
             # shapekey_data_factory with cache
             def absolutize_morph_positions(
-                base_points: List[List[float]],
-                morph_target_pos_and_index: List[object],
+                base_points: list[list[float]],
+                morph_target_pos_and_index: list[object],
                 prim: PyMesh,
-            ) -> List[List[float]]:
+            ) -> list[list[float]]:
                 shape_key_positions = []
                 morph_target_pos = morph_target_pos_and_index[0]
                 morph_target_index = morph_target_pos_and_index[1]

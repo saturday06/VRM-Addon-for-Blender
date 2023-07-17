@@ -1,6 +1,6 @@
 import math
 import sys
-from typing import List, Sequence
+from collections.abc import Sequence
 
 import bpy
 from mathutils import Euler, Quaternion
@@ -12,7 +12,7 @@ addon_version = version.addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
 
 
-def get_test_command_args() -> List[List[str]]:
+def get_test_command_args() -> list[list[str]]:
     return [[key.__name__] for key in FUNCTIONS]
 
 

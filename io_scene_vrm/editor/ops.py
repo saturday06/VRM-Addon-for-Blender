@@ -8,7 +8,7 @@ import json
 import re
 import webbrowser
 from pathlib import Path
-from typing import Set, cast
+from typing import cast
 from urllib.parse import urlparse
 
 import bpy
@@ -39,7 +39,7 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc]
             map(VRM_OT_simplify_vroid_bones.full__pattern.match, armature.bones.keys())
         )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -78,7 +78,7 @@ class VRM_OT_add_extensions_to_armature(bpy.types.Operator):  # type: ignore[mis
     bl_description = "Add VRM extensions & metas to armature"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         ICYP_OT_make_armature.make_extension_setting_and_metas(context.active_object)
         return {"FINISHED"}
 
@@ -93,7 +93,7 @@ class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):  # type: ignore
     armature_name: bpy.props.StringProperty()  # type: ignore[valid-type]
     bone_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> set[str]:
         if self.armature_name not in bpy.data.armatures:
             return {"CANCELLED"}
         armature = bpy.data.armatures[self.armature_name]
@@ -109,7 +109,7 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # typ
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         armature = bpy.data.armatures[context.active_object.data.name]
         for bone_name in HumanBoneSpecifications.required_names:
             if bone_name not in armature:
@@ -124,7 +124,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         armature = bpy.data.armatures[context.active_object.data.name]
         for bone_name in HumanBoneSpecifications.optional_names:
             if bone_name not in armature:
@@ -147,7 +147,7 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
     def poll(cls, context: bpy.types.Context) -> bool:
         return search.armature_exists(context)
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         armature = search.current_armature(context)
         if not armature:
             return {"CANCELLED"}
@@ -167,8 +167,8 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
         )
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        return cast(Set[str], ExportHelper.invoke(self, context, event))
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+        return cast(set[str], ExportHelper.invoke(self, context, event))
 
 
 class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
@@ -186,7 +186,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
     def poll(cls, context: bpy.types.Context) -> bool:
         return search.armature_exists(context)
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         armature = search.current_armature(context)
         if not armature:
             return {"CANCELLED"}
@@ -218,8 +218,8 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
 
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> Set[str]:
-        return cast(Set[str], ImportHelper.invoke(self, context, event))
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+        return cast(set[str], ImportHelper.invoke(self, context, event))
 
 
 class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ignore[misc]
@@ -238,7 +238,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
             and obj.data.shape_keys.key_blocks
         )
 
-    def execute(self, context: bpy.types.Context) -> Set[str]:
+    def execute(self, context: bpy.types.Context) -> set[str]:
         recipe = json.loads(
             Path(__file__)
             .with_name("vroid2vrc_lipsync_recipe.json")
@@ -286,7 +286,7 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):  # type: ignore[misc]
             return False
         return True
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> set[str]:
         url = self.url
         if not isinstance(url, str):
             return {"CANCELLED"}

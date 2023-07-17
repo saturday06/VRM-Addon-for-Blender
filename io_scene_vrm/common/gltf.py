@@ -1,6 +1,6 @@
 import json
 import struct
-from typing import Dict, Optional, Tuple
+from typing import Optional
 
 from .binary_reader import BinaryReader
 from .deep import Json
@@ -19,7 +19,7 @@ VAL_INPUT_NAMES = ["metallic", "roughness", "unlit"]
 RGBA_INPUT_NAMES = ["base_Color", "emissive_color"]
 
 
-def parse_glb(data: bytes) -> Tuple[Dict[str, Json], bytes]:
+def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
     reader = BinaryReader(data)
     magic = reader.read_str(4)
     if magic != "glTF":
@@ -69,7 +69,7 @@ def parse_glb(data: bytes) -> Tuple[Dict[str, Json], bytes]:
     return json_obj, body if body else bytes()
 
 
-def pack_glb(json_dict: Dict[str, Json], binary_chunk: bytes) -> bytes:
+def pack_glb(json_dict: dict[str, Json], binary_chunk: bytes) -> bytes:
     magic = b"glTF" + struct.pack("<I", 2)
     json_str = json.dumps(json_dict).encode("utf-8")
     if len(json_str) % 4 != 0:

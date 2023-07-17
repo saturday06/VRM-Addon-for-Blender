@@ -1,6 +1,6 @@
 import secrets
 import string
-from collections import abc
+from collections.abc import Sequence
 from typing import Optional
 
 import bpy
@@ -39,7 +39,7 @@ class Gltf2AddonImporterUserExtension:
             return
 
         images = getattr(getattr(gltf_importer, "data", None), "images", None)
-        if not isinstance(images, abc.Sequence):
+        if not isinstance(images, Sequence):
             logger.warning(
                 f"gather_import_image_after_hook: gltf_importer is unexpected structure: {gltf_importer}"
             )

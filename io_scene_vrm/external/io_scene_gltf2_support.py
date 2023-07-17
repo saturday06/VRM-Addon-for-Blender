@@ -1,6 +1,6 @@
 import datetime
 import importlib
-from typing import Dict, Set, Tuple, cast
+from typing import cast
 
 import bpy
 
@@ -15,12 +15,12 @@ class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ig
     bl_idname = "wm.vrm_gltf2_addon_disabled_warning"
     bl_options = {"REGISTER"}
 
-    def execute(self, _context: bpy.types.Context) -> Set[str]:
+    def execute(self, _context: bpy.types.Context) -> set[str]:
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> Set[str]:
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
         return cast(
-            Set[str], context.window_manager.invoke_props_dialog(self, width=500)
+            set[str], context.window_manager.invoke_props_dialog(self, width=500)
         )
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -30,8 +30,8 @@ class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ig
 
 
 def image_to_image_bytes(
-    image: bpy.types.Image, export_settings: Dict[str, object]
-) -> Tuple[bytes, str]:
+    image: bpy.types.Image, export_settings: dict[str, object]
+) -> tuple[bytes, str]:
     if bpy.app.version < (3, 6, 0):
         gltf2_blender_image = importlib.import_module(
             "io_scene_gltf2.blender.exp.gltf2_blender_image"
@@ -76,7 +76,7 @@ def init_extras_export() -> None:
         gltf2_blender_extras.BLACK_LIST.append(key)
 
 
-def create_export_settings() -> Dict[str, object]:
+def create_export_settings() -> dict[str, object]:
     return {
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L522
         "timestamp": datetime.datetime.now(datetime.timezone.utc),
