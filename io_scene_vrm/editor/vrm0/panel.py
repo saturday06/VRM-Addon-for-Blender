@@ -242,7 +242,7 @@ def draw_vrm0_humanoid_optional_bones_layout(
     column = row.column(align=True)
     column.label(text="", translate=False)
     bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_THUMB_PROXIMAL, icon, humanoid
+        column, HumanBoneSpecifications.LEFT_THUMB_INTERMEDIATE, icon, humanoid
     )
     bone_prop_search(
         column, HumanBoneSpecifications.LEFT_INDEX_INTERMEDIATE, icon, humanoid
@@ -258,7 +258,7 @@ def draw_vrm0_humanoid_optional_bones_layout(
     )
     column.separator()
     bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_THUMB_PROXIMAL, icon, humanoid
+        column, HumanBoneSpecifications.RIGHT_THUMB_INTERMEDIATE, icon, humanoid
     )
     bone_prop_search(
         column, HumanBoneSpecifications.RIGHT_INDEX_INTERMEDIATE, icon, humanoid
@@ -275,17 +275,13 @@ def draw_vrm0_humanoid_optional_bones_layout(
 
     column = row.column(align=True)
     column.label(text="Tip")
-    bone_prop_search(
-        column, HumanBoneSpecifications.LEFT_THUMB_INTERMEDIATE, icon, humanoid
-    )
+    bone_prop_search(column, HumanBoneSpecifications.LEFT_THUMB_DISTAL, icon, humanoid)
     bone_prop_search(column, HumanBoneSpecifications.LEFT_INDEX_DISTAL, icon, humanoid)
     bone_prop_search(column, HumanBoneSpecifications.LEFT_MIDDLE_DISTAL, icon, humanoid)
     bone_prop_search(column, HumanBoneSpecifications.LEFT_RING_DISTAL, icon, humanoid)
     bone_prop_search(column, HumanBoneSpecifications.LEFT_LITTLE_DISTAL, icon, humanoid)
     column.separator()
-    bone_prop_search(
-        column, HumanBoneSpecifications.RIGHT_THUMB_INTERMEDIATE, icon, humanoid
-    )
+    bone_prop_search(column, HumanBoneSpecifications.RIGHT_THUMB_DISTAL, icon, humanoid)
     bone_prop_search(column, HumanBoneSpecifications.RIGHT_INDEX_DISTAL, icon, humanoid)
     bone_prop_search(
         column, HumanBoneSpecifications.RIGHT_MIDDLE_DISTAL, icon, humanoid
