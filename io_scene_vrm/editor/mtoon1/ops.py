@@ -565,6 +565,7 @@ class NodesModifierInputKey:
     outline_width_multiply_texture_uv_scale_y_key: str
     extrude_mesh_individual_key: str
     object_key: str
+    enabled_key: str
 
     def outline_width_multiply_texture_uv_use_attribute_key(self) -> str:
         return self.outline_width_multiply_texture_uv_key + "_use_attribute"
@@ -576,7 +577,7 @@ class NodesModifierInputKey:
 def get_nodes_modifier_input_key(
     modifier: bpy.types.Modifier,
 ) -> Optional[NodesModifierInputKey]:
-    keys_len = 14
+    keys_len = 15
     keys = [i.identifier for i in modifier.node_group.inputs]
     if len(keys) < keys_len:
         return None
@@ -763,6 +764,11 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                 ),
             ),
             (input_key.object_key, obj),
+            (
+                input_key.enabled_key,
+                obj.mode
+                not in ["VERTEX_PAINT", "TEXTURE_PAINT", "WEIGHT_PAINT", "SCULPT"],
+            ),
         ]:
             if modifier.get(k) != v:
                 modifier[k] = v
@@ -777,6 +783,23 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             reset_shader_node_group(
                 context, material, reset_node_tree=False, overwrite=False
             )
+
+    @staticmethod
+    def refresh_object(context: bpy.types.Context, obj: bpy.types.Object) -> None:
+        if bpy.app.version < (3, 3):
+            return
+        for material_slot in obj.material_slots:
+            if not material_slot.material:
+                continue
+            material = context.blend_data.materials.get(material_slot.material.name)
+            if not material:
+                continue
+            if not material.vrm_addon_extension.mtoon1.enabled:
+                continue
+            if material.vrm_addon_extension.mtoon1.is_outline_material:
+                continue
+
+            VRM_OT_refresh_mtoon1_outline.assign(context, material, obj)
 
     @staticmethod
     def refresh(

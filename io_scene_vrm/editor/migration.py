@@ -9,6 +9,7 @@ from .extension import (
     VrmAddonSceneExtensionPropertyGroup,
 )
 from .mtoon1 import migration as mtoon1_migration
+from .mtoon1 import ops as mtoon1_ops
 from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
@@ -86,6 +87,7 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
 
 
 object_name_subscription_owner = object()
+object_mode_subscription_owner = object()
 bone_name_subscription_owner = object()
 armature_name_subscription_owner = object()
 setup_once: list[bool] = []  # mutableにするためlistを使う
@@ -105,6 +107,14 @@ def on_change_bpy_object_name() -> None:
         # FIXME: Needs optimization!
         for collider in ext.spring_bone1.colliders:
             collider.broadcast_bpy_object_name()
+
+
+def on_change_bpy_object_mode() -> None:
+    context = bpy.context
+    active_object = context.active_object
+    if not active_object:
+        return
+    mtoon1_ops.VRM_OT_refresh_mtoon1_outline.refresh_object(context, active_object)
 
 
 def on_change_bpy_bone_name() -> None:
@@ -142,6 +152,14 @@ def setup_subscription(load_post: bool) -> None:
         owner=object_name_subscription_owner,
         args=(),
         notify=on_change_bpy_object_name,
+    )
+
+    object_mode_subscribe_to = (bpy.types.Object, "mode")
+    bpy.msgbus.subscribe_rna(
+        key=object_mode_subscribe_to,
+        owner=object_mode_subscription_owner,
+        args=(),
+        notify=on_change_bpy_object_mode,
     )
 
     bone_name_subscribe_to = (bpy.types.Bone, "name")
