@@ -1566,13 +1566,31 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             return False
 
         group_node = material.node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
-        if not isinstance(group_node, bpy.types.ShaderNodeGroup):
+        if (
+            isinstance(group_node, bpy.types.ShaderNodeGroup)
+            and group_node.node_tree
+            and group_node.node_tree.name == shader.OUTPUT_GROUP_NAME
+        ):
+            return bool(self.get("enabled"))
+
+        surface_node_name = self.get_node_name("MaterialOutputSurfaceIn")
+        surface_node = material.node_tree.nodes.get(surface_node_name)
+        if not isinstance(surface_node, bpy.types.NodeReroute):
+            # logger.warning(f'No node reroute "{surface_node_name}"')
             return False
 
-        if not group_node.node_tree:
-            return False
-
-        if group_node.node_tree.name != shader.OUTPUT_GROUP_NAME:
+        connected = False
+        surface_socket = surface_node.outputs[0]
+        for link in material.node_tree.links:
+            if (
+                link.from_socket == surface_socket
+                and link.to_socket
+                and link.to_socket.node
+                and link.to_socket.node.type == "OUTPUT_MATERIAL"
+            ):
+                connected = True
+                break
+        if not connected:
             return False
 
         return bool(self.get("enabled"))
