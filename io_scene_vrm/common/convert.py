@@ -124,44 +124,52 @@ def float_or(v: object, default: float) -> float:
     return default
 
 
-def float4_or(
-    v: object, default: tuple[float, float, float, float]
-) -> tuple[float, float, float, float]:
+def float4_or_none(v: object) -> Optional[tuple[float, float, float, float]]:
     if not isinstance(v, Iterable):
-        return default
+        return None
     result: list[float] = []
     for x in v:
         if len(result) == 4:
-            return default
+            return None
         if isinstance(x, float):
             result.append(x)
         elif isinstance(x, int):
             result.append(float(x))
         else:
-            return default
+            return None
     if len(result) != 4:
-        return default
+        return None
     return (result[0], result[1], result[2], result[3])
+
+
+def float4_or(
+    v: object, default: tuple[float, float, float, float]
+) -> tuple[float, float, float, float]:
+    return float4_or_none(v) or default
+
+
+def float3_or_none(v: object) -> Optional[tuple[float, float, float]]:
+    if not isinstance(v, Iterable):
+        return None
+    result: list[float] = []
+    for x in v:
+        if len(result) == 3:
+            return None
+        if isinstance(x, float):
+            result.append(x)
+        elif isinstance(x, int):
+            result.append(float(x))
+        else:
+            return None
+    if len(result) != 3:
+        return None
+    return (result[0], result[1], result[2])
 
 
 def float3_or(
     v: object, default: tuple[float, float, float]
 ) -> tuple[float, float, float]:
-    if not isinstance(v, Iterable):
-        return default
-    result: list[float] = []
-    for x in v:
-        if len(result) == 3:
-            return default
-        if isinstance(x, float):
-            result.append(x)
-        elif isinstance(x, int):
-            result.append(float(x))
-        else:
-            return default
-    if len(result) != 3:
-        return default
-    return (result[0], result[1], result[2])
+    return float3_or_none(v) or default
 
 
 def str_or(v: object, default: str) -> str:

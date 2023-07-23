@@ -2223,19 +2223,20 @@ def get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
         )
 
     location_matrix = Matrix()
-    location = node_dict.get("translation")
-    if isinstance(location, list) and len(location) == 3:
+    location = convert.float3_or_none(node_dict.get("translation"))
+    if location:
         location_matrix = Matrix.Translation(location)
 
     rotation_matrix = Matrix()
-    rotation = node_dict.get("rotation")
-    if isinstance(rotation, list) and len(rotation) == 4:
-        quaternion = Quaternion((rotation[3], rotation[0], rotation[1], rotation[2]))
+    rotation = convert.float4_or_none(node_dict.get("rotation"))
+    if rotation:
+        x, y, z, w = rotation
+        quaternion = Quaternion((w, x, y, z))
         rotation_matrix = quaternion.to_matrix().to_4x4()
 
     scale_matrix = Matrix()
-    scale = node_dict.get("scale")
-    if isinstance(scale, list) and len(scale) == 3:
+    scale = convert.float3_or_none(node_dict.get("scale"))
+    if scale:
         scale_matrix = Matrix.Diagonal(scale).to_4x4()
 
     return location_matrix @ rotation_matrix @ scale_matrix
