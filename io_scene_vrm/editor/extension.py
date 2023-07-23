@@ -286,9 +286,7 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: igno
         return (
             Matrix.Translation(location)
             @ rotation.to_matrix().to_4x4()
-            @ Matrix.Scale(scale[0], 4, (1, 0, 0))
-            @ Matrix.Scale(scale[1], 4, (0, 1, 0))
-            @ Matrix.Scale(scale[2], 4, (0, 0, 1))
+            @ Matrix.Diagonal(scale).to_4x4()
         )
 
     axis_translation_items = [

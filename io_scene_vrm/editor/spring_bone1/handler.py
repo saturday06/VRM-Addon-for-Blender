@@ -466,9 +466,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
     next_head_pose_bone_matrix = (
         Matrix.Translation(next_head_pose_bone_translation)
         @ next_head_pose_bone_object_rotation.to_matrix().to_4x4()
-        @ Matrix.Scale(next_head_pose_bone_scale[0], 4, Vector((1, 0, 0)))
-        @ Matrix.Scale(next_head_pose_bone_scale[1], 4, Vector((0, 1, 0)))
-        @ Matrix.Scale(next_head_pose_bone_scale[2], 4, Vector((0, 0, 1)))
+        @ Matrix.Diagonal(next_head_pose_bone_scale).to_4x4()
     )
 
     next_tail_pose_bone_before_rotation_matrix = (

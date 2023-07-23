@@ -2236,11 +2236,7 @@ def get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
     scale_matrix = Matrix()
     scale = node_dict.get("scale")
     if isinstance(scale, list) and len(scale) == 3:
-        scale_matrix = (
-            Matrix.Scale(scale[0], 4, (1, 0, 0))
-            @ Matrix.Scale(scale[1], 4, (0, 1, 0))
-            @ Matrix.Scale(scale[2], 4, (0, 0, 1))
-        )
+        scale_matrix = Matrix.Diagonal(scale).to_4x4()
 
     return location_matrix @ rotation_matrix @ scale_matrix
 
