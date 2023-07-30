@@ -1,4 +1,7 @@
-[MASTER]
+[MAIN]
+py-version=3.9
+
+[MESSAGES CONTROL]
 disable=broad-except,
         duplicate-code, # https://github.com/PyCQA/pylint/issues/214
         fixme,
