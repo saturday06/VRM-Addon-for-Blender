@@ -43,7 +43,7 @@ def register() -> None:
 def unregister() -> None:
     import bpy
 
-    if bpy.app.version < bl_info["blender"]:
+    if bpy.app.version < minimum_supported_blender_version():
         return
 
     # Lazy import to minimize initialization before blender version checking.
@@ -52,10 +52,18 @@ def unregister() -> None:
     registration.unregister()
 
 
+def minimum_supported_blender_version() -> tuple[int, int, int]:
+    blender = bl_info.get("blender")
+    if not isinstance(blender, tuple) or len(blender) != 3:
+        raise AssertionError(f"Invalid version value: {blender}")
+    major, minor, patch = blender
+    return (major, minor, patch)
+
+
 def raise_error_if_current_blender_is_not_supported() -> None:
     import bpy
 
-    if bpy.app.version >= bl_info["blender"]:
+    if bpy.app.version >= minimum_supported_blender_version():
         return
 
     default_message = (
