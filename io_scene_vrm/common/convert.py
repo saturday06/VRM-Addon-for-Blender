@@ -38,7 +38,7 @@ def vrm_json_array_to_float_vector(json: object, defaults: list[float]) -> list[
         return defaults
 
     input_values = list(json)
-    output_values = []
+    output_values: list[float] = []
     for index, default in enumerate(defaults):
         if index < len(input_values) and isinstance(input_values[index], (int, float)):
             output_values.append(float(input_values[index]))

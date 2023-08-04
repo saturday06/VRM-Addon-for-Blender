@@ -104,7 +104,7 @@ def diff(
             if len(unified_diff) > 1000:
                 return result
             return result + unified_diff
-        diffs = []
+        diffs: list[str] = []
         for i, (l, r) in enumerate(zip(left, right)):
             diffs.extend(diff(l, r, float_tolerance, f"{path}[{i}]"))
         return diffs

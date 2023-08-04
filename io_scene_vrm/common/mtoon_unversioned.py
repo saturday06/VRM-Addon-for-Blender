@@ -55,6 +55,6 @@ class MtoonUnversioned:
         "_OutlineColor": "OutlineColor",
     }
     # texture offset and scaling props by texture
-    vector_props_exchange_dict = {}
+    vector_props_exchange_dict: dict[str, str] = {}
     vector_props_exchange_dict.update(vector_base_props_exchange_dict)
     vector_props_exchange_dict.update(texture_kind_exchange_dict)
