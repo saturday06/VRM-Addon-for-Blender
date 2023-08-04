@@ -298,9 +298,6 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
         for name, human_bone in human_bone_name_to_human_bone.items():
             specification = HumanBoneSpecifications.get(name)
-            if specification is None:
-                logger.error(f"No '{name}'")
-                continue
             if not human_bone.node.bone_name:
                 if specification.requirement:
                     messages.append(

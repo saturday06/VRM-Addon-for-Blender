@@ -152,20 +152,18 @@ class MtoonGlsl:
             if k is not None:
                 self.float_dict[k] = self.get_value(k)
         for k in MtoonUnversioned.vector_base_props_exchange_dict.values():
-            if k is not None:
-                self.vector_dict[k] = self.get_color(k)
+            self.vector_dict[k] = self.get_color(k)
         for k in MtoonUnversioned.texture_kind_exchange_dict.values():
-            if k is not None:
-                if k == "SphereAddTexture":
-                    self.texture_dict[k] = self.get_texture(k, "black")
-                elif (
-                    # Support old version that had typo
-                    k
-                    in ["NormalmapTexture", "NomalmapTexture"]
-                ):
-                    self.texture_dict[k] = self.get_texture(k, "normal")
-                else:
-                    self.texture_dict[k] = self.get_texture(k)
+            if k == "SphereAddTexture":
+                self.texture_dict[k] = self.get_texture(k, "black")
+            elif (
+                # Support old version that had typo
+                k
+                in ["NormalmapTexture", "NomalmapTexture"]
+            ):
+                self.texture_dict[k] = self.get_texture(k, "normal")
+            else:
+                self.texture_dict[k] = self.get_texture(k)
 
 
 @dataclass
@@ -234,7 +232,7 @@ class GlslDrawObj:
             glsl_draw_obj = GlslDrawObj.instance
         if glsl_draw_obj is None:
             return
-        glsl_draw_obj.objs = [obj for obj in glsl_draw_obj.draw_objs if obj is not None]
+        glsl_draw_obj.objs = list(glsl_draw_obj.draw_objs)
         lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
         if not lights:
             GlslDrawObj.draw_func_remove()
@@ -291,8 +289,6 @@ class GlslDrawObj:
             }
 
             def job_pos() -> dict[object, object]:
-                if scene_mesh.index_per_mat is None:
-                    raise ValueError("scene mesh index per mat is None")
                 return {
                     k: [
                         tmp_mesh.vertices[vid].co

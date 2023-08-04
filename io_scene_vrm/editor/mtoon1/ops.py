@@ -349,9 +349,6 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
         else:
             outline_width_mode = 0
 
-        if outline_width is None:
-            outline_width = 0.0
-
         if outline_width_mode == 1:
             mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES
             mtoon.outline_width_factor = max(0.0, outline_width * centimeter_to_meter)

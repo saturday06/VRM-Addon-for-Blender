@@ -434,10 +434,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             # material適用
             face_length = 0
             for i, prim in enumerate(pymesh):
-                if (
-                    prim.material_index is None
-                    or prim.material_index not in self.materials
-                ):
+                if prim.material_index not in self.materials:
                     continue
                 if self.materials[prim.material_index].name not in obj.data.materials:
                     obj.data.materials.append(self.materials[prim.material_index])
