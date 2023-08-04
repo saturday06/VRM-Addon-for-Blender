@@ -16,6 +16,8 @@ updates:
       interval: "daily"
       time: "01:00"
     open-pull-requests-limit: 1
+    allow:
+      - dependency-type: "all"
 
   - package-ecosystem: "gomod"
     directory: "/docs/website"
