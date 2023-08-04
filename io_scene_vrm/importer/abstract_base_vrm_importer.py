@@ -17,7 +17,6 @@ from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
 from ..common.deep import Json
-from ..common.gl import GL_MIRRORED_REPEAT, GL_NEAREST, GL_REPEAT
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences
 from ..common.version import addon_version
@@ -357,111 +356,6 @@ class AbstractBaseVrmImporter(ABC):
 
             self.reset_material(material)
             build_method(material, material_property)
-
-    # material_util func
-    def connect_value_node(
-        self,
-        material: bpy.types.ShaderNode,
-        value: float,
-        socket_to_connect: bpy.types.NodeSocketFloat,
-    ) -> bpy.types.ShaderNodeValue:
-        value_node = material.node_tree.nodes.new("ShaderNodeValue")
-        value_node.label = socket_to_connect.name
-        value_node.outputs[0].default_value = value
-        material.node_tree.links.new(socket_to_connect, value_node.outputs[0])
-        return value_node
-
-    def connect_rgb_node(
-        self,
-        material: bpy.types.ShaderNode,
-        color: Optional[Sequence[float]],
-        socket_to_connect: bpy.types.NodeSocketColor,
-        default_color: Optional[list[float]] = None,
-    ) -> bpy.types.ShaderNodeRGB:
-        rgb_node = material.node_tree.nodes.new("ShaderNodeRGB")
-        rgb_node.label = socket_to_connect.name
-        rgb_node.outputs[0].default_value = (
-            color if color else (default_color if default_color else [1, 1, 1, 1])
-        )
-        material.node_tree.links.new(socket_to_connect, rgb_node.outputs[0])
-        return rgb_node
-
-    def connect_texture_node(
-        self,
-        material: bpy.types.ShaderNode,
-        tex_index: int,
-        color_socket_to_connect: Optional[bpy.types.NodeSocketColor] = None,
-        alpha_socket_to_connect: Optional[bpy.types.NodeSocketFloat] = None,
-    ) -> Optional[bpy.types.ShaderNodeTexImage]:
-        textures = self.parse_result.json_dict.get("textures")
-        if not isinstance(textures, list) or not 0 <= tex_index < len(textures):
-            return None
-        tex = textures[tex_index]
-        if not isinstance(tex, dict):
-            return None
-        image_index = tex.get("source")
-        if not isinstance(image_index, int):
-            return None
-        sampler_index = tex.get("sampler")
-        if not isinstance(sampler_index, int):
-            return None
-        sampler_dicts = self.parse_result.json_dict.get("samplers")
-        if not isinstance(sampler_dicts, list):
-            return None
-        if not 0 <= sampler_index < len(sampler_dicts):
-            return None
-        sampler_dict = sampler_dicts[sampler_index]
-        if not isinstance(sampler_dict, dict):
-            return None
-        image_node = material.node_tree.nodes.new("ShaderNodeTexImage")
-        if image_index in self.images:
-            image_node.image = self.images[image_index]
-        if color_socket_to_connect is not None:
-            image_node.label = color_socket_to_connect.name
-        elif alpha_socket_to_connect is not None:
-            image_node.label = alpha_socket_to_connect.name
-        else:
-            image_node.label = "what_is_this_node"
-        # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
-        if sampler_dict.get("magFilter") == GL_NEAREST:
-            image_node.interpolation = "Closest"
-        else:
-            image_node.interpolation = "Linear"
-        # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-        if sampler_dict.get("wrapS") in (GL_REPEAT, GL_MIRRORED_REPEAT):
-            image_node.extension = "REPEAT"
-        else:
-            image_node.extension = "EXTEND"
-        if None not in (color_socket_to_connect, tex_index):
-            material.node_tree.links.new(
-                color_socket_to_connect, image_node.outputs["Color"]
-            )
-        if None not in (alpha_socket_to_connect, tex_index):
-            material.node_tree.links.new(
-                alpha_socket_to_connect, image_node.outputs["Alpha"]
-            )
-        return image_node
-
-    def connect_with_color_multiply_node(
-        self,
-        material: bpy.types.ShaderNode,
-        color: list[float],
-        tex_index: int,
-        socket_to_connect: bpy.types.NodeSocketColor,
-    ) -> bpy.types.ShaderNodeMixRGB:
-        multiply_node = material.node_tree.nodes.new("ShaderNodeMixRGB")
-        multiply_node.blend_type = "MULTIPLY"
-        self.connect_rgb_node(material, color, multiply_node.inputs[1])
-        self.connect_texture_node(material, tex_index, multiply_node.inputs[2])
-        material.node_tree.links.new(socket_to_connect, multiply_node.outputs[0])
-        return multiply_node
-
-    def node_group_create(
-        self, material: bpy.types.ShaderNode, shader_node_group_name: str
-    ) -> bpy.types.ShaderNodeGroup:
-        node_group = material.node_tree.nodes.new("ShaderNodeGroup")
-        node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
-        return node_group
 
     def assign_mtoon0_texture(
         self,
