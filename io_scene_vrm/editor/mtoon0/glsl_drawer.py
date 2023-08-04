@@ -174,9 +174,10 @@ class GlMesh:
     normals: dict[object, object] = field(default_factory=dict)
     uvs: dict[object, object] = field(default_factory=dict)
     tangents: dict[object, object] = field(default_factory=dict)
-    index_per_mat: dict[bpy.types.Material, object] = field(default_factory=dict)
+    index_per_mat: dict[bpy.types.Material, object] = field(
+        default_factory=dict
+    )  # material : vert index
     mat_list: list[MtoonGlsl] = field(default_factory=list)
-    index_per_mat = field(default_factory=dict)  # material : vert index
 
 
 class GlslDrawObj:
