@@ -49,7 +49,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
     @classmethod
     def find_outline_property_group(
         cls, material: bpy.types.Material
-    ) -> Optional[bpy.types.PropertyGroup]:
+    ) -> Optional["MaterialTraceablePropertyGroup"]:
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return None
         outline_material = material.vrm_addon_extension.mtoon1.outline_material
@@ -64,7 +64,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         property_group = functools.reduce(
             getattr, chain, outline_material.vrm_addon_extension.mtoon1
         )
-        if isinstance(property_group, bpy.types.PropertyGroup):
+        if isinstance(property_group, MaterialTraceablePropertyGroup):
             return property_group
         raise AssertionError(f"No matching property group: {cls} {chain}")
 

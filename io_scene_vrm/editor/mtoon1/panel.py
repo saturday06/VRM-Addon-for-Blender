@@ -96,7 +96,7 @@ def draw_mtoon0_texture(
     parent_layout: bpy.types.UILayout,
     base_property_group: bpy.types.PropertyGroup,
     texture_attr_name: str,
-    scalar_factor_attr_name: Optional[str] = None,
+    scalar_factor_attr_name: str,
 ) -> bpy.types.UILayout:
     texture = getattr(base_property_group, texture_attr_name)
     layout = parent_layout.split(factor=0.3)

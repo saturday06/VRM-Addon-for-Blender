@@ -279,7 +279,7 @@ class AbstractBaseVrmImporter(ABC):
             bpy.ops.object.select_all(action="DESELECT")
         return affected_object
 
-    def finishing(self, affected_object: bpy.types.Object) -> None:
+    def finishing(self, affected_object: Optional[bpy.types.Object]) -> None:
         # initで弄ったやつを戻す
         if affected_object is not None:
             affected_object.hide_viewport = True
@@ -1429,7 +1429,7 @@ class AbstractBaseVrmImporter(ABC):
         ikc.target = armature
         ikc.subtarget = armature.pose.bones[ik_foot_name].name
 
-        def chain_solver(armature: bpy.types.Armature, child: str, parent: str) -> int:
+        def chain_solver(armature: bpy.types.Object, child: str, parent: str) -> int:
             current_bone = armature.pose.bones[child]
             for i in range(10):
                 if current_bone.name == parent:

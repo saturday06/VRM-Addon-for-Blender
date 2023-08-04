@@ -310,7 +310,7 @@ class IcypTemplateMeshMaker:
         head_xz: list[float],
         tail_xz: list[float],
         height: float,
-        matrix: Matrix,
+        matrix: Optional[Matrix],
     ) -> list[Vector]:
         if matrix is None:
             matrix = Matrix.Identity(4)
