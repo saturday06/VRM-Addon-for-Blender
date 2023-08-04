@@ -145,7 +145,7 @@ def object_distance(
     )
 
 
-def armature_exists(context: bpy.types.Object) -> bool:
+def armature_exists(context: bpy.types.Context) -> bool:
     return any(armature.users for armature in bpy.data.armatures) and any(
         obj.type == "ARMATURE" for obj in context.blend_data.objects
     )
@@ -187,7 +187,7 @@ def current_armature_is_vrm1(context: bpy.types.Context) -> bool:
     return bool(armature.data.vrm_addon_extension.is_vrm1())
 
 
-def multiple_armatures_exist(context: bpy.types.Object) -> bool:
+def multiple_armatures_exist(context: bpy.types.Context) -> bool:
     first_data_exists = False
     for data in bpy.data.armatures:
         if not data.users:
