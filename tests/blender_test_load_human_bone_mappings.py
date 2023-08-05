@@ -13,9 +13,13 @@ def test() -> None:
         file.close()
         bpy.ops.vrm.load_human_bone_mappings(filepath=file.name)
 
+    data = bpy.context.active_object.data
+    if not isinstance(data, bpy.types.Armature):
+        raise AssertionError
+
     b = [
         human_bone
-        for human_bone in bpy.context.active_object.data.vrm_addon_extension.vrm0.humanoid.human_bones
+        for human_bone in data.vrm_addon_extension.vrm0.humanoid.human_bones
         if human_bone.bone == "head"
     ][0]
     assert (

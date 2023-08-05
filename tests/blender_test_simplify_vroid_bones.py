@@ -6,6 +6,8 @@ def test() -> None:
     armatures = [obj for obj in bpy.data.objects if obj.type == "ARMATURE"]
     assert len(armatures) == 1
     armature = armatures[0]
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
 
     head = armature.data.bones["head"]
     head.name = "J_Bip_C_Head"

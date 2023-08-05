@@ -3,7 +3,7 @@ import sys
 from collections.abc import Sequence
 
 import bpy
-from mathutils import Euler, Quaternion
+from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import version
 from io_scene_vrm.editor.extension import VrmAddonArmatureExtensionPropertyGroup
@@ -17,10 +17,8 @@ def get_test_command_args() -> list[list[str]]:
 
 
 def assert_vector3_equals(
-    expected: Sequence[float], actual: Sequence[float], message: str
+    expected: Vector, actual: Sequence[float], message: str
 ) -> None:
-    if len(expected) != 3:
-        raise AssertionError(f"expected length is not 3: {expected}")
     if len(actual) != 3:
         raise AssertionError(f"actual length is not 3: {actual}")
 
@@ -54,6 +52,9 @@ def one_joint_extending_in_y_direction() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -125,6 +126,9 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
         type="ARMATURE", location=(1, 0, 0), rotation=(0, 0, math.pi / 2)
     )
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -196,6 +200,9 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> Non
         type="ARMATURE", location=(1, 0, 0), rotation=(0, 0, math.pi / 2)
     )
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -269,6 +276,9 @@ def two_joints_extending_in_y_direction() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -357,6 +367,9 @@ def two_joints_extending_in_y_direction_roll() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -448,6 +461,9 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -540,6 +556,9 @@ def two_joints_extending_in_y_direction_connected() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -632,6 +651,9 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -713,6 +735,9 @@ def one_joint_extending_in_y_direction_rounding_180_degree() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -772,6 +797,9 @@ def two_joints_extending_in_y_direction_root_down() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -856,6 +884,9 @@ def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
 
     bpy.ops.object.add(type="ARMATURE")
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -980,6 +1011,9 @@ def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
 
     bpy.ops.object.add(type="ARMATURE")
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -1054,6 +1088,9 @@ def two_joints_extending_in_y_direction_center_move_to_z() -> None:
 
     bpy.ops.object.add(type="ARMATURE")
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
@@ -1128,6 +1165,9 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
 
     bpy.ops.object.add(type="ARMATURE")
     armature = bpy.context.object
+    if not isinstance(armature.data, bpy.types.Armature):
+        raise AssertionError
+
     armature.data.vrm_addon_extension.addon_version = addon_version
     armature.data.vrm_addon_extension.spec_version = spec_version
     armature.data.vrm_addon_extension.spring_bone1.enable_animation = True

@@ -39,7 +39,7 @@ def update_mtoon1_outline() -> Optional[float]:
             for material_slot in obj.material_slots
         ]
         for obj in bpy.data.objects
-        if obj.type == "MESH"
+        if isinstance(obj.data, bpy.types.Mesh)
     ]
     not_changed = object_material_state == previous_object_material_state
 

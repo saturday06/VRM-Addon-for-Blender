@@ -87,7 +87,34 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
                     f'No shader node value "{node_name}" for "{material.name}"'
                 )
             return
-        node.outputs[0].default_value = value
+        output = node.outputs[0]
+        if isinstance(output, bpy.types.NodeSocketBool):
+            output.default_value = bool(value)
+        elif isinstance(
+            output,
+            (
+                bpy.types.NodeSocketFloat,
+                bpy.types.NodeSocketFloatAngle,
+                bpy.types.NodeSocketFloatDistance,
+                bpy.types.NodeSocketFloatFactor,
+                bpy.types.NodeSocketFloatPercentage,
+                bpy.types.NodeSocketFloatTime,
+                bpy.types.NodeSocketFloatUnsigned,
+            ),
+        ):
+            output.default_value = float(value)
+        elif isinstance(
+            output,
+            (
+                bpy.types.NodeSocketInt,
+                bpy.types.NodeSocketIntFactor,
+                bpy.types.NodeSocketIntPercentage,
+                bpy.types.NodeSocketIntUnsigned,
+            ),
+        ):
+            output.default_value = int(value)
+        else:
+            logger.warning(f"{type(output)} doesn't have 'default_value'")
 
         outline = self.find_outline_property_group(material)
         if outline:
