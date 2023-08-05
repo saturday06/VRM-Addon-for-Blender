@@ -296,7 +296,7 @@ def copy_node(
     to_node: bpy.types.Node,
     from_to: dict[bpy.types.Node, bpy.types.Node],
 ) -> None:
-    to_node.color = from_node.color
+    to_node.color = tuple(from_node.color)  # copy
     to_node.height = from_node.height
     to_node.hide = from_node.hide
     for index, from_input in enumerate(from_node.inputs):
@@ -304,7 +304,7 @@ def copy_node(
             to_input = to_node.inputs[index]
             copy_socket(from_input, to_input)
     to_node.label = from_node.label
-    to_node.location = from_node.location
+    to_node.location = tuple(from_node.location)  # copy
     to_node.mute = from_node.mute
     to_node.name = from_node.name
     for index, from_output in enumerate(from_node.outputs):
@@ -642,7 +642,7 @@ def copy_node_tree(
 
     # 親子関係の辻褄が合った状態でもう一度場所を設定することで完全にノードの位置を復元できる
     for from_node, to_node in from_to.items():
-        to_node.location = from_node.location
+        to_node.location = tuple(from_node.location)  # copy
 
 
 def shader_node_group_import(shader_node_group_name: str) -> None:
