@@ -59,7 +59,7 @@ def load_mtoon1_outline_geometry_node_group(
     )
 
     template_outline_group = None
-    # https://git.blender.org/gitweb/gitweb.cgi/blender.git/blob/v2.83:/source/blender/windowmanager/intern/wm_files_link.c#l84
+    # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
     if context.object is not None and context.object.mode == "EDIT":
         bpy.ops.object.mode_set(mode="OBJECT")
         edit_mode = True
