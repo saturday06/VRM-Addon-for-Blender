@@ -3,6 +3,7 @@ import contextlib
 import json
 import math
 import re
+import secrets
 import shutil
 import struct
 import tempfile
@@ -1402,10 +1403,18 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         dir_path.mkdir(parents=True, exist_ok=True)
 
         if bpy.app.version >= (3, 1) and not bpy.data.filepath:
-            temp_blend_path = create_unique_indexed_file_path(
-                self.parse_result.filepath.with_suffix(".temp.blend")
-            )
-            bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
+            temp_blend_path = None
+            for _ in range(10000):
+                suffix = (
+                    ".temp"
+                    + "".join(str(secrets.randbelow(10)) for _ in range(10))
+                    + ".blend"
+                )
+                temp_blend_path = self.parse_result.filepath.with_suffix(suffix)
+                if not temp_blend_path.exists():
+                    break
+            if temp_blend_path is not None:
+                bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
 
         for image_index, image in self.images.items():
             image_name = Path(image.filepath_from_user()).name
