@@ -122,7 +122,7 @@ jobs:
             fi
           done
 
-          git ls-files "*.py" | while read -r f; do
+          git ls-files "*.py" "*.pyi" | while read -r f; do
             if [ "$f" != "$(echo "$f" | LC_ALL=C tr "[:upper:]" "[:lower:]")" ]; then
               echo "$f contains uppercase character"
               exit 1
@@ -135,7 +135,7 @@ jobs:
 
           result=0
           while read -r word; do
-            if ! git grep -i "$word" "*.py" > /dev/null; then
+            if ! git grep -i "$word" "*.py" "*.pyi" > /dev/null; then
               >&2 echo "dictionary.txt:$word is no longer necessary"
               result=1
             fi
@@ -167,23 +167,23 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
       - name: Check source code formatting
-        run: git ls-files "*.py" | xargs poetry run black --check --diff
+        run: git ls-files "*.py" "*.pyi" | xargs poetry run black --check --diff
       - name: Pylint
         run: |
           poetry remove fake-bpy-module-2.93 # pylint and fake-bpy-module are incompatible
-          git ls-files "*.py" | xargs poetry run pylint --rcfile .pylintrc.ci
+          git ls-files "*.py" "*.pyi" | xargs poetry run pylint --rcfile .pylintrc.ci
           git checkout .
           poetry install
       - name: Pyright
-        run: git ls-files "*.py" | xargs poetry run pyright
+        run: git ls-files "*.py" "*.pyi" | xargs poetry run pyright
       - name: Mypy
-        run: git ls-files "*.py" | xargs poetry run mypy --show-error-codes
+        run: git ls-files "*.py" "*.pyi" | xargs poetry run mypy --show-error-codes
       - name: Flake8
-        run: git ls-files "*.py" | xargs poetry run flake8 --count --show-source --statistics
+        run: git ls-files "*.py" "*.pyi" | xargs poetry run flake8 --count --show-source --statistics
       - name: Check import sorting order
         run: |
-          git ls-files "*.py" | xargs poetry run isort
-          git ls-files "*.py" | xargs poetry run black
+          git ls-files "*.py" "*.pyi" | xargs poetry run isort
+          git ls-files "*.py" "*.pyi" | xargs poetry run black
           git diff --exit-code
       - name: Super-Linter
         uses: github/super-linter@v5
