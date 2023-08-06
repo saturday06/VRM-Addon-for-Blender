@@ -156,6 +156,8 @@ jobs:
         run: |
           git ls-files "*.glsl" | xargs clang-format-12 -i
           git diff --exit-code
+      - name: Shellcheck
+        run: git ls-files "*.sh" | xargs shellcheck
       - name: Install poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
