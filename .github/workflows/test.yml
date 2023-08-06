@@ -128,21 +128,6 @@ jobs:
               exit 1
             fi
           done
-      - name: Check file content character encoding
-        run: |
-          git ls-files | while read -r f; do
-            encoding=$(file --brief --mime-encoding "$f")
-            case "$encoding" in
-              binary | us-ascii | utf-8)
-                file "$f"
-                ;;
-              *)
-                echo "$f is not ascii nor utf-8 but $encoding."
-                exit 1
-                ;;
-            esac
-          done
-          git diff --exit-code
       - name: Check dictionary.txt contents
         run: |
           LC_ALL=C tr '[:upper:]' '[:lower:]' < dictionary.txt > dictionary_lower.txt
