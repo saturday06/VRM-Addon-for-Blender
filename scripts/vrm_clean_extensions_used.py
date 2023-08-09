@@ -51,7 +51,7 @@ def clean(path: str) -> None:
             if key not in extensions_used:
                 extensions_used.append(key)
 
-    extensions_used.sort()
+    extensions_used.sort(key=str)
 
     output_bin = gltf.pack_glb(json_dict, binary_chunk)
 
