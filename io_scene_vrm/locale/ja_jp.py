@@ -1,6 +1,6 @@
 locale_key = "ja_JP"
 
-translation_dictionary = {
+translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}. "

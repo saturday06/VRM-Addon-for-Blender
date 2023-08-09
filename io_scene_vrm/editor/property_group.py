@@ -1,6 +1,6 @@
 import uuid
 from collections.abc import Iterator
-from typing import Optional, TypeVar, Union
+from typing import Optional, TypeVar
 
 import bpy
 
@@ -135,7 +135,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     ) -> set[str]:
         bones = armature_data.bones
         result: set[str] = set(bones.keys())
-        remove_bones_tree: Union[set[bpy.types.Bone], set[bpy.types.EditBone]] = set()
+        remove_bones_tree: set[bpy.types.Bone] = set()
 
         for (
             bpy_bone_name,

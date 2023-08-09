@@ -1,6 +1,6 @@
 locale_key = "zh_CN"
 
-translation_dictionary = {
+translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Export Invisible Objects"): "导出不可见对象",
     ("*", "Export Only Selections"): "导出仅选中项",
     ("*", "No error. Ready for export VRM"): "无错误可导出",

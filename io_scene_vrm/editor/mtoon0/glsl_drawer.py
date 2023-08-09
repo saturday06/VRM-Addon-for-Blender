@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import bpy
 from mathutils import Matrix, Vector
@@ -80,7 +80,7 @@ class MtoonGlsl:
 
     def get_texture(
         self, tex_name: str, default_color: str = "white"
-    ) -> bpy.types.Texture:
+    ) -> bpy.types.Image:
         if tex_name == "ReceiveShadow_Texture":
             tex_name += "_alpha"
         main_node = self.main_node
@@ -172,7 +172,7 @@ class GlMesh:
     normals: dict[object, object] = field(default_factory=dict)
     uvs: dict[object, object] = field(default_factory=dict)
     tangents: dict[object, object] = field(default_factory=dict)
-    index_per_mat: dict[bpy.types.Material, object] = field(
+    index_per_mat: dict[MtoonGlsl, object] = field(
         default_factory=dict
     )  # material : vert index
     mat_list: list[MtoonGlsl] = field(default_factory=list)
@@ -224,7 +224,7 @@ class GlslDrawObj:
     scene_meshes: list[GlMesh] = []
 
     @staticmethod
-    def build_scene(_dummy: None = None) -> None:
+    def build_scene(_dummy: object = None) -> None:
         glsl_draw_obj: Optional[GlslDrawObj] = None
         if GlslDrawObj.instance is None and GlslDrawObj.draw_func is None:
             glsl_draw_obj = GlslDrawObj()
@@ -366,7 +366,7 @@ class GlslDrawObj:
 
         glsl_draw_obj.build_batches()
 
-    batches: Optional[list[tuple[bpy.types.Material, object, object]]] = None
+    batches: Optional[list[tuple[MtoonGlsl, object, object]]] = None
 
     def build_batches(self) -> None:
         import gpu
@@ -614,8 +614,8 @@ class GlslDrawObj:
 
                 toon_bat.draw(toon_shader)  # type: ignore[attr-defined]
 
-    draw_func: Optional[bpy.types.Object] = None
-    build_mesh_func: Optional[bpy.types.Object] = None
+    draw_func: object = None
+    build_mesh_func: Optional[Callable[[object], None]] = None
 
     @staticmethod
     def draw_func_add(
