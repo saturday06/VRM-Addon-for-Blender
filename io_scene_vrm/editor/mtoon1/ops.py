@@ -508,8 +508,6 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
         last_images_len = len(bpy.data.images)
         image = bpy.data.images.load(filepath, check_existing=True)
-        if not isinstance(image, bpy.types.Image):
-            return {"CANCELLED"}
         created = last_images_len < len(bpy.data.images)
 
         material = bpy.data.materials.get(self.material_name)
