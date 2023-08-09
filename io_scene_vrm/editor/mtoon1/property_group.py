@@ -1,6 +1,5 @@
 import functools
 import re
-from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Optional
 
@@ -148,15 +147,11 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not isinstance(node, bpy.types.ShaderNodeRGB):
             logger.warning(f'No shader node rgb "{node_name}"')
             return
-        if not isinstance(value, Iterable):
-            node.outputs[0].default_value = default_value
-            return
-        list_value = list(value)
-        if len(list_value) < 4:
-            node.outputs[0].default_value = default_value
-            return
-        list_value = list_value[0:4]
-        node.outputs[0].default_value = list_value
+        output = node.outputs[0]
+        if isinstance(output, bpy.types.NodeSocketColor):
+            output.default_value = shader.rgba_or_none(value) or default_value
+        else:
+            logger.warning(f"{type(node)} does not have default_value")
 
         outline = self.find_outline_property_group(material)
         if outline:
@@ -177,17 +172,14 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             logger.warning(f'No shader node rgb "{node_name}"')
             return
         if isinstance(value, mathutils.Color):
-            value = [value.r, value.g, value.b]
-        elif not isinstance(value, Iterable):
-            node.outputs[0].default_value = default_value + (1.0,)
-            return
-        list_value = list(value)
-        if len(list_value) < 3:
-            node.outputs[0].default_value = default_value + (1.0,)
-            return
-        list_value = list_value[0:3]
-        list_value.append(1.0)
-        node.outputs[0].default_value = list_value
+            rgb = (value.r, value.g, value.b)
+        else:
+            rgb = shader.rgb_or_none(value) or default_value
+        output = node.outputs[0]
+        if isinstance(output, bpy.types.NodeSocketColor):
+            output.default_value = rgb + (1.0,)
+        else:
+            logger.warning(f"{type(node)} does not have default_value")
 
         outline = self.find_outline_property_group(material)
         if outline:
