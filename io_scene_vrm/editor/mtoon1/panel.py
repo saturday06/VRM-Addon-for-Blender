@@ -152,6 +152,8 @@ def draw_mtoon1_material(
     context: bpy.types.Context, layout: bpy.types.UILayout
 ) -> None:
     material = context.material
+    if not material:
+        return
     ext = material.vrm_addon_extension
     layout = layout.column()
 
@@ -350,18 +352,21 @@ def draw_mtoon1_material(
 
     layout.operator(
         VRM_OT_reset_mtoon1_material_shader_node_tree.bl_idname
-    ).material_name = context.material.name
+    ).material_name = material.name
 
 
 def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> None:
-    ext = context.material.vrm_addon_extension
+    material = context.material
+    if not material:
+        return
+    ext = material.vrm_addon_extension
     if ext.mtoon1.is_outline_material:
         layout.box().label(icon="INFO", text="This is a MToon Outline material")
         return
 
     draw_mtoon1_material(context, layout)
 
-    node = search.vrm_shader_node(context.material)
+    node = search.vrm_shader_node(material)
     if ext.mtoon1.enabled or (node and node.node_tree["SHADER"] == "MToon_unversioned"):
         layout.prop(ext.mtoon1, "export_shape_key_normals")
         return

@@ -14,7 +14,7 @@ def test() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
-    if not isinstance(armature.data, bpy.types.Armature):
+    if not armature or not isinstance(armature.data, bpy.types.Armature):
         raise AssertionError
 
     bpy.ops.object.mode_set(mode="EDIT")

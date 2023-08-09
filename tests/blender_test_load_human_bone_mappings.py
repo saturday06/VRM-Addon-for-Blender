@@ -12,8 +12,10 @@ def test() -> None:
         file.write(json.dumps({"head": new_head_name}).encode())
         file.close()
         bpy.ops.vrm.load_human_bone_mappings(filepath=file.name)
-
-    data = bpy.context.active_object.data
+    active_object = bpy.context.active_object
+    if not active_object:
+        raise AssertionError
+    data = active_object.data
     if not isinstance(data, bpy.types.Armature):
         raise AssertionError
 

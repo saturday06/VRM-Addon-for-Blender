@@ -87,21 +87,32 @@ class MtoonGlsl:
         if main_node is None:
             raise ValueError("main node is None")
         links = main_node.inputs[tex_name].links
-        if links and links[0].from_node.image is not None:
+        if not links:
+            raise ValueError("empty links")
+        from_node = links[0].from_node
+        if not isinstance(from_node, bpy.types.ShaderNodeTexImage):
+            raise ValueError("not ShaderNodeTexImage")
+        if from_node.image is not None:
             if (
                 default_color != "normal"
-                and links[0].from_node.image.colorspace_settings.name != "Linear"
+                and from_node.image.colorspace_settings.name != "Linear"
             ):  # TODO bugyyyyyyyyyyyyyyyyy
-                links[0].from_node.image.colorspace_settings.name = "Linear"
-            links[0].from_node.image.gl_load()
-            return links[0].from_node.image
+                from_node.image.colorspace_settings.name = "Linear"
+            from_node.image.gl_load()
+            return from_node.image
         if default_color == "white":
+            if not self.white_texture:
+                raise ValueError("No white_texture")
             self.white_texture.gl_load()
             return self.white_texture
         if default_color == "black":
+            if not self.black_texture:
+                raise ValueError("No black_texture")
             self.black_texture.gl_load()
             return self.black_texture
         if default_color == "normal":
+            if not self.normal_texture:
+                raise ValueError("No normal_texture")
             self.normal_texture.gl_load()
             return self.normal_texture
         raise ValueError
@@ -114,9 +125,13 @@ class MtoonGlsl:
             return 0.0
         if main_node.inputs[val_name].links:
             return float(
-                main_node.inputs[val_name].links[0].from_node.outputs[0].default_value
+                getattr(
+                    main_node.inputs[val_name].links[0].from_node.outputs[0],
+                    "default_value",
+                    0.0,
+                )
             )
-        return float(main_node.inputs[val_name].default_value)
+        return float(getattr(main_node.inputs[val_name], "default_value", 0.0))
 
     def get_color(self, vec_name: str) -> list[float]:
         main_node = self.main_node
@@ -126,9 +141,13 @@ class MtoonGlsl:
             return [0.0, 0.0, 0.0, 0.0]
         if main_node.inputs[vec_name].links:
             return list(
-                main_node.inputs[vec_name].links[0].from_node.outputs[0].default_value
+                getattr(
+                    main_node.inputs[vec_name].links[0].from_node.outputs[0],
+                    "default_value",
+                    [],
+                )
             )
-        return list(main_node.inputs[vec_name].default_value)
+        return list(getattr(main_node.inputs[vec_name], "default_value", []))
 
     def update(self) -> None:
         if self.material.blend_method in ("OPAQUE", "CLIP"):
@@ -240,6 +259,8 @@ class GlslDrawObj:
         glsl_draw_obj.light = lights[0]
         for obj in glsl_draw_obj.objs:
             for mat_slot in obj.material_slots:
+                if not mat_slot.material:
+                    continue
                 if mat_slot.material.name not in glsl_draw_obj.materials:
                     glsl_draw_obj.materials[mat_slot.material.name] = MtoonGlsl(
                         mat_slot.material
@@ -250,7 +271,7 @@ class GlslDrawObj:
         for obj in glsl_draw_obj.objs:
             if glsl_draw_obj.draw_x_offset < obj.bound_box[4][0] * 2:
                 glsl_draw_obj.draw_x_offset = obj.bound_box[4][0] * 2
-            bounding_box_xyz = [[1, 1, 1], [-1, -1, -1]]
+            bounding_box_xyz = [[1.0, 1.0, 1.0], [-1.0, -1.0, -1.0]]
             for point in obj.bound_box:
                 for i, xyz in enumerate(point):
                     if bounding_box_xyz[0][i] < xyz:
@@ -276,7 +297,9 @@ class GlslDrawObj:
             st = tmp_mesh.uv_layers[0].data
 
             scene_mesh.mat_list = [
-                glsl_draw_obj.materials[ms.material.name] for ms in obj.material_slots
+                glsl_draw_obj.materials[ms.material.name]
+                for ms in obj.material_slots
+                if ms.material
             ]
             count_list = collections.Counter(
                 [tri.material_index for tri in tmp_mesh.loop_triangles]

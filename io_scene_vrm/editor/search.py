@@ -58,14 +58,21 @@ def vrm_shader_node(material: bpy.types.Material) -> Optional[bpy.types.Node]:
     if not material.node_tree or not material.node_tree.nodes:
         return None
     for node in material.node_tree.nodes:
-        if (
-            node.type == "OUTPUT_MATERIAL"
-            and node.inputs["Surface"].links
-            and node.inputs["Surface"].links[0].from_node.type == "GROUP"
-            and node.inputs["Surface"].links[0].from_node.node_tree.get("SHADER")
-            is not None
-        ):
-            return node.inputs["Surface"].links[0].from_node
+        if not isinstance(node, bpy.types.ShaderNodeOutputMaterial):
+            continue
+        surface = node.inputs.get("Surface")
+        if not surface:
+            continue
+        links = surface.links
+        if not links:
+            continue
+        link = links[0]
+        group_node = link.from_node
+        if not isinstance(group_node, bpy.types.ShaderNodeGroup):
+            continue
+        if "SHADER" not in group_node.node_tree:
+            continue
+        return group_node
     return None
 
 
@@ -214,8 +221,8 @@ def current_armature(context: bpy.types.Context) -> Optional[bpy.types.Object]:
     if len(objects) == 1:
         return objects[0]
 
-    active_object = context.active_object
-    if not active_object:
+    active_object = getattr(context, "active_object", None)
+    if not isinstance(active_object, bpy.types.Object):
         active_object = context.view_layer.objects.active
     if not active_object:
         return objects[0]

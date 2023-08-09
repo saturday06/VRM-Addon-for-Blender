@@ -1247,7 +1247,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             data = obj.data
             if not isinstance(data, bpy.types.Mesh):
                 continue
-            mesh_index = obj.data.get(extras_mesh_index_key)
+            mesh_index = data.get(extras_mesh_index_key)
             if isinstance(mesh_index, int):
                 self.meshes[mesh_index] = obj
             else:
@@ -1257,8 +1257,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             if extras_mesh_index_key in obj:
                 del obj[extras_mesh_index_key]
-            if extras_mesh_index_key in obj.data:
-                del obj.data[extras_mesh_index_key]
+            if extras_mesh_index_key in data:
+                del data[extras_mesh_index_key]
 
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
