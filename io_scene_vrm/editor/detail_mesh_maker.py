@@ -210,12 +210,12 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc]
         eye_inner_vert = add_point(eye_inner_point)
         eye_outer_vert = add_point(eye_outer_point)
 
-        bm.edges.new([eye_inner_vert, eye_quad_lu_vert])
-        bm.edges.new([eye_quad_lu_vert, eye_quad_ru_vert])
-        bm.edges.new([eye_quad_ru_vert, eye_outer_vert])
-        bm.edges.new([eye_outer_vert, eye_quad_rd_vert])
-        bm.edges.new([eye_quad_rd_vert, eye_quad_ld_vert])
-        bm.edges.new([eye_quad_ld_vert, eye_inner_vert])
+        bm.edges.new((eye_inner_vert, eye_quad_lu_vert))
+        bm.edges.new((eye_quad_lu_vert, eye_quad_ru_vert))
+        bm.edges.new((eye_quad_ru_vert, eye_outer_vert))
+        bm.edges.new((eye_outer_vert, eye_quad_rd_vert))
+        bm.edges.new((eye_quad_rd_vert, eye_quad_ld_vert))
+        bm.edges.new((eye_quad_ld_vert, eye_inner_vert))
 
         make_circle(
             depth_add(eye_point, eye_quad_ru_point[0] - eye_point[0]),
@@ -401,8 +401,8 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc]
         ) * cos(eye_axis)
         orbit_vert = add_point(orbit_end)
 
-        bm.edges.new([otogai_vert, jaw_vert])
-        bm.edges.new([jaw_vert, ear_hole_vert])
+        bm.edges.new((otogai_vert, jaw_vert))
+        bm.edges.new((jaw_vert, ear_hole_vert))
 
         def add_mesh(points: list[bmesh.types.BMVert]) -> None:
             bm.faces.new(points)
