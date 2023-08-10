@@ -640,7 +640,7 @@ def draw_vrm0_blend_shape_master_layout(
                     "key_blocks",
                     text="Shape key",
                 )
-            bind_column.prop(bind, "weight")
+            bind_column.prop(bind, "weight", slider=True)
 
         column.separator(factor=0.2)
         material_value_binds_box = column.box()

@@ -581,7 +581,7 @@ def draw_vrm1_expression_layout(
                     "key_blocks",
                     text="Shape key",
                 )
-            bind_box.prop(bind, "weight")
+            bind_box.prop(bind, "weight", slider=True)
 
             remove_bind_op = bind_box.operator(
                 vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind.bl_idname,
