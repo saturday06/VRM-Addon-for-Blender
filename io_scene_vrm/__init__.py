@@ -186,6 +186,15 @@ class glTF2ExportUserExtension:
 
         self.user_extension = Gltf2AddonExporterUserExtension()
 
+    # 3 arguments in Blender 2.93.0
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/exp/gltf2_blender_export.py#L68
+    # 5 arguments in Blender 3.6.0
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/78c9556942e0780b471c9985e83e39e8c8d8f85a/addons/io_scene_gltf2/blender/exp/gltf2_blender_export.py#L84
+    def gather_gltf_hook(
+        self, a: object, b: object, c: object = None, d: object = None
+    ) -> None:
+        self.user_extension.gather_gltf_hook(a, b, c, d)
+
 
 if __name__ == "__main__":
     register()
