@@ -611,11 +611,12 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
         if not isinstance(outline_width_mode_value, int):
             return
 
-        outline_width_mode_none = (
+        no_outline = (
             mtoon.outline_width_mode
             == Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
+            or mtoon.outline_width_factor < float_info.epsilon
         )
-        cleanup = outline_width_mode_none
+        cleanup = no_outline
         modifier = None
 
         for search_modifier_name in list(obj.modifiers.keys()):
@@ -642,7 +643,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             modifier = search_modifier
             cleanup = True
 
-        if outline_width_mode_none:
+        if no_outline:
             return
 
         outline_material_name = f"MToon Outline ({material.name})"
