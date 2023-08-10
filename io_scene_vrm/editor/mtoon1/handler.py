@@ -54,7 +54,7 @@ def update_mtoon1_outline() -> Optional[float]:
     previous_object_material_state.clear()
     previous_object_material_state.extend(object_material_state)
 
-    VRM_OT_refresh_mtoon1_outline.refresh(bpy.context)
+    VRM_OT_refresh_mtoon1_outline.refresh(bpy.context, create_modifier=False)
     return None
 
 

@@ -1329,7 +1329,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         material = self.find_material()
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
-        bpy.ops.vrm.refresh_mtoon1_outline(material_name=material.name)
+        bpy.ops.vrm.refresh_mtoon1_outline(
+            material_name=material.name, create_modifier=True
+        )
 
     outline_width_mode: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=outline_width_mode_items,

@@ -591,10 +591,16 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}  # noqa: F821
     )
+    create_modifier: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}  # noqa: F821
+    )
 
     @staticmethod
     def assign(
-        context: bpy.types.Context, material: bpy.types.Material, obj: bpy.types.Object
+        context: bpy.types.Context,
+        material: bpy.types.Material,
+        obj: bpy.types.Object,
+        create_modifier: bool,
     ) -> None:
         shader.load_mtoon1_outline_geometry_node_group(context, overwrite=False)
         node_group = context.blend_data.node_groups.get(
@@ -644,6 +650,13 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             cleanup = True
 
         if no_outline:
+            return
+
+        if not modifier and not create_modifier:
+            if not no_outline:
+                mtoon.outline_width_mode = (
+                    Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
+                )
             return
 
         outline_material_name = f"MToon Outline ({material.name})"
@@ -798,11 +811,15 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             if material.vrm_addon_extension.mtoon1.is_outline_material:
                 continue
 
-            VRM_OT_refresh_mtoon1_outline.assign(context, material, obj)
+            VRM_OT_refresh_mtoon1_outline.assign(
+                context, material, obj, create_modifier=False
+            )
 
     @staticmethod
     def refresh(
-        context: bpy.types.Context, material_name: Optional[str] = None
+        context: bpy.types.Context,
+        create_modifier: bool,
+        material_name: Optional[str] = None,
     ) -> None:
         if bpy.app.version < (3, 3):
             return
@@ -826,7 +843,9 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                 if material.vrm_addon_extension.mtoon1.is_outline_material:
                     continue
 
-                VRM_OT_refresh_mtoon1_outline.assign(context, material, obj)
+                VRM_OT_refresh_mtoon1_outline.assign(
+                    context, material, obj, create_modifier
+                )
                 outline_material_names.append(material.name)
             if material_name is not None:
                 continue
@@ -855,5 +874,5 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                 obj.modifiers.remove(search_modifier)
 
     def execute(self, context: bpy.types.Context) -> set[str]:
-        self.refresh(context, self.material_name)
+        self.refresh(context, self.create_modifier, self.material_name)
         return {"FINISHED"}
