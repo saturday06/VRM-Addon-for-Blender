@@ -1196,10 +1196,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     continue
 
                 if self.parse_result.spec_version_number < (1, 0):
-                    vrm0_humanoid = obj.data.vrm_addon_extension.vrm0.humanoid
+                    vrm0_humanoid = data.vrm_addon_extension.vrm0.humanoid
                     vrm0_humanoid.initial_automatic_bone_assignment = False
                 else:
-                    vrm1_humanoid = obj.data.vrm_addon_extension.vrm1.humanoid
+                    vrm1_humanoid = data.vrm_addon_extension.vrm1.humanoid
                     vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
                 self.armature = obj
 
@@ -1476,12 +1476,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         armature = self.armature
         if not armature:
             return
-        addon_extension = armature.data.vrm_addon_extension
-        if not isinstance(addon_extension, VrmAddonArmatureExtensionPropertyGroup):
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
             return
+        addon_extension = armature_data.vrm_addon_extension
 
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            armature.data.name, defer=False
+            armature_data.name, defer=False
         )
 
         human_bones = addon_extension.vrm1.humanoid.human_bones
@@ -1532,7 +1533,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                     continue
 
-                bone = armature.data.edit_bones.get(bone_name)
+                bone = armature_data.edit_bones.get(bone_name)
                 if not bone:
                     continue
                 last_human_bone_name = human_bone_name
@@ -1595,7 +1596,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             # ヒューマンボーンとその先祖ボーンを得る
             human_bone_tree_bone_names: set[str] = set()
             for bone_name in bone_name_to_human_bone_name:
-                bone = armature.data.edit_bones.get(bone_name)
+                bone = armature_data.edit_bones.get(bone_name)
                 while bone:
                     human_bone_tree_bone_names.add(bone.name)
                     bone = bone.parent
@@ -1657,7 +1658,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             # 軸変換時コンストレイントがついている場合にヒューマンボーンとその先祖ボーンを優先したいので、
             # それらを深さ優先で先に処理し、その後その他のボーンを深さ優先で処理する
             unsorted_bones = [
-                bone for bone in armature.data.edit_bones if not bone.parent
+                bone for bone in armature_data.edit_bones if not bone.parent
             ]
             while unsorted_bones:
                 bone = unsorted_bones.pop()
@@ -1715,7 +1716,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     ).to_translation()
                     target_vector = target_translation - base_translation
                 elif bone.children:
-                    target_translation = Vector()
+                    target_translation = Vector((0, 0, 0.0, 0.0))
                     for child in bone.children:
                         child_translation = (
                             armature.matrix_world @ Matrix.Translation(child.head)

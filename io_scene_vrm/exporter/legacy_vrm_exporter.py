@@ -1618,6 +1618,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         morph_normal_diff_dict = {}
         vert_base_normal_dict = {}
+        if not mesh_data.shape_keys:
+            raise AssertionError("mesh_data.shape_keys is None")
         for kb in mesh_data.shape_keys.key_blocks:
             # 頂点のノーマルではなくsplit(loop)のノーマルを使う
             # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
@@ -1911,7 +1913,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             material_slot_dict = {
                 i: slot.material.name
                 for i, slot in enumerate(mesh.material_slots)
-                if slot.name and slot.material.name
+                if slot.material
             }
             node_id_dict: dict[str, int] = {
                 str(node_dict.get("name")): i
