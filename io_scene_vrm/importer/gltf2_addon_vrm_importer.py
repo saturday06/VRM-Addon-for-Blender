@@ -814,7 +814,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 buffer_view_dicts.append(
                     {
                         "buffer": position_buffer_index,
-                        "byteOffset": 0,
                         "byteLength": len(position_buffer_bytes),
                     }
                 )
@@ -822,7 +821,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 buffer_view_dicts.append(
                     {
                         "buffer": texcoord_buffer_index,
-                        "byteOffset": 0,
                         "byteLength": len(texcoord_buffer_bytes),
                     }
                 )
@@ -835,7 +833,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 accessor_dicts.append(
                     {
                         "bufferView": position_buffer_view_index,
-                        "byteOffset": 0,
                         "type": "VEC3",
                         "componentType": GL_FLOAT,
                         "count": 3,
@@ -847,7 +844,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 accessor_dicts.append(
                     {
                         "bufferView": texcoord_buffer_view_index,
-                        "byteOffset": 0,
                         "type": "VEC2",
                         "componentType": GL_FLOAT,
                         "count": 3,
@@ -955,7 +951,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 buffer_view_dicts.append(
                     {
                         "buffer": position_buffer_index,
-                        "byteOffset": 0,
                         "byteLength": len(position_buffer_bytes),
                     }
                 )
@@ -963,7 +958,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 buffer_view_dicts.append(
                     {
                         "buffer": joints_buffer_index,
-                        "byteOffset": 0,
                         "byteLength": len(joints_buffer_bytes),
                     }
                 )
@@ -971,7 +965,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 buffer_view_dicts.append(
                     {
                         "buffer": weights_buffer_index,
-                        "byteOffset": 0,
                         "byteLength": len(weights_buffer_bytes),
                     }
                 )
@@ -984,7 +977,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 accessor_dicts.append(
                     {
                         "bufferView": position_buffer_view_index,
-                        "byteOffset": 0,
                         "type": "VEC3",
                         "componentType": GL_FLOAT,
                         "count": 3,
@@ -996,7 +988,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 accessor_dicts.append(
                     {
                         "bufferView": joints_buffer_view_index,
-                        "byteOffset": 0,
                         "type": "VEC4",
                         "componentType": GL_UNSIGNED_SHORT,
                         "count": 3,
@@ -1006,7 +997,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 accessor_dicts.append(
                     {
                         "bufferView": weights_buffer_view_index,
-                        "byteOffset": 0,
                         "type": "VEC4",
                         "componentType": GL_FLOAT,
                         "count": 3,
