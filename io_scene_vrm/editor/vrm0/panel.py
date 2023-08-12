@@ -577,7 +577,7 @@ def draw_vrm0_blend_shape_master_layout(
         column.prop(blend_shape_group, "name")
         column.prop(blend_shape_group, "preset_name")
         column.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
-        column.prop(blend_shape_group, "preview", icon="PLAY")
+        column.prop(blend_shape_group, "preview", icon="PLAY", text="Preview")
         column.separator(factor=0.5)
 
         binds_box = column.box()
