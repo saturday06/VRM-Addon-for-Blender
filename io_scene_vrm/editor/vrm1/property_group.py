@@ -563,7 +563,8 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.textureTransformBind.schema.json
 class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Material  # noqa: F821
+        name="Material",  # noqa: F821
+        type=bpy.types.Material,  # noqa: F821
     )
     scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=2, default=(1, 1)  # noqa: F722
