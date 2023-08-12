@@ -193,11 +193,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     @staticmethod
     def fixup_human_bones(obj: bpy.types.Object) -> None:
         armature_data = obj.data
-        if (
-            obj.type != "ARMATURE"
-            or not isinstance(armature_data, bpy.types.Armature)
-            or not hasattr(armature_data, "vrm_addon_extension")
-        ):
+        if not isinstance(armature_data, bpy.types.Armature):
             return
 
         humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
