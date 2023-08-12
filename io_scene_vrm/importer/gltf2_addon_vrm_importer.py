@@ -1716,7 +1716,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     ).to_translation()
                     target_vector = target_translation - base_translation
                 elif bone.children:
-                    target_translation = Vector((0, 0, 0.0, 0.0))
+                    target_translation = Vector((0.0, 0.0, 0.0))
                     for child in bone.children:
                         child_translation = (
                             armature.matrix_world @ Matrix.Translation(child.head)
