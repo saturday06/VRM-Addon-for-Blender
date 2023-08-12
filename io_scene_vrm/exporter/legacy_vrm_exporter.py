@@ -1678,7 +1678,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if (
                 mesh.parent_type == "BONE"
                 and mesh.parent.type == "ARMATURE"
-                and mesh.parent_bone is not None
+                and mesh.parent_bone
             ):
                 return False
             if (
