@@ -54,7 +54,9 @@ def export_materials(objects: list[bpy.types.Object]) -> list[bpy.types.Material
     return result
 
 
-def vrm_shader_node(material: bpy.types.Material) -> Optional[bpy.types.Node]:
+def vrm_shader_node(
+    material: bpy.types.Material,
+) -> Optional[bpy.types.ShaderNodeGroup]:
     if not material.node_tree or not material.node_tree.nodes:
         return None
     for node in material.node_tree.nodes:
