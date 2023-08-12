@@ -108,7 +108,7 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
         text = blend_shape_group.name + " / " + enum_item.name
         split = layout.split(align=True, factor=0.55)
         split.label(text=text, icon=enum_item.icon)
-        split.prop(blend_shape_group, "preview")
+        split.prop(blend_shape_group, "preview", text="Preview")
 
 
 class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]

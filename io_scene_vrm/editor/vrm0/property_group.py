@@ -464,7 +464,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
             mesh.shape_keys.key_blocks[bind.index].value = value
 
     preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Preview",  # noqa: F821
+        name="Blend Shape Proxy",  # noqa: F722
         min=0,
         max=1,
         subtype="FACTOR",  # noqa: F821
