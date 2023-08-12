@@ -613,7 +613,7 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):  # type: igno
     def update_enable_animation(self, _context: bpy.types.Context) -> None:
         for spring in self.springs:
             for joint in spring.joints:
-                joint.state.initialized = False
+                joint.animation_state.initialized_as_tail = False
 
     enable_animation: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="[Experimental!] Enable Animation",  # noqa: F722
