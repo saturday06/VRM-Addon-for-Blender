@@ -1703,7 +1703,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     @staticmethod
     def tessface_fan(
         bm: bmesh.types.BMesh, export_fb_ngon_encoding: bool
-    ) -> list[tuple[int, list[bmesh.types.BMLoop]]]:
+    ) -> list[tuple[int, tuple[bmesh.types.BMLoop, ...]]]:
         if not export_fb_ngon_encoding:
             return [
                 (loops[0].face.material_index, loops)
@@ -1719,29 +1719,33 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 f.material_index
             ),
         )
-        polys: list[tuple[int, list[bmesh.types.BMLoop]]] = []
+        polys: list[tuple[int, tuple[bmesh.types.BMLoop, ...]]] = []
         for face in sorted_faces:
             if len(face.loops) <= 3:
                 if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
                     polys.append(
                         (
                             face.material_index,
-                            [face.loops[n] for n in [1, 2, 0]],
+                            (
+                                face.loops[1],
+                                face.loops[2],
+                                face.loops[0],
+                            ),
                         )
                     )
                 else:
-                    polys.append((face.material_index, face.loops[:]))
+                    polys.append((face.material_index, tuple(face.loops)))
             else:
                 if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
                     for i in range(0, len(face.loops) - 2):
                         polys.append(
                             (
                                 face.material_index,
-                                [
+                                (
                                     face.loops[-1],
                                     face.loops[i],
                                     face.loops[i + 1],
-                                ],
+                                ),
                             )
                         )
                 else:
@@ -1749,11 +1753,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         polys.append(
                             (
                                 face.material_index,
-                                [
+                                (
                                     face.loops[0],
                                     face.loops[i],
                                     face.loops[i + 1],
-                                ],
+                                ),
                             )
                         )
         return polys
