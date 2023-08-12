@@ -367,10 +367,12 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     draw_mtoon1_material(context, layout)
 
     node = search.vrm_shader_node(material)
-    if ext.mtoon1.enabled or (node and node.node_tree["SHADER"] == "MToon_unversioned"):
+    if ext.mtoon1.enabled or (
+        node and node.node_tree.get("SHADER") == "MToon_unversioned"
+    ):
         layout.prop(ext.mtoon1, "export_shape_key_normals")
         return
-    if node and node.node_tree["SHADER"] in ["TRANSPARENT_ZWRITE", "GLTF"]:
+    if node and node.node_tree.get("SHADER") in ["TRANSPARENT_ZWRITE", "GLTF"]:
         return
 
     help_column = layout.box().column()
