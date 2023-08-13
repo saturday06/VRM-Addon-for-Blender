@@ -1,6 +1,7 @@
 import functools
 import sys
 from collections.abc import Sequence
+from sys import float_info
 from typing import Optional
 
 import bpy
@@ -621,8 +622,77 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
         name="Texture Transform Binds"  # noqa: F722
     )
 
+    # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の変更ができないので、
+    # 変更された値をここに保存しておく
+    frame_change_post_shape_key_updates: dict[tuple[str, str], float] = {}
 
-class Vrm1CustomExpressionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    def get_preview(self) -> float:
+        value = self.get("preview")
+        if isinstance(value, (float, int)):
+            return float(value)
+        return 0.0
+
+    def set_preview(self, value: object) -> None:
+        if not isinstance(value, (int, float)):
+            return
+
+        current_value = self.get("preview")
+        if (
+            isinstance(current_value, (int, float))
+            and abs(current_value - value) < float_info.epsilon
+        ):
+            return
+
+        self["preview"] = float(value)
+
+        blend_data = bpy.data
+        for morph_target_bind in self.morph_target_binds:
+            mesh_object = blend_data.objects.get(
+                morph_target_bind.node.mesh_object_name
+            )
+            if not mesh_object or mesh_object.type != "MESH":
+                continue
+            mesh = mesh_object.data
+            if not isinstance(mesh, bpy.types.Mesh):
+                continue
+            mesh_shape_keys = mesh.shape_keys
+            if not mesh_shape_keys:
+                continue
+            shape_key = blend_data.shape_keys.get(mesh_shape_keys.name)
+            if not shape_key:
+                continue
+            key_blocks = shape_key.key_blocks
+            if not key_blocks:
+                continue
+            if morph_target_bind.index not in key_blocks:
+                continue
+            if self.is_binary:
+                preview = 1.0 if self.preview > 0.0 else 0.0
+            else:
+                preview = self.preview
+            key_block_value = (
+                morph_target_bind.weight * preview
+            )  # Lerp 0.0 * (1 - a) + weight * a
+            key_blocks[morph_target_bind.index].value = key_block_value
+            Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates[
+                (shape_key.name, morph_target_bind.index)
+            ] = key_block_value
+
+    preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
+        name="Expression",  # noqa: F821
+        min=0,
+        max=1,
+        subtype="FACTOR",  # noqa: F821
+        get=get_preview,  # noqa: F821
+        set=set_preview,  # noqa: F821
+    )
+
+    active_morph_target_bind_index: bpy.props.IntProperty()  # type: ignore[valid-type]
+    active_material_color_bind_index: bpy.props.IntProperty()  # type: ignore[valid-type]
+    active_texture_transform_bind_index: bpy.props.IntProperty()  # type: ignore[valid-type]
+
+
+class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
     def get_custom_name(self) -> str:
         return str(self.get("custom_name", ""))
 
@@ -652,17 +722,17 @@ class Vrm1CustomExpressionPropertyGroup(bpy.types.PropertyGroup):  # type: ignor
                 break
 
         self["custom_name"] = custom_name
+        self.name = custom_name  # pylint: disable=attribute-defined-outside-init
 
     custom_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name",  # noqa: F821
         get=get_custom_name,
         set=set_custom_name,
     )
-    expression: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
-class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     happy: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     angry: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     sad: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
@@ -682,11 +752,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
     look_left: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     look_right: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
 
-    custom: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1CustomExpressionPropertyGroup  # noqa: F722
-    )
-
-    def preset_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
+    def name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
         return {
             "happy": self.happy,
             "angry": self.angry,
@@ -708,11 +774,37 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
             "lookRight": self.look_right,
         }
 
+
+# https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
+class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    preset: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Vrm1ExpressionsPresetPropertyGroup,  # noqa: F722
+    )
+
+    custom: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=Vrm1CustomExpressionPropertyGroup,  # noqa: F722
+    )
+
     def all_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
-        result = self.preset_name_to_expression_dict()
+        if not isinstance(self.preset, Vrm1ExpressionsPresetPropertyGroup):
+            # make static type checker happy
+            raise AssertionError("preset is not a Vrm1ExpressionsPresetPropertyGroup")
+
+        result = self.preset.name_to_expression_dict()
         for custom_expression in self.custom:
-            result[custom_expression.custom_name] = custom_expression.expression
+            if not isinstance(custom_expression, Vrm1CustomExpressionPropertyGroup):
+                # make static type checker happy
+                raise AssertionError(
+                    "custom_expression is not a Vrm1CustomExpressionPropertyGroup"
+                )
+            result[custom_expression.custom_name] = custom_expression
         return result
+
+    # expressionのUIList表示のため、expressionの数だけ空の要素を持つ
+    expression_ui_list_elements: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup  # noqa: F821
+    )
+    active_expression_ui_list_element_index: bpy.props.IntProperty()  # type: ignore[valid-type]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json

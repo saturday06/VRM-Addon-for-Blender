@@ -407,7 +407,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         for (
             preset_name,
             expression,
-        ) in expressions.preset_name_to_expression_dict().items():
+        ) in expressions.preset.name_to_expression_dict().items():
             preset_dict[preset_name] = Gltf2AddonVrmExporter.create_expression_dict(
                 expression,
                 mesh_object_name_to_node_index_dict,
@@ -419,7 +419,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             custom_dict[
                 custom_expression.custom_name
             ] = Gltf2AddonVrmExporter.create_expression_dict(
-                custom_expression.expression,
+                custom_expression,
                 mesh_object_name_to_node_index_dict,
                 mesh_object_name_to_morph_target_names_dict,
                 material_name_to_index_dict,

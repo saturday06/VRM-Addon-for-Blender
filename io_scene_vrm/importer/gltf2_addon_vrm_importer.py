@@ -2248,7 +2248,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             for (
                 preset_name,
                 expression,
-            ) in expressions.preset_name_to_expression_dict().items():
+            ) in expressions.preset.name_to_expression_dict().items():
                 self.load_vrm1_expression(expression, preset_dict.get(preset_name))
 
         custom_dict = expressions_dict.get("custom")
@@ -2256,7 +2256,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             for custom_name, expression_dict in custom_dict.items():
                 expression = expressions.custom.add()
                 expression.custom_name = custom_name
-                self.load_vrm1_expression(expression.expression, expression_dict)
+                self.load_vrm1_expression(expression, expression_dict)
 
     def load_spring_bone1_colliders(
         self,

@@ -22,7 +22,16 @@ from .property_group import (
     Vrm1HumanBonesPropertyGroup,
     Vrm1HumanoidPropertyGroup,
     Vrm1LookAtPropertyGroup,
+    Vrm1MaterialColorBindPropertyGroup,
     Vrm1MetaPropertyGroup,
+    Vrm1MorphTargetBindPropertyGroup,
+    Vrm1TextureTransformBindPropertyGroup,
+)
+from .ui_list import (
+    VRM_UL_vrm1_expression,
+    VRM_UL_vrm1_material_color_bind,
+    VRM_UL_vrm1_morph_target_bind,
+    VRM_UL_vrm1_texture_transform_bind,
 )
 
 logger = get_logger(__name__)
@@ -681,36 +690,259 @@ def draw_vrm1_expression_layout(
         remove_custom_expression_op.custom_expression_name = name
 
 
+def draw_vrm1_expressions_morph_target_bind_layout(
+    context: bpy.types.Context,
+    layout: bpy.types.UILayout,
+    bind: Vrm1MorphTargetBindPropertyGroup,
+) -> None:
+    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
+        context.scene.name
+    )
+
+    blend_data = context.blend_data
+
+    bind_column = layout.column()
+    bind_column.prop_search(
+        bind.node,
+        "mesh_object_name",
+        context.scene.vrm_addon_extension,
+        "mesh_object_names",
+        text="Mesh",
+        icon="OUTLINER_OB_MESH",
+    )
+    mesh_object = blend_data.objects.get(bind.node.mesh_object_name)
+    if not mesh_object:
+        return
+    mesh = mesh_object.data
+    if not isinstance(mesh, bpy.types.Mesh):
+        return
+    shape_keys = mesh.shape_keys
+    if not shape_keys:
+        return
+    key_blocks = shape_keys.key_blocks
+    if not key_blocks:
+        return
+
+    bind_column.prop_search(
+        bind,
+        "index",
+        shape_keys,
+        "key_blocks",
+        text="Shape key",
+    )
+    bind_column.prop(bind, "weight", slider=True)
+
+
+def draw_vrm1_expressions_material_color_bind_layout(
+    context: bpy.types.Context,
+    layout: bpy.types.UILayout,
+    bind: Vrm1MaterialColorBindPropertyGroup,
+) -> None:
+    blend_data = context.blend_data
+
+    bind_column = layout.column()
+    bind_column.prop_search(bind, "material", blend_data, "materials")
+    bind_column.prop(bind, "type")
+    target_value_split = bind_column.split(factor=0.5)
+    target_value_split.label(text="Target Value:")
+    if bind.type == "color":
+        target_value_split.prop(bind, "target_value", text="", translate=False)
+    else:
+        target_value_split.prop(bind, "target_value_as_rgb", text="", translate=False)
+
+
+def draw_vrm1_expressions_texture_transform_bind_layout(
+    context: bpy.types.Context,
+    layout: bpy.types.UILayout,
+    bind: Vrm1TextureTransformBindPropertyGroup,
+) -> None:
+    blend_data = context.blend_data
+
+    bind_column = layout.column()
+    bind_column.prop_search(bind, "material", blend_data, "materials")
+    bind_column.prop(bind, "scale")
+    bind_column.prop(bind, "offset")
+
+
 def draw_vrm1_expressions_layout(
     armature: bpy.types.Object,
     context: bpy.types.Context,
     layout: bpy.types.UILayout,
     expressions: Vrm1ExpressionsPropertyGroup,
 ) -> None:
-    migrate(armature.name, defer=True)
-
-    column = layout.column()
-    for name, expression in expressions.preset_name_to_expression_dict().items():
-        draw_vrm1_expression_layout(
-            armature, context, column, name, expression, custom_expression=None
+    if migrate(armature.name, defer=True):
+        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
+            context.scene.name
         )
 
-    for custom_expression in expressions.custom:
-        draw_vrm1_expression_layout(
-            armature,
-            context,
-            column,
-            custom_expression.custom_name,
-            custom_expression.expression,
-            custom_expression,
-        )
+    row = layout.row()
+    row.template_list(
+        VRM_UL_vrm1_expression.bl_idname,
+        "",
+        expressions,
+        "expression_ui_list_elements",
+        expressions,
+        "active_expression_ui_list_element_index",
+    )
+    active_index = expressions.active_expression_ui_list_element_index
 
-    add_custom_expression_op = layout.operator(
+    list_side_column = row.column(align=True)
+
+    add_custom_expression_op = list_side_column.operator(
         vrm1_ops.VRM_OT_add_vrm1_expressions_custom_expression.bl_idname,
         icon="ADD",
+        text="",
     )
-    add_custom_expression_op.custom_expression_name = "new"
     add_custom_expression_op.armature_name = armature.name
+    add_custom_expression_op.custom_expression_name = "custom"
+
+    preset_expressions = list(expressions.preset.name_to_expression_dict().values())
+    custom_index = active_index - len(preset_expressions)
+
+    if 0 <= active_index < len(preset_expressions):
+        expression = preset_expressions[active_index]
+        custom = False
+    elif 0 <= custom_index < len(expressions.custom):
+        expression = expressions.custom[custom_index]
+        custom = True
+        remove_custom_expression_op = list_side_column.operator(
+            vrm1_ops.VRM_OT_remove_vrm1_expressions_custom_expression.bl_idname,
+            icon="REMOVE",
+            text="",
+        )
+        remove_custom_expression_op.armature_name = armature.name
+        remove_custom_expression_op.custom_expression_name = expression.custom_name
+    else:
+        return
+
+    box = layout.box()
+    column = box.column()
+    if custom:
+        column.prop(expression, "custom_name")
+    else:
+        column.label(text=expression.name, translate=False)
+    column.prop(expression, "preview", icon="PLAY", text="Preview")
+    column.prop(expression, "is_binary", icon="IPO_CONSTANT")
+    column.prop(expression, "override_blink")
+    column.prop(expression, "override_look_at")
+    column.prop(expression, "override_mouth")
+    column.separator(factor=0.5)
+
+    morph_target_binds_box = column.box()
+    morph_target_binds_box.label(text="Morph Target Binds", icon="MESH_DATA")
+    morph_target_binds_row = morph_target_binds_box.row()
+    morph_target_binds_row.template_list(
+        VRM_UL_vrm1_morph_target_bind.bl_idname,
+        "",
+        expression,
+        "morph_target_binds",
+        expression,
+        "active_morph_target_bind_index",
+    )
+
+    active_morph_target_bind_index = expression.active_morph_target_bind_index
+    morph_target_binds_side_column = morph_target_binds_row.column(align=True)
+    add_morph_target_bind_op = morph_target_binds_side_column.operator(
+        vrm1_ops.VRM_OT_add_vrm1_expression_morph_target_bind.bl_idname,
+        icon="ADD",
+        text="",
+    )
+    add_morph_target_bind_op.armature_name = armature.name
+    add_morph_target_bind_op.expression_name = expression.name
+    remove_morph_target_bind_op = morph_target_binds_side_column.operator(
+        vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind.bl_idname,
+        icon="REMOVE",
+        text="",
+    )
+    remove_morph_target_bind_op.armature_name = armature.name
+    remove_morph_target_bind_op.expression_name = expression.name
+    remove_morph_target_bind_op.bind_index = active_morph_target_bind_index
+
+    if 0 <= active_morph_target_bind_index < len(expression.morph_target_binds):
+        draw_vrm1_expressions_morph_target_bind_layout(
+            context,
+            morph_target_binds_box,
+            expression.morph_target_binds[active_morph_target_bind_index],
+        )
+
+    column.separator(factor=0.2)
+
+    material_color_binds_box = column.box()
+    material_color_binds_box.label(text="Material Color Binds", icon="MATERIAL")
+    material_color_binds_row = material_color_binds_box.row()
+    material_color_binds_row.template_list(
+        VRM_UL_vrm1_material_color_bind.bl_idname,
+        "",
+        expression,
+        "material_color_binds",
+        expression,
+        "active_material_color_bind_index",
+    )
+    active_material_color_bind_index = expression.active_material_color_bind_index
+    material_color_binds_side_column = material_color_binds_row.column(align=True)
+    add_material_color_bind_op = material_color_binds_side_column.operator(
+        vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind.bl_idname,
+        icon="ADD",
+        text="",
+    )
+    add_material_color_bind_op.armature_name = armature.name
+    add_material_color_bind_op.expression_name = expression.name
+    remove_material_color_bind_op = material_color_binds_side_column.operator(
+        vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind.bl_idname,
+        icon="REMOVE",
+        text="",
+    )
+    remove_material_color_bind_op.armature_name = armature.name
+    remove_material_color_bind_op.expression_name = expression.name
+    remove_material_color_bind_op.bind_index = active_material_color_bind_index
+
+    if 0 <= active_material_color_bind_index < len(expression.material_color_binds):
+        draw_vrm1_expressions_material_color_bind_layout(
+            context,
+            material_color_binds_box,
+            expression.material_color_binds[active_material_color_bind_index],
+        )
+    column.separator(factor=0.2)
+
+    texture_transform_binds_box = column.box()
+    texture_transform_binds_box.label(text="Texture Transform Binds", icon="MATERIAL")
+    texture_transform_binds_row = texture_transform_binds_box.row()
+    texture_transform_binds_row.template_list(
+        VRM_UL_vrm1_texture_transform_bind.bl_idname,
+        "",
+        expression,
+        "texture_transform_binds",
+        expression,
+        "active_texture_transform_bind_index",
+    )
+    active_texture_transform_bind_index = expression.active_texture_transform_bind_index
+    texture_transform_binds_side_column = texture_transform_binds_row.column(align=True)
+    add_texture_transform_bind_op = texture_transform_binds_side_column.operator(
+        vrm1_ops.VRM_OT_add_vrm1_expression_texture_transform_bind.bl_idname,
+        icon="ADD",
+        text="",
+    )
+    add_texture_transform_bind_op.armature_name = armature.name
+    add_texture_transform_bind_op.expression_name = expression.name
+    remove_texture_transform_bind_op = texture_transform_binds_side_column.operator(
+        vrm1_ops.VRM_OT_remove_vrm1_expression_texture_transform_bind.bl_idname,
+        icon="REMOVE",
+        text="",
+    )
+    remove_texture_transform_bind_op.armature_name = armature.name
+    remove_texture_transform_bind_op.expression_name = expression.name
+    remove_texture_transform_bind_op.bind_index = active_texture_transform_bind_index
+
+    if (
+        0
+        <= active_texture_transform_bind_index
+        < len(expression.texture_transform_binds)
+    ):
+        draw_vrm1_expressions_texture_transform_bind_layout(
+            context,
+            texture_transform_binds_box,
+            expression.texture_transform_binds[active_texture_transform_bind_index],
+        )
 
 
 class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):  # type: ignore[misc]

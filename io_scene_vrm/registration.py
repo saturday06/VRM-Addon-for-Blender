@@ -33,13 +33,16 @@ from .editor.spring_bone1 import handler as spring_bone1_handler
 from .editor.spring_bone1 import ops as spring_bone1_ops
 from .editor.spring_bone1 import panel as spring_bone1_panel
 from .editor.spring_bone1 import property_group as spring_bone1_property_group
+from .editor.vrm0 import handler as vrm0_handler
 from .editor.vrm0 import ops as vrm0_ops
 from .editor.vrm0 import panel as vrm0_panel
 from .editor.vrm0 import property_group as vrm0_property_group
 from .editor.vrm0 import ui_list as vrm0_ui_list
+from .editor.vrm1 import handler as vrm1_handler
 from .editor.vrm1 import ops as vrm1_ops
 from .editor.vrm1 import panel as vrm1_panel
 from .editor.vrm1 import property_group as vrm1_property_group
+from .editor.vrm1 import ui_list as vrm1_ui_list
 from .exporter import export_scene
 from .external import io_scene_gltf2_support
 from .importer import import_scene
@@ -134,6 +137,7 @@ classes = [
     vrm1_property_group.Vrm1TextureTransformBindPropertyGroup,
     vrm1_property_group.Vrm1ExpressionPropertyGroup,
     vrm1_property_group.Vrm1CustomExpressionPropertyGroup,
+    vrm1_property_group.Vrm1ExpressionsPresetPropertyGroup,
     vrm1_property_group.Vrm1ExpressionsPropertyGroup,
     vrm1_property_group.Vrm1MetaPropertyGroup,
     vrm1_property_group.Vrm1PropertyGroup,
@@ -243,6 +247,10 @@ classes = [
     spring_bone1_panel.VRM_PT_spring_bone1_armature_object_property,
     spring_bone1_panel.VRM_PT_spring_bone1_ui,
     spring_bone1_panel.VRM_PT_spring_bone1_collider_property,
+    vrm1_ui_list.VRM_UL_vrm1_expression,
+    vrm1_ui_list.VRM_UL_vrm1_morph_target_bind,
+    vrm1_ui_list.VRM_UL_vrm1_material_color_bind,
+    vrm1_ui_list.VRM_UL_vrm1_texture_transform_bind,
     vrm0_ops.VRM_OT_add_vrm0_first_person_mesh_annotation,
     vrm0_ops.VRM_OT_remove_vrm0_first_person_mesh_annotation,
     vrm0_ops.VRM_OT_add_vrm0_material_value_bind,
@@ -380,9 +388,14 @@ def register(init_addon_version: object) -> None:
     )
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_pre.append(vrm1_handler.depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
     bpy.app.handlers.save_pre.append(mtoon1_handler.save_pre)
     bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
+    bpy.app.handlers.frame_change_pre.append(vrm0_handler.frame_change_pre)
+    bpy.app.handlers.frame_change_post.append(vrm0_handler.frame_change_post)
+    bpy.app.handlers.frame_change_pre.append(vrm1_handler.frame_change_pre)
+    bpy.app.handlers.frame_change_post.append(vrm1_handler.frame_change_post)
     bpy.app.handlers.depsgraph_update_pre.append(
         spring_bone1_handler.depsgraph_update_pre
     )

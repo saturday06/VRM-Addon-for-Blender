@@ -197,6 +197,29 @@ def float3_or(
     return float3_or_none(v) or default
 
 
+def float2_or_none(v: object) -> Optional[tuple[float, float]]:
+    iterator = iterator_or_none(v)
+    if iterator is None:
+        return None
+    result: list[float] = []
+    for x in iterator:
+        if len(result) == 2:
+            return None
+        if isinstance(x, float):
+            result.append(x)
+        elif isinstance(x, int):
+            result.append(float(x))
+        else:
+            return None
+    if len(result) != 2:
+        return None
+    return (result[0], result[1])
+
+
+def float2_or(v: object, default: tuple[float, float]) -> tuple[float, float]:
+    return float2_or_none(v) or default
+
+
 def str_or(v: object, default: str) -> str:
     if isinstance(v, str):
         return v

@@ -1,5 +1,6 @@
 import functools
 from dataclasses import dataclass
+from sys import float_info
 
 import bpy
 from mathutils import Vector
@@ -447,28 +448,65 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         name="Active Material Value Index", default=0  # noqa: F722
     )
 
-    def update_preview(self, context: bpy.types.Context) -> None:
-        blend_data = context.blend_data
+    # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の変更ができないので、
+    # 変更された値をここに保存しておく
+    frame_change_post_shape_key_updates: dict[tuple[str, str], float] = {}
+
+    def get_preview(self) -> float:
+        value = self.get("preview")
+        if isinstance(value, (float, int)):
+            return float(value)
+        return 0.0
+
+    def set_preview(self, value: object) -> None:
+        if not isinstance(value, (int, float)):
+            return
+
+        current_value = self.get("preview")
+        if (
+            isinstance(current_value, (int, float))
+            and abs(current_value - value) < float_info.epsilon
+        ):
+            return
+
+        self["preview"] = float(value)
+
+        blend_data = bpy.data
         for bind in self.binds:
             mesh_object = blend_data.objects.get(bind.mesh.mesh_object_name)
             if not mesh_object or mesh_object.type != "MESH":
                 continue
             mesh = mesh_object.data
-            if (
-                not mesh.shape_keys
-                or not mesh.shape_keys.key_blocks
-                or bind.index not in mesh.shape_keys.key_blocks
-            ):
+            if not isinstance(mesh, bpy.types.Mesh):
                 continue
-            value = bind.weight * self.preview  # Lerp 0.0 * (1 - a) + weight * a
-            mesh.shape_keys.key_blocks[bind.index].value = value
+            mesh_shape_keys = mesh.shape_keys
+            if not mesh_shape_keys:
+                continue
+            shape_key = blend_data.shape_keys.get(mesh_shape_keys.name)
+            if not shape_key:
+                continue
+            key_blocks = shape_key.key_blocks
+            if not key_blocks:
+                continue
+            if bind.index not in key_blocks:
+                continue
+            if self.is_binary:
+                preview = 1.0 if self.preview > 0.0 else 0.0
+            else:
+                preview = self.preview
+            key_block_value = bind.weight * preview  # Lerp 0.0 * (1 - a) + weight * a
+            key_blocks[bind.index].value = key_block_value
+            Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates[
+                (shape_key.name, bind.index)
+            ] = key_block_value
 
     preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Blend Shape Proxy",  # noqa: F722
         min=0,
         max=1,
         subtype="FACTOR",  # noqa: F821
-        update=update_preview,  # noqa: F821
+        get=get_preview,  # noqa: F821
+        set=set_preview,  # noqa: F821
     )
 
 

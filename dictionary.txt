@@ -60,6 +60,7 @@ filepath
 filetype
 filetypes
 fixup
+float2
 float3
 float4
 fmax
@@ -86,6 +87,7 @@ hrad
 hx
 icyp
 idname
+idprop
 ies
 ih
 ik
