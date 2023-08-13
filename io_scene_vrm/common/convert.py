@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from sys import float_info
 from typing import Optional
 
@@ -18,7 +18,7 @@ def iterator_or_none(v: object) -> Optional[Iterator[object]]:
 def vrm_json_vector3_to_tuple(
     value: object,
 ) -> Optional[tuple[float, float, float]]:
-    if not isinstance(value, dict):
+    if not isinstance(value, Mapping):
         return None
     x = value.get("x")
     y = value.get("y")
