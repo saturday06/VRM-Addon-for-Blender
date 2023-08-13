@@ -1,6 +1,18 @@
-from collections.abc import Iterable
+from collections.abc import Iterator
 from sys import float_info
 from typing import Optional
+
+
+def iterator_or_none(v: object) -> Optional[Iterator[object]]:
+    try:
+        # "isinstance(v, Iterable)" doesn't work.
+        # https://github.com/python/cpython/blob/3.9/Doc/library/collections.abc.rst?plain=1#L126-L127
+        iterator = iter(v)  # type: ignore[call-overload]
+        if isinstance(iterator, Iterator):  # make type checkers happy
+            return iterator
+    except TypeError:
+        pass
+    return None
 
 
 def vrm_json_vector3_to_tuple(
@@ -21,9 +33,10 @@ def vrm_json_vector3_to_tuple(
 
 
 def vrm_json_curve_to_list(curve: object) -> Optional[list[float]]:
-    if not isinstance(curve, Iterable):
+    iterator = iterator_or_none(curve)
+    if iterator is None:
         return None
-    values = [float(v) if isinstance(v, (int, float)) else 0 for v in curve]
+    values = [float(v) if isinstance(v, (int, float)) else 0 for v in iterator]
     while len(values) < 8:
         values.append(0)
     while len(values) > 8:
@@ -32,16 +45,26 @@ def vrm_json_curve_to_list(curve: object) -> Optional[list[float]]:
 
 
 def vrm_json_array_to_float_vector(json: object, defaults: list[float]) -> list[float]:
-    if not isinstance(json, Iterable) or isinstance(json, str):
+    if isinstance(json, str):
         return defaults
 
-    input_values = list(json)
+    iterator = iterator_or_none(json)
+    if iterator is None:
+        return defaults
+
+    input_values = list(iterator)
     output_values: list[float] = []
     for index, default in enumerate(defaults):
-        if index < len(input_values) and isinstance(input_values[index], (int, float)):
-            output_values.append(float(input_values[index]))
-        else:
-            output_values.append(float(default))
+        if index >= len(input_values):
+            output_values.append(default)
+            continue
+
+        input_value = input_values[index]
+        if not isinstance(input_value, (int, float)):
+            output_values.append(default)
+            continue
+
+        output_values.append(float(input_value))
 
     return output_values
 
@@ -123,10 +146,12 @@ def float_or(v: object, default: float) -> float:
 
 
 def float4_or_none(v: object) -> Optional[tuple[float, float, float, float]]:
-    if not isinstance(v, Iterable):
+    iterator = iterator_or_none(v)
+    if iterator is None:
         return None
+
     result: list[float] = []
-    for x in v:
+    for x in iterator:
         if len(result) == 4:
             return None
         if isinstance(x, float):
@@ -147,10 +172,12 @@ def float4_or(
 
 
 def float3_or_none(v: object) -> Optional[tuple[float, float, float]]:
-    if not isinstance(v, Iterable):
+    iterator = iterator_or_none(v)
+    if iterator is None:
         return None
+
     result: list[float] = []
-    for x in v:
+    for x in iterator:
         if len(result) == 3:
             return None
         if isinstance(x, float):

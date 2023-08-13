@@ -1,11 +1,11 @@
 import math
-from collections.abc import Iterable
 from pathlib import Path
 from sys import float_info
 from typing import Optional
 
 import bpy
 
+from . import convert
 from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
 from .logging import get_logger
@@ -903,11 +903,12 @@ def get_float_value(
 def rgba_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[tuple[float, float, float, float]]:
-    if not isinstance(vs, Iterable):
+    iterator = convert.iterator_or_none(vs)
+    if iterator is None:
         return None
 
     rgba = []
-    for v in vs:
+    for v in iterator:
         f = float_or_none(v, min_value, max_value)
         if f is None:
             return None
@@ -957,11 +958,12 @@ def get_rgba_value(
 def rgb_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[tuple[float, float, float]]:
-    if not isinstance(vs, Iterable):
+    iterator = convert.iterator_or_none(vs)
+    if iterator is None:
         return None
 
     rgb = []
-    for v in vs:
+    for v in iterator:
         f = float_or_none(v, min_value, max_value)
         if f is None:
             return None

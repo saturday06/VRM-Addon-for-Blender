@@ -1,9 +1,10 @@
 import difflib
 import math
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from json import dumps as json_dumps
 from typing import Union
 
+from . import convert
 from .logging import get_logger
 
 logger = get_logger(__name__)
@@ -38,8 +39,9 @@ def make_json(v: object) -> Json:
                 continue
             logger.warning(f"{key} {type(key)} is unrecognized type for dict key")
         return result
-    if isinstance(v, Iterable):
-        return [make_json(x) for x in v]
+    iterator = convert.iterator_or_none(v)
+    if iterator is not None:
+        return [make_json(x) for x in iterator]
 
     logger.warning(f"{v} {type(v)} is unrecognized type")
     return None

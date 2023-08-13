@@ -6,7 +6,7 @@ import re
 import sys
 import uuid
 from base64 import urlsafe_b64encode
-from collections.abc import Iterable
+from collections.abc import Sequence
 from importlib.util import module_from_spec, spec_from_file_location
 from os import environ
 from pathlib import Path
@@ -133,7 +133,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
     except BaseException as e:
         return render_generation_failed_test(e)
 
-    if not isinstance(test_command_args_list, Iterable):
+    if not isinstance(test_command_args_list, Sequence):
         return render_single_test(path)
 
     existing_method_names = []
