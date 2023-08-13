@@ -45,6 +45,7 @@ from ..editor.vrm1.property_group import (
     Vrm1HumanBonesPropertyGroup,
     Vrm1HumanoidPropertyGroup,
     Vrm1LookAtPropertyGroup,
+    Vrm1MaterialColorBindPropertyGroup,
     Vrm1MetaPropertyGroup,
     Vrm1PropertyGroup,
 )
@@ -2168,11 +2169,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             type_ = material_color_bind_dict.get("type")
             if type_ in [
-                "color",
-                "emissionColor",
-                "shadeColor",
-                "rimColor",
-                "outlineColor",
+                value
+                for (value, _, _, _) in Vrm1MaterialColorBindPropertyGroup.type_items
             ]:
                 material_color_bind.type = type_
 
