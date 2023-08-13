@@ -2,8 +2,6 @@ from collections.abc import Iterable
 from sys import float_info
 from typing import Optional
 
-from .deep import Json, make_json
-
 
 def vrm_json_vector3_to_tuple(
     value: object,
@@ -175,11 +173,4 @@ def float3_or(
 def str_or(v: object, default: str) -> str:
     if isinstance(v, str):
         return v
-    return default
-
-
-def deep_dict_or(v: object, default: dict[str, Json]) -> dict[str, Json]:
-    d = make_json(v)
-    if isinstance(d, dict):
-        return d
     return default
