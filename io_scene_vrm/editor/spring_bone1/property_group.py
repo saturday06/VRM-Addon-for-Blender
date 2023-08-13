@@ -1,29 +1,15 @@
 import statistics
 import uuid
-from collections.abc import Iterable
 from sys import float_info
 
 import bpy
 from mathutils import Matrix, Vector
 
+from ...common import convert
 from ...common.logging import get_logger
 from ..property_group import BonePropertyGroup
 
 logger = get_logger(__name__)
-
-
-def to_tuple_3(v: object) -> tuple[float, float, float]:
-    if isinstance(v, Vector):
-        return (v.x, v.y, v.z)
-    if not isinstance(v, Iterable):
-        raise ValueError(f"{v} is not an iterable or mathutils.Vector")
-    v = list(v)
-    if len(v) != 3:
-        raise ValueError(f"len({v}) != 3")
-    for elem in v:
-        if not isinstance(elem, (int, float)):
-            raise ValueError(f"{elem} is not a number")
-    return (float(v[0]), float(v[1]), float(v[2]))
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L7-L27
@@ -53,7 +39,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
             )
         else:
             matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
-        return to_tuple_3(matrix.to_translation())
+        return convert.float3_or(matrix.to_translation(), (0.0, 0.0, 0.0))
 
     def set_offset(self, offset: object) -> None:
         backup_radius = self.get_radius()
@@ -137,7 +123,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             )
         else:
             matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
-        return to_tuple_3(matrix.to_translation())
+        return convert.float3_or(matrix.to_translation(), (0.0, 0.0, 0.0))
 
     def set_offset(self, offset: object) -> None:
         backup_radius = self.get_radius()
@@ -172,7 +158,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
                 armature.matrix_world.inverted()
                 @ collider.bpy_object.children[0].matrix_world
             )
-        return to_tuple_3(matrix.to_translation())
+        return convert.float3_or(matrix.to_translation(), (0.0, 0.0, 0.0))
 
     def set_tail(self, offset: object) -> None:
         backup_radius = self.get_radius()
