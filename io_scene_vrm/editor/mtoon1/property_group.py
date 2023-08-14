@@ -87,30 +87,11 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
                 )
             return
         output = node.outputs[0]
-        if isinstance(output, bpy.types.NodeSocketBool):
+        if isinstance(output, shader.BOOL_SOCKET_CLASSES):
             output.default_value = bool(value)
-        elif isinstance(
-            output,
-            (
-                bpy.types.NodeSocketFloat,
-                bpy.types.NodeSocketFloatAngle,
-                bpy.types.NodeSocketFloatDistance,
-                bpy.types.NodeSocketFloatFactor,
-                bpy.types.NodeSocketFloatPercentage,
-                bpy.types.NodeSocketFloatTime,
-                bpy.types.NodeSocketFloatUnsigned,
-            ),
-        ):
+        elif isinstance(output, shader.FLOAT_SOCKET_CLASSES):
             output.default_value = float(value)
-        elif isinstance(
-            output,
-            (
-                bpy.types.NodeSocketInt,
-                bpy.types.NodeSocketIntFactor,
-                bpy.types.NodeSocketIntPercentage,
-                bpy.types.NodeSocketIntUnsigned,
-            ),
-        ):
+        elif isinstance(output, shader.INT_SOCKET_CLASSES):
             output.default_value = int(value)
         else:
             logger.warning(f"{type(output)} doesn't have 'default_value'")

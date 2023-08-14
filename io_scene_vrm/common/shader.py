@@ -12,6 +12,38 @@ from .logging import get_logger
 
 logger = get_logger(__name__)
 
+BOOL_SOCKET_CLASSES = (bpy.types.NodeSocketBool,)
+FLOAT_SOCKET_CLASSES = (
+    bpy.types.NodeSocketFloat,
+    bpy.types.NodeSocketFloatAngle,
+    bpy.types.NodeSocketFloatFactor,
+    bpy.types.NodeSocketFloatPercentage,
+    bpy.types.NodeSocketFloatTime,
+    bpy.types.NodeSocketFloatUnsigned,
+)
+INT_SOCKET_CLASSES = (
+    bpy.types.NodeSocketInt,
+    bpy.types.NodeSocketIntFactor,
+    bpy.types.NodeSocketIntPercentage,
+    bpy.types.NodeSocketIntUnsigned,
+)
+SCALAR_SOCKET_CLASSES = (
+    *BOOL_SOCKET_CLASSES,
+    *FLOAT_SOCKET_CLASSES,
+    *INT_SOCKET_CLASSES,
+)
+VECTOR_SOCKET_CLASSES = (
+    bpy.types.NodeSocketVector,
+    bpy.types.NodeSocketVectorAcceleration,
+    bpy.types.NodeSocketVectorDirection,
+    bpy.types.NodeSocketVectorEuler,
+    bpy.types.NodeSocketVectorTranslation,
+    bpy.types.NodeSocketVectorVelocity,
+    bpy.types.NodeSocketVectorXYZ,
+)
+COLOR_SOCKET_CLASSES = (bpy.types.NodeSocketColor,)
+STRING_SOCKET_CLASSES = (bpy.types.NodeSocketString,)
+
 file_names = [
     "mtoon0.blend",
 ]
@@ -225,54 +257,22 @@ def copy_socket_default_value(
     from_socket: bpy.types.NodeSocket,
     to_socket: bpy.types.NodeSocket,
 ) -> None:
-    bool_sockets = (bpy.types.NodeSocketBool,)
-    float_sockets = (
-        bpy.types.NodeSocketFloat,
-        bpy.types.NodeSocketFloatAngle,
-        bpy.types.NodeSocketFloatFactor,
-        bpy.types.NodeSocketFloatPercentage,
-        bpy.types.NodeSocketFloatTime,
-        bpy.types.NodeSocketFloatUnsigned,
-    )
-    int_sockets = (
-        bpy.types.NodeSocketInt,
-        bpy.types.NodeSocketIntFactor,
-        bpy.types.NodeSocketIntPercentage,
-        bpy.types.NodeSocketIntUnsigned,
-    )
-    scalar_sockets = (
-        *bool_sockets,
-        *float_sockets,
-        *int_sockets,
-    )
-    vector_sockets = (
-        bpy.types.NodeSocketVector,
-        bpy.types.NodeSocketVectorAcceleration,
-        bpy.types.NodeSocketVectorDirection,
-        bpy.types.NodeSocketVectorEuler,
-        bpy.types.NodeSocketVectorTranslation,
-        bpy.types.NodeSocketVectorVelocity,
-        bpy.types.NodeSocketVectorXYZ,
-    )
-    color_sockets = (bpy.types.NodeSocketColor,)
-    string_sockets = (bpy.types.NodeSocketString,)
-
-    if isinstance(from_socket, scalar_sockets):
-        if isinstance(to_socket, bool_sockets):
+    if isinstance(from_socket, SCALAR_SOCKET_CLASSES):
+        if isinstance(to_socket, BOOL_SOCKET_CLASSES):
             to_socket.default_value = bool(from_socket.default_value)
-        elif isinstance(to_socket, float_sockets):
+        elif isinstance(to_socket, FLOAT_SOCKET_CLASSES):
             to_socket.default_value = float(from_socket.default_value)
-        elif isinstance(to_socket, int_sockets):
+        elif isinstance(to_socket, INT_SOCKET_CLASSES):
             to_socket.default_value = int(from_socket.default_value)
     elif (
-        isinstance(from_socket, vector_sockets)
-        and isinstance(to_socket, vector_sockets)
-        or isinstance(from_socket, color_sockets)
-        and isinstance(to_socket, color_sockets)
+        isinstance(from_socket, VECTOR_SOCKET_CLASSES)
+        and isinstance(to_socket, VECTOR_SOCKET_CLASSES)
+        or isinstance(from_socket, COLOR_SOCKET_CLASSES)
+        and isinstance(to_socket, COLOR_SOCKET_CLASSES)
     ):
         to_socket.default_value = tuple(from_socket.default_value)  # copy
-    elif isinstance(from_socket, string_sockets) and isinstance(
-        to_socket, string_sockets
+    elif isinstance(from_socket, STRING_SOCKET_CLASSES) and isinstance(
+        to_socket, STRING_SOCKET_CLASSES
     ):
         to_socket.default_value = str(from_socket.default_value)  # copy
 
