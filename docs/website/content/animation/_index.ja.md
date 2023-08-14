@@ -5,8 +5,8 @@ title: "VRMアニメーション"
 VRM Animationのインポートとエクスポートの解説です。執筆時点ではまだ仕様がDraftのため、今後変更される可能性があります。
 
 <!-- TableOfContentsの設定は自動でやりたい -->
-- [VRM Animationファイルのエクスポート](#vrm_animationファイルのエクスポート)
-- [VRM Animationファイルのインポート](#vrm_animationファイルのインポート)
+- [VRM Animationファイルのエクスポート](#vrm-animationファイルのエクスポート)
+- [VRM Animationファイルのインポート](#vrm-animationファイルのインポート)
 
 ## VRM Animationファイルのエクスポート
 
