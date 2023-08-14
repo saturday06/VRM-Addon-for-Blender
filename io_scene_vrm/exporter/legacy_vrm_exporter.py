@@ -1002,14 +1002,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 "index": texture_dict[(image_index, sampler_dict[sampler_dict_key])],
                 "texCoord": 0,  # TODO
             }
-            if hasattr(gltf2_io_texture_info, "scale") and isinstance(
-                gltf2_io_texture_info.scale, (int, float)
-            ):
-                texture_info["scale"] = gltf2_io_texture_info.scale
-            if hasattr(gltf2_io_texture_info, "strength") and isinstance(
-                gltf2_io_texture_info.strength, (int, float)
-            ):
-                texture_info["strength"] = gltf2_io_texture_info.strength
+
+            texture_info_scale = getattr(gltf2_io_texture_info, "scale", None)
+            if isinstance(texture_info_scale, (int, float)):
+                texture_info["scale"] = texture_info_scale
+
+            texture_info_strength = getattr(gltf2_io_texture_info, "strength", None)
+            if isinstance(texture_info_strength, (int, float)):
+                texture_info["strength"] = texture_info_strength
+
             return make_json(texture_info)
 
         def make_non_vrm_mat_dict(
