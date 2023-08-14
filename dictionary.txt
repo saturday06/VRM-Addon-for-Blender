@@ -197,6 +197,7 @@ shapekey
 sikuli
 skinnedmesh
 skippable
+slerp
 specular
 splitnormals
 sqrt
