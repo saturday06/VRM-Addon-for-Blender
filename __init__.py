@@ -16,7 +16,7 @@ https://opensource.org/licenses/mit-license.php
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 17, 7),
+    "version": (2, 18, 1),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -43,7 +43,7 @@ def register() -> None:
 def unregister() -> None:
     import bpy
 
-    if bpy.app.version < bl_info["blender"]:
+    if bpy.app.version < minimum_supported_blender_version():
         return
 
     # Lazy import to minimize initialization before blender version checking.
@@ -52,10 +52,18 @@ def unregister() -> None:
     registration.unregister()
 
 
+def minimum_supported_blender_version() -> tuple[int, int, int]:
+    blender = bl_info.get("blender")
+    if not isinstance(blender, tuple) or len(blender) != 3:
+        raise AssertionError(f"Invalid version value: {blender}")
+    major, minor, patch = blender
+    return (major, minor, patch)
+
+
 def raise_error_if_current_blender_is_not_supported() -> None:
     import bpy
 
-    if bpy.app.version >= bl_info["blender"]:
+    if bpy.app.version >= minimum_supported_blender_version():
         return
 
     default_message = (
@@ -177,6 +185,15 @@ class glTF2ExportUserExtension:
         )
 
         self.user_extension = Gltf2AddonExporterUserExtension()
+
+    # 3 arguments in Blender 2.93.0
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/exp/gltf2_blender_export.py#L68
+    # 5 arguments in Blender 3.6.0
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/78c9556942e0780b471c9985e83e39e8c8d8f85a/addons/io_scene_gltf2/blender/exp/gltf2_blender_export.py#L84
+    def gather_gltf_hook(
+        self, a: object, b: object, c: object = None, d: object = None
+    ) -> None:
+        self.user_extension.gather_gltf_hook(a, b, c, d)
 
 
 if __name__ == "__main__":
