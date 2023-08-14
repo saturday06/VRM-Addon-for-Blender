@@ -1,3 +1,5 @@
+from typing import cast
+
 import bpy
 
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
@@ -117,7 +119,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):  # type
             armature.data.vrm_addon_extension.vrm1.expressions.custom.add()
         )
         custom_expression.custom_name = self.custom_expression_name
-        return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
+        return cast(set[str], bpy.ops.vrm.update_vrm1_expression_ui_list_elements())
 
 
 class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # type: ignore[misc]
@@ -144,7 +146,9 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # t
                 armature.data.vrm_addon_extension.vrm1.expressions.custom.remove(
                     custom_index
                 )
-                return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
+                return cast(
+                    set[str], bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
+                )
         return {"CANCELLED"}
 
 
