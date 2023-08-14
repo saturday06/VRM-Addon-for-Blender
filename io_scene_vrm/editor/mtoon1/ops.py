@@ -153,14 +153,23 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[mis
                 main_texture_socket.links[0].from_node.inputs[0].links[0].from_node
             )
             if isinstance(mapping_node, bpy.types.ShaderNodeMapping):
-                uv_offset = (
-                    float(mapping_node.inputs["Location"].default_value[0]),
-                    float(mapping_node.inputs["Location"].default_value[1]),
-                )
-                uv_scale = (
-                    float(mapping_node.inputs["Scale"].default_value[0]),
-                    float(mapping_node.inputs["Scale"].default_value[1]),
-                )
+                location_socket = mapping_node.inputs.get("Location")
+                if location_socket and isinstance(
+                    location_socket, shader.VECTOR_SOCKET_CLASSES
+                ):
+                    uv_offset = (
+                        float(location_socket.default_value[0]),
+                        float(location_socket.default_value[1]),
+                    )
+
+                scale_socket = mapping_node.inputs.get("Scale")
+                if scale_socket and isinstance(
+                    scale_socket, shader.VECTOR_SOCKET_CLASSES
+                ):
+                    uv_scale = (
+                        float(scale_socket.default_value[0]),
+                        float(scale_socket.default_value[1]),
+                    )
 
         shade_color_factor = shader.get_rgb_value(node, "ShadeColor", 0.0, 1.0) or (
             0,

@@ -3,6 +3,7 @@ from typing import Optional
 import bpy
 from bpy.app.translations import pgettext
 
+from ...common.logging import get_logger
 from .. import search
 from ..ops import VRM_OT_open_url_in_web_browser
 from .ops import (
@@ -13,6 +14,8 @@ from .property_group import (
     Mtoon1MaterialPropertyGroup,
     Mtoon1VrmcMaterialsMtoonPropertyGroup,
 )
+
+logger = get_logger(__name__)
 
 
 def draw_texture_info(
@@ -44,6 +47,11 @@ def draw_texture_info(
         translate=False,
         icon="FILEBROWSER",
     )
+    if not isinstance(import_image_file_op, VRM_OT_import_mtoon1_texture_image_file):
+        logger.error(
+            f"{type(import_image_file_op)} is not a VRM_OT_import_mtoon1_texture_image_file"
+        )
+        return input_layout
     import_image_file_op.material_name = material_name
     import_image_file_op.target_texture = type(texture_info.index).__name__
     if color_factor_attr_name:
@@ -118,6 +126,11 @@ def draw_mtoon0_texture(
         translate=False,
         icon="FILEBROWSER",
     )
+    if not isinstance(import_image_file_op, VRM_OT_import_mtoon1_texture_image_file):
+        logger.error(
+            f"{type(import_image_file_op)} is not a VRM_OT_import_mtoon1_texture_image_file"
+        )
+        return input_layout
     import_image_file_op.material_name = material_name
     import_image_file_op.target_texture = type(texture).__name__
 
@@ -350,9 +363,13 @@ def draw_mtoon1_material(
         mtoon0_box.prop(gltf, "mtoon0_outline_scaled_max_distance", slider=True)
         mtoon0_box.prop(gltf, "mtoon0_render_queue", slider=True)
 
-    layout.operator(
-        VRM_OT_reset_mtoon1_material_shader_node_tree.bl_idname
-    ).material_name = material.name
+    reset_op = layout.operator(VRM_OT_reset_mtoon1_material_shader_node_tree.bl_idname)
+    if not isinstance(reset_op, VRM_OT_reset_mtoon1_material_shader_node_tree):
+        logger.error(
+            f"{type(reset_op)} is not a VRM_OT_reset_mtoon1_material_shader_node_tree"
+        )
+        return
+    reset_op.material_name = material.name
 
 
 def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> None:
@@ -393,6 +410,9 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     link_row = help_column.split(factor=0.8)
     link_row.label(text="   " + url, translate=False)
     web_op = link_row.operator(VRM_OT_open_url_in_web_browser.bl_idname, icon="URL")
+    if not isinstance(web_op, VRM_OT_open_url_in_web_browser):
+        logger.error(f"{type(web_op)} is not a VRM_OT_open_url_in_web_browser")
+        return
     web_op.url = url
 
 

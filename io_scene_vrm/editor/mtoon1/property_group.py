@@ -6,7 +6,7 @@ from typing import Optional
 import bpy
 import mathutils
 
-from ...common import shader
+from ...common import convert, shader
 from ...common.logging import get_logger
 from ...common.preferences import VrmAddonPreferences
 
@@ -324,8 +324,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         self.set_bool(self.get_texture_node_name("Present"), bool(node.image))
 
         outline = self.find_outline_property_group(material)
-        if outline:
-            outline.update_image(image)
+        if not outline:
+            return
+        if not isinstance(outline, TextureTraceablePropertyGroup):
+            return
+        outline.update_image(image)
 
     def set_texture_uv(self, name: str, value: object) -> None:
         node_name = self.get_texture_node_name("Uv")
@@ -340,11 +343,16 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             logger.warning(f'No "{name}" in shader node group "{node_name}"')
             return
 
-        socket.default_value = value
+        float3 = convert.float3_or_none(value)
+        if float3 and isinstance(socket, shader.VECTOR_SOCKET_CLASSES):
+            socket.default_value = float3
 
         outline = self.find_outline_property_group(material)
-        if outline:
-            outline.set_texture_uv(name, value)
+        if not outline:
+            return
+        if not isinstance(outline, TextureTraceablePropertyGroup):
+            return
+        outline.set_texture_uv(name, value)
 
 
 class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
@@ -361,8 +369,11 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         node.texture_mapping.translation = (0, 0, 0)
 
         outline = self.find_outline_property_group(material)
-        if outline:
-            outline.update_texture_offset(_context)
+        if not outline:
+            return
+        if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
+            return
+        outline.update_texture_offset(_context)
 
     def update_texture_scale(self, _context: bpy.types.Context) -> None:
         self.set_texture_uv("UV Scale X", self.scale[0])
@@ -377,8 +388,11 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         node.texture_mapping.scale = (1, 1, 1)
 
         outline = self.find_outline_property_group(material)
-        if outline:
-            outline.update_texture_scale(_context)
+        if not outline:
+            return
+        if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
+            return
+        outline.update_texture_scale(_context)
 
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Offset",  # noqa: F821
