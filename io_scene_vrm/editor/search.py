@@ -80,7 +80,7 @@ def vrm_shader_node(
 
 def shader_nodes_and_materials(
     materials: list[bpy.types.Material],
-) -> list[tuple[bpy.types.Node, bpy.types.Material]]:
+) -> list[tuple[bpy.types.ShaderNodeGroup, bpy.types.Material]]:
     result = []
     for material in materials:
         node = vrm_shader_node(material)

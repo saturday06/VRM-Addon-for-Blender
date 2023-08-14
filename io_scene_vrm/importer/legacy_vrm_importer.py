@@ -95,7 +95,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
             )
 
             # temporary tail pos(glTF doesn't have bone. there defines as joints )
-            def vector_length(bone_vector: list[float]) -> float:
+            def vector_length(bone_vector: Sequence[float]) -> float:
                 return sqrt(
                     pow(bone_vector[0], 2)
                     + pow(bone_vector[1], 2)

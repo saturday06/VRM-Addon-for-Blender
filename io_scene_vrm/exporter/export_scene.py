@@ -29,7 +29,7 @@ from .vrm_animation_exporter import VrmAnimationExporter
 
 
 def export_vrm_update_addon_preferences(
-    export_op: bpy.types.Operator, context: bpy.types.Context
+    export_op: "EXPORT_SCENE_OT_vrm", context: bpy.types.Context
 ) -> None:
     preferences = get_preferences(context)
 

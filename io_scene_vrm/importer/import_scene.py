@@ -29,7 +29,7 @@ class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 def import_vrm_update_addon_preferences(
-    import_op: bpy.types.Operator, context: bpy.types.Context
+    import_op: "IMPORT_SCENE_OT_vrm", context: bpy.types.Context
 ) -> None:
     preferences = get_preferences(context)
 
