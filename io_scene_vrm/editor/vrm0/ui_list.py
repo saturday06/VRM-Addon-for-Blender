@@ -141,15 +141,14 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
 
         name = blend_shape_bind.mesh.mesh_object_name
         mesh_object = blend_data.objects.get(blend_shape_bind.mesh.mesh_object_name)
-        if (
-            mesh_object
-            and mesh_object.type == "MESH"
-            and mesh_object.data
-            and mesh_object.data.shape_keys
-        ):
-            keys = mesh_object.data.shape_keys.key_blocks.keys()
-            if blend_shape_bind.index in keys:
-                name += " / " + blend_shape_bind.index
+        if mesh_object:
+            mesh_data = mesh_object.data
+            if isinstance(mesh_data, bpy.types.Mesh):
+                shape_keys = mesh_data.shape_keys
+                if shape_keys:
+                    keys = shape_keys.key_blocks.keys()
+                    if blend_shape_bind.index in keys:
+                        name += " / " + blend_shape_bind.index
         layout.label(text=name, icon="MESH_DATA")
 
 

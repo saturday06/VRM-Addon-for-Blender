@@ -109,15 +109,14 @@ class VRM_UL_vrm1_morph_target_bind(bpy.types.UIList):  # type: ignore[misc]
 
         name = morph_target_bind.node.mesh_object_name
         mesh_object = blend_data.objects.get(morph_target_bind.node.mesh_object_name)
-        if (
-            mesh_object
-            and mesh_object.type == "MESH"
-            and mesh_object.data
-            and mesh_object.data.shape_keys
-        ):
-            keys = mesh_object.data.shape_keys.key_blocks.keys()
-            if morph_target_bind.index in keys:
-                name += " / " + morph_target_bind.index
+        if mesh_object:
+            mesh_data = mesh_object.data
+            if isinstance(mesh_data, bpy.types.Mesh):
+                shape_keys = mesh_data.shape_keys
+                if shape_keys:
+                    keys = shape_keys.key_blocks.keys()
+                    if morph_target_bind.index in keys:
+                        name += " / " + morph_target_bind.index
         layout.label(text=name, translate=False, icon="MESH_DATA")
 
 
