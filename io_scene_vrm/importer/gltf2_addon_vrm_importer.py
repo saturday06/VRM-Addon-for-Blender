@@ -1828,7 +1828,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         )
                         break
         finally:
-            if self.context.view_layer.objects.active.mode != "OBJECT":
+            if (
+                self.context.view_layer.objects.active
+                and self.context.view_layer.objects.active.mode != "OBJECT"
+            ):
                 bpy.ops.object.mode_set(mode="OBJECT")
             self.context.view_layer.objects.active = previous_active
             self.context.scene.cursor.matrix = previous_cursor_matrix
