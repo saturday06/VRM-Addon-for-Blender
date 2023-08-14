@@ -604,7 +604,7 @@ def work_in_progress_2(
     first_timestamp = timestamps[0]
     last_timestamp = timestamps[-1]
 
-    logger.warning(f"{first_timestamp=} ... {last_timestamp=}")
+    logger.debug(f"{first_timestamp=} ... {last_timestamp=}")
 
     first_zero_origin_frame_count: int = math.floor(
         first_timestamp * context.scene.render.fps / context.scene.render.fps_base
