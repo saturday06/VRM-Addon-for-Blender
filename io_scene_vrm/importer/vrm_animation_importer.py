@@ -5,7 +5,6 @@ import math
 import struct
 from dataclasses import dataclass
 from pathlib import Path
-from sys import float_info
 from typing import Optional, Union
 from urllib.parse import urlparse
 
@@ -607,27 +606,25 @@ def work_in_progress_2(
 
     logger.warning(f"{first_timestamp=} ... {last_timestamp=}")
 
-    first_frame_count = (
-        math.floor(
-            first_timestamp * context.scene.render.fps / context.scene.render.fps_base
-        )
-        + 1
+    first_zero_origin_frame_count: int = math.floor(
+        first_timestamp * context.scene.render.fps / context.scene.render.fps_base
     )
-    if abs(last_timestamp - first_timestamp) < float_info.epsilon:
-        last_frame_count = first_frame_count
+    if abs(last_timestamp - first_timestamp) > 0:
+        last_zero_origin_frame_count: int = math.ceil(
+            last_timestamp * context.scene.render.fps / context.scene.render.fps_base
+        )
     else:
-        last_frame_count = (
-            math.ceil(
-                last_timestamp
-                * context.scene.render.fps
-                / context.scene.render.fps_base
-            )
-            + 1
-        )
-    for frame_count in range(first_frame_count, last_frame_count + 1):
+        last_zero_origin_frame_count = first_zero_origin_frame_count
+    for zero_origin_frame_count in range(
+        first_zero_origin_frame_count, last_zero_origin_frame_count + 1
+    ):
         timestamp = (
-            frame_count * context.scene.render.fps_base / context.scene.render.fps
+            zero_origin_frame_count
+            * context.scene.render.fps_base
+            / context.scene.render.fps
         )
+        frame_count = zero_origin_frame_count + 1
+
         assign_humanoid_keyframe(
             armature,
             node_rest_pose_tree,
