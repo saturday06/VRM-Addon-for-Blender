@@ -234,25 +234,37 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     if shader_vals == "ReceiveShadow_Texture":
                         if node.inputs[shader_vals + "_alpha"].links:
                             n = node.inputs[shader_vals + "_alpha"].links[0].from_node
-                            if n.image not in used_images:
+                            if (
+                                isinstance(n, bpy.types.ShaderNodeTexImage)
+                                and n.image not in used_images
+                            ):
                                 used_images.append(n.image)
                     elif node.inputs[shader_vals].links:
                         n = node.inputs[shader_vals].links[0].from_node
-                        if n.image not in used_images:
+                        if (
+                            isinstance(n, bpy.types.ShaderNodeTexImage)
+                            and n.image not in used_images
+                        ):
                             used_images.append(n.image)
             elif node.node_tree["SHADER"] == "GLTF":
                 mat["vrm_shader"] = "GLTF"
                 for k in TEXTURE_INPUT_NAMES:
                     if node.inputs[k].links:
                         n = node.inputs[k].links[0].from_node
-                        if n.image not in used_images:
+                        if (
+                            isinstance(n, bpy.types.ShaderNodeTexImage)
+                            and n.image not in used_images
+                        ):
                             used_images.append(n.image)
 
             elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
                 mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
                 if node.inputs["Main_Texture"].links:
                     n = node.inputs["Main_Texture"].links[0].from_node
-                    if n.image not in used_images:
+                    if (
+                        isinstance(n, bpy.types.ShaderNodeTexImage)
+                        and n.image not in used_images
+                    ):
                         used_images.append(n.image)
             else:
                 # ?
