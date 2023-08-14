@@ -451,3 +451,10 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):  # type: ignore[misc]
             error_column = layout.box().column()
             for error_message in error_messages:
                 error_column.label(text=error_message, icon="ERROR")
+
+        open_op = layout.operator(
+            VRM_OT_open_url_in_web_browser.bl_idname,
+            icon="URL",
+            text="Open help in a Web Browser",
+        )
+        open_op.url = pgettext("https://vrm-addon-for-blender.info/en/animation/")

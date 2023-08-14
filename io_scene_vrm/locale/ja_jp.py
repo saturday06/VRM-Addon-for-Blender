@@ -410,4 +410,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + "- Look At値のエクスポートは現在未対応\n"
     ),
     ("*", "Armature to be animated"): "アニメーション適用対象のアーマチュア",
+    (
+        "*",
+        "https://vrm-addon-for-blender.info/en/animation/",
+    ): "https://vrm-addon-for-blender.info/ja/animation/",
+    ("Operator", "Open help in a Web Browser"): "Webブラウザでヘルプを開く",
 }

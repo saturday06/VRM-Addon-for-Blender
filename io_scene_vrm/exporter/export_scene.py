@@ -8,6 +8,7 @@ from bpy_extras.io_utils import ExportHelper
 from ..common import version
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import search, validation
+from ..editor.ops import VRM_OT_open_url_in_web_browser
 from ..editor.property_group import StringPropertyGroup
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
@@ -739,3 +740,10 @@ def draw_help_message(layout: bpy.types.UILayout) -> None:
             translate=False,
             icon="NONE" if index else "INFO",
         )
+
+    open_op = help_column.operator(
+        VRM_OT_open_url_in_web_browser.bl_idname,
+        icon="URL",
+        text="Open help in a Web Browser",
+    )
+    open_op.url = pgettext("https://vrm-addon-for-blender.info/en/animation/")
