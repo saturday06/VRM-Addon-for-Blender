@@ -2140,11 +2140,15 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             index = morph_target_bind_dict.get("index")
             if not isinstance(index, int):
                 continue
-
-            if 1 <= (index + 1) < len(mesh_obj.data.shape_keys.key_blocks):
-                morph_target_bind.index = mesh_obj.data.shape_keys.key_blocks.keys()[
-                    index + 1
-                ]
+            mesh_data = mesh_obj.data
+            if not isinstance(mesh_data, bpy.types.Mesh):
+                continue
+            shape_keys = mesh_data.shape_keys
+            if not shape_keys:
+                continue
+            key_blocks = shape_keys.key_blocks
+            if 1 <= (index + 1) < len(key_blocks):
+                morph_target_bind.index = key_blocks[index + 1].name
 
         material_color_bind_dicts = expression_dict.get("materialColorBinds")
         if not isinstance(material_color_bind_dicts, list):
