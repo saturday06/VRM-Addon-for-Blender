@@ -173,11 +173,12 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # typ
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return str(
-            context.space_data.active_operator.bl_idname
-        ) == "IMPORT_SCENE_OT_vrm" and (
-            not version.supported() or version.blender_restart_required()
-        )
+        space_data = context.space_data
+        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+            return False
+        if space_data.active_operator.bl_idname != "IMPORT_SCENE_OT_vrm":
+            return False
+        return not version.supported() or version.blender_restart_required()
 
     def draw(self, _context: bpy.types.Context) -> None:
         if version.blender_restart_required():

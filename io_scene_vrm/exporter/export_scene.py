@@ -257,11 +257,16 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return (
-            str(context.space_data.active_operator.bl_idname) == "EXPORT_SCENE_OT_vrm"
-        )
+        space_data = context.space_data
+        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+            return False
+        return bool(space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrm")
 
     def draw(self, context: bpy.types.Context) -> None:
+        space_data = context.space_data
+        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+            return
+
         layout = self.layout
 
         warning_message = None
@@ -285,7 +290,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
                     icon="NONE" if index else "ERROR",
                 )
 
-        operator = context.space_data.active_operator
+        operator = space_data.active_operator
 
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
@@ -310,9 +315,10 @@ class VRM_PT_export_vrma_help(bpy.types.Panel):  # type: ignore[misc]
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return (
-            str(context.space_data.active_operator.bl_idname) == "EXPORT_SCENE_OT_vrma"
-        )
+        space_data = context.space_data
+        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+            return False
+        return bool(space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrma")
 
     def draw(self, _context: bpy.types.Context) -> None:
         draw_help_message(self.layout)

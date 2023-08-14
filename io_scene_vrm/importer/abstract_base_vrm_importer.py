@@ -1386,7 +1386,9 @@ class AbstractBaseVrmImporter(ABC):
             screen = self.context.screen
             for area in screen.areas:
                 for space in area.spaces:
-                    if space.type == "VIEW_3D":
+                    if space.type == "VIEW_3D" and isinstance(
+                        space, bpy.types.SpaceView3D
+                    ):
                         space.shading.type = "MATERIAL"
 
 
