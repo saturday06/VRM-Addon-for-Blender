@@ -2,8 +2,6 @@
 title: "Create VRM Animation"
 ---
 
-# Create VRM Animation
-
 An English tutorial is currently being written.
 
 ---
