@@ -769,7 +769,7 @@ def assign_humanoid_keyframe(
             if end_timestamp >= timestamp:
                 timestamp_duration = end_timestamp - begin_timestamp
                 if timestamp_duration > 0:
-                    pose_local_rotation = begin_rotation.lerp(
+                    pose_local_rotation = begin_rotation.slerp(
                         end_rotation, (timestamp - begin_timestamp) / timestamp_duration
                     )
                 else:
