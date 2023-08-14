@@ -27,10 +27,7 @@ from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
-from ..editor.extension import (
-    VrmAddonArmatureExtensionPropertyGroup,
-    VrmAddonBoneExtensionPropertyGroup,
-)
+from ..editor.extension import VrmAddonBoneExtensionPropertyGroup
 from ..editor.mtoon1.property_group import (
     Mtoon1KhrTextureTransformPropertyGroup,
     Mtoon1SamplerPropertyGroup,
