@@ -17,7 +17,6 @@ from ..common.vrm1.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
-from ..editor.vrm1 import handler as vrm1_handler
 
 logger = get_logger(__name__)
 
@@ -712,8 +711,6 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
 def work_in_progress(
     context: bpy.types.Context, path: Path, armature: bpy.types.Object
 ) -> set[str]:
-    vrm1_handler.depsgraph_update_pre(None)  # expressionのプリセット名を設定
-
     humanoid = armature.data.vrm_addon_extension.vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
         return {"CANCELLED"}
