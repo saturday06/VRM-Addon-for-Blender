@@ -220,3 +220,13 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
         migrate_old_expressions_layout(
             armature.data.vrm_addon_extension.vrm1.expressions
         )
+
+    # Expressionのプリセットに名前を設定する
+    # 管理上は無くてもよいが、アニメーションキーフレームに表示されるので設定しておきたい
+    expressions = armature.data.vrm_addon_extension.vrm1.expressions
+    preset_name_to_expression_dict = expressions.preset.name_to_expression_dict()
+    for preset_name, preset_expression in preset_name_to_expression_dict.items():
+        if preset_expression.name != preset_name:
+            preset_expression.name = preset_name
+
+    bpy.ops.vrm.update_vrm1_expression_ui_list_elements()

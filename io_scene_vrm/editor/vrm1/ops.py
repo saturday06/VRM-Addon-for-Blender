@@ -117,7 +117,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):  # type
             armature.data.vrm_addon_extension.vrm1.expressions.custom.add()
         )
         custom_expression.custom_name = self.custom_expression_name
-        return {"FINISHED"}
+        return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
 
 
 class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # type: ignore[misc]
@@ -144,7 +144,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # t
                 armature.data.vrm_addon_extension.vrm1.expressions.custom.remove(
                     custom_index
                 )
-                return {"FINISHED"}
+                return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
         return {"CANCELLED"}
 
 
@@ -576,4 +576,27 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
                 human_bone.node.bone_name = bone_name
                 break
 
+        return {"FINISHED"}
+
+
+class VRM_OT_update_vrm1_expression_ui_list_elements(bpy.types.Operator):  # type: ignore[misc]
+    bl_idname = "vrm.update_vrm1_expression_ui_list_elements"
+    bl_label = "Update VRM 1.0 Expression UI List Elements"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        for armature in bpy.data.armatures:
+            expressions = armature.vrm_addon_extension.vrm1.expressions
+
+            # UIList用のダミー要素を設定する
+            ui_len = len(expressions.expression_ui_list_elements)
+            all_len = len(expressions.all_name_to_expression_dict())
+            if ui_len == all_len:
+                continue
+            if ui_len > all_len:
+                for _ in range(ui_len - all_len):
+                    expressions.expression_ui_list_elements.remove(0)
+            if all_len > ui_len:
+                for _ in range(all_len - ui_len):
+                    expressions.expression_ui_list_elements.add()
         return {"FINISHED"}

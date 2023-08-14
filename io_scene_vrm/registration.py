@@ -287,6 +287,7 @@ classes = [
     vrm1_ops.VRM_OT_add_vrm1_first_person_mesh_annotation,
     vrm1_ops.VRM_OT_remove_vrm1_first_person_mesh_annotation,
     vrm1_ops.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
+    vrm1_ops.VRM_OT_update_vrm1_expression_ui_list_elements,
     spring_bone1_ops.VRM_OT_add_spring_bone1_collider,
     spring_bone1_ops.VRM_OT_remove_spring_bone1_collider,
     spring_bone1_ops.VRM_OT_add_spring_bone1_collider_group,
@@ -393,7 +394,6 @@ def register(init_addon_version: object) -> None:
     )
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
-    bpy.app.handlers.depsgraph_update_pre.append(vrm1_handler.depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
     bpy.app.handlers.save_pre.append(mtoon1_handler.save_pre)
     bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
