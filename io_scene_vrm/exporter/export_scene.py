@@ -24,6 +24,7 @@ from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .gltf2_addon_vrm_exporter import Gltf2AddonVrmExporter
 from .legacy_vrm_exporter import LegacyVrmExporter
+from .vrm_animation_exporter import VrmAnimationExporter
 
 
 def export_vrm_update_addon_preferences(
@@ -298,12 +299,82 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
             )
 
 
+class VRM_PT_export_vrma_help(bpy.types.Panel):  # type: ignore[misc]
+    bl_idname = "VRM_PT_export_vrma_help"
+    bl_space_type = "FILE_BROWSER"
+    bl_region_type = "TOOL_PROPS"
+    bl_parent_id = "FILE_PT_operator"
+    bl_label = ""
+    bl_options = {"HIDE_HEADER"}
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return (
+            str(context.space_data.active_operator.bl_idname) == "EXPORT_SCENE_OT_vrma"
+        )
+
+    def draw(self, _context: bpy.types.Context) -> None:
+        draw_help_message(self.layout)
+
+
 def menu_export(menu_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
-    export_op = menu_op.layout.operator(
+    vrm_export_op = menu_op.layout.operator(
         EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)"
     )
-    export_op.armature_object_name = ""
-    export_op.ignore_warning = False
+    vrm_export_op.armature_object_name = ""
+    vrm_export_op.ignore_warning = False
+
+    vrma_export_op = menu_op.layout.operator(
+        EXPORT_SCENE_OT_vrma.bl_idname, text="VRM Animation DRAFT (.vrma)"
+    )
+    vrma_export_op.armature_object_name = ""
+
+
+class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
+    bl_idname = "export_scene.vrma"
+    bl_label = "Export VRM Animation"
+    bl_description = "Export VRM Animation"
+    bl_options = {"REGISTER", "UNDO"}
+
+    filename_ext = ".vrma"
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+        default="*.vrma", options={"HIDDEN"}  # noqa: F722,F821
+    )
+
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    def execute(self, context: bpy.types.Context) -> set[str]:
+        if WM_OT_vrma_export_prerequisite.detect_errors(
+            context, self.armature_object_name
+        ):
+            return {"CANCELLED"}
+        if not self.filepath:
+            return {"CANCELLED"}
+        if not self.armature_object_name:
+            armature = search.current_armature(context)
+        else:
+            armature = context.blend_data.objects.get(self.armature_object_name)
+        if not armature:
+            return {"CANCELLED"}
+        return VrmAnimationExporter.execute(context, Path(self.filepath), armature)
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+        if WM_OT_vrma_export_prerequisite.detect_errors(
+            context, self.armature_object_name
+        ):
+            return cast(
+                set[str],
+                bpy.ops.wm.vrma_export_prerequisite(
+                    "INVOKE_DEFAULT",
+                    armature_object_name=self.armature_object_name,
+                ),
+            )
+        return cast(set[str], ExportHelper.invoke(self, context, event))
+
+    def draw(self, _context: bpy.types.Context) -> None:
+        pass  # Is needed to get panels available
 
 
 class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[misc]
@@ -379,12 +450,12 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
         armature = armatures[0]
 
         if armature.data.vrm_addon_extension.is_vrm0():
-            self.draw_vrm0(armature)
+            WM_OT_vrm_export_human_bones_assignment.draw_vrm0(self.layout, armature)
         elif armature.data.vrm_addon_extension.is_vrm1():
-            self.draw_vrm1(armature)
+            WM_OT_vrm_export_human_bones_assignment.draw_vrm1(self.layout, armature)
 
-    def draw_vrm0(self, armature: bpy.types.Object) -> None:
-        layout = self.layout
+    @staticmethod
+    def draw_vrm0(layout: bpy.types.UILayout, armature: bpy.types.Object) -> None:
         humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
         if humanoid.all_required_bones_are_assigned():
             alert_box = layout.box()
@@ -403,8 +474,8 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
         draw_vrm0_humanoid_required_bones_layout(armature, row.column())
         draw_vrm0_humanoid_optional_bones_layout(armature, row.column())
 
-    def draw_vrm1(self, armature: bpy.types.Object) -> None:
-        layout = self.layout
+    @staticmethod
+    def draw_vrm1(layout: bpy.types.UILayout, armature: bpy.types.Object) -> None:
         human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
         if human_bones.all_required_bones_are_assigned():
             alert_box = layout.box()
@@ -538,4 +609,134 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[m
             icon="OUTLINER_OB_ARMATURE",
             text="",
             translate=False,
+        )
+
+
+class WM_OT_vrma_export_prerequisite(bpy.types.Operator):  # type: ignore[misc]
+    bl_label = "VRM Animation Export Prerequisite"
+    bl_idname = "wm.vrma_export_prerequisite"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup,
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    @staticmethod
+    def detect_errors(
+        context: bpy.types.Context, armature_object_name: str
+    ) -> list[str]:
+        error_messages = []
+
+        if not armature_object_name:
+            armature = search.current_armature(context)
+        else:
+            armature = context.blend_data.objects.get(armature_object_name)
+
+        if not armature:
+            error_messages.append("アーマチュアが見つかりませんでした")
+            return error_messages
+
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            error_messages.append("アーマチュアが見つかりませんでした")
+            return error_messages
+
+        ext = armature_data.vrm_addon_extension
+        if armature_data.vrm_addon_extension.is_vrm1():
+            humanoid = ext.vrm1.humanoid
+            if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+                error_messages.append("必須のヒューマンボーンの割り当てを行ってください")
+        else:
+            error_messages.append("VRMのバージョンを1.0にしてください")
+
+        return error_messages
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        return cast(
+            set[str],
+            bpy.ops.export_scene.vrma(
+                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            ),
+        )
+
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+        if not self.armature_object_name:
+            armature_object = search.current_armature(context)
+            if armature_object:
+                self.armature_object_name = armature_object.name
+        self.armature_object_name_candidates.clear()
+        for obj in context.blend_data.objects:
+            if obj.type != "ARMATURE":
+                continue
+            candidate = self.armature_object_name_candidates.add()
+            candidate.value = obj.name
+        return cast(
+            set[str],
+            context.window_manager.invoke_props_dialog(self, width=800),
+        )
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+
+        layout.label(
+            text="VRM Animationのエクスポートには、アニメーションが割り当てられているVRM 1.0のアーマチュアが必要です。",
+            icon="INFO",
+        )
+
+        error_messages = WM_OT_vrma_export_prerequisite.detect_errors(
+            context, self.armature_object_name
+        )
+
+        layout.prop_search(
+            self,
+            "armature_object_name",
+            self,
+            "armature_object_name_candidates",
+            icon="OUTLINER_OB_ARMATURE",
+            text="エクスポート対象のアーマチュア",
+            translate=False,
+        )
+
+        if error_messages:
+            error_column = layout.box().column()
+            for error_message in error_messages:
+                error_column.label(text=error_message, icon="ERROR")
+
+        if not self.armature_object_name:
+            armature = search.current_armature(context)
+        else:
+            armature = context.blend_data.objects.get(self.armature_object_name)
+        if armature:
+            armature_data = armature.data
+            if isinstance(armature_data, bpy.types.Armature):
+                ext = armature_data.vrm_addon_extension
+                if armature_data.vrm_addon_extension.is_vrm1():
+                    humanoid = ext.vrm1.humanoid
+                    if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+                        WM_OT_vrm_export_human_bones_assignment.draw_vrm1(
+                            self.layout, armature
+                        )
+
+        draw_help_message(layout)
+
+
+def draw_help_message(layout: bpy.types.UILayout) -> None:
+    help_message = pgettext(
+        "エクスポートされるアニメーション\n"
+        + "- Humanoidボーンの回転値\n"
+        + "- Humanoid Hipsボーンの移動値\n"
+        + "- Expressionのプレビュー値\n"
+        + "- Look At値のエクスポートは現在未対応\n"
+    )
+    help_box = layout.box()
+    help_column = help_box.column()
+    for index, help_line in enumerate(help_message.splitlines()):
+        help_column.label(
+            text=help_line,
+            translate=False,
+            icon="NONE" if index else "INFO",
         )

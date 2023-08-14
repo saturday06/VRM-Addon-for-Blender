@@ -10,10 +10,13 @@ from bpy_extras.io_utils import ImportHelper
 from ..common import version
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
+from ..editor import search
 from ..editor.ops import VRM_OT_open_url_in_web_browser
+from ..editor.property_group import StringPropertyGroup
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
 from .license_validation import LicenseConfirmationRequired
+from .vrm_animation_importer import VrmAnimationImporter
 from .vrm_parser import VrmParser
 
 logger = get_logger(__name__)
@@ -306,3 +309,146 @@ def menu_import(
     menu_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
     menu_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
+    vrma_import_op = menu_op.layout.operator(
+        IMPORT_SCENE_OT_vrma.bl_idname, text="VRM Animation DRAFT (.vrma)"
+    )
+    vrma_import_op.armature_object_name = ""
+
+
+class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
+    bl_idname = "import_scene.vrma"
+    bl_label = "Import VRM Animation"
+    bl_description = "Import VRM Animation"
+    bl_options = {"REGISTER", "UNDO"}
+
+    filename_ext = ".vrma"
+    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+        default="*.vrma", options={"HIDDEN"}  # noqa: F722,F821
+    )
+
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    def execute(self, context: bpy.types.Context) -> set[str]:
+        if WM_OT_vrma_import_prerequisite.detect_errors(
+            context, self.armature_object_name
+        ):
+            return {"CANCELLED"}
+        if not self.filepath:
+            return {"CANCELLED"}
+        if not self.armature_object_name:
+            armature = search.current_armature(context)
+        else:
+            armature = context.blend_data.objects.get(self.armature_object_name)
+        if not armature:
+            return {"CANCELLED"}
+        return VrmAnimationImporter.execute(context, Path(self.filepath), armature)
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+        if WM_OT_vrma_import_prerequisite.detect_errors(
+            context, self.armature_object_name
+        ):
+            return cast(
+                set[str],
+                bpy.ops.wm.vrma_import_prerequisite(
+                    "INVOKE_DEFAULT",
+                    armature_object_name=self.armature_object_name,
+                ),
+            )
+        return cast(set[str], ImportHelper.invoke(self, context, event))
+
+
+class WM_OT_vrma_import_prerequisite(bpy.types.Operator):  # type: ignore[misc]
+    bl_label = "VRM Animation Import Prerequisite"
+    bl_idname = "wm.vrma_import_prerequisite"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+        type=StringPropertyGroup,
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    @staticmethod
+    def detect_errors(
+        context: bpy.types.Context, armature_object_name: str
+    ) -> list[str]:
+        error_messages = []
+
+        if not armature_object_name:
+            armature = search.current_armature(context)
+        else:
+            armature = context.blend_data.objects.get(armature_object_name)
+
+        if not armature:
+            error_messages.append("アーマチュアが見つかりませんでした")
+            return error_messages
+
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            error_messages.append("アーマチュアが見つかりませんでした")
+            return error_messages
+
+        ext = armature_data.vrm_addon_extension
+        if armature_data.vrm_addon_extension.is_vrm1():
+            humanoid = ext.vrm1.humanoid
+            if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+                error_messages.append("必須のヒューマンボーンの割り当てを行ってください")
+        else:
+            error_messages.append("VRMのバージョンを1.0にしてください")
+
+        return error_messages
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        return cast(
+            set[str],
+            bpy.ops.import_scene.vrma(
+                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            ),
+        )
+
+    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+        if not self.armature_object_name:
+            armature_object = search.current_armature(context)
+            if armature_object:
+                self.armature_object_name = armature_object.name
+        self.armature_object_name_candidates.clear()
+        for obj in context.blend_data.objects:
+            if obj.type != "ARMATURE":
+                continue
+            candidate = self.armature_object_name_candidates.add()
+            candidate.value = obj.name
+        return cast(
+            set[str],
+            context.window_manager.invoke_props_dialog(self, width=800),
+        )
+
+    def draw(self, context: bpy.types.Context) -> None:
+        layout = self.layout
+
+        layout.label(
+            text="VRM Animationのインポートには、VRM 1.0のアーマチュアが必要です。",
+            icon="INFO",
+        )
+
+        error_messages = WM_OT_vrma_import_prerequisite.detect_errors(
+            context, self.armature_object_name
+        )
+
+        layout.prop_search(
+            self,
+            "armature_object_name",
+            self,
+            "armature_object_name_candidates",
+            icon="OUTLINER_OB_ARMATURE",
+            text="アニメーション適用対象のアーマチュア",
+            translate=False,
+        )
+
+        if error_messages:
+            error_column = layout.box().column()
+            for error_message in error_messages:
+                error_column.label(text=error_message, icon="ERROR")

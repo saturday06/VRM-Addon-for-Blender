@@ -28,6 +28,7 @@ bone1
 bone2
 bpy
 bsdf
+buffer0
 bugyyyyyyyyyyyyyyyyy
 bytecode
 calc
@@ -53,6 +54,8 @@ f2
 fabs
 failfast
 fb
+fcurve
+fcurves
 filedialog
 filelist
 fileno
@@ -104,6 +107,8 @@ ja
 jsons
 keepends
 keyblock
+keyframe
+keyframes
 khr
 ld
 lerp
@@ -165,12 +170,14 @@ pymesh
 pyright
 pythonpath
 quaternion
+quaternions
 randbelow
 raytrace
 rbd
 readonly
 recalc
 reducted
+removeprefix
 renderer
 req
 rfu
@@ -255,6 +262,7 @@ vrm
 vrm0
 vrm0firstpersonboneoffsetgizmogroup
 vrm1
+vrma
 vrmc
 vroid
 vroid064

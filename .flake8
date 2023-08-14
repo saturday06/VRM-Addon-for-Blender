@@ -27,12 +27,15 @@ ignore-names=
     glTF2ImportUserExtension
     # https://wiki.blender.org/wiki/Reference/Release_Notes/2.80/Python_API/Addons#Naming
     IMPORT_SCENE_OT_vrm
+    IMPORT_SCENE_OT_vrma
     EXPORT_SCENE_OT_vrm
+    EXPORT_SCENE_OT_vrma
     ICYP_OT_*
     VRM_OT_*
     VRM_PT_*
     VRM_UL_*
     WM_OT_vrm_*
+    WM_OT_vrma_*
     # https://github.com/PyCQA/pep8-naming/blob/615b8e754ef251354c00dd3e56ce87bba1786ba1/README.rst#options
     setUp
     tearDown
