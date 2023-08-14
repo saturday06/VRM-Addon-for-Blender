@@ -30,7 +30,7 @@ class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):  # type: ignore[m
 
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", icon_value=icon)
+            layout.label(text="", translate=False, icon_value=icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
@@ -39,7 +39,7 @@ class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):  # type: ignore[m
         text = (
             f"(Spring Bone {index})" if bone_group.comment == "" else bone_group.comment
         )
-        layout.label(text=text, icon="GROUP_BONE")
+        layout.label(text=text, translate=False, icon="GROUP_BONE")
 
 
 class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):  # type: ignore[misc]
@@ -65,13 +65,13 @@ class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):  # type:
 
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", icon_value=icon)
+            layout.label(text="", translate=False, icon_value=icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        layout.label(text=collider_group.name, icon="SPHERE")
+        layout.label(text=collider_group.name, translate=False, icon="SPHERE")
 
 
 class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
@@ -99,7 +99,7 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
 
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", icon_value=enum_item.icon)
+            layout.label(text="", translate=False, icon_value=enum_item.icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
@@ -107,7 +107,7 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
 
         text = blend_shape_group.name + " / " + enum_item.name
         split = layout.split(align=True, factor=0.55)
-        split.label(text=text, icon=enum_item.icon)
+        split.label(text=text, translate=False, icon=enum_item.icon)
         split.prop(blend_shape_group, "preview", text="Preview")
 
 
@@ -133,7 +133,7 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
 
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", icon_value=icon)
+            layout.label(text="", translate=False, icon_value=icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
@@ -149,7 +149,7 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
                     keys = shape_keys.key_blocks.keys()
                     if blend_shape_bind.index in keys:
                         name += " / " + blend_shape_bind.index
-        layout.label(text=name, icon="MESH_DATA")
+        layout.label(text=name, translate=False, icon="MESH_DATA")
 
 
 class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):  # type: ignore[misc]
@@ -173,7 +173,7 @@ class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):  # type: ignore[misc]
 
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", icon_value=icon)
+            layout.label(text="", translate=False, icon_value=icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
@@ -184,4 +184,4 @@ class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):  # type: ignore[misc]
             name = material_value_bind.material.name
             if material_value_bind.property_name:
                 name += " / " + material_value_bind.property_name
-        layout.label(text=name, icon="MATERIAL")
+        layout.label(text=name, translate=False, icon="MATERIAL")
