@@ -384,21 +384,21 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):  # type: ignore[misc]
             armature = context.blend_data.objects.get(armature_object_name)
 
         if not armature:
-            error_messages.append("アーマチュアが見つかりませんでした")
+            error_messages.append("Armature not found")
             return error_messages
 
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            error_messages.append("アーマチュアが見つかりませんでした")
+            error_messages.append("Armature not found")
             return error_messages
 
         ext = armature_data.vrm_addon_extension
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
-                error_messages.append("必須のヒューマンボーンの割り当てを行ってください")
+                error_messages.append("Please assign required human bones")
         else:
-            error_messages.append("VRMのバージョンを1.0にしてください")
+            error_messages.append("Please set the version of VRM to 1.0")
 
         return error_messages
 
@@ -430,7 +430,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):  # type: ignore[misc]
         layout = self.layout
 
         layout.label(
-            text="VRM Animationのインポートには、VRM 1.0のアーマチュアが必要です。",
+            text="VRM Animation import requires a VRM 1.0 armature",
             icon="INFO",
         )
 
@@ -444,8 +444,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):  # type: ignore[misc]
             self,
             "armature_object_name_candidates",
             icon="OUTLINER_OB_ARMATURE",
-            text="アニメーション適用対象のアーマチュア",
-            translate=False,
+            text="Armature to be animated",
         )
 
         if error_messages:

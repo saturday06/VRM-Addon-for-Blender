@@ -381,4 +381,33 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + " - 「サーフェス」に「TRANSPARENT_ZWRITE」を指定\n"
     + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n",
     ("*", "[Experimental!] Enable Animation"): "[実験中機能です!] アニメーションを有効にする",
+    ("*", "Armature not found"): "アーマチュアが見つかりませんでした",
+    ("*", "Please assign required human bones"): "必須のヒューマンボーンの割り当ててください",
+    ("*", "Please set the version of VRM to 1.0"): "VRMのバージョンを1.0にしてください",
+    (
+        "*",
+        "VRM Animation export requires a VRM 1.0 armature",
+    ): "VRM Animationのエクスポートには、VRM 1.0のアーマチュアが必要です",
+    (
+        "*",
+        "VRM Animation import requires a VRM 1.0 armature",
+    ): "VRM Animationのインポートには、VRM 1.0のアーマチュアが必要です",
+    ("*", "Armature to be exported"): "エクスポート対象のアーマチュア",
+    (
+        "*",
+        (
+            "Animations to be exported\n"
+            + "- Humanoid bone rotations\n"
+            + "- Humanoid hips bone translations\n"
+            + "- Expression preview value\n"
+            + '- "Look At" value currently not supported\n'
+        ),
+    ): (
+        "エクスポートされるアニメーション\n"
+        + "- Humanoidボーンの回転値\n"
+        + "- Humanoid Hipsボーンの移動値\n"
+        + "- Expressionのプレビュー値\n"
+        + "- Look At値のエクスポートは現在未対応\n"
+    ),
+    ("*", "Armature to be animated"): "アニメーション適用対象のアーマチュア",
 }

@@ -637,21 +637,21 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):  # type: ignore[misc]
             armature = context.blend_data.objects.get(armature_object_name)
 
         if not armature:
-            error_messages.append("アーマチュアが見つかりませんでした")
+            error_messages.append("Armature not found")
             return error_messages
 
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            error_messages.append("アーマチュアが見つかりませんでした")
+            error_messages.append("Armature not found")
             return error_messages
 
         ext = armature_data.vrm_addon_extension
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
-                error_messages.append("必須のヒューマンボーンの割り当てを行ってください")
+                error_messages.append("Please assign required human bones")
         else:
-            error_messages.append("VRMのバージョンを1.0にしてください")
+            error_messages.append("Please set the version of VRM to 1.0")
 
         return error_messages
 
@@ -683,7 +683,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):  # type: ignore[misc]
         layout = self.layout
 
         layout.label(
-            text="VRM Animationのエクスポートには、アニメーションが割り当てられているVRM 1.0のアーマチュアが必要です。",
+            text="VRM Animation export requires a VRM 1.0 armature",
             icon="INFO",
         )
 
@@ -697,8 +697,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):  # type: ignore[misc]
             self,
             "armature_object_name_candidates",
             icon="OUTLINER_OB_ARMATURE",
-            text="エクスポート対象のアーマチュア",
-            translate=False,
+            text="Armature to be exported",
         )
 
         if error_messages:
@@ -726,11 +725,11 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):  # type: ignore[misc]
 
 def draw_help_message(layout: bpy.types.UILayout) -> None:
     help_message = pgettext(
-        "エクスポートされるアニメーション\n"
-        + "- Humanoidボーンの回転値\n"
-        + "- Humanoid Hipsボーンの移動値\n"
-        + "- Expressionのプレビュー値\n"
-        + "- Look At値のエクスポートは現在未対応\n"
+        "Animations to be exported\n"
+        + "- Humanoid bone rotations\n"
+        + "- Humanoid hips bone translations\n"
+        + "- Expression preview value\n"
+        + '- "Look At" value currently not supported\n'
     )
     help_box = layout.box()
     help_column = help_box.column()
