@@ -303,12 +303,15 @@ def read_accessor_as_animation_sampler_rotation_output(
 def work_in_progress(
     context: bpy.types.Context, path: Path, armature: bpy.types.Object
 ) -> set[str]:
-    humanoid = armature.data.vrm_addon_extension.vrm1.humanoid
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return {"CANCELLED"}
+    humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
         return {"CANCELLED"}
 
-    saved_pose_position = armature.data.pose_position
-    vrm1 = armature.data.vrm_addon_extension.vrm1
+    saved_pose_position = armature_data.pose_position
+    vrm1 = armature_data.vrm_addon_extension.vrm1
 
     # TODO: 現状restがTポーズの時しか動作しない
     # TODO: 自動でTポーズを作成する
@@ -320,7 +323,7 @@ def work_in_progress(
         context.view_layer.objects.active = armature
         bpy.ops.object.mode_set(mode="POSE")
 
-        armature.data.pose_position = "POSE"
+        armature_data.pose_position = "POSE"
 
         t_pose_action = vrm1.humanoid.pose_library
         t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
@@ -350,8 +353,8 @@ def work_in_progress(
         return work_in_progress_2(context, path, armature)
     finally:
         # TODO: リストア処理、共通化
-        if armature.data.pose_position != "POSE":
-            armature.data.pose_position = "POSE"
+        if armature_data.pose_position != "POSE":
+            armature_data.pose_position = "POSE"
         if context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -359,7 +362,7 @@ def work_in_progress(
         bpy.context.view_layer.update()
 
         if saved_pose_position:
-            armature.data.pose_position = saved_pose_position
+            armature_data.pose_position = saved_pose_position
         bpy.ops.object.mode_set(mode="OBJECT")
 
 
@@ -731,6 +734,10 @@ def assign_humanoid_keyframe(
     intermediate_rest_local_matrix: Matrix,
     intermediate_pose_local_matrix: Matrix,
 ) -> None:
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return
+
     translation_keyframes = node_index_to_translation_keyframes.get(
         node_rest_pose_tree.node_index
     )
@@ -792,7 +799,7 @@ def assign_humanoid_keyframe(
 
     human_bone_name = node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
     if human_bone_name:
-        human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bone = human_bones.human_bone_name_to_human_bone().get(human_bone_name)
         if human_bone:
             bone = armature.pose.bones.get(human_bone.node.bone_name)

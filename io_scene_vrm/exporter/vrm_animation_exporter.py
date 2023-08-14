@@ -711,13 +711,16 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
 def work_in_progress(
     context: bpy.types.Context, path: Path, armature: bpy.types.Object
 ) -> set[str]:
-    humanoid = armature.data.vrm_addon_extension.vrm1.humanoid
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return {"CANCELLED"}
+    humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
         return {"CANCELLED"}
 
     # saved_current_pose_matrix_basis_dict = {}
     # saved_current_pose_matrix_dict = {}
-    saved_pose_position = armature.data.pose_position
+    saved_pose_position = armature_data.pose_position
     # vrm1 = armature.data.vrm_addon_extension.vrm1
     output_bytes = None
     active_object_mode = None
@@ -733,7 +736,7 @@ def work_in_progress(
         context.view_layer.objects.active = armature
         bpy.ops.object.mode_set(mode="POSE")
 
-        armature.data.pose_position = "POSE"
+        armature_data.pose_position = "POSE"
 
         # t_pose_action = vrm1.humanoid.pose_library
         # t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
@@ -759,7 +762,7 @@ def work_in_progress(
         # else:
 
         # TODO: ここのロジックはちゃんと考える
-        armature.data.pose_position = "REST"
+        armature_data.pose_position = "REST"
 
         bpy.context.view_layer.update()
 
@@ -767,8 +770,8 @@ def work_in_progress(
 
     finally:
         # TODO: リストア処理、共通化
-        if armature.data.pose_position != "POSE":
-            armature.data.pose_position = "POSE"
+        if armature_data.pose_position != "POSE":
+            armature_data.pose_position = "POSE"
         if context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -795,7 +798,7 @@ def work_in_progress(
         bpy.context.view_layer.update()
 
         if saved_pose_position:
-            armature.data.pose_position = saved_pose_position
+            armature_data.pose_position = saved_pose_position
 
         if (
             active_object_mode is not None

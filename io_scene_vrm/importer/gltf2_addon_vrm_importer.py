@@ -1467,13 +1467,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         armature = self.armature
         if not armature:
             return
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            return
-        addon_extension = armature_data.vrm_addon_extension
+        addon_extension = self.armature_data.vrm_addon_extension
 
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            armature_data.name, defer=False
+            self.armature_data.name, defer=False
         )
 
         human_bones = addon_extension.vrm1.humanoid.human_bones
@@ -1524,7 +1521,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                     continue
 
-                bone = armature_data.edit_bones.get(bone_name)
+                bone = self.armature_data.edit_bones.get(bone_name)
                 if not bone:
                     continue
                 last_human_bone_name = human_bone_name
@@ -1587,7 +1584,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             # ヒューマンボーンとその先祖ボーンを得る
             human_bone_tree_bone_names: set[str] = set()
             for bone_name in bone_name_to_human_bone_name:
-                bone = armature_data.edit_bones.get(bone_name)
+                bone = self.armature_data.edit_bones.get(bone_name)
                 while bone:
                     human_bone_tree_bone_names.add(bone.name)
                     bone = bone.parent
@@ -1649,7 +1646,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             # 軸変換時コンストレイントがついている場合にヒューマンボーンとその先祖ボーンを優先したいので、
             # それらを深さ優先で先に処理し、その後その他のボーンを深さ優先で処理する
             unsorted_bones = [
-                bone for bone in armature_data.edit_bones if not bone.parent
+                bone for bone in self.armature_data.edit_bones if not bone.parent
             ]
             while unsorted_bones:
                 bone = unsorted_bones.pop()
@@ -1796,12 +1793,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bone_name_to_axis_translation[bone.name] = axis_translation
 
             make_armature.connect_parent_tail_and_child_head_if_very_close_position(
-                armature.data
+                self.armature_data
             )
 
             bpy.ops.object.mode_set(mode="OBJECT")
             for bone_name, axis_translation in bone_name_to_axis_translation.items():
-                bone = armature.data.bones.get(bone_name)
+                bone = self.armature_data.bones.get(bone_name)
                 if not bone:
                     continue
                 bone.vrm_addon_extension.axis_translation = (
@@ -1866,9 +1863,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         armature = self.armature
         if not armature:
             return
-        addon_extension = armature.data.vrm_addon_extension
-        if not isinstance(addon_extension, VrmAddonArmatureExtensionPropertyGroup):
-            return
+        addon_extension = self.armature_data.vrm_addon_extension
         vrm1 = addon_extension.vrm1
         if not isinstance(vrm1, Vrm1PropertyGroup):
             return
@@ -2288,7 +2283,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(bone_name, str):
                     collider.node.bone_name = bone_name
                     collider.bpy_object.name = f"{bone_name} Collider"
-                    bone = armature.data.bones.get(collider.node.bone_name)
+                    bone = self.armature_data.bones.get(collider.node.bone_name)
 
             shape_dict = collider_dict.get("shape")
             if not isinstance(shape_dict, dict):

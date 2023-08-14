@@ -74,29 +74,32 @@ class AbstractBaseVrmImporter(ABC):
     def axis_glb_to_blender(vec3: Sequence[float]) -> list[float]:
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
-    def save_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
-        armature_data = armature.data
+    @property
+    def armature_data(self) -> bpy.types.Armature:
+        if not self.armature:
+            raise AssertionError("armature is not set")
+        armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            return
+            raise AssertionError("armature_data is not Armature")
+        return armature_data
+
+    def save_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
         for obj in bpy.data.objects:
             if (
                 obj.parent_type == "BONE"
                 and obj.parent == armature
-                and obj.parent_bone in armature_data.bones
+                and obj.parent_bone in self.armature_data.bones
             ):
                 self.bone_child_object_world_matrices[
                     obj.name
                 ] = obj.matrix_world.copy()
 
     def load_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            return
         for obj in bpy.data.objects:
             if (
                 obj.parent_type == "BONE"
                 and obj.parent == armature
-                and obj.parent_bone in armature_data.bones
+                and obj.parent_bone in self.armature_data.bones
                 and obj.name in self.bone_child_object_world_matrices
             ):
                 obj.matrix_world = self.bone_child_object_world_matrices[
@@ -107,14 +110,11 @@ class AbstractBaseVrmImporter(ABC):
         armature = self.armature
         if not armature:
             return
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            return
-        addon_extension = armature_data.vrm_addon_extension
+        addon_extension = self.armature_data.vrm_addon_extension
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            armature_data.name, defer=False
+            self.armature_data.name, defer=False
         )
 
         human_bones = addon_extension.vrm0.humanoid.human_bones
@@ -150,7 +150,7 @@ class AbstractBaseVrmImporter(ABC):
             bpy.ops.object.mode_set(mode="EDIT")
 
             for bone_name in bone_name_to_human_bone_name:
-                bone = armature_data.edit_bones.get(bone_name)
+                bone = self.armature_data.edit_bones.get(bone_name)
                 while bone:
                     bone.roll = 0.0
                     bone = bone.parent
@@ -169,7 +169,7 @@ class AbstractBaseVrmImporter(ABC):
                 if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                     continue
 
-                bone = armature_data.edit_bones.get(bone_name)
+                bone = self.armature_data.edit_bones.get(bone_name)
                 if not bone:
                     continue
                 last_human_bone_name = human_bone_name
@@ -241,7 +241,7 @@ class AbstractBaseVrmImporter(ABC):
                 ):
                     continue
 
-                bone = armature_data.edit_bones.get(human_bone.node.bone_name)
+                bone = self.armature_data.edit_bones.get(human_bone.node.bone_name)
                 if not bone or bone.children:
                     continue
 
@@ -260,7 +260,7 @@ class AbstractBaseVrmImporter(ABC):
                 ).to_translation()
 
             make_armature.connect_parent_tail_and_child_head_if_very_close_position(
-                armature_data
+                self.armature_data
             )
             bpy.ops.object.mode_set(mode="OBJECT")
         finally:
@@ -765,10 +765,7 @@ class AbstractBaseVrmImporter(ABC):
         armature = self.armature
         if not armature:
             return
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            return
-        addon_extension = armature_data.vrm_addon_extension
+        addon_extension = self.armature_data.vrm_addon_extension
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM0
         vrm0 = addon_extension.vrm0
         if not isinstance(vrm0, Vrm0PropertyGroup):
@@ -1148,9 +1145,6 @@ class AbstractBaseVrmImporter(ABC):
         armature = self.armature
         if armature is None:
             raise ValueError("armature is None")
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            raise ValueError("armature is not an armature")
 
         collider_group_dicts = secondary_animation_dict.get("colliderGroups")
         if not isinstance(collider_group_dicts, list):
@@ -1205,9 +1199,9 @@ class AbstractBaseVrmImporter(ABC):
                 obj.matrix_world = Matrix.Translation(
                     [
                         armature.matrix_world.to_translation()[i]
-                        + armature_data.bones[bone_name].matrix_local.to_translation()[
-                            i
-                        ]
+                        + self.armature_data.bones[
+                            bone_name
+                        ].matrix_local.to_translation()[i]
                         + fixed_offset[i]
                         for i in range(3)
                     ]
@@ -1309,20 +1303,17 @@ class AbstractBaseVrmImporter(ABC):
         if armature is None:
             logger.error("armature is None")
             return
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            raise ValueError("armature is not an armature")
 
         bpy.ops.object.mode_set(mode="EDIT")
-        edit_bones = armature_data.edit_bones
+        edit_bones = self.armature_data.edit_bones
 
-        ik_foot = armature_data.edit_bones.new(f"IK_LEG_TARGET_{rl}")
+        ik_foot = self.armature_data.edit_bones.new(f"IK_LEG_TARGET_{rl}")
         ik_foot.head = [f + o for f, o in zip(edit_bones[foot_name].head[:], [0, 0, 0])]
         ik_foot.tail = [
             f + o for f, o in zip(edit_bones[foot_name].head[:], [0, -0.2, 0])
         ]
 
-        pole = armature_data.edit_bones.new(f"leg_pole_{rl}")
+        pole = self.armature_data.edit_bones.new(f"leg_pole_{rl}")
         pole.parent = ik_foot
         pole.head = [
             f + o for f, o in zip(edit_bones[lower_leg_name].head[:], [0, -0.1, 0])
@@ -1360,20 +1351,16 @@ class AbstractBaseVrmImporter(ABC):
         if armature is None:
             logger.error("armature is None")
             return
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            logger.error("armature is not an armature")
-            return
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
 
-        right_upper_leg_name = armature_data["rightUpperLeg"]
-        right_lower_leg_name = armature_data["rightLowerLeg"]
-        right_foot_name = armature_data["rightFoot"]
+        right_upper_leg_name = self.armature_data["rightUpperLeg"]
+        right_lower_leg_name = self.armature_data["rightLowerLeg"]
+        right_foot_name = self.armature_data["rightFoot"]
 
-        left_upper_leg_name = armature_data["leftUpperLeg"]
-        left_lower_leg_name = armature_data["leftLowerLeg"]
-        left_foot_name = armature_data["leftFoot"]
+        left_upper_leg_name = self.armature_data["leftUpperLeg"]
+        left_lower_leg_name = self.armature_data["leftLowerLeg"]
+        left_foot_name = self.armature_data["leftFoot"]
 
         self.make_pole_target(
             "R", right_upper_leg_name, right_lower_leg_name, right_foot_name
