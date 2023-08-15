@@ -1703,6 +1703,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     if material_index != search_material_index:
                         continue
                     material = bpy.data.materials.get(search_material_name)
+                    if not material:
+                        continue
                     if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
                         continue
                     if material.vrm_addon_extension.mtoon1.enabled:
