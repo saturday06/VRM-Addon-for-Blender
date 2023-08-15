@@ -417,22 +417,26 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[mi
     def active_armature_and_collider(
         cls, context: bpy.types.Context
     ) -> Optional[tuple[bpy.types.Object, SpringBone1ColliderPropertyGroup]]:
-        if (
-            not context.active_object
-            or context.active_object.type != "EMPTY"
-            or not context.active_object.parent
-        ):
+        active_object = context.active_object
+        if not active_object:
             return None
-        if context.active_object.parent_type == "BONE":
+        if active_object.type != "EMPTY":
+            return None
+        parent = active_object.parent
+        if not parent:
+            return None
+
+        if active_object.parent_type == "BONE":
             collider_object = context.active_object
-        elif context.active_object.parent_type == "OBJECT":
-            if context.active_object.parent.type == "ARMATURE":
-                collider_object = context.active_object
-            elif context.active_object.parent.parent_type == "BONE" or (
-                context.active_object.parent.parent_type == "OBJECT"
-                and context.active_object.parent.parent.type == "ARMATURE"
+        elif active_object.parent_type == "OBJECT":
+            if parent.type == "ARMATURE":
+                collider_object = active_object
+            elif parent.parent_type == "BONE" or (
+                parent.parent_type == "OBJECT"
+                and parent.parent
+                and parent.parent.type == "ARMATURE"
             ):
-                collider_object = context.active_object.parent
+                collider_object = parent
             else:
                 return None
         else:
