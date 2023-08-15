@@ -350,6 +350,8 @@ def layout_operator(
         depress=depress,
         icon_value=icon_value,
     )
-    if not isinstance(operator, operator_type):
-        raise AssertionError(f"{type(operator)} is not a {operator_type}")
-    return operator
+
+    # 渡されたoperator_typeが同じ名前のbpy.typesパッケージ直下のクラスに化ける
+    if type(operator).__name__ != operator_type.__name__:
+        raise AssertionError(f"{type(operator)} is not compatible with {operator_type}")
+    return cast(__Operator, operator)
