@@ -4,6 +4,7 @@ import bpy
 
 from .. import search
 from ..migration import migrate
+from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property
 from ..search import active_object_is_vrm1_armature
 from . import ops
@@ -96,16 +97,18 @@ def draw_spring_bone1_spring_bone_layout(
 
                 collider_column = colliders_expanded_box.box().column()
                 draw_spring_bone1_collider_layout(armature, collider_column, collider)
-                remove_collider_op = collider_column.operator(
-                    ops.VRM_OT_remove_spring_bone1_collider.bl_idname,
+                remove_collider_op = layout_operator(
+                    collider_column,
+                    ops.VRM_OT_remove_spring_bone1_collider,
                     icon="REMOVE",
                     text="Remove",
                 )
                 remove_collider_op.armature_name = armature.name
                 remove_collider_op.collider_index = collider_index
 
-        add_collider_op = colliders_box.operator(
-            ops.VRM_OT_add_spring_bone1_collider.bl_idname,
+        add_collider_op = layout_operator(
+            colliders_box,
+            ops.VRM_OT_add_spring_bone1_collider,
             icon="ADD",
         )
         add_collider_op.armature_name = armature.name
@@ -169,8 +172,9 @@ def draw_spring_bone1_spring_bone_layout(
                         collider_index,
                         _,
                     ) in enumerate(collider_group.colliders):
-                        remove_collider_group_collider_op = collider_group_colliders_buttons_column.operator(
-                            ops.VRM_OT_remove_spring_bone1_collider_group_collider.bl_idname,
+                        remove_collider_group_collider_op = layout_operator(
+                            collider_group_colliders_buttons_column,
+                            ops.VRM_OT_remove_spring_bone1_collider_group_collider,
                             icon="REMOVE",
                             text="",
                             translate=False,
@@ -183,8 +187,9 @@ def draw_spring_bone1_spring_bone_layout(
                             collider_index
                         )
 
-                add_collider_group_collider_op = collider_group_colliders_box.operator(
-                    ops.VRM_OT_add_spring_bone1_collider_group_collider.bl_idname,
+                add_collider_group_collider_op = layout_operator(
+                    collider_group_colliders_box,
+                    ops.VRM_OT_add_spring_bone1_collider_group_collider,
                     icon="ADD",
                 )
                 add_collider_group_collider_op.armature_name = armature.name
@@ -192,15 +197,17 @@ def draw_spring_bone1_spring_bone_layout(
                     collider_group_index
                 )
 
-                remove_collider_group_op = collider_group_column.operator(
-                    ops.VRM_OT_remove_spring_bone1_collider_group.bl_idname,
+                remove_collider_group_op = layout_operator(
+                    collider_group_column,
+                    ops.VRM_OT_remove_spring_bone1_collider_group,
                     icon="REMOVE",
                 )
                 remove_collider_group_op.armature_name = armature.name
                 remove_collider_group_op.collider_group_index = collider_group_index
 
-        add_collider_group_op = collider_groups_box.operator(
-            ops.VRM_OT_add_spring_bone1_collider_group.bl_idname,
+        add_collider_group_op = layout_operator(
+            collider_groups_box,
+            ops.VRM_OT_add_spring_bone1_collider_group,
             icon="ADD",
         )
         add_collider_group_op.armature_name = armature.name
@@ -272,16 +279,18 @@ def draw_spring_bone1_spring_bone_layout(
 
                         box.separator(factor=0.5)
 
-                        remove_spring_joint_op = box.operator(
-                            ops.VRM_OT_remove_spring_bone1_spring_joint.bl_idname,
+                        remove_spring_joint_op = layout_operator(
+                            box,
+                            ops.VRM_OT_remove_spring_bone1_spring_joint,
                             icon="REMOVE",
                         )
                         remove_spring_joint_op.armature_name = armature.name
                         remove_spring_joint_op.spring_index = spring_index
                         remove_spring_joint_op.joint_index = joint_index
 
-                add_spring_joint_op = spring_joints_box.operator(
-                    ops.VRM_OT_add_spring_bone1_spring_joint.bl_idname,
+                add_spring_joint_op = layout_operator(
+                    spring_joints_box,
+                    ops.VRM_OT_add_spring_bone1_spring_joint,
                     icon="ADD",
                 )
                 add_spring_joint_op.armature_name = armature.name
@@ -312,8 +321,9 @@ def draw_spring_bone1_spring_bone_layout(
                         collider_group_index,
                         _,
                     ) in enumerate(spring.collider_groups):
-                        remove_spring_collider_group_op = spring_collider_groups_buttons_column.operator(
-                            ops.VRM_OT_remove_spring_bone1_spring_collider_group.bl_idname,
+                        remove_spring_collider_group_op = layout_operator(
+                            spring_collider_groups_buttons_column,
+                            ops.VRM_OT_remove_spring_bone1_spring_collider_group,
                             icon="REMOVE",
                             text="",
                             translate=False,
@@ -324,22 +334,25 @@ def draw_spring_bone1_spring_bone_layout(
                             collider_group_index
                         )
 
-                add_spring_collider_group_op = spring_collider_groups_box.operator(
-                    ops.VRM_OT_add_spring_bone1_spring_collider_group.bl_idname,
+                add_spring_collider_group_op = layout_operator(
+                    spring_collider_groups_box,
+                    ops.VRM_OT_add_spring_bone1_spring_collider_group,
                     icon="ADD",
                 )
                 add_spring_collider_group_op.armature_name = armature.name
                 add_spring_collider_group_op.spring_index = spring_index
 
-                remove_spring_op = spring_column.operator(
-                    ops.VRM_OT_remove_spring_bone1_spring.bl_idname,
+                remove_spring_op = layout_operator(
+                    spring_column,
+                    ops.VRM_OT_remove_spring_bone1_spring,
                     icon="REMOVE",
                 )
                 remove_spring_op.armature_name = armature.name
                 remove_spring_op.spring_index = spring_index
 
-        add_spring_op = springs_box.operator(
-            ops.VRM_OT_add_spring_bone1_spring.bl_idname,
+        add_spring_op = layout_operator(
+            springs_box,
+            ops.VRM_OT_add_spring_bone1_spring,
             icon="ADD",
         )
         add_spring_op.armature_name = armature.name

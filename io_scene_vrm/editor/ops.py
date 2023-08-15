@@ -8,7 +8,7 @@ import json
 import re
 import webbrowser
 from pathlib import Path
-from typing import cast
+from typing import TypeVar, cast
 from urllib.parse import urlparse
 
 import bpy
@@ -324,3 +324,32 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):  # type: ignore[misc]
             return {"CANCELLED"}
         webbrowser.open(self.url)
         return {"FINISHED"}
+
+
+__Operator = TypeVar("__Operator", bound=bpy.types.Operator)
+
+
+def layout_operator(
+    layout: bpy.types.UILayout,
+    operator_type: type[__Operator],
+    text: str = "",
+    text_ctxt: str = "",
+    translate: bool = True,
+    icon: str = "NONE",
+    emboss: bool = True,
+    depress: bool = False,
+    icon_value: int = 0,
+) -> __Operator:
+    operator = layout.operator(
+        operator_type.bl_idname,
+        text=text,
+        text_ctxt=text_ctxt,
+        translate=translate,
+        icon=icon,
+        emboss=emboss,
+        depress=depress,
+        icon_value=icon_value,
+    )
+    if not isinstance(operator, operator_type):
+        raise AssertionError(f"{type(operator)} is not a {operator_type}")
+    return operator

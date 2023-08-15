@@ -5,6 +5,7 @@ from ...common.vrm0.human_bone import HumanBoneSpecification, HumanBoneSpecifica
 from .. import ops, search
 from ..extension import VrmAddonSceneExtensionPropertyGroup
 from ..migration import migrate
+from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property
 from ..search import active_object_is_vrm0_armature
 from . import ops as vrm0_ops
@@ -907,16 +908,18 @@ def draw_vrm0_secondary_animation_layout(
             for bone_index, bone in enumerate(bone_group.bones):
                 bone_row = box.split(align=True, factor=0.7)
                 bone_row.prop_search(bone, "bone_name", data, "bones", text="")
-                remove_bone_op = bone_row.operator(
-                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_bone.bl_idname,
+                remove_bone_op = layout_operator(
+                    bone_row,
+                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_bone,
                     icon="REMOVE",
                     text="Remove",
                 )
                 remove_bone_op.armature_name = armature.name
                 remove_bone_op.bone_group_index = bone_group_index
                 remove_bone_op.bone_index = bone_index
-            add_bone_op = box.operator(
-                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_bone.bl_idname,
+            add_bone_op = layout_operator(
+                box,
+                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_bone,
                 icon="ADD",
             )
             add_bone_op.armature_name = armature.name
@@ -944,29 +947,32 @@ def draw_vrm0_secondary_animation_layout(
                     "collider_groups",
                     text="",
                 )
-                remove_collider_group_op = collider_group_row.operator(
-                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_collider_group.bl_idname,
+                remove_collider_group_op = layout_operator(
+                    collider_group_row,
+                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_collider_group,
                     icon="REMOVE",
                     text="Remove",
                 )
                 remove_collider_group_op.armature_name = armature.name
                 remove_collider_group_op.bone_group_index = bone_group_index
                 remove_collider_group_op.collider_group_index = collider_group_index
-            add_collider_group_op = box.operator(
-                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_collider_group.bl_idname,
+            add_collider_group_op = layout_operator(
+                box,
+                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_collider_group,
                 icon="ADD",
             )
             add_collider_group_op.armature_name = armature.name
             add_collider_group_op.bone_group_index = bone_group_index
 
-        remove_bone_group_op = box.operator(
-            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group.bl_idname,
+        remove_bone_group_op = layout_operator(
+            box,
+            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group,
             icon="REMOVE",
         )
         remove_bone_group_op.armature_name = armature.name
         remove_bone_group_op.bone_group_index = bone_group_index
-    add_bone_group_op = bone_groups_box.operator(
-        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group.bl_idname, icon="ADD"
+    add_bone_group_op = layout_operator(
+        bone_groups_box, vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group, icon="ADD"
     )
     add_bone_group_op.armature_name = armature.name
 
@@ -1002,30 +1008,34 @@ def draw_vrm0_secondary_animation_layout(
                 collider.bpy_object, "name", icon="MESH_UVSPHERE", text=""
             )
             collider_row.prop(collider.bpy_object, "empty_display_size", text="")
-            remove_collider_op = collider_row.operator(
-                vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider.bl_idname,
+            remove_collider_op = layout_operator(
+                collider_row,
+                vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider,
                 icon="REMOVE",
                 text="Remove",
             )
             remove_collider_op.armature_name = armature.name
             remove_collider_op.collider_group_index = collider_group_index
             remove_collider_op.collider_index = collider_index
-        add_collider_op = box.operator(
-            vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group_collider.bl_idname,
+        add_collider_op = layout_operator(
+            box,
+            vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group_collider,
             icon="ADD",
         )
         add_collider_op.armature_name = armature.name
         add_collider_op.collider_group_index = collider_group_index
         add_collider_op.bone_name = collider_group.node.bone_name
 
-        remove_collider_group_op = box.operator(
-            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group.bl_idname,
+        remove_collider_group_op = layout_operator(
+            box,
+            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group,
             icon="REMOVE",
         )
         remove_collider_group_op.armature_name = armature.name
         remove_collider_group_op.collider_group_index = collider_group_index
-    add_collider_group_op = collider_groups_box.operator(
-        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group.bl_idname,
+    add_collider_group_op = layout_operator(
+        collider_groups_box,
+        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group,
         icon="ADD",
     )
     add_collider_group_op.armature_name = armature.name

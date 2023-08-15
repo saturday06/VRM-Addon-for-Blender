@@ -15,6 +15,7 @@ from .mtoon0.glsl_drawer import (
     ICYP_OT_draw_model,
     ICYP_OT_remove_draw_model,
 )
+from .ops import layout_operator
 
 
 class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
@@ -61,8 +62,9 @@ class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc
 def add_armature(
     add_armature_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:
-    add_armature_op.layout.operator(
-        make_armature.ICYP_OT_make_armature.bl_idname,
+    layout_operator(
+        add_armature_op.layout,
+        make_armature.ICYP_OT_make_armature,
         text="VRM Humanoid",
         icon="OUTLINER_OB_ARMATURE",
     ).skip_heavy_armature_setup = True
@@ -118,13 +120,15 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
         preferences = get_preferences(context)
 
         # draw_main
-        layout.operator(
-            make_armature.ICYP_OT_make_armature.bl_idname,
+        layout_operator(
+            layout,
+            make_armature.ICYP_OT_make_armature,
             text=pgettext("Create VRM Model"),
             icon="OUTLINER_OB_ARMATURE",
         ).skip_heavy_armature_setup = True
-        vrm_validator_op = layout.operator(
-            validation.WM_OT_vrm_validator.bl_idname,
+        vrm_validator_op = layout_operator(
+            layout,
+            validation.WM_OT_vrm_validator,
             text=pgettext("Validate VRM Model"),
             icon="VIEWZOOM",
         )
