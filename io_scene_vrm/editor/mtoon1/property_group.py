@@ -1598,14 +1598,18 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         connected = False
         surface_socket = surface_node.outputs[0]
         for link in material.node_tree.links:
-            if (
-                link.from_socket == surface_socket
-                and link.to_socket
-                and link.to_socket.node
-                and link.to_socket.node.type == "OUTPUT_MATERIAL"
-            ):
-                connected = True
-                break
+            if link.from_socket != surface_socket:
+                continue
+            to_socket = link.to_socket
+            if not to_socket:
+                continue
+            node = to_socket.node
+            if not node:
+                continue
+            if node.type != "OUTPUT_MATERIAL":
+                continue
+            connected = True
+            break
         if not connected:
             return False
 
