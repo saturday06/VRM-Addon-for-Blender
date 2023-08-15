@@ -586,9 +586,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         object_name_to_index_dict: dict[str, int],
         bone_name_to_index_dict: dict[str, int],
     ) -> Optional[int]:
-        if constraint.target.type == "ARMATURE" and constraint.subtarget:
+        target = constraint.target
+        if not target:
+            return None
+        if target.type == "ARMATURE" and constraint.subtarget:
             return bone_name_to_index_dict.get(constraint.subtarget)
-        return object_name_to_index_dict.get(constraint.target.name)
+        return object_name_to_index_dict.get(target.name)
 
     @staticmethod
     def create_constraint_dict(

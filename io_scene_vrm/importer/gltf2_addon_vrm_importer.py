@@ -2587,6 +2587,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             if isinstance(roll_dict, dict):
                 constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
+                if not isinstance(constraint, bpy.types.CopyRotationConstraint):
+                    logger.error(f"{type(constraint)} is not a CopyRotationConstraint")
+                    continue
                 constraint.mix_mode = "ADD"
                 constraint.owner_space = "LOCAL"
                 constraint.target_space = "LOCAL"
@@ -2613,6 +2616,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 source_index = roll_dict.get("source")
             elif isinstance(aim_dict, dict):
                 constraint = object_or_bone.constraints.new(type="DAMPED_TRACK")
+                if not isinstance(constraint, bpy.types.DampedTrackConstraint):
+                    logger.error(f"{type(constraint)} is not a CopyRotationConstraint")
+                    continue
                 aim_axis = aim_dict.get("aimAxis")
                 if isinstance(aim_axis, str) and isinstance(
                     object_or_bone, bpy.types.PoseBone
@@ -2631,6 +2637,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 source_index = aim_dict.get("source")
             elif isinstance(rotation_dict, dict):
                 constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
+                if not isinstance(constraint, bpy.types.CopyRotationConstraint):
+                    logger.error(f"{type(constraint)} is not a CopyRotationConstraint")
+                    continue
                 constraint.mix_mode = "ADD"
                 constraint.owner_space = "LOCAL"
                 constraint.target_space = "LOCAL"

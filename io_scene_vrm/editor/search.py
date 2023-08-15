@@ -129,14 +129,16 @@ def object_distance(
         right_collection_path.pop(0)
 
     left_parent_path: list[bpy.types.Object] = []
-    while left:
-        left_parent_path.insert(0, left)
-        left = left.parent
+    traversing_left = left
+    while traversing_left:
+        left_parent_path.insert(0, traversing_left)
+        traversing_left = traversing_left.parent
 
     right_parent_path: list[bpy.types.Object] = []
-    while right:
-        right_parent_path.insert(0, right)
-        right = right.parent
+    traversing_right = right
+    while traversing_right:
+        right_parent_path.insert(0, traversing_right)
+        traversing_right = traversing_right.parent
 
     while (
         left_parent_path
@@ -306,81 +308,108 @@ class ExportConstraint:
     rotation_constraints: dict[str, bpy.types.CopyRotationConstraint]
 
 
-def is_roll_constraint(
+def roll_constraint_or_none(
     constraint: bpy.types.Constraint,
     objs: list[bpy.types.Object],
     armature: bpy.types.Object,
-) -> bool:
-    return (
-        isinstance(constraint, bpy.types.CopyRotationConstraint)
-        and constraint.is_valid
-        and not constraint.mute
-        and constraint.target
-        and constraint.target in objs
-        and constraint.mix_mode == "ADD"
-        and (int(constraint.use_x) + int(constraint.use_y) + int(constraint.use_z)) == 1
-        and constraint.owner_space == "LOCAL"
-        and constraint.target_space == "LOCAL"
-        and (
-            constraint.target.type != "ARMATURE"
-            or (
-                constraint.target == armature
-                and constraint.subtarget in constraint.target.data.bones
-            )
-        )
-    )
+) -> Optional[bpy.types.CopyRotationConstraint]:
+    if (
+        not isinstance(constraint, bpy.types.CopyRotationConstraint)
+        or not constraint.is_valid
+        or constraint.mute
+        or not constraint.target
+        or constraint.target not in objs
+        or constraint.mix_mode != "ADD"
+        or (int(constraint.use_x) + int(constraint.use_y) + int(constraint.use_z)) != 1
+        or constraint.owner_space != "LOCAL"
+        or constraint.target_space != "LOCAL"
+    ):
+        return None
+
+    if constraint.target.type != "ARMATURE":
+        return constraint
+
+    if constraint.target != armature:
+        return None
+
+    armature_data = armature.data
+    if (
+        not isinstance(armature_data, bpy.types.Armature)
+        or constraint.subtarget not in armature_data.bones
+    ):
+        return None
+
+    return constraint
 
 
-def is_aim_constraint(
+def aim_constraint_or_none(
     constraint: bpy.types.Constraint,
     objs: list[bpy.types.Object],
     armature: bpy.types.Object,
-) -> bool:
-    return (
-        isinstance(constraint, bpy.types.DampedTrackConstraint)
-        and constraint.is_valid
-        and not constraint.mute
-        and constraint.target
-        and constraint.target in objs
-        and (
-            constraint.target.type != "ARMATURE"
-            or (
-                constraint.target == armature
-                and constraint.subtarget in constraint.target.data.bones
-                and abs(constraint.head_tail) < float_info.epsilon
-            )
-        )
-    )
+) -> Optional[bpy.types.DampedTrackConstraint]:
+    if (
+        not isinstance(constraint, bpy.types.DampedTrackConstraint)
+        or not constraint.is_valid
+        or constraint.mute
+        or not constraint.target
+        or constraint.target not in objs
+    ):
+        return None
+
+    if constraint.target.type != "ARMATURE":
+        return constraint
+
+    if constraint.target != armature:
+        return None
+
+    armature_data = armature.data
+    if (
+        not isinstance(armature_data, bpy.types.Armature)
+        or constraint.subtarget not in armature_data.bones
+        or abs(constraint.head_tail) >= float_info.epsilon
+    ):
+        return None
+
+    return constraint
 
 
-def is_rotation_constraint(
+def rotation_constraint_or_none(
     constraint: bpy.types.Constraint,
     objs: list[bpy.types.Object],
     armature: bpy.types.Object,
-) -> bool:
-    return (
-        isinstance(constraint, bpy.types.CopyRotationConstraint)
-        and constraint.is_valid
-        and not constraint.mute
-        and constraint.target
-        and constraint.target in objs
-        and not constraint.invert_x
-        and not constraint.invert_y
-        and not constraint.invert_z
-        and constraint.mix_mode == "ADD"
-        and constraint.use_x
-        and constraint.use_y
-        and constraint.use_z
-        and constraint.owner_space == "LOCAL"
-        and constraint.target_space == "LOCAL"
-        and (
-            constraint.target.type != "ARMATURE"
-            or (
-                constraint.target == armature
-                and constraint.subtarget in constraint.target.data.bones
-            )
-        )
-    )
+) -> Optional[bpy.types.CopyRotationConstraint]:
+    if (
+        not isinstance(constraint, bpy.types.CopyRotationConstraint)
+        or not constraint.is_valid
+        or constraint.mute
+        or not constraint.target
+        or constraint.target not in objs
+        or constraint.invert_x
+        or constraint.invert_y
+        or constraint.invert_z
+        or constraint.mix_mode != "ADD"
+        or not constraint.use_x
+        or not constraint.use_y
+        or not constraint.use_z
+        or constraint.owner_space != "LOCAL"
+        or constraint.target_space != "LOCAL"
+    ):
+        return None
+
+    if constraint.target.type != "ARMATURE":
+        return constraint
+
+    if constraint.target == armature:
+        return None
+
+    armature_data = armature.data
+    if (
+        not isinstance(armature_data, bpy.types.Armature)
+        or constraint.subtarget not in armature_data.bones
+    ):
+        return None
+
+    return constraint
 
 
 def export_object_constraints(
@@ -393,14 +422,19 @@ def export_object_constraints(
 
     for obj in objs:
         for constraint in obj.constraints:
-            if is_roll_constraint(constraint, objs, armature):
-                roll_constraints[obj.name] = constraint
+            roll_constraint = roll_constraint_or_none(constraint, objs, armature)
+            if roll_constraint:
+                roll_constraints[obj.name] = roll_constraint
                 break
-            if is_aim_constraint(constraint, objs, armature):
-                aim_constraints[obj.name] = constraint
+            aim_constraint = aim_constraint_or_none(constraint, objs, armature)
+            if aim_constraint:
+                aim_constraints[obj.name] = aim_constraint
                 break
-            if is_rotation_constraint(constraint, objs, armature):
-                rotation_constraints[obj.name] = constraint
+            rotation_constraint = rotation_constraint_or_none(
+                constraint, objs, armature
+            )
+            if rotation_constraint:
+                rotation_constraints[obj.name] = rotation_constraint
                 break
 
     return ExportConstraint(
@@ -420,14 +454,19 @@ def export_bone_constraints(
 
     for bone in armature.pose.bones:
         for constraint in bone.constraints:
-            if is_roll_constraint(constraint, objs, armature):
-                roll_constraints[bone.name] = constraint
+            roll_constraint = roll_constraint_or_none(constraint, objs, armature)
+            if roll_constraint:
+                roll_constraints[bone.name] = roll_constraint
                 break
-            if is_aim_constraint(constraint, objs, armature):
-                aim_constraints[bone.name] = constraint
+            aim_constraint = aim_constraint_or_none(constraint, objs, armature)
+            if aim_constraint:
+                aim_constraints[bone.name] = aim_constraint
                 break
-            if is_rotation_constraint(constraint, objs, armature):
-                rotation_constraints[bone.name] = constraint
+            rotation_constraint = rotation_constraint_or_none(
+                constraint, objs, armature
+            )
+            if rotation_constraint:
+                rotation_constraints[bone.name] = rotation_constraint
                 break
 
     return ExportConstraint(
@@ -488,15 +527,17 @@ def export_constraints(
 
             found = False
 
-            if current_constraint.target.type == "ARMATURE":
-                bone = current_constraint.target.pose.bones[
-                    current_constraint.subtarget
-                ]
+            target = current_constraint.target
+            if not target:
+                continue
+
+            if target.type == "ARMATURE":
+                bone = target.pose.bones[current_constraint.subtarget]
                 owner_name = bone.name
                 target_constraints = bone.constraints
             else:
-                owner_name = current_constraint.target.name
-                target_constraints = current_constraint.target.constraints
+                owner_name = target.name
+                target_constraints = target.constraints
 
             for target_constraint in target_constraints:
                 if target_constraint not in all_constraints:
