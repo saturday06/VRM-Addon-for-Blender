@@ -331,7 +331,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 ).to_translation()
             node = {
                 "name": b_bone.name,
-                "translation": self.axis_blender_to_glb(translation),
+                "translation": make_json(self.axis_blender_to_glb(translation)),
                 # "rotation":[0,0,0,1],
                 # "scale":[1,1,1],
                 "children": [bone_id_dict[ch.name] for ch in b_bone.children],
@@ -525,8 +525,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         ) -> dict[str, Json]:
             """transparent_method = {"OPAQUE","MASK","BLEND"}"""
             if base_color is None:
-                base_color = (1, 1, 1, 1)
-            base_color = tuple(map(lambda v: max(0, min(1, v)), base_color))
+                base_color = (1.0, 1.0, 1.0, 1.0)
+            base_color = tuple(map(lambda v: max(0.0, min(1.0, v)), base_color))
             if metalness is None:
                 metalness = 0
             metalness = max(0, min(1, metalness))
@@ -535,17 +535,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             roughness = max(0, min(1, roughness))
             if unlit is None:
                 unlit = True
-            fallback_dict = {
-                "name": b_mat.name,
-                "pbrMetallicRoughness": {
-                    "baseColorFactor": base_color,
-                    "metallicFactor": metalness,
-                    "roughnessFactor": roughness,
-                },
+            pbr_metallic_roughness: dict[str, Json] = {
+                "baseColorFactor": make_json(base_color),
+                "metallicFactor": metalness,
+                "roughnessFactor": roughness,
             }
-            for k, v in fallback_dict["pbrMetallicRoughness"].items():
-                if v is None:
-                    del fallback_dict["pbrMetallicRoughness"][k]
+            fallback_dict: dict[str, Json] = {
+                "name": b_mat.name,
+                "pbrMetallicRoughness": pbr_metallic_roughness,
+            }
 
             if base_color_texture is not None:
                 texture_info: dict[str, Json] = {
@@ -554,9 +552,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
                 if texture_transform is not None:
                     texture_transform.add_to(texture_info)
-                fallback_dict["pbrMetallicRoughness"].update(
-                    {"baseColorTexture": texture_info}  # TODO:
-                )
+                pbr_metallic_roughness["baseColorTexture"] = texture_info  # TODO:
             if metallic_roughness_texture is not None:
                 texture_info = {
                     "index": add_texture(*metallic_roughness_texture),
@@ -564,7 +560,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
                 if texture_transform is not None:
                     texture_transform.add_to(texture_info)
-                fallback_dict["pbrMetallicRoughness"].update(
+                pbr_metallic_roughness.update(
                     {"metallicRoughnessTexture": texture_info}
                 )
             if normal_texture is not None:
@@ -1053,7 +1049,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 "vectorProperties": {},
                 "textureProperties": {},
             }
-            fallback = (vrm_dict, {"name": b_mat.name})
+            fallback: tuple[dict[str, Json], dict[str, Json]] = (
+                vrm_dict,
+                {"name": b_mat.name},
+            )
 
             pbr_dict: dict[str, Json] = {}
             pbr_dict["name"] = b_mat.name
@@ -1823,7 +1822,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             is_skin_mesh = self.is_skin_mesh(mesh)
             node_dict = {
                 "name": mesh.name,
-                "translation": self.axis_blender_to_glb(mesh.location),
+                "translation": make_json(self.axis_blender_to_glb(mesh.location)),
                 "rotation": [0, 0, 0, 1],  # このへんは規約なので
                 "scale": [1, 1, 1],  # このへんは規約なので
             }
@@ -2261,7 +2260,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     for morph_normal_bin in shape_normal_bin_dict.values()
                 ]
 
-            primitive_list = []
+            primitive_list: list[Json] = []
             for primitive_id, index_glb in primitive_glbs_dict.items():
                 primitive: dict[str, Json] = {"mode": 4}
                 if primitive_id is not None:
@@ -2306,7 +2305,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 primitive_list.append(primitive)
             self.mesh_name_to_index[mesh.name] = mesh_index
 
-            mesh_dict = {
+            mesh_dict: dict[str, Json] = {
                 "name": mesh.data.name,
                 "primitives": primitive_list,
             }
@@ -2693,7 +2692,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         bone_group_dicts: list[Json] = []
         secondary_animation_dict["boneGroups"] = bone_group_dicts
         for bone_group in secondary_animation.bone_groups:
-            bone_group_dict = {
+            bone_group_dict: dict[str, Json] = {
                 "comment": bone_group.comment,
                 "stiffiness": bone_group.stiffiness,  # noqa: SC200
                 "gravityPower": bone_group.gravity_power,
@@ -2712,7 +2711,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     if bone.bone_name in node_name_id_dict
                 ],
             }
-            collider_group_indices: list[int] = []
+            collider_group_indices: list[Json] = []
             for collider_group_name in bone_group.collider_groups:
                 if collider_group_name.value not in collider_group_names:
                     continue

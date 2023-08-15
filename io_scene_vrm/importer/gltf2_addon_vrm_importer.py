@@ -15,7 +15,7 @@ import mathutils
 from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
-from ..common.deep import Json
+from ..common.deep import Json, make_json
 from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
@@ -1013,7 +1013,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     json_dict["meshes"] = mesh_dicts
                 skin_mesh_index = len(mesh_dicts)
                 mesh_dicts.append(
-                    {"name": self.temp_object_name(), "primitives": primitive_dicts}
+                    make_json(
+                        {"name": self.temp_object_name(), "primitives": primitive_dicts}
+                    )
                 )
 
                 skin_dicts = json_dict.get("skins")
