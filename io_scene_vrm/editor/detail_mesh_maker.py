@@ -83,7 +83,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc]
         default=0.2, min=0, max=0.6, name="nose top position"  # noqa: F722
     )
     nose_height: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.015, min=0.01, max=0.1, step=0.001, name="nose height"  # noqa: F722
+        default=0.015, min=0.01, max=0.1, step=1, name="nose height"  # noqa: F722
     )
     nose_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.5, min=0.01, max=1, name="nose width"  # noqa: F722

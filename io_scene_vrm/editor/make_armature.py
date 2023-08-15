@@ -34,60 +34,60 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
     )
     # 身長 at meter
     tall: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=1.70, min=0.3, step=0.001, name="Bone tall"  # noqa: F722
+        default=1.70, min=0.3, step=1, name="Bone tall"  # noqa: F722
     )
     # 頭身
     head_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=8.0, min=4, step=0.05, description="height per heads"  # noqa: F722
+        default=8.0, min=4, step=5, description="height per heads"  # noqa: F722
     )
     head_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=2 / 3,
         min=0.3,
         max=1.2,
-        step=0.05,
+        step=5,
         description="height per heads",  # noqa: F722
     )
     # 足-胴比率:0:子供、1:大人 に近くなる(低等身で有効)
     aging_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.5, min=0, max=1, step=0.1
+        default=0.5, min=0, max=1, step=10
     )
     # 目の奥み
     eye_depth: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=-0.03, min=-0.1, max=0, step=0.005
+        default=-0.03, min=-0.1, max=0, step=1
     )
     # 肩幅
     shoulder_in_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.05,
         min=0.01,
-        step=0.005,
+        step=1,
         description="Inner shoulder position",  # noqa: F722
     )
     shoulder_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.08,
         min=0.01,
-        step=0.005,
+        step=1,
         description="shoulder roll position",  # noqa: F722
     )
     # 腕長さ率
     arm_length_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=1, min=0.5, step=0.01
+        default=1, min=0.5, step=1
     )
     # 手
     hand_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=1, min=0.5, max=2.0, step=0.05
+        default=1, min=0.5, max=2.0, step=5
     )
     finger_1_2_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.75,
         min=0.5,
         max=1,
-        step=0.005,
+        step=1,
         description="proximal / intermediate",  # noqa: F722,F821
     )
     finger_2_3_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.75,
         min=0.5,
         max=1,
-        step=0.005,
+        step=1,
         description="intermediate / distal",  # noqa: F722,F821
     )
     nail_bone: bpy.props.BoolProperty(  # type: ignore[valid-type]
@@ -98,14 +98,14 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         default=0.5,
         min=0.3,
         max=0.6,
-        step=0.01,
+        step=1,
         description="upper body/lower body",  # noqa: F722
     )
     leg_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=1, min=0.01, step=0.005
+        default=1, min=0.01, step=1
     )
     leg_size: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.26, min=0.05, step=0.005
+        default=0.26, min=0.05, step=1
     )
     custom_property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}  # noqa: F821
