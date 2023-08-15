@@ -396,7 +396,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if not isinstance(node, dict):
                     continue
                 bone_name = node.get("name")
-                if not bone_name:
+                if not isinstance(bone_name, str):
                     continue
                 bone_glb_world_pos = self.axis_blender_to_glb(
                     (
