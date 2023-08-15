@@ -1,4 +1,3 @@
-import contextlib
 from os import environ
 from pathlib import Path
 from typing import Union, cast
@@ -9,12 +8,11 @@ from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
 from ..common.logging import get_logger
-from ..common.preferences import get_preferences, use_legacy_importer_exporter
+from ..common.preferences import get_preferences
 from ..editor import search
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import StringPropertyGroup
-from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
-from .legacy_vrm_importer import LegacyVrmImporter
+from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter
 from .license_validation import LicenseConfirmationRequired
 from .vrm_animation_importer import VrmAnimationImporter
 from .vrm_parser import VrmParser
@@ -151,9 +149,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
             preferences.set_armature_display_to_show_in_front,
         )
 
-        if not use_legacy_importer_exporter() and "gltf" not in dir(
-            bpy.ops.import_scene
-        ):
+        if "gltf" not in dir(bpy.ops.import_scene):
             return cast(
                 set[str],
                 bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
@@ -271,38 +267,19 @@ def create_blend_model(
     context: bpy.types.Context,
     license_validation: bool,
 ) -> set[str]:
-    if not use_legacy_importer_exporter():
-        with contextlib.suppress(RetryUsingLegacyVrmImporter):
-            parse_result = VrmParser(
-                Path(addon.filepath),
-                addon.extract_textures_into_folder,
-                addon.make_new_texture_folder,
-                license_validation=license_validation,
-                legacy_importer=False,
-            ).parse()
-
-            Gltf2AddonVrmImporter(
-                context,
-                parse_result,
-                addon.extract_textures_into_folder,
-                addon.make_new_texture_folder,
-            ).import_vrm()
-            return {"FINISHED"}
-
     parse_result = VrmParser(
         Path(addon.filepath),
         addon.extract_textures_into_folder,
         addon.make_new_texture_folder,
         license_validation=license_validation,
-        legacy_importer=True,
     ).parse()
-    LegacyVrmImporter(
+
+    Gltf2AddonVrmImporter(
         context,
         parse_result,
         addon.extract_textures_into_folder,
         addon.make_new_texture_folder,
     ).import_vrm()
-
     return {"FINISHED"}
 
 

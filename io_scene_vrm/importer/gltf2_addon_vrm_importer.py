@@ -53,10 +53,6 @@ from .vrm_parser import ParseResult, remove_unsafe_path_chars
 logger = get_logger(__name__)
 
 
-class RetryUsingLegacyVrmImporter(Exception):
-    pass
-
-
 class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def __init__(
         self,

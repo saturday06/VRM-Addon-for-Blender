@@ -91,10 +91,6 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
             advanced_options_box.prop(self, "export_fb_ngon_encoding")
 
 
-def use_legacy_importer_exporter() -> bool:
-    return tuple(bpy.app.version) < (2, 83)
-
-
 def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
     addon = context.preferences.addons.get(addon_package_name)
     if not addon:

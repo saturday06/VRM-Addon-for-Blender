@@ -1,9 +1,6 @@
 0x
-10cm
-1mm
 2d
 4x4
-absolutize
 accessor
 accessors
 addon
@@ -39,7 +36,6 @@ const
 constraint1
 coord
 ctxt
-customdata
 depsgraph
 dicts
 difflib
@@ -107,7 +103,6 @@ iterdir
 ja
 jsons
 keepends
-keyblock
 keyframe
 keyframes
 khr
@@ -167,7 +162,6 @@ prog
 proj
 pydata
 pylint
-pymesh
 pyright
 pythonpath
 quaternion
@@ -177,7 +171,6 @@ raytrace
 rbd
 readonly
 recalc
-reducted
 removeprefix
 renderer
 req
@@ -200,8 +193,6 @@ skinnedmesh
 skippable
 slerp
 specular
-splitnormals
-sqrt
 src
 subtarget
 subtype
@@ -245,8 +236,6 @@ vab
 validator
 vals
 vanim
-vc
-vcolor
 vec
 vec3
 vec4
@@ -269,7 +258,6 @@ vrmc
 vroid
 vroid064
 vroid2vrc
-vtype
 w0201
 webbrowser
 winapi

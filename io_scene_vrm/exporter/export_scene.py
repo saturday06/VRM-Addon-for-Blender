@@ -6,7 +6,7 @@ from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ExportHelper
 
 from ..common import version
-from ..common.preferences import get_preferences, use_legacy_importer_exporter
+from ..common.preferences import get_preferences
 from ..editor import search, validation
 from ..editor.ops import VRM_OT_open_url_in_web_browser
 from ..editor.property_group import StringPropertyGroup
@@ -160,9 +160,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
             bool(preferences.enable_advanced_preferences),
             bool(preferences.export_fb_ngon_encoding),
         )
-        if not use_legacy_importer_exporter() and "gltf" not in dir(
-            bpy.ops.export_scene
-        ):
+        if "gltf" not in dir(bpy.ops.export_scene):
             return cast(
                 set[str],
                 bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
