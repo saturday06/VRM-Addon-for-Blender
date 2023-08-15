@@ -106,8 +106,11 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     @staticmethod
     def get_all_bone_property_groups(
         armature: bpy.types.Object,
-    ) -> Iterator[bpy.types.PropertyGroup]:
-        ext = armature.data.vrm_addon_extension
+    ) -> Iterator["BonePropertyGroup"]:
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        ext = armature_data.vrm_addon_extension
         yield ext.vrm0.first_person.first_person_bone
         for human_bone in ext.vrm0.humanoid.human_bones:
             yield human_bone.node
@@ -205,7 +208,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         return ""
 
     def set_bone_name(self, value: object) -> None:
-        armature: Optional[bpy.types.Armature] = None
+        armature: Optional[bpy.types.Object] = None
 
         # アーマチュアの複製が行われた場合を考えてself.armature_data_nameの振り直しをする
         self.search_one_time_uuid = uuid.uuid4().hex
@@ -225,32 +228,39 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             self.armature_data_name = ""
             self.bone_uuid = ""
             return
-        self.armature_data_name = armature.data.name
+
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            self.armature_data_name = ""
+            self.bone_uuid = ""
+            return
+
+        self.armature_data_name = armature_data.name
 
         # ボーンの複製が行われた場合を考えてUUIDの重複がある場合再割り当てを行う
         found_uuids = set()
-        for bone in armature.data.bones:
+        for bone in armature_data.bones:
             found_uuid = bone.vrm_addon_extension.uuid
             if not found_uuid or found_uuid in found_uuids:
                 bone.vrm_addon_extension.uuid = uuid.uuid4().hex
             found_uuids.add(bone.vrm_addon_extension.uuid)
 
         value_str = str(value)
-        if not value_str or value_str not in armature.data.bones:
+        if not value_str or value_str not in armature_data.bones:
             if not self.bone_uuid:
                 return
             self.bone_uuid = ""
         elif (
             self.bone_uuid
             and self.bone_uuid
-            == armature.data.bones[value_str].vrm_addon_extension.uuid
+            == armature_data.bones[value_str].vrm_addon_extension.uuid
         ):
             return
         else:
-            bone = armature.data.bones[value_str]
+            bone = armature_data.bones[value_str]
             self.bone_uuid = bone.vrm_addon_extension.uuid
 
-        ext = armature.data.vrm_addon_extension
+        ext = armature_data.vrm_addon_extension
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(armature)
 

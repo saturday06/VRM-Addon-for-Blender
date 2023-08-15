@@ -1,8 +1,8 @@
 import bpy
 
 
-def migrate_blender_object(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def migrate_blender_object(armature: bpy.types.Armature) -> None:
+    ext = armature.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
 
@@ -14,8 +14,8 @@ def migrate_blender_object(armature: bpy.types.Object) -> None:
             del collider["blender_object"]
 
 
-def fixup_gravity_dir(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def fixup_gravity_dir(armature: bpy.types.Armature) -> None:
+    ext = armature.vrm_addon_extension
 
     if tuple(ext.addon_version) <= (2, 14, 3):
         for spring in ext.spring_bone1.springs:
@@ -44,5 +44,8 @@ def fixup_gravity_dir(armature: bpy.types.Object) -> None:
 
 
 def migrate(armature: bpy.types.Object) -> None:
-    migrate_blender_object(armature)
-    fixup_gravity_dir(armature)
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return
+    migrate_blender_object(armature_data)
+    fixup_gravity_dir(armature_data)

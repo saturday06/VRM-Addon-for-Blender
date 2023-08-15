@@ -119,7 +119,10 @@ def calculate_object_pose_bone_rotations(
 ) -> None:
     if obj.type != "ARMATURE":
         return
-    ext = obj.data.vrm_addon_extension
+    armature_data = obj.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return
+    ext = armature_data.vrm_addon_extension
     if not ext.is_vrm1():
         return
     spring_bone1 = ext.spring_bone1

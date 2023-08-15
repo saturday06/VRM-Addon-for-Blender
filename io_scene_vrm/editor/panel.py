@@ -10,7 +10,6 @@ from . import (
     search,
     validation,
 )
-from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .mtoon0.glsl_drawer import (
     GlslDrawObj,
     ICYP_OT_draw_model,
@@ -27,15 +26,11 @@ class VRM_PT_vrm_armature_object_property(bpy.types.Panel):  # type: ignore[misc
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return bool(
-            context.active_object
-            and context.active_object.type == "ARMATURE"
-            and hasattr(context.active_object.data, "vrm_addon_extension")
-            and isinstance(
-                context.active_object.data.vrm_addon_extension,
-                VrmAddonArmatureExtensionPropertyGroup,
-            )
-        )
+        active_object = context.active_object
+        if not active_object:
+            return False
+        armature_data = active_object.data
+        return isinstance(armature_data, bpy.types.Armature)
 
     def draw(self, _context: bpy.types.Context) -> None:
         warning_message = None
@@ -140,37 +135,45 @@ class VRM_PT_controller(bpy.types.Panel):  # type: ignore[misc]
         armature = search.current_armature(context)
         if armature:
             vrm_validator_op.armature_object_name = armature.name
-            layout.prop(
-                armature.data.vrm_addon_extension,
-                "spec_version",
-                text="",
-                translate=False,
-            )
-
-        if mode == "OBJECT":
-            if GlslDrawObj.draw_objs:
-                layout.operator(
-                    ICYP_OT_remove_draw_model.bl_idname,
-                    icon="SHADING_RENDERED",
-                    depress=True,
+            armature_data = armature.data
+            if isinstance(armature_data, bpy.types.Armature):
+                layout.prop(
+                    armature_data.vrm_addon_extension,
+                    "spec_version",
+                    text="",
+                    translate=False,
                 )
-            elif (
-                bpy.app.version < (3, 7)
-                and armature
-                and not armature.data.vrm_addon_extension.is_vrm1()
-            ):
-                if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
-                    layout.operator(
-                        ICYP_OT_draw_model.bl_idname,
-                        icon="SHADING_RENDERED",
-                        depress=False,
-                    )
-                else:
-                    layout.label(text="Preview MToon 0.0")
-                    layout.box().label(
-                        icon="INFO",
-                        text=pgettext("A light is required"),
-                    )
+
+        if mode != "OBJECT":
+            return
+
+        if GlslDrawObj.draw_objs:
+            layout.operator(
+                ICYP_OT_remove_draw_model.bl_idname,
+                icon="SHADING_RENDERED",
+                depress=True,
+            )
+            return
+
+        if bpy.app.version >= (3, 7) or not armature:
+            return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        if not armature_data.vrm_addon_extension.is_vrm0():
+            return
+        if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
+            layout.operator(
+                ICYP_OT_draw_model.bl_idname,
+                icon="SHADING_RENDERED",
+                depress=False,
+            )
+        else:
+            layout.label(text="Preview MToon 0.0")
+            layout.box().label(
+                icon="INFO",
+                text=pgettext("A light is required"),
+            )
 
 
 class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc]

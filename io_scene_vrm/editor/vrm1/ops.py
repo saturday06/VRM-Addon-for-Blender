@@ -26,7 +26,10 @@ class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc]
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.data.vrm_addon_extension.vrm1.meta.authors.add()
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        armature_data.vrm_addon_extension.vrm1.meta.authors.add()
         return {"FINISHED"}
 
 
@@ -48,7 +51,10 @@ class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):  # type: ignore[misc]
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        authors = armature.data.vrm_addon_extension.vrm1.meta.authors
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        authors = armature_data.vrm_addon_extension.vrm1.meta.authors
         if len(authors) <= self.author_index:
             return {"CANCELLED"}
         authors.remove(self.author_index)
@@ -69,7 +75,10 @@ class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[misc]
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.data.vrm_addon_extension.vrm1.meta.references.add()
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        armature_data.vrm_addon_extension.vrm1.meta.references.add()
         return {"FINISHED"}
 
 
@@ -91,7 +100,10 @@ class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):  # type: ignore[mis
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        references = armature.data.vrm_addon_extension.vrm1.meta.references
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        references = armature_data.vrm_addon_extension.vrm1.meta.references
         if len(references) <= self.reference_index:
             return {"CANCELLED"}
         references.remove(self.reference_index)
@@ -115,8 +127,11 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):  # type
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         custom_expression = (
-            armature.data.vrm_addon_extension.vrm1.expressions.custom.add()
+            armature_data.vrm_addon_extension.vrm1.expressions.custom.add()
         )
         custom_expression.custom_name = self.custom_expression_name
         return cast(set[str], bpy.ops.vrm.update_vrm1_expression_ui_list_elements())
@@ -139,11 +154,14 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):  # t
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         for custom_index, custom_expression in enumerate(
-            list(armature.data.vrm_addon_extension.vrm1.expressions.custom.values())
+            list(armature_data.vrm_addon_extension.vrm1.expressions.custom.values())
         ):
             if custom_expression.custom_name == self.custom_expression_name:
-                armature.data.vrm_addon_extension.vrm1.expressions.custom.remove(
+                armature_data.vrm_addon_extension.vrm1.expressions.custom.remove(
                     custom_index
                 )
                 return cast(
@@ -166,7 +184,10 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # type:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.data.vrm_addon_extension.vrm1.first_person.mesh_annotations.add()
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        armature_data.vrm_addon_extension.vrm1.first_person.mesh_annotations.add()
         return {"FINISHED"}
 
 
@@ -188,8 +209,11 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):  # ty
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         mesh_annotations = (
-            armature.data.vrm_addon_extension.vrm1.first_person.mesh_annotations
+            armature_data.vrm_addon_extension.vrm1.first_person.mesh_annotations
         )
         if len(mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
@@ -215,8 +239,11 @@ class VRM_OT_add_vrm1_material_value_bind(bpy.types.Operator):  # type: ignore[m
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -246,8 +273,11 @@ class VRM_OT_remove_vrm1_material_value_bind(bpy.types.Operator):  # type: ignor
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -282,8 +312,11 @@ class VRM_OT_add_vrm1_material_value_bind_target_value(bpy.types.Operator):  # t
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -322,8 +355,11 @@ class VRM_OT_remove_vrm1_material_value_bind_target_value(bpy.types.Operator):  
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm1.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -356,7 +392,10 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):  # type:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.data.vrm_addon_extension.vrm1.expressions
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -385,7 +424,10 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):  # ty
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.data.vrm_addon_extension.vrm1.expressions
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -412,7 +454,10 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):  # typ
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expression = armature.data.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expression = armature_data.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
         if expression is None:
@@ -442,7 +487,10 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):  # 
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.data.vrm_addon_extension.vrm1.expressions
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -469,7 +517,10 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):  # 
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.data.vrm_addon_extension.vrm1.expressions
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -498,7 +549,10 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator): 
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        expressions = armature.data.vrm_addon_extension.vrm1.expressions
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -528,20 +582,23 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            armature.data.name, defer=False
+            armature_data.name, defer=False
         )
         human_bone_name_to_human_bone = (
-            armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
+            armature_data.vrm_addon_extension.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
         )
-        bones = armature.data.bones
+        bones = armature_data.bones
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            armature.data.name, defer=False
+            armature_data.name, defer=False
         )
-        vrm0_humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+        vrm0_humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
         if vrm0_humanoid.all_required_bones_are_assigned():
             for vrm0_human_bone in vrm0_humanoid.human_bones:
                 if (

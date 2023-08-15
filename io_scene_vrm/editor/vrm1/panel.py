@@ -6,12 +6,10 @@ from bpy.app.translations import pgettext
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import HumanBoneSpecifications
 from .. import ops, search
-from ..extension import (
-    VrmAddonArmatureExtensionPropertyGroup,
-    VrmAddonSceneExtensionPropertyGroup,
-)
+from ..extension import VrmAddonSceneExtensionPropertyGroup
 from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
+from ..search import active_object_is_vrm1_armature
 from . import ops as vrm1_ops
 from .property_group import (
     Vrm1CustomExpressionPropertyGroup,
@@ -35,20 +33,6 @@ from .ui_list import (
 )
 
 logger = get_logger(__name__)
-
-
-def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
-    return bool(
-        context
-        and context.active_object
-        and context.active_object.type == "ARMATURE"
-        and hasattr(context.active_object.data, "vrm_addon_extension")
-        and isinstance(
-            context.active_object.data.vrm_addon_extension,
-            VrmAddonArmatureExtensionPropertyGroup,
-        )
-        and context.active_object.data.vrm_addon_extension.is_vrm1()
-    )
 
 
 def draw_vrm1_bone_prop_search(
@@ -235,9 +219,14 @@ def draw_vrm1_humanoid_layout(
     humanoid: Vrm1HumanoidPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
-        Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(armature.data.name)
+        data = armature.data
+        if not isinstance(data, bpy.types.Armature):
+            return
+        Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(data.name)
 
     data = armature.data
+    if not isinstance(data, bpy.types.Armature):
+        return
     human_bones = humanoid.human_bones
 
     armature_box = layout
@@ -299,10 +288,18 @@ class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):  # type: i
         self.layout.label(icon="ARMATURE_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        if not active_object:
+            return
+        if active_object.type != "ARMATURE":
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_vrm1_humanoid_layout(
-            context.active_object,
+            active_object,
             self.layout,
-            context.active_object.data.vrm_addon_extension.vrm1.humanoid,
+            armature_data.vrm_addon_extension.vrm1.humanoid,
         )
 
 
@@ -326,8 +323,11 @@ class VRM_PT_vrm1_humanoid_ui(bpy.types.Panel):  # type: ignore[misc]
         armature = search.current_armature(context)
         if not armature:
             return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_vrm1_humanoid_layout(
-            armature, self.layout, armature.data.vrm_addon_extension.vrm1.humanoid
+            armature, self.layout, armature_data.vrm_addon_extension.vrm1.humanoid
         )
 
 
@@ -388,11 +388,19 @@ class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):  # typ
         self.layout.label(icon="HIDE_OFF")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        if not active_object:
+            return
+        if active_object.type != "ARMATURE":
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_vrm1_first_person_layout(
-            context.active_object,
+            active_object,
             context,
             self.layout,
-            context.active_object.data.vrm_addon_extension.vrm1.first_person,
+            armature_data.vrm_addon_extension.vrm1.first_person,
         )
 
 
@@ -414,20 +422,17 @@ class VRM_PT_vrm1_first_person_ui(bpy.types.Panel):  # type: ignore[misc]
 
     def draw(self, context: bpy.types.Context) -> None:
         armature = search.current_armature(context)
-        if (
-            armature
-            and hasattr(armature.data, "vrm_addon_extension")
-            and isinstance(
-                armature.data.vrm_addon_extension,
-                VrmAddonArmatureExtensionPropertyGroup,
-            )
-        ):
-            draw_vrm1_first_person_layout(
-                armature,
-                context,
-                self.layout,
-                armature.data.vrm_addon_extension.vrm1.first_person,
-            )
+        if not armature:
+            return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        draw_vrm1_first_person_layout(
+            armature,
+            context,
+            self.layout,
+            armature_data.vrm_addon_extension.vrm1.first_person,
+        )
 
 
 def draw_vrm1_look_at_layout(
@@ -477,11 +482,19 @@ class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):  # type: ig
         self.layout.label(icon="HIDE_OFF")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        if not active_object:
+            return
+        if active_object.type != "ARMATURE":
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_vrm1_look_at_layout(
-            context.active_object,
+            active_object,
             context,
             self.layout,
-            context.active_object.data.vrm_addon_extension.vrm1.look_at,
+            armature_data.vrm_addon_extension.vrm1.look_at,
         )
 
 
@@ -503,20 +516,17 @@ class VRM_PT_vrm1_look_at_ui(bpy.types.Panel):  # type: ignore[misc]
 
     def draw(self, context: bpy.types.Context) -> None:
         armature = search.current_armature(context)
-        if (
-            armature
-            and hasattr(armature.data, "vrm_addon_extension")
-            and isinstance(
-                armature.data.vrm_addon_extension,
-                VrmAddonArmatureExtensionPropertyGroup,
-            )
-        ):
-            draw_vrm1_look_at_layout(
-                armature,
-                context,
-                self.layout,
-                armature.data.vrm_addon_extension.vrm1.look_at,
-            )
+        if not armature:
+            return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        draw_vrm1_look_at_layout(
+            armature,
+            context,
+            self.layout,
+            armature_data.vrm_addon_extension.vrm1.look_at,
+        )
 
 
 def draw_vrm1_expression_layout(
@@ -963,11 +973,19 @@ class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):  # type
         self.layout.label(icon="SHAPEKEY_DATA")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        if not active_object:
+            return
+        if active_object.type != "ARMATURE":
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_vrm1_expressions_layout(
-            context.active_object,
+            active_object,
             context,
             self.layout,
-            context.active_object.data.vrm_addon_extension.vrm1.expressions,
+            armature_data.vrm_addon_extension.vrm1.expressions,
         )
 
 
@@ -991,11 +1009,14 @@ class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):  # type: ignore[misc]
         armature = search.current_armature(context)
         if not armature:
             return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_vrm1_expressions_layout(
             armature,
             context,
             self.layout,
-            armature.data.vrm_addon_extension.vrm1.expressions,
+            armature_data.vrm_addon_extension.vrm1.expressions,
         )
 
 
@@ -1093,11 +1114,16 @@ class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):  # type: ignor
         self.layout.label(icon="FILE_BLEND")
 
     def draw(self, context: bpy.types.Context) -> None:
-        ext = context.active_object.data.vrm_addon_extension
-        if isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
-            draw_vrm1_meta_layout(
-                context.active_object, context, self.layout, ext.vrm1.meta
-            )
+        active_object = context.active_object
+        if not active_object:
+            return
+        if active_object.type != "ARMATURE":
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        ext = armature_data.vrm_addon_extension
+        draw_vrm1_meta_layout(active_object, context, self.layout, ext.vrm1.meta)
 
 
 class VRM_PT_vrm1_meta_ui(bpy.types.Panel):  # type: ignore[misc]
@@ -1120,11 +1146,14 @@ class VRM_PT_vrm1_meta_ui(bpy.types.Panel):  # type: ignore[misc]
         armature = search.current_armature(context)
         if not armature:
             return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_vrm1_meta_layout(
             armature,
             context,
             self.layout,
-            armature.data.vrm_addon_extension.vrm1.meta,
+            armature_data.vrm_addon_extension.vrm1.meta,
         )
 
 
@@ -1137,17 +1166,31 @@ class VRM_PT_vrm1_bone_property(bpy.types.Panel):  # type: ignore[misc]
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        if (
-            not context.active_object
-            or context.active_object.type != "ARMATURE"
-            or not context.active_object.data.bones.active
-        ):
+        active_object = context.active_object
+        if not active_object:
+            return False
+        if active_object.type != "ARMATURE":
+            return False
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return False
+        if not armature_data.bones.active:
             return False
         return search.current_armature_is_vrm1(context)
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        if not active_object:
+            return
+        if active_object.type != "ARMATURE":
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         # context.active_bone is a EditBone
-        bone = context.active_object.data.bones.active
+        bone = armature_data.bones.active
+        if not bone:
+            return
         ext = bone.vrm_addon_extension
         layout = self.layout
         layout.prop(ext, "axis_translation")

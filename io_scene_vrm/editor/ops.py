@@ -43,6 +43,9 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc]
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
 
         back_to_edit_mode = False
         try:
@@ -50,7 +53,7 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc]
                 bpy.ops.object.mode_set(mode="OBJECT")
                 back_to_edit_mode = True
 
-            for bone_name, bone in armature.data.bones.items():
+            for bone_name, bone in armature_data.bones.items():
                 left = VRM_OT_simplify_vroid_bones.left__pattern.sub("", bone_name)
                 if left != bone_name:
                     bone.name = left + "_L"
@@ -79,7 +82,10 @@ class VRM_OT_add_extensions_to_armature(bpy.types.Operator):  # type: ignore[mis
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
-        ICYP_OT_make_armature.make_extension_setting_and_metas(context.active_object)
+        obj = context.active_object
+        if not obj:
+            return {"CANCELLED"}
+        ICYP_OT_make_armature.make_extension_setting_and_metas(obj)
         return {"FINISHED"}
 
 
@@ -110,7 +116,12 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # typ
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
-        armature = bpy.data.armatures[context.active_object.data.name]
+        obj = context.active_object
+        if not obj:
+            return {"CANCELLED"}
+        armature = obj.data
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
         for bone_name in HumanBoneSpecifications.required_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
@@ -125,7 +136,12 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
-        armature = bpy.data.armatures[context.active_object.data.name]
+        obj = context.active_object
+        if not obj:
+            return {"CANCELLED"}
+        armature = obj.data
+        if not isinstance(armature, bpy.types.Armature):
+            return {"CANCELLED"}
         for bone_name in HumanBoneSpecifications.optional_names:
             if bone_name not in armature:
                 armature[bone_name] = ""
@@ -151,9 +167,12 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
         armature = search.current_armature(context)
         if not armature:
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
 
         mappings = {}
-        for human_bone in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
+        for human_bone in armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
             if human_bone.bone not in HumanBoneSpecifications.all_names:
                 continue
             if not human_bone.node.bone_name:
@@ -190,6 +209,9 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
         armature = search.current_armature(context)
         if not armature:
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
 
         obj = json.loads(Path(self.filepath).read_text(encoding="UTF-8"))
         if not isinstance(obj, dict):
@@ -202,7 +224,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
             found = False
             for (
                 human_bone
-            ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
+            ) in armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
                 if human_bone.bone == human_bone_name:
                     human_bone.node.bone_name = bpy_bone_name
                     found = True
@@ -211,7 +233,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
                 continue
 
             human_bone = (
-                armature.data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
+                armature_data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
             )
             human_bone.bone = human_bone_name
             human_bone.node.bone_name = bpy_bone_name

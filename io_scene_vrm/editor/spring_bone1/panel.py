@@ -3,9 +3,9 @@ from typing import Optional
 import bpy
 
 from .. import search
-from ..extension import VrmAddonArmatureExtensionPropertyGroup
 from ..migration import migrate
 from ..panel import VRM_PT_vrm_armature_object_property
+from ..search import active_object_is_vrm1_armature
 from . import ops
 from .property_group import (
     SpringBone1ColliderPropertyGroup,
@@ -13,27 +13,16 @@ from .property_group import (
 )
 
 
-def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
-    return bool(
-        context
-        and context.active_object
-        and context.active_object.type == "ARMATURE"
-        and hasattr(context.active_object.data, "vrm_addon_extension")
-        and isinstance(
-            context.active_object.data.vrm_addon_extension,
-            VrmAddonArmatureExtensionPropertyGroup,
-        )
-        and context.active_object.data.vrm_addon_extension.is_vrm1()
-    )
-
-
 def draw_spring_bone1_collider_layout(
     armature: bpy.types.Object,
     layout: bpy.types.UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return
     if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
-        layout.prop_search(collider.node, "bone_name", armature.data, "bones")
+        layout.prop_search(collider.node, "bone_name", armature_data, "bones")
         layout.prop(collider, "shape_type")
         if collider.bpy_object:
             layout.prop(
@@ -43,7 +32,7 @@ def draw_spring_bone1_collider_layout(
         layout.separator(factor=0.5)
         layout.prop(collider.shape.sphere, "radius", slider=True)
     elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
-        layout.prop_search(collider.node, "bone_name", armature.data, "bones")
+        layout.prop_search(collider.node, "bone_name", armature_data, "bones")
         layout.prop(collider, "shape_type")
         layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
         layout.prop(collider.shape.capsule, "offset", text="")
@@ -67,6 +56,10 @@ def draw_spring_bone1_spring_bone_layout(
     spring_bone: SpringBone1SpringBonePropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
+
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return
 
     layout.prop(spring_bone, "enable_animation")
     # layout.operator(ops.VRM_OT_reset_spring_bone1_animation_state.bl_idname)
@@ -246,7 +239,7 @@ def draw_spring_bone1_spring_bone_layout(
                 spring_column.prop_search(
                     spring.center,
                     "bone_name",
-                    armature.data,
+                    armature_data,
                     "bones",
                     text="Center",
                 )
@@ -270,7 +263,7 @@ def draw_spring_bone1_spring_bone_layout(
                             continue
 
                         box = spring_joints_box.box().column()
-                        box.prop_search(joint.node, "bone_name", armature.data, "bones")
+                        box.prop_search(joint.node, "bone_name", armature_data, "bones")
                         box.prop(joint, "stiffness", slider=True)
                         box.prop(joint, "gravity_power", slider=True)
                         box.prop(joint, "gravity_dir")
@@ -370,10 +363,16 @@ class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):  # type: ig
         self.layout.label(icon="PHYSICS")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        if not active_object:
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_spring_bone1_spring_bone_layout(
-            context.active_object,
+            active_object,
             self.layout,
-            context.active_object.data.vrm_addon_extension.spring_bone1,
+            armature_data.vrm_addon_extension.spring_bone1,
         )
 
 
@@ -397,10 +396,13 @@ class VRM_PT_spring_bone1_ui(bpy.types.Panel):  # type: ignore[misc]
         armature = search.current_armature(context)
         if not armature:
             return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_spring_bone1_spring_bone_layout(
             armature,
             self.layout,
-            armature.data.vrm_addon_extension.spring_bone1,
+            armature_data.vrm_addon_extension.spring_bone1,
         )
 
 
@@ -438,7 +440,10 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[mi
         for obj in bpy.data.objects:
             if obj.type != "ARMATURE":
                 continue
-            for collider in obj.data.vrm_addon_extension.spring_bone1.colliders:
+            armature_data = obj.data
+            if not isinstance(armature_data, bpy.types.Armature):
+                continue
+            for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.bpy_object == collider_object:
                     return (obj, collider)
         return None
@@ -452,7 +457,10 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):  # type: ignore[mi
         if armature_and_collider is None:
             return
         armature, collider = armature_and_collider
-        if armature.data.vrm_addon_extension.is_vrm1():
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        if armature_data.vrm_addon_extension.is_vrm1():
             draw_spring_bone1_collider_layout(armature, self.layout.column(), collider)
             return
 

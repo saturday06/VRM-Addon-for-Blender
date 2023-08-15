@@ -23,18 +23,16 @@ def migrate_no_defer_discarding_return_value(armature_object_name: str) -> None:
 
 def migrate(armature_object_name: str, defer: bool) -> bool:
     armature = bpy.data.objects.get(armature_object_name)
-    if (
-        not armature
-        or not armature.name
-        or armature.type != "ARMATURE"
-        or not armature.data.name
-    ):
+    if not armature:
+        return False
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
         return False
 
-    ext = armature.data.vrm_addon_extension
+    ext = armature_data.vrm_addon_extension
     if (
         tuple(ext.addon_version) >= addon_version()
-        and armature.data.name == ext.armature_data_name
+        and armature_data.name == ext.armature_data_name
         and vrm0_migration.is_unnecessary(ext.vrm0)
     ):
         return True
@@ -47,10 +45,10 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
         )
         return False
 
-    ext.armature_data_name = armature.data.name
+    ext.armature_data_name = armature_data.name
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
-        bone_property_group.armature_data_name = armature.data.name
+        bone_property_group.armature_data_name = armature_data.name
 
     vrm0_migration.migrate(ext.vrm0, armature)
     vrm1_migration.migrate(ext.vrm1, armature)

@@ -176,7 +176,7 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
 
         for node_id in sorted(find_connected_node_ids(root_nodes)):
             bone_name = self.parse_result.nodes_dict[node_id].name
-            armature_edit_bones[node_id] = self.armature.data.edit_bones.new(bone_name)
+            armature_edit_bones[node_id] = self.armature_data.edit_bones.new(bone_name)
 
         bone_nodes = [(root_node, -1) for root_node in root_nodes]
         while bone_nodes:

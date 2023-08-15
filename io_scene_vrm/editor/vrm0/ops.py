@@ -20,7 +20,10 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # type:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.data.vrm_addon_extension.vrm0.first_person.mesh_annotations.add()
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        armature_data.vrm_addon_extension.vrm0.first_person.mesh_annotations.add()
         return {"FINISHED"}
 
 
@@ -41,8 +44,11 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):  # ty
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         mesh_annotations = (
-            armature.data.vrm_addon_extension.vrm0.first_person.mesh_annotations
+            armature_data.vrm_addon_extension.vrm0.first_person.mesh_annotations
         )
         if len(mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
@@ -67,8 +73,11 @@ class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):  # type: ignore[m
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -96,8 +105,11 @@ class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):  # type: ignor
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -130,8 +142,11 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):  # t
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -167,8 +182,11 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):  
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -201,8 +219,11 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[misc
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -230,8 +251,11 @@ class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):  # type: ignore[m
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -264,8 +288,11 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         collider_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
         )
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
@@ -308,8 +335,11 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         collider_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
         )
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
@@ -341,8 +371,11 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # typ
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         bone_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
@@ -370,8 +403,11 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):  # 
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         bone_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
@@ -399,8 +435,11 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operato
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         bone_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
@@ -430,8 +469,11 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         bone_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
@@ -459,8 +501,11 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[mis
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_group = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups.add()
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups.add()
         )
         blend_shape_group.name = self.name
         return {"FINISHED"}
@@ -483,8 +528,11 @@ class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):  # type: ignore[
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         blend_shape_groups = (
-            armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
@@ -509,7 +557,10 @@ class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):  # type: ig
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups.add()
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups.add()
         return {"FINISHED"}
 
 
@@ -530,8 +581,11 @@ class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):  # type:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         bone_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
@@ -553,8 +607,11 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):  #
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         collider_group = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups.add()
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups.add()
         )
         collider_group.uuid = uuid.uuid4().hex
         collider_group.refresh(armature)
@@ -578,8 +635,11 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         collider_groups = (
-            armature.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
         )
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
@@ -587,7 +647,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
 
         for (
             bone_group
-        ) in armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
+        ) in armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
         return {"FINISHED"}
 
@@ -606,9 +666,12 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
-        bones = armature.data.bones
+        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        bones = armature_data.bones
         for (
             bone_name,
             vrm1_specification,

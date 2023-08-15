@@ -20,7 +20,10 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):  # type: ignore[misc
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        collider = armature.data.vrm_addon_extension.spring_bone1.colliders.add()
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        collider = armature_data.vrm_addon_extension.spring_bone1.colliders.add()
         collider.uuid = uuid.uuid4().hex
         collider.shape.sphere.radius = 0.125
         collider.reset_bpy_object(context, armature)
@@ -45,7 +48,10 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):  # type: ignore[m
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        spring_bone = armature.data.vrm_addon_extension.spring_bone1
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        spring_bone = armature_data.vrm_addon_extension.spring_bone1
         colliders = spring_bone.colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
@@ -92,7 +98,10 @@ class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):  # type: ignore[misc]
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        spring = armature.data.vrm_addon_extension.spring_bone1.springs.add()
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        spring = armature_data.vrm_addon_extension.spring_bone1.springs.add()
         spring.vrm_name = "Spring"
         return {"FINISHED"}
 
@@ -115,7 +124,10 @@ class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):  # type: ignore[mis
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.data.vrm_addon_extension.spring_bone1.springs
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         springs.remove(self.spring_index)
@@ -136,8 +148,11 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):  # type: ignor
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
         collider_group = (
-            armature.data.vrm_addon_extension.spring_bone1.collider_groups.add()
+            armature_data.vrm_addon_extension.spring_bone1.collider_groups.add()
         )
         collider_group.vrm_name = "Collider Group"
         collider_group.uuid = uuid.uuid4().hex
@@ -162,7 +177,10 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):  # type: ig
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        spring_bone = armature.data.vrm_addon_extension.spring_bone1
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        spring_bone = armature_data.vrm_addon_extension.spring_bone1
         collider_groups = spring_bone.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
@@ -203,7 +221,10 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):  # ty
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        collider_groups = armature.data.vrm_addon_extension.spring_bone1.collider_groups
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        collider_groups = armature_data.vrm_addon_extension.spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_groups[self.collider_group_index].colliders.add()
@@ -232,7 +253,10 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):  #
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        collider_groups = armature.data.vrm_addon_extension.spring_bone1.collider_groups
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        collider_groups = armature_data.vrm_addon_extension.spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         colliders = collider_groups[self.collider_group_index].colliders
@@ -260,7 +284,10 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):  # type
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.data.vrm_addon_extension.spring_bone1.springs
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         springs[self.spring_index].collider_groups.add()
@@ -289,7 +316,10 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):  # t
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.data.vrm_addon_extension.spring_bone1.springs
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         collider_groups = springs[self.spring_index].collider_groups
@@ -320,7 +350,10 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):  # type: ignore[
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.data.vrm_addon_extension.spring_bone1.springs
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         joints = springs[self.spring_index].joints
@@ -331,7 +364,7 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):  # type: ignore[
         if len(joints) < 2:
             return {"FINISHED"}
         parent_joint, joint = joints[-2:]
-        parent_bone = armature.data.bones.get(parent_joint.node.bone_name)
+        parent_bone = armature_data.bones.get(parent_joint.node.bone_name)
         if parent_bone and parent_bone.children:
             joint.node.bone_name = parent_bone.children[0].name
         joint.hit_radius = parent_joint.hit_radius
@@ -364,7 +397,10 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):  # type: igno
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        springs = armature.data.vrm_addon_extension.spring_bone1.springs
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         joints = springs[self.spring_index].joints
@@ -388,7 +424,10 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):  # type: ig
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        for spring in armature_data.vrm_addon_extension.spring_bone1.springs:
             for joint in spring.joints:
                 joint.state.initialized_as_tail = False
         reset_state()

@@ -3,23 +3,9 @@ from bpy.app.translations import pgettext
 
 from ...common.preferences import get_preferences
 from .. import search
-from ..extension import VrmAddonArmatureExtensionPropertyGroup
 from ..panel import VRM_PT_vrm_armature_object_property
+from ..search import active_object_is_vrm1_armature
 from .property_group import NodeConstraint1NodeConstraintPropertyGroup
-
-
-def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
-    return bool(
-        context
-        and context.active_object
-        and context.active_object.type == "ARMATURE"
-        and hasattr(context.active_object.data, "vrm_addon_extension")
-        and isinstance(
-            context.active_object.data.vrm_addon_extension,
-            VrmAddonArmatureExtensionPropertyGroup,
-        )
-        and context.active_object.data.vrm_addon_extension.is_vrm1()
-    )
 
 
 def draw_roll_constraint_layout(
@@ -253,11 +239,17 @@ class VRM_PT_node_constraint1_armature_object_property(bpy.types.Panel):  # type
         self.layout.label(icon="CONSTRAINT")
 
     def draw(self, context: bpy.types.Context) -> None:
+        active_object = context.active_object
+        if not active_object:
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_node_constraint1_layout(
             context,
-            context.active_object,
+            active_object,
             self.layout,
-            context.active_object.data.vrm_addon_extension.node_constraint1,
+            armature_data.vrm_addon_extension.node_constraint1,
         )
 
 
@@ -281,9 +273,12 @@ class VRM_PT_node_constraint1_ui(bpy.types.Panel):  # type: ignore[misc]
         armature = search.current_armature(context)
         if not armature:
             return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         draw_node_constraint1_layout(
             context,
             armature,
             self.layout,
-            armature.data.vrm_addon_extension.node_constraint1,
+            armature_data.vrm_addon_extension.node_constraint1,
         )
