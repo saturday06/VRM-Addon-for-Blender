@@ -745,6 +745,16 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             outline_width_multiply_texture_uv_scale_y,
         ) = mtoon.outline_width_multiply_texture.extensions.khr_texture_transform.scale
 
+        uv_layer_name = None
+        if isinstance(obj.data, bpy.types.Mesh):
+            uv_layer_name = {
+                0: uv_layer.name
+                for uv_layer in obj.data.uv_layers
+                if uv_layer and uv_layer.active_render
+            }.get(0)
+        if uv_layer_name is None:
+            uv_layer_name = "UVMap"
+
         for k, v in [
             (input_key.material_key, material),
             (input_key.outline_material_key, outline_material),
@@ -761,11 +771,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             (input_key.outline_width_multiply_texture_uv_use_attribute_key(), 1),
             (
                 input_key.outline_width_multiply_texture_uv_attribute_name_key(),
-                {
-                    0: uv_layer.name
-                    for uv_layer in obj.data.uv_layers
-                    if uv_layer and uv_layer.active_render
-                }.get(0, "UVMap"),
+                uv_layer_name,
             ),
             (
                 input_key.outline_width_multiply_texture_uv_offset_x_key,
@@ -787,6 +793,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                 input_key.extrude_mesh_individual_key,
                 (
                     obj.type == "MESH"
+                    and isinstance(obj.data, bpy.types.Mesh)
                     and not obj.data.use_auto_smooth
                     and not any(polygon.use_smooth for polygon in obj.data.polygons)
                 ),
