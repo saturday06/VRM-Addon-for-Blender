@@ -582,10 +582,13 @@ class NodesModifierInputKey:
 
 
 def get_nodes_modifier_input_key(
-    modifier: bpy.types.Modifier,
+    modifier: bpy.types.NodesModifier,
 ) -> Optional[NodesModifierInputKey]:
     keys_len = 15
-    keys = [i.identifier for i in modifier.node_group.inputs]
+    node_group = modifier.node_group
+    if not node_group:
+        return None
+    keys = [i.identifier for i in node_group.inputs]
     if len(keys) < keys_len:
         return None
     return NodesModifierInputKey(*keys[:keys_len])
@@ -639,6 +642,8 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
             if not search_modifier:
                 continue
             if search_modifier.type != "NODES":
+                continue
+            if not isinstance(search_modifier, bpy.types.NodesModifier):
                 continue
             if not search_modifier.node_group:
                 continue
@@ -715,6 +720,8 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
 
         if not modifier:
             modifier = obj.modifiers.new(modifier_name, "NODES")
+            if not isinstance(modifier, bpy.types.NodesModifier):
+                raise AssertionError(f"{type(modifier)} is not a NodesModifier")
             modifier.show_expanded = False
             modifier.show_in_editmode = False
 
@@ -866,10 +873,12 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):  # type: ignore[misc]
                     continue
                 if search_modifier.type != "NODES":
                     continue
-                if (
-                    search_modifier.node_group.name
-                    != shader.OUTLINE_GEOMETRY_GROUP_NAME
-                ):
+                if not isinstance(search_modifier, bpy.types.NodesModifier):
+                    continue
+                node_group = search_modifier.node_group
+                if not node_group:
+                    continue
+                if node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
                     continue
                 input_key = get_nodes_modifier_input_key(search_modifier)
                 if input_key is None:
