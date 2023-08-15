@@ -253,12 +253,15 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
         obj = context.active_object
-        return bool(
-            obj
-            and obj.type == "MESH"
-            and obj.data.shape_keys
-            and obj.data.shape_keys.key_blocks
-        )
+        if not obj:
+            return False
+        data = obj.data
+        if not isinstance(data, bpy.types.Mesh):
+            return False
+        shape_keys = data.shape_keys
+        if not shape_keys:
+            return False
+        return bool(shape_keys.key_blocks)
 
     def execute(self, context: bpy.types.Context) -> set[str]:
         recipe = json.loads(
@@ -266,24 +269,29 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
             .with_name("vroid2vrc_lipsync_recipe.json")
             .read_text(encoding="UTF-8")
         )
+
+        obj = context.active_object
+        if not obj:
+            return {"CANCELLED"}
+        data = obj.data
+        if not isinstance(data, bpy.types.Mesh):
+            return {"CANCELLED"}
+        shape_keys = data.shape_keys
+        if not shape_keys:
+            return {"CANCELLED"}
         for shapekey_name, based_values in recipe["shapekeys"].items():
-            for k in context.active_object.data.shape_keys.key_blocks:
+            for k in shape_keys.key_blocks:
                 k.value = 0.0
             for based_shapekey_name, based_val in based_values.items():
                 # if M_F00_000+_00
-                if (
-                    based_shapekey_name
-                    not in context.active_object.data.shape_keys.key_blocks
-                ):
+                if based_shapekey_name not in shape_keys.key_blocks:
                     based_shapekey_name = based_shapekey_name.replace(
                         "M_F00_000", "M_F00_000_00"
                     )  # Vroid064から命名が変わった
-                context.active_object.data.shape_keys.key_blocks[
-                    based_shapekey_name
-                ].value = based_val
+                shape_keys.key_blocks[based_shapekey_name].value = based_val
             bpy.ops.object.shape_key_add(from_mix=True)
-            context.active_object.data.shape_keys.key_blocks[-1].name = shapekey_name
-        for k in context.active_object.data.shape_keys.key_blocks:
+            shape_keys.key_blocks[-1].name = shapekey_name
+        for k in shape_keys.key_blocks:
             k.value = 0.0
         return {"FINISHED"}
 

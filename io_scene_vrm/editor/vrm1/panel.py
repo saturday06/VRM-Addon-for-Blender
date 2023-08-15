@@ -581,25 +581,19 @@ def draw_vrm1_expression_layout(
                 text="Mesh",
                 icon="OUTLINER_OB_MESH",
             )
-            if (
-                bind.node.mesh_object_name
-                and bind.node.mesh_object_name in blend_data.objects
-                and blend_data.objects[bind.node.mesh_object_name].data
-                and blend_data.objects[bind.node.mesh_object_name].data.shape_keys
-                and blend_data.objects[
-                    bind.node.mesh_object_name
-                ].data.shape_keys.key_blocks
-                and blend_data.objects[
-                    bind.node.mesh_object_name
-                ].data.shape_keys.key_blocks.keys()
-            ):
-                bind_box.prop_search(
-                    bind,
-                    "index",
-                    blend_data.objects[bind.node.mesh_object_name].data.shape_keys,
-                    "key_blocks",
-                    text="Shape key",
-                )
+            mesh_object = blend_data.objects.get(bind.node.mesh_object_name)
+            if mesh_object:
+                mesh_data = mesh_object.data
+                if isinstance(mesh_data, bpy.types.Mesh):
+                    shape_keys = mesh_data.shape_keys
+                    if shape_keys:
+                        bind_box.prop_search(
+                            bind,
+                            "index",
+                            shape_keys,
+                            "key_blocks",
+                            text="Shape key",
+                        )
             bind_box.prop(bind, "weight", slider=True)
 
             remove_bind_op = bind_box.operator(
