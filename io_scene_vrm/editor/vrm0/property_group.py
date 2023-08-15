@@ -257,7 +257,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22
 class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     curve: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=8, name="Curve", default=[0, 0, 0, 1, 1, 1, 1, 0]  # noqa: F821
+        size=8, name="Curve", default=(0, 0, 0, 1, 1, 1, 1, 0)  # noqa: F821
     )
     x_range: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="X Range", default=90  # noqa: F722
