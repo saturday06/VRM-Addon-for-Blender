@@ -1204,8 +1204,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
                 bone_name_to_roll = {}
                 bpy.ops.object.mode_set(mode="EDIT")
-                for bone in obj.data.edit_bones:
-                    bone_name_to_roll[bone.name] = bone.roll
+                if isinstance(obj.data, bpy.types.Armature):
+                    for bone in obj.data.edit_bones:
+                        bone_name_to_roll[bone.name] = bone.roll
                 bpy.ops.object.mode_set(mode="OBJECT")
 
                 bpy.ops.object.transform_apply(
@@ -1215,13 +1216,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 self.save_bone_child_object_world_matrices(obj)
 
                 bpy.ops.object.mode_set(mode="EDIT")
-                bones = [bone for bone in obj.data.edit_bones if not bone.parent]
-                while bones:
-                    bone = bones.pop(0)
-                    roll = bone_name_to_roll.get(bone.name)
-                    if roll is not None:
-                        bone.roll = roll
-                    bones.extend(bone.children)
+                if isinstance(obj.data, bpy.types.Armature):
+                    bones = [bone for bone in obj.data.edit_bones if not bone.parent]
+                    while bones:
+                        bone = bones.pop(0)
+                        roll = bone_name_to_roll.get(bone.name)
+                        if roll is not None:
+                            bone.roll = roll
+                        bones.extend(bone.children)
                 bpy.ops.object.mode_set(mode="OBJECT")
             finally:
                 self.context.view_layer.objects.active = previous_active

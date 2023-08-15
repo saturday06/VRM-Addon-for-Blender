@@ -50,8 +50,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 + "アーマチュア無しエクスポートはまだ未対応。"
             )
         self.armature = armatures[0]
+        armature_data = self.armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
 
-        for collider in self.armature.data.vrm_addon_extension.spring_bone1.colliders:
+        for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
             if not collider.bpy_object:
                 continue
             if collider.bpy_object in self.export_objects:
@@ -152,6 +155,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             )
             faces.append((index * 3, index * 3 + 1, index * 3 + 2))
 
+        armature_data = self.armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
+
         mesh = bpy.data.meshes.new(self.export_id + "_mesh")
         mesh.from_pydata(vertices, edges, faces)
         mesh.update()
@@ -160,10 +167,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         obj = bpy.data.objects.new("secondary", mesh)
         obj.parent_type = "OBJECT"
         obj.parent = self.armature
-        for index, bone_name in enumerate(self.armature.data.bones.keys()):
+        for index, bone_name in enumerate(armature_data.bones.keys()):
             vertex_group = obj.vertex_groups.new(name=bone_name)
             vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
         modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
+        if not isinstance(modifier, bpy.types.ArmatureModifier):
+            raise AssertionError(f"{type(modifier)} is not a ArmatureModifier")
         modifier.object = self.armature
         self.context.scene.collection.objects.link(obj)
         obj[self.extras_object_name_key] = obj.name
@@ -505,13 +514,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         armature: bpy.types.Object,
     ) -> list[Json]:
         spring_dicts: list[Json] = []
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            logger.error(f"{type(armature_data)} is not an Armature")
+            return []
         for spring in spring_bone.springs:
             spring_dict = {"name": spring.vrm_name}
 
             first_bone: Optional[bpy.types.Bone] = None
             joint_dicts = []
             for joint in spring.joints:
-                bone = armature.data.bones.get(joint.node.bone_name)
+                bone = armature_data.bones.get(joint.node.bone_name)
                 if not bone:
                     continue
                 if first_bone is None:
@@ -537,7 +550,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if joint_dicts:
                 spring_dict["joints"] = joint_dicts
 
-            center_bone = armature.data.bones.get(spring.center.bone_name)
+            center_bone = armature_data.bones.get(spring.center.bone_name)
             if center_bone:
                 center_bone_is_ancestor_of_first_bone = False
                 ancestor_of_first_bone = first_bone
@@ -1713,7 +1726,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def export_vrm(self) -> Optional[bytes]:
         init_extras_export()
 
-        vrm = self.armature.data.vrm_addon_extension.vrm1
+        armature_data = self.armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
+
+        vrm = armature_data.vrm_addon_extension.vrm1
         # dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes()
         blend_shape_previews = self.clear_blend_shape_proxy_previews(self.armature)
@@ -1736,7 +1753,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             # そのため、いちおう両方に書いておく
             for bone in self.armature.pose.bones:
                 bone[self.extras_bone_name_key] = bone.name
-            for bone in self.armature.data.bones:
+            for bone in armature_data.bones:
                 bone[self.extras_bone_name_key] = bone.name
 
             self.overwrite_object_visibility_and_selection()
@@ -1771,7 +1788,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             for bone in self.armature.pose.bones:
                 if self.extras_bone_name_key in bone:
                     del bone[self.extras_bone_name_key]
-            for bone in self.armature.data.bones:
+            for bone in armature_data.bones:
                 if self.extras_bone_name_key in bone:
                     del bone[self.extras_bone_name_key]
             for obj in bpy.data.objects:
@@ -2063,7 +2080,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         extensions_used.append("VRMC_vrm")
         extensions["VRMC_vrm"] = {
-            "specVersion": self.armature.data.vrm_addon_extension.spec_version,
+            "specVersion": armature_data.vrm_addon_extension.spec_version,
             "meta": self.create_meta_dict(
                 vrm.meta,
                 json_dict,
@@ -2086,7 +2103,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ),
         }
 
-        spring_bone = self.armature.data.vrm_addon_extension.spring_bone1
+        spring_bone = armature_data.vrm_addon_extension.spring_bone1
         spring_bone_dict: dict[str, Json] = {}
 
         (
