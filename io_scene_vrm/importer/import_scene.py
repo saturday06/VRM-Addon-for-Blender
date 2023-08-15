@@ -11,7 +11,7 @@ from ..common import version
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences, use_legacy_importer_exporter
 from ..editor import search
-from ..editor.ops import VRM_OT_open_url_in_web_browser
+from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import StringPropertyGroup
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter, RetryUsingLegacyVrmImporter
 from .legacy_vrm_importer import LegacyVrmImporter
@@ -253,7 +253,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):  # type: ignore[misc]
                         text=license_confirmation.json_key,
                         translate=False,
                     )
-                    op = split.operator(VRM_OT_open_url_in_web_browser.bl_idname)
+                    op = layout_operator(split, VRM_OT_open_url_in_web_browser)
                     op.url = license_confirmation.url
                 else:
                     box.prop(
@@ -310,8 +310,8 @@ def menu_import(
     menu_op: bpy.types.Operator, _context: bpy.types.Context
 ) -> None:  # Same as test/blender_io.py for now
     menu_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
-    vrma_import_op = menu_op.layout.operator(
-        IMPORT_SCENE_OT_vrma.bl_idname, text="VRM Animation DRAFT (.vrma)"
+    vrma_import_op = layout_operator(
+        menu_op.layout, IMPORT_SCENE_OT_vrma, text="VRM Animation DRAFT (.vrma)"
     )
     vrma_import_op.armature_object_name = ""
 
@@ -453,8 +453,9 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):  # type: ignore[misc]
             for error_message in error_messages:
                 error_column.label(text=error_message, icon="ERROR")
 
-        open_op = layout.operator(
-            VRM_OT_open_url_in_web_browser.bl_idname,
+        open_op = layout_operator(
+            layout,
+            VRM_OT_open_url_in_web_browser,
             icon="URL",
             text="Open help in a Web Browser",
         )
