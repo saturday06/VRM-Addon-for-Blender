@@ -179,6 +179,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if (
                     not modifier
                     or modifier.type != "NODES"
+                    or not isinstance(modifier, bpy.types.NodesModifier)
                     or not modifier.node_group
                     or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
                 ):
@@ -206,6 +207,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if (
                     not modifier
                     or modifier.type != "NODES"
+                    or not isinstance(modifier, bpy.types.NodesModifier)
                     or not modifier.node_group
                     or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
                 ):
