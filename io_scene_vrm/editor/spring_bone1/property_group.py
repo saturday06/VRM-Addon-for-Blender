@@ -20,7 +20,10 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         for obj in bpy.data.objects:
             if obj.type != "ARMATURE":
                 continue
-            for collider in obj.data.vrm_addon_extension.spring_bone1.colliders:
+            armature_data = obj.data
+            if not isinstance(armature_data, bpy.types.Armature):
+                continue
+            for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.shape.sphere == self:
                     return (obj, collider)
         raise ValueError("No armature")
@@ -104,7 +107,10 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         for obj in bpy.data.objects:
             if obj.type != "ARMATURE":
                 continue
-            for collider in obj.data.vrm_addon_extension.spring_bone1.colliders:
+            armature_data = obj.data
+            if not isinstance(armature_data, bpy.types.Armature):
+                continue
+            for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.shape.capsule == self:
                     return (obj, collider)
         raise ValueError("No armature")
@@ -305,7 +311,10 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
     def reset_bpy_object(
         self, context: bpy.types.Context, armature: bpy.types.Object
     ) -> None:
-        collider_prefix = armature.data.name
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        collider_prefix = armature_data.name
         if self.node and self.node.bone_name:
             collider_prefix = self.node.bone_name
 
