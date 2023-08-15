@@ -181,6 +181,10 @@ rigify
 rl
 rocketbox
 roid
+row0
+row1
+row2
+row3
 selectable
 sg
 shader
