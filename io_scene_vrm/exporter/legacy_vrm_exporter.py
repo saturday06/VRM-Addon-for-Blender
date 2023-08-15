@@ -110,6 +110,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         self.result: Optional[bytes] = None
 
+    @property
+    def armature_data(self) -> bpy.types.Armature:
+        if not self.armature:
+            raise AssertionError("armature is not set")
+        armature_data = self.armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
+        return armature_data
+
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
         wm.progress_begin(0, 11)
@@ -118,8 +127,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         try:
             self.setup_pose(
                 self.armature,
-                self.armature.data.vrm_addon_extension.vrm0.humanoid.pose_library,
-                self.armature.data.vrm_addon_extension.vrm0.humanoid.pose_marker_name,
+                self.armature_data.vrm_addon_extension.vrm0.humanoid.pose_library,
+                self.armature_data.vrm_addon_extension.vrm0.humanoid.pose_marker_name,
             )
             wm.progress_update(1)
             self.image_to_bin()
@@ -282,7 +291,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     used_images.append(source)
 
         # thumbnail
-        ext = self.armature.data.vrm_addon_extension
+        ext = self.armature_data.vrm_addon_extension
         if (
             ext.vrm0.meta.texture
             and ext.vrm0.meta.texture.name
@@ -331,7 +340,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         human_bone_node_names = [
             human_bone.node.bone_name
-            for human_bone in self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+            for human_bone in self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
         ]
 
         for bone in self.armature.pose.bones:
@@ -2091,7 +2100,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                 if (
                                     mesh_parent.parent_type == "BONE"
                                     and mesh_parent.parent_bone
-                                    in self.armature.data.bones
+                                    in self.armature_data.bones
                                 ):
                                     bone_name = mesh_parent.parent_bone
                                     break
@@ -2100,13 +2109,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                 for (
                                     human_bone
                                 ) in (
-                                    self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                                    self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
                                 ):
                                     if human_bone.bone == "hips":
                                         bone_name = human_bone.node.bone_name
                                 if (
                                     bone_name is None
-                                    or bone_name not in self.armature.data.bones
+                                    or bone_name not in self.armature_data.bones
                                 ):
                                     raise ValueError("No hips bone found")
                             bone_index = next(
@@ -2369,7 +2378,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         # materialProperties は material_to_dict()で処理する
         # vrm extension
-        meta = self.armature.data.vrm_addon_extension.vrm0.meta
+        meta = self.armature_data.vrm_addon_extension.vrm0.meta
         vrm_extension_dict: dict[str, Json] = {
             "exporterVersion": self.exporter_name(),
             "specVersion": "0.0",
@@ -2433,7 +2442,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         human_bone_dicts: list[Json] = []
         humanoid_dict: dict[str, Json] = {"humanBones": human_bone_dicts}
         vrm_extension_dict["humanoid"] = humanoid_dict
-        humanoid = self.armature.data.vrm_addon_extension.vrm0.humanoid
+        humanoid = self.armature_data.vrm_addon_extension.vrm0.humanoid
         for human_bone_name in HumanBoneSpecifications.all_names:
             for human_bone in humanoid.human_bones:
                 if (
@@ -2482,7 +2491,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         # firstPerson
         first_person_dict: dict[str, Json] = {}
         vrm_extension_dict["firstPerson"] = first_person_dict
-        first_person = self.armature.data.vrm_addon_extension.vrm0.first_person
+        first_person = self.armature_data.vrm_addon_extension.vrm0.first_person
 
         if first_person.first_person_bone.bone_name:
             first_person_dict["firstPersonBone"] = node_name_id_dict[
@@ -2491,7 +2500,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         else:
             name = [
                 human_bone.node.bone_name
-                for human_bone in self.armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                for human_bone in self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
                 if human_bone.bone == "head"
             ][0]
             first_person_dict["firstPersonBone"] = node_name_id_dict[name]
@@ -2573,7 +2582,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         for (
             blend_shape_group
         ) in (
-            self.armature.data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+            self.armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
         ):
             blend_shape_group_dict = {}
 
@@ -2660,7 +2669,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         collider_group_dicts: list[Json] = []
         secondary_animation_dict["colliderGroups"] = collider_group_dicts
         secondary_animation = (
-            self.armature.data.vrm_addon_extension.vrm0.secondary_animation
+            self.armature_data.vrm_addon_extension.vrm0.secondary_animation
         )
         filtered_collider_groups = [
             collider_group

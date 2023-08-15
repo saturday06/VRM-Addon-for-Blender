@@ -557,9 +557,12 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
                 self.colliders.remove(index)
             else:
                 collider.refresh(armature, self.node.bone_name)
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         for (
             bone_group
-        ) in armature.data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
+        ) in armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
     # for UI
@@ -646,9 +649,12 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
     )
 
     def refresh(self, armature: bpy.types.Object) -> None:
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
         collider_group_uuid_to_name = {
             collider_group.uuid: collider_group.name
-            for collider_group in armature.data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+            for collider_group in armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
         }
         for index, collider_group in reversed(list(enumerate(self.collider_groups))):
             uuid_str = collider_group.value.split("#")[-1:][0]

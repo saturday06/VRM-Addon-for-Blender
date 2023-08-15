@@ -12,17 +12,23 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
-        return (
-            context.active_object
-            and context.active_object.type == "ARMATURE"
-            and hasattr(context.active_object.data, "vrm_addon_extension")
-        )
+        active_object = context.active_object
+        if not active_object:
+            return False
+        return bool(active_object.type == "ARMATURE")
 
     def setup(self, context: bpy.types.Context) -> None:
-        armature = context.active_object.data
-        ext = armature.vrm_addon_extension
+        active_object = context.active_object
+        if not active_object:
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        ext = armature_data.vrm_addon_extension
         first_person = ext.vrm0.first_person
-        first_person_bone = armature.bones[first_person.first_person_bone.bone_name]
+        first_person_bone = armature_data.bones[
+            first_person.first_person_bone.bone_name
+        ]
         gizmo = self.gizmos.new("GIZMO_GT_move_3d")
         gizmo.target_set_prop("offset", first_person, "first_person_bone_offset")
         gizmo.matrix_basis = first_person_bone.matrix_local
@@ -39,9 +45,16 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
         # pylint: enable=attribute-defined-outside-init;
 
     def refresh(self, context: bpy.types.Context) -> None:
-        armature = context.active_object.data
-        ext = armature.vrm_addon_extension
+        active_object = context.active_object
+        if not active_object:
+            return
+        armature_data = active_object.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        ext = armature_data.vrm_addon_extension
         gizmo = self.first_person_gizmo
         first_person = ext.vrm0.first_person
-        first_person_bone = armature.bones[first_person.first_person_bone.bone_name]
+        first_person_bone = armature_data.bones[
+            first_person.first_person_bone.bone_name
+        ]
         gizmo.matrix_basis = first_person_bone.matrix_local

@@ -175,7 +175,10 @@ def current_armature_is_vrm0(context: bpy.types.Context) -> bool:
     armature = current_armature(context)
     if armature is None:
         return False
-    return bool(armature.data.vrm_addon_extension.is_vrm0())
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return False
+    return bool(armature_data.vrm_addon_extension.is_vrm0())
 
 
 def current_armature_is_vrm1(context: bpy.types.Context) -> bool:
@@ -193,7 +196,10 @@ def current_armature_is_vrm1(context: bpy.types.Context) -> bool:
     armature = current_armature(context)
     if armature is None:
         return False
-    return bool(armature.data.vrm_addon_extension.is_vrm1())
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return False
+    return bool(armature_data.vrm_addon_extension.is_vrm1())
 
 
 def multiple_armatures_exist(context: bpy.types.Context) -> bool:

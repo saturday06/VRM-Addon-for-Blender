@@ -80,7 +80,7 @@ class AbstractBaseVrmImporter(ABC):
             raise AssertionError("armature is not set")
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError("armature_data is not Armature")
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
         return armature_data
 
     def save_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:

@@ -146,9 +146,6 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         armature = context.object
         if not armature:
             raise ValueError("armature is not created")
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            raise ValueError("armature data is not an Armature")
 
         bone_dict = {}
 
@@ -160,6 +157,9 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
             radius: float = 0.1,
             roll: float = 0,
         ) -> bpy.types.EditBone:
+            armature_data = armature.data
+            if not isinstance(armature_data, bpy.types.Armature):
+                raise ValueError("armature data is not an Armature")
             added_bone = armature_data.edit_bones.new(name)
             added_bone.head = head_pos
             added_bone.tail = tail_pos
@@ -522,7 +522,9 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         bone_name_all_dict.update(left_right_body_dict)
         bone_name_all_dict.update(fingers_dict)
 
-        connect_parent_tail_and_child_head_if_very_close_position(armature.data)
+        armature_data = armature.data
+        if isinstance(armature_data, bpy.types.Armature):
+            connect_parent_tail_and_child_head_if_very_close_position(armature_data)
 
         context.scene.view_layers.update()
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -533,11 +535,15 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         self, armature: bpy.types.Object, compare_dict: dict[str, str]
     ) -> None:
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        if not self.skip_heavy_armature_setup:
+        armature_data = armature.data
+        if (
+            isinstance(armature_data, bpy.types.Armature)
+            and not self.skip_heavy_armature_setup
+        ):
             for vrm_bone_name, bpy_bone_name in compare_dict.items():
                 for (
                     human_bone
-                ) in armature.data.vrm_addon_extension.vrm0.humanoid.human_bones:
+                ) in armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
                     if human_bone.bone == vrm_bone_name:
                         human_bone.node.bone_name = bpy_bone_name
                         break
@@ -547,7 +553,10 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
 
     @classmethod
     def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
-        vrm0 = armature.data.vrm_addon_extension.vrm0
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return
+        vrm0 = armature_data.vrm_addon_extension.vrm0
         vrm0.first_person.first_person_bone.bone_name = "head"
         vrm0.first_person.first_person_offset = (0, 0, 0.06)
         vrm0.first_person.look_at_horizontal_inner.y_range = 8

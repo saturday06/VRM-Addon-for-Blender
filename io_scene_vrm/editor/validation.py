@@ -80,8 +80,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         armature: bpy.types.Object,
         readonly: bool,
     ) -> None:
-        humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
-        humanoid.check_last_bone_names_and_update(armature.data.name, defer=readonly)
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
+        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid.check_last_bone_names_and_update(armature_data.name, defer=readonly)
         for human_bone in humanoid.human_bones:
             if (
                 not human_bone.node.bone_name
@@ -105,8 +108,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         armature: bpy.types.Object,
         readonly: bool,
     ) -> None:
-        human_bones = armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
-        human_bones.check_last_bone_names_and_update(armature.data.name, defer=readonly)
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
+        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones.check_last_bone_names_and_update(armature_data.name, defer=readonly)
         for (
             human_bone_name,
             human_bone,
@@ -135,7 +141,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         armature: bpy.types.Object,
         readonly: bool,
     ) -> None:
-        if armature.data.vrm_addon_extension.is_vrm0():
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
+        if armature_data.vrm_addon_extension.is_vrm0():
             WM_OT_vrm_validator.validate_bone_order_vrm0(messages, armature, readonly)
         else:
             WM_OT_vrm_validator.validate_bone_order_vrm1(messages, armature, readonly)

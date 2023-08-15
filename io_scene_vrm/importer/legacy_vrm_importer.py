@@ -198,7 +198,10 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
     ) -> None:
         armature = self.armature
         if armature is None:
-            raise ValueError("armature is None")
+            raise AssertionError("armature is None")
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
         self.primitive_obj_dict = {
             pymesh[0].object_id: [] for pymesh in self.parse_result.meshes
         }
@@ -262,19 +265,16 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                         parent_node_id = node_id
                 obj.parent_type = "BONE"
                 if parent_node_id is not None:
-                    obj.parent_bone = armature.data.bones[
+                    obj.parent_bone = armature_data.bones[
                         self.parse_result.nodes_dict[parent_node_id].name
                     ].name
-                if (
-                    obj.parent_bone is None
-                    or obj.parent_bone not in armature.data.bones
-                ):
+                if not obj.parent_bone or obj.parent_bone not in armature_data.bones:
                     continue
                 # boneのtail側にparentされるので、根元からmesh nodeのpositionに動かしなおす
                 obj.matrix_world = Matrix.Translation(
                     [
                         armature.matrix_world.to_translation()[i]
-                        + armature.data.bones[
+                        + armature_data.bones[
                             obj.parent_bone
                         ].matrix_local.to_translation()[i]
                         + self.axis_glb_to_blender(node[0].position)[i]
@@ -376,7 +376,12 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
                                 if weight != 0.0:
                                     # 頂点はまとめてリストで追加できるようにしかなってない
                                     vg.add([joint_id], weight, "REPLACE")
-                obj.modifiers.new("amt", "ARMATURE").object = self.armature
+                armature_modifier = obj.modifiers.new("amt", "ARMATURE")
+                if not isinstance(armature_modifier, bpy.types.ArmatureModifier):
+                    raise AssertionError(
+                        f"{type(armature_modifier)} is not an ArmatureModifier"
+                    )
+                armature_modifier.object = self.armature
 
             # uv
             flatten_vrm_mesh_vert_index = [v for verts in face_indices for v in verts]
@@ -546,7 +551,10 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
     def set_bone_roll(self) -> None:
         armature = self.armature
         if armature is None:
-            raise ValueError("armature is None")
+            raise AssertionError("armature is None")
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
 
         bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -554,15 +562,15 @@ class LegacyVrmImporter(AbstractBaseVrmImporter):
         self.context.view_layer.objects.active = self.armature
         bpy.ops.object.mode_set(mode="EDIT")
         hb = human_bone.HumanBoneSpecifications
-        stop_bone_names = set(armature.data.values())
+        stop_bone_names = set(armature_data.values())
 
         def set_children_roll(bone_name: str, roll: float) -> None:
             armature = self.armature
             if armature is None:
                 raise ValueError("armature is None")
 
-            if bone_name in armature.data and armature.data[bone_name] != "":
-                bone = armature.data.edit_bones[armature.data[bone_name]]
+            if bone_name in armature_data and armature_data[bone_name] != "":
+                bone = armature_data.edit_bones[str(armature_data[bone_name])]
                 bone.roll = radians(roll)
                 roll_list = [*bone.children]
                 while roll_list:
