@@ -1082,27 +1082,30 @@ class AbstractBaseVrmImporter(ABC):
                     if not isinstance(bind_dict, dict):
                         continue
 
-                    mesh = bind_dict.get("mesh")
-                    if not isinstance(mesh, int) or mesh not in self.meshes:
+                    mesh_index = bind_dict.get("mesh")
+                    if not isinstance(mesh_index, int):
                         continue
 
-                    index = bind_dict.get("index")
-                    if not isinstance(index, int) or not (
-                        1
-                        <= (index + 1)
-                        < len(self.meshes[mesh].data.shape_keys.key_blocks)
-                    ):
+                    mesh_object = self.meshes.get(mesh_index)
+                    if not mesh_object:
                         continue
 
+                    bind = blend_shape_group.binds.add()
+                    bind.mesh.mesh_object_name = mesh_object.name
+                    mesh_data = mesh_object.data
+                    if isinstance(mesh_data, bpy.types.Mesh):
+                        shape_keys = mesh_data.shape_keys
+                        if shape_keys:
+                            index = bind_dict.get("index")
+                            if isinstance(index, int) and (
+                                1 <= (index + 1) < len(shape_keys.key_blocks)
+                            ):
+                                bind.index = list(shape_keys.key_blocks.keys())[
+                                    index + 1
+                                ]
                     weight = bind_dict.get("weight")
                     if not isinstance(weight, (int, float)):
                         weight = 0
-
-                    bind = blend_shape_group.binds.add()
-                    bind.mesh.mesh_object_name = self.meshes[mesh].name
-                    bind.index = self.meshes[mesh].data.shape_keys.key_blocks.keys()[
-                        index + 1
-                    ]
                     bind.weight = min(max(weight / 100.0, 0), 1)
 
             material_value_dicts = blend_shape_group_dict.get("materialValues")
