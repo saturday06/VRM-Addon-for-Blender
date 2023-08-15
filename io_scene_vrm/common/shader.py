@@ -706,9 +706,14 @@ def copy_node_tree(
         to_node_tree.inputs.remove(to_node_tree.inputs[-1])
     for index, from_input in enumerate(from_node_tree.inputs):
         to_input = None
-        if 0 <= index < len(to_node_tree.inputs):
+        if isinstance(
+            from_input, bpy.types.NodeSocketInterfaceStandard
+        ) and 0 <= index < len(to_node_tree.inputs):
             to_input = to_node_tree.inputs[index]
-            if to_input.type != from_input.type:
+            if (
+                isinstance(to_input, bpy.types.NodeSocketInterfaceStandard)
+                and to_input.type != from_input.type
+            ):
                 to_input = None
                 while len(to_node_tree.inputs) > index:
                     to_node_tree.inputs.remove(to_node_tree.inputs[-1])
@@ -722,9 +727,14 @@ def copy_node_tree(
         to_node_tree.outputs.remove(to_node_tree.outputs[-1])
     for index, from_output in enumerate(from_node_tree.outputs):
         to_output = None
-        if 0 <= index < len(to_node_tree.outputs):
+        if isinstance(
+            from_output, bpy.types.NodeSocketInterfaceStandard
+        ) and 0 <= index < len(to_node_tree.outputs):
             to_output = to_node_tree.outputs[index]
-            if to_output.type != from_output.type:
+            if (
+                isinstance(to_output, bpy.types.NodeSocketInterfaceStandard)
+                and to_output.type != from_output.type
+            ):
                 to_output = None
                 while len(to_node_tree.outputs) > index:
                     to_node_tree.outputs.remove(to_node_tree.outputs[-1])
