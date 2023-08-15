@@ -407,7 +407,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
         @ next_head_rotation_start_target_local_translation
     ).normalized()
     stiffness = stiffness_direction * delta_time * head_joint.stiffness
-    external = delta_time * Vector(head_joint.gravity_dir) * head_joint.gravity_power
+    external = Vector(head_joint.gravity_dir) * delta_time * head_joint.gravity_power
 
     next_tail_world_translation = (
         current_tail_world_translation + inertia + stiffness + external
