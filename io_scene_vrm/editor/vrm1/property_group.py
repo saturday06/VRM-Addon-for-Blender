@@ -540,9 +540,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
             float(self.target_value[2]),
         )
 
-    def set_target_value_as_rgb(self, value: object) -> None:
-        if not isinstance(value, Sequence):
-            return
+    def set_target_value_as_rgb(self, value: Sequence[float]) -> None:
         if len(value) < 3:
             return
         self.target_value = (
