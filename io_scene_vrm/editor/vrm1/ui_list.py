@@ -2,6 +2,7 @@ import bpy
 
 from ...common.logging import get_logger
 from .property_group import (
+    Vrm1ExpressionsPresetPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1MaterialColorBindPropertyGroup,
     Vrm1MorphTargetBindPropertyGroup,
@@ -34,26 +35,7 @@ class VRM_UL_vrm1_expression(bpy.types.UIList):  # type: ignore[misc]
         )
         if index < len(preset_expression_items):
             name, expression = preset_expression_items[index]
-            icon = {
-                "happy": "HEART",
-                "angry": "ORPHAN_DATA",
-                "sad": "MOD_FLUIDSIM",
-                "relaxed": "LIGHT_SUN",
-                "surprised": "LIGHT_SUN",
-                "neutral": "VIEW_ORTHO",
-                "aa": "EVENT_A",
-                "ih": "EVENT_I",
-                "ou": "EVENT_U",
-                "ee": "EVENT_E",
-                "oh": "EVENT_O",
-                "blink": "HIDE_ON",
-                "blinkLeft": "HIDE_ON",
-                "blinkRight": "HIDE_ON",
-                "lookUp": "ANCHOR_TOP",
-                "lookDown": "ANCHOR_BOTTOM",
-                "lookLeft": "ANCHOR_RIGHT",
-                "lookRight": "ANCHOR_LEFT",
-            }.get(name)
+            icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(name)
             if not icon:
                 logger.error(f"Unknown preset expression: {name}")
                 icon = "SHAPEKEY_DATA"

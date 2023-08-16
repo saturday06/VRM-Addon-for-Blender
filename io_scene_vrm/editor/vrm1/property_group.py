@@ -750,6 +750,27 @@ class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):  # type: igno
     look_left: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     look_right: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
 
+    NAME_TO_ICON_DICT = {
+        "happy": "HEART",
+        "angry": "ORPHAN_DATA",
+        "sad": "MOD_FLUIDSIM",
+        "relaxed": "LIGHT_SUN",
+        "surprised": "LIGHT_SUN",
+        "neutral": "VIEW_ORTHO",
+        "aa": "EVENT_A",
+        "ih": "EVENT_I",
+        "ou": "EVENT_U",
+        "ee": "EVENT_E",
+        "oh": "EVENT_O",
+        "blink": "HIDE_ON",
+        "blinkLeft": "HIDE_ON",
+        "blinkRight": "HIDE_ON",
+        "lookUp": "ANCHOR_TOP",
+        "lookDown": "ANCHOR_BOTTOM",
+        "lookLeft": "ANCHOR_RIGHT",
+        "lookRight": "ANCHOR_LEFT",
+    }
+
     def name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
         return {
             "happy": self.happy,

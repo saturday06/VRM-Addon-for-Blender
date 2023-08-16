@@ -15,6 +15,7 @@ from . import ops as vrm1_ops
 from .property_group import (
     Vrm1CustomExpressionPropertyGroup,
     Vrm1ExpressionPropertyGroup,
+    Vrm1ExpressionsPresetPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
     Vrm1HumanBonePropertyGroup,
@@ -833,11 +834,17 @@ def draw_vrm1_expressions_layout(
         return
 
     box = layout.box()
-    column = box.column()
     if custom:
-        column.prop(expression, "custom_name")
+        box.prop(expression, "custom_name")
     else:
-        column.label(text=expression.name, translate=False)
+        preset_icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(
+            expression.name
+        )
+        if not preset_icon:
+            logger.error(f"Unknown preset expression: {expression.name}")
+            preset_icon = "SHAPEKEY_DATA"
+        box.label(text=expression.name, translate=False, icon=preset_icon)
+    column = box.column()
     column.prop(expression, "preview", icon="PLAY", text="Preview")
     column.prop(expression, "is_binary", icon="IPO_CONSTANT")
     column.prop(expression, "override_blink")
