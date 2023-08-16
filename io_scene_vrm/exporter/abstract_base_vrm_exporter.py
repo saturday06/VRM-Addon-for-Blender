@@ -125,7 +125,13 @@ class AbstractBaseVrmExporter(ABC):
                     continue
                 if modifier.type != "NODES":
                     continue
-                if modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
+                if not isinstance(modifier, bpy.types.NodesModifier):
+                    continue
+                node_group = modifier.node_group
+                if (
+                    not node_group
+                    or node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
+                ):
                     continue
                 modifier.show_viewport = False
                 object_name_to_modifier_names.append((obj.name, modifier.name))
