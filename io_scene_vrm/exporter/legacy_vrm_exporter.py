@@ -372,7 +372,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             node_dicts = sorted(
                 node_dicts,
                 key=lambda node_dict: bone_id_dict.get(
-                    node_dict.get("name"), pow(2, 31)
+                    str(node_dict.get("name")), pow(2, 31)
                 )
                 if isinstance(node_dict, dict)
                 else pow(2, 31),
@@ -1906,8 +1906,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if not mesh_from_mesh_owner:
                 continue
             mesh_data = mesh_from_mesh_owner.copy()
-            for prop in mesh.data.keys():
-                mesh_data[prop] = mesh.data[prop]
+            if isinstance(mesh.data, bpy.types.Mesh):
+                for prop in mesh.data.keys():
+                    mesh_data[prop] = mesh.data[prop]
 
             mesh.hide_viewport = False
             mesh.hide_select = False
