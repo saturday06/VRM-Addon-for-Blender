@@ -164,6 +164,7 @@ pydata
 pylint
 pyright
 pythonpath
+qualname
 quaternion
 quaternions
 randbelow

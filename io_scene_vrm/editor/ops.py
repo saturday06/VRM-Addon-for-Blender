@@ -8,7 +8,7 @@ import json
 import re
 import webbrowser
 from pathlib import Path
-from typing import TypeVar, cast
+from typing import Optional, TypeVar, cast
 from urllib.parse import urlparse
 
 import bpy
@@ -332,7 +332,7 @@ __Operator = TypeVar("__Operator", bound=bpy.types.Operator)
 def layout_operator(
     layout: bpy.types.UILayout,
     operator_type: type[__Operator],
-    text: str = "",
+    text: Optional[str] = None,
     text_ctxt: str = "",
     translate: bool = True,
     icon: str = "NONE",
@@ -340,6 +340,8 @@ def layout_operator(
     depress: bool = False,
     icon_value: int = 0,
 ) -> __Operator:
+    if text is None:
+        text = operator_type.bl_label
     operator = layout.operator(
         operator_type.bl_idname,
         text=text,
@@ -351,7 +353,13 @@ def layout_operator(
         icon_value=icon_value,
     )
 
-    # 渡されたoperator_typeが同じ名前のbpy.typesパッケージ直下のクラスに化ける
-    if type(operator).__name__ != operator_type.__name__:
-        raise AssertionError(f"{type(operator)} is not compatible with {operator_type}")
+    split = operator_type.bl_idname.split(".")
+    if len(split) != 2:
+        raise AssertionError(f"Unexpected bl_idname: {operator_type.bl_idname}")
+    name = f"{split[0].encode().upper().decode()}_OT_{split[1]}"
+    if type(operator).__qualname__ != name:
+        raise AssertionError(
+            f"{type(operator)} is not compatible with {operator_type}."
+            + f"the expected name is {name}"
+        )
     return cast(__Operator, operator)
