@@ -8,7 +8,7 @@ from bpy_extras.io_utils import ExportHelper
 from ..common import version
 from ..common.preferences import get_preferences
 from ..editor import search, validation
-from ..editor.ops import VRM_OT_open_url_in_web_browser
+from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import StringPropertyGroup
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
@@ -323,14 +323,14 @@ class VRM_PT_export_vrma_help(bpy.types.Panel):  # type: ignore[misc]
 
 
 def menu_export(menu_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
-    vrm_export_op = menu_op.layout.operator(
-        EXPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)"
+    vrm_export_op = layout_operator(
+        menu_op.layout, EXPORT_SCENE_OT_vrm, text="VRM (.vrm)"
     )
     vrm_export_op.armature_object_name = ""
     vrm_export_op.ignore_warning = False
 
-    vrma_export_op = menu_op.layout.operator(
-        EXPORT_SCENE_OT_vrma.bl_idname, text="VRM Animation DRAFT (.vrma)"
+    vrma_export_op = layout_operator(
+        menu_op.layout, EXPORT_SCENE_OT_vrma, text="VRM Animation DRAFT (.vrma)"
     )
     vrma_export_op.armature_object_name = ""
 
@@ -508,8 +508,9 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
             for error_message in human_bones.error_messages():
                 alert_column.label(text=error_message, translate=False, icon="ERROR")
 
-        layout.operator(
-            VRM_OT_assign_vrm1_humanoid_human_bones_automatically.bl_idname,
+        layout_operator(
+            layout,
+            VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
             icon="ARMATURE_DATA",
         ).armature_name = armature.name
 
@@ -759,8 +760,9 @@ def draw_help_message(layout: bpy.types.UILayout) -> None:
             icon="NONE" if index else "INFO",
         )
 
-    open_op = help_column.operator(
-        VRM_OT_open_url_in_web_browser.bl_idname,
+    open_op = layout_operator(
+        help_column,
+        VRM_OT_open_url_in_web_browser,
         icon="URL",
         text="Open help in a Web Browser",
     )
