@@ -1025,11 +1025,16 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalTexturePropertyGroup  # noqa: F722
     )
+
+    def update_scale(self, _context: bpy.types.Context) -> None:
+        self.set_value("Scale", self.scale)
+
     scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Scale",  # noqa: F821
         default=1.0,
-        update=lambda self, _context: self.set_value("Scale", self.scale),
+        update=update_scale,
     )
+
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
@@ -1046,11 +1051,16 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftTexturePropertyGroup  # noqa: F722
     )
+
+    def update_scale(self, _context: bpy.types.Context) -> None:
+        self.set_value("Scale", self.scale)
+
     scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Scale",  # noqa: F821
         default=1.0,
-        update=lambda self, _context: self.set_value("Scale", self.scale),
+        update=update_scale,
     )
+
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup  # noqa: F722
     )
@@ -1190,19 +1200,23 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_transparent_with_z_write,
     )
 
+    def update_render_queue_offset_number(self, _context: bpy.types.Context) -> None:
+        self.set_int("RenderQueueOffsetNumber", self.render_queue_offset_number)
+
     render_queue_offset_number: bpy.props.IntProperty(  # type: ignore[valid-type]
         name="RenderQueue Offset",  # noqa: F722
         min=-9,
         default=0,
         max=9,
-        update=lambda self, _context: self.set_int(
-            "RenderQueueOffsetNumber", self.render_queue_offset_number
-        ),
+        update=update_render_queue_offset_number,
     )
 
     shade_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadeMultiplyTextureInfoPropertyGroup  # noqa: F722
     )
+
+    def update_shade_color_factor(self, _context: bpy.types.Context) -> None:
+        self.set_rgb("ShadeColorFactor", self.shade_color_factor)
 
     shade_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -1210,44 +1224,48 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         default=(1.0, 1.0, 1.0),
         min=0.0,
         max=1.0,
-        update=lambda self, _context: self.set_rgb(
-            "ShadeColorFactor", self.shade_color_factor
-        ),
+        update=update_shade_color_factor,
     )
 
     shading_shift_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftTextureInfoPropertyGroup  # noqa: F722
     )
 
+    def update_shading_shift_factor(self, _context: bpy.types.Context) -> None:
+        self.set_value("ShadingShiftFactor", self.shading_shift_factor)
+
     shading_shift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Shading Shift",  # noqa: F722
         soft_min=-1.0,
         default=-0.2,
         soft_max=1.0,
-        update=lambda self, _context: self.set_value(
-            "ShadingShiftFactor", self.shading_shift_factor
-        ),
+        update=update_shading_shift_factor,
     )
+
+    def update_shading_toony_factor(self, _context: bpy.types.Context) -> None:
+        self.set_value("ShadingToonyFactor", self.shading_toony_factor)
 
     shading_toony_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Shading Toony",  # noqa: F722
         min=0.0,
         default=0.9,
         max=1.0,
-        update=lambda self, _context: self.set_value(
-            "ShadingToonyFactor", self.shading_toony_factor
-        ),
+        update=update_shading_toony_factor,
     )
+
+    def update_gi_equalization_factor(self, _context: bpy.types.Context) -> None:
+        self.set_value("GiEqualizationFactor", self.gi_equalization_factor)
 
     gi_equalization_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="GI Equalization",  # noqa: F722
         min=0.0,
         default=0.9,
         max=1.0,
-        update=lambda self, _context: self.set_value(
-            "GiEqualizationFactor", self.gi_equalization_factor
-        ),
+        update=update_gi_equalization_factor,
     )
+
+    def update_matcap_factor(self, _context: bpy.types.Context) -> None:
+        self.set_rgb("MatcapFactor", self.matcap_factor)
 
     matcap_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -1255,12 +1273,15 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         default=(1, 1, 1),
         min=0,
         max=1,
-        update=lambda self, _context: self.set_rgb("MatcapFactor", self.matcap_factor),
+        update=update_matcap_factor,
     )
 
     matcap_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MatcapTextureInfoPropertyGroup  # noqa: F722
     )
+
+    def update_parametric_rim_color_factor(self, _context: bpy.types.Context) -> None:
+        self.set_rgb("ParametricRimColorFactor", self.parametric_rim_color_factor)
 
     parametric_rim_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Parametric Rim Color",  # noqa: F722
@@ -1269,42 +1290,47 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         default=(0, 0, 0),
         min=0,
         max=1,
-        update=lambda self, _context: self.set_rgb(
-            "ParametricRimColorFactor", self.parametric_rim_color_factor
-        ),
+        update=update_parametric_rim_color_factor,
     )
 
     rim_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1RimMultiplyTextureInfoPropertyGroup  # noqa: F722
     )
 
+    def update_rim_lighting_mix_factor(self, _context: bpy.types.Context) -> None:
+        self.set_value("RimLightingMixFactor", self.rim_lighting_mix_factor)
+
     rim_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Rim LightingMix",  # noqa: F722
         soft_min=0,
         soft_max=1,
-        update=lambda self, _context: self.set_value(
-            "RimLightingMixFactor", self.rim_lighting_mix_factor
-        ),
+        update=update_rim_lighting_mix_factor,
     )
+
+    def update_parametric_rim_fresnel_power_factor(
+        self, _context: bpy.types.Context
+    ) -> None:
+        self.set_value(
+            "ParametricRimFresnelPowerFactor", self.parametric_rim_fresnel_power_factor
+        )
 
     parametric_rim_fresnel_power_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Parametric Rim Fresnel Power",  # noqa: F722
         min=0.0,
         default=1.0,
         soft_max=100.0,
-        update=lambda self, _context: self.set_value(
-            "ParametricRimFresnelPowerFactor", self.parametric_rim_fresnel_power_factor
-        ),
+        update=update_parametric_rim_fresnel_power_factor,
     )
+
+    def update_parametric_rim_lift_factor(self, _context: bpy.types.Context) -> None:
+        self.set_value("ParametricRimLiftFactor", self.parametric_rim_lift_factor)
 
     parametric_rim_lift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Parametric Rim Lift",  # noqa: F722
         soft_min=0.0,
         default=1.0,
         soft_max=1.0,
-        update=lambda self, _context: self.set_value(
-            "ParametricRimLiftFactor", self.parametric_rim_lift_factor
-        ),
+        update=update_parametric_rim_lift_factor,
     )
 
     OUTLINE_WIDTH_MODE_NONE = "none"
@@ -1379,25 +1405,40 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup  # noqa: F722
     )
 
+    def update_uv_animation_scroll_x_speed_factor(
+        self, _context: bpy.types.Context
+    ) -> None:
+        self.set_value(
+            "UvAnimationScrollXSpeedFactor", self.uv_animation_scroll_x_speed_factor
+        )
+
     uv_animation_scroll_x_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Translate X",  # noqa: F722
-        update=lambda self, _context: self.set_value(
-            "UvAnimationScrollXSpeedFactor", self.uv_animation_scroll_x_speed_factor
-        ),
+        update=update_uv_animation_scroll_x_speed_factor,
     )
+
+    def update_uv_animation_scroll_y_speed_factor(
+        self, _context: bpy.types.Context
+    ) -> None:
+        self.set_value(
+            "UvAnimationScrollYSpeedFactor", self.uv_animation_scroll_y_speed_factor
+        )
 
     uv_animation_scroll_y_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Translate Y",  # noqa: F722
-        update=lambda self, _context: self.set_value(
-            "UvAnimationScrollYSpeedFactor", self.uv_animation_scroll_y_speed_factor
-        ),
+        update=update_uv_animation_scroll_y_speed_factor,
     )
+
+    def update_uv_animation_rotation_speed_factor(
+        self, _context: bpy.types.Context
+    ) -> None:
+        self.set_value(
+            "UvAnimationRotationSpeedFactor", self.uv_animation_rotation_speed_factor
+        )
 
     uv_animation_rotation_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Rotation",  # noqa: F821
-        update=lambda self, _context: self.set_value(
-            "UvAnimationRotationSpeedFactor", self.uv_animation_rotation_speed_factor
-        ),
+        update=update_uv_animation_rotation_speed_factor,
     )
 
 
@@ -1408,13 +1449,14 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         "khr_materials_emissive_strength",
     ]
 
+    def update_emissive_strength(self, _context: bpy.types.Context) -> None:
+        self.set_value("EmissiveStrength", self.emissive_strength)
+
     emissive_strength: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Strength",  # noqa: F821
         min=0.0,
         default=1.0,
-        update=lambda self, _context: self.set_value(
-            "EmissiveStrength", self.emissive_strength
-        ),
+        update=update_emissive_strength,
     )
 
 
@@ -1560,15 +1602,16 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1EmissiveTextureInfoPropertyGroup  # noqa: F722
     )
 
+    def update_emissive_factor(self, _context: bpy.types.Context) -> None:
+        self.set_rgb("EmissiveFactor", self.emissive_factor)
+
     emissive_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="COLOR",  # noqa: F821
         default=(0, 0, 0),
         min=0,
         max=1,
-        update=lambda self, _context: self.set_rgb(
-            "EmissiveFactor", self.emissive_factor
-        ),
+        update=update_emissive_factor,
     )
 
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
