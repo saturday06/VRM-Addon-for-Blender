@@ -5,7 +5,7 @@ from bpy.app.translations import pgettext
 
 from ...common.logging import get_logger
 from .. import search
-from ..ops import VRM_OT_open_url_in_web_browser
+from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from .ops import (
     VRM_OT_import_mtoon1_texture_image_file,
     VRM_OT_reset_mtoon1_material_shader_node_tree,
@@ -409,10 +409,7 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     url = "https://docs.blender.org/manual/en/2.93/addons/import_export/scene_gltf2.html#exported-materials"
     link_row = help_column.split(factor=0.8)
     link_row.label(text="   " + url, translate=False)
-    web_op = link_row.operator(VRM_OT_open_url_in_web_browser.bl_idname, icon="URL")
-    if not isinstance(web_op, VRM_OT_open_url_in_web_browser):
-        logger.error(f"{type(web_op)} is not a VRM_OT_open_url_in_web_browser")
-        return
+    web_op = layout_operator(link_row, VRM_OT_open_url_in_web_browser, icon="URL")
     web_op.url = url
 
 
