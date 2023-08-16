@@ -179,7 +179,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) > 1:
-            return bpy.ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
+            return cast(
+                set[str], bpy.ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
+            )
         if len(armatures) == 1:
             armature = armatures[0]
             armature_data = armature.data
@@ -200,8 +202,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                         armature_name=armature.name
                     )
                 if not humanoid.all_required_bones_are_assigned():
-                    return bpy.ops.wm.vrm_export_human_bones_assignment(
-                        "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+                    return cast(
+                        set[str],
+                        bpy.ops.wm.vrm_export_human_bones_assignment(
+                            "INVOKE_DEFAULT",
+                            armature_object_name=self.armature_object_name,
+                        ),
                     )
             elif armature_data.vrm_addon_extension.is_vrm1():
                 Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
@@ -220,8 +226,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
                         armature_name=armature.name
                     )
                 if not human_bones.all_required_bones_are_assigned():
-                    return bpy.ops.wm.vrm_export_human_bones_assignment(
-                        "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+                    return cast(
+                        set[str],
+                        bpy.ops.wm.vrm_export_human_bones_assignment(
+                            "INVOKE_DEFAULT",
+                            armature_object_name=self.armature_object_name,
+                        ),
                     )
 
         if bpy.ops.vrm.model_validate(
@@ -239,8 +249,11 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         if not self.ignore_warning and any(
             error.severity <= 1 for error in self.errors
         ):
-            return bpy.ops.wm.vrm_export_confirmation(
-                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            return cast(
+                set[str],
+                bpy.ops.wm.vrm_export_confirmation(
+                    "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+                ),
             )
 
         return cast(set[str], ExportHelper.invoke(self, context, event))
