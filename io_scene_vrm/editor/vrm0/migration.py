@@ -104,8 +104,10 @@ def migrate_vrm0_meta(
         meta.violent_ussage_name = violent_ussage_name  # noqa: SC200
 
     texture = armature.get("texture")
-    if texture is not None and texture in bpy.data.images:
-        meta.texture = bpy.data.images[texture]
+    if isinstance(texture, str):
+        texture_image = bpy.data.images.get(texture)
+        if texture_image:
+            meta.texture = texture_image
 
 
 def migrate_vrm0_humanoid(
