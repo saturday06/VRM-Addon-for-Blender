@@ -110,7 +110,7 @@ def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: bpy.types.Object) -
 
 
 def migrate_vrm0_humanoid(
-    humanoid: bpy.types.PropertyGroup, humanoid_dict: Json
+    humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
 ) -> None:
     if not isinstance(humanoid_dict, dict):
         return
@@ -149,7 +149,7 @@ def migrate_vrm0_humanoid(
 
 
 def migrate_vrm0_first_person(
-    first_person: bpy.types.PropertyGroup,
+    first_person: Vrm0FirstPersonPropertyGroup,
     first_person_dict: Json,
 ) -> None:
     if not isinstance(first_person_dict, dict):
@@ -235,7 +235,7 @@ def migrate_vrm0_first_person(
 
 
 def migrate_vrm0_blend_shape_groups(
-    blend_shape_groups: bpy.types.PropertyGroup,
+    blend_shape_groups: bpy.types.CollectionProperty,
     blend_shape_group_dicts: Json,
 ) -> None:
     if not isinstance(blend_shape_group_dicts, list):
@@ -331,7 +331,7 @@ def migrate_vrm0_blend_shape_groups(
 
 
 def migrate_vrm0_secondary_animation(
-    secondary_animation: bpy.types.PropertyGroup,
+    secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
     bone_group_dicts: Json,
     armature: bpy.types.Object,
     armature_data: bpy.types.Armature,
