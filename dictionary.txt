@@ -91,7 +91,6 @@ idprop
 ies
 ih
 ik
-ikc
 img
 instancer
 inv
