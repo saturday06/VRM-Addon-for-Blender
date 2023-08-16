@@ -5,7 +5,6 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-import copy
 import json
 import math
 import uuid
@@ -21,7 +20,7 @@ from ..common.logging import get_logger
 from ..common.preferences import get_preferences
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
-from ..editor import make_armature, migration, ops
+from ..editor import make_armature, migration
 from ..editor.mtoon1.property_group import (
     Mtoon0TexturePropertyGroup,
     Mtoon1MaterialPropertyGroup,
@@ -1299,84 +1298,6 @@ class AbstractBaseVrmImporter(ABC):
             bpy.ops.object.shade_smooth()
             bpy.ops.object.select_all(action="DESELECT")
 
-    def make_pole_target(
-        self, rl: str, upper_leg_name: str, lower_leg_name: str, foot_name: str
-    ) -> None:
-        armature = self.armature
-        if armature is None:
-            logger.error("armature is None")
-            return
-
-        bpy.ops.object.mode_set(mode="EDIT")
-        edit_bones = self.armature_data.edit_bones
-
-        ik_foot = self.armature_data.edit_bones.new(f"IK_LEG_TARGET_{rl}")
-        ik_foot.head = [f + o for f, o in zip(edit_bones[foot_name].head[:], [0, 0, 0])]
-        ik_foot.tail = [
-            f + o for f, o in zip(edit_bones[foot_name].head[:], [0, -0.2, 0])
-        ]
-
-        pole = self.armature_data.edit_bones.new(f"leg_pole_{rl}")
-        pole.parent = ik_foot
-        pole.head = [
-            f + o for f, o in zip(edit_bones[lower_leg_name].head[:], [0, -0.1, 0])
-        ]
-        pole.tail = [
-            f + o for f, o in zip(edit_bones[lower_leg_name].head[:], [0, -0.2, 0])
-        ]
-
-        pole_name = copy.copy(pole.name)
-        ik_foot_name = copy.copy(ik_foot.name)
-        self.context.view_layer.depsgraph.update()
-        self.context.scene.view_layers.update()
-        bpy.ops.object.mode_set(mode="POSE")
-        ikc = armature.pose.bones[lower_leg_name].constraints.new("IK")
-        ikc.target = armature
-        ikc.subtarget = armature.pose.bones[ik_foot_name].name
-
-        def chain_solver(armature: bpy.types.Object, child: str, parent: str) -> int:
-            current_bone = armature.pose.bones[child]
-            for i in range(10):
-                if current_bone.name == parent:
-                    return i + 1
-                current_bone = current_bone.parent
-            return 11
-
-        ikc.chain_count = chain_solver(armature, lower_leg_name, upper_leg_name)
-
-        ikc.pole_target = self.armature
-        ikc.pole_subtarget = pole_name
-        self.context.view_layer.depsgraph.update()
-        self.context.scene.view_layers.update()
-
-    def blend_setup(self) -> None:
-        armature = self.armature
-        if armature is None:
-            logger.error("armature is None")
-            return
-        self.context.view_layer.objects.active = self.armature
-        bpy.ops.object.mode_set(mode="EDIT")
-
-        right_upper_leg_name = self.armature_data["rightUpperLeg"]
-        right_lower_leg_name = self.armature_data["rightLowerLeg"]
-        right_foot_name = self.armature_data["rightFoot"]
-
-        left_upper_leg_name = self.armature_data["leftUpperLeg"]
-        left_lower_leg_name = self.armature_data["leftLowerLeg"]
-        left_foot_name = self.armature_data["leftFoot"]
-
-        self.make_pole_target(
-            "R", right_upper_leg_name, right_lower_leg_name, right_foot_name
-        )
-        self.make_pole_target(
-            "L", left_upper_leg_name, left_lower_leg_name, left_foot_name
-        )
-
-        bpy.ops.object.mode_set(mode="OBJECT")
-        self.context.view_layer.depsgraph.update()
-        self.context.scene.view_layers.update()
-        ops.VRM_OT_simplify_vroid_bones(self.context)
-
     def viewport_setup(self) -> None:
         preferences = get_preferences(self.context)
         if self.armature and preferences.set_armature_display_to_wire:
@@ -1393,21 +1314,3 @@ class AbstractBaseVrmImporter(ABC):
                         space, bpy.types.SpaceView3D
                     ):
                         space.shading.type = "MATERIAL"
-
-
-# DeprecationWarning
-class ICYP_OT_select_helper(bpy.types.Operator):  # type: ignore[misc]
-    bl_idname = "mesh.icyp_select_helper"
-    bl_label = "VRM importer internal only func"
-    bl_description = "VRM importer internal only"
-    bl_options = {"REGISTER", "UNDO"}
-
-    bpy.types.Scene.icyp_select_helper_select_list = []
-
-    def execute(self, context: bpy.types.Context) -> set[str]:
-        bpy.ops.object.mode_set(mode="OBJECT")
-        for vid in bpy.types.Scene.icyp_select_helper_select_list:
-            context.active_object.data.vertices[vid].select = True
-        bpy.ops.object.mode_set(mode="EDIT")
-        bpy.types.Scene.icyp_select_helper_select_list = []
-        return {"FINISHED"}
