@@ -15,6 +15,7 @@ from .property_group import (
     Vrm0MeshAnnotationPropertyGroup,
     Vrm0MetaPropertyGroup,
     Vrm0PropertyGroup,
+    Vrm0SecondaryAnimationPropertyGroup,
 )
 
 
@@ -34,9 +35,7 @@ def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Json:
     return None
 
 
-def migrate_vrm0_meta(
-    meta: bpy.types.PropertyGroup, armature: bpy.types.Object
-) -> None:
+def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: bpy.types.Object) -> None:
     allowed_user_name = armature.get("allowedUserName")
     if (
         isinstance(allowed_user_name, str)
@@ -335,6 +334,7 @@ def migrate_vrm0_secondary_animation(
     secondary_animation: bpy.types.PropertyGroup,
     bone_group_dicts: Json,
     armature: bpy.types.Object,
+    armature_data: bpy.types.Armature,
 ) -> None:
     bone_name_to_collider_objects: dict[str, list[bpy.types.Object]] = {}
     for collider_object in [
@@ -343,7 +343,7 @@ def migrate_vrm0_secondary_animation(
         if child.type == "EMPTY"
         and child.empty_display_type == "SPHERE"
         and child.parent_type == "BONE"
-        and child.parent_bone in armature.data.bones
+        and child.parent_bone in armature_data.bones
     ]:
         if collider_object.parent_bone not in bone_name_to_collider_objects:
             bone_name_to_collider_objects[collider_object.parent_bone] = []
@@ -429,8 +429,10 @@ def migrate_vrm0_secondary_animation(
         bone_group.refresh(armature)
 
 
-def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def migrate_legacy_custom_properties(
+    armature: bpy.types.Object, armature_data: bpy.types.Armature
+) -> None:
+    ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 0, 1):
         return
 
@@ -449,11 +451,12 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
         ext.vrm0.secondary_animation,
         read_textblock_json(armature, "spring_bone"),
         armature,
+        armature_data,
     )
 
     assigned_bpy_bone_names = []
     for human_bone_name in HumanBoneSpecifications.all_names:
-        bpy_bone_name = armature.data.get(human_bone_name)
+        bpy_bone_name = armature_data.get(human_bone_name)
         if (
             not isinstance(bpy_bone_name, str)
             or not bpy_bone_name
@@ -468,8 +471,8 @@ def migrate_legacy_custom_properties(armature: bpy.types.Object) -> None:
                 break
 
 
-def migrate_blender_object(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def migrate_blender_object(armature_data: bpy.types.Armature) -> None:
+    ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
 
@@ -482,13 +485,15 @@ def migrate_blender_object(armature: bpy.types.Object) -> None:
                 del collider["blender_object"]
 
 
-def migrate_link_to_bone_object(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def migrate_link_to_bone_object(
+    armature: bpy.types.Object, armature_data: bpy.types.Armature
+) -> None:
+    ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
-        bone_property_group.armature_data_name = armature.data.name
+        bone_property_group.armature_data_name = armature_data.name
 
         link_to_bone = bone_property_group.get("link_to_bone")
         if (
@@ -522,15 +527,15 @@ def migrate_link_to_bone_object(armature: bpy.types.Object) -> None:
         if link_to_bone.parent is not None:
             link_to_bone.parent = None
 
-    armature.data.vrm_addon_extension.vrm0.humanoid.last_bone_names.clear()
+    armature_data.vrm_addon_extension.vrm0.humanoid.last_bone_names.clear()
     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-        armature.data.name,
+        armature_data.name,
         defer=False,
     )
 
 
-def migrate_link_to_mesh_object(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def migrate_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
+    ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 23):
         return
 
@@ -557,8 +562,8 @@ def migrate_link_to_mesh_object(armature: bpy.types.Object) -> None:
         mesh.mesh_object_name = link_to_mesh.parent.name
 
 
-def remove_link_to_mesh_object(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def remove_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
+    ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
 
@@ -587,8 +592,8 @@ def remove_link_to_mesh_object(armature: bpy.types.Object) -> None:
             link_to_mesh.parent = None
 
 
-def fixup_gravity_dir(armature: bpy.types.Object) -> None:
-    ext = armature.data.vrm_addon_extension
+def fixup_gravity_dir(armature_data: bpy.types.Armature) -> None:
+    ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 15, 4):
         return
 
@@ -608,8 +613,12 @@ def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
 
 
 def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
-    migrate_blender_object(armature)
-    migrate_link_to_bone_object(armature)
+    armature_data = armature.data
+    if not isinstance(armature_data, bpy.types.Armature):
+        return
+
+    migrate_blender_object(armature_data)
+    migrate_link_to_bone_object(armature, armature_data)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
 
     for collider_group in vrm0.secondary_animation.collider_groups:
@@ -625,14 +634,14 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
                 )
                 break
 
-    migrate_legacy_custom_properties(armature)
-    migrate_link_to_mesh_object(armature)
-    remove_link_to_mesh_object(armature)
-    fixup_gravity_dir(armature)
+    migrate_legacy_custom_properties(armature, armature_data)
+    migrate_link_to_mesh_object(armature_data)
+    remove_link_to_mesh_object(armature_data)
+    fixup_gravity_dir(armature_data)
 
     vrm0.humanoid.last_bone_names.clear()
     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-        armature.data.name,
+        armature_data.name,
         defer=False,
     )
 

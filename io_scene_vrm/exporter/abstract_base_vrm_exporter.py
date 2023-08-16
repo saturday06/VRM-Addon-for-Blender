@@ -34,6 +34,7 @@ class AbstractBaseVrmExporter(ABC):
     def setup_pose(
         self,
         armature: bpy.types.Object,
+        armature_data: bpy.types.Armature,
         action: Optional[bpy.types.Action],
         pose_marker_name: str,
     ) -> None:
@@ -46,8 +47,8 @@ class AbstractBaseVrmExporter(ABC):
         self.context.view_layer.objects.active = armature
         bpy.ops.object.mode_set(mode="POSE")
 
-        self.saved_pose_position = armature.data.pose_position
-        armature.data.pose_position = "POSE"
+        self.saved_pose_position = armature_data.pose_position
+        armature_data.pose_position = "POSE"
 
         pose_marker_frame = 0
         if pose_marker_name:
@@ -67,7 +68,9 @@ class AbstractBaseVrmExporter(ABC):
         armature.pose.apply_pose_from_action(action, evaluation_time=pose_marker_frame)
         bpy.context.view_layer.update()
 
-    def restore_pose(self, armature: bpy.types.Object) -> None:
+    def restore_pose(
+        self, armature: bpy.types.Object, armature_data: bpy.types.Armature
+    ) -> None:
         if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -94,13 +97,13 @@ class AbstractBaseVrmExporter(ABC):
         bpy.context.view_layer.update()
 
         if self.saved_pose_position:
-            armature.data.pose_position = self.saved_pose_position
+            armature_data.pose_position = self.saved_pose_position
         bpy.ops.object.mode_set(mode="OBJECT")
 
     def clear_blend_shape_proxy_previews(
-        self, armature: bpy.types.Object
+        self, armature_data: bpy.types.Armature
     ) -> list[float]:
-        ext = armature.data.vrm_addon_extension
+        ext = armature_data.vrm_addon_extension
         saved_previews = []
         for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
             saved_previews.append(blend_shape_group.preview)
@@ -108,9 +111,9 @@ class AbstractBaseVrmExporter(ABC):
         return saved_previews
 
     def restore_blend_shape_proxy_previews(
-        self, armature: bpy.types.Object, previews: list[float]
+        self, armature_data: bpy.types.Armature, previews: list[float]
     ) -> None:
-        ext = armature.data.vrm_addon_extension
+        ext = armature_data.vrm_addon_extension
         for blend_shape_group, blend_shape_preview in zip(
             ext.vrm0.blend_shape_master.blend_shape_groups, previews
         ):
