@@ -10,7 +10,7 @@ from mathutils import Matrix, Quaternion
 
 from ..common import convert, deep, shader
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.deep import Json
+from ..common.deep import Json, make_json
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.version import addon_version
@@ -214,7 +214,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         authors = [author.value for author in meta.authors if author.value]
         if not authors:
             authors = ["undefined"]
-        meta_dict["authors"] = authors
+        meta_dict["authors"] = make_json(authors)
 
         if meta.copyright_information:
             meta_dict["copyrightInformation"] = meta.copyright_information
@@ -684,18 +684,23 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if not uv_offset_scaling_node or uv_offset_scaling_node.type != "MAPPING'":
             return default
 
-        location_input = uv_offset_scaling_node.inputs["Location"]
-        scale_input = uv_offset_scaling_node.inputs["Scale"]
-        return {
-            "offset": [
+        result = default.copy()
+
+        location_input = uv_offset_scaling_node.inputs.get("Location")
+        if isinstance(location_input, shader.VECTOR_SOCKET_CLASSES):
+            result["offset"] = [
                 location_input.default_value[0],
                 location_input.default_value[1],
-            ],
-            "scale": [
+            ]
+
+        scale_input = uv_offset_scaling_node.inputs.get("Scale")
+        if isinstance(scale_input, shader.VECTOR_SOCKET_CLASSES):
+            result["scale"] = [
                 scale_input.default_value[0],
                 scale_input.default_value[1],
-            ],
-        }
+            ]
+
+        return result
 
     @staticmethod
     def find_or_create_image(
