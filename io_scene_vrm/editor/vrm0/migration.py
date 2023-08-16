@@ -244,7 +244,8 @@ def migrate_vrm0_blend_shape_groups(
 
     for blend_shape_group_dict in blend_shape_group_dicts:
         blend_shape_group = blend_shape_groups.add()
-
+        if not isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
+            continue
         if not isinstance(blend_shape_group_dict, dict):
             continue
 
@@ -285,11 +286,13 @@ def migrate_vrm0_blend_shape_groups(
                     else:
                         mesh = None
 
-                    if mesh:
+                    if isinstance(mesh, bpy.types.Mesh):
                         index = bind_dict.get("index")
+                        shape_keys = mesh.shape_keys
                         if (
                             isinstance(index, str)
-                            and index in mesh.shape_keys.key_blocks
+                            and shape_keys
+                            and index in shape_keys.key_blocks
                         ):
                             bind.index = index
 
@@ -489,18 +492,22 @@ def migrate_link_to_bone_object(armature: bpy.types.Object) -> None:
 
         link_to_bone = bone_property_group.get("link_to_bone")
         if (
-            isinstance(link_to_bone, bpy.types.Object)
-            and link_to_bone
-            and link_to_bone.parent_bone
-            and link_to_bone.parent
-            and link_to_bone.parent.name
-            and link_to_bone.parent.type == "ARMATURE"
-            and link_to_bone.parent_bone in link_to_bone.parent.data.bones
+            not isinstance(link_to_bone, bpy.types.Object)
+            or not link_to_bone.parent_bone
         ):
-            bone = link_to_bone.parent.data.bones[link_to_bone.parent_bone]
-            if not bone.vrm_addon_extension.uuid:
-                bone.vrm_addon_extension.uuid = uuid.uuid4().hex
-            bone_property_group.bone_uuid = bone.vrm_addon_extension.uuid
+            continue
+        parent = link_to_bone.parent
+        if not parent or not parent.name or parent.type != "ARMATURE":
+            continue
+        parent_data = parent.data
+        if not isinstance(parent_data, bpy.types.Armature):
+            continue
+        bone = parent_data.bones.get(link_to_bone.parent_bone)
+        if not bone:
+            continue
+        if not bone.vrm_addon_extension.uuid:
+            bone.vrm_addon_extension.uuid = uuid.uuid4().hex
+        bone_property_group.bone_uuid = bone.vrm_addon_extension.uuid
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
         link_to_bone = bone_property_group.get("link_to_bone")
