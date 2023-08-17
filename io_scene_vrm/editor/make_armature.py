@@ -1,7 +1,7 @@
 import functools
 from math import radians
 from sys import float_info
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from mathutils import Matrix, Vector
@@ -32,14 +32,19 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
     WIP_with_template_mesh: bpy.props.BoolProperty(  # type: ignore[valid-type]
         default=False
     )
+
     # 身長 at meter
     tall: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=1.70, min=0.3, step=1, name="Bone tall"  # noqa: F722
     )
+
     # 頭身
     head_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=8.0, min=4, step=5, description="height per heads"  # noqa: F722
     )
+    if TYPE_CHECKING:
+        head_ratio: float  # type: ignore[no-redef]
+
     head_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=2 / 3,
         min=0.3,
@@ -68,10 +73,14 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
         step=1,
         description="shoulder roll position",  # noqa: F722
     )
+
     # 腕長さ率
     arm_length_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.5, step=1
     )
+    if TYPE_CHECKING:
+        arm_length_ratio: float  # type: ignore[no-redef]
+
     # 手
     hand_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.5, max=2.0, step=5

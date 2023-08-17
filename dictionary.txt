@@ -171,6 +171,7 @@ raytrace
 rbd
 readonly
 recalc
+redef
 removeprefix
 renderer
 req
