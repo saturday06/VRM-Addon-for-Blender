@@ -1,4 +1,5 @@
 from math import atan2, cos, radians, sin
+from typing import Sequence
 
 import bmesh
 import bpy
@@ -118,11 +119,11 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc]
     )
 
     def make_face(self, _context: bpy.types.Context, mesh: bpy.types.Mesh) -> None:
-        def add_point(point: Vector) -> bmesh.types.BMVert:
+        def add_point(point: Sequence[float]) -> bmesh.types.BMVert:
             return bm.verts.new(point)
 
         def make_circle(
-            center: Vector,
+            center: Sequence[float],
             radius: float,
             axis: str,
             divide: int,
@@ -153,7 +154,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc]
 
             bm.faces.new(verts)
 
-        def width_add(point: Vector, add_loc: float) -> Vector:
+        def width_add(point: Sequence[float], add_loc: float) -> Vector:
             return Vector([p + a for p, a in zip(point, [0, 0, add_loc])])
 
         def depth_add(point: Vector, add_loc: float) -> Vector:
