@@ -246,6 +246,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     modifier.type != "ARMATURE"
                     and not (
                         modifier.type == "NODES"
+                        and isinstance(modifier, bpy.types.NodesModifier)
+                        and modifier.node_group
                         and modifier.node_group.name
                         == shader.OUTLINE_GEOMETRY_GROUP_NAME
                     )
@@ -516,12 +518,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 if links and links[0].from_node.type == "BSDF_PRINCIPLED":
                     continue
 
-                if (
-                    links
-                    and links[0].from_node.type == "GROUP"
-                    and links[0].from_node.node_tree.get("SHADER") in groups
-                ):
-                    continue
+                if links:
+                    from_node = links[0].from_node
+                    if from_node.type == "GROUP" and isinstance(
+                        from_node, bpy.types.ShaderNodeGroup
+                    ):
+                        node_tree = from_node.node_tree
+                        if node_tree and node_tree.get("SHADER") in groups:
+                            continue
 
                 skippable_warning_messages.append(
                     pgettext(
@@ -870,7 +874,9 @@ def node_material_input_check(
                 )
             )
         else:
-            if expect_node_type == "TEX_IMAGE":
+            if expect_node_type == "TEX_IMAGE" and isinstance(
+                n, bpy.types.ShaderNodeTexImage
+            ):
                 if n.image is not None:
                     if n.image not in used_images:
                         used_images.append(n.image)
