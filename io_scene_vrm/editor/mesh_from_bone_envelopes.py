@@ -34,7 +34,9 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
     @staticmethod
     def find_material_output_node(material: bpy.types.Material) -> bpy.types.ShaderNode:
         for node in material.node_tree.nodes:
-            if node.bl_idname == "ShaderNodeOutputMaterial":
+            if node.bl_idname == "ShaderNodeOutputMaterial" and isinstance(
+                node, bpy.types.ShaderNodeOutputMaterial
+            ):
                 return node
         raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
 
@@ -128,6 +130,10 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
             material: bpy.types.Material, shader_node_group_name: str
         ) -> bpy.types.ShaderNodeGroup:
             node_group = material.node_tree.nodes.new("ShaderNodeGroup")
+            if not isinstance(node_group, bpy.types.ShaderNodeGroup):
+                raise AssertionError(
+                    f"{type(node_group)} is not a bpy.types.ShaderNodeGroup"
+                )
             node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
             return node_group
 
