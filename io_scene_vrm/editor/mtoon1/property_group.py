@@ -540,8 +540,12 @@ class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
     ]
 
 
+class Mtoon1TextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    pass
+
+
 class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
-    bpy.types.PropertyGroup  # type: ignore[misc]
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1BaseColorKhrTextureTransformPropertyGroup  # noqa: F722
@@ -549,50 +553,64 @@ class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup(
-    bpy.types.PropertyGroup  # type: ignore[misc]
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup  # noqa: F722
     )
 
 
-class Mtoon1NormalTextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1NormalTextureInfoExtensionsPropertyGroup(
+    Mtoon1TextureInfoExtensionsPropertyGroup
+):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalKhrTextureTransformPropertyGroup  # noqa: F722
     )
 
 
-class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(
+    Mtoon1TextureInfoExtensionsPropertyGroup
+):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftKhrTextureTransformPropertyGroup  # noqa: F722
     )
 
 
-class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(
+    Mtoon1TextureInfoExtensionsPropertyGroup
+):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1EmissiveKhrTextureTransformPropertyGroup  # noqa: F722
     )
 
 
-class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(
+    Mtoon1TextureInfoExtensionsPropertyGroup
+):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1RimMultiplyKhrTextureTransformPropertyGroup  # noqa: F722
     )
 
 
-class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(
+    Mtoon1TextureInfoExtensionsPropertyGroup
+):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MatcapKhrTextureTransformPropertyGroup  # noqa: F722
     )
 
 
-class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(
+    Mtoon1TextureInfoExtensionsPropertyGroup
+):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup  # noqa: F722
     )
 
 
-class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
+    Mtoon1TextureInfoExtensionsPropertyGroup
+):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup  # noqa: F722
     )
@@ -787,12 +805,18 @@ class Mtoon1UvAnimationMaskSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
 
 
 class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
+    colorspace = "sRGB"
+
     def update_source(self, _context: bpy.types.Context) -> None:
         self.update_image(self.source)
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Image,  # noqa: F722
         update=update_source,
+    )
+
+    sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1SamplerPropertyGroup  # noqa: F722
     )
 
 
@@ -958,6 +982,14 @@ class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
+    index: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1TexturePropertyGroup  # noqa: F722
+    )
+
+    extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1TextureInfoExtensionsPropertyGroup  # noqa: F722
+    )
+
     @dataclass(frozen=True)
     class TextureInfoBackup:
         source: bpy.types.Image
@@ -1139,6 +1171,8 @@ class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 class Mtoon0TexturePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+    colorspace = "sRGB"
+
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Image,  # noqa: F722
     )
