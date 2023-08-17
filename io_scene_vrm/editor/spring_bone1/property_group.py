@@ -1,5 +1,6 @@
 import statistics
 import uuid
+from collections.abc import Sequence
 from sys import float_info
 
 import bpy
@@ -44,7 +45,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
             matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
         return convert.float3_or(matrix.to_translation(), (0.0, 0.0, 0.0))
 
-    def set_offset(self, offset: object) -> None:
+    def set_offset(self, offset: Sequence[float]) -> None:
         backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
@@ -70,7 +71,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         )
         return float(mean_scale * collider.bpy_object.empty_display_size)
 
-    def set_radius(self, v: object) -> None:
+    def set_radius(self, v: float) -> None:
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
@@ -131,7 +132,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
         return convert.float3_or(matrix.to_translation(), (0.0, 0.0, 0.0))
 
-    def set_offset(self, offset: object) -> None:
+    def set_offset(self, offset: Sequence[float]) -> None:
         backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
@@ -166,7 +167,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
             )
         return convert.float3_or(matrix.to_translation(), (0.0, 0.0, 0.0))
 
-    def set_tail(self, offset: object) -> None:
+    def set_tail(self, offset: Sequence[float]) -> None:
         backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
