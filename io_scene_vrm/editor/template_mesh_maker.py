@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import Optional
 
 import bmesh
@@ -223,7 +223,7 @@ class IcypTemplateMeshMaker:
             bm.faces.new([verts[i] for i in poly])
 
     def make_half_cube(
-        self, bm: BMesh, xyz: list[float], translation: list[float]
+        self, bm: BMesh, xyz: Sequence[float], translation: Sequence[float]
     ) -> None:
         points = self.half_cubic_points(xyz, translation)
         verts = [bm.verts.new(p) for p in points]
@@ -269,7 +269,7 @@ class IcypTemplateMeshMaker:
     ]
 
     def half_cubic_points(
-        self, xyz: list[float], translation: list[float]
+        self, xyz: Sequence[float], translation: Sequence[float]
     ) -> tuple[
         tuple[float, float, float],
         tuple[float, float, float],
