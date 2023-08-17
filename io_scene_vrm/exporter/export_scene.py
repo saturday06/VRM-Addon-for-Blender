@@ -306,18 +306,16 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
                 )
 
         operator = space_data.active_operator
-
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
         layout.prop(operator, "enable_advanced_preferences")
-        if operator.enable_advanced_preferences:
+        if getattr(operator, "enable_advanced_preferences", False):
             advanced_options_box = layout.box()
             advanced_options_box.prop(operator, "export_fb_ngon_encoding")
 
-        if operator.errors:
-            validation.WM_OT_vrm_validator.draw_errors(
-                operator.errors, False, layout.box()
-            )
+        errors = getattr(operator, "errors", None)
+        if isinstance(errors, bpy.types.CollectionProperty):
+            validation.WM_OT_vrm_validator.draw_errors(errors, False, layout.box())
 
 
 class VRM_PT_export_vrma_help(bpy.types.Panel):  # type: ignore[misc]
