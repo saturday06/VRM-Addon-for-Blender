@@ -399,7 +399,7 @@ def rotation_constraint_or_none(
     if constraint.target.type != "ARMATURE":
         return constraint
 
-    if constraint.target == armature:
+    if constraint.target != armature:
         return None
 
     armature_data = armature.data
