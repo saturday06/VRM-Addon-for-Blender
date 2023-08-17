@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import bmesh
 import bpy
@@ -8,6 +8,9 @@ from bpy.types import Mesh
 from mathutils import Matrix, Vector
 
 from ..common.vrm0.human_bone import HumanBoneSpecifications
+
+if TYPE_CHECKING:
+    from .make_armature import ICYP_OT_make_armature
 
 
 class IcypTemplateMeshMaker:
@@ -23,7 +26,9 @@ class IcypTemplateMeshMaker:
         bpy.ops.object.modifier_add(type="MIRROR")
         return obj
 
-    def __init__(self, context: bpy.types.Context, args: bpy.types.Operator) -> None:
+    def __init__(
+        self, context: bpy.types.Context, args: "ICYP_OT_make_armature"
+    ) -> None:
         self.args = args
         self.head_size = args.tall / args.head_ratio
         self.make_mesh_obj(context, "Head", self.make_head)
