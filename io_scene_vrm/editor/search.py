@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from sys import float_info
 from typing import Optional, Union
 
 import bpy
@@ -366,7 +365,7 @@ def aim_constraint_or_none(
     if (
         not isinstance(armature_data, bpy.types.Armature)
         or constraint.subtarget not in armature_data.bones
-        or abs(constraint.head_tail) >= float_info.epsilon
+        or abs(constraint.head_tail) > 0
     ):
         return None
 
