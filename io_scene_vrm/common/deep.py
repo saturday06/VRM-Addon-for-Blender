@@ -76,7 +76,9 @@ def get_list(
     default: list[Json],
 ) -> list[Json]:
     result = get(json, attrs, default)
-    return result if isinstance(result, list) else default
+    if not isinstance(result, list):
+        return default
+    return result
 
 
 def diff(
