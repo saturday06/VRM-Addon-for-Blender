@@ -69,7 +69,10 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc]
         return {"FINISHED"}
 
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
-        return self.base_armature.data.bones[self.base_armature.data[bone]]
+        armature_data = self.base_armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not an Armature")
+        return armature_data.bones[str(armature_data[bone])]
 
     face_center_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.2, max=1, soft_min=0.6, name="Face center ratio"  # noqa: F722

@@ -30,18 +30,24 @@ class IcypTemplateMeshMaker:
         self.make_mesh_obj(context, "Body", self.make_humanoid)
 
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
+        armature_obj = self.args.armature_obj
+        if armature_obj is None:
+            raise AssertionError("armature obj is None")
+        armature_data = armature_obj.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not a Armature")
+
         tmp_dict = {
             v.bone: i
             for i, v in enumerate(
-                self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones
+                armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
             )
         }
-        return self.args.armature_obj.data.bones.get(
-            self.args.armature_obj.data.vrm_addon_extension.vrm0.humanoid.human_bones[
+        return armature_data.bones[
+            armature_data.vrm_addon_extension.vrm0.humanoid.human_bones[
                 tmp_dict[bone]
-            ].node.bone_name,
-            None,
-        )
+            ].node.bone_name
+        ]
 
     # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod
@@ -82,6 +88,13 @@ class IcypTemplateMeshMaker:
 
     def make_humanoid(self, mesh: bpy.types.Mesh) -> None:
         args = self.args
+        armature_obj = args.armature_obj
+        if armature_obj is None:
+            raise AssertionError("armature obj is None")
+        armature_data = armature_obj.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise AssertionError(f"{type(armature_data)} is not a Armature")
+
         bm = bmesh.new()
         head_size = self.head_size
         # body
@@ -154,7 +167,7 @@ class IcypTemplateMeshMaker:
         ]
         for b in left_leg_bones:
             bone_name = ""
-            for k, v in self.args.armature_obj.data.items():
+            for k, v in armature_data.items():
                 if v == b.name:
                     bone_name = k
                     break

@@ -41,20 +41,23 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
         raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
 
     def build_mesh(self, context: bpy.types.Context) -> None:
-        if context.active_object.type != "ARMATURE":
+        armature = context.active_object
+        if not armature or armature.type != "ARMATURE":
+            return
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
             return
         bpy.ops.object.mode_set(mode="OBJECT")
-        armature = context.active_object
         mball = bpy.data.metaballs.new(f"{armature.name}_mball")
         mball.threshold = 0.001
         is_vrm_humanoid = False
-        for bone in armature.data.bones:
+        for bone in armature_data.bones:
             if self.use_selected_bones and bone.select is False:
                 continue
             if "title" in armature and self.may_vrm_humanoid:  # = is VRM humanoid
                 is_vrm_humanoid = True
                 if bone.name in [
-                    armature.data.get(s) for s in ("leftEye", "rightEye", "hips")
+                    armature_data.get(s) for s in ("leftEye", "rightEye", "hips")
                 ]:
                     continue
                 if bone.name == "root":
@@ -63,7 +66,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
             hrad = bone.head_radius
             tpos = bone.tail_local
             trad = bone.tail_radius
-            if is_vrm_humanoid and armature.data.get("head") == bone.name:
+            if is_vrm_humanoid and armature_data.get("head") == bone.name:
                 elem = mball.elements.new()
                 elem.co = (Vector(hpos) + Vector(tpos)) / 2
                 elem.radius = Vector(Vector(tpos) - Vector(hpos)).length / 2

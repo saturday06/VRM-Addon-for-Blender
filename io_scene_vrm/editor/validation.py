@@ -260,9 +260,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 )
             if obj.type == "ARMATURE" and armature_count == 1:
                 armature = obj
+                armature_data = armature.data
+                if not isinstance(armature_data, bpy.types.Armature):
+                    logger.error(f"{type(armature_data)} is not an Armature")
+                    continue
                 if execute_migration:
                     migration.migrate(armature.name, defer=False)
-                for bone in obj.data.bones:
+                for bone in armature_data.bones:
                     if bone.name in node_names:  # nodes name is unique
                         error_messages.append(
                             pgettext(
@@ -275,14 +279,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
                 # TODO: T_POSE,
                 all_required_bones_exist = True
-                if armature.data.vrm_addon_extension.is_vrm1():
+                if armature_data.vrm_addon_extension.is_vrm1():
                     _, _, constraint_warning_messages = search.export_constraints(
                         export_objects, armature
                     )
                     skippable_warning_messages.extend(constraint_warning_messages)
 
                     human_bones = (
-                        armature.data.vrm_addon_extension.vrm1.humanoid.human_bones
+                        armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
                     )
 
                     human_bone_name_to_human_bone = (
@@ -300,7 +304,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         if (
                             human_bone.node
                             and human_bone.node.bone_name
-                            and human_bone.node.bone_name in armature.data.bones
+                            and human_bone.node.bone_name in armature_data.bones
                         ):
                             continue
                         all_required_bones_exist = False
@@ -344,7 +348,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                                 )
 
                 else:
-                    humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+                    humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
                     human_bones = humanoid.human_bones
                     all_required_bones_exist = True
                     for (
@@ -354,7 +358,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                             human_bone.bone == humanoid_name
                             and human_bone.node
                             and human_bone.node.bone_name
-                            and human_bone.node.bone_name in armature.data.bones
+                            and human_bone.node.bone_name in armature_data.bones
                             for human_bone in human_bones
                         ):
                             continue
@@ -388,7 +392,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
                 # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
 
-        if armature is not None and armature.data.vrm_addon_extension.is_vrm1():
+        if (
+            armature is not None
+            and isinstance(armature.data, bpy.types.Armature)
+            and armature.data.vrm_addon_extension.is_vrm1()
+        ):
             for obj in export_objects:
                 if obj.scale[0] < 0 or obj.scale[1] < 0 or obj.scale[2] < 0:
                     error_messages.append(
@@ -446,7 +454,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         used_materials = search.export_materials(export_objects)
         used_images: list[bpy.types.Image] = []
         bones_name = []
-        if armature is not None:
+        if armature is not None and isinstance(armature.data, bpy.types.Armature):
             bones_name = [b.name for b in armature.data.bones]
         vertex_error_count = 0
 
@@ -462,6 +470,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         continue
                     if (
                         armature is not None
+                        and isinstance(armature.data, bpy.types.Armature)
                         and armature.data.vrm_addon_extension.is_vrm1()
                     ):
                         continue
@@ -582,8 +591,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 continue
 
             for texture in gltf.all_textures(
-                downgrade_to_mtoon0=armature is None
-                or armature.data.vrm_addon_extension.is_vrm0()
+                downgrade_to_mtoon0=(
+                    armature is None
+                    or not isinstance(armature.data, bpy.types.Armature)
+                    or armature.data.vrm_addon_extension.is_vrm0()
+                )
             ):
                 source = texture.source
                 if not source:
@@ -611,6 +623,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
                 if (
                     armature is None
+                    or not isinstance(armature.data, bpy.types.Armature)
                     or not armature.data.vrm_addon_extension.is_vrm0()
                     or not source
                 ):
@@ -655,7 +668,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                         )
                     )
 
-        if armature is not None and armature.data.vrm_addon_extension.is_vrm0():
+        if (
+            armature is not None
+            and isinstance(armature.data, bpy.types.Armature)
+            and armature.data.vrm_addon_extension.is_vrm0()
+        ):
             if export_fb_ngon_encoding:
                 warning_messages.append(
                     pgettext(
