@@ -93,21 +93,25 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
         if not isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
             return
 
-        enum_item = blend_shape_group.bl_rna.properties["preset_name"].enum_items[
-            blend_shape_group.preset_name
-        ]
+        preset = {
+            0: preset
+            for preset in Vrm0BlendShapeGroupPropertyGroup.presets
+            if preset.identifier == blend_shape_group.preset_name
+        }.get(0)
+        if not preset:
+            return
 
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", translate=False, icon_value=enum_item.icon)
+            layout.label(text="", translate=False, icon=preset.icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        text = blend_shape_group.name + " / " + enum_item.name
+        text = blend_shape_group.name + " / " + preset.name
         split = layout.split(align=True, factor=0.55)
-        split.label(text=text, translate=False, icon=enum_item.icon)
+        split.label(text=text, translate=False, icon=preset.icon)
         split.prop(blend_shape_group, "preview", text="Preview")
 
 
