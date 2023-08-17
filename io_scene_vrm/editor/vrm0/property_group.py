@@ -387,7 +387,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
         description="Name of the blendshape group",  # noqa: F722
     )
 
-    @dataclass
+    @dataclass(frozen=True)
     class Preset:
         identifier: str
         name: str
