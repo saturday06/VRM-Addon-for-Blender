@@ -140,7 +140,6 @@ class IcypTemplateMeshMaker:
             self.get_humanoid_bone(v)
             for v in HumanBoneSpecifications.left_arm_req
             + HumanBoneSpecifications.left_arm_def
-            if self.get_humanoid_bone(v) is not None
         ]
         left_hand_bone = self.get_humanoid_bone("leftHand")
         for b in left_arm_bones:
@@ -163,7 +162,6 @@ class IcypTemplateMeshMaker:
             self.get_humanoid_bone(v)
             for v in HumanBoneSpecifications.left_leg_req
             + HumanBoneSpecifications.left_leg_def
-            if self.get_humanoid_bone(v) is not None
         ]
         for b in left_leg_bones:
             bone_name = ""
