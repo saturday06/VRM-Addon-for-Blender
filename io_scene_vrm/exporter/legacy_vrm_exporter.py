@@ -1854,7 +1854,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         ]
                         + [None]
                     )[0]
-                elif mesh.parent_type == "OBJECT":
+                elif mesh.parent_type == "OBJECT" and mesh.parent:
                     parent_node = (
                         [
                             node_dict
@@ -1878,8 +1878,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             self.armature.matrix_world
                             @ self.armature.pose.bones[mesh.parent_bone].matrix.to_4x4()
                         ).to_translation()
-                    else:
+                    elif mesh.parent:
                         base_pos = mesh.parent.matrix_world.to_translation()
+                    else:
+                        pass  # never
                 else:
                     first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
                     if isinstance(first_scene_nodes, list):
@@ -2308,9 +2310,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             self.mesh_name_to_index[mesh.name] = mesh_index
 
             mesh_dict: dict[str, Json] = {
-                "name": mesh.data.name,
                 "primitives": primitive_list,
             }
+            if mesh.data:
+                mesh_dict["name"] = mesh.data.name
             if self.export_fb_ngon_encoding:
                 mesh_dict["extensions"] = {"FB_ngon_encoding": {}}
 

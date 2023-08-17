@@ -141,6 +141,8 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore
                 self.find_material_output_node(b_mat).inputs["Surface"],
                 sg.outputs["Emission"],
             )
+        if not isinstance(obj.data, bpy.types.Mesh):
+            raise AssertionError(f"{type(obj.data)} is not a Mesh")
         obj.data.materials.append(b_mat)
 
         bpy.ops.object.mode_set(mode="OBJECT")

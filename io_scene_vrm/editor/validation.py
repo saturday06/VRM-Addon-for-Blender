@@ -238,6 +238,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                 )
             if (
                 obj.type == "MESH"
+                and isinstance(obj.data, bpy.types.Mesh)
                 and obj.data.shape_keys is not None
                 and len(obj.data.shape_keys.key_blocks)
                 >= 2  # Exclude a "Basis" shape key
@@ -371,7 +372,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     )
 
             if obj.type == "MESH":
-                for poly in obj.data.polygons:
+                mesh_data = obj.data
+                if not isinstance(mesh_data, bpy.types.Mesh):
+                    logger.error(f"{type(mesh_data)} is not a Mesh")
+                    continue
+                for poly in mesh_data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle
                         info_messages.append(
                             pgettext(
@@ -446,6 +451,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         vertex_error_count = 0
 
         for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
+            if not isinstance(mesh.data, bpy.types.Mesh):
+                continue
+
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
 
             for v in mesh.data.vertices:
