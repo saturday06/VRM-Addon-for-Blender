@@ -1,3 +1,4 @@
+import re
 from sys import float_info
 
 from ..common import deep, gltf
@@ -14,10 +15,31 @@ def human_bone_sort_key(human_bone_dict: Json) -> int:
     return node
 
 
+asset_generator_pattern = (
+    r"\AVRM Add-on for Blender v999\.999\.999"
+    + r" with Khronos glTF Blender I/O v[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*\Z"
+)
+
+fixed_asset_generator_value = (
+    "VRM Add-on for Blender v999.999.999"
+    + " with Khronos glTF Blender I/O v999.999.999"
+)
+
+
 def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
     vrm_json, binary_chunk = gltf.parse_glb(data)
 
     vrm_json["~accessors_decoded"] = make_json(decode_bin(vrm_json, binary_chunk))
+
+    asset_dict = vrm_json.get("asset")
+    if isinstance(asset_dict, dict):
+        asset_generator = asset_dict.get("generator")
+        if isinstance(asset_generator, str):
+            asset_dict["generator"] = re.sub(
+                asset_generator_pattern,
+                fixed_asset_generator_value,
+                asset_generator,
+            )
 
     extensions_dict = vrm_json.get("extensions")
     if not isinstance(extensions_dict, dict):
