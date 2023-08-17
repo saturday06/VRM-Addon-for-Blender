@@ -330,7 +330,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 translation = (
                     self.armature.matrix_world @ b_bone.matrix
                 ).to_translation()
-            node = {
+            node: dict[str, Json] = {
                 "name": b_bone.name,
                 "translation": make_json(self.axis_blender_to_glb(translation)),
                 # "rotation":[0,0,0,1],
@@ -1821,7 +1821,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         for mesh in meshes:
             is_skin_mesh = self.is_skin_mesh(mesh)
-            node_dict = {
+            node_dict: dict[str, Json] = {
                 "name": mesh.name,
                 "translation": make_json(self.axis_blender_to_glb(mesh.location)),
                 "rotation": [0, 0, 0, 1],  # このへんは規約なので
