@@ -1,7 +1,7 @@
 import functools
 import re
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 
 import bpy
 import mathutils
