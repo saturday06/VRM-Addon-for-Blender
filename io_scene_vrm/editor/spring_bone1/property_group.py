@@ -51,14 +51,16 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
         collider.reset_bpy_object(bpy.context, armature)
         bone = armature.pose.bones.get(collider.node.bone_name)
         if not bone:
-            collider.bpy_object.matrix_world = (
-                armature.matrix_world @ Matrix.Translation(offset)
-            )
+            if collider.bpy_object:
+                collider.bpy_object.matrix_world = (
+                    armature.matrix_world @ Matrix.Translation(offset)
+                )
             self.set_radius(backup_radius)
             return
-        collider.bpy_object.matrix_world = (
-            armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
-        )
+        if collider.bpy_object:
+            collider.bpy_object.matrix_world = (
+                armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
+            )
         self.set_radius(backup_radius)
 
     def get_radius(self) -> float:
@@ -74,6 +76,9 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):  # t
     def set_radius(self, v: float) -> None:
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
+        if not collider.bpy_object:
+            logger.error(f"Faild to reset bpy_object for collider: {collider.name}")
+            return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (
             Matrix.Translation(location) @ rotation.to_matrix().to_4x4()
@@ -138,14 +143,16 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         collider.reset_bpy_object(bpy.context, armature)
         bone = armature.pose.bones.get(collider.node.bone_name)
         if not bone:
-            collider.bpy_object.matrix_world = (
-                armature.matrix_world @ Matrix.Translation(offset)
-            )
+            if collider.bpy_object:
+                collider.bpy_object.matrix_world = (
+                    armature.matrix_world @ Matrix.Translation(offset)
+                )
             self.set_radius(backup_radius)
             return
-        collider.bpy_object.matrix_world = (
-            armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
-        )
+        if collider.bpy_object:
+            collider.bpy_object.matrix_world = (
+                armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
+            )
         self.set_radius(backup_radius)
 
     def get_tail(self) -> tuple[float, float, float]:
@@ -173,14 +180,16 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         collider.reset_bpy_object(bpy.context, armature)
         bone = armature.pose.bones.get(collider.node.bone_name)
         if not bone:
-            collider.bpy_object.children[
-                0
-            ].matrix_world = armature.matrix_world @ Matrix.Translation(offset)
+            if collider.bpy_object:
+                collider.bpy_object.children[
+                    0
+                ].matrix_world = armature.matrix_world @ Matrix.Translation(offset)
             self.set_radius(backup_radius)
             return
-        collider.bpy_object.children[0].matrix_world = (
-            armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
-        )
+        if collider.bpy_object:
+            collider.bpy_object.children[0].matrix_world = (
+                armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
+            )
         self.set_radius(backup_radius)
 
     def get_radius(self) -> float:
@@ -193,9 +202,12 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):  # 
         )
         return float(mean_scale * collider.bpy_object.empty_display_size)
 
-    def set_radius(self, v: object) -> None:
+    def set_radius(self, v: float) -> None:
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
+        if not collider.bpy_object:
+            logger.error(f"Faild to reset bpy_object for collider: {collider.name}")
+            return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (
             Matrix.Translation(location) @ rotation.to_matrix().to_4x4()

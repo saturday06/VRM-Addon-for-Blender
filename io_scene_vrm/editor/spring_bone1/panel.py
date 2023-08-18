@@ -35,7 +35,8 @@ def draw_spring_bone1_collider_layout(
     elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
         layout.prop_search(collider.node, "bone_name", armature_data, "bones")
         layout.prop(collider, "shape_type")
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
+        if collider.bpy_object:
+            layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
         layout.prop(collider.shape.capsule, "offset", text="")
         layout.separator(factor=0.5)
         layout.prop(collider.shape.capsule, "radius", slider=True)

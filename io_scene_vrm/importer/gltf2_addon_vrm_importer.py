@@ -2284,7 +2284,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bone_name = self.bone_names.get(node_index)
                 if isinstance(bone_name, str):
                     collider.node.bone_name = bone_name
-                    collider.bpy_object.name = f"{bone_name} Collider"
+                    if collider.bpy_object:
+                        collider.bpy_object.name = f"{bone_name} Collider"
                     bone = self.armature_data.bones.get(collider.node.bone_name)
 
             shape_dict = collider_dict.get("shape")
@@ -2354,12 +2355,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             shape.capsule.tail = tail
 
         for collider in spring_bone.colliders:
-            collider.reset_bpy_object(self.context, self.armature)
+            collider.reset_bpy_object(self.context, armature)
 
         if spring_bone.colliders:
             colliders_collection = bpy.data.collections.new("Colliders")
             self.context.scene.collection.children.link(colliders_collection)
             for collider in spring_bone.colliders:
+                if not collider.bpy_object:
+                    continue
                 colliders_collection.objects.link(collider.bpy_object)
                 if collider.bpy_object.name in self.context.scene.collection.objects:
                     self.context.scene.collection.objects.unlink(collider.bpy_object)
