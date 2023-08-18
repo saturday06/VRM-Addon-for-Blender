@@ -754,8 +754,8 @@ class AbstractBaseVrmImporter(ABC):
         gltf.double_sided = False
         mtoon.transparent_with_z_write = True
         mtoon.shade_color_factor = (0, 0, 0)
-        mtoon.shading_toony = 0.95
-        mtoon.shading_shift = -0.05
+        mtoon.shading_toony_factor = 0.95
+        mtoon.shading_shift_factor = -0.05
         mtoon.rim_lighting_mix_factor = 1
         mtoon.parametric_rim_fresnel_power_factor = 5
         mtoon.parametric_rim_lift_factor = 0

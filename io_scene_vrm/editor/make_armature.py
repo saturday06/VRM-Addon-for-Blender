@@ -567,7 +567,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
             return
         vrm0 = armature_data.vrm_addon_extension.vrm0
         vrm0.first_person.first_person_bone.bone_name = "head"
-        vrm0.first_person.first_person_offset = (0, 0, 0.06)
+        vrm0.first_person.first_person_bone_offset = (0, 0, 0.06)
         vrm0.first_person.look_at_horizontal_inner.y_range = 8
         vrm0.first_person.look_at_horizontal_outer.y_range = 12
         vrm0.meta.author = "undefined"

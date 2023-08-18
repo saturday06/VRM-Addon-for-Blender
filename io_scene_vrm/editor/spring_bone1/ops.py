@@ -429,7 +429,7 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):  # type: ig
             return {"CANCELLED"}
         for spring in armature_data.vrm_addon_extension.spring_bone1.springs:
             for joint in spring.joints:
-                joint.state.initialized_as_tail = False
+                joint.animation_state.initialized_as_tail = False
         reset_state()
         return {"FINISHED"}
 
