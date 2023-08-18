@@ -370,7 +370,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if material_color_bind.type == "color":
                 target_value = list(material_color_bind.target_value)
             else:
-                target_value = list(material_color_bind.target_value_as_rgb) + [1]
+                rgb = material_color_bind.target_value_as_rgb
+                target_value = [rgb[0], rgb[1], rgb[2], 1.0]
             material_color_bind_dicts.append(
                 {
                     "material": material_index,
