@@ -10,6 +10,7 @@ from ...common.vrm0.human_bone import HumanBoneSpecifications
 from ..property_group import BonePropertyGroup
 from .property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
+    Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
     Vrm0HumanoidPropertyGroup,
     Vrm0MeshAnnotationPropertyGroup,
@@ -235,16 +236,14 @@ def migrate_vrm0_first_person(
 
 
 def migrate_vrm0_blend_shape_groups(
-    blend_shape_groups: bpy.types.CollectionProperty,
+    blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
     blend_shape_group_dicts: Json,
 ) -> None:
     if not isinstance(blend_shape_group_dicts, list):
         return
 
     for blend_shape_group_dict in blend_shape_group_dicts:
-        blend_shape_group = blend_shape_groups.add()
-        if not isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
-            continue
+        blend_shape_group = blend_shape_master.blend_shape_groups.add()
         if not isinstance(blend_shape_group_dict, dict):
             continue
 
@@ -438,7 +437,7 @@ def migrate_legacy_custom_properties(
 
     migrate_vrm0_meta(ext.vrm0.meta, armature)
     migrate_vrm0_blend_shape_groups(
-        ext.vrm0.blend_shape_master.blend_shape_groups,
+        ext.vrm0.blend_shape_master,
         read_textblock_json(armature, "blendshape_group"),
     )
     migrate_vrm0_first_person(
@@ -606,7 +605,9 @@ def fixup_gravity_dir(armature_data: bpy.types.Armature) -> None:
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
-    return vrm0.first_person.first_person_bone.bone_name or all(
+    if vrm0.first_person.first_person_bone.bone_name:
+        return True
+    return all(
         (human_bone.bone != "head" or not human_bone.node.bone_name)
         for human_bone in vrm0.humanoid.human_bones
     )
