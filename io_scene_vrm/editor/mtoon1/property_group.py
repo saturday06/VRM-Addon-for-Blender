@@ -60,11 +60,11 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             )
             return None
         chain = cls.get_material_property_chain()
-        property_group = functools.reduce(
-            getattr, chain, outline_material.vrm_addon_extension.mtoon1
-        )
-        if isinstance(property_group, MaterialTraceablePropertyGroup):
-            return property_group
+        attr = outline_material.vrm_addon_extension.mtoon1
+        for name in chain:
+            attr = getattr(attr, name, None)
+        if isinstance(attr, MaterialTraceablePropertyGroup):
+            return attr
         raise AssertionError(f"No matching property group: {cls} {chain}")
 
     def set_value(
