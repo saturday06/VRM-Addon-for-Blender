@@ -276,6 +276,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
         }
 
         for human_bone in ext.vrm0.humanoid.human_bones:
+            if not isinstance(armature.data, bpy.types.Armature):
+                continue
             human_bone.update_node_candidates(
                 armature.data,
                 vrm0_bpy_bone_name_to_human_bone_specification,
@@ -298,6 +300,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
             human_bone_name,
             human_bone,
         ) in human_bone_name_to_human_bone.items():
+            if not isinstance(armature.data, bpy.types.Armature):
+                continue
             human_bone.update_node_candidates(
                 armature.data,
                 vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name),
