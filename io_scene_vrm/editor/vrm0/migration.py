@@ -599,7 +599,7 @@ def fixup_gravity_dir(armature_data: bpy.types.Armature) -> None:
 
     for bone_group in ext.vrm0.secondary_animation.bone_groups:
         gravity_dir = list(bone_group.gravity_dir)
-        bone_group.gravity_dir[0] = gravity_dir[0] + 1  # Make a change
+        bone_group.gravity_dir = (gravity_dir[0] + 1, 0, 0)  # Make a change
         bone_group.gravity_dir = gravity_dir
 
 

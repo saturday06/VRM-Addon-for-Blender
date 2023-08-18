@@ -39,7 +39,7 @@ def fixup_gravity_dir(armature: bpy.types.Armature) -> None:
         for spring in ext.spring_bone1.springs:
             for joint in spring.joints:
                 gravity_dir = list(joint.gravity_dir)
-                joint.gravity_dir[0] = gravity_dir[0] + 1  # Make a change
+                joint.gravity_dir = (gravity_dir[0] + 1, 0, 0)  # Make a change
                 joint.gravity_dir = gravity_dir
 
 
