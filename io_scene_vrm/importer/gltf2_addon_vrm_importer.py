@@ -320,9 +320,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 matcap_texture_dict,
             )
 
-        parametric_rim_color_factor = mtoon_dict.get("parametricRimColorFactor")
-        if isinstance(parametric_rim_color_factor, (float, int)):
-            mtoon.parametric_rim_color_factor = float(parametric_rim_color_factor)
+        parametric_rim_color_factor = shader.rgb_or_none(
+            mtoon_dict.get("parametricRimColorFactor")
+        )
+        if parametric_rim_color_factor:
+            mtoon.parametric_rim_color_factor = parametric_rim_color_factor
 
         parametric_rim_fresnel_power_factor = mtoon_dict.get(
             "parametricRimFresnelPowerFactor"
