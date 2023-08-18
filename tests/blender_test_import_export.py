@@ -60,7 +60,9 @@ def test(vrm: str, extract_textures_str: str) -> None:
 
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    actual_path = temp_vrm_dir / in_path.name
+    actual_path = temp_vrm_dir / (
+        f"test_import_export.{extract_textures}." + in_path.name
+    )
     if actual_path.exists():
         actual_path.unlink()
 

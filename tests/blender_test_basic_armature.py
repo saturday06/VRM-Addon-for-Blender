@@ -20,7 +20,7 @@ def test() -> None:
         "vrm",
     )
     major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
-    vrm = "basic_armature.vrm"
+    vrm = Path("basic_armature.vrm")
     expected_path = vrm_dir / "in" / vrm
     temp_dir_path = vrm_dir / major_minor / "temp"
     temp_dir_path.mkdir(parents=True, exist_ok=True)
@@ -33,7 +33,7 @@ def test() -> None:
     bpy.ops.icyp.make_basic_armature()
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    actual_path = temp_dir_path / vrm
+    actual_path = temp_dir_path / ("test_basic_armature." + vrm.name)
     if actual_path.exists():
         actual_path.unlink()
     bpy.ops.export_scene.vrm(filepath=str(actual_path))

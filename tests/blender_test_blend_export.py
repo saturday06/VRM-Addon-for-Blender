@@ -52,7 +52,7 @@ def test(blend_path_str: str) -> None:
 
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
-    actual_path = temp_vrm_dir / vrm
+    actual_path = temp_vrm_dir / ("test_blend_export." + vrm.name)
     if actual_path.exists():
         actual_path.unlink()
     bpy.ops.export_scene.vrm(filepath=str(actual_path))
