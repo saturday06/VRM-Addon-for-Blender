@@ -702,10 +702,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
             )
             for blend_shape_group in blend_shape_master.blend_shape_groups:
                 for bind in blend_shape_group.binds:
-                    if not bind.mesh or not bind.mesh.name:
+                    mesh_object = bpy.data.objects.get(bind.mesh.mesh_object_name)
+                    if not mesh_object:
                         continue
-
-                    shape_keys = bind.mesh.shape_keys
+                    mesh_data = mesh_object.data
+                    if not isinstance(mesh_data, bpy.types.Mesh):
+                        continue
+                    shape_keys = mesh_data.shape_keys
                     if not shape_keys:
                         info_messages.append(
                             pgettext(

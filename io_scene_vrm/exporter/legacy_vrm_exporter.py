@@ -2526,23 +2526,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         mesh_annotation_dicts: list[Json] = []
         first_person_dict["meshAnnotations"] = mesh_annotation_dicts
         for mesh_annotation in first_person.mesh_annotations:
-            if (
-                mesh_annotation.mesh
-                and mesh_annotation.mesh.mesh_object_name
-                and mesh_annotation.mesh.mesh_object_name in bpy.data.objects
-                and bpy.data.objects[mesh_annotation.mesh.mesh_object_name].type
-                == "MESH"
-            ):
-                matched_mesh_indices = [
-                    i
-                    for i, mesh_dict in enumerate(mesh_dicts)
-                    if isinstance(mesh_dict, dict)
-                    and mesh_dict.get("name")
-                    == bpy.data.objects[mesh_annotation.mesh.mesh_object_name].data.name
-                ]
-                mesh_index = (matched_mesh_indices + [-1])[0]
-            else:
-                mesh_index = -1
+            mesh_index = -1
+            mesh_object = bpy.data.objects.get(mesh_annotation.mesh.mesh_object_name)
+            if mesh_object:
+                mesh_data = mesh_object.data
+                if isinstance(mesh_data, bpy.types.Mesh):
+                    mesh_index = {
+                        0: i
+                        for i, mesh_dict in enumerate(mesh_dicts)
+                        if isinstance(mesh_dict, dict)
+                        and mesh_dict.get("name") == mesh_data.name
+                    }.get(0, mesh_index)
             mesh_annotation_dicts.append(
                 {
                     "mesh": mesh_index,
