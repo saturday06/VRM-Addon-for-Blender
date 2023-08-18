@@ -602,6 +602,16 @@ def fixup_gravity_dir(armature_data: bpy.types.Armature) -> None:
         bone_group.gravity_dir = gravity_dir
 
 
+def fixup_humanoid_feet_spacing(armature_data: bpy.types.Armature) -> None:
+    ext = armature_data.vrm_addon_extension
+    if tuple(ext.addon_version) >= (2, 18, 2):
+        return
+    humanoid = ext.vrm0.humanoid
+    feet_spacing = humanoid.get("feet_spacing")
+    if isinstance(feet_spacing, (int, float)):
+        humanoid.feet_spacing = float(feet_spacing)
+
+
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
@@ -639,6 +649,7 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
     migrate_link_to_mesh_object(armature_data)
     remove_link_to_mesh_object(armature_data)
     fixup_gravity_dir(armature_data)
+    fixup_humanoid_feet_spacing(armature_data)
 
     vrm0.humanoid.last_bone_names.clear()
     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(

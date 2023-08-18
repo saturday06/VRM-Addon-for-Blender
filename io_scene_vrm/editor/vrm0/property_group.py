@@ -106,7 +106,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     lower_leg_twist: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Lower Leg Twist", default=0.5  # noqa: F722
     )
-    feet_spacing: bpy.props.IntProperty(  # type: ignore[valid-type]
+    feet_spacing: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Feet Spacing", default=0  # noqa: F722
     )
     has_translation_dof: bpy.props.BoolProperty(  # type: ignore[valid-type]
