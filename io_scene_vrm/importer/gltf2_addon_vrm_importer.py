@@ -162,17 +162,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         khr_texture_transform: Mtoon1KhrTextureTransformPropertyGroup,
         khr_texture_transform_dict: dict[str, Json],
     ) -> None:
-        offset = khr_texture_transform_dict.get("offset")
-        if isinstance(offset, list):
-            offset = offset[:2]
-            if len(offset) == 2:
-                khr_texture_transform.offset = offset
+        offset = convert.float2_or_none(khr_texture_transform_dict.get("offset"))
+        if offset:
+            khr_texture_transform.offset = offset
 
-        scale = khr_texture_transform_dict.get("scale")
-        if isinstance(scale, list):
-            scale = scale[:2]
-            if len(scale) == 2:
-                khr_texture_transform.scale = scale
+        scale = convert.float2_or_none(khr_texture_transform_dict.get("scale"))
+        if scale:
+            khr_texture_transform.scale = scale
 
     def assign_texture_info(
         self,
