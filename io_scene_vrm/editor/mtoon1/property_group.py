@@ -1755,39 +1755,37 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     def all_textures(
         self, downgrade_to_mtoon0: bool
-    ) -> list[Mtoon0TexturePropertyGroup]:
+    ) -> list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]]:
         # TODO: remove code duplication
-        return (
+        result: list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]] = []
+        result.extend(
             [
                 self.pbr_metallic_roughness.base_color_texture.index,
                 self.extensions.vrmc_materials_mtoon.shade_multiply_texture.index,
                 self.normal_texture.index,
             ]
-            + (
+        )
+        if downgrade_to_mtoon0:
+            result.extend(
                 [
                     self.mtoon0_receive_shadow_texture,
                     self.mtoon0_shading_grade_texture,
                 ]
-                if downgrade_to_mtoon0
-                else []
             )
-            + [
-                self.emissive_texture.index,
-            ]
-            + (
-                []
-                if downgrade_to_mtoon0
-                else [
-                    self.extensions.vrmc_materials_mtoon.shading_shift_texture.index,
-                ]
+        result.append(self.emissive_texture.index)
+        if not downgrade_to_mtoon0:
+            result.append(
+                self.extensions.vrmc_materials_mtoon.shading_shift_texture.index
             )
-            + [
+        result.extend(
+            [
                 self.extensions.vrmc_materials_mtoon.matcap_texture.index,
                 self.extensions.vrmc_materials_mtoon.rim_multiply_texture.index,
                 self.extensions.vrmc_materials_mtoon.outline_width_multiply_texture.index,
                 self.extensions.vrmc_materials_mtoon.uv_animation_mask_texture.index,
             ]
         )
+        return result
 
     show_expanded_mtoon0: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Show MToon 0.0 Options",  # noqa: F722
