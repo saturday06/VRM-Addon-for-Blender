@@ -601,22 +601,22 @@ def draw_vrm1_expression_layout(
                         )
             bind_box.prop(bind, "weight", slider=True)
 
-            remove_bind_op = layout_operator(
+            remove_morph_target_bind_op = layout_operator(
                 bind_box,
                 vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind,
                 icon="REMOVE",
             )
-            remove_bind_op.armature_name = armature.name
-            remove_bind_op.expression_name = name
-            remove_bind_op.bind_index = bind_index
+            remove_morph_target_bind_op.armature_name = armature.name
+            remove_morph_target_bind_op.expression_name = name
+            remove_morph_target_bind_op.bind_index = bind_index
 
-        add_bind_op = layout_operator(
+        add_morph_target_bind_op = layout_operator(
             box,
             vrm1_ops.VRM_OT_add_vrm1_expression_morph_target_bind,
             icon="ADD",
         )
-        add_bind_op.armature_name = armature.name
-        add_bind_op.expression_name = name
+        add_morph_target_bind_op.armature_name = armature.name
+        add_morph_target_bind_op.expression_name = name
 
     row = box.row()
     row.alignment = "LEFT"
@@ -642,21 +642,21 @@ def draw_vrm1_expression_layout(
                     bind, "target_value_as_rgb", text="", translate=False
                 )
 
-            remove_bind_op = layout_operator(
+            remove_material_color_bind_op = layout_operator(
                 bind_box,
                 vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
                 icon="REMOVE",
             )
-            remove_bind_op.armature_name = armature.name
-            remove_bind_op.expression_name = name
-            remove_bind_op.bind_index = bind_index
-        add_bind_op = layout_operator(
+            remove_material_color_bind_op.armature_name = armature.name
+            remove_material_color_bind_op.expression_name = name
+            remove_material_color_bind_op.bind_index = bind_index
+        add_material_color_bind_op = layout_operator(
             box,
             vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
             icon="ADD",
         )
-        add_bind_op.armature_name = armature.name
-        add_bind_op.expression_name = name
+        add_material_color_bind_op.armature_name = armature.name
+        add_material_color_bind_op.expression_name = name
 
     row = box.row()
     row.alignment = "LEFT"
@@ -675,21 +675,21 @@ def draw_vrm1_expression_layout(
             bind_box.prop(bind, "scale")
             bind_box.prop(bind, "offset")
 
-            remove_bind_op = layout_operator(
+            remove_texture_transform_bind_op = layout_operator(
                 bind_box,
                 vrm1_ops.VRM_OT_remove_vrm1_expression_texture_transform_bind,
                 icon="REMOVE",
             )
-            remove_bind_op.armature_name = armature.name
-            remove_bind_op.expression_name = name
-            remove_bind_op.bind_index = bind_index
-        add_bind_op = layout_operator(
+            remove_texture_transform_bind_op.armature_name = armature.name
+            remove_texture_transform_bind_op.expression_name = name
+            remove_texture_transform_bind_op.bind_index = bind_index
+        add_texture_transform_bind_op = layout_operator(
             box,
             vrm1_ops.VRM_OT_add_vrm1_expression_texture_transform_bind,
             icon="ADD",
         )
-        add_bind_op.armature_name = armature.name
-        add_bind_op.expression_name = name
+        add_texture_transform_bind_op.armature_name = armature.name
+        add_texture_transform_bind_op.expression_name = name
 
     box.prop(expression, "is_binary", icon="IPO_CONSTANT")
     box.prop(expression, "override_blink")

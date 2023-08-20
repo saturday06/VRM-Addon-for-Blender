@@ -1688,12 +1688,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             vert_base_normal_dict.update({kb.name: vertex_normals})
         reference_key_name = mesh_data.shape_keys.reference_key.name
-        for k, v in vert_base_normal_dict.items():
+        for k, vertex_normals in vert_base_normal_dict.items():
             if k == reference_key_name:
                 continue
             values = []
             for vert_morph_normal, vert_base_normal in zip(
-                zip(*[iter(v)] * 3),
+                zip(*[iter(vertex_normals)] * 3),
                 zip(*[iter(vert_base_normal_dict[reference_key_name])] * 3),
             ):
                 values.append(

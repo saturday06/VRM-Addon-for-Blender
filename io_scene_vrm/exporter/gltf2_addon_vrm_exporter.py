@@ -1763,8 +1763,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると書いてあるが、実際にはBoneのカスタムプロパティを参照している。
             # そのため、いちおう両方に書いておく
-            for bone in self.armature.pose.bones:
-                bone[self.extras_bone_name_key] = bone.name
+            for pose_bone in self.armature.pose.bones:
+                pose_bone[self.extras_bone_name_key] = pose_bone.name
             for bone in armature_data.bones:
                 bone[self.extras_bone_name_key] = bone.name
 
@@ -1797,9 +1797,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:
             self.restore_mtoon1_material_nodes(disabled_mtoon1_material_names)
-            for bone in self.armature.pose.bones:
-                if self.extras_bone_name_key in bone:
-                    del bone[self.extras_bone_name_key]
+            for pose_bone in self.armature.pose.bones:
+                if self.extras_bone_name_key in pose_bone:
+                    del pose_bone[self.extras_bone_name_key]
             for bone in armature_data.bones:
                 if self.extras_bone_name_key in bone:
                     del bone[self.extras_bone_name_key]

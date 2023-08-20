@@ -461,8 +461,10 @@ class ICYP_OT_make_armature(bpy.types.Operator):  # type: ignore[misc]
             self.hand_size() / 2,
         )
 
-        mats = [thumbs[0][i].matrix.translation for i in [0, 1]]
-        mats = [Matrix.Translation(mat) for mat in mats]
+        mats = [
+            Matrix.Translation(vec)
+            for vec in [thumbs[0][i].matrix.translation for i in [0, 1]]
+        ]
         for j in range(3):
             for n, angle in enumerate([-45, 45]):
                 thumbs[j][n].transform(mats[n].inverted(), scale=False, roll=False)

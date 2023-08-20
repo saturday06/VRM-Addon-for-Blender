@@ -947,22 +947,24 @@ def draw_vrm0_secondary_animation_layout(
                     "collider_groups",
                     text="",
                 )
-                remove_collider_group_op = layout_operator(
+                remove_group_collider_group_op = layout_operator(
                     collider_group_row,
                     vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_collider_group,
                     icon="REMOVE",
                     text="Remove",
                 )
-                remove_collider_group_op.armature_name = armature.name
-                remove_collider_group_op.bone_group_index = bone_group_index
-                remove_collider_group_op.collider_group_index = collider_group_index
-            add_collider_group_op = layout_operator(
+                remove_group_collider_group_op.armature_name = armature.name
+                remove_group_collider_group_op.bone_group_index = bone_group_index
+                remove_group_collider_group_op.collider_group_index = (
+                    collider_group_index
+                )
+            add_group_collider_group_op = layout_operator(
                 box,
                 vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_collider_group,
                 icon="ADD",
             )
-            add_collider_group_op.armature_name = armature.name
-            add_collider_group_op.bone_group_index = bone_group_index
+            add_group_collider_group_op.armature_name = armature.name
+            add_group_collider_group_op.bone_group_index = bone_group_index
 
         remove_bone_group_op = layout_operator(
             box,

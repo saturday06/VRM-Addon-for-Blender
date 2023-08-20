@@ -1205,8 +1205,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bone_name_to_roll = {}
                 bpy.ops.object.mode_set(mode="EDIT")
                 if isinstance(obj.data, bpy.types.Armature):
-                    for bone in obj.data.edit_bones:
-                        bone_name_to_roll[bone.name] = bone.roll
+                    for edit_bone in obj.data.edit_bones:
+                        bone_name_to_roll[edit_bone.name] = edit_bone.roll
                 bpy.ops.object.mode_set(mode="OBJECT")
 
                 bpy.ops.object.transform_apply(
@@ -1217,13 +1217,17 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
                 bpy.ops.object.mode_set(mode="EDIT")
                 if isinstance(obj.data, bpy.types.Armature):
-                    bones = [bone for bone in obj.data.edit_bones if not bone.parent]
-                    while bones:
-                        bone = bones.pop(0)
-                        roll = bone_name_to_roll.get(bone.name)
+                    edit_bones = [
+                        edit_bone
+                        for edit_bone in obj.data.edit_bones
+                        if not edit_bone.parent
+                    ]
+                    while edit_bones:
+                        edit_bone = edit_bones.pop(0)
+                        roll = bone_name_to_roll.get(edit_bone.name)
                         if roll is not None:
-                            bone.roll = roll
-                        bones.extend(bone.children)
+                            edit_bone.roll = roll
+                        edit_bones.extend(edit_bone.children)
                 bpy.ops.object.mode_set(mode="OBJECT")
             finally:
                 self.context.view_layer.objects.active = previous_active
@@ -1233,13 +1237,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             data = obj.data
             if not isinstance(data, bpy.types.Mesh):
                 continue
-            mesh_index = data.get(extras_mesh_index_key)
-            if isinstance(mesh_index, int):
-                self.meshes[mesh_index] = obj
+            custom_mesh_index = data.get(extras_mesh_index_key)
+            if isinstance(custom_mesh_index, int):
+                self.meshes[custom_mesh_index] = obj
             else:
-                mesh_index = obj.get(extras_mesh_index_key)
-                if isinstance(mesh_index, int):
-                    self.meshes[mesh_index] = obj
+                custom_mesh_index = obj.get(extras_mesh_index_key)
+                if isinstance(custom_mesh_index, int):
+                    self.meshes[custom_mesh_index] = obj
 
             if extras_mesh_index_key in obj:
                 del obj[extras_mesh_index_key]
@@ -1257,21 +1261,23 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 self.materials[material_index] = material
 
         for image in list(bpy.data.images):
-            image_index = image.get(self.import_id)
-            if not isinstance(image_index, int) and image.name.startswith(
+            custom_image_index = image.get(self.import_id)
+            if not isinstance(custom_image_index, int) and image.name.startswith(
                 legacy_image_name_prefix
             ):
-                image_index_str = "".join(
+                custom_image_index_str = "".join(
                     image.name.split(legacy_image_name_prefix)[1:]
                 ).split("_", maxsplit=1)[0]
                 with contextlib.suppress(ValueError):
-                    image_index = int(image_index_str)
-            if not isinstance(image_index, int):
+                    custom_image_index = int(custom_image_index_str)
+            if not isinstance(custom_image_index, int):
                 continue
             image_dicts = json_dict.get("images")
-            if isinstance(image_dicts, list) and 0 <= image_index < len(image_dicts):
+            if isinstance(image_dicts, list) and 0 <= custom_image_index < len(
+                image_dicts
+            ):
                 # image.nameはインポート時に勝手に縮められてしまうことがあるので、jsonの値から復元する
-                image_dict = image_dicts[image_index]
+                image_dict = image_dicts[custom_image_index]
                 indexed_image_name = None
 
                 if isinstance(image_dict, dict):
@@ -1287,12 +1293,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     image.name = indexed_image_name
                 else:
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
-                    image.name = f"Image_{image_index}"
+                    image.name = f"Image_{custom_image_index}"
 
             else:
                 image.name = "_".join(image.name.split("_")[1:])
 
-            self.images[image_index] = image
+            self.images[custom_image_index] = image
 
         if self.context.object is not None and self.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
@@ -1793,10 +1799,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             bpy.ops.object.mode_set(mode="OBJECT")
             for bone_name, axis_translation in bone_name_to_axis_translation.items():
-                bone = self.armature_data.bones.get(bone_name)
-                if not bone:
+                data_bone = self.armature_data.bones.get(bone_name)
+                if not data_bone:
                     continue
-                bone.vrm_addon_extension.axis_translation = (
+                data_bone.vrm_addon_extension.axis_translation = (
                     VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
                         axis_translation
                     )

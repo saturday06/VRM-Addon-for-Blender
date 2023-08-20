@@ -547,8 +547,8 @@ def work_in_progress_2(
             )
             if translations is None:
                 continue
-            keyframes = tuple(sorted(zip(timestamps, translations)))
-            node_index_to_translation_keyframes[node_index] = keyframes
+            translation_keyframes = tuple(sorted(zip(timestamps, translations)))
+            node_index_to_translation_keyframes[node_index] = translation_keyframes
         elif animation_path == "rotation":
             timestamps = read_accessor_as_animation_sampler_input(
                 input_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
@@ -560,8 +560,8 @@ def work_in_progress_2(
             )
             if rotations is None:
                 continue
-            keyframes = tuple(sorted(zip(timestamps, rotations)))
-            node_index_to_rotation_keyframes[node_index] = keyframes
+            rotation_keyframes = tuple(sorted(zip(timestamps, rotations)))
+            node_index_to_rotation_keyframes[node_index] = rotation_keyframes
 
     expression_name_to_default_preview_value: dict[str, float] = {}
     expression_name_to_translation_keyframes: dict[
@@ -585,12 +585,14 @@ def work_in_progress_2(
             expression_name
         ] = default_preview_value
 
-        translation_keyframes = node_index_to_translation_keyframes.get(node_index)
-        if translation_keyframes is None:
+        expression_translation_keyframes = node_index_to_translation_keyframes.get(
+            node_index
+        )
+        if expression_translation_keyframes is None:
             continue
         expression_name_to_translation_keyframes[
             expression_name
-        ] = translation_keyframes
+        ] = expression_translation_keyframes
 
     timestamps = [
         timestamp
