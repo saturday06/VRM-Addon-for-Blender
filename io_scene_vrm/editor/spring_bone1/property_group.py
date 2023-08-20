@@ -2,6 +2,7 @@ import statistics
 import uuid
 from collections.abc import Sequence
 from sys import float_info
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from mathutils import Matrix, Vector
@@ -9,6 +10,9 @@ from mathutils import Matrix, Vector
 from ...common import convert
 from ...common.logging import get_logger
 from ..property_group import BonePropertyGroup
+
+if TYPE_CHECKING:
+    from ..property_group import CollectionPropertyProtocol
 
 logger = get_logger(__name__)
 
@@ -103,6 +107,12 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
         get=get_radius,
         set=set_radius,
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        offset: Sequence[float]  # type: ignore[no-redef]
+        radius: float  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L28-L58
@@ -243,6 +253,13 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
         set=set_tail,
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        offset: Sequence[float]  # type: ignore[no-redef]
+        radius: float  # type: ignore[no-redef]
+        tail: Sequence[float]  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json
 class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):
@@ -252,6 +269,12 @@ class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):
     capsule: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=SpringBone1ColliderShapeCapsulePropertyGroup  # noqa: F821
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        sphere: SpringBone1ColliderShapeSpherePropertyGroup  # type: ignore[no-redef]
+        capsule: SpringBone1ColliderShapeCapsulePropertyGroup  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
@@ -381,6 +404,17 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
 
         self.broadcast_bpy_object_name()
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        node: BonePropertyGroup  # type: ignore[no-redef]
+        shape: SpringBone1ColliderShapePropertyGroup  # type: ignore[no-redef]
+        show_expanded: bool  # type: ignore[no-redef]
+        shape_type: str  # type: ignore[no-redef]
+        bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
+        uuid: str  # type: ignore[no-redef]
+        search_one_time_uuid: str  # type: ignore[no-redef]
+
 
 class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):
     def get_collider_name(self) -> str:
@@ -416,6 +450,13 @@ class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):
     )
     collider_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        collider_name: str  # type: ignore[no-redef]
+        collider_uuid: str  # type: ignore[no-redef]
+        search_one_time_uuid: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
@@ -466,6 +507,17 @@ class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
 
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        vrm_name: str  # type: ignore[no-redef]
+        colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1ColliderReferencePropertyGroup
+        ]
+        show_expanded: bool  # type: ignore[no-redef]
+        uuid: str  # type: ignore[no-redef]
+        search_one_time_uuid: str  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#initialization
 class SpringBone1JointAnimationStatePropertyGroup(bpy.types.PropertyGroup):
@@ -473,6 +525,13 @@ class SpringBone1JointAnimationStatePropertyGroup(bpy.types.PropertyGroup):
 
     previous_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
     current_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        initialized_as_tail: bool  # type: ignore[no-redef]
+        previous_world_translation: Sequence[float]  # type: ignore[no-redef]
+        current_world_translation: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.joint.schema.json
@@ -532,6 +591,18 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        node: BonePropertyGroup  # type: ignore[no-redef]
+        hit_radius: float  # type: ignore[no-redef]
+        stiffness: float  # type: ignore[no-redef]
+        gravity_power: float  # type: ignore[no-redef]
+        gravity_dir: Sequence[float]  # type: ignore[no-redef]
+        drag_force: float  # type: ignore[no-redef]
+        animation_state: SpringBone1JointAnimationStatePropertyGroup  # type: ignore[no-redef]
+        show_expanded: bool  # type: ignore[no-redef]
+
 
 class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):
     def get_collider_group_name(self) -> str:
@@ -568,11 +639,24 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):
     collider_group_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        collider_group_name: str  # type: ignore[no-redef]
+        collider_group_uuid: str  # type: ignore[no-redef]
+        search_one_time_uuid: str  # type: ignore[no-redef]
+
 
 class SpringBone1SpringAnimationStatePropertyGroup(bpy.types.PropertyGroup):
     use_center_space: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     previous_center_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        use_center_space: bool  # type: ignore[no-redef]
+        previous_center_world_translation: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.spring.schema.json
@@ -602,6 +686,22 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
     animation_state: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=SpringBone1SpringAnimationStatePropertyGroup
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        vrm_name: str  # type: ignore[no-redef]
+        joints: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1JointPropertyGroup
+        ]
+        collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1ColliderGroupReferencePropertyGroup
+        ]
+        center: BonePropertyGroup  # type: ignore[no-redef]
+        show_expanded: bool  # type: ignore[no-redef]
+        show_expanded_bones: bool  # type: ignore[no-redef]
+        show_expanded_collider_groups: bool  # type: ignore[no-redef]
+        animation_state: SpringBone1SpringAnimationStatePropertyGroup  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.schema.json
@@ -636,3 +736,19 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
     show_expanded_springs: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Spring Bone Springs"  # noqa: F722
     )
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1ColliderPropertyGroup
+        ]
+        collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1ColliderGroupPropertyGroup
+        ]
+        springs: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1SpringPropertyGroup
+        ]
+        enable_animation: bool  # type: ignore[no-redef]
+        show_expanded_colliders: bool  # type: ignore[no-redef]
+        show_expanded_collider_groups: bool  # type: ignore[no-redef]
+        show_expanded_springs: bool  # type: ignore[no-redef]

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 import bpy
 
 
@@ -13,3 +15,9 @@ class NodeConstraint1NodeConstraintPropertyGroup(bpy.types.PropertyGroup):
     show_expanded_rotation_constraints: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Rotation Constraint"  # noqa: F722
     )
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        show_expanded_roll_constraints: bool  # type: ignore[no-redef]
+        show_expanded_aim_constraints: bool  # type: ignore[no-redef]
+        show_expanded_rotation_constraints: bool  # type: ignore[no-redef]

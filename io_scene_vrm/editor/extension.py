@@ -1,6 +1,7 @@
 import functools
 import math
-from typing import Optional
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from mathutils import Matrix, Quaternion
@@ -13,6 +14,9 @@ from .property_group import StringPropertyGroup
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
 from .vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
+
+if TYPE_CHECKING:
+    from .property_group import CollectionPropertyProtocol
 
 logger = get_logger(__name__)
 
@@ -157,6 +161,19 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):
             for mtoon0_property_name in mtoon0_property_names:
                 n = ext.vrm0_material_mtoon0_property_names.add()
                 n.value = mtoon0_property_name
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        mesh_object_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        vrm0_material_gltf_property_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        vrm0_material_mtoon0_property_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
@@ -304,6 +321,12 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
         name="Axis Translation on Export",  # noqa: F722
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        uuid: str  # type: ignore[no-redef]
+        axis_translation: str  # type: ignore[no-redef]
+
 
 class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):
     axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
@@ -311,6 +334,10 @@ class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):
         name="Axis Translation on Export",  # noqa: F722
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        axis_translation: str  # type: ignore[no-redef]
 
 
 class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
@@ -388,6 +415,17 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
     def is_vrm1(self) -> bool:
         return str(self.spec_version) == self.SPEC_VERSION_VRM1
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        addon_version: Sequence[int]  # type: ignore[no-redef]
+        vrm0: Vrm0PropertyGroup  # type: ignore[no-redef]
+        vrm1: Vrm1PropertyGroup  # type: ignore[no-redef]
+        spring_bone1: SpringBone1SpringBonePropertyGroup  # type: ignore[no-redef]
+        node_constraint1: NodeConstraint1NodeConstraintPropertyGroup  # type: ignore[no-redef]
+        armature_data_name: str  # type: ignore[no-redef]
+        spec_version: str  # type: ignore[no-redef]
+
 
 def update_internal_cache(context: bpy.types.Context) -> None:
     VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
@@ -410,3 +448,7 @@ class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):
     mtoon1: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MaterialPropertyGroup  # noqa: F722
     )
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        mtoon1: Mtoon1MaterialPropertyGroup  # type: ignore[no-redef]

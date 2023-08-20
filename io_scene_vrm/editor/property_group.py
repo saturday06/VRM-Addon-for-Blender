@@ -1,6 +1,6 @@
 import uuid
 from collections.abc import Iterator
-from typing import Optional, TypeVar
+from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, ValuesView, overload
 
 import bpy
 
@@ -34,6 +34,11 @@ class StringPropertyGroup(bpy.types.PropertyGroup):
         set=set_value,
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        value: str  # type: ignore[no-redef]
+
 
 class FloatPropertyGroup(bpy.types.PropertyGroup):
     def get_value(self) -> float:
@@ -51,6 +56,11 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):
         get=get_value,
         set=set_value,
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        value: float  # type: ignore[no-redef]
 
 
 class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
@@ -100,6 +110,13 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        mesh_object_name: str  # type: ignore[no-redef]
+        value: str  # type: ignore[no-redef]
+        bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
 
 
 class BonePropertyGroup(bpy.types.PropertyGroup):
@@ -337,3 +354,46 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
     bone_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        bone_name: str  # type: ignore[no-redef]
+        value: str  # type: ignore[no-redef]
+        bone_uuid: str  # type: ignore[no-redef]
+        armature_data_name: str  # type: ignore[no-redef]
+        search_one_time_uuid: str  # type: ignore[no-redef]
+
+
+T_co = TypeVar("T_co", covariant=True)
+
+
+# 本物は型引数を取らない
+class CollectionPropertyProtocol(Protocol[T_co]):
+    def add(self) -> T_co:
+        ...  # TODO: undocumented
+
+    def __len__(self) -> int:
+        ...  # TODO: undocumented
+
+    def __iter__(self) -> Iterator[T_co]:
+        ...  # TODO: undocumented
+
+    def clear(self) -> None:
+        ...  # TODO: undocumented
+
+    @overload
+    def __getitem__(self, index: slice) -> tuple[T_co, ...]:
+        ...  # TODO: undocumented
+
+    @overload
+    def __getitem__(self, index: int) -> T_co:
+        ...  # TODO: undocumented
+
+    def remove(self, index: int) -> None:
+        ...  # TODO: undocumented
+
+    def values(self) -> ValuesView[T_co]:
+        ...  # TODO: undocumented
+
+    def __contains__(self, value: str) -> bool:
+        ...  # TODO: undocumented

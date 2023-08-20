@@ -1,6 +1,6 @@
 from os import environ
 from pathlib import Path
-from typing import Union, cast
+from typing import TYPE_CHECKING, Union
 
 import bpy
 from bpy.app.translations import pgettext
@@ -11,7 +11,7 @@ from ..common.logging import get_logger
 from ..common.preferences import get_preferences
 from ..editor import search
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
-from ..editor.property_group import StringPropertyGroup
+from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter
 from .license_validation import LicenseConfirmationRequired
 from .vrm_animation_importer import VrmAnimationImporter
@@ -24,6 +24,13 @@ class LicenseConfirmation(bpy.types.PropertyGroup):
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
     url: bpy.props.StringProperty()  # type: ignore[valid-type]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        message: str  # type: ignore[no-redef]
+        url: str  # type: ignore[no-redef]
+        json_key: str  # type: ignore[no-redef]
 
 
 def import_vrm_update_addon_preferences(
@@ -158,6 +165,17 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
             )
         return cast(set[str], ImportHelper.invoke(self, context, event))
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filter_glob: str  # type: ignore[no-redef]
+        extract_textures_into_folder: bool  # type: ignore[no-redef]
+        make_new_texture_folder: bool  # type: ignore[no-redef]
+        set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
+        set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]
+        set_armature_display_to_wire: bool  # type: ignore[no-redef]
+        set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
+
 
 class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
     bl_idname = "VRM_PT_import_unsupported_blender_version_warning"
@@ -261,6 +279,17 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):
 
         layout.prop(self, "import_anyway")
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filepath: str  # type: ignore[no-redef]
+        license_confirmations: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            LicenseConfirmation
+        ]
+        import_anyway: bool  # type: ignore[no-redef]
+        extract_textures_into_folder: bool  # type: ignore[no-redef]
+        make_new_texture_folder: bool  # type: ignore[no-redef]
+
 
 def create_blend_model(
     addon: Union[IMPORT_SCENE_OT_vrm, WM_OT_vrm_license_confirmation],
@@ -335,6 +364,12 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
                 ),
             )
         return cast(set[str], ImportHelper.invoke(self, context, event))
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filter_glob: str  # type: ignore[no-redef]
+        armature_object_name: str  # type: ignore[no-redef]
 
 
 class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
@@ -437,3 +472,11 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
             text="Open help in a Web Browser",
         )
         open_op.url = pgettext("https://vrm-addon-for-blender.info/en/animation/")
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_object_name: str  # type: ignore[no-redef]
+        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]

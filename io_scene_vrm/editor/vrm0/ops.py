@@ -1,4 +1,5 @@
 import uuid
+from typing import TYPE_CHECKING
 
 import bpy
 
@@ -25,6 +26,11 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):
             return {"CANCELLED"}
         armature_data.vrm_addon_extension.vrm0.first_person.mesh_annotations.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):
@@ -55,6 +61,12 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):
         mesh_annotations.remove(self.mesh_annotation_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        mesh_annotation_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_material_value_bind"
@@ -83,6 +95,12 @@ class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):
             return {"CANCELLED"}
         blend_shape_groups[self.blend_shape_group_index].material_values.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):
@@ -121,6 +139,13 @@ class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):
         material_values.remove(self.material_value_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        material_value_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_material_value_bind_target_value"
@@ -157,6 +182,13 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):
             return {"CANCELLED"}
         material_values[self.material_value_index].target_value.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        material_value_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):
@@ -201,6 +233,14 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):
         target_value.remove(self.target_value_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        material_value_index: int  # type: ignore[no-redef]
+        target_value_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_blend_shape_bind"
@@ -229,6 +269,12 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):
             return {"CANCELLED"}
         blend_shape_groups[self.blend_shape_group_index].binds.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):
@@ -264,6 +310,13 @@ class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):
             return {"CANCELLED"}
         binds.remove(self.bind_index)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(bpy.types.Operator):
@@ -310,6 +363,13 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(bpy.types.Oper
         context.scene.collection.objects.link(obj)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+        bone_name: str  # type: ignore[no-redef]
+
 
 class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(
     bpy.types.Operator
@@ -351,6 +411,13 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(
         colliders.remove(self.collider_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+        collider_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_group_bone"
@@ -379,6 +446,12 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):
             return {"CANCELLED"}
         bone_groups[self.bone_group_index].bones.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):
@@ -415,6 +488,13 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):
         bones.remove(self.bone_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+        bone_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_group_collider_group"
@@ -443,6 +523,12 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operato
             return {"CANCELLED"}
         bone_groups[self.bone_group_index].collider_groups.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(bpy.types.Operator):
@@ -479,6 +565,13 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(bpy.types.Oper
         collider_groups.remove(self.collider_group_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_blend_shape_group"
@@ -505,6 +598,12 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):
         )
         blend_shape_group.name = self.name
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):
@@ -535,6 +634,12 @@ class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):
         blend_shape_groups.remove(self.blend_shape_group_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_group"
@@ -558,6 +663,12 @@ class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):
             return {"CANCELLED"}
         armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):
@@ -588,6 +699,12 @@ class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):
         bone_groups.remove(self.bone_group_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group"
@@ -612,6 +729,11 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         collider_group.uuid = uuid.uuid4().hex
         collider_group.refresh(armature)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
@@ -646,6 +768,12 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         ) in armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
 
 
 class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
@@ -688,3 +816,8 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
                 break
 
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import bpy
 from bpy.app.translations import pgettext
@@ -261,6 +261,18 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
     def draw(self, _context: bpy.types.Context) -> None:
         pass  # Is needed to get panels available
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filter_glob: str  # type: ignore[no-redef]
+        export_invisibles: bool  # type: ignore[no-redef]
+        export_only_selections: bool  # type: ignore[no-redef]
+        enable_advanced_preferences: bool  # type: ignore[no-redef]
+        export_fb_ngon_encoding: bool  # type: ignore[no-redef]
+        errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
+        armature_object_name: str  # type: ignore[no-redef]
+        ignore_warning: bool  # type: ignore[no-redef]
+
 
 class VRM_PT_export_error_messages(bpy.types.Panel):
     bl_idname = "VRM_IMPORTER_PT_export_error_messages"
@@ -395,6 +407,12 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
 
     def draw(self, _context: bpy.types.Context) -> None:
         pass  # Is needed to get panels available
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filter_glob: str  # type: ignore[no-redef]
+        armature_object_name: str  # type: ignore[no-redef]
 
 
 class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
@@ -533,6 +551,11 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
         draw_vrm1_humanoid_required_bones_layout(human_bones, row.column())
         draw_vrm1_humanoid_optional_bones_layout(human_bones, row.column())
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_object_name: str  # type: ignore[no-redef]
+
 
 class WM_OT_vrm_export_confirmation(bpy.types.Operator):
     bl_label = "VRM Export Confirmation"
@@ -588,6 +611,13 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
             )
 
         layout.prop(self, "export_anyway")
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
+        armature_object_name: str  # type: ignore[no-redef]
+        export_anyway: bool  # type: ignore[no-redef]
 
 
 class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
@@ -645,6 +675,14 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
             text="",
             translate=False,
         )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_object_name: str  # type: ignore[no-redef]
+        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
@@ -756,6 +794,14 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
                         )
 
         draw_help_message(layout)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_object_name: str  # type: ignore[no-redef]
+        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 def draw_help_message(layout: bpy.types.UILayout) -> None:

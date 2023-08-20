@@ -8,7 +8,7 @@ import json
 import re
 import webbrowser
 from pathlib import Path
-from typing import Optional, TypeVar, cast
+from typing import TYPE_CHECKING, Optional, TypeVar, cast
 from urllib.parse import urlparse
 
 import bpy
@@ -74,6 +74,11 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):
 
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+
 
 class VRM_OT_add_extensions_to_armature(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_extensions"
@@ -106,6 +111,12 @@ class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):
         if self.bone_name not in armature:
             armature[self.bone_name] = ""
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_name: str  # type: ignore[no-redef]
 
 
 # deprecated
@@ -187,7 +198,12 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
-        return cast(set[str], ExportHelper.invoke(self, context, event))
+        return ExportHelper.invoke(self, context, event)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filter_glob: str  # type: ignore[no-redef]
 
 
 class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):
@@ -241,7 +257,12 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
-        return cast(set[str], ImportHelper.invoke(self, context, event))
+        return ImportHelper.invoke(self, context, event)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filter_glob: str  # type: ignore[no-redef]
 
 
 class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):
@@ -324,6 +345,11 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):
             return {"CANCELLED"}
         webbrowser.open(self.url)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        url: str  # type: ignore[no-redef]
 
 
 __Operator = TypeVar("__Operator", bound=bpy.types.Operator)

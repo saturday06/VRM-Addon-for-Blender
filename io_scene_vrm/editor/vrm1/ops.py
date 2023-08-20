@@ -1,4 +1,4 @@
-from typing import cast
+from typing import TYPE_CHECKING
 
 import bpy
 
@@ -32,6 +32,11 @@ class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):
         armature_data.vrm_addon_extension.vrm1.meta.authors.add()
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+
 
 class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):
     bl_idname = "vrm.remove_vrm1_meta_author"
@@ -60,6 +65,12 @@ class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):
         authors.remove(self.author_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        author_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):
     bl_idname = "vrm.add_vrm1_meta_reference"
@@ -80,6 +91,11 @@ class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):
             return {"CANCELLED"}
         armature_data.vrm_addon_extension.vrm1.meta.references.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):
@@ -109,6 +125,12 @@ class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):
         references.remove(self.reference_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        reference_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):
     bl_idname = "vrm.add_vrm1_expressions_custom_expression"
@@ -135,6 +157,12 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):
         )
         custom_expression.custom_name = self.custom_expression_name
         return cast(set[str], bpy.ops.vrm.update_vrm1_expression_ui_list_elements())
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        custom_expression_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):
@@ -169,6 +197,12 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):
                 )
         return {"CANCELLED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        custom_expression_name: str  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):
     bl_idname = "vrm.add_vrm1_first_person_mesh_annotation"
@@ -189,6 +223,11 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):
             return {"CANCELLED"}
         armature_data.vrm_addon_extension.vrm1.first_person.mesh_annotations.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):
@@ -220,6 +259,12 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):
         mesh_annotations.remove(self.mesh_annotation_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        mesh_annotation_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):
     bl_idname = "vrm.add_vrm1_expression_morph_target_bind"
@@ -247,6 +292,12 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):
             return {"CANCELLED"}
         expression.morph_target_binds.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):
@@ -282,6 +333,13 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):
         expression.morph_target_binds.remove(self.bind_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):
     bl_idname = "vrm.add_vrm1_expression_material_color_bind"
@@ -310,6 +368,12 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):
             return {"CANCELLED"}
         expression.material_color_binds.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):
@@ -345,6 +409,13 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):
         expression.material_color_binds.remove(self.bind_index)
         return {"FINISHED"}
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
 
 class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):
     bl_idname = "vrm.add_vrm1_expression_texture_transform_bind"
@@ -372,6 +443,12 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):
             return {"CANCELLED"}
         expression.texture_transform_binds.add()
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator):
@@ -406,6 +483,13 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator):
             return {"CANCELLED"}
         expression.texture_transform_binds.remove(self.bind_index)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
 
 
 vrm0_human_bone_name_to_vrm1_human_bone_name: dict[Vrm0HumanBoneName, HumanBoneName] = {
@@ -486,6 +570,11 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
                 break
 
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_update_vrm1_expression_ui_list_elements(bpy.types.Operator):

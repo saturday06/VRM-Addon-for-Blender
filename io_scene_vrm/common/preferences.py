@@ -1,3 +1,6 @@
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
 import bpy
 from bpy.app.translations import pgettext
 
@@ -89,6 +92,19 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         if self.enable_advanced_preferences:
             advanced_options_box = export_box.box()
             advanced_options_box.prop(self, "export_fb_ngon_encoding")
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        addon_version: Sequence[int]  # type: ignore[no-redef]
+        set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
+        set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]
+        set_armature_display_to_wire: bool  # type: ignore[no-redef]
+        set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
+        export_invisibles: bool  # type: ignore[no-redef]
+        export_only_selections: bool  # type: ignore[no-redef]
+        enable_advanced_preferences: bool  # type: ignore[no-redef]
+        export_fb_ngon_encoding: bool  # type: ignore[no-redef]
 
 
 def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:

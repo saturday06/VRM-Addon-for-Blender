@@ -1,6 +1,8 @@
 import functools
+from collections.abc import Sequence
 from dataclasses import dataclass
 from sys import float_info
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from mathutils import Vector
@@ -17,6 +19,10 @@ from ..property_group import (
     MeshObjectPropertyGroup,
     StringPropertyGroup,
 )
+
+if TYPE_CHECKING:
+    from ..property_group import CollectionPropertyProtocol
+
 
 logger = get_logger(__name__)
 
@@ -81,6 +87,20 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
         if name is None:
             raise ValueError(f'HumanBone "{self.bone}" is invalid')
         return HumanBoneSpecifications.get(name)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        bone: str  # type: ignore[no-redef]
+        node: BonePropertyGroup  # type: ignore[no-redef]
+        use_default_values: bool  # type: ignore[no-redef]
+        min: Sequence[float]  # type: ignore[no-redef]
+        max: Sequence[float]  # type: ignore[no-redef]
+        center: Sequence[float]  # type: ignore[no-redef]
+        axis_length: float  # type: ignore[no-redef]
+        node_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
@@ -253,6 +273,27 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):
         for bone_group in secondary_animation.bone_groups:
             bone_group.refresh(obj)
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        human_bones: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0HumanoidBonePropertyGroup
+        ]
+        arm_stretch: float  # type: ignore[no-redef]
+        leg_stretch: float  # type: ignore[no-redef]
+        upper_arm_twist: float  # type: ignore[no-redef]
+        lower_arm_twist: float  # type: ignore[no-redef]
+        upper_leg_twist: float  # type: ignore[no-redef]
+        lower_leg_twist: float  # type: ignore[no-redef]
+        feet_spacing: float  # type: ignore[no-redef]
+        has_translation_dof: bool  # type: ignore[no-redef]
+        pose_library: Optional[bpy.types.Action]  # type: ignore[no-redef]
+        pose_marker_name: str  # type: ignore[no-redef]
+        last_bone_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22
 class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):
@@ -265,6 +306,13 @@ class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):
     y_range: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Y Range", default=10  # noqa: F722
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        curve: Sequence[float]  # type: ignore[no-redef]
+        x_range: float  # type: ignore[no-redef]
+        y_range: float  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L32-L41
@@ -298,6 +346,12 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
         name="First Person Flag",  # noqa: F722
         description="Restrict render in the first person camera",  # noqa: F722
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        mesh: MeshObjectPropertyGroup  # type: ignore[no-redef]
+        first_person_flag: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L50-L91
@@ -349,6 +403,20 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):
         type=Vrm0DegreeMapPropertyGroup, name="lookAt Vertical Up"  # noqa: F722
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        first_person_bone: BonePropertyGroup  # type: ignore[no-redef]
+        first_person_bone_offset: Sequence[float]  # type: ignore[no-redef]
+        mesh_annotations: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0MeshAnnotationPropertyGroup
+        ]
+        look_at_type_name: str  # type: ignore[no-redef]
+        look_at_horizontal_inner: Vrm0DegreeMapPropertyGroup  # type: ignore[no-redef]
+        look_at_horizontal_outer: Vrm0DegreeMapPropertyGroup  # type: ignore[no-redef]
+        look_at_vertical_down: Vrm0DegreeMapPropertyGroup  # type: ignore[no-redef]
+        look_at_vertical_up: Vrm0DegreeMapPropertyGroup  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):
@@ -366,6 +434,13 @@ class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):
         subtype="FACTOR",  # noqa: F821
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        mesh: MeshObjectPropertyGroup  # type: ignore[no-redef]
+        index: str  # type: ignore[no-redef]
+        weight: float  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L9-L16
 class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):
@@ -378,6 +453,15 @@ class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):
     target_value: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Target Value", type=FloatPropertyGroup  # noqa: F722
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        material: Optional[bpy.types.Material]  # type: ignore[no-redef]
+        property_name: str  # type: ignore[no-redef]
+        target_value: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            FloatPropertyGroup
+        ]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L62-L99
@@ -509,6 +593,22 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
         set=set_preview,  # noqa: F821
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        name: str  # type: ignore[no-redef]
+        preset_name: str  # type: ignore[no-redef]
+        binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0BlendShapeBindPropertyGroup
+        ]
+        material_values: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0MaterialValueBindPropertyGroup
+        ]
+        is_binary: bool  # type: ignore[no-redef]
+        active_bind_index: int  # type: ignore[no-redef]
+        active_material_value_index: int  # type: ignore[no-redef]
+        preview: float  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
 class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):
@@ -533,6 +633,11 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):
         else:
             if self.bpy_object.parent_type != "OBJECT":
                 self.bpy_object.parent_type = "OBJECT"
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
@@ -569,6 +674,17 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(bpy.types.PropertyGroup):
     # for reference from Vrm0SecondaryAnimationGroupPropertyGroup
     name: bpy.props.StringProperty()  # type: ignore[valid-type]
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        node: BonePropertyGroup  # type: ignore[no-redef]
+        colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0SecondaryAnimationColliderPropertyGroup
+        ]
+        show_expanded: bool  # type: ignore[no-redef]
+        name: str  # type: ignore[no-redef]
+        uuid: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L32-L67
@@ -666,6 +782,24 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
                 continue
 
             collider_group.value = name
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        comment: str  # type: ignore[no-redef]
+        stiffiness: float  # type: ignore[no-redef]  # noqa: SC200
+        gravity_power: float  # type: ignore[no-redef]
+        gravity_dir: Sequence[float]  # type: ignore[no-redef]
+        drag_force: float  # type: ignore[no-redef]
+        center: BonePropertyGroup  # type: ignore[no-redef]
+        hit_radius: float  # type: ignore[no-redef]
+        bones: CollectionPropertyProtocol[BonePropertyGroup]  # type: ignore[no-redef]
+        collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        show_expanded: bool  # type: ignore[no-redef]
+        show_expanded_bones: bool  # type: ignore[no-redef]
+        show_expanded_collider_groups: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
@@ -781,6 +915,23 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
         description="Thumbnail of the avatar",  # noqa: F722
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        title: str  # type: ignore[no-redef]
+        version: str  # type: ignore[no-redef]
+        author: str  # type: ignore[no-redef]
+        contact_information: str  # type: ignore[no-redef]
+        reference: str  # type: ignore[no-redef]
+        allowed_user_name: str  # type: ignore[no-redef]
+        violent_ussage_name: str  # type: ignore[no-redef]  # noqa: SC200
+        sexual_ussage_name: str  # type: ignore[no-redef]  # noqa: SC200
+        commercial_ussage_name: str  # type: ignore[no-redef]  # noqa: SC200
+        other_permission_url: str  # type: ignore[no-redef]
+        license_name: str  # type: ignore[no-redef]
+        other_license_url: str  # type: ignore[no-redef]
+        texture: Optional[bpy.types.Image]  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L101-L106
 class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):
@@ -792,6 +943,14 @@ class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):
     active_blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         name="Active Blend Shape Group Index", default=0  # noqa: F722
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        blend_shape_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0BlendShapeGroupPropertyGroup
+        ]
+        active_blend_shape_group_index: int  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L69-L78
@@ -813,6 +972,18 @@ class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):
         name="Active Collider Group Index", default=0  # noqa: F722
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        bone_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0SecondaryAnimationGroupPropertyGroup
+        ]
+        collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm0SecondaryAnimationColliderGroupPropertyGroup
+        ]
+        active_bone_group_index: int  # type: ignore[no-redef]
+        active_collider_group_index: int  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_extensions.cs#L8-L48
 class Vrm0PropertyGroup(bpy.types.PropertyGroup):
@@ -833,3 +1004,11 @@ class Vrm0PropertyGroup(bpy.types.PropertyGroup):
         name="VRM Secondary Animation",  # noqa: F722
         type=Vrm0SecondaryAnimationPropertyGroup,
     )
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        meta: Vrm0MetaPropertyGroup  # type: ignore[no-redef]
+        humanoid: Vrm0HumanoidPropertyGroup  # type: ignore[no-redef]
+        first_person: Vrm0FirstPersonPropertyGroup  # type: ignore[no-redef]
+        blend_shape_master: Vrm0BlendShapeMasterPropertyGroup  # type: ignore[no-redef]
+        secondary_animation: Vrm0SecondaryAnimationPropertyGroup  # type: ignore[no-redef]

@@ -1,6 +1,6 @@
 from pathlib import Path
 from sys import float_info
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -13,6 +13,7 @@ from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.preferences import get_preferences
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
+from ..editor.property_group import CollectionPropertyProtocol
 from . import migration, search
 
 logger = get_logger(__name__)
@@ -21,6 +22,12 @@ logger = get_logger(__name__)
 class VrmValidationError(bpy.types.PropertyGroup):
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
     severity: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        message: str  # type: ignore[no-redef]
+        severity: int  # type: ignore[no-redef]
 
 
 class WM_OT_vrm_validator(bpy.types.Operator):
@@ -67,9 +74,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             and not self.show_successful_message
         ):
             return {"FINISHED"}
-        return cast(
-            set[str], context.window_manager.invoke_props_dialog(self, width=800)
-        )
+        return context.window_manager.invoke_props_dialog(self, width=800)
 
     def draw(self, _context: bpy.types.Context) -> None:
         self.draw_errors(self.errors, self.show_successful_message, self.layout)
@@ -152,7 +157,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     @staticmethod
     def detect_errors(
         context: bpy.types.Context,
-        error_collection: bpy.types.CollectionProperty,
+        error_collection: CollectionPropertyProtocol[VrmValidationError],
         armature_object_name: str,
         execute_migration: bool = False,
         readonly: bool = True,
@@ -789,7 +794,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
     @staticmethod
     def draw_errors(
-        error_collection: bpy.types.CollectionProperty,
+        error_collection: CollectionPropertyProtocol[VrmValidationError],
         show_successful_message: bool,
         layout: bpy.types.UILayout,
     ) -> None:
@@ -857,6 +862,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     text="",
                     translate=False,
                 )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        show_successful_message: bool  # type: ignore[no-redef]
+        errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
+        armature_object_name: str  # type: ignore[no-redef]
 
 
 def node_material_input_check(

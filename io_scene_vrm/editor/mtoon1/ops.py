@@ -2,7 +2,7 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 from sys import float_info
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy_extras.io_utils import ImportHelper
@@ -403,6 +403,11 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
                 uv_animation_scroll_y_speed_factor
             )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        material_name: str  # type: ignore[no-redef]
+
 
 class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
     bl_idname = "vrm.convert_mtoon1_to_bsdf_principled"
@@ -434,6 +439,11 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
             output_node.inputs["Surface"], shader_node.outputs["BSDF"]
         )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        material_name: str  # type: ignore[no-redef]
+
 
 class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
     bl_idname = "vrm.reset_mtoon1_material_shader_node_group"
@@ -451,6 +461,11 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
             return {"CANCELLED"}
         reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        material_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
@@ -559,7 +574,15 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
         self.filepath = ""
-        return cast(set[str], ImportHelper.invoke(self, context, event))
+        return ImportHelper.invoke(self, context, event)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        filepath: str  # type: ignore[no-redef]
+        filter_glob: str  # type: ignore[no-redef]
+        material_name: str  # type: ignore[no-redef]
+        target_texture: str  # type: ignore[no-redef]
 
 
 @dataclass(frozen=True)
@@ -908,3 +931,9 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
     def execute(self, context: bpy.types.Context) -> set[str]:
         self.refresh(context, self.create_modifier, self.material_name)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        material_name: str  # type: ignore[no-redef]
+        create_modifier: bool  # type: ignore[no-redef]

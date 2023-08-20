@@ -2,7 +2,7 @@ import functools
 import sys
 from collections.abc import Sequence
 from sys import float_info
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -18,6 +18,10 @@ from ..property_group import (
     MeshObjectPropertyGroup,
     StringPropertyGroup,
 )
+
+if TYPE_CHECKING:
+    from ..property_group import CollectionPropertyProtocol
+
 
 logger = get_logger(__name__)
 
@@ -54,6 +58,14 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
                 continue
             candidate = self.node_candidates.add()
             candidate.value = bone_name
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        node: BonePropertyGroup  # type: ignore[no-redef]
+        node_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
@@ -409,6 +421,69 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
                 bpy_bone_name_to_human_bone_specification,
             )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        hips: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        spine: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        chest: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        upper_chest: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        neck: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        head: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_eye: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_eye: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        jaw: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_upper_leg: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_lower_leg: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_foot: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_toes: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_upper_leg: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_lower_leg: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_foot: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_toes: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_shoulder: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_upper_arm: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_lower_arm: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_hand: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_shoulder: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_upper_arm: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_lower_arm: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_hand: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_thumb_metacarpal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_thumb_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_thumb_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_index_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_index_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_index_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_middle_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_middle_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_middle_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_ring_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_ring_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_ring_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_little_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        left_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_thumb_metacarpal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_thumb_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_thumb_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_index_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_index_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_index_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_middle_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_middle_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_middle_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_ring_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_ring_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_ring_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_little_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        right_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        last_bone_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.schema.json
 class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):
@@ -424,6 +499,13 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):
     )
     pose_marker_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        human_bones: Vrm1HumanBonesPropertyGroup  # type: ignore[no-redef]
+        pose_library: Optional[bpy.types.Action]  # type: ignore[no-redef]
+        pose_marker_name: str  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.rangeMap.schema.json
 class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
@@ -437,6 +519,12 @@ class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
         name="Output Scale",  # noqa: F722
         default=10.0,
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        input_max_value: float  # type: ignore[no-redef]
+        output_scale: float  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.schema.json
@@ -469,6 +557,16 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         type=Vrm1LookAtRangeMapPropertyGroup,
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        offset_from_head_bone: Sequence[float]  # type: ignore[no-redef]
+        type: str  # type: ignore[no-redef]
+        range_map_horizontal_inner: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
+        range_map_horizontal_outer: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
+        range_map_vertical_down: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
+        range_map_vertical_up: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json
 class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
@@ -485,12 +583,25 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
         items=type_items, name="First Person Type"  # noqa: F722
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        node: MeshObjectPropertyGroup  # type: ignore[no-redef]
+        type: str  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.schema.json
 class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
     mesh_annotations: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Mesh Annotations", type=Vrm1MeshAnnotationPropertyGroup  # noqa: F722
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        mesh_annotations: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1MeshAnnotationPropertyGroup
+        ]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
@@ -504,6 +615,13 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
     weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
         min=0, default=1, max=1  # noqa: F821
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        node: MeshObjectPropertyGroup  # type: ignore[no-redef]
+        index: str  # type: ignore[no-redef]
+        weight: float  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.materialColorBind.schema.json
@@ -558,6 +676,14 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
         set=set_target_value_as_rgb,
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        material: Optional[bpy.types.Material]  # type: ignore[no-redef]
+        type: str  # type: ignore[no-redef]
+        target_value: Sequence[float]  # type: ignore[no-redef]
+        target_value_as_rgb: Sequence[float]  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.textureTransformBind.schema.json
 class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
@@ -571,6 +697,13 @@ class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=2, default=(0, 0)  # noqa: F722
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        material: Optional[bpy.types.Material]  # type: ignore[no-redef]
+        scale: Sequence[float]  # type: ignore[no-redef]
+        offset: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.schema.json
@@ -689,6 +822,31 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
     active_material_color_bind_index: bpy.props.IntProperty()  # type: ignore[valid-type]
     active_texture_transform_bind_index: bpy.props.IntProperty()  # type: ignore[valid-type]
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        morph_target_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1MorphTargetBindPropertyGroup
+        ]
+        material_color_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1MaterialColorBindPropertyGroup
+        ]
+        texture_transform_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1TextureTransformBindPropertyGroup
+        ]
+        is_binary: bool  # type: ignore[no-redef]
+        override_blink: str  # type: ignore[no-redef]
+        override_look_at: str  # type: ignore[no-redef]
+        override_mouth: str  # type: ignore[no-redef]
+        show_expanded: bool  # type: ignore[no-redef]
+        show_expanded_morph_target_binds: bool  # type: ignore[no-redef]
+        show_expanded_material_color_binds: bool  # type: ignore[no-redef]
+        show_expanded_texture_transform_binds: bool  # type: ignore[no-redef]
+        preview: float  # type: ignore[no-redef]
+        active_morph_target_bind_index: int  # type: ignore[no-redef]
+        active_material_color_bind_index: int  # type: ignore[no-redef]
+        active_texture_transform_bind_index: int  # type: ignore[no-redef]
+
 
 class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
     def get_custom_name(self) -> str:
@@ -727,6 +885,11 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
         get=get_custom_name,
         set=set_custom_name,
     )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        custom_name: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
@@ -793,6 +956,28 @@ class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):
             "lookRight": self.look_right,
         }
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        happy: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        angry: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        sad: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        relaxed: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        surprised: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        neutral: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        aa: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        ih: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        ou: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        ee: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        oh: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        blink: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        blink_left: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        blink_right: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        look_up: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        look_down: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        look_left: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+        look_right: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
 class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
@@ -826,6 +1011,18 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
         type=StringPropertyGroup  # noqa: F821
     )
     active_expression_ui_list_element_index: bpy.props.IntProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        preset: Vrm1ExpressionsPresetPropertyGroup  # type: ignore[no-redef]
+        custom: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1CustomExpressionPropertyGroup
+        ]
+        expression_ui_list_elements: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        active_expression_ui_list_element_index: int  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json
@@ -926,6 +1123,32 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
         name="Other License URL"  # noqa: F722
     )
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        vrm_name: str  # type: ignore[no-redef]
+        version: str  # type: ignore[no-redef]
+        authors: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        copyright_information: str  # type: ignore[no-redef]
+        contact_information: str  # type: ignore[no-redef]
+        references: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
+        third_party_licenses: str  # type: ignore[no-redef]
+        thumbnail_image: Optional[bpy.types.Image]  # type: ignore[no-redef]
+        avatar_permission: str  # type: ignore[no-redef]
+        allow_excessively_violent_usage: bool  # type: ignore[no-redef]
+        allow_excessively_sexual_usage: bool  # type: ignore[no-redef]
+        commercial_usage: str  # type: ignore[no-redef]
+        allow_political_or_religious_usage: bool  # type: ignore[no-redef]
+        allow_antisocial_or_hate_usage: bool  # type: ignore[no-redef]
+        credit_notation: str  # type: ignore[no-redef]
+        allow_redistribution: bool  # type: ignore[no-redef]
+        modification: str  # type: ignore[no-redef]
+        other_license_url: str  # type: ignore[no-redef]
+
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.schema.json
 class Vrm1PropertyGroup(bpy.types.PropertyGroup):
@@ -944,3 +1167,11 @@ class Vrm1PropertyGroup(bpy.types.PropertyGroup):
     expressions: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1ExpressionsPropertyGroup  # noqa: F722
     )
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        meta: Vrm1MetaPropertyGroup  # type: ignore[no-redef]
+        humanoid: Vrm1HumanoidPropertyGroup  # type: ignore[no-redef]
+        first_person: Vrm1FirstPersonPropertyGroup  # type: ignore[no-redef]
+        look_at: Vrm1LookAtPropertyGroup  # type: ignore[no-redef]
+        expressions: Vrm1ExpressionsPropertyGroup  # type: ignore[no-redef]

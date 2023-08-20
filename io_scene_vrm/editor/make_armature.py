@@ -41,8 +41,6 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     head_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=8.0, min=4, step=5, description="height per heads"  # noqa: F722
     )
-    if TYPE_CHECKING:
-        head_ratio: float  # type: ignore[no-redef]
 
     head_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=2 / 3,
@@ -51,14 +49,17 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         step=5,
         description="height per heads",  # noqa: F722
     )
+
     # 足-胴比率:0:子供、1:大人 に近くなる(低等身で有効)
     aging_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.5, min=0, max=1, step=10
     )
+
     # 目の奥み
     eye_depth: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=-0.03, min=-0.1, max=0, step=1
     )
+
     # 肩幅
     shoulder_in_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.05,
@@ -66,6 +67,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         step=1,
         description="Inner shoulder position",  # noqa: F722
     )
+
     shoulder_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.08,
         min=0.01,
@@ -77,13 +79,12 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     arm_length_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.5, step=1
     )
-    if TYPE_CHECKING:
-        arm_length_ratio: float  # type: ignore[no-redef]
 
     # 手
     hand_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.5, max=2.0, step=5
     )
+
     finger_1_2_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.75,
         min=0.5,
@@ -91,6 +92,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         step=1,
         description="proximal / intermediate",  # noqa: F722,F821
     )
+
     finger_2_3_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.75,
         min=0.5,
@@ -98,9 +100,11 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         step=1,
         description="intermediate / distal",  # noqa: F722,F821
     )
+
     nail_bone: bpy.props.BoolProperty(  # type: ignore[valid-type]
         default=False, description="may need for finger collider"  # noqa: F722
     )  # 指先の当たり判定として必要
+
     # 足
     leg_length_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.5,
@@ -109,12 +113,15 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         step=1,
         description="upper body/lower body",  # noqa: F722
     )
+
     leg_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.01, step=1
     )
+
     leg_size: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.26, min=0.05, step=1
     )
+
     custom_property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}  # noqa: F821
     )
@@ -584,6 +591,28 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             blend_shape_group = vrm0.blend_shape_master.blend_shape_groups.add()
             blend_shape_group.name = preset.default_blend_shape_group_name
             blend_shape_group.preset_name = preset.identifier
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        skip_heavy_armature_setup: bool  # type: ignore[no-redef]
+        WIP_with_template_mesh: bool  # type: ignore[no-redef]
+        tall: float  # type: ignore[no-redef]
+        head_ratio: float  # type: ignore[no-redef]
+        head_width_ratio: float  # type: ignore[no-redef]
+        aging_ratio: float  # type: ignore[no-redef]
+        eye_depth: float  # type: ignore[no-redef]
+        shoulder_in_width: float  # type: ignore[no-redef]
+        shoulder_width: float  # type: ignore[no-redef]
+        arm_length_ratio: float  # type: ignore[no-redef]
+        hand_ratio: float  # type: ignore[no-redef]
+        finger_1_2_ratio: float  # type: ignore[no-redef]
+        finger_2_3_ratio: float  # type: ignore[no-redef]
+        nail_bone: bool  # type: ignore[no-redef]
+        leg_length_ratio: float  # type: ignore[no-redef]
+        leg_width_ratio: float  # type: ignore[no-redef]
+        leg_size: float  # type: ignore[no-redef]
+        custom_property_name: str  # type: ignore[no-redef]
 
 
 def connect_parent_tail_and_child_head_if_very_close_position(
