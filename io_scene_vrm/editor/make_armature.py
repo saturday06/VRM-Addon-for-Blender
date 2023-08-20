@@ -1,4 +1,3 @@
-import functools
 from math import radians
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
