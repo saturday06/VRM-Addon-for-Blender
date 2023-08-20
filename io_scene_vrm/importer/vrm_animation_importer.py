@@ -328,7 +328,7 @@ def work_in_progress(
         t_pose_action = vrm1.humanoid.pose_library
         t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
         pose_marker_frame = 0
-        if t_pose_pose_marker_name:
+        if t_pose_action and t_pose_pose_marker_name:
             for search_pose_marker in t_pose_action.pose_markers.values():
                 if search_pose_marker.name == t_pose_pose_marker_name:
                     pose_marker_frame = search_pose_marker.frame
