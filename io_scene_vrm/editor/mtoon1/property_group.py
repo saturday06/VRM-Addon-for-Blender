@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 import bpy
-import mathutils
+from mathutils import Color, Vector
 
 from ...common import convert, shader
 from ...common.logging import get_logger
@@ -156,7 +156,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
         if not isinstance(node, bpy.types.ShaderNodeRGB):
             logger.warning(f'No shader node rgb "{node_name}"')
             return
-        if isinstance(value, mathutils.Color):
+        if isinstance(value, Color):
             rgb = (value.r, value.g, value.b)
         else:
             rgb = shader.rgb_or_none(value) or default_value
