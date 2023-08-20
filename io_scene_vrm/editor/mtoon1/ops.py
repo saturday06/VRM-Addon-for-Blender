@@ -8,6 +8,7 @@ import bpy
 from bpy_extras.io_utils import ImportHelper
 
 from ...common import convert, shader
+from ...common.logging import get_logger
 from .. import search
 from .property_group import (
     Mtoon0ReceiveShadowTexturePropertyGroup,
@@ -28,6 +29,7 @@ from .property_group import (
     reset_shader_node_group,
 )
 
+logger = get_logger(__name__)
 
 class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.convert_material_to_mtoon1"
@@ -422,6 +424,9 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):  # type: ign
         if not material.use_nodes:
             material.use_nodes = True
         shader.clear_node_tree(material.node_tree, clear_inputs_outputs=True)
+        if not material.node_tree:
+            logger.error(f"{material.name}'s node tree is None")
+            return
         shader_node = material.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
         output_node = material.node_tree.nodes.new("ShaderNodeOutputMaterial")
         material.node_tree.links.new(

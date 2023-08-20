@@ -124,6 +124,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             default_value = (0.0, 0.0, 0.0, 0.0)
         node_name = self.get_node_name(name)
         material = self.find_material()
+        if not material.node_tree:
+            return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeRGB):
             logger.warning(f'No shader node rgb "{node_name}"')
@@ -148,6 +150,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
             default_value = (0.0, 0.0, 0.0)
         node_name = self.get_node_name(name)
         material = self.find_material()
+        if not material.node_tree:
+            return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeRGB):
             logger.warning(f'No shader node rgb "{node_name}"')
@@ -176,6 +180,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
 
     def link_reroutes(self, base_node_name: str, connect: bool) -> None:
         material = self.find_material()
+        if not material.node_tree:
+            return
 
         in_node_name = base_node_name + "In"
         out_node_name = base_node_name + "Out"
@@ -223,6 +229,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[m
     # deprecated
     def switch_link_reroutes(self, base_node_name: str, up: bool) -> None:
         material = self.find_material()
+        if not material.node_tree:
+            return
 
         in_node_name = base_node_name + "SwitchIn"
         down_node_name = base_node_name + "SwitchDown"
@@ -305,6 +313,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     def update_image(self, image: Optional[bpy.types.Image]) -> None:
         node_name = self.get_texture_node_name("Image")
         material = self.find_material()
+        if not material.node_tree:
+            return
         node_tree = material.node_tree
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
@@ -333,6 +343,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     def set_texture_uv(self, name: str, value: object) -> None:
         node_name = self.get_texture_node_name("Uv")
         material = self.find_material()
+        if not material.node_tree:
+            return
         node_tree = material.node_tree
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeGroup):
@@ -362,6 +374,8 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
 
         node_name = self.get_texture_node_name("Image")
         material = self.find_material()
+        if not material.node_tree:
+            return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
@@ -381,6 +395,8 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
 
         node_name = self.get_texture_node_name("Image")
         material = self.find_material()
+        if not material.node_tree:
+            return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
@@ -1659,6 +1675,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if self.is_outline_material:
             return False
         if not material.use_nodes:
+            return False
+        if not material.node_tree:
             return False
 
         group_node = material.node_tree.nodes.get("Mtoon1Material.Mtoon1Output")

@@ -142,6 +142,9 @@ def load_mtoon1_shader(
     material: bpy.types.Material,
     overwrite: bool,
 ) -> None:
+    if not material.use_nodes:
+        material.use_nodes = True
+
     load_mtoon1_outline_geometry_node_group(context, overwrite)
 
     material_name = INTERNAL_NAME_PREFIX + "VRM Add-on MToon 1.0 Template"
@@ -217,7 +220,14 @@ def load_mtoon1_shader(
         elif overwrite:
             copy_node_tree(template_output_group, output_group)
 
-        copy_node_tree(template_material.node_tree, material.node_tree)
+        template_material_node_tree = template_material.node_tree
+        material_node_tree = material.node_tree
+        if template_material_node_tree is None:
+            logger.error("MToon template material node tree is None")
+        elif material_node_tree is None:
+            logger.error("MToon copy target material node tree is None")
+        else:
+            copy_node_tree(template_material_node_tree, material_node_tree)
     finally:
         if template_material and template_material.users <= 1:
             bpy.data.materials.remove(template_material)

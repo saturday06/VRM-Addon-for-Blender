@@ -343,7 +343,10 @@ class AbstractBaseVrmImporter(ABC):
             material.use_backface_culling = False
         if material.show_transparent_back:
             material.show_transparent_back = False
-        material.node_tree.nodes.new("ShaderNodeOutputMaterial")
+        if material.node_tree:
+            material.node_tree.nodes.new("ShaderNodeOutputMaterial")
+        else:
+            logger.error(f"No node tree for material {material.name}")
 
     def make_material(self) -> None:
         shader_to_build_method = {
