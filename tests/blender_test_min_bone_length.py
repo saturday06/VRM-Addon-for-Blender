@@ -1,6 +1,7 @@
 from sys import float_info
 
 import bpy
+from mathutils import Vector
 
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
 
@@ -19,23 +20,23 @@ def test() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     zero_length_bone = armature.data.edit_bones.new("ZeroLengthBone")
-    zero_length_bone.head = (0, 0, 0)
-    zero_length_bone.tail = (0, 0, 0)
+    zero_length_bone.head = Vector((0, 0, 0))
+    zero_length_bone.tail = Vector((0, 0, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
     assert len(armature.data.bones) == 0
 
     bpy.ops.object.mode_set(mode="EDIT")
     bone = armature.data.edit_bones.new("Bone")
-    bone.head = (0, 0, 0)
-    bone.tail = (0, 0, MIN_BONE_LENGTH)
+    bone.head = Vector((0, 0, 0))
+    bone.tail = Vector((0, 0, MIN_BONE_LENGTH))
     bpy.ops.object.mode_set(mode="OBJECT")
     assert len(armature.data.bones) == 1
 
     bpy.ops.object.mode_set(mode="EDIT")
     too_short_bone_length = MIN_BONE_LENGTH / 10
     too_short_bone = armature.data.edit_bones.new("TooShortBone")
-    too_short_bone.head = (0, 0, 0)
-    too_short_bone.tail = (0, 0, too_short_bone_length)
+    too_short_bone.head = Vector((0, 0, 0))
+    too_short_bone.tail = Vector((0, 0, too_short_bone_length))
     bpy.ops.object.mode_set(mode="OBJECT")
     assert too_short_bone_length > float_info.epsilon
     assert len(armature.data.bones) == 1

@@ -342,8 +342,8 @@ def work_in_progress(
             )
         else:
             for bone in armature.pose.bones:
-                bone.location = (0, 0, 0)
-                bone.scale = (1, 1, 1)
+                bone.location = Vector((0, 0, 0))
+                bone.scale = Vector((1, 1, 1))
                 if bone.rotation_mode != "QUATERNION":
                     bone.rotation_mode = "QUATERNION"
                 bone.rotation_quaternion = Quaternion()

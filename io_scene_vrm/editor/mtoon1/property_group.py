@@ -366,7 +366,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
-        node.texture_mapping.translation = (0, 0, 0)
+        node.texture_mapping.translation = Vector((0, 0, 0))
 
         outline = self.find_outline_property_group(material)
         if not outline:
@@ -385,7 +385,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
-        node.texture_mapping.scale = (1, 1, 1)
+        node.texture_mapping.scale = Vector((1, 1, 1))
 
         outline = self.find_outline_property_group(material)
         if not outline:
@@ -629,10 +629,13 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     }
 
     def get_mag_filter(self) -> int:
+        default_value = list(self.MAG_FILTER_NUMBER_TO_ID.keys())[0]
         value = self.get("mag_filter")
+        if not isinstance(value, int):
+            return default_value
         if value in self.MAG_FILTER_NUMBER_TO_ID:
             return int(value)
-        return list(self.MAG_FILTER_NUMBER_TO_ID.keys())[0]
+        return default_value
 
     def set_mag_filter(self, value: int) -> None:
         if value not in self.MAG_FILTER_NUMBER_TO_ID:

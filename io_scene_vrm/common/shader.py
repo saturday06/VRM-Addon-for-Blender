@@ -264,13 +264,23 @@ def copy_socket_default_value(
             to_socket.default_value = float(from_socket.default_value)
         elif isinstance(to_socket, INT_SOCKET_CLASSES):
             to_socket.default_value = int(from_socket.default_value)
-    elif (
-        isinstance(from_socket, VECTOR_SOCKET_CLASSES)
-        and isinstance(to_socket, VECTOR_SOCKET_CLASSES)
-        or isinstance(from_socket, COLOR_SOCKET_CLASSES)
-        and isinstance(to_socket, COLOR_SOCKET_CLASSES)
+    elif isinstance(from_socket, VECTOR_SOCKET_CLASSES) and isinstance(
+        to_socket, VECTOR_SOCKET_CLASSES
     ):
-        to_socket.default_value = tuple(from_socket.default_value)  # copy
+        to_socket.default_value = (  # copy
+            from_socket.default_value[0],
+            from_socket.default_value[1],
+            from_socket.default_value[2],
+        )
+    elif isinstance(from_socket, COLOR_SOCKET_CLASSES) and isinstance(
+        to_socket, COLOR_SOCKET_CLASSES
+    ):
+        to_socket.default_value = (  # copy
+            from_socket.default_value[0],
+            from_socket.default_value[1],
+            from_socket.default_value[2],
+            from_socket.default_value[3],
+        )
     elif isinstance(from_socket, STRING_SOCKET_CLASSES) and isinstance(
         to_socket, STRING_SOCKET_CLASSES
     ):
@@ -319,7 +329,11 @@ def copy_node(
     to_node: bpy.types.Node,
     from_to: dict[bpy.types.Node, bpy.types.Node],
 ) -> None:
-    to_node.color = tuple(from_node.color)  # copy
+    to_node.color = (  # copy
+        from_node.color[0],
+        from_node.color[1],
+        from_node.color[2],
+    )
     to_node.height = from_node.height
     to_node.hide = from_node.hide
     for index, from_input in enumerate(from_node.inputs):
@@ -327,7 +341,10 @@ def copy_node(
             to_input = to_node.inputs[index]
             copy_socket(from_input, to_input)
     to_node.label = from_node.label
-    to_node.location = tuple(from_node.location)  # copy
+    to_node.location = (  # copy
+        from_node.location[0],
+        from_node.location[1],
+    )
     to_node.mute = from_node.mute
     to_node.name = from_node.name
     for index, from_output in enumerate(from_node.outputs):
@@ -400,9 +417,11 @@ def copy_node(
     ):
         # incomplete
         to_node.bands_direction = from_node.bands_direction
-        to_node.color_mapping.blend_color = tuple(
-            from_node.color_mapping.blend_color
-        )  # copy
+        to_node.color_mapping.blend_color = (  # copy
+            from_node.color_mapping.blend_color[0],
+            from_node.color_mapping.blend_color[1],
+            from_node.color_mapping.blend_color[2],
+        )
         to_node.color_mapping.blend_type = from_node.color_mapping.blend_type
         to_node.color_mapping.brightness = from_node.color_mapping.brightness
         to_node.color_mapping.color_ramp.color_mode = (
@@ -806,7 +825,10 @@ def copy_node_tree(
 
     # 親子関係の辻褄が合った状態でもう一度場所を設定することで完全にノードの位置を復元できる
     for from_node, to_node in from_to.items():
-        to_node.location = tuple(from_node.location)  # copy
+        to_node.location = (  # copy
+            from_node.location[0],
+            from_node.location[1],
+        )
 
 
 def shader_node_group_import(shader_node_group_name: str) -> None:

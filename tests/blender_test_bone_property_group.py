@@ -1,6 +1,7 @@
 from typing import Optional
 
 import bpy
+from mathutils import Vector
 
 from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
@@ -30,7 +31,7 @@ def assert_bone_candidates(
         (parent, tree) = parent_and_trees.pop()
         for child_name, child_tree in tree.items():
             child = armature.data.edit_bones.new(child_name)
-            child.head = (0, 0, 1)
+            child.head = Vector((0, 0, 1))
             if parent:
                 child.parent = parent
             parent_and_trees.append((child, child_tree))

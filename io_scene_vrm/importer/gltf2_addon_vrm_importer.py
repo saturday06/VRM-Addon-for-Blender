@@ -2297,8 +2297,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             sphere_dict = shape_dict.get("sphere")
             if isinstance(sphere_dict, dict):
                 collider.shape_type = collider.SHAPE_TYPE_SPHERE
-                offset = convert.vrm_json_array_to_float_vector(
-                    sphere_dict.get("offset"), [0, 0, 0]
+                offset = Vector(
+                    convert.vrm_json_array_to_float_vector(
+                        sphere_dict.get("offset"), [0, 0, 0]
+                    )
                 )
                 if bone:
                     axis_translation = bone.vrm_addon_extension.axis_translation
@@ -2322,8 +2324,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             collider.shape_type = collider.SHAPE_TYPE_CAPSULE
 
-            offset = convert.vrm_json_array_to_float_vector(
-                capsule_dict.get("offset"), [0, 0, 0]
+            offset = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    capsule_dict.get("offset"), [0, 0, 0]
+                )
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
@@ -2341,8 +2345,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(radius, (float, int)):
                 shape.capsule.radius = float(radius)
 
-            tail = convert.vrm_json_array_to_float_vector(
-                capsule_dict.get("tail"), [0, 0, 0]
+            tail = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    capsule_dict.get("tail"), [0, 0, 0]
+                )
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
@@ -2654,6 +2660,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     constraint.influence = weight
                 source_index = rotation_dict.get("source")
             else:
+                continue
+
+            # TODO: mypyが賢くなったら消す
+            if not isinstance(  # type: ignore[reportUnnecessaryIsInstance, unused-ignore]
+                constraint,
+                (bpy.types.CopyRotationConstraint, bpy.types.DampedTrackConstraint),
+            ):
                 continue
 
             if isinstance(source_index, int):

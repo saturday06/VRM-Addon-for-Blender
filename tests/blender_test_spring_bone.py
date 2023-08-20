@@ -61,18 +61,18 @@ def one_joint_extending_in_y_direction() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 1, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 2, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 2, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 3, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 3, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -135,18 +135,18 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 0.1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 0.1, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 1.1, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 1.1, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 2.1, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 2.1, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -209,18 +209,18 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> Non
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 0.8, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 0.8, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 1.8, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 1.8, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 2.8, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 2.8, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
     armature.pose.bones["joint0"].rotation_mode = "QUATERNION"
     armature.pose.bones["joint0"].rotation_quaternion = Quaternion(
@@ -285,23 +285,23 @@ def two_joints_extending_in_y_direction() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 0.1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 0.1, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 1.1, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 1.1, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 2.1, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 2.1, 0))
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 3, 0)
-    joint_bone2.tail = (0, 3.1, 0)
+    joint_bone2.head = Vector((0, 3, 0))
+    joint_bone2.tail = Vector((0, 3.1, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -376,26 +376,26 @@ def two_joints_extending_in_y_direction_roll() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 0.1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 0.1, 0))
     root_bone.roll = math.radians(90)
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 1.1, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 1.1, 0))
     joint_bone0.roll = math.radians(45)
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 2.1, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 2.1, 0))
     joint_bone1.roll = math.radians(45)
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 3, 0)
-    joint_bone2.tail = (0, 3.1, 0)
+    joint_bone2.head = Vector((0, 3, 0))
+    joint_bone2.tail = Vector((0, 3.1, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -470,26 +470,26 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 0.1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 0.1, 0))
     root_bone.use_local_location = True
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 1.1, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 1.1, 0))
     joint_bone0.use_local_location = True
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 2.1, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 2.1, 0))
     joint_bone1.use_local_location = True
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 3, 0)
-    joint_bone2.tail = (0, 3.1, 0)
+    joint_bone2.head = Vector((0, 3, 0))
+    joint_bone2.tail = Vector((0, 3.1, 0))
     joint_bone2.use_local_location = False
     bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -565,23 +565,23 @@ def two_joints_extending_in_y_direction_connected() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 1, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 2, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 2, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 3, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 3, 0))
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 3, 0)
-    joint_bone2.tail = (0, 4, 0)
+    joint_bone2.head = Vector((0, 3, 0))
+    joint_bone2.tail = Vector((0, 4, 0))
 
     joint_bone0.use_connect = True
     joint_bone1.use_connect = True
@@ -660,18 +660,18 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 1, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 2, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 2, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 3, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 3, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -707,7 +707,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     assert_vector3_equals(armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0")
     assert_vector3_equals(armature.pose.bones["joint1"].head, (0, 2, 0), "1秒後のjoint1")
 
-    armature.location = (0, 0, 1)
+    armature.location = Vector((0, 0, 1))
     bpy.context.view_layer.update()
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
@@ -744,18 +744,18 @@ def one_joint_extending_in_y_direction_rounding_180_degree() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 1, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 1, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 2, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 2, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 3, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 3, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -806,23 +806,23 @@ def two_joints_extending_in_y_direction_root_down() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 0.8, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 0.8, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 1.8, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 1.8, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 2.8, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 2.8, 0))
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 3, 0)
-    joint_bone2.tail = (0, 3.8, 0)
+    joint_bone2.head = Vector((0, 3, 0))
+    joint_bone2.tail = Vector((0, 3.8, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -893,23 +893,23 @@ def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (0, 0.8, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((0, 0.8, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (0, 1, 0)
-    joint_bone0.tail = (0, 1.8, 0)
+    joint_bone0.head = Vector((0, 1, 0))
+    joint_bone0.tail = Vector((0, 1.8, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 2, 0)
-    joint_bone1.tail = (0, 2.8, 0)
+    joint_bone1.head = Vector((0, 2, 0))
+    joint_bone1.tail = Vector((0, 2.8, 0))
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 3, 0)
-    joint_bone2.tail = (0, 3.8, 0)
+    joint_bone2.head = Vector((0, 3, 0))
+    joint_bone2.tail = Vector((0, 3.8, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -1020,19 +1020,19 @@ def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
-    root_bone.head = (0, 0, 0)
-    root_bone.tail = (-0.8, 0, 0)
+    root_bone.head = Vector((0, 0, 0))
+    root_bone.tail = Vector((-0.8, 0, 0))
 
     joint_bone0 = armature.data.edit_bones.new("joint0")
     joint_bone0.parent = root_bone
-    joint_bone0.head = (-1, 0, 0)
-    joint_bone0.tail = (-1, 0, -1)
+    joint_bone0.head = Vector((-1, 0, 0))
+    joint_bone0.tail = Vector((-1, 0, -1))
     joint_bone0.roll = math.radians(90)
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (-1, 0, -1)
-    joint_bone1.tail = (-1, 0, -2)
+    joint_bone1.head = Vector((-1, 0, -1))
+    joint_bone1.tail = Vector((-1, 0, -2))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -1097,18 +1097,18 @@ def two_joints_extending_in_y_direction_center_move_to_z() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     joint_bone0 = armature.data.edit_bones.new("joint0")
-    joint_bone0.head = (0, 0, 0)
-    joint_bone0.tail = (0, 0.8, 0)
+    joint_bone0.head = Vector((0, 0, 0))
+    joint_bone0.tail = Vector((0, 0.8, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 1, 0)
-    joint_bone1.tail = (0, 1.8, 0)
+    joint_bone1.head = Vector((0, 1, 0))
+    joint_bone1.tail = Vector((0, 1.8, 0))
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 2, 0)
-    joint_bone2.tail = (0, 2.001, 0)
+    joint_bone2.head = Vector((0, 2, 0))
+    joint_bone2.tail = Vector((0, 2.001, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -1143,7 +1143,7 @@ def two_joints_extending_in_y_direction_center_move_to_z() -> None:
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
-    armature.location = (0, 0, 1)
+    armature.location = Vector((0, 0, 1))
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
@@ -1174,18 +1174,18 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
 
     bpy.ops.object.mode_set(mode="EDIT")
     joint_bone0 = armature.data.edit_bones.new("joint0")
-    joint_bone0.head = (0, 0, 0)
-    joint_bone0.tail = (0, 0.8, 0)
+    joint_bone0.head = Vector((0, 0, 0))
+    joint_bone0.tail = Vector((0, 0.8, 0))
 
     joint_bone1 = armature.data.edit_bones.new("joint1")
     joint_bone1.parent = joint_bone0
-    joint_bone1.head = (0, 1, 0)
-    joint_bone1.tail = (0, 1.8, 0)
+    joint_bone1.head = Vector((0, 1, 0))
+    joint_bone1.tail = Vector((0, 1.8, 0))
 
     joint_bone2 = armature.data.edit_bones.new("joint2")
     joint_bone2.parent = joint_bone1
-    joint_bone2.head = (0, 2, 0)
-    joint_bone2.tail = (0, 2.001, 0)
+    joint_bone2.head = Vector((0, 2, 0))
+    joint_bone2.tail = Vector((0, 2.001, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
     assert bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {
@@ -1220,7 +1220,7 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()
 
-    armature.location = (0, 0, 1)
+    armature.location = Vector((0, 0, 1))
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
     bpy.context.view_layer.update()

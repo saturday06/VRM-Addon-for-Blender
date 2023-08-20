@@ -48,11 +48,12 @@ class IcypTemplateMeshMaker:
                 armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
             )
         }
-        return armature_data.bones[
-            armature_data.vrm_addon_extension.vrm0.humanoid.human_bones[
-                tmp_dict[bone]
-            ].node.bone_name
-        ]
+
+        bone_name: str = armature_data.vrm_addon_extension.vrm0.humanoid.human_bones[
+            tmp_dict[bone]
+        ].node.bone_name
+        humanoid_bone = armature_data.bones[bone_name]
+        return humanoid_bone
 
     # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod

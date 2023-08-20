@@ -325,7 +325,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 parent_world_head = (
                     self.armature.matrix_world @ Matrix.Translation(b_bone.parent.head)
                 ).to_translation()
-                translation = [world_head[i] - parent_world_head[i] for i in range(3)]
+                translation = Vector(
+                    (world_head[i] - parent_world_head[i] for i in range(3))
+                )
             else:
                 translation = (
                     self.armature.matrix_world @ b_bone.matrix
@@ -1866,7 +1868,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     )[0]
                 else:
                     parent_node = None
-                base_pos = [0, 0, 0]
+                base_pos = Vector((0, 0, 0))
                 if parent_node:
                     children = parent_node.get("children")
                     if not isinstance(children, list):
