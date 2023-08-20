@@ -619,7 +619,7 @@ def active_object_is_vrm1_armature(context: bpy.types.Context) -> bool:
     armature_data = active_object.data
     if not isinstance(armature_data, bpy.types.Armature):
         return False
-    return bool(armature_data.vrm_addon_extension.is_vrm1())
+    return armature_data.vrm_addon_extension.is_vrm1()
 
 
 def active_object_is_vrm0_armature(context: bpy.types.Context) -> bool:
@@ -631,4 +631,4 @@ def active_object_is_vrm0_armature(context: bpy.types.Context) -> bool:
     armature_data = active_object.data
     if not isinstance(armature_data, bpy.types.Armature):
         return False
-    return bool(armature_data.vrm_addon_extension.is_vrm0())
+    return armature_data.vrm_addon_extension.is_vrm0()

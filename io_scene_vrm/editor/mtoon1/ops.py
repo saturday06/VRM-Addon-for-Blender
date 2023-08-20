@@ -534,8 +534,6 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
         filepath = self.filepath
-        if not isinstance(filepath, str):
-            return {"CANCELLED"}
         if not filepath or not Path(filepath).exists():
             return {"CANCELLED"}
 

@@ -35,7 +35,6 @@ from ..editor.vrm0.property_group import (
     Vrm0HumanoidPropertyGroup,
     Vrm0MeshAnnotationPropertyGroup,
     Vrm0MetaPropertyGroup,
-    Vrm0PropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
 from .vrm_parser import ParseResult, Vrm0MaterialProperty
@@ -770,8 +769,6 @@ class AbstractBaseVrmImporter(ABC):
         addon_extension = self.armature_data.vrm_addon_extension
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM0
         vrm0 = addon_extension.vrm0
-        if not isinstance(vrm0, Vrm0PropertyGroup):
-            return
 
         if self.parse_result.spec_version_number >= (1, 0):
             return

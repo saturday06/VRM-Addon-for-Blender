@@ -15,7 +15,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
         active_object = context.active_object
         if not active_object:
             return False
-        return bool(active_object.type == "ARMATURE")
+        return active_object.type == "ARMATURE"
 
     def setup(self, context: bpy.types.Context) -> None:
         active_object = context.active_object

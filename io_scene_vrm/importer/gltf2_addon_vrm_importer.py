@@ -44,7 +44,6 @@ from ..editor.vrm1.property_group import (
     Vrm1LookAtPropertyGroup,
     Vrm1MaterialColorBindPropertyGroup,
     Vrm1MetaPropertyGroup,
-    Vrm1PropertyGroup,
 )
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
@@ -1869,8 +1868,6 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
         addon_extension = self.armature_data.vrm_addon_extension
         vrm1 = addon_extension.vrm1
-        if not isinstance(vrm1, Vrm1PropertyGroup):
-            return
 
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
         vrm1_extension_dict = self.parse_result.vrm1_extension

@@ -25,7 +25,6 @@ from ..common.gl import (
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from ..common.vrm1.human_bone import HumanBoneName
-from ..editor.vrm1.property_group import Vrm1ExpressionsPropertyGroup
 
 logger = get_logger(__name__)
 
@@ -681,9 +680,6 @@ def assign_expression_keyframe(
     timestamp: float,
 ) -> None:
     expressions = armature_data.vrm_addon_extension.vrm1.expressions
-    if not isinstance(expressions, Vrm1ExpressionsPropertyGroup):
-        # make static type checker happy
-        raise AssertionError(f"{expressions=} is not a Vrm1ExpressionsPropertyGroup")
     expression_name_to_expression = expressions.all_name_to_expression_dict()
     for (
         expression_name,

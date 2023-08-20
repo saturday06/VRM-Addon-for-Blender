@@ -9,7 +9,8 @@ from ..common import version
 from ..common.preferences import get_preferences
 from ..editor import search, validation
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
-from ..editor.property_group import StringPropertyGroup
+from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
+from ..editor.validation import VrmValidationError
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
     draw_vrm0_humanoid_optional_bones_layout,
@@ -163,11 +164,8 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
             bool(preferences.export_fb_ngon_encoding),
         )
         if "gltf" not in dir(bpy.ops.export_scene):
-            return cast(
-                set[str],
-                bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
-                    "INVOKE_DEFAULT",
-                ),
+            return bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
+                "INVOKE_DEFAULT",
             )
 
         export_objects = search.export_objects(
@@ -179,9 +177,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) > 1:
-            return cast(
-                set[str], bpy.ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
-            )
+            return bpy.ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
         if len(armatures) == 1:
             armature = armatures[0]
             armature_data = armature.data
@@ -202,12 +198,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
                         armature_name=armature.name
                     )
                 if not humanoid.all_required_bones_are_assigned():
-                    return cast(
-                        set[str],
-                        bpy.ops.wm.vrm_export_human_bones_assignment(
-                            "INVOKE_DEFAULT",
-                            armature_object_name=self.armature_object_name,
-                        ),
+                    return bpy.ops.wm.vrm_export_human_bones_assignment(
+                        "INVOKE_DEFAULT",
+                        armature_object_name=self.armature_object_name,
                     )
             elif armature_data.vrm_addon_extension.is_vrm1():
                 Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
@@ -226,12 +219,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
                         armature_name=armature.name
                     )
                 if not human_bones.all_required_bones_are_assigned():
-                    return cast(
-                        set[str],
-                        bpy.ops.wm.vrm_export_human_bones_assignment(
-                            "INVOKE_DEFAULT",
-                            armature_object_name=self.armature_object_name,
-                        ),
+                    return bpy.ops.wm.vrm_export_human_bones_assignment(
+                        "INVOKE_DEFAULT",
+                        armature_object_name=self.armature_object_name,
                     )
 
         if bpy.ops.vrm.model_validate(
@@ -249,14 +239,11 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         if not self.ignore_warning and any(
             error.severity <= 1 for error in self.errors
         ):
-            return cast(
-                set[str],
-                bpy.ops.wm.vrm_export_confirmation(
-                    "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
-                ),
+            return bpy.ops.wm.vrm_export_confirmation(
+                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
             )
 
-        return cast(set[str], ExportHelper.invoke(self, context, event))
+        return ExportHelper.invoke(self, context, event)
 
     def draw(self, _context: bpy.types.Context) -> None:
         pass  # Is needed to get panels available
@@ -287,7 +274,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
         space_data = context.space_data
         if not isinstance(space_data, bpy.types.SpaceFileBrowser):
             return False
-        return bool(space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrm")
+        return space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrm"
 
     def draw(self, context: bpy.types.Context) -> None:
         space_data = context.space_data
@@ -317,17 +304,14 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
                     icon="NONE" if index else "ERROR",
                 )
 
-        operator = space_data.active_operator
+        operator = cast(EXPORT_SCENE_OT_vrm, space_data.active_operator)
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
         layout.prop(operator, "enable_advanced_preferences")
         if getattr(operator, "enable_advanced_preferences", False):
             advanced_options_box = layout.box()
             advanced_options_box.prop(operator, "export_fb_ngon_encoding")
-
-        errors = getattr(operator, "errors", None)
-        if isinstance(errors, bpy.types.CollectionProperty):
-            validation.WM_OT_vrm_validator.draw_errors(errors, False, layout.box())
+        validation.WM_OT_vrm_validator.draw_errors(operator.errors, False, layout.box())
 
 
 class VRM_PT_export_vrma_help(bpy.types.Panel):
@@ -343,7 +327,7 @@ class VRM_PT_export_vrma_help(bpy.types.Panel):
         space_data = context.space_data
         if not isinstance(space_data, bpy.types.SpaceFileBrowser):
             return False
-        return bool(space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrma")
+        return space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrma"
 
     def draw(self, _context: bpy.types.Context) -> None:
         draw_help_message(self.layout)
@@ -396,14 +380,11 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
         if WM_OT_vrma_export_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
-            return cast(
-                set[str],
-                bpy.ops.wm.vrma_export_prerequisite(
-                    "INVOKE_DEFAULT",
-                    armature_object_name=self.armature_object_name,
-                ),
+            return bpy.ops.wm.vrma_export_prerequisite(
+                "INVOKE_DEFAULT",
+                armature_object_name=self.armature_object_name,
             )
-        return cast(set[str], ExportHelper.invoke(self, context, event))
+        return ExportHelper.invoke(self, context, event)
 
     def draw(self, _context: bpy.types.Context) -> None:
         pass  # Is needed to get panels available
@@ -461,15 +442,12 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
                 return {"CANCELLED"}
         else:
             return {"CANCELLED"}
-        bpy.ops.export_scene.vrm(
+        return bpy.ops.export_scene.vrm(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
-        return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
-        return cast(
-            set[str], context.window_manager.invoke_props_dialog(self, width=800)
-        )
+        return context.window_manager.invoke_props_dialog(self, width=800)
 
     def draw(self, context: bpy.types.Context) -> None:
         preferences = get_preferences(context)
@@ -588,9 +566,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
             self.errors,
             self.armature_object_name,
         )
-        return cast(
-            set[str], context.window_manager.invoke_props_dialog(self, width=800)
-        )
+        return context.window_manager.invoke_props_dialog(self, width=800)
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
@@ -655,9 +631,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
                 continue
             candidate = self.armature_object_name_candidates.add()
             candidate.value = obj.name
-        return cast(
-            set[str], context.window_manager.invoke_props_dialog(self, width=600)
-        )
+        return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
@@ -729,11 +703,8 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
         return error_messages
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
-        return cast(
-            set[str],
-            bpy.ops.export_scene.vrma(
-                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
-            ),
+        return bpy.ops.export_scene.vrma(
+            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
@@ -747,10 +718,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
                 continue
             candidate = self.armature_object_name_candidates.add()
             candidate.value = obj.name
-        return cast(
-            set[str],
-            context.window_manager.invoke_props_dialog(self, width=800),
-        )
+        return context.window_manager.invoke_props_dialog(self, width=800)
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout

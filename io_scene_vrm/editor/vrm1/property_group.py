@@ -990,19 +990,10 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
     )
 
     def all_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
-        if not isinstance(self.preset, Vrm1ExpressionsPresetPropertyGroup):
-            # make static type checker happy
-            raise AssertionError("preset is not a Vrm1ExpressionsPresetPropertyGroup")
-
         result: dict[
             str, Vrm1ExpressionPropertyGroup
         ] = self.preset.name_to_expression_dict()
         for custom_expression in self.custom:
-            if not isinstance(custom_expression, Vrm1CustomExpressionPropertyGroup):
-                # make static type checker happy
-                raise AssertionError(
-                    "custom_expression is not a Vrm1CustomExpressionPropertyGroup"
-                )
             result[custom_expression.custom_name] = custom_expression
         return result
 

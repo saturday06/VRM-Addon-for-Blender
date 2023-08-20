@@ -156,7 +156,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):
             armature_data.vrm_addon_extension.vrm1.expressions.custom.add()
         )
         custom_expression.custom_name = self.custom_expression_name
-        return cast(set[str], bpy.ops.vrm.update_vrm1_expression_ui_list_elements())
+        return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -192,9 +192,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):
                 armature_data.vrm_addon_extension.vrm1.expressions.custom.remove(
                     custom_index
                 )
-                return cast(
-                    set[str], bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
-                )
+                return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
         return {"CANCELLED"}
 
     if TYPE_CHECKING:

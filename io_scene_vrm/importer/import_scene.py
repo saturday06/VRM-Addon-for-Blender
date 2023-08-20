@@ -130,16 +130,13 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
             execution_context = "EXEC_DEFAULT"
             import_anyway = True
 
-        return cast(
-            set[str],
-            bpy.ops.wm.vrm_license_warning(
-                execution_context,
-                import_anyway=import_anyway,
-                license_confirmations=license_error.license_confirmations(),
-                filepath=str(filepath),
-                extract_textures_into_folder=self.extract_textures_into_folder,
-                make_new_texture_folder=self.make_new_texture_folder,
-            ),
+        return bpy.ops.wm.vrm_license_warning(
+            execution_context,
+            import_anyway=import_anyway,
+            license_confirmations=license_error.license_confirmations(),
+            filepath=str(filepath),
+            extract_textures_into_folder=self.extract_textures_into_folder,
+            make_new_texture_folder=self.make_new_texture_folder,
         )
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
@@ -157,13 +154,8 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
         )
 
         if "gltf" not in dir(bpy.ops.import_scene):
-            return cast(
-                set[str],
-                bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
-                    "INVOKE_DEFAULT",
-                ),
-            )
-        return cast(set[str], ImportHelper.invoke(self, context, event))
+            return bpy.ops.wm.vrm_gltf2_addon_disabled_warning("INVOKE_DEFAULT")
+        return ImportHelper.invoke(self, context, event)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -244,9 +236,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):
         )
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
-        return cast(
-            set[str], context.window_manager.invoke_props_dialog(self, width=600)
-        )
+        return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, _context: bpy.types.Context) -> None:
         layout = self.layout
@@ -356,14 +346,11 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
         if WM_OT_vrma_import_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
-            return cast(
-                set[str],
-                bpy.ops.wm.vrma_import_prerequisite(
-                    "INVOKE_DEFAULT",
-                    armature_object_name=self.armature_object_name,
-                ),
+            return bpy.ops.wm.vrma_import_prerequisite(
+                "INVOKE_DEFAULT",
+                armature_object_name=self.armature_object_name,
             )
-        return cast(set[str], ImportHelper.invoke(self, context, event))
+        return ImportHelper.invoke(self, context, event)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -416,11 +403,8 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
         return error_messages
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
-        return cast(
-            set[str],
-            bpy.ops.import_scene.vrma(
-                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
-            ),
+        return bpy.ops.import_scene.vrma(
+            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
@@ -434,10 +418,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
                 continue
             candidate = self.armature_object_name_candidates.add()
             candidate.value = obj.name
-        return cast(
-            set[str],
-            context.window_manager.invoke_props_dialog(self, width=800),
-        )
+        return context.window_manager.invoke_props_dialog(self, width=800)
 
     def draw(self, context: bpy.types.Context) -> None:
         layout = self.layout

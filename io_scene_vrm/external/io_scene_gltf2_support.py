@@ -1,6 +1,5 @@
 import datetime
 import importlib
-from typing import cast
 
 import bpy
 
@@ -19,9 +18,7 @@ class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
-        return cast(
-            set[str], context.window_manager.invoke_props_dialog(self, width=500)
-        )
+        return context.window_manager.invoke_props_dialog(self, width=500)
 
     def draw(self, _context: bpy.types.Context) -> None:
         self.layout.label(

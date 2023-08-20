@@ -339,8 +339,6 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
         url = self.url
-        if not isinstance(url, str):
-            return {"CANCELLED"}
         if not self.supported(url):
             return {"CANCELLED"}
         webbrowser.open(self.url)
