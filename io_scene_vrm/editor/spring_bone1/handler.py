@@ -191,7 +191,7 @@ def calculate_object_pose_bone_rotations(
 
         # https://github.com/vrm-c/vrm-specification/blob/7279e169ac0dcf37e7d81b2adcad9107101d7e25/specification/VRMC_springBone-1.0/README.md#center-space
         center_pose_bone_is_ancestor_of_first_pose_bone = False
-        ancestor_of_first_pose_bone = first_pose_bone
+        ancestor_of_first_pose_bone: Optional[bpy.types.PoseBone] = first_pose_bone
         while ancestor_of_first_pose_bone:
             if center_pose_bone == ancestor_of_first_pose_bone:
                 center_pose_bone_is_ancestor_of_first_pose_bone = True

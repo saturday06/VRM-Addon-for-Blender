@@ -1,6 +1,7 @@
 import contextlib
 import json
 import uuid
+from typing import Optional
 
 import bpy
 
@@ -23,13 +24,13 @@ from .property_group import (
 def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Json:
     text_key = armature.get(armature_key)
     if isinstance(text_key, bpy.types.Text):
-        textblock = text_key
+        textblock: Optional[bpy.types.Text] = text_key
     elif not isinstance(text_key, str):
         return None
     else:
         textblock = bpy.data.texts.get(text_key)
-        if not isinstance(textblock, bpy.types.Text):
-            return None
+    if not isinstance(textblock, bpy.types.Text):
+        return None
     textblock_str = "".join([line.body for line in textblock.lines])
     with contextlib.suppress(json.JSONDecodeError):
         return make_json(json.loads(textblock_str))
@@ -269,7 +270,7 @@ def migrate_vrm0_blend_shape_groups(
                 mesh_name = bind_dict.get("mesh")
                 if isinstance(mesh_name, str):
                     if mesh_name in bpy.data.meshes:
-                        mesh = bpy.data.meshes[mesh_name]
+                        mesh: Optional[bpy.types.ID] = bpy.data.meshes[mesh_name]
                         for obj in bpy.data.objects:
                             if obj.data == mesh:
                                 bind.mesh.mesh_object_name = obj.name

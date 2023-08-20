@@ -146,7 +146,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):  # type: ignore[misc]
             if angle == 0:
                 logger.error("Wrong angle set")
                 angle = 180
-            verts = []
+            verts: list[bmesh.types.BMVert] = []
             for i in range(divide + 1):
                 pi2 = 3.14 * 2 * radians(angle) / radians(360)
                 vert = add_point(center)

@@ -1586,8 +1586,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             bone_name_to_axis_translation: dict[str, str] = {}
 
-            human_bone_tree_bones = []
-            non_human_bone_tree_bones = []
+            human_bone_tree_bones: list[bpy.types.EditBone] = []
+            non_human_bone_tree_bones: list[bpy.types.EditBone] = []
             constraint_node_index_to_source_index: dict[int, int] = {}
             constraint_node_index_groups: list[set[int]] = []
             nodes = self.parse_result.json_dict.get("nodes")

@@ -102,7 +102,7 @@ def object_distance(
         if collection in collection_child_to_parent
     ]
     if left_collections:
-        left_collection = left_collections[0]
+        left_collection: Optional[bpy.types.Collection] = left_collections[0]
         while left_collection:
             left_collection_path.insert(0, left_collection)
             left_collection = collection_child_to_parent.get(left_collection)
@@ -114,7 +114,7 @@ def object_distance(
         if collection in collection_child_to_parent
     ]
     if right_collections:
-        right_collection = right_collections[0]
+        right_collection: Optional[bpy.types.Collection] = right_collections[0]
         while right_collection:
             right_collection_path.insert(0, right_collection)
             right_collection = collection_child_to_parent.get(right_collection)
@@ -128,13 +128,13 @@ def object_distance(
         right_collection_path.pop(0)
 
     left_parent_path: list[bpy.types.Object] = []
-    traversing_left = left
+    traversing_left: Optional[bpy.types.Object] = left
     while traversing_left:
         left_parent_path.insert(0, traversing_left)
         traversing_left = traversing_left.parent
 
     right_parent_path: list[bpy.types.Object] = []
-    traversing_right = right
+    traversing_right: Optional[bpy.types.Object] = right
     while traversing_right:
         right_parent_path.insert(0, traversing_right)
         traversing_right = traversing_right.parent
@@ -272,7 +272,7 @@ def export_objects(
     else:
         selected_objects = list(context.selectable_objects)
 
-    objects = []
+    objects: list[bpy.types.Object] = []
 
     armature_object = None
     if armature_object_name:
@@ -483,19 +483,19 @@ def export_constraints(
     object_constraints = export_object_constraints(objs, armature)
     bone_constraints = export_bone_constraints(objs, armature)
 
-    all_roll_constraints = list(object_constraints.roll_constraints.values()) + list(
-        bone_constraints.roll_constraints.values()
-    )
-    all_rotation_constraints = list(
+    all_roll_constraints: list[bpy.types.CopyRotationConstraint] = list(
+        object_constraints.roll_constraints.values()
+    ) + list(bone_constraints.roll_constraints.values())
+    all_rotation_constraints: list[bpy.types.CopyRotationConstraint] = list(
         object_constraints.rotation_constraints.values()
     ) + list(bone_constraints.rotation_constraints.values())
-    all_constraints: list[bpy.types.CopyRotationConstraint] = (
-        all_roll_constraints
-        + all_rotation_constraints
-        # TODO: Aim Constraint's circular dependency detection
-        # + list(object_constraints.aim_constraints.values())
-        # + list(bone_constraints.aim_constraints.values())
-    )
+
+    # TODO: Aim Constraint's circular dependency detection
+    # + list(object_constraints.aim_constraints.values())
+    # + list(bone_constraints.aim_constraints.values())
+    all_constraints: list[bpy.types.Constraint] = []
+    all_constraints.extend(all_roll_constraints)
+    all_constraints.extend(all_rotation_constraints)
 
     excluded_constraints: list[
         Union[
@@ -516,7 +516,7 @@ def export_constraints(
                 ),
             )
         ]
-        iterated_constraints = set()
+        iterated_constraints: set[bpy.types.Constraint] = set()
         while current_constraints:
             current_constraint, current_axis = current_constraints.pop()
 
@@ -533,7 +533,9 @@ def export_constraints(
             if target.type == "ARMATURE":
                 bone = target.pose.bones[current_constraint.subtarget]
                 owner_name = bone.name
-                target_constraints = bone.constraints
+                target_constraints: Union[
+                    bpy.types.ObjectConstraints, bpy.types.PoseBoneConstraints
+                ] = bone.constraints
             else:
                 owner_name = target.name
                 target_constraints = target.constraints

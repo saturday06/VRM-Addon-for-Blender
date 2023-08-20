@@ -218,7 +218,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def image_to_bin(self) -> None:
         # collect used image
-        used_images = []
+        used_images: list[bpy.types.Image] = []
         used_materials = search.export_materials(self.export_objects)
         for mat in used_materials:
             if "vrm_shader" in mat:
@@ -839,7 +839,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         def make_gltf_mat_dict(
             b_mat: bpy.types.Material, gltf_shader_node: bpy.types.Node
         ) -> tuple[dict[str, Json], dict[str, Json]]:
-            gltf_dict = {}
+            gltf_dict: dict[str, Json] = {}
             gltf_dict["name"] = b_mat.name
             gltf_dict["shader"] = "VRM_USE_GLTFSHADER"
             gltf_dict["keywordMap"] = {}
@@ -911,7 +911,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         def make_transzw_mat_dict(
             b_mat: bpy.types.Material, transzw_shader_node: bpy.types.Node
         ) -> tuple[dict[str, Json], dict[str, Json]]:
-            zw_dict = {}
+            zw_dict: dict[str, Json] = {}
             zw_dict["name"] = b_mat.name
             zw_dict["shader"] = "VRM/UnlitTransparentZWrite"
             zw_dict["renderQueue"] = 2600
@@ -1627,7 +1627,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     def fetch_morph_vertex_normal_difference(
         mesh_data: bpy.types.Mesh,
     ) -> dict[str, list[list[float]]]:
-        exclusion_vertex_indices = set()
+        exclusion_vertex_indices: set[int] = set()
         for polygon in mesh_data.polygons:
             material = mesh_data.materials[polygon.material_index]
             if material is None:
@@ -1647,8 +1647,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 exclusion_vertex_indices.update(polygon.vertices)
 
-        morph_normal_diff_dict = {}
-        vert_base_normal_dict = {}
+        morph_normal_diff_dict: dict[str, list[list[float]]] = {}
+        vert_base_normal_dict: dict[str, list[float]] = {}
         if not mesh_data.shape_keys:
             raise AssertionError("mesh_data.shape_keys is None")
         for kb in mesh_data.shape_keys.key_blocks:
@@ -2102,7 +2102,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
                             # Attach near bone
                             bone_name: Optional[str] = None
-                            mesh_parent = mesh
+                            mesh_parent: Optional[bpy.types.Object] = mesh
                             while (
                                 mesh_parent
                                 and mesh_parent.type
@@ -2398,7 +2398,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         }
 
         # meta
-        vrm_extension_meta_dict = {
+        vrm_extension_meta_dict: dict[str, Json] = {
             "title": meta.title,
             "version": meta.version,
             "author": meta.author,
@@ -2464,7 +2464,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     or human_bone.node.bone_name not in node_name_id_dict
                 ):
                     continue
-                human_bone_dict = {
+                human_bone_dict: dict[str, Json] = {
                     "bone": human_bone_name,
                     "node": node_name_id_dict[human_bone.node.bone_name],
                     "useDefaultValues": human_bone.use_default_values,

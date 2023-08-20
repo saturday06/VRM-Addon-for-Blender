@@ -157,13 +157,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
         execute_migration: bool = False,
         readonly: bool = True,
     ) -> None:
-        error_messages = []
-        warning_messages = []
-        skippable_warning_messages = []
-        info_messages = []
+        error_messages: list[str] = []
+        warning_messages: list[str] = []
+        skippable_warning_messages: list[str] = []
+        info_messages: list[str] = []
         armature_count = 0
         armature: Optional[bpy.types.Object] = None
-        node_names = []
+        node_names: list[str] = []
 
         # export object seeking
         preferences = get_preferences(context)
@@ -268,6 +268,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
                     continue
                 if execute_migration:
                     migration.migrate(armature.name, defer=False)
+                bone: Optional[bpy.types.Bone] = None
                 for bone in armature_data.bones:
                     if bone.name in node_names:  # nodes name is unique
                         error_messages.append(
@@ -410,15 +411,15 @@ class WM_OT_vrm_validator(bpy.types.Operator):  # type: ignore[misc]
 
             joint_chain_bone_names_to_spring_vrm_name: dict[str, str] = {}
             for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
-                joint_bone_names = []
+                joint_bone_names: list[str] = []
                 for joint in spring.joints:
                     bone_name = joint.node.bone_name
                     if bone_name and bone_name not in joint_bone_names:
                         joint_bone_names.append(bone_name)
 
-                joint_chain_bone_names = []
+                joint_chain_bone_names: list[str] = []
                 for bone_name in joint_bone_names:
-                    search_joint_chain_bone_names = []
+                    search_joint_chain_bone_names: list[str] = []
                     bone = armature.data.bones.get(bone_name)
                     terminated = False
                     while bone:

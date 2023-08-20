@@ -809,7 +809,9 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
             # make static type checker happy
             raise AssertionError("preset is not a Vrm1ExpressionsPresetPropertyGroup")
 
-        result = self.preset.name_to_expression_dict()
+        result: dict[
+            str, Vrm1ExpressionPropertyGroup
+        ] = self.preset.name_to_expression_dict()
         for custom_expression in self.custom:
             if not isinstance(custom_expression, Vrm1CustomExpressionPropertyGroup):
                 # make static type checker happy

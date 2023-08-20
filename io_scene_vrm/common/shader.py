@@ -939,7 +939,7 @@ def rgba_or_none(
     if iterator is None:
         return None
 
-    rgba = []
+    rgba: list[float] = []
     for v in iterator:
         f = float_or_none(v, min_value, max_value)
         if f is None:
@@ -994,7 +994,7 @@ def rgb_or_none(
     if iterator is None:
         return None
 
-    rgb = []
+    rgb: list[float] = []
     for v in iterator:
         f = float_or_none(v, min_value, max_value)
         if f is None:

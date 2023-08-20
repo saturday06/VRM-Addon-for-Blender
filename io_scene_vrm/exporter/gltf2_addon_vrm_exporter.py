@@ -219,7 +219,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if meta.copyright_information:
             meta_dict["copyrightInformation"] = meta.copyright_information
 
-        references = [
+        references: list[Json] = [
             reference.value for reference in meta.references if reference.value
         ]
         if references:
@@ -320,13 +320,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         mesh_object_name_to_morph_target_names_dict: dict[str, list[str]],
         material_name_to_index_dict: dict[str, int],
     ) -> dict[str, Json]:
-        expression_dict = {
+        expression_dict: dict[str, Json] = {
             "isBinary": expression.is_binary,
             "overrideBlink": expression.override_blink,
             "overrideLookAt": expression.override_look_at,
             "overrideMouth": expression.override_mouth,
         }
-        morph_target_bind_dicts = []
+        morph_target_bind_dicts: list[Json] = []
         for morph_target_bind in expression.morph_target_binds:
             if (
                 not morph_target_bind.node
@@ -355,7 +355,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if morph_target_bind_dicts:
             expression_dict["morphTargetBinds"] = morph_target_bind_dicts
 
-        material_color_bind_dicts: list[dict[str, Json]] = []
+        material_color_bind_dicts: list[Json] = []
         for material_color_bind in expression.material_color_binds:
             if (
                 not material_color_bind.material
@@ -368,7 +368,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not isinstance(material_index, int):
                 continue
             if material_color_bind.type == "color":
-                target_value = list(material_color_bind.target_value)
+                target_value: Json = list(material_color_bind.target_value)
             else:
                 rgb = material_color_bind.target_value_as_rgb
                 target_value = [rgb[0], rgb[1], rgb[2], 1.0]
@@ -382,7 +382,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if material_color_bind_dicts:
             expression_dict["materialColorBinds"] = material_color_bind_dicts
 
-        texture_transform_binds: list[dict[str, Json]] = []
+        texture_transform_binds: list[Json] = []
         for texture_transform_bind in expression.texture_transform_binds:
             if (
                 not texture_transform_bind.material
@@ -485,8 +485,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         collider_group_dicts: list[Json] = []
         collider_group_uuid_to_index_dict = {}
         for collider_group in spring_bone.collider_groups:
-            collider_group_dict = {"name": collider_group.vrm_name}
-            collider_indices = []
+            collider_group_dict: dict[str, Json] = {"name": collider_group.vrm_name}
+            collider_indices: list[Json] = []
             for collider_reference in collider_group.colliders:
                 collider_index = collider_uuid_to_index_dict.get(
                     collider_reference.collider_uuid
@@ -520,10 +520,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             logger.error(f"{type(armature_data)} is not an Armature")
             return []
         for spring in spring_bone.springs:
-            spring_dict = {"name": spring.vrm_name}
+            spring_dict: dict[str, Json] = {"name": spring.vrm_name}
 
             first_bone: Optional[bpy.types.Bone] = None
-            joint_dicts = []
+            joint_dicts: list[Json] = []
             for joint in spring.joints:
                 bone = armature_data.bones.get(joint.node.bone_name)
                 if not bone:
@@ -565,7 +565,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     if isinstance(center_index, int):
                         spring_dict["center"] = center_index
 
-            collider_group_indices = []
+            collider_group_indices: list[Json] = []
             for collider_group_reference in spring.collider_groups:
                 collider_group_index = collider_group_uuid_to_index_dict.get(
                     collider_group_reference.collider_group_uuid

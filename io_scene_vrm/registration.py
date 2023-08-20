@@ -103,7 +103,16 @@ def save_pre(_dummy: object) -> None:
     extension.update_internal_cache(bpy.context)
 
 
-classes = [
+classes: list[
+    Union[
+        type[bpy.types.Operator],
+        type[bpy.types.PropertyGroup],
+        type[bpy.types.Panel],
+        type[bpy.types.UIList],
+        type[bpy.types.Preferences],
+        type[bpy.types.AddonPreferences],
+    ]
+] = [
     io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,
     property_group.StringPropertyGroup,
     property_group.FloatPropertyGroup,
