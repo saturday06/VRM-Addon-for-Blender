@@ -1583,7 +1583,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     OUTLINE_WIDTH_MODE_NONE = "none"
     OUTLINE_WIDTH_MODE_WORLD_COORDINATES = "worldCoordinates"
     OUTLINE_WIDTH_MODE_SCREEN_COORDINATES = "screenCoordinates"
-    outline_width_mode_items = [
+    outline_width_mode_items: list[tuple[str, str, str, str, int]] = [
         (OUTLINE_WIDTH_MODE_NONE, "None", "", "NONE", 0),
         (OUTLINE_WIDTH_MODE_WORLD_COORDINATES, "World Coordinates", "", "NONE", 1),
         (OUTLINE_WIDTH_MODE_SCREEN_COORDINATES, "Screen Coordinates", "", "NONE", 2),
@@ -1776,7 +1776,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     ALPHA_MODE_MASK_VALUE = 1
     ALPHA_MODE_BLEND = "BLEND"
     ALPHA_MODE_BLEND_VALUE = 2
-    alpha_mode_items = [
+    alpha_mode_items: list[tuple[str, str, str, str, int]] = [
         (ALPHA_MODE_OPAQUE, "Opaque", "", "NONE", ALPHA_MODE_OPAQUE_VALUE),
         (ALPHA_MODE_MASK, "Cutout", "", "NONE", ALPHA_MODE_MASK_VALUE),
         (ALPHA_MODE_BLEND, "Transparent", "", "NONE", ALPHA_MODE_BLEND_VALUE),

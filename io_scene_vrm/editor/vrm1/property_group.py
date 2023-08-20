@@ -631,7 +631,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
         type=bpy.types.Material,  # noqa: F821
     )
 
-    type_items = [
+    type_items: list[tuple[str, str, str, int]] = [
         ("color", "Color", "", 0),
         ("emissionColor", "Emission Color", "", 1),
         ("shadeColor", "Shade Color", "", 2),
