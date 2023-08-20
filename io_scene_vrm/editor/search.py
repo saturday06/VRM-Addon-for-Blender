@@ -506,6 +506,8 @@ def export_constraints(
     ] = []
 
     for search_constraint in all_constraints:
+        if not isinstance(search_constraint, bpy.types.CopyRotationConstraint):
+            continue
         current_constraints = [
             (
                 search_constraint,
@@ -541,6 +543,8 @@ def export_constraints(
                 target_constraints = target.constraints
 
             for target_constraint in target_constraints:
+                if not isinstance(target_constraint, bpy.types.CopyRotationConstraint):
+                    continue
                 if target_constraint not in all_constraints:
                     continue
 
