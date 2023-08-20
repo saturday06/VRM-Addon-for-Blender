@@ -41,17 +41,13 @@ def draw_texture_info(
     )
     input_layout = layout.row(align=True)
     input_layout.prop(texture_info.index, "source", text="")
-    import_image_file_op = input_layout.operator(
-        VRM_OT_import_mtoon1_texture_image_file.bl_idname,
+    import_image_file_op = layout_operator(
+        input_layout,
+        VRM_OT_import_mtoon1_texture_image_file,
         text="",
         translate=False,
         icon="FILEBROWSER",
     )
-    if not isinstance(import_image_file_op, VRM_OT_import_mtoon1_texture_image_file):
-        logger.error(
-            f"{type(import_image_file_op)} is not a VRM_OT_import_mtoon1_texture_image_file"
-        )
-        return input_layout
     import_image_file_op.material_name = material_name
     import_image_file_op.target_texture = type(texture_info.index).__name__
     if color_factor_attr_name:
@@ -120,17 +116,13 @@ def draw_mtoon0_texture(
     )
     input_layout = layout.row(align=True)
     input_layout.prop(texture, "source", text="")
-    import_image_file_op = input_layout.operator(
-        VRM_OT_import_mtoon1_texture_image_file.bl_idname,
+    import_image_file_op = layout_operator(
+        input_layout,
+        VRM_OT_import_mtoon1_texture_image_file,
         text="",
         translate=False,
         icon="FILEBROWSER",
     )
-    if not isinstance(import_image_file_op, VRM_OT_import_mtoon1_texture_image_file):
-        logger.error(
-            f"{type(import_image_file_op)} is not a VRM_OT_import_mtoon1_texture_image_file"
-        )
-        return input_layout
     import_image_file_op.material_name = material_name
     import_image_file_op.target_texture = type(texture).__name__
 
@@ -363,12 +355,7 @@ def draw_mtoon1_material(
         mtoon0_box.prop(gltf, "mtoon0_outline_scaled_max_distance", slider=True)
         mtoon0_box.prop(gltf, "mtoon0_render_queue", slider=True)
 
-    reset_op = layout.operator(VRM_OT_reset_mtoon1_material_shader_node_tree.bl_idname)
-    if not isinstance(reset_op, VRM_OT_reset_mtoon1_material_shader_node_tree):
-        logger.error(
-            f"{type(reset_op)} is not a VRM_OT_reset_mtoon1_material_shader_node_tree"
-        )
-        return
+    reset_op = layout_operator(layout, VRM_OT_reset_mtoon1_material_shader_node_tree)
     reset_op.material_name = material.name
 
 
