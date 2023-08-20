@@ -1,7 +1,6 @@
 import bpy
-from mathutils import Vector
-
 import idprop
+from mathutils import Vector
 
 from ...common import convert, shader
 from .property_group import (
