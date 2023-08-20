@@ -55,7 +55,10 @@ def unregister() -> None:
 def minimum_supported_blender_version() -> tuple[int, int, int]:
     blender = bl_info.get("blender")
     if not isinstance(blender, tuple) or len(blender) != 3:
-        raise AssertionError(f"Invalid version value: {blender}")
+        raise AssertionError(
+            # pylint: disable=consider-using-f-string; for legacy Blender versions
+            "Invalid version value: {}".format(blender),
+        )
     major, minor, patch = blender
     return (major, minor, patch)
 
