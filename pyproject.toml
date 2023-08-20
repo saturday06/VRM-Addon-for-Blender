@@ -71,12 +71,6 @@ disable = [
 [tool.pyright]
 pythonVersion = "3.9"
 pythonPlatform = "All"
-typeCheckingMode = "strict"
-
-reportUnknownArgumentType = false
-reportUnknownMemberType = false
-reportUnknownParameterType = false
-reportUnknownVariableType = false
 reportMissingModuleSource = false
 
 [build-system]
