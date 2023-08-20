@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L70-L164
-class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
     bone: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="VRM Humanoid Bone Name"  # noqa: F722
     )
@@ -84,7 +84,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mi
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
-class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):
     human_bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Human Bones", type=Vrm0HumanoidBonePropertyGroup  # noqa: F722
     )
@@ -255,7 +255,7 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22
-class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):
     curve: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=8, name="Curve", default=(0, 0, 0, 1, 1, 1, 1, 0)  # noqa: F821
     )
@@ -268,7 +268,7 @@ class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L32-L41
-class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Mesh",  # noqa: F821
         type=MeshObjectPropertyGroup,  # noqa: F821
@@ -301,7 +301,7 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L50-L91
-class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):
     first_person_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="First Person Bone",  # noqa: F722
         type=BonePropertyGroup,
@@ -351,7 +351,7 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
-class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Mesh", type=MeshObjectPropertyGroup  # noqa: F821
     )
@@ -368,7 +368,7 @@ class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L9-L16
-class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Material", type=bpy.types.Material  # noqa: F821
     )
@@ -381,7 +381,7 @@ class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L62-L99
-class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name",  # noqa: F821
         description="Name of the blendshape group",  # noqa: F722
@@ -511,7 +511,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
-class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=bpy.types.Object  # noqa: F722
     )
@@ -537,9 +537,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):  # t
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L21-L29
-class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
-    bpy.types.PropertyGroup  # type: ignore[misc]
-):
+class Vrm0SecondaryAnimationColliderGroupPropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Node", type=BonePropertyGroup  # noqa: F821
     )
@@ -574,7 +572,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L32-L67
-class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
     comment: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Comment",  # noqa: F821
         description="Comment about the purpose of the springs",  # noqa: F722
@@ -671,7 +669,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):  # type
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
-class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
     allowed_user_name_items = [
         ("OnlyAuthor", "Only Author", "", 0),
         ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", 1),
@@ -785,7 +783,7 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L101-L106
-class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):
     blend_shape_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Blend Shape Group", type=Vrm0BlendShapeGroupPropertyGroup  # noqa: F722
     )
@@ -797,7 +795,7 @@ class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):  # type: ignor
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L69-L78
-class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):
     bone_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Secondary Animation Groups",  # noqa: F722
         type=Vrm0SecondaryAnimationGroupPropertyGroup,
@@ -817,7 +815,7 @@ class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):  # type: ign
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_extensions.cs#L8-L48
-class Vrm0PropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm0PropertyGroup(bpy.types.PropertyGroup):
     meta: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="VRM Meta", type=Vrm0MetaPropertyGroup  # noqa: F722
     )

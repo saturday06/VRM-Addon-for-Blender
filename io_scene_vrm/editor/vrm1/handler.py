@@ -1,22 +1,15 @@
-from collections.abc import Callable
-
 import bpy
 from bpy.app.handlers import persistent
 
 from .property_group import Vrm1ExpressionPropertyGroup
 
-if not persistent:  # for fake-bpy-modules
 
-    def persistent(func: Callable[[object], None]) -> Callable[[object], None]:
-        return func
-
-
-@persistent  # type: ignore[misc]
+@persistent
 def frame_change_pre(_dummy: object) -> None:
     Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def frame_change_post(_dummy: object) -> None:
     for (
         shape_key_name,

@@ -12,7 +12,7 @@ from .property_group import (
 logger = get_logger(__name__)
 
 
-class VRM_UL_vrm1_expression(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm1_expression(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm1_expression"
 
     def draw_item(
@@ -61,7 +61,7 @@ class VRM_UL_vrm1_expression(bpy.types.UIList):  # type: ignore[misc]
         split.prop(expression, "preview", text="Preview")
 
 
-class VRM_UL_vrm1_morph_target_bind(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm1_morph_target_bind(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm1_morph_target_bind"
 
     def draw_item(
@@ -102,7 +102,7 @@ class VRM_UL_vrm1_morph_target_bind(bpy.types.UIList):  # type: ignore[misc]
         layout.label(text=name, translate=False, icon="MESH_DATA")
 
 
-class VRM_UL_vrm1_material_color_bind(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm1_material_color_bind(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_material_color_bind"
 
     def draw_item(
@@ -135,7 +135,7 @@ class VRM_UL_vrm1_material_color_bind(bpy.types.UIList):  # type: ignore[misc]
         layout.label(text=name, translate=False, icon="MATERIAL")
 
 
-class VRM_UL_vrm1_texture_transform_bind(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm1_texture_transform_bind(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm1_texture_transform_bind"
 
     def draw_item(

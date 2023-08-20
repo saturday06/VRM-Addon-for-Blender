@@ -3,9 +3,10 @@ import re
 from typing import Optional
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
+from bpy.app.translations import pgettext
+
 from ..common import deep
 from ..common.deep import Json
-from ..external.fake_bpy_module_support import pgettext
 
 
 class LicenseConfirmationRequiredProp:

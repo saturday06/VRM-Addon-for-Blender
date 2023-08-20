@@ -413,7 +413,7 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     web_op.url = url
 
 
-class VRM_PT_vrm_material_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm_material_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm_material_property"
     bl_label = "VRM Material"
     bl_space_type = "PROPERTIES"

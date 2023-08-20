@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
-class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=BonePropertyGroup  # noqa: F722
     )
@@ -57,7 +57,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
-class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
     hips: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup  # noqa: F722
     )
@@ -411,7 +411,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.schema.json
-class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):
     human_bones: bpy.props.PointerProperty(type=Vrm1HumanBonesPropertyGroup)  # type: ignore[valid-type]
 
     # for T-Pose
@@ -426,7 +426,7 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.rangeMap.schema.json
-class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
     input_max_value: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Input Max Value",  # noqa: F722
         min=0.0001,  # https://github.com/pixiv/three-vrm/issues/1197#issuecomment-1498492002
@@ -440,7 +440,7 @@ class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.schema.json
-class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
     offset_from_head_bone: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Offset From Head Bone",  # noqa: F722
         size=3,
@@ -471,7 +471,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json
-class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=MeshObjectPropertyGroup  # noqa: F821
     )
@@ -487,14 +487,14 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.schema.json
-class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
     mesh_annotations: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Mesh Annotations", type=Vrm1MeshAnnotationPropertyGroup  # noqa: F722
     )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
-class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=MeshObjectPropertyGroup  # noqa: F821
     )
@@ -507,7 +507,7 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.materialColorBind.schema.json
-class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Material",  # noqa: F821
         type=bpy.types.Material,  # noqa: F821
@@ -560,7 +560,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):  # type: igno
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.textureTransformBind.schema.json
-class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Material",  # noqa: F821
         type=bpy.types.Material,  # noqa: F821
@@ -574,7 +574,7 @@ class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):  # type: i
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.schema.json
-class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
     morph_target_binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=Vrm1MorphTargetBindPropertyGroup  # noqa: F821
     )
@@ -730,7 +730,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
-class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):
     happy: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     angry: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     sad: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
@@ -795,7 +795,7 @@ class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):  # type: igno
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
-class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
     preset: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1ExpressionsPresetPropertyGroup,  # noqa: F722
     )
@@ -829,7 +829,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[mis
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json
-class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
     avatar_permission_items = [
         ("onlyAuthor", "Only Author", "", 0),
         ("onlySeparatelyLicensedPerson", "Only Separately Licensed Person", "", 1),
@@ -928,7 +928,7 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.schema.json
-class Vrm1PropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Vrm1PropertyGroup(bpy.types.PropertyGroup):
     meta: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1MetaPropertyGroup  # noqa: F722
     )

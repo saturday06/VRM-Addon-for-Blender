@@ -1,5 +1,4 @@
 import time
-from collections.abc import Callable
 from typing import Optional
 
 import bpy
@@ -9,11 +8,6 @@ from ...common.logging import get_logger
 from .ops import VRM_OT_refresh_mtoon1_outline
 
 logger = get_logger(__name__)
-
-if not persistent:  # for fake-bpy-modules
-
-    def persistent(func: Callable[[object], None]) -> Callable[[object], None]:
-        return func
 
 
 previous_object_material_state: list[list[Optional[tuple[str, bool, bool]]]] = []
@@ -66,11 +60,11 @@ def trigger_update_mtoon1_outline() -> None:
     bpy.app.timers.register(update_mtoon1_outline, first_interval=0.2)
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def save_pre(_dummy: object) -> None:
     update_mtoon1_outline()
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def depsgraph_update_pre(_dummy: object) -> None:
     trigger_update_mtoon1_outline()

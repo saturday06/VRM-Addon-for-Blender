@@ -17,7 +17,7 @@ from .vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
 logger = get_logger(__name__)
 
 
-class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):
     mesh_object_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
@@ -159,7 +159,7 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ign
                 n.value = mtoon0_property_name
 
 
-class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
     AXIS_TRANSLATION_AUTO_ID = "AUTO"
@@ -305,14 +305,15 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: igno
     )
 
 
-class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):
     axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=VrmAddonBoneExtensionPropertyGroup.axis_translation_items,
         name="Axis Translation on Export",  # noqa: F722
     )
 
 
-class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+
+class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
@@ -405,7 +406,7 @@ def update_internal_cache(context: bpy.types.Context) -> None:
     )
 
 
-class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):
     mtoon1: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MaterialPropertyGroup  # noqa: F722
     )

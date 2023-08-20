@@ -13,7 +13,7 @@ from ...common.preferences import VrmAddonPreferences
 logger = get_logger(__name__)
 
 
-class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
     def find_material(self) -> bpy.types.Material:
         if self.id_data and self.id_data.is_evaluated:
             logger.error(f"{self} is evaluated. May cause a problem.")
@@ -556,7 +556,7 @@ class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
     ]
 
 
-class Mtoon1TextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1TextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):
     pass
 
 
@@ -1165,7 +1165,7 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
     )
 
 
-class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):
     mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.mag_filter_items,
         name="Mag Filter",  # noqa: F722
@@ -1189,7 +1189,7 @@ class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
 
-class Mtoon0TexturePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon0TexturePropertyGroup(bpy.types.PropertyGroup):
     colorspace = "sRGB"
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -1513,7 +1513,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
     )
 
 
-class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):
     vrmc_materials_mtoon: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1VrmcMaterialsMtoonPropertyGroup  # noqa: F722
     )

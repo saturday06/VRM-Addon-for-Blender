@@ -10,7 +10,7 @@ import bpy
 #
 
 
-class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):  # type: ignore[misc]
+class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):
     bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.vrm_gltf2_addon_disabled_warning"
     bl_options = {"REGISTER"}

@@ -110,7 +110,7 @@ jobs:
         run: git config core.quotepath off
       - name: Check file permissions
         run: |
-          git ls-files ':!scripts/*.sh' ':!scripts/*.py' ':!tests/resources' | while read -r f; do
+          git ls-files ':!scripts/*.sh' ':!scripts/*.py' ':!tests/resources' ':!typings' | while read -r f; do
             echo "$f"
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."
@@ -181,11 +181,7 @@ jobs:
       - name: Check source code formatting
         run: git ls-files "*.py" "*.pyi" | xargs poetry run black --check --diff
       - name: Pylint
-        run: |
-          poetry remove fake-bpy-module-2.93 # pylint and fake-bpy-module are incompatible
-          git ls-files "*.py" "*.pyi" | xargs poetry run pylint --rcfile .pylintrc.ci
-          git checkout .
-          poetry install
+        run: git ls-files "*.py" "*.pyi" | xargs poetry run pylint
       - name: Pyright
         run: git ls-files "*.py" "*.pyi" | xargs poetry run pyright
       - name: Mypy

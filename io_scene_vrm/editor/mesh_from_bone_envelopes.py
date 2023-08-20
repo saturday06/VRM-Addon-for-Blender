@@ -6,7 +6,7 @@ from mathutils import Vector
 from ..common.shader import shader_node_group_import
 
 
-class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):  # type: ignore[misc]
+class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):
     bl_idname = "icyp.make_mesh_from_envelopes"
     bl_label = "(WIP)basic mesh for vrm"
     bl_description = "Create mesh along with a simple setup for VRM export"

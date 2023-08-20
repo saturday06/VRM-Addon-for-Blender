@@ -3,7 +3,7 @@ from bpy.types import GizmoGroup
 
 
 # https://gist.github.com/FujiSunflower/09fdabc7ca991f8292657abc4ef001b0
-class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):  # type: ignore[misc]
+class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
     bl_idname = "VRM_GGT_vrm0_first_person_bone_offset"
     bl_label = "First Person Bone Offset Gizmo"
     bl_space_type = "VIEW_3D"

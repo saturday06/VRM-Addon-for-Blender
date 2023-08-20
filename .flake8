@@ -16,6 +16,7 @@ per-file-ignores =
     tests/base_blender_gui_test_case.py:S404,S602,S603,S607
     # https://github.com/adamchainz/flake8-no-pep420/blob/2.0.0/README.rst#inp001-file-is-part-of-an-implicit-namespace-package
     scripts/*.py:INP001
+    typings/*.pyi:E301,E302,E305,E701,F401,SC200,N802
 
 dictionaries=en_US,python,technical
 whitelist=dictionary.txt
@@ -36,6 +37,9 @@ ignore-names=
     VRM_UL_*
     WM_OT_vrm_*
     WM_OT_vrma_*
+    bpy_prop_collection
+    bpy_prop_array
+    bpy_struct
     # https://github.com/PyCQA/pep8-naming/blob/615b8e754ef251354c00dd3e56ce87bba1786ba1/README.rst#options
     setUp
     tearDown

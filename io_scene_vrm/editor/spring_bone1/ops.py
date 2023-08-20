@@ -6,7 +6,7 @@ import bpy
 from .handler import reset_state, update_pose_bone_rotations
 
 
-class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Collider"
@@ -30,7 +30,7 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):  # type: ignore[misc
         return {"FINISHED"}
 
 
-class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 0.x Collider"
@@ -84,7 +84,7 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):  # type: ignore[m
         return {"FINISHED"}
 
 
-class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_spring"
     bl_label = "Add Spring"
     bl_description = "Add VRM 1.0 Spring"
@@ -106,7 +106,7 @@ class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):  # type: ignore[misc]
         return {"FINISHED"}
 
 
-class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_spring"
     bl_label = "Remove Spring"
     bl_description = "Remove VRM 1.0 Spring"
@@ -134,7 +134,7 @@ class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):  # type: ignore[mis
         return {"FINISHED"}
 
 
-class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group"
@@ -159,7 +159,7 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):  # type: ignor
         return {"FINISHED"}
 
 
-class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group"
@@ -203,7 +203,7 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):  # type: ig
         return {"FINISHED"}
 
 
-class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group Collider"
@@ -231,7 +231,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):  # ty
         return {"FINISHED"}
 
 
-class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group Collider"
@@ -266,7 +266,7 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):  #
         return {"FINISHED"}
 
 
-class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_spring_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Spring Collider Group"
@@ -294,7 +294,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):  # type
         return {"FINISHED"}
 
 
-class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Collider Group"
@@ -329,7 +329,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):  # t
         return {"FINISHED"}
 
 
-class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_spring_joint"
     bl_label = "Add Joint"
     bl_description = "Add VRM 1.0 Spring Bone Spring Joint"
@@ -375,7 +375,7 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):  # type: ignore[
         return {"FINISHED"}
 
 
-class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_joint"
     bl_label = "Remove Joint"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Joint"
@@ -410,7 +410,7 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):  # type: igno
         return {"FINISHED"}
 
 
-class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):
     bl_idname = "vrm.reset_spring_bone1_animation_state"
     bl_label = "Reset SpringBone Animation State"
     bl_description = "Reset SpringBone Animation State"
@@ -434,7 +434,7 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):  # type: ig
         return {"FINISHED"}
 
 
-class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):
     bl_idname = "vrm.update_spring_bone1_animation"
     bl_label = "Update SpringBone Animation"
     bl_description = "Update SpringBone Animation"

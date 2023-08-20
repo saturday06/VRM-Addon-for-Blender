@@ -6,8 +6,8 @@ authors = ["Isamu Mogi <isamu@leafytree.jp>", "iCyP"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-"fake-bpy-module-2.93" = "20210701"
+python = "3.10.*"
+bpy = "3.6.*"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "*"
@@ -32,37 +32,54 @@ target-version = ['py39']
 python_version = 3.9
 strict = true
 disallow_any_explicit = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
 
-[[tool.mypy.overrides]]
-module = [
-    "bgl",
-    "bmesh.*",
-    "bpy.*",
-    "bpy_extras.*",
-    "gpu",
-    "gpu_extras.*",
-    "mathutils",
+[tool.pylint."main"]
+py-version = 3.9
+
+[tool.pylint."messages control"]
+disable = [
+    "raw-checker-failed",
+    "bad-inline-option",
+    "locally-disabled",
+    "file-ignored",
+    "suppressed-message",
+    "useless-suppression",
+    "deprecated-pragma",
+    "use-symbolic-message-instead",
+    "broad-exception-caught",
+    "duplicate-code", # https://github.com/PyCQA/pylint/issues/214
+    "fixme",
+    "import-error",
+    "import-outside-toplevel",
+    "invalid-name",
+    "line-too-long",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "missing-module-docstring",
+    "too-few-public-methods",
+    "too-many-arguments",
+    "too-many-boolean-expressions",
+    "too-many-branches",
+    "too-many-instance-attributes",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-nested-blocks",
+    "too-many-public-methods",
+    "too-many-return-statements",
+    "too-many-statements",
 ]
-ignore_missing_imports = true
 
 [tool.pyright]
 pythonVersion = "3.9"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 
-reportGeneralTypeIssues = false
-reportIncompatibleMethodOverride = false
-reportMissingTypeStubs = false
-reportOptionalContextManager = false
-reportOptionalMemberAccess = false
-reportOptionalSubscript = false
 reportUnknownArgumentType = false
-reportUnknownLambdaType = false
 reportUnknownMemberType = false
 reportUnknownParameterType = false
 reportUnknownVariableType = false
-reportUnnecessaryComparison = false
-reportUnnecessaryContains = false
+reportMissingModuleSource = false
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

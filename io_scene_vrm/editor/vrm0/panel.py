@@ -356,7 +356,7 @@ def draw_vrm0_humanoid_layout(
     layout.prop(humanoid, "has_translation_dof")
 
 
-class VRM_PT_vrm0_humanoid_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_humanoid_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_humanoid_armature_object_property"
     bl_label = "VRM 0.x Humanoid"
     bl_space_type = "PROPERTIES"
@@ -386,7 +386,7 @@ class VRM_PT_vrm0_humanoid_armature_object_property(bpy.types.Panel):  # type: i
         )
 
 
-class VRM_PT_vrm0_humanoid_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_humanoid_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_humanoid_ui"
     bl_label = "VRM 0.x Humanoid"
     bl_space_type = "VIEW_3D"
@@ -480,7 +480,7 @@ def draw_vrm0_first_person_layout(
     box.prop(first_person.look_at_vertical_down, "y_range")
 
 
-class VRM_PT_vrm0_first_person_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_first_person_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_first_person_armature_object_property"
     bl_label = "VRM 0.x First Person"
     bl_space_type = "PROPERTIES"
@@ -512,7 +512,7 @@ class VRM_PT_vrm0_first_person_armature_object_property(bpy.types.Panel):  # typ
         )
 
 
-class VRM_PT_vrm0_first_person_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_first_person_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_first_person_ui"
     bl_label = "VRM 0.x First Person"
     bl_space_type = "VIEW_3D"
@@ -768,7 +768,7 @@ def draw_vrm0_blend_shape_master_layout(
             add_target_value_op.material_value_index = material_value_index
 
 
-class VRM_PT_vrm0_blend_shape_master_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_blend_shape_master_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_blend_shape_master_armature_object_property"
     bl_label = "VRM 0.x Blend Shape Proxy"
     bl_space_type = "PROPERTIES"
@@ -797,7 +797,7 @@ class VRM_PT_vrm0_blend_shape_master_armature_object_property(bpy.types.Panel): 
         )
 
 
-class VRM_PT_vrm0_blend_shape_master_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_blend_shape_master_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_blend_shape_master_ui"
     bl_label = "VRM 0.x Blend Shape Proxy"
     bl_space_type = "VIEW_3D"
@@ -1043,7 +1043,7 @@ def draw_vrm0_secondary_animation_layout(
     add_collider_group_op.armature_name = armature.name
 
 
-class VRM_PT_vrm0_secondary_animation_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_secondary_animation_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_secondary_animation_armature_object_property"
     bl_label = "VRM 0.x Spring Bone"
     bl_space_type = "PROPERTIES"
@@ -1072,7 +1072,7 @@ class VRM_PT_vrm0_secondary_animation_armature_object_property(bpy.types.Panel):
         )
 
 
-class VRM_PT_vrm0_secondary_animation_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_secondary_animation_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_secondary_animation_ui"
     bl_label = "VRM 0.x Spring Bone"
     bl_space_type = "VIEW_3D"
@@ -1136,7 +1136,7 @@ def draw_vrm0_meta_layout(
         layout.prop(meta, "other_license_url", icon="URL")
 
 
-class VRM_PT_vrm0_meta_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_meta_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_meta_armature_object_property"
     bl_label = "VRM 0.x Meta"
     bl_space_type = "PROPERTIES"
@@ -1163,7 +1163,7 @@ class VRM_PT_vrm0_meta_armature_object_property(bpy.types.Panel):  # type: ignor
         draw_vrm0_meta_layout(active_object, context, self.layout, ext.vrm0.meta)
 
 
-class VRM_PT_vrm0_meta_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm0_meta_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm0_meta_ui"
     bl_label = "VRM 0.x Meta"
     bl_space_type = "VIEW_3D"

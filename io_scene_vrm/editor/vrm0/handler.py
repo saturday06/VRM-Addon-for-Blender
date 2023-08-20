@@ -1,5 +1,3 @@
-from collections.abc import Callable
-
 import bpy
 from bpy.app.handlers import persistent
 
@@ -8,18 +6,13 @@ from .property_group import Vrm0BlendShapeGroupPropertyGroup
 
 logger = get_logger(__name__)
 
-if not persistent:  # for fake-bpy-modules
 
-    def persistent(func: Callable[[object], None]) -> Callable[[object], None]:
-        return func
-
-
-@persistent  # type: ignore[misc]
+@persistent
 def frame_change_pre(_dummy: object) -> None:
     Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def frame_change_post(_dummy: object) -> None:
     for (
         shape_key_name,

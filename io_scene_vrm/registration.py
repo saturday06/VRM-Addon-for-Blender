@@ -5,7 +5,6 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
-from collections.abc import Callable
 from typing import Union
 
 import bpy
@@ -51,13 +50,8 @@ from .locale.translation_dictionary import translation_dictionary
 
 logger = get_logger(__name__)
 
-if not persistent:  # for fake-bpy-modules
 
-    def persistent(func: Callable[[object], None]) -> Callable[[object], None]:
-        return func
-
-
-@persistent  # type: ignore[misc]
+@persistent
 def load_post(_dummy: object) -> None:
     if (
         depsgraph_update_pre_once_if_load_post_is_unavailable
@@ -72,7 +66,7 @@ def load_post(_dummy: object) -> None:
     migration.setup_subscription(load_post=True)
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> None:
     # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
     # Blender起動直後のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
@@ -91,12 +85,12 @@ def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> Non
     migration.setup_subscription(load_post=False)
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def depsgraph_update_pre(_dummy: object) -> None:
     trigger_clear_addon_version_cache()
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def save_pre(_dummy: object) -> None:
     # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
     depsgraph_update_pre_once_if_load_post_is_unavailable(None)
@@ -373,23 +367,23 @@ def register(init_addon_version: object) -> None:
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Material.vrm_addon_extension = bpy.props.PointerProperty(
+    bpy.types.Material.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonMaterialExtensionPropertyGroup
     )
 
-    bpy.types.Scene.vrm_addon_extension = bpy.props.PointerProperty(
+    bpy.types.Scene.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonSceneExtensionPropertyGroup
     )
 
-    bpy.types.Bone.vrm_addon_extension = bpy.props.PointerProperty(
+    bpy.types.Bone.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonBoneExtensionPropertyGroup
     )
 
-    bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(
+    bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonArmatureExtensionPropertyGroup
     )
 
-    bpy.types.Object.vrm_addon_extension = bpy.props.PointerProperty(
+    bpy.types.Object.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonObjectExtensionPropertyGroup
     )
 
@@ -444,19 +438,19 @@ def unregister() -> None:
     bpy.types.TOPBAR_MT_file_import.remove(import_scene.menu_import)
 
     if hasattr(bpy.types.Object, "vrm_addon_extension"):
-        del bpy.types.Object.vrm_addon_extension
+        del bpy.types.Object.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
     if hasattr(bpy.types.Armature, "vrm_addon_extension"):
-        del bpy.types.Armature.vrm_addon_extension
+        del bpy.types.Armature.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
     if hasattr(bpy.types.Bone, "vrm_addon_extension"):
-        del bpy.types.Bone.vrm_addon_extension
+        del bpy.types.Bone.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
     if hasattr(bpy.types.Scene, "vrm_addon_extension"):
-        del bpy.types.Scene.vrm_addon_extension
+        del bpy.types.Scene.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
     if hasattr(bpy.types.Material, "vrm_addon_extension"):
-        del bpy.types.Material.vrm_addon_extension
+        del bpy.types.Material.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
     for cls in reversed(classes):
         try:

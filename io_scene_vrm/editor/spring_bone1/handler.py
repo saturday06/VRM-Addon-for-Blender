@@ -1,5 +1,4 @@
 import datetime
-from collections.abc import Callable
 from dataclasses import dataclass
 from sys import float_info
 from typing import Optional, Union
@@ -13,11 +12,6 @@ from .property_group import (
     SpringBone1JointPropertyGroup,
     SpringBone1SpringPropertyGroup,
 )
-
-if not persistent:  # for fake-bpy-modules
-
-    def persistent(func: Callable[[object], None]) -> Callable[[object], None]:
-        return func
 
 
 @dataclass
@@ -493,12 +487,12 @@ def calculate_joint_pair_head_pose_bone_rotations(
     )
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def depsgraph_update_pre(_dummy: object) -> None:
     state.previous_datetime = None
 
 
-@persistent  # type: ignore[misc]
+@persistent
 def frame_change_pre(_dummy: object) -> None:
     state.previous_datetime = datetime.datetime.now(datetime.timezone.utc)
     delta_time = float(bpy.context.scene.render.fps_base) / float(

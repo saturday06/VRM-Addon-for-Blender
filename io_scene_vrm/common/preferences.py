@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 addon_package_name = ".".join(__name__.split(".")[:-2])
 
 
-class VrmAddonPreferences(bpy.types.AddonPreferences):  # type: ignore[misc]
+class VrmAddonPreferences(bpy.types.AddonPreferences):
     bl_idname = addon_package_name
 
     INITIAL_ADDON_VERSION = (0, 0, 0)

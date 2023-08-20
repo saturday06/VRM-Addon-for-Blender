@@ -274,7 +274,7 @@ def draw_vrm1_humanoid_layout(
     draw_vrm1_humanoid_optional_bones_layout(human_bones, armature_box.box())
 
 
-class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_humanoid_armature_object_property"
     bl_label = "Humanoid"
     bl_translation_context = "VRM"
@@ -307,7 +307,7 @@ class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):  # type: i
         )
 
 
-class VRM_PT_vrm1_humanoid_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_humanoid_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_humanoid_ui"
     bl_label = "Humanoid"
     bl_translation_context = "VRM"
@@ -375,7 +375,7 @@ def draw_vrm1_first_person_layout(
     add_mesh_annotation_op.armature_name = armature.name
 
 
-class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_first_person_armature_object_property"
     bl_label = "First Person"
     bl_translation_context = "VRM"
@@ -409,7 +409,7 @@ class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):  # typ
         )
 
 
-class VRM_PT_vrm1_first_person_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_first_person_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_first_person_ui"
     bl_label = "First Person"
     bl_translation_context = "VRM"
@@ -469,7 +469,7 @@ def draw_vrm1_look_at_layout(
     column.prop(look_at.range_map_vertical_down, "output_scale")
 
 
-class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_look_at_armature_object_property"
     bl_label = "Look At"
     bl_translation_context = "VRM"
@@ -503,7 +503,7 @@ class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):  # type: ig
         )
 
 
-class VRM_PT_vrm1_look_at_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_look_at_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_look_at_ui"
     bl_label = "Look At"
     bl_translation_context = "VRM"
@@ -981,7 +981,7 @@ def draw_vrm1_expressions_layout(
         )
 
 
-class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_expressions_armature_object_property"
     bl_label = "Expressions"
     bl_translation_context = "VRM"
@@ -1015,7 +1015,7 @@ class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):  # type
         )
 
 
-class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_expressions_ui"
     bl_label = "Expressions"
     bl_translation_context = "VRM"
@@ -1124,7 +1124,7 @@ def draw_vrm1_meta_layout(
     layout.prop(meta, "other_license_url", icon="URL")
 
 
-class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_meta_armature_object_property"
     bl_label = "Meta"
     bl_translation_context = "VRM"
@@ -1154,7 +1154,7 @@ class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):  # type: ignor
         draw_vrm1_meta_layout(active_object, context, self.layout, ext.vrm1.meta)
 
 
-class VRM_PT_vrm1_meta_ui(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_meta_ui(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_meta_ui"
     bl_label = "Meta"
     bl_translation_context = "VRM"
@@ -1185,7 +1185,7 @@ class VRM_PT_vrm1_meta_ui(bpy.types.Panel):  # type: ignore[misc]
         )
 
 
-class VRM_PT_vrm1_bone_property(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_vrm1_bone_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_bone_property"
     bl_label = "VRM"
     bl_space_type = "PROPERTIES"

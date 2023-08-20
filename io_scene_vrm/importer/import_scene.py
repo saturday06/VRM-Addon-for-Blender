@@ -20,7 +20,7 @@ from .vrm_parser import VrmParser
 logger = get_logger(__name__)
 
 
-class LicenseConfirmation(bpy.types.PropertyGroup):  # type: ignore[misc]
+class LicenseConfirmation(bpy.types.PropertyGroup):
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
     url: bpy.props.StringProperty()  # type: ignore[valid-type]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -60,7 +60,7 @@ def import_vrm_update_addon_preferences(
         )
 
 
-class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
+class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
     bl_description = "Import VRM"
@@ -159,7 +159,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):  # type: ignore[mis
         return cast(set[str], ImportHelper.invoke(self, context, event))
 
 
-class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
     bl_idname = "VRM_PT_import_unsupported_blender_version_warning"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -198,7 +198,7 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):  # typ
             )
 
 
-class WM_OT_vrm_license_confirmation(bpy.types.Operator):  # type: ignore[misc]
+class WM_OT_vrm_license_confirmation(bpy.types.Operator):
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
     bl_options = {"REGISTER", "UNDO"}
@@ -293,7 +293,7 @@ def menu_import(
     vrma_import_op.armature_object_name = ""
 
 
-class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
+class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
     bl_idname = "import_scene.vrma"
     bl_label = "Import VRM Animation"
     bl_description = "Import VRM Animation"
@@ -337,7 +337,7 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):  # type: ignore[mi
         return cast(set[str], ImportHelper.invoke(self, context, event))
 
 
-class WM_OT_vrma_import_prerequisite(bpy.types.Operator):  # type: ignore[misc]
+class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
     bl_label = "VRM Animation Import Prerequisite"
     bl_idname = "wm.vrma_import_prerequisite"
     bl_options = {"REGISTER", "UNDO"}

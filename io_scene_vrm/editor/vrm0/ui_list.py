@@ -9,7 +9,7 @@ from .property_group import (
 )
 
 
-class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_secondary_animation_group"
 
     def draw_item(
@@ -42,7 +42,7 @@ class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):  # type: ignore[m
         layout.label(text=text, translate=False, icon="GROUP_BONE")
 
 
-class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_secondary_animation_collider_group"
 
     def draw_item(
@@ -74,7 +74,7 @@ class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):  # type:
         layout.label(text=collider_group.name, translate=False, icon="SPHERE")
 
 
-class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_blend_shape_group"
 
     def draw_item(
@@ -115,7 +115,7 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):  # type: ignore[misc]
         split.prop(blend_shape_group, "preview", text="Preview")
 
 
-class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_blend_shape_bind"
 
     def draw_item(
@@ -156,7 +156,7 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):  # type: ignore[misc]
         layout.label(text=name, translate=False, icon="MESH_DATA")
 
 
-class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):  # type: ignore[misc]
+class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):
     bl_idname = "VRM_UL_vrm0_material_value_bind"
 
     def draw_item(

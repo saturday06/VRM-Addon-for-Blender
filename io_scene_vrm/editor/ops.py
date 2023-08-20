@@ -19,7 +19,7 @@ from . import search
 from .make_armature import ICYP_OT_make_armature
 
 
-class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_simplify_vroid_bones(bpy.types.Operator):
     bl_idname = "vrm.bones_rename"
     bl_label = "Symmetrize VRoid Bone Names on X-Axis"
     bl_description = "Make VRoid bone names X-axis mirror editable"
@@ -75,7 +75,7 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):  # type: ignore[misc]
         return {"FINISHED"}
 
 
-class VRM_OT_add_extensions_to_armature(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_extensions_to_armature(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_extensions"
     bl_label = "Add VRM attributes"
     bl_description = "Add VRM extensions & metas to armature"
@@ -90,7 +90,7 @@ class VRM_OT_add_extensions_to_armature(bpy.types.Operator):  # type: ignore[mis
 
 
 # deprecated
-class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_humanbone_custom_property"
     bl_label = "Add VRM Human Bone prop"
     bl_description = ""
@@ -109,7 +109,7 @@ class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):  # type: ignore
 
 
 # deprecated
-class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_req_humanbone_prop"
     bl_label = "Add vrm human_bone_prop"
     bl_description = ""
@@ -129,7 +129,7 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):  # typ
 
 
 # deprecated
-class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_def_humanbone_prop"
     bl_label = "Add vrm human_bone_prop"
     bl_description = ""
@@ -148,7 +148,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):  # type
         return {"FINISHED"}
 
 
-class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
+class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):
     bl_idname = "vrm.save_human_bone_mappings"
     bl_label = "Save Bone Mappings"
     bl_description = "Save Bone Mappings"
@@ -190,7 +190,7 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):  # type
         return cast(set[str], ExportHelper.invoke(self, context, event))
 
 
-class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type: ignore[misc]
+class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):
     bl_idname = "vrm.load_human_bone_mappings"
     bl_label = "Load Bone Mappings"
     bl_description = "Load Bone Mappings"
@@ -244,7 +244,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):  # type
         return cast(set[str], ImportHelper.invoke(self, context, event))
 
 
-class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):
     bl_idname = "vrm.lipsync_vrm"
     bl_label = "Make lipsync4VRC"
     bl_description = "Make lipsync from VRoid to VRC by json"
@@ -296,7 +296,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):  # type: ig
         return {"FINISHED"}
 
 
-class VRM_OT_open_url_in_web_browser(bpy.types.Operator):  # type: ignore[misc]
+class VRM_OT_open_url_in_web_browser(bpy.types.Operator):
     bl_idname = "vrm.open_url_in_web_browser"
     bl_label = "Open"
     bl_description = "Open the URL in the default web browser"

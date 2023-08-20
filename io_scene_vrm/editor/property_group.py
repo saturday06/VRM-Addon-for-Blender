@@ -17,7 +17,7 @@ HumanBoneSpecification = TypeVar(
 logger = get_logger(__name__)
 
 
-class StringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class StringPropertyGroup(bpy.types.PropertyGroup):
     def get_value(self) -> str:
         value = self.get("value")
         if isinstance(value, str):
@@ -35,7 +35,7 @@ class StringPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
 
-class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class FloatPropertyGroup(bpy.types.PropertyGroup):
     def get_value(self) -> float:
         value = self.get("value")
         if isinstance(value, (float, int)):
@@ -53,7 +53,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
 
-class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
     def get_mesh_object_name(self) -> str:
         if (
             not self.bpy_object
@@ -102,7 +102,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
     )
 
 
-class BonePropertyGroup(bpy.types.PropertyGroup):  # type: ignore[misc]
+class BonePropertyGroup(bpy.types.PropertyGroup):
     @staticmethod
     def get_all_bone_property_groups(
         armature: bpy.types.Object,

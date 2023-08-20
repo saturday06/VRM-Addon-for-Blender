@@ -65,7 +65,7 @@ def export_vrm_update_addon_preferences(
         )
 
 
-class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
+class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
     bl_description = "Export VRM"
@@ -262,7 +262,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):  # type: ignore[mis
         pass  # Is needed to get panels available
 
 
-class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_export_error_messages(bpy.types.Panel):
     bl_idname = "VRM_IMPORTER_PT_export_error_messages"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -318,7 +318,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):  # type: ignore[misc]
             validation.WM_OT_vrm_validator.draw_errors(errors, False, layout.box())
 
 
-class VRM_PT_export_vrma_help(bpy.types.Panel):  # type: ignore[misc]
+class VRM_PT_export_vrma_help(bpy.types.Panel):
     bl_idname = "VRM_PT_export_vrma_help"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -350,7 +350,7 @@ def menu_export(menu_op: bpy.types.Operator, _context: bpy.types.Context) -> Non
     vrma_export_op.armature_object_name = ""
 
 
-class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):  # type: ignore[misc]
+class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.vrma"
     bl_label = "Export VRM Animation"
     bl_description = "Export VRM Animation"
@@ -397,7 +397,7 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):  # type: ignore[mi
         pass  # Is needed to get panels available
 
 
-class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: ignore[misc]
+class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
     bl_label = "VRM Required Bones Assignment"
     bl_idname = "wm.vrm_export_human_bones_assignment"
     bl_options = {"REGISTER", "UNDO"}
@@ -534,7 +534,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):  # type: igno
         draw_vrm1_humanoid_optional_bones_layout(human_bones, row.column())
 
 
-class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
+class WM_OT_vrm_export_confirmation(bpy.types.Operator):
     bl_label = "VRM Export Confirmation"
     bl_idname = "wm.vrm_export_confirmation"
     bl_options = {"REGISTER", "UNDO"}
@@ -590,7 +590,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):  # type: ignore[misc]
         layout.prop(self, "export_anyway")
 
 
-class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[misc]
+class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
     bl_label = "VRM Export Armature Selection"
     bl_idname = "wm.vrm_export_armature_selection"
     bl_options = {"REGISTER", "UNDO"}
@@ -647,7 +647,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):  # type: ignore[m
         )
 
 
-class WM_OT_vrma_export_prerequisite(bpy.types.Operator):  # type: ignore[misc]
+class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
     bl_label = "VRM Animation Export Prerequisite"
     bl_idname = "wm.vrma_export_prerequisite"
     bl_options = {"REGISTER", "UNDO"}
