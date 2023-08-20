@@ -6,6 +6,7 @@ https://opensource.org/licenses/mit-license.php
 """
 
 from collections.abc import Callable
+from typing import Union
 
 import bpy
 from bpy.app.handlers import persistent
