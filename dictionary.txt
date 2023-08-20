@@ -71,6 +71,7 @@ fs
 fsum
 func
 geocode
+getitem
 getmembers
 getmtime
 geturl
@@ -132,7 +133,6 @@ mmd
 mobj
 morphname
 msgbus
-msgctxt
 mtoon
 mtoon0
 mtoon1
