@@ -26,10 +26,10 @@ pylint = "*"
 pyright = "*"
 
 [tool.black]
-target-version = ['py39']
+target-version = ["py39"]
 
 [tool.mypy]
-python_version = 3.9
+python_version = "3.9"
 strict = true
 disallow_any_unimported = true
 disallow_any_decorated = true
@@ -37,7 +37,7 @@ disallow_any_explicit = true
 mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
 
 [tool.pylint.main]
-py-version = 3.9
+py-version = "3.9"
 
 [tool.pylint.format]
 max-line-length = 120 # https://wiki.blender.org/wiki/Process/Addons/Guidelines
