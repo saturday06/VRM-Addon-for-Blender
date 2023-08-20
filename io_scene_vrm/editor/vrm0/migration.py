@@ -249,7 +249,7 @@ def migrate_vrm0_blend_shape_groups(
             continue
 
         name = blend_shape_group_dict.get("name")
-        if name is not None:
+        if isinstance(name, str):
             blend_shape_group.name = name
 
         preset_name = blend_shape_group_dict.get("presetName")
