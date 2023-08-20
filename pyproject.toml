@@ -31,6 +31,8 @@ target-version = ['py39']
 [tool.mypy]
 python_version = 3.9
 strict = true
+disallow_any_unimported = true
+disallow_any_decorated = true
 disallow_any_explicit = true
 mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
 
