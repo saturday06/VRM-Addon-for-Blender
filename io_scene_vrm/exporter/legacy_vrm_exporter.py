@@ -248,6 +248,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             n = node.inputs[shader_vals + "_alpha"].links[0].from_node
                             if (
                                 isinstance(n, bpy.types.ShaderNodeTexImage)
+                                and n.image
                                 and n.image not in used_images
                             ):
                                 used_images.append(n.image)
@@ -255,6 +256,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         n = node.inputs[shader_vals].links[0].from_node
                         if (
                             isinstance(n, bpy.types.ShaderNodeTexImage)
+                            and n.image
                             and n.image not in used_images
                         ):
                             used_images.append(n.image)
@@ -265,6 +267,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         n = node.inputs[k].links[0].from_node
                         if (
                             isinstance(n, bpy.types.ShaderNodeTexImage)
+                            and n.image
                             and n.image not in used_images
                         ):
                             used_images.append(n.image)
@@ -275,6 +278,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     n = node.inputs["Main_Texture"].links[0].from_node
                     if (
                         isinstance(n, bpy.types.ShaderNodeTexImage)
+                        and n.image
                         and n.image not in used_images
                     ):
                         used_images.append(n.image)
