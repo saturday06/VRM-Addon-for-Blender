@@ -31,6 +31,7 @@ from .property_group import (
 
 logger = get_logger(__name__)
 
+
 class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):  # type: ignore[misc]
     bl_idname = "vrm.convert_material_to_mtoon1"
     bl_label = "Convert Material to MToon 1.0"
