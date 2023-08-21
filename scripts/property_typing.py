@@ -7,7 +7,7 @@ from typing import Mapping, Union
 
 import bpy
 
-from io_scene_vrm import bl_info, registration
+from io_scene_vrm import registration
 
 
 def write_property_typing(
@@ -163,33 +163,28 @@ def update_property_typing(
 
 
 def main() -> int:
-    registration.register(bl_info.get("version"))
-    try:
-        for c in registration.classes:
-            print(f"##### {c} #####")
-            code = ""
-            for k, v in c.__annotations__.items():
-                function: object = getattr(v, "function", None)
-                if function is None:
-                    continue
-                function_name = getattr(function, "__qualname__", None)
-                if function_name is None:
-                    continue
-                keywords = getattr(v, "keywords", None)
-                if not isinstance(keywords, Mapping):
-                    continue
-                typed_keywords: dict[str, object] = {
-                    k: v for k, v in keywords.items() if isinstance(k, str)
-                }
-                code += write_property_typing(
-                    k,
-                    f"{function.__module__}.{function_name}",
-                    typed_keywords,
-                )
-            update_property_typing(c, code)
-            # break
-    finally:
-        registration.unregister()
+    for c in registration.classes:
+        print(f"##### {c} #####")
+        code = ""
+        for k, v in c.__annotations__.items():
+            function: object = getattr(v, "function", None)
+            if function is None:
+                continue
+            function_name = getattr(function, "__qualname__", None)
+            if function_name is None:
+                continue
+            keywords = getattr(v, "keywords", None)
+            if not isinstance(keywords, Mapping):
+                continue
+            typed_keywords: dict[str, object] = {
+                k: v for k, v in keywords.items() if isinstance(k, str)
+            }
+            code += write_property_typing(
+                k,
+                f"{function.__module__}.{function_name}",
+                typed_keywords,
+            )
+        update_property_typing(c, code)
     return 0
 
 
