@@ -88,9 +88,9 @@ def raise_error_if_unsupported() -> None:
         # pylint: disable=consider-using-f-string; for legacy Blender versions
         """
 
-        ===========================================================
-        {}
-        ===========================================================
+            ===========================================================
+            {}
+            ===========================================================
         """.format(
             message.format(
                 minimum_version=".".join(map(str, minimum_version)),
