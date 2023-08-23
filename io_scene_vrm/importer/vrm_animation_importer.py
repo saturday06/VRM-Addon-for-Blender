@@ -685,6 +685,13 @@ def assign_expression_keyframe(
         expression_name,
         translation_keyframes,
     ) in expression_name_to_translation_keyframes.items():
+        if expression_name in [
+            "lookUp",
+            "lookDown",
+            "lookLeft",
+            "lookRight",
+        ]:
+            continue
         expression = expression_name_to_expression.get(expression_name)
         if not expression:
             continue
@@ -796,7 +803,10 @@ def assign_humanoid_keyframe(
     )
 
     human_bone_name = node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
-    if human_bone_name:
+    if human_bone_name and human_bone_name not in [
+        HumanBoneName.LEFT_EYE,
+        HumanBoneName.RIGHT_EYE,
+    ]:
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bone = human_bones.human_bone_name_to_human_bone().get(human_bone_name)
         if human_bone:

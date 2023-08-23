@@ -77,6 +77,8 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
     )
 
     for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+        if human_bone_name in [HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE]:
+            continue
         # 現在注目しているヒューマンボーンに対応するポーズボーンを探す
         human_bone_specification = HumanBoneSpecifications.get(human_bone_name)
         human_bone = human_bone_name_to_human_bone.get(human_bone_name)
@@ -185,7 +187,17 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
     expression_animation_data = armature_data.animation_data
     if expression_animation_data and expression_animation_data.action:
         data_path_to_expression_name: dict[str, str] = {}
-        for expression in vrm1.expressions.all_name_to_expression_dict().values():
+        for (
+            expression_name,
+            expression,
+        ) in vrm1.expressions.all_name_to_expression_dict().items():
+            if expression_name in [
+                "lookUp",
+                "lookDown",
+                "lookLeft",
+                "lookRight",
+            ]:
+                continue
             data_path_to_expression_name[
                 expression.path_from_id("preview")
             ] = expression.name
