@@ -7,16 +7,17 @@ https://opensource.org/licenses/mit-license.php
 
 #
 #
-# Please don't import anything in the global scope to minimize initialization and
-# support unzipping the partial add-on archive for users who have acquired the add-on
-# from "Code" -> "Download ZIP" on GitHub.
+# - Please don't import anything in the global scope to minimize initialization and
+#   support unzipping the partial add-on archive for users who have acquired the add-on
+#   from "Code" -> "Download ZIP" on GitHub.
+# - Please write this script to work with Blender 2.79.
 #
 #
 
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 19, 0),
+    "version": (2, 19, 1),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -30,7 +31,7 @@ bl_info = {
 
 
 def register() -> None:
-    raise_error_if_current_blender_is_not_supported()
+    raise_error_if_unsupported()
     extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
@@ -41,29 +42,27 @@ def register() -> None:
 
 
 def unregister() -> None:
-    import bpy
-
-    if bpy.app.version < minimum_supported_blender_version():
-        return
-
     # Lazy import to minimize initialization before blender version checking.
     from . import registration
 
     registration.unregister()
 
 
-def minimum_supported_blender_version() -> tuple[int, int, int]:
-    blender = bl_info.get("blender")
-    if not isinstance(blender, tuple) or len(blender) != 3:
-        raise AssertionError(f"Invalid version value: {blender}")
-    major, minor, patch = blender
-    return (major, minor, patch)
-
-
-def raise_error_if_current_blender_is_not_supported() -> None:
+def raise_error_if_unsupported() -> None:
     import bpy
 
-    if bpy.app.version >= minimum_supported_blender_version():
+    minimum_version = bl_info.get("blender")
+    if (
+        not isinstance(minimum_version, tuple)
+        or len(minimum_version) != 3
+        or not all(isinstance(v, int) for v in minimum_version)
+    ):
+        raise AssertionError(
+            # pylint: disable=consider-using-f-string; for legacy Blender versions
+            "Invalid version value: {}".format(minimum_version),
+        )
+
+    if bpy.app.version >= minimum_version:
         return
 
     default_message = (
@@ -89,12 +88,12 @@ def raise_error_if_current_blender_is_not_supported() -> None:
         # pylint: disable=consider-using-f-string; for legacy Blender versions
         """
 
-        ===========================================================
-        {}
-        ===========================================================
+            ===========================================================
+            {}
+            ===========================================================
         """.format(
             message.format(
-                minimum_version=".".join(map(str, bl_info["blender"])),
+                minimum_version=".".join(map(str, minimum_version)),
                 current_version=".".join(map(str, bpy.app.version)),
             )
         )
