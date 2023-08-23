@@ -43,7 +43,6 @@ dof
 editmode
 ee
 emissive
-emissivefactor
 eval
 exeext
 f00
@@ -81,7 +80,6 @@ glbs
 glsl
 gltf
 gltf2
-hb
 hdr
 hpos
 hrad
@@ -91,7 +89,6 @@ idname
 idprop
 ies
 ih
-ik
 img
 instancer
 inv
@@ -161,7 +158,6 @@ prog
 proj
 pydata
 pylint
-pyright
 pythonpath
 qualname
 quaternion
@@ -179,7 +175,6 @@ rfu
 rgb
 rgba
 rigify
-rl
 rocketbox
 roid
 row0
@@ -221,7 +216,6 @@ topbar
 tpos
 transzw
 tri
-tria
 tris
 tz
 ui
@@ -240,7 +234,6 @@ uvs
 vab
 validator
 vals
-vanim
 vec
 vec3
 vec4
