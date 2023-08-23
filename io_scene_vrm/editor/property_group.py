@@ -397,3 +397,6 @@ class CollectionPropertyProtocol(Protocol[T_co]):
 
     def __contains__(self, value: str) -> bool:
         ...  # TODO: undocumented
+
+    def move(self, from_index: int, to_index: int) -> None:
+        ...  # TODO: undocumented

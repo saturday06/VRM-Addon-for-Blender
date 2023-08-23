@@ -152,10 +152,24 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
-        custom_expression = (
-            armature_data.vrm_addon_extension.vrm1.expressions.custom.add()
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        new_last_custom_index = len(expressions.custom)
+        new_active_custom_index = min(
+            max(
+                0,
+                expressions.active_expression_ui_list_element_index
+                - len(expressions.preset.name_to_expression_dict())
+                + 1,
+            ),
+            new_last_custom_index,
         )
+        custom_expression = expressions.custom.add()
         custom_expression.custom_name = self.custom_expression_name
+        expressions.active_expression_ui_list_element_index = (
+            len(expressions.preset.name_to_expression_dict()) + new_active_custom_index
+        )
+        if new_last_custom_index != new_active_custom_index:
+            expressions.custom.move(new_last_custom_index, new_active_custom_index)
         return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
 
     if TYPE_CHECKING:
@@ -185,15 +199,102 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
         for custom_index, custom_expression in enumerate(
-            list(armature_data.vrm_addon_extension.vrm1.expressions.custom.values())
+            list(expressions.custom.values())
         ):
             if custom_expression.custom_name == self.custom_expression_name:
-                armature_data.vrm_addon_extension.vrm1.expressions.custom.remove(
-                    custom_index
+                expressions.custom.remove(custom_index)
+                expressions.active_expression_ui_list_element_index = min(
+                    expressions.active_expression_ui_list_element_index,
+                    len(expressions.all_name_to_expression_dict()) - 1,
                 )
                 return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
         return {"CANCELLED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        custom_expression_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm1_expressions_custom_expression(bpy.types.Operator):
+    bl_idname = "vrm.move_up_vrm1_expressions_custom_expression"
+    bl_label = "Move Up Custom Expression"
+    bl_description = "Move Up VRM 1.0 Custom Expression"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression_index = {
+            0: i
+            for i, expression in enumerate(expressions.custom)
+            if expression.custom_name == self.custom_expression_name
+        }.get(0)
+        if expression_index is None:
+            return {"CANCELLED"}
+        new_expression_index = (expression_index - 1) % len(expressions.custom)
+        expressions.custom.move(expression_index, new_expression_index)
+        expressions.active_expression_ui_list_element_index = (
+            len(expressions.preset.name_to_expression_dict()) + new_expression_index
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        custom_expression_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm1_expressions_custom_expression(bpy.types.Operator):
+    bl_idname = "vrm.move_down_vrm1_expressions_custom_expression"
+    bl_label = "Move Down Custom Expression"
+    bl_description = "Move Down VRM 1.0 Custom Expression"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression_index = {
+            0: i
+            for i, expression in enumerate(expressions.custom)
+            if expression.custom_name == self.custom_expression_name
+        }.get(0)
+        if expression_index is None:
+            return {"CANCELLED"}
+        new_expression_index = (expression_index + 1) % len(expressions.custom)
+        expressions.custom.move(expression_index, new_expression_index)
+        expressions.active_expression_ui_list_element_index = (
+            len(expressions.preset.name_to_expression_dict()) + new_expression_index
+        )
+        return {"FINISHED"}
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -289,6 +390,10 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):
         if expression is None:
             return {"CANCELLED"}
         expression.morph_target_binds.add()
+        expression.active_morph_target_bind_index = min(
+            max(0, expression.active_morph_target_bind_index + 1),
+            len(expression.morph_target_binds) - 1,
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -329,6 +434,96 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):
         if len(expression.morph_target_binds) <= self.bind_index:
             return {"CANCELLED"}
         expression.morph_target_binds.remove(self.bind_index)
+        expression.active_morph_target_bind_index = min(
+            expression.active_morph_target_bind_index,
+            len(expression.morph_target_binds) - 1,
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm1_expression_morph_target_bind(bpy.types.Operator):
+    bl_idname = "vrm.move_up_vrm1_expression_morph_target_bind"
+    bl_label = "Move Up Morph Target Bind"
+    bl_description = "Move Up VRM 1.0 Expression Morph Target Bind"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
+            return {"CANCELLED"}
+        if len(expression.morph_target_binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_bind_index = (self.bind_index - 1) % len(expression.morph_target_binds)
+        expression.morph_target_binds.move(self.bind_index, new_bind_index)
+        expression.active_morph_target_bind_index = new_bind_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm1_expression_morph_target_bind(bpy.types.Operator):
+    bl_idname = "vrm.move_down_vrm1_expression_morph_target_bind"
+    bl_label = "Move Down Morph Target Bind"
+    bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
+            return {"CANCELLED"}
+        if len(expression.morph_target_binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_bind_index = (self.bind_index + 1) % len(expression.morph_target_binds)
+        expression.morph_target_binds.move(self.bind_index, new_bind_index)
+        expression.active_morph_target_bind_index = new_bind_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -364,7 +559,9 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):
         )
         if expression is None:
             return {"CANCELLED"}
+        new_active_index = len(expression.material_color_binds)
         expression.material_color_binds.add()
+        expression.active_material_color_bind_index = new_active_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -405,6 +602,95 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):
         if len(expression.material_color_binds) <= self.bind_index:
             return {"CANCELLED"}
         expression.material_color_binds.remove(self.bind_index)
+        expression.active_material_color_bind_index = max(
+            0, len(expression.material_color_binds) - 1
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm1_expression_material_color_bind(bpy.types.Operator):
+    bl_idname = "vrm.move_up_vrm1_expression_material_color_bind"
+    bl_label = "Move Up Material Color Bind"
+    bl_description = "Move Up VRM 1.0 Expression Material Color Bind"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
+            return {"CANCELLED"}
+        if len(expression.material_color_binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_bind_index = (self.bind_index - 1) % len(expression.material_color_binds)
+        expression.material_color_binds.move(self.bind_index, new_bind_index)
+        expression.active_material_color_bind_index = new_bind_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm1_expression_material_color_bind(bpy.types.Operator):
+    bl_idname = "vrm.move_down_vrm1_expression_material_color_bind"
+    bl_label = "Move Down Material Color Bind"
+    bl_description = "Move Down VRM 1.0 Expression Material Color Bind"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
+            return {"CANCELLED"}
+        if len(expression.material_color_binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_bind_index = (self.bind_index + 1) % len(expression.material_color_binds)
+        expression.material_color_binds.move(self.bind_index, new_bind_index)
+        expression.active_material_color_bind_index = new_bind_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -439,7 +725,9 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
+        active_index = len(expression.texture_transform_binds)
         expression.texture_transform_binds.add()
+        expression.active_texture_transform_bind_index = active_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -480,6 +768,95 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator):
         if len(expression.texture_transform_binds) <= self.bind_index:
             return {"CANCELLED"}
         expression.texture_transform_binds.remove(self.bind_index)
+        expression.active_texture_transform_bind_index = max(
+            0, len(expression.texture_transform_binds) - 1
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm1_expression_texture_transform_bind(bpy.types.Operator):
+    bl_idname = "vrm.move_up_vrm1_expression_texture_transform_bind"
+    bl_label = "Move Up Texture Transform Bind"
+    bl_description = "Move Up VRM 1.0 Expression Texture Transform Bind"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
+            return {"CANCELLED"}
+        if len(expression.texture_transform_binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_bind_index = (self.bind_index - 1) % len(expression.texture_transform_binds)
+        expression.texture_transform_binds.move(self.bind_index, new_bind_index)
+        expression.active_texture_transform_bind_index = new_bind_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run ./scripts/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        expression_name: str  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm1_expression_texture_transform_bind(bpy.types.Operator):
+    bl_idname = "vrm.move_down_vrm1_expression_texture_transform_bind"
+    bl_label = "Move Down Morph Target Bind"
+    bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
+    bl_options = {"REGISTER", "UNDO"}
+
+    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+    )
+    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},  # noqa: F821
+        min=0,
+    )
+
+    def execute(self, _context: bpy.types.Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expression = expressions.all_name_to_expression_dict().get(self.expression_name)
+        if expression is None:
+            return {"CANCELLED"}
+        if len(expression.texture_transform_binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_bind_index = (self.bind_index + 1) % len(expression.texture_transform_binds)
+        expression.texture_transform_binds.move(self.bind_index, new_bind_index)
+        expression.active_texture_transform_bind_index = new_bind_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
