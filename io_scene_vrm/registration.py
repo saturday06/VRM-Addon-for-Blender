@@ -426,6 +426,10 @@ def unregister() -> None:
     bpy.app.handlers.depsgraph_update_pre.remove(
         spring_bone1_handler.depsgraph_update_pre
     )
+    bpy.app.handlers.frame_change_post.remove(vrm1_handler.frame_change_post)
+    bpy.app.handlers.frame_change_pre.remove(vrm1_handler.frame_change_pre)
+    bpy.app.handlers.frame_change_post.remove(vrm0_handler.frame_change_post)
+    bpy.app.handlers.frame_change_pre.remove(vrm0_handler.frame_change_pre)
     bpy.app.handlers.frame_change_pre.remove(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.save_pre.remove(mtoon1_handler.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
