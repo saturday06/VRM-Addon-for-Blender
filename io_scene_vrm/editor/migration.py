@@ -177,6 +177,7 @@ def setup_subscription(load_post: bool) -> None:
     )
 
     bpy.msgbus.publish_rna(key=object_name_subscribe_to)
+    bpy.msgbus.publish_rna(key=object_mode_subscribe_to)
     bpy.msgbus.publish_rna(key=bone_name_subscribe_to)
     bpy.msgbus.publish_rna(key=armature_name_subscribe_to)
 
@@ -185,4 +186,5 @@ def teardown_subscription() -> None:
     setup_once.clear()
     bpy.msgbus.clear_by_owner(armature_name_subscription_owner)
     bpy.msgbus.clear_by_owner(bone_name_subscription_owner)
+    bpy.msgbus.clear_by_owner(object_mode_subscription_owner)
     bpy.msgbus.clear_by_owner(object_name_subscription_owner)
