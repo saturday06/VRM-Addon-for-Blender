@@ -38,7 +38,7 @@ jobs:
 
           git config --global user.email "isamu@leafytree.jp"
           git config --global user.name "[BOT] Isamu Mogi"
-          git commit -m "docs: update to $GITHUB_SHA [BOT]"
+          git commit -m "docs: update README to $GITHUB_SHA [BOT]"
 
           case "$GITHUB_SHA" in
             "$(git rev-parse origin/main)");;

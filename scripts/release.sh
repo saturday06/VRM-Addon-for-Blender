@@ -110,7 +110,7 @@ github_downloaded_zip_path="${PWD}/readme.zip"
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
-  git commit -m "docs: update the latest internal partial code [BOT]"
+  git commit -m "docs: update the latest internal partial code to $GITHUB_SHA [BOT]"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$github_downloaded_zip_path"
 )
 
