@@ -10,11 +10,6 @@ from . import (
     search,
     validation,
 )
-from .mtoon0.glsl_drawer import (
-    GlslDrawObj,
-    ICYP_OT_draw_model,
-    ICYP_OT_remove_draw_model,
-)
 from .ops import layout_operator
 
 
@@ -115,7 +110,6 @@ class VRM_PT_controller(bpy.types.Panel):
         self.layout.label(icon="TOOL_SETTINGS")
 
     def draw(self, context: bpy.types.Context) -> None:
-        mode = context.mode
         layout = self.layout
         preferences = get_preferences(context)
 
@@ -147,37 +141,6 @@ class VRM_PT_controller(bpy.types.Panel):
                     text="",
                     translate=False,
                 )
-
-        if mode != "OBJECT":
-            return
-
-        if GlslDrawObj.draw_objs:
-            layout.operator(
-                ICYP_OT_remove_draw_model.bl_idname,
-                icon="SHADING_RENDERED",
-                depress=True,
-            )
-            return
-
-        if bpy.app.version >= (3, 7) or not armature:
-            return
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            return
-        if not armature_data.vrm_addon_extension.is_vrm0():
-            return
-        if [obj for obj in bpy.data.objects if obj.type == "LIGHT"]:
-            layout.operator(
-                ICYP_OT_draw_model.bl_idname,
-                icon="SHADING_RENDERED",
-                depress=False,
-            )
-        else:
-            layout.label(text="Preview MToon 0.0")
-            layout.box().label(
-                icon="INFO",
-                text=pgettext("A light is required"),
-            )
 
 
 class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):
