@@ -29,10 +29,9 @@ bl_info = {
     "category": "Import-Export",
 }
 
-
 def register() -> None:
-    raise_error_if_unsupported()
-    extract_github_private_partial_code_archive_if_necessary()
+    # raise_error_if_unsupported()
+    # extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
     # support unzipping the partial add-on archive.

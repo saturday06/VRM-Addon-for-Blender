@@ -139,8 +139,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
-        'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
-        + 'Please confirm "VRM" Panel → "VRM 0.x Humanoid" → {human_bone}.',
+        'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
+        + 'Confirm hierarchy of "{bone}" and its children. '
+        + '"VRM" Panel → "Humanoid" → "{human_bone}" empty if wrong hierarchy',
     ): "ボーン「{bone}」をVRMボーン「{human_bone}」に割り当てることができませんでした。"
     + "「VRM」パネルの「VRM 0.x Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
     (
@@ -151,8 +152,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
-        'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
-        + 'Please confirm "VRM" Panel → "Humanoid" → {human_bone}.',
+        'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
+        + 'Confirm hierarchy of "{bone}" and its children. '
+        + '"VRM" Panel → "Humanoid" → "{human_bone}" empty if wrong hierarchy',
     ): "ボーン「{bone}」をVRMボーン「{human_bone}」に割り当てることができませんでした。"
     + "「VRM」パネルの「Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
     (
