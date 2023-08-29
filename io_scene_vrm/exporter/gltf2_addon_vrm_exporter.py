@@ -289,11 +289,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         look_at: Vrm1LookAtPropertyGroup,
     ) -> dict[str, Json]:
         return {
-            "offsetFromHeadBone": [
-                look_at.offset_from_head_bone[0],
-                look_at.offset_from_head_bone[2],
-                -look_at.offset_from_head_bone[1],
-            ],
+            "offsetFromHeadBone": list(look_at.offset_from_head_bone),
             "type": look_at.type,
             "rangeMapHorizontalInner": {
                 "inputMaxValue": look_at.range_map_horizontal_inner.input_max_value,

@@ -224,6 +224,14 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
             armature_data.vrm_addon_extension.vrm1.expressions
         )
 
+    if tuple(armature_data.vrm_addon_extension.addon_version) < (2, 20, 0):
+        look_at = armature_data.vrm_addon_extension.vrm1.look_at
+        look_at.offset_from_head_bone = (
+            look_at.offset_from_head_bone[0],
+            look_at.offset_from_head_bone[2],
+            -look_at.offset_from_head_bone[1],
+        )
+
     # Expressionのプリセットに名前を設定する
     # 管理上は無くてもよいが、アニメーションキーフレームに表示されるので設定しておきたい
     expressions = armature_data.vrm_addon_extension.vrm1.expressions
