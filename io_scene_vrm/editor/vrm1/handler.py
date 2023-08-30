@@ -10,8 +10,6 @@ from .property_group import Vrm1ExpressionPropertyGroup, Vrm1LookAtPropertyGroup
 
 logger = get_logger(__name__)
 
-logger = get_logger(__name__)
-
 
 @persistent
 def frame_change_pre(_dummy: object) -> None:
