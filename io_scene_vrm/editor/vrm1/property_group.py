@@ -1,4 +1,5 @@
 import functools
+import math
 import sys
 from collections.abc import Sequence
 from sys import float_info
@@ -6,6 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.app.translations import pgettext
+from mathutils import Matrix, Vector
 
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import (
@@ -536,9 +538,11 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         unit="LENGTH",  # noqa: F821
         default=(0, 0, 0),
     )
+    TYPE_VALUE_BONE = "bone"
+    TYPE_VALUE_EXPRESSION = "expression"
     type_items = [
-        ("bone", "Bone", "Bone", "BONE_DATA", 0),
-        ("expression", "Expression", "Expression", "SHAPEKEY_DATA", 1),
+        (TYPE_VALUE_BONE, "Bone", "Bone", "BONE_DATA", 0),
+        (TYPE_VALUE_EXPRESSION, "Expression", "Expression", "SHAPEKEY_DATA", 1),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         name="Type",  # noqa: F821
@@ -557,6 +561,158 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         type=Vrm1LookAtRangeMapPropertyGroup,
     )
 
+    enable_preview: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Enable Preview",  # noqa: F722
+    )
+    preview_target_bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
+        type=bpy.types.Object,  # noqa: F722
+        name="Preview Target",  # noqa: F722
+    )
+    previous_preview_target_bpy_object_location: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+        size=3,  # noqa: F722
+    )
+
+    @staticmethod
+    def update_all_previews(context: bpy.types.Context) -> None:
+        for armature_object in context.blend_data.objects:
+            if armature_object.type != "ARMATURE":
+                continue
+            armature_data = armature_object.data
+            if not isinstance(armature_data, bpy.types.Armature):
+                continue
+            look_at = armature_data.vrm_addon_extension.vrm1.look_at
+            look_at.update_preview(context, armature_object, armature_data)
+
+    def update_preview(
+        self,
+        _context: bpy.types.Context,
+        armature_object: bpy.types.Object,
+        armature_data: bpy.types.Armature,
+    ) -> None:
+        preview_target_bpy_object = self.preview_target_bpy_object
+        if not preview_target_bpy_object:
+            return
+        to_translation = preview_target_bpy_object.matrix_world.to_translation()
+        if (
+            Vector(self.previous_preview_target_bpy_object_location) - to_translation
+        ).length_squared < float_info.epsilon:
+            return
+        self.previous_preview_target_bpy_object_location = to_translation
+        vrm1 = armature_data.vrm_addon_extension.vrm1
+        head_bone_name = vrm1.humanoid.human_bones.head.node.bone_name
+        head_pose_bone = armature_object.pose.bones.get(head_bone_name)
+        if not head_pose_bone:
+            return
+
+        # TODO: Honor t-pose action
+        rest_head_bone_matrix = head_pose_bone.bone.convert_local_to_pose(
+            Matrix(),
+            head_pose_bone.bone.matrix_local,
+        )
+
+        head_parent_pose_bone = head_pose_bone.parent
+        if not head_parent_pose_bone:
+            return
+
+        head_bone_without_rotation_matrix = head_pose_bone.bone.convert_local_to_pose(
+            Matrix(),
+            head_pose_bone.bone.matrix_local,
+            parent_matrix=head_parent_pose_bone.matrix,
+            parent_matrix_local=head_parent_pose_bone.bone.matrix_local,
+        )
+
+        local_target_translation = (
+            armature_object.matrix_world @ head_bone_without_rotation_matrix
+        ).inverted_safe() @ to_translation - Vector(self.offset_from_head_bone)
+        forward_vector = rest_head_bone_matrix.inverted_safe().to_quaternion() @ Vector(
+            (0, -1, 0)
+        )
+        right_vector = rest_head_bone_matrix.inverted_safe().to_quaternion() @ Vector(
+            (-1, 0, 0)
+        )
+        up_vector = rest_head_bone_matrix.inverted_safe().to_quaternion() @ Vector(
+            (0, 0, 1)
+        )
+
+        # logger.warning(f"local_target_translation={dump(local_target_translation)}")
+        # logger.warning(f"forward={dump(forward_vector)}")
+        # logger.warning(f"right={dump(right_vector)}")
+        # logger.warning(f"up={dump(up_vector)}")
+
+        forward_length = local_target_translation.dot(forward_vector)
+        right_length = local_target_translation.dot(right_vector)
+        up_length = local_target_translation.dot(up_vector)
+
+        # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L180
+        if abs(forward_length) < float_info.epsilon:
+            return
+
+        yaw_degrees = math.degrees(math.atan2(right_length, forward_length))
+        pitch_degrees = math.degrees(
+            math.atan2(
+                up_length,
+                math.sqrt(math.pow(right_length, 2) + math.pow(forward_length, 2)),
+            )
+        )
+        if vrm1.look_at.type == vrm1.look_at.TYPE_VALUE_BONE:
+            pass  # TODO:
+        elif vrm1.look_at.type == vrm1.look_at.TYPE_VALUE_EXPRESSION:
+            self.apply_expression_preview(vrm1, yaw_degrees, pitch_degrees)
+
+    # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L258
+    def apply_expression_preview(
+        self,
+        vrm1: "Vrm1PropertyGroup",
+        yaw_degrees: float,
+        pitch_degrees: float,
+    ) -> None:
+        range_map_horizontal_outer = vrm1.look_at.range_map_horizontal_outer
+        range_map_vertical_up = vrm1.look_at.range_map_vertical_up
+        range_map_vertical_down = vrm1.look_at.range_map_vertical_down
+        look_left = vrm1.expressions.preset.look_left
+        look_right = vrm1.expressions.preset.look_right
+        look_up = vrm1.expressions.preset.look_up
+        look_down = vrm1.expressions.preset.look_down
+        # horizontal
+        if yaw_degrees < 0:
+            # left
+            yaw_weight = (
+                min(abs(yaw_degrees), range_map_horizontal_outer.input_max_value)
+                / range_map_horizontal_outer.input_max_value
+                * range_map_horizontal_outer.output_scale
+            )
+            look_left.preview = yaw_weight
+            look_right.preview = 0
+        else:
+            # right
+            yaw_weight = (
+                min(yaw_degrees, range_map_horizontal_outer.input_max_value)
+                / range_map_horizontal_outer.input_max_value
+                * range_map_horizontal_outer.output_scale
+            )
+            look_left.preview = 0
+            look_right.preview = yaw_weight
+
+        # vertical
+        if pitch_degrees < 0:
+            # down
+            pitch_weight = (
+                min(abs(pitch_degrees), range_map_vertical_down.input_max_value)
+                / range_map_vertical_down.input_max_value
+                * range_map_vertical_down.output_scale
+            )
+            look_down.preview = pitch_weight
+            look_up.preview = 0
+        else:
+            # up
+            pitch_weight = (
+                min(pitch_degrees, range_map_vertical_up.input_max_value)
+                / range_map_vertical_up.input_max_value
+                * range_map_vertical_up.output_scale
+            )
+            look_down.preview = 0
+            look_up.preview = pitch_weight
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
@@ -566,6 +722,9 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         range_map_horizontal_outer: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
         range_map_vertical_down: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
         range_map_vertical_up: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
+        enable_preview: bool  # type: ignore[no-redef]
+        preview_target_bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
+        previous_preview_target_bpy_object_location: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json

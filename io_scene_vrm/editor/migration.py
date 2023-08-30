@@ -15,6 +15,7 @@ from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .vrm1 import migration as vrm1_migration
+from .vrm1 import property_group as vrm1_property_group
 
 
 def migrate_no_defer_discarding_return_value(armature_object_name: str) -> None:
@@ -86,6 +87,7 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
 
 object_name_subscription_owner = object()
 object_mode_subscription_owner = object()
+object_location_subscription_owner = object()
 bone_name_subscription_owner = object()
 armature_name_subscription_owner = object()
 setup_once: list[bool] = []  # mutableにするためlistを使う
@@ -113,6 +115,14 @@ def on_change_bpy_object_mode() -> None:
     if not active_object:
         return
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline.refresh_object(context, active_object)
+
+
+def on_change_bpy_object_location() -> None:
+    context = bpy.context
+    active_object = context.active_object
+    if not active_object:
+        return
+    vrm1_property_group.Vrm1LookAtPropertyGroup.update_all_previews(context)
 
 
 def on_change_bpy_bone_name() -> None:
@@ -160,6 +170,14 @@ def setup_subscription(load_post: bool) -> None:
         notify=on_change_bpy_object_mode,
     )
 
+    object_location_subscribe_to = (bpy.types.Object, "location")
+    bpy.msgbus.subscribe_rna(
+        key=object_location_subscribe_to,
+        owner=object_location_subscription_owner,
+        args=(),
+        notify=on_change_bpy_object_location,
+    )
+
     bone_name_subscribe_to = (bpy.types.Bone, "name")
     bpy.msgbus.subscribe_rna(
         key=bone_name_subscribe_to,
@@ -178,6 +196,7 @@ def setup_subscription(load_post: bool) -> None:
 
     bpy.msgbus.publish_rna(key=object_name_subscribe_to)
     bpy.msgbus.publish_rna(key=object_mode_subscribe_to)
+    bpy.msgbus.publish_rna(key=object_location_subscribe_to)
     bpy.msgbus.publish_rna(key=bone_name_subscribe_to)
     bpy.msgbus.publish_rna(key=armature_name_subscribe_to)
 
@@ -186,5 +205,6 @@ def teardown_subscription() -> None:
     setup_once.clear()
     bpy.msgbus.clear_by_owner(armature_name_subscription_owner)
     bpy.msgbus.clear_by_owner(bone_name_subscription_owner)
+    bpy.msgbus.clear_by_owner(object_location_subscription_owner)
     bpy.msgbus.clear_by_owner(object_mode_subscription_owner)
     bpy.msgbus.clear_by_owner(object_name_subscription_owner)

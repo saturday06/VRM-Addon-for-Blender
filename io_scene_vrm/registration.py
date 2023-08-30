@@ -405,8 +405,10 @@ def register(init_addon_version: object) -> None:
         depsgraph_update_pre_once_if_load_post_is_unavailable
     )
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_pre.append(vrm1_handler.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
+    bpy.app.handlers.save_pre.append(vrm1_handler.save_pre)
     bpy.app.handlers.save_pre.append(mtoon1_handler.save_pre)
     bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.frame_change_pre.append(vrm0_handler.frame_change_pre)
@@ -432,8 +434,10 @@ def unregister() -> None:
     bpy.app.handlers.frame_change_pre.remove(vrm0_handler.frame_change_pre)
     bpy.app.handlers.frame_change_pre.remove(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.save_pre.remove(mtoon1_handler.save_pre)
+    bpy.app.handlers.save_pre.remove(vrm1_handler.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(mtoon1_handler.depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_pre.remove(vrm1_handler.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
     if (
         depsgraph_update_pre_once_if_load_post_is_unavailable

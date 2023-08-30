@@ -193,6 +193,7 @@ skinnedmesh
 skippable
 slerp
 specular
+sqrt
 src
 subtarget
 subtype

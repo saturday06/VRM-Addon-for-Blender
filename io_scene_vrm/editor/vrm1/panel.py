@@ -449,8 +449,21 @@ def draw_vrm1_look_at_layout(
 ) -> None:
     migrate(armature.name, defer=True)
 
-    layout.prop(look_at, "offset_from_head_bone", icon="BONE_DATA")
-    layout.prop(look_at, "type")
+    layout.prop(look_at, "enable_preview")
+
+    label_input_split = layout.split(factor=0.4)
+    label_column = label_input_split.column()
+    label_column.label(text="Preview Target:")
+    label_column.label(text="Type:")
+    input_column = label_input_split.column()
+    input_column.prop(look_at, "preview_target_bpy_object", text="", translate=False)
+    input_column.prop(look_at, "type", text="", translate=False)
+
+    offset_from_head_bone_column = layout.column()
+    offset_from_head_bone_column.label(text="Offset from Head Bone:")
+    offset_from_head_bone_column.row().prop(
+        look_at, "offset_from_head_bone", icon="BONE_DATA", text="", translate=False
+    )
 
     column = layout.box().column(align=True)
     column.label(text="Range Map Horizontal Inner", icon="FULLSCREEN_EXIT")
