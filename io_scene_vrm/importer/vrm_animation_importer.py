@@ -1,6 +1,5 @@
 import base64
 import itertools
-import logging
 import math
 import struct
 from dataclasses import dataclass
@@ -12,6 +11,7 @@ import bpy
 from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert
+from ..common.debug import dump
 from ..common.deep import Json
 from ..common.gl import (
     GL_BYTE,
@@ -650,24 +650,6 @@ def work_in_progress_2(
         )
 
     return {"FINISHED"}
-
-
-def dump(v: Union[Matrix, Vector, Quaternion, float, int]) -> str:
-    if logger.level > logging.DEBUG:
-        return "(omit)"
-
-    if isinstance(v, (float, int)):
-        return str(v)
-
-    if isinstance(v, Matrix):
-        t, r, s = v.decompose()
-        return f"Matrix(T={dump(t)},R={dump(r)},S={dump(s)})"
-
-    if isinstance(v, Vector):
-        return f"({v.x:.3f},{v.y:.3f},{v.z:.3f})"
-
-    x, y, z = [round(math.degrees(xyz)) for xyz in v.to_euler()[:]]
-    return f"Euler({x},{y},{z})"
 
 
 def assign_expression_keyframe(
