@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.app.translations import pgettext
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import (
@@ -658,9 +658,113 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
             )
         )
         if vrm1.look_at.type == vrm1.look_at.TYPE_VALUE_BONE:
-            pass  # TODO:
+            self.apply_eye_bone_preview(
+                vrm1,
+                yaw_degrees,
+                pitch_degrees,
+                armature_object,
+                HumanBoneName.RIGHT_EYE,
+            )
+            self.apply_eye_bone_preview(
+                vrm1,
+                yaw_degrees,
+                pitch_degrees,
+                armature_object,
+                HumanBoneName.LEFT_EYE,
+            )
         elif vrm1.look_at.type == vrm1.look_at.TYPE_VALUE_EXPRESSION:
             self.apply_expression_preview(vrm1, yaw_degrees, pitch_degrees)
+
+    # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L230
+    def apply_eye_bone_preview(
+        self,
+        vrm1: "Vrm1PropertyGroup",
+        yaw_degrees: float,
+        pitch_degrees: float,
+        armature_object: bpy.types.Object,
+        human_bone_name: HumanBoneName,
+    ) -> None:
+        if human_bone_name == HumanBoneName.RIGHT_EYE:
+            range_map_horizontal_right = vrm1.look_at.range_map_horizontal_outer
+            range_map_horizontal_left = vrm1.look_at.range_map_horizontal_inner
+            pose_bone = armature_object.pose.bones.get(
+                vrm1.humanoid.human_bones.right_eye.node.bone_name
+            )
+        elif human_bone_name == HumanBoneName.LEFT_EYE:
+            range_map_horizontal_right = vrm1.look_at.range_map_horizontal_inner
+            range_map_horizontal_left = vrm1.look_at.range_map_horizontal_outer
+            pose_bone = armature_object.pose.bones.get(
+                vrm1.humanoid.human_bones.left_eye.node.bone_name
+            )
+        else:
+            return
+
+        range_map_vertical_up = vrm1.look_at.range_map_vertical_up
+        range_map_vertical_down = vrm1.look_at.range_map_vertical_down
+
+        if not pose_bone:
+            return
+
+        parent_pose_bone = pose_bone.parent
+        if not parent_pose_bone:
+            return
+
+        if yaw_degrees < 0:
+            yaw_degrees = (
+                -min(abs(yaw_degrees), range_map_horizontal_right.input_max_value)
+                / range_map_horizontal_right.input_max_value
+                * range_map_horizontal_right.output_scale
+            )
+        else:
+            yaw_degrees = (
+                min(abs(yaw_degrees), range_map_horizontal_left.input_max_value)
+                / range_map_horizontal_left.input_max_value
+                * range_map_horizontal_left.output_scale
+            )
+
+        if pitch_degrees < 0:
+            # down
+            pitch_degrees = (
+                -min(abs(pitch_degrees), range_map_vertical_down.input_max_value)
+                / range_map_vertical_down.input_max_value
+                * range_map_vertical_down.output_scale
+            )
+        else:
+            # up
+            pitch_degrees = (
+                min(abs(pitch_degrees), range_map_vertical_up.input_max_value)
+                / range_map_vertical_up.input_max_value
+                * range_map_vertical_up.output_scale
+            )
+
+        # TODO: Honor t-pose action
+        rest_bone_matrix = (
+            armature_object.matrix_world
+            @ pose_bone.bone.convert_local_to_pose(
+                Matrix(),
+                pose_bone.bone.matrix_local,
+            )
+        )
+        reset_bone_inverted_rotation = rest_bone_matrix.to_quaternion().inverted()
+
+        forward_vector = reset_bone_inverted_rotation @ Vector((0, -1, 0))
+        right_vector = reset_bone_inverted_rotation @ Vector((-1, 0, 0))
+        up_vector = reset_bone_inverted_rotation @ Vector((0, 0, 1))
+
+        # logger.warning(f"{yaw_degrees=} {pitch_degrees=}")
+        # logger.warning(f"forward={dump(forward_vector)}")
+        # logger.warning(f"right={dump(right_vector)}")
+        # logger.warning(f"up={dump(up_vector)}")
+
+        rotation = Quaternion(
+            forward_vector.cross(right_vector), math.radians(yaw_degrees)
+        ) @ Quaternion(forward_vector.cross(up_vector), math.radians(pitch_degrees))
+        # logger.warning(f"rotation={dump(rotation)}")
+
+        if pose_bone.rotation_mode != "QUATERNION":
+            pose_bone.rotation_mode = "QUATERNION"
+
+        pose_bone.rotation_quaternion = rotation
 
     # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L258
     def apply_expression_preview(
