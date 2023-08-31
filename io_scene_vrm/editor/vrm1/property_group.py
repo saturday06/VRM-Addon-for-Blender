@@ -612,6 +612,9 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
                 head_pose_bone.bone.matrix_local,
             )
         )
+        rest_head_bone_inverted_rotation = (
+            rest_head_bone_matrix.to_quaternion().inverted()
+        )
 
         head_parent_pose_bone = head_pose_bone.parent
         if not head_parent_pose_bone:
@@ -630,15 +633,9 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         local_target_translation = (
             head_bone_without_rotation_matrix
         ).inverted_safe() @ to_translation - Vector(self.offset_from_head_bone)
-        forward_vector = rest_head_bone_matrix.inverted_safe().to_quaternion() @ Vector(
-            (0, -1, 0)
-        )
-        right_vector = rest_head_bone_matrix.inverted_safe().to_quaternion() @ Vector(
-            (-1, 0, 0)
-        )
-        up_vector = rest_head_bone_matrix.inverted_safe().to_quaternion() @ Vector(
-            (0, 0, 1)
-        )
+        forward_vector = rest_head_bone_inverted_rotation @ Vector((0, -1, 0))
+        right_vector = rest_head_bone_inverted_rotation @ Vector((-1, 0, 0))
+        up_vector = rest_head_bone_inverted_rotation @ Vector((0, 0, 1))
 
         # logger.warning(f"local_target_translation={dump(local_target_translation)}")
         # logger.warning(f"forward={dump(forward_vector)}")
