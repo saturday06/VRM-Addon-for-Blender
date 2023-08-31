@@ -10,7 +10,6 @@ python = "3.10.*"
 bpy = "3.6.*"
 
 [tool.poetry.group.dev.dependencies]
-autoflake = "*"
 black = "*"
 flake8 = "*"
 flake8-bandit = "*"
