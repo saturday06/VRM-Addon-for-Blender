@@ -605,24 +605,30 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
             return
 
         # TODO: Honor t-pose action
-        rest_head_bone_matrix = head_pose_bone.bone.convert_local_to_pose(
-            Matrix(),
-            head_pose_bone.bone.matrix_local,
+        rest_head_bone_matrix = (
+            armature_object.matrix_world
+            @ head_pose_bone.bone.convert_local_to_pose(
+                Matrix(),
+                head_pose_bone.bone.matrix_local,
+            )
         )
 
         head_parent_pose_bone = head_pose_bone.parent
         if not head_parent_pose_bone:
             return
 
-        head_bone_without_rotation_matrix = head_pose_bone.bone.convert_local_to_pose(
-            Matrix(),
-            head_pose_bone.bone.matrix_local,
-            parent_matrix=head_parent_pose_bone.matrix,
-            parent_matrix_local=head_parent_pose_bone.bone.matrix_local,
+        head_bone_without_rotation_matrix = (
+            armature_object.matrix_world
+            @ head_pose_bone.bone.convert_local_to_pose(
+                Matrix(),
+                head_pose_bone.bone.matrix_local,
+                parent_matrix=head_parent_pose_bone.matrix,
+                parent_matrix_local=head_parent_pose_bone.bone.matrix_local,
+            )
         )
 
         local_target_translation = (
-            armature_object.matrix_world @ head_bone_without_rotation_matrix
+            head_bone_without_rotation_matrix
         ).inverted_safe() @ to_translation - Vector(self.offset_from_head_bone)
         forward_vector = rest_head_bone_matrix.inverted_safe().to_quaternion() @ Vector(
             (0, -1, 0)
