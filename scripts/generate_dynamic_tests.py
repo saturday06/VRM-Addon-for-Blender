@@ -151,7 +151,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
         existing_method_names.append(method_name)
 
         escaped = [urlsafe_b64encode(a.encode()).decode() for a in [path] + args]
-        args_str = '"' + '", "'.join(escaped) + '"'
+        args_str = "\n" + "".join(f'            "{e}",\n' for e in escaped) + "        "
         content += render_multiple_test(method_name, args_str)
     return content
 
