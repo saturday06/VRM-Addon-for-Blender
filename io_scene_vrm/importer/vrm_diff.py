@@ -41,6 +41,19 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                 asset_generator,
             )
 
+    scene_dicts = vrm_json.get("scenes")
+    if isinstance(scene_dicts, list):
+        for scene_dict in scene_dicts:
+            if not isinstance(scene_dict, dict):
+                continue
+            scene_extras_dict = scene_dict.get("extras")
+            if not isinstance(scene_extras_dict, dict):
+                continue
+            for k in ["show_mmd_tabs", "embed_textures", "ui_lang"]:
+                scene_extras_dict.pop(k, None)
+            if not scene_extras_dict:
+                scene_dict.pop("extras", None)
+
     extensions_dict = vrm_json.get("extensions")
     if not isinstance(extensions_dict, dict):
         return vrm_json
