@@ -2,6 +2,7 @@ import functools
 
 import bpy
 
+from ..common.logging import get_logger
 from ..common.preferences import get_preferences
 from ..common.version import addon_version
 from .extension import (
@@ -16,6 +17,8 @@ from .vrm0 import migration as vrm0_migration
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .vrm1 import migration as vrm1_migration
 from .vrm1 import property_group as vrm1_property_group
+
+logger = get_logger(__name__)
 
 
 def migrate_no_defer_discarding_return_value(armature_object_name: str) -> None:
@@ -55,7 +58,12 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     vrm1_migration.migrate(ext.vrm1, armature)
     spring_bone1_migration.migrate(armature)
 
-    ext.addon_version = addon_version()
+    updated_addon_version = addon_version()
+    logger.info(
+        f"Upgrade armature {armature_object_name}"
+        + f" {tuple(ext.addon_version)} to {updated_addon_version}"
+    )
+    ext.addon_version = updated_addon_version
 
     setup_subscription(load_post=False)
     return True
@@ -82,7 +90,13 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
     mtoon1_migration.migrate(context)
 
     preferences = get_preferences(context)
-    preferences.addon_version = addon_version()
+
+    updated_addon_version = addon_version()
+    logger.info(
+        "Upgrade preferences"
+        + f" {tuple(preferences.addon_version)} to {updated_addon_version}"
+    )
+    preferences.addon_version = updated_addon_version
 
 
 object_name_subscription_owner = object()
