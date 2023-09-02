@@ -28,7 +28,11 @@ from ..editor.vrm1.property_group import (
     Vrm1LookAtPropertyGroup,
     Vrm1MetaPropertyGroup,
 )
-from ..external.io_scene_gltf2_support import image_to_image_bytes, init_extras_export
+from ..external.io_scene_gltf2_support import (
+    export_scene_gltf,
+    image_to_image_bytes,
+    init_extras_export,
+)
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 
 logger = get_logger(__name__)
@@ -1769,18 +1773,20 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = Path(temp_dir, "out.glb")
                 try:
-                    bpy.ops.export_scene.gltf(
+                    export_scene_gltf(
                         filepath=str(filepath),
                         check_existing=False,
                         export_format="GLB",
                         export_extras=True,
                         export_current_frame=True,
                         use_selection=True,
+                        export_animations=True,
+                        export_rest_position_armature=False,
                     )
                 except RuntimeError as e:
                     logger.error(str(e))
                     # TODO: check traceback
-                    bpy.ops.export_scene.gltf(
+                    export_scene_gltf(
                         filepath=str(filepath),
                         check_existing=False,
                         export_format="GLB",
@@ -1788,6 +1794,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         export_current_frame=True,
                         use_selection=True,
                         export_animations=False,
+                        export_rest_position_armature=False,
                     )
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:

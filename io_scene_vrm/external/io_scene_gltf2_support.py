@@ -103,3 +103,36 @@ def create_export_settings() -> dict[str, object]:
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/e662c281fc830d7ad3ea918d38c6a1881ee143c5/addons/io_scene_gltf2/__init__.py#L617
         "gltf_jpeg_quality": 75,
     }
+
+
+def export_scene_gltf(
+    filepath: str,
+    check_existing: bool,
+    export_format: str,
+    export_extras: bool,
+    export_current_frame: bool,
+    use_selection: bool,
+    export_animations: bool,
+    export_rest_position_armature: bool,
+) -> set[str]:
+    if bpy.app.version < (3, 6, 0):
+        return bpy.ops.export_scene.gltf(
+            filepath=filepath,
+            check_existing=check_existing,
+            export_format=export_format,
+            export_extras=export_extras,
+            export_current_frame=export_current_frame,
+            use_selection=use_selection,
+            export_animations=export_animations,
+        )
+
+    return bpy.ops.export_scene.gltf(
+        filepath=filepath,
+        check_existing=check_existing,
+        export_format=export_format,
+        export_extras=export_extras,
+        export_current_frame=export_current_frame,
+        use_selection=use_selection,
+        export_animations=export_animations,
+        export_rest_position_armature=export_rest_position_armature,
+    )
