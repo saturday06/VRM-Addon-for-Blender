@@ -542,7 +542,13 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
     TYPE_VALUE_EXPRESSION = "expression"
     type_items = [
         (TYPE_VALUE_BONE, "Bone", "Bone", "BONE_DATA", 0),
-        (TYPE_VALUE_EXPRESSION, "Expression", "Expression", "SHAPEKEY_DATA", 1),
+        (
+            TYPE_VALUE_EXPRESSION,
+            "Expression\N{ZERO WIDTH SPACE}",  # {ZERO WIDTH SPACE} to disable translation
+            "Expression",
+            "SHAPEKEY_DATA",
+            1,
+        ),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         name="Type",  # noqa: F821
