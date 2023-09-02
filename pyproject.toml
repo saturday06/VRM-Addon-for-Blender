@@ -72,7 +72,13 @@ disable = [
 [tool.pyright]
 pythonVersion = "3.9"
 pythonPlatform = "All"
+typeCheckingMode = "strict"
+
 reportMissingModuleSource = false
+reportUnknownArgumentType = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportImportCycles = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
