@@ -51,12 +51,8 @@ def unregister() -> None:
 def raise_error_if_unsupported() -> None:
     import bpy
 
-    minimum_version = bl_info.get("blender")
-    if (
-        not isinstance(minimum_version, tuple)
-        or len(minimum_version) != 3
-        or not all(isinstance(v, int) for v in minimum_version)
-    ):
+    minimum_version = bl_info["blender"]
+    if not isinstance(minimum_version, tuple) or len(minimum_version) != 3:
         raise AssertionError(
             # pylint: disable=consider-using-f-string; for legacy Blender versions
             "Invalid version value: {}".format(minimum_version),
