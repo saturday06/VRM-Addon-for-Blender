@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Union
 
 import bpy
-from mathutils import Matrix
+from mathutils import Matrix, Quaternion
 
 from ..common import shader
 from ..common.deep import Json, make_json
@@ -20,6 +20,7 @@ class AbstractBaseVrmExporter(ABC):
         self.saved_current_pose_matrix_basis_dict: dict[str, Matrix] = {}
         self.saved_current_pose_matrix_dict: dict[str, Matrix] = {}
         self.saved_pose_position: Optional[str] = None
+        self.saved_vrm1_look_at_preview: bool = False
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
@@ -38,7 +39,9 @@ class AbstractBaseVrmExporter(ABC):
         action: Optional[bpy.types.Action],
         pose_marker_name: str,
     ) -> None:
-        if not action or action.name not in bpy.data.actions:
+        if (
+            not action or action.name not in bpy.data.actions
+        ) and armature_data.pose_position == "REST":
             return
 
         if self.context.view_layer.objects.active is not None:
@@ -50,13 +53,6 @@ class AbstractBaseVrmExporter(ABC):
         self.saved_pose_position = armature_data.pose_position
         armature_data.pose_position = "POSE"
 
-        pose_marker_frame = 0
-        if pose_marker_name:
-            for search_pose_marker in action.pose_markers.values():
-                if search_pose_marker.name == pose_marker_name:
-                    pose_marker_frame = search_pose_marker.frame
-                    break
-
         bpy.context.view_layer.update()
         self.saved_current_pose_matrix_basis_dict = {
             bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
@@ -65,7 +61,38 @@ class AbstractBaseVrmExporter(ABC):
             bone.name: bone.matrix.copy() for bone in armature.pose.bones
         }
 
-        armature.pose.apply_pose_from_action(action, evaluation_time=pose_marker_frame)
+        ext = armature_data.vrm_addon_extension
+        self.saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
+        if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
+            ext.vrm1.look_at.enable_preview = False
+            if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_VALUE_BONE:
+                human_bones = ext.vrm1.humanoid.human_bones
+
+                left_eye_bone_name = human_bones.left_eye.node.bone_name
+                left_eye_bone = armature.pose.bones.get(left_eye_bone_name)
+                if left_eye_bone:
+                    if left_eye_bone.rotation_mode != "QUATERNION":
+                        left_eye_bone.rotation_mode = "QUATERNION"
+                    left_eye_bone.rotation_quaternion = Quaternion()
+
+                right_eye_bone_name = human_bones.right_eye.node.bone_name
+                right_eye_bone = armature.pose.bones.get(right_eye_bone_name)
+                if right_eye_bone:
+                    if right_eye_bone.rotation_mode != "QUATERNION":
+                        right_eye_bone.rotation_mode = "QUATERNION"
+                    right_eye_bone.rotation_quaternion = Quaternion()
+
+        if action and action.name in bpy.data.actions:
+            pose_marker_frame = 0
+            if pose_marker_name:
+                for search_pose_marker in action.pose_markers.values():
+                    if search_pose_marker.name == pose_marker_name:
+                        pose_marker_frame = search_pose_marker.frame
+                        break
+            armature.pose.apply_pose_from_action(
+                action, evaluation_time=pose_marker_frame
+            )
+
         bpy.context.view_layer.update()
 
     def restore_pose(
@@ -99,6 +126,13 @@ class AbstractBaseVrmExporter(ABC):
         if self.saved_pose_position:
             armature_data.pose_position = self.saved_pose_position
         bpy.ops.object.mode_set(mode="OBJECT")
+
+        ext = armature_data.vrm_addon_extension
+        if (
+            ext.is_vrm1()
+            and ext.vrm1.look_at.enable_preview != self.saved_vrm1_look_at_preview
+        ):
+            ext.vrm1.look_at.enable_preview = self.saved_vrm1_look_at_preview
 
     def clear_blend_shape_proxy_previews(
         self, armature_data: bpy.types.Armature

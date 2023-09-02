@@ -41,6 +41,17 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                 asset_generator,
             )
 
+    node_dicts = vrm_json.get("nodes")
+    if isinstance(node_dicts, list):
+        for node_dict in node_dicts:
+            if (
+                not isinstance(node_dict, dict)
+                or "matrix" in node_dict
+                or "scale" in node_dict
+            ):
+                continue
+            node_dict["scale"] = [1.0, 1.0, 1.0]
+
     scene_dicts = vrm_json.get("scenes")
     if isinstance(scene_dicts, list):
         for scene_dict in scene_dicts:
