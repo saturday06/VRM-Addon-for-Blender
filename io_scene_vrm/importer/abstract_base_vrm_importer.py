@@ -9,7 +9,8 @@ import json
 import math
 import uuid
 from abc import ABC, abstractmethod
-from typing import Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import Optional, Union
 
 import bpy
 from mathutils import Matrix, Vector

@@ -1,6 +1,6 @@
 import uuid
-from collections.abc import Iterator
-from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, ValuesView, overload
+from collections.abc import Iterator, ValuesView
+from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, overload
 
 import bpy
 

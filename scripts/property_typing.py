@@ -2,8 +2,9 @@
 
 import re
 import sys
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Mapping, Union
+from typing import Union
 
 import bpy
 
