@@ -595,6 +595,10 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         armature_object: bpy.types.Object,
         armature_data: bpy.types.Armature,
     ) -> None:
+        ext = armature_data.vrm_addon_extension
+        if not ext.is_vrm1():
+            return
+        vrm1 = ext.vrm1
         preview_target_bpy_object = self.preview_target_bpy_object
         if not preview_target_bpy_object:
             return
@@ -604,7 +608,6 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         ).length_squared < float_info.epsilon:
             return
         self.previous_preview_target_bpy_object_location = to_translation
-        vrm1 = armature_data.vrm_addon_extension.vrm1
         head_bone_name = vrm1.humanoid.human_bones.head.node.bone_name
         head_pose_bone = armature_object.pose.bones.get(head_bone_name)
         if not head_pose_bone:
