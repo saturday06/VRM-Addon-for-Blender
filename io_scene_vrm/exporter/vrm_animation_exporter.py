@@ -715,7 +715,6 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
 
     if not isinstance(vrma_dict, dict):
         raise AssertionError("vrma_dict is not dict")
-    # del vrma_dict["animations"]
 
     return pack_glb(vrma_dict, buffer0_bytearray)
 

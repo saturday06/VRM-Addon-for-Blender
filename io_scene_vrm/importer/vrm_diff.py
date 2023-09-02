@@ -186,10 +186,8 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                     vrm0_float_properties["_OutlineWidth"] = 0
                     vrm0_float_properties["_OutlineColorMode"] = 0
                     vrm0_float_properties["_OutlineLightingMix"] = 0
-                    if "MTOON_OUTLINE_COLOR_FIXED" in keyword_map:
-                        del keyword_map["MTOON_OUTLINE_COLOR_FIXED"]
-                    if "MTOON_OUTLINE_COLOR_MIXED" in keyword_map:
-                        del keyword_map["MTOON_OUTLINE_COLOR_MIXED"]
+                    keyword_map.pop("MTOON_OUTLINE_COLOR_FIXED", None)
+                    keyword_map.pop("MTOON_OUTLINE_COLOR_MIXED", None)
 
                 if vrm0_float_properties.get("_OutlineWidthMode") != 2:
                     vrm0_float_properties["_OutlineScaledMaxDistance"] = 1
@@ -203,8 +201,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                     and abs(outline_lighting_mix) < float_info.epsilon
                 ):
                     vrm0_float_properties["_OutlineColorMode"] = 0
-                    if "MTOON_OUTLINE_COLOR_MIXED" in keyword_map:
-                        del keyword_map["MTOON_OUTLINE_COLOR_MIXED"]
+                    keyword_map.pop("MTOON_OUTLINE_COLOR_MIXED", None)
                     if "MTOON_OUTLINE_COLOR_FIXED" not in keyword_map:
                         keyword_map["MTOON_OUTLINE_COLOR_FIXED"] = True
 

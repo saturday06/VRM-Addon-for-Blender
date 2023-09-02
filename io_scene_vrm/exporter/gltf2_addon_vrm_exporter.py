@@ -1727,8 +1727,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 for target_dict in target_dicts:
                     if not isinstance(target_dict, dict):
                         continue
-                    if "NORMAL" in target_dict:
-                        del target_dict["NORMAL"]
+                    target_dict.pop("NORMAL", None)
 
     def export_vrm(self) -> Optional[bytes]:
         init_extras_export()
@@ -1750,7 +1749,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 vrm.humanoid.pose_marker_name,
             )
 
-            self.armature[self.extras_main_armature_key] = {}
+            self.armature[self.extras_main_armature_key] = True
             # 他glTF2ExportUserExtensionの影響を最小化するため、影響が少ないと思われるカスタムプロパティを使ってBlenderのオブジェクトとインデックスの対応をとる。
             for obj in bpy.data.objects:
                 obj[self.extras_object_name_key] = obj.name
@@ -1794,18 +1793,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         finally:
             self.restore_mtoon1_material_nodes(disabled_mtoon1_material_names)
             for pose_bone in self.armature.pose.bones:
-                if self.extras_bone_name_key in pose_bone:
-                    del pose_bone[self.extras_bone_name_key]
+                pose_bone.pop(self.extras_bone_name_key, None)
             for bone in armature_data.bones:
-                if self.extras_bone_name_key in bone:
-                    del bone[self.extras_bone_name_key]
+                bone.pop(self.extras_bone_name_key, None)
             for obj in bpy.data.objects:
-                if self.extras_object_name_key in obj:
-                    del obj[self.extras_object_name_key]
-            del self.armature[self.extras_main_armature_key]
+                obj.pop(self.extras_object_name_key, None)
+            self.armature.pop(self.extras_main_armature_key, None)
             for material in bpy.data.materials:
-                if self.extras_material_name_key in material:
-                    del material[self.extras_material_name_key]
+                material.pop(self.extras_material_name_key, None)
 
             self.restore_object_visibility_and_selection()
             self.restore_skinned_mesh_parent()
@@ -1858,27 +1853,21 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not isinstance(extras_dict, dict):
                 continue
 
-            bone_name = extras_dict.get(self.extras_bone_name_key)
-            if self.extras_bone_name_key in extras_dict:
-                del extras_dict[self.extras_bone_name_key]
+            bone_name = extras_dict.pop(self.extras_bone_name_key, None)
             if isinstance(bone_name, str):
                 bone_name_to_index_dict[bone_name] = node_index
 
-            is_main_armature = self.extras_main_armature_key in extras_dict
+            is_main_armature = extras_dict.pop(self.extras_main_armature_key, None)
 
-            object_name = extras_dict.get(self.extras_object_name_key)
-            if self.extras_object_name_key in extras_dict:
-                del extras_dict[self.extras_object_name_key]
+            object_name = extras_dict.pop(self.extras_object_name_key, None)
             if isinstance(object_name, str):
                 object_name_to_index_dict[object_name] = node_index
                 if bpy.app.version < (3, 3):
                     is_main_armature = object_name == self.armature.name
 
             if is_main_armature:
-                if self.extras_main_armature_key in extras_dict:
-                    del extras_dict[self.extras_main_armature_key]
                 if not extras_dict:
-                    del node_dict["extras"]
+                    node_dict.pop("extras", None)
 
                 armature_world_matrix = (
                     find_node_world_matrix(node_dicts, node_index, None) or Matrix()
@@ -1946,8 +1935,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                             )
                         armature_replaced = True
                     if armature_replaced:
-                        if "children" in node_dict:
-                            del node_dict["children"]
+                        node_dict.pop("children", None)
                         node_dict["name"] = "secondary"  # Assign dummy name
                         continue
 
@@ -1982,12 +1970,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     if children:
                         child_removing_node_dict["children"] = children
                     else:
-                        del child_removing_node_dict["children"]
+                        child_removing_node_dict.pop("children", None)
 
                 # TODO: remove from scenes, skin joints ...
 
             if not extras_dict and "extras" in node_dict:
-                del node_dict["extras"]
+                node_dict.pop("extras", None)
 
         node_constraint_spec_version = "1.0"
         use_node_constraint = False
@@ -2053,15 +2041,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not isinstance(extras_dict, dict):
                 continue
 
-            material_name = extras_dict.get(self.extras_material_name_key)
-            if self.extras_material_name_key in extras_dict:
-                del extras_dict[self.extras_material_name_key]
+            material_name = extras_dict.pop(self.extras_material_name_key, None)
             if not isinstance(material_name, str):
                 continue
 
             material_name_to_index_dict[material_name] = material_index
             if not extras_dict:
-                del material_dict["extras"]
+                material_dict.pop("extras", None)
 
         self.save_vrm_materials(
             json_dict,
@@ -2178,8 +2164,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             buffer_dict["byteLength"] = len(body_binary)
 
         for key in gltf_root_non_empty_array_keys:
-            if not json_dict[key]:
-                del json_dict[key]
+            if not json_dict.get(key):
+                json_dict.pop(key, None)
 
         return pack_glb(json_dict, body_binary)
 
@@ -2271,8 +2257,7 @@ def get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
 
 
 def set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:
-    if "matrix" in node_dict:
-        del node_dict["matrix"]
+    node_dict.pop("matrix", None)
     location, rotation, scale = matrix.decompose()
     node_dict["translation"] = list(location)
     node_dict["rotation"] = [

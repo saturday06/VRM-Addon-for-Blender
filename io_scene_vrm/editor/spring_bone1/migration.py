@@ -7,11 +7,9 @@ def migrate_blender_object(armature: bpy.types.Armature) -> None:
         return
 
     for collider in ext.spring_bone1.colliders:
-        bpy_object = collider.get("blender_object")
+        bpy_object = collider.pop("blender_object", None)
         if isinstance(bpy_object, bpy.types.Object):
             collider.bpy_object = bpy_object
-        if "blender_object" in collider:
-            del collider["blender_object"]
 
 
 def fixup_gravity_dir(armature: bpy.types.Armature) -> None:

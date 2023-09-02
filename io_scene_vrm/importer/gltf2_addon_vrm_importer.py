@@ -1117,8 +1117,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             # Some VRMs have broken animations.
             # https://github.com/vrm-c/UniVRM/issues/1522
             # https://github.com/saturday06/VRM-Addon-for-Blender/issues/58
-            if "animations" in json_dict:
-                del json_dict["animations"]
+            json_dict.pop("animations", None)
             with tempfile.TemporaryDirectory() as temp_dir:
                 indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
                 indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
@@ -1140,28 +1139,23 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         extras_node_index_key = self.import_id + "Nodes"
         for obj in self.context.selectable_objects:
-            if extras_node_index_key in obj:
-                node_index = obj[extras_node_index_key]
-                if isinstance(node_index, int):
-                    self.object_names[node_index] = obj.name
-                    if isinstance(obj.data, bpy.types.Mesh):
-                        self.mesh_object_names[node_index] = obj.name
-                del obj[extras_node_index_key]
+            node_index = obj.pop(extras_node_index_key, None)
+            if isinstance(node_index, int):
+                self.object_names[node_index] = obj.name
+                if isinstance(obj.data, bpy.types.Mesh):
+                    self.mesh_object_names[node_index] = obj.name
             data = obj.data
-            if isinstance(data, bpy.types.Mesh) and extras_node_index_key in data:
-                del data[extras_node_index_key]
+            if isinstance(data, bpy.types.Mesh):
+                data.pop(extras_node_index_key, None)
 
             if not isinstance(data, bpy.types.Armature):
                 continue
 
             for pose_bone in obj.pose.bones:
-                if extras_node_index_key in pose_bone:
-                    del pose_bone[extras_node_index_key]
+                pose_bone.pop(extras_node_index_key, None)
 
             for bone_name, bone in data.bones.items():
-                bone_node_index = bone.get(extras_node_index_key)
-                if extras_node_index_key in bone:
-                    del bone[extras_node_index_key]
+                bone_node_index = bone.pop(extras_node_index_key, None)
                 if not isinstance(bone_node_index, int):
                     continue
                 node_dicts = self.parse_result.json_dict.get("nodes")
@@ -1244,18 +1238,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(custom_mesh_index, int):
                     self.meshes[custom_mesh_index] = obj
 
-            if extras_mesh_index_key in obj:
-                del obj[extras_mesh_index_key]
-            if extras_mesh_index_key in data:
-                del data[extras_mesh_index_key]
+            obj.pop(extras_mesh_index_key, None)
+            data.pop(extras_mesh_index_key, None)
 
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
             if self.is_temp_object_name(material.name):
                 continue
-            material_index = material.get(extras_material_index_key)
-            if extras_material_index_key in material:
-                del material[extras_material_index_key]
+            material_index = material.pop(extras_material_index_key, None)
             if isinstance(material_index, int):
                 self.materials[material_index] = material
 

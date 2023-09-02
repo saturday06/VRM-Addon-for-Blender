@@ -221,8 +221,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         used_images: list[bpy.types.Image] = []
         used_materials = search.export_materials(self.export_objects)
         for mat in used_materials:
-            if "vrm_shader" in mat:
-                del mat["vrm_shader"]
+            mat.pop("vrm_shader", None)
 
         # image fetching
         for node, mat in search.shader_nodes_and_materials(used_materials):
@@ -344,7 +343,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 "children": [bone_id_dict[ch.name] for ch in b_bone.children],
             }
             if not node["children"]:
-                del node["children"]
+                node.pop("children", None)
             return node
 
         human_bone_node_names = [
@@ -2860,9 +2859,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         bin_json, bin_chunk = self.glb_bin_collector.pack_all()
         self.json_dict.update(bin_json)
         if not self.json_dict["meshes"]:
-            del self.json_dict["meshes"]
+            self.json_dict.pop("meshes", None)
         if not self.json_dict["materials"]:
-            del self.json_dict["materials"]
+            self.json_dict.pop("materials", None)
         self.result = pack_glb(self.json_dict, bin_chunk)
 
     def cleanup(self) -> None:

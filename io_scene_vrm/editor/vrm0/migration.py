@@ -478,11 +478,9 @@ def migrate_blender_object(armature_data: bpy.types.Armature) -> None:
 
     for collider_group in ext.vrm0.secondary_animation.collider_groups:
         for collider in collider_group.colliders:
-            bpy_object = collider.get("blender_object")
+            bpy_object = collider.pop("blender_object", None)
             if isinstance(bpy_object, bpy.types.Object):
                 collider.bpy_object = bpy_object
-            if "blender_object" in collider:
-                del collider["blender_object"]
 
 
 def migrate_link_to_bone_object(
@@ -515,9 +513,7 @@ def migrate_link_to_bone_object(
         bone_property_group.bone_uuid = bone.vrm_addon_extension.uuid
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
-        link_to_bone = bone_property_group.get("link_to_bone")
-        if "link_to_bone" in bone_property_group:
-            del bone_property_group["link_to_bone"]
+        link_to_bone = bone_property_group.pop("link_to_bone", None)
         if not isinstance(link_to_bone, bpy.types.Object):
             continue
         if link_to_bone.parent_type != "OBJECT":
@@ -579,9 +575,7 @@ def remove_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
     for mesh in meshes:
         if not mesh:
             continue
-        link_to_mesh = mesh.get("link_to_mesh")
-        if "link_to_mesh" in mesh:
-            del mesh["link_to_mesh"]
+        link_to_mesh = mesh.pop("link_to_mesh", None)
         if not isinstance(link_to_mesh, bpy.types.Object):
             continue
         if link_to_mesh.parent_type != "OBJECT":

@@ -383,7 +383,7 @@ class GlslDrawObj:
                 if not mesh.index_per_mat[k]:
                     unneeded_mat.append(k)
             for k in unneeded_mat:
-                del mesh.index_per_mat[k]
+                mesh.index_per_mat.pop(k, None)
             scene_meshes = glsl_draw_obj.scene_meshes
             scene_meshes.append(mesh)
 
