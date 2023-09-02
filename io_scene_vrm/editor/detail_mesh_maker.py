@@ -1,12 +1,13 @@
+from collections.abc import Sequence
 from math import atan2, cos, radians, sin
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
 
 from ..common.logging import get_logger
-from .template_mesh_maker import IcypTemplateMeshMaker
+from .make_armature import IcypTemplateMeshMaker
 
 logger = get_logger(__name__)
 
