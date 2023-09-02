@@ -717,15 +717,15 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
 
         if yaw_degrees < 0:
             yaw_degrees = (
-                -min(abs(yaw_degrees), range_map_horizontal_right.input_max_value)
-                / range_map_horizontal_right.input_max_value
-                * range_map_horizontal_right.output_scale
+                -min(abs(yaw_degrees), range_map_horizontal_left.input_max_value)
+                / range_map_horizontal_left.input_max_value
+                * range_map_horizontal_left.output_scale
             )
         else:
             yaw_degrees = (
-                min(abs(yaw_degrees), range_map_horizontal_left.input_max_value)
-                / range_map_horizontal_left.input_max_value
-                * range_map_horizontal_left.output_scale
+                min(abs(yaw_degrees), range_map_horizontal_right.input_max_value)
+                / range_map_horizontal_right.input_max_value
+                * range_map_horizontal_right.output_scale
             )
 
         if pitch_degrees < 0:
