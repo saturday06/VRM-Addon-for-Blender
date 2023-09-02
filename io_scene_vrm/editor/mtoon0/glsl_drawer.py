@@ -1,4 +1,6 @@
-import collections
+from collections import (
+    Counter,
+)  # type ignore[reportDeprecated=false]; https://github.com/microsoft/pyright/issues/5859
 from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -301,7 +303,7 @@ class GlslDrawObj:
                 for ms in obj.material_slots
                 if ms.material
             ]
-            count_list = collections.Counter(
+            count_list = Counter(
                 [tri.material_index for tri in tmp_mesh.loop_triangles]
             )
             scene_mesh.index_per_mat = {
