@@ -17,7 +17,7 @@ https://opensource.org/licenses/mit-license.php
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 19, 2),
+    "version": (2, 20, 1),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -51,12 +51,8 @@ def unregister() -> None:
 def raise_error_if_unsupported() -> None:
     import bpy
 
-    minimum_version = bl_info.get("blender")
-    if (
-        not isinstance(minimum_version, tuple)
-        or len(minimum_version) != 3
-        or not all(isinstance(v, int) for v in minimum_version)
-    ):
+    minimum_version = bl_info["blender"]
+    if not isinstance(minimum_version, tuple) or len(minimum_version) != 3:
         raise AssertionError(
             # pylint: disable=consider-using-f-string; for legacy Blender versions
             "Invalid version value: {}".format(minimum_version),
