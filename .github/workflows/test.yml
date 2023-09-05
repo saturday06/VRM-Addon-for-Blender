@@ -21,7 +21,7 @@ jobs:
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Cache archive
@@ -68,7 +68,7 @@ jobs:
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Cache archive
@@ -103,7 +103,7 @@ jobs:
           sudo apt-get install -y clang-format-12 glslang-tools python3 shellcheck uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Disable git config core.quotepath
