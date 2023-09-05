@@ -1749,6 +1749,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             self.setup_pose(
                 self.armature,
                 armature_data,
+                vrm.humanoid.pose,
                 vrm.humanoid.pose_library,
                 vrm.humanoid.pose_marker_name,
             )

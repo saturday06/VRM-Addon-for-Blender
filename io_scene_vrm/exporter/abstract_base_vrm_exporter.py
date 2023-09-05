@@ -8,6 +8,7 @@ from mathutils import Matrix, Quaternion
 
 from ..common import shader
 from ..common.deep import Json, make_json
+from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
 
 
@@ -36,12 +37,26 @@ class AbstractBaseVrmExporter(ABC):
         self,
         armature: bpy.types.Object,
         armature_data: bpy.types.Armature,
+        pose: str,
         action: Optional[bpy.types.Action],
         pose_marker_name: str,
     ) -> None:
+        if pose != Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE:
+            action = None
+            pose_marker_name = ""
+
         if (
-            not action or action.name not in bpy.data.actions
-        ) and armature_data.pose_position == "REST":
+            pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CURRENT_POSE
+            and armature_data.pose_position == "REST"
+        ):
+            return
+
+        if pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE or (
+            pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE
+            and not (action and action.name in bpy.data.actions)
+        ):
+            self.saved_pose_position = armature_data.pose_position
+            armature_data.pose_position = "REST"
             return
 
         if self.context.view_layer.objects.active is not None:
@@ -65,6 +80,7 @@ class AbstractBaseVrmExporter(ABC):
         ext = armature_data.vrm_addon_extension
         self.saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
         if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
+            # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
             ext.vrm1.look_at.enable_preview = False
             if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_VALUE_BONE:
                 human_bones = ext.vrm1.humanoid.human_bones

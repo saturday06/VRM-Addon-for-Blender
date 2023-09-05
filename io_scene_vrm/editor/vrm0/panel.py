@@ -306,23 +306,24 @@ def draw_vrm0_humanoid_layout(
     t_pose_box = armature_box.box()
     column = t_pose_box.row().column()
     column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
-    if bpy.app.version < (3, 0):
-        column.label(text="Pose Library")
-    else:
-        column.label(text="Pose Asset")
-    column.prop_search(
-        humanoid, "pose_library", bpy.data, "actions", text="", translate=False
-    )
-    if humanoid.pose_library and humanoid.pose_library.pose_markers:
-        column.label(text="Pose")
+    column.prop(humanoid, "pose")
+    if humanoid.pose == humanoid.POSE_ITEM_VALUE_CUSTOM_POSE:
+        if bpy.app.version < (3, 0):
+            label = "Pose Library"
+        else:
+            label = "Pose Asset"
         column.prop_search(
-            humanoid,
-            "pose_marker_name",
-            humanoid.pose_library,
-            "pose_markers",
-            text="",
-            translate=False,
+            humanoid, "pose_library", bpy.data, "actions", text=label, translate=False
         )
+        if humanoid.pose_library and humanoid.pose_library.pose_markers:
+            column.prop_search(
+                humanoid,
+                "pose_marker_name",
+                humanoid.pose_library,
+                "pose_markers",
+                text="Pose",
+                translate=False,
+            )
 
     draw_vrm0_humanoid_operators_layout(armature, armature_box)
 

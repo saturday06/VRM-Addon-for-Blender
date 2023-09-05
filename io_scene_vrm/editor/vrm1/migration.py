@@ -170,6 +170,21 @@ def migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) ->
         migrate_old_expression_layout(old_expression, expression)
 
 
+def migrate_pose(armature_data: bpy.types.Armature) -> None:
+    ext = armature_data.vrm_addon_extension
+    if tuple(ext.addon_version) >= (2, 20, 2):
+        return
+
+    humanoid = ext.vrm1.humanoid
+    action = humanoid.pose_library
+    if action and action.name in bpy.data.actions:
+        humanoid.pose = humanoid.POSE_ITEM_VALUE_CUSTOM_POSE
+    elif armature_data.pose_position == "REST":
+        humanoid.pose = humanoid.POSE_ITEM_VALUE_REST_POSITION_POSE
+    else:
+        humanoid.pose = humanoid.POSE_ITEM_VALUE_CURRENT_POSE
+
+
 def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, bpy.types.Armature):
@@ -231,6 +246,8 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
             look_at.offset_from_head_bone[2],
             -look_at.offset_from_head_bone[1],
         )
+
+    migrate_pose(armature_data)
 
     # Expressionのプリセットに名前を設定する
     # 管理上は無くてもよいが、アニメーションキーフレームに表示されるので設定しておきたい
