@@ -51,7 +51,8 @@ class AbstractBaseVrmExporter(ABC):
         bpy.ops.object.mode_set(mode="POSE")
 
         self.saved_pose_position = armature_data.pose_position
-        armature_data.pose_position = "POSE"
+        if armature_data.pose_position != "POSE":
+            armature_data.pose_position = "POSE"
 
         bpy.context.view_layer.update()
         self.saved_current_pose_matrix_basis_dict = {
