@@ -1,6 +1,4 @@
-from collections import (
-    Counter,
-)  # type ignore[reportDeprecated=false]; https://github.com/microsoft/pyright/issues/5859
+from collections import Counter
 from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
