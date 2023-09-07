@@ -254,7 +254,8 @@ def copy_socket(
 
 
 def copy_socket_interface(
-    from_socket: bpy.types.NodeSocketInterface, to_socket: bpy.types.NodeSocketInterface
+    from_socket: "bpy.types.NodeSocketInterface",
+    to_socket: "bpy.types.NodeSocketInterface",
 ) -> None:
     if bpy.app.version >= (3, 0, 0):
         to_socket.attribute_domain = from_socket.attribute_domain
