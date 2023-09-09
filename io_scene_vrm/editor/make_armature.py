@@ -573,18 +573,27 @@ class ICYP_OT_make_armature(bpy.types.Operator):
                     if human_bone.bone == vrm_bone_name:
                         human_bone.node.bone_name = bpy_bone_name
                         break
-        self.make_extension_setting_and_metas(armature)
+        self.make_extension_setting_and_metas(
+            armature,
+            offset_from_head_bone=(-self.eye_depth, self.head_size() / 6, 0),
+        )
         if not self.skip_heavy_armature_setup:
             migration.migrate(armature.name, defer=False)
 
     @classmethod
-    def make_extension_setting_and_metas(cls, armature: bpy.types.Object) -> None:
+    def make_extension_setting_and_metas(
+        cls,
+        armature: bpy.types.Object,
+        offset_from_head_bone: tuple[float, float, float] = (0, 0, 0),
+    ) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return
         vrm0 = armature_data.vrm_addon_extension.vrm0
+        vrm1 = armature_data.vrm_addon_extension.vrm1
         vrm0.first_person.first_person_bone.bone_name = "head"
         vrm0.first_person.first_person_bone_offset = (0, 0, 0.06)
+        vrm1.look_at.offset_from_head_bone = offset_from_head_bone
         vrm0.first_person.look_at_horizontal_inner.y_range = 8
         vrm0.first_person.look_at_horizontal_outer.y_range = 12
         vrm0.meta.author = "undefined"
