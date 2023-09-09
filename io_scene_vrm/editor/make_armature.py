@@ -9,6 +9,7 @@ from bmesh.types import BMesh
 from bpy.types import Mesh
 from mathutils import Matrix, Vector
 
+from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from . import migration
 from .vrm0.property_group import (
@@ -165,6 +166,10 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         armature = context.object
         if not armature:
             raise ValueError("armature is not created")
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            raise ValueError("armature data is not an Armature")
+        armature_data.vrm_addon_extension.addon_version = addon_version()
 
         bone_dict = {}
 
