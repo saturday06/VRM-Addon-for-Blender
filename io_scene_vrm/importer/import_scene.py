@@ -184,19 +184,12 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
             return False
         if space_data.active_operator.bl_idname != "IMPORT_SCENE_OT_vrm":
             return False
-        return not version.supported() or version.blender_restart_required()
+        return bool(version.panel_warning_message())
 
     def draw(self, _context: bpy.types.Context) -> None:
-        if version.blender_restart_required():
-            warning_message = pgettext(
-                "The VRM add-on has been\nupdated. "
-                + "Please restart Blender\nto apply the changes."
-            )
-        else:
-            warning_message = pgettext(
-                "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
-                + " Please update."
-            ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+        warning_message = version.panel_warning_message()
+        if warning_message is None:
+            return
 
         box = self.layout.box()
         warning_column = box.column()

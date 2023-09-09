@@ -6,6 +6,7 @@ from sys import float_info
 from typing import Optional
 
 import bpy
+from bpy.app.translations import pgettext
 
 from .logging import get_logger
 
@@ -96,3 +97,58 @@ def blender_restart_required() -> bool:
 
 def supported() -> bool:
     return bool(bpy.app.version[:2] <= MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION)
+
+
+def preferences_warning_message() -> Optional[str]:
+    if blender_restart_required():
+        return pgettext(
+            "The VRM add-on has been updated."
+            + " Please restart Blender to apply the changes."
+        )
+    if bpy.app.version_cycle != "release":
+        return pgettext(
+            "VRM add-on is not compatible with Blender {blender_version_cycle}."
+        ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
+    if not supported():
+        return pgettext(
+            "The installed VRM add-on is not compatible with Blender {blender_version}."
+            + " Please upgrade the add-on.",
+        ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+    return None
+
+
+def panel_warning_message() -> Optional[str]:
+    if blender_restart_required():
+        return pgettext(
+            "The VRM add-on has been\nupdated."
+            + " Please restart Blender\nto apply the changes."
+        )
+    if bpy.app.version_cycle != "release":
+        return pgettext(
+            "VRM add-on is\nnot compatible with\nBlender {blender_version_cycle}."
+        ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
+    if not supported():
+        return pgettext(
+            "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
+            + " Please update."
+        ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
+    return None
+
+
+def validation_warning_message() -> Optional[str]:
+    if blender_restart_required():
+        return pgettext(
+            "The VRM add-on has been updated."
+            + " Please restart Blender to apply the changes."
+        )
+    if bpy.app.version_cycle != "release":
+        return pgettext(
+            "VRM add-on is not compatible with Blender {blender_version_cycle}."
+            + " The VRM may not be exported correctly.",
+        ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
+    if not supported():
+        return pgettext(
+            "The installed VRM add-on is not compatible with Blender {blender_version}."
+            + " The VRM may not be exported correctly."
+        ).format(blender_version=".".join(map(str, bpy.app.version)))
+    return None

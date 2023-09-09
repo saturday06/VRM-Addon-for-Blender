@@ -3,8 +3,8 @@ locale_key = "ja_JP"
 translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
-        "The installed VRM add-on is not compatible with Blender {blender_version}. "
-        + "Please upgrade the add-on.",
+        "The installed VRM add-on is not compatible with Blender {blender_version}."
+        + " Please upgrade the add-on.",
     ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。\nアドオンをアップデートしてください。",
     (
         "*",
@@ -13,18 +13,32 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "インストールされている\nVRMアドオンは、Blender {blender_version}\nには未対応です。アドオンを\nアップデートしてください。",
     (
         "*",
-        "The installed VRM add-on is not compatible with Blender {blender_version}. "
+        "The installed VRM add-on is not compatible with Blender {blender_version}."
         + " The VRM may not be exported correctly.",
     ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
     (
         "*",
-        "The VRM add-on has been updated. "
-        + "Please restart Blender to apply the changes.",
+        "VRM add-on is not compatible with Blender {blender_version_cycle}.",
+    ): "VRMアドオンはBlenderの{blender_version_cycle}版には未対応です。",
+    (
+        "*",
+        "VRM add-on is\nnot compatible with\nBlender {blender_version_cycle}.",
+    ): "VRMアドオンはBlenderの\n{blender_version_cycle}版には未対応です。",
+    (
+        "*",
+        "VRM add-on is not compatible with Blender {blender_version_cycle}."
+        + " The VRM may not be exported correctly.",
+    ): "VRMアドオンはBlenderの{blender_version_cycle}版には未対応です。"
+    + "VRMが正しくエクスポートされない可能性があります。",
+    (
+        "*",
+        "The VRM add-on has been updated."
+        + " Please restart Blender to apply the changes.",
     ): "VRMアドオンはアップデートされました。変更を適用するためにBlenderを再起動してください。",
     (
         "*",
-        "The VRM add-on has been\nupdated. "
-        + "Please restart Blender\nto apply the changes.",
+        "The VRM add-on has been\nupdated."
+        + " Please restart Blender\nto apply the changes.",
     ): "VRMアドオンはアップデート\nされました。変更を適用するため\nBlenderを再起動してください。",
     ("*", 'Set shading type to "Material"'): "3Dビューをマテリアルプレビューに設定",
     ("*", 'Set view transform to "Standard"'): "ビュー変換を「標準」に設定",

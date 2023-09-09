@@ -29,18 +29,7 @@ class VRM_PT_vrm_armature_object_property(bpy.types.Panel):
         return isinstance(armature_data, bpy.types.Armature)
 
     def draw(self, _context: bpy.types.Context) -> None:
-        warning_message = None
-        if version.blender_restart_required():
-            warning_message = pgettext(
-                "The VRM add-on has been\nupdated. "
-                + "Please restart Blender\nto apply the changes."
-            )
-        elif not version.supported():
-            warning_message = pgettext(
-                "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
-                + " Please update."
-            ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
-
+        warning_message = version.panel_warning_message()
         if not warning_message:
             return
 
@@ -153,20 +142,12 @@ class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):
 
     @classmethod
     def poll(cls, _context: bpy.types.Context) -> bool:
-        return not version.supported() or version.blender_restart_required()
+        return bool(version.panel_warning_message())
 
     def draw(self, _context: bpy.types.Context) -> None:
-        if version.blender_restart_required():
-            warning_message = pgettext(
-                "The VRM add-on has been\nupdated. "
-                + "Please restart Blender\nto apply the changes."
-            )
-        else:
-            warning_message = pgettext(
-                "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
-                + " Please update."
-            ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
-
+        warning_message = version.panel_warning_message()
+        if warning_message is None:
+            return
         box = self.layout.box()
         warning_column = box.column()
         for index, warning_line in enumerate(warning_message.splitlines()):
