@@ -718,20 +718,23 @@ def clear_node_tree(
     if not clear_inputs_outputs:
         return
 
-    # node_tree.inputs.clear()
-    while node_tree.inputs:
-        node_tree.inputs.remove(node_tree.inputs[0])
+    if bpy.app.version < (4, 0):
+        # node_tree.inputs.clear()
+        while node_tree.inputs:
+            node_tree.inputs.remove(node_tree.inputs[0])
 
-    # node_tree.outputs.clear()
-    while node_tree.outputs:
-        node_tree.outputs.remove(node_tree.outputs[0])
+        # node_tree.outputs.clear()
+        while node_tree.outputs:
+            node_tree.outputs.remove(node_tree.outputs[0])
+
+        return
+
+    node_tree.interface.clear()
 
 
-def copy_node_tree(
+def copy_node_tree_inputs_outputs(
     from_node_tree: bpy.types.NodeTree, to_node_tree: bpy.types.NodeTree
 ) -> None:
-    clear_node_tree(to_node_tree, clear_inputs_outputs=False)
-
     while len(to_node_tree.inputs) > len(from_node_tree.inputs):
         to_node_tree.inputs.remove(to_node_tree.inputs[-1])
     for index, from_input in enumerate(from_node_tree.inputs):
@@ -773,6 +776,36 @@ def copy_node_tree(
                 from_output.bl_socket_idname, from_output.name
             )
         copy_socket_interface(from_output, to_output)
+
+
+def copy_node_tree_interface(
+    from_node_tree: bpy.types.NodeTree, to_node_tree: bpy.types.NodeTree
+) -> None:
+    # TODO: differential update
+    to_node_tree.interface.clear()
+
+    for ui_item in from_node_tree.interface.ui_items:
+        if ui_item.item_type != "SOCKET" or not isinstance(
+            ui_item, bpy.types.NodeTreeInterfaceSocket
+        ):
+            continue
+        to_node_tree.interface.new_socket(
+            ui_item.name,
+            description=ui_item.description,
+            in_out={ui_item.in_out},
+            socket_type=ui_item.socket_type,
+        )
+
+
+def copy_node_tree(
+    from_node_tree: bpy.types.NodeTree, to_node_tree: bpy.types.NodeTree
+) -> None:
+    clear_node_tree(to_node_tree, clear_inputs_outputs=False)
+
+    if bpy.app.version < (4, 0):
+        copy_node_tree_inputs_outputs(from_node_tree, to_node_tree)
+    else:
+        copy_node_tree_interface(from_node_tree, to_node_tree)
 
     from_to: dict[bpy.types.Node, bpy.types.Node] = {}
 
