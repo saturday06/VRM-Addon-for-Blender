@@ -358,34 +358,21 @@ classes: list[
     extension.VrmAddonObjectExtensionPropertyGroup,
 ]
 
+from . import bl_info
 
-import os
-import importlib
-import sys
-import traceback
+def cleanse_modules():
+    """search for your plugin modules in blender python sys.modules and remove them"""
 
-def reload_addon_modules(addon_path):
-    # Remove all pyc files in the addon directory and subdirectories
-    for dirpath, dirnames, filenames in os.walk(addon_path):
-        for file in filenames:
-            if file.endswith(".pyc"):
-                os.remove(os.path.join(dirpath, file))
+    import sys
 
-    # Reload all modules in the addon directory and subdirectories
-    for dirpath, dirnames, filenames in os.walk(addon_path):
-        relative_path = os.path.relpath(dirpath, addon_path).replace(os.sep, '.')
-        for module in filenames:
-            if module.endswith(".py"):
-                module_name = module.rstrip(".py")
-                if module_name != "__init__":
-                    full_module_name = f"{relative_path}.{module_name}" if relative_path != '.' else module_name
-                    try:
-                        exec(f"import {full_module_name}")
-                        exec(f"importlib.reload(sys.modules['{full_module_name}'])")
-                        print(f"Successfully reloaded: {full_module_name}")
-                    except Exception as e:
-                        print(f"Failed to reload: {full_module_name}")
-                        print(traceback.format_exc())
+    all_modules = sys.modules 
+    all_modules = dict(sorted(all_modules.items(),key= lambda x:x[0])) #sort them
+   
+    for k,v in all_modules.items():
+        if k.startswith(__name__):
+            del sys.modules[k]
+
+    return None 
 
 
 def register(init_addon_version: object) -> None:
@@ -451,21 +438,7 @@ def register(init_addon_version: object) -> None:
 
     print("Registered: {}".format(bl_info["name"]))
 
-    '''
-    -------------------------------------------------------------------
-    Reload the addon modules when the addon is reloaded by the user.
-    -------------------------------------------------------------------
-    '''
-    # Get the path of the addon's directory
-    addon_path = os.path.dirname(os.path.abspath(__file__))
-
-    # Check for bpy in locals
-    if "bpy" in locals():
-        if "__init__" in locals():
-            importlib.reload(__init__)
-
-    # Reload all addon modules
-    reload_addon_modules(addon_path)
+    return
 
 
 def unregister() -> None:
@@ -515,3 +488,5 @@ def unregister() -> None:
             logger.exception(f"Failed to Unregister {cls}")
 
     bpy.app.translations.unregister(preferences.addon_package_name)
+    cleanse_modules()
+    return
