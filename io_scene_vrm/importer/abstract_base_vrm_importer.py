@@ -22,6 +22,9 @@ from ..common.preferences import get_preferences
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
+from ..editor.make_armature import (
+    connect_parent_tail_and_child_head_if_very_close_position,
+)
 from ..editor.mtoon1.property_group import (
     Mtoon0TexturePropertyGroup,
     Mtoon1MaterialPropertyGroup,
@@ -148,6 +151,12 @@ class AbstractBaseVrmImporter(ABC):
 
             bpy.ops.object.mode_set(mode="EDIT")
 
+            if bpy.app.version >= (4, 0):
+                connect_parent_tail_and_child_head_if_very_close_position(
+                    self.armature_data
+                )
+                return
+
             for bone_name in bone_name_to_human_bone_name:
                 bone = self.armature_data.edit_bones.get(bone_name)
                 while bone:
@@ -258,7 +267,7 @@ class AbstractBaseVrmImporter(ABC):
                     Matrix.Translation(world_tail) @ world_inv
                 ).to_translation()
 
-            make_armature.connect_parent_tail_and_child_head_if_very_close_position(
+            connect_parent_tail_and_child_head_if_very_close_position(
                 self.armature_data
             )
             bpy.ops.object.mode_set(mode="OBJECT")

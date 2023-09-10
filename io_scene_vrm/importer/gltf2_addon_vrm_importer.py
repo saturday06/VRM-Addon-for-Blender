@@ -28,6 +28,9 @@ from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
 from ..editor.extension import VrmAddonBoneExtensionPropertyGroup
+from ..editor.make_armature import (
+    connect_parent_tail_and_child_head_if_very_close_position,
+)
 from ..editor.mtoon1.property_group import (
     Mtoon1KhrTextureTransformPropertyGroup,
     Mtoon1SamplerPropertyGroup,
@@ -1091,7 +1094,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                                 else FLOAT_NEGATIVE_MAX
                             )
 
-        if self.parse_result.spec_version_number < (1, 0):
+        if self.parse_result.spec_version_number < (1, 0) and bpy.app.version < (4, 0):
             bone_heuristic = "FORTUNE"
         else:
             bone_heuristic = "BLENDER"
@@ -1495,6 +1498,12 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             bpy.ops.object.mode_set(mode="EDIT")
 
+            if bpy.app.version >= (4, 0):
+                connect_parent_tail_and_child_head_if_very_close_position(
+                    self.armature_data
+                )
+                return
+
             # ボーンの子が複数ある場合そのボーン名からテールを向ける先の子ボーン名を拾えるdictを作る
             bone_name_to_main_child_bone_name: dict[str, str] = {}
             for (
@@ -1782,7 +1791,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     )
                 bone_name_to_axis_translation[bone.name] = axis_translation
 
-            make_armature.connect_parent_tail_and_child_head_if_very_close_position(
+            connect_parent_tail_and_child_head_if_very_close_position(
                 self.armature_data
             )
 
