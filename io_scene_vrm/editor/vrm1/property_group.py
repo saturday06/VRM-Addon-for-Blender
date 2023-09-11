@@ -362,39 +362,38 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
             )
             return messages
         # If humanoid, return list of bones that are not assigned
-        else:
-            for name, human_bone in human_bone_name_to_human_bone.items():
-                specification = HumanBoneSpecifications.get(name)
-                if not human_bone.node.bone_name:
-                    if specification.requirement:
-                        messages.append(
-                            pgettext(
-                                'Please assign Required VRM Bone "{name}".'
-                            ).format(name=specification.title)
-                        )
-                    continue
-                if not specification.parent_requirement:
-                    continue
-                if not specification.parent_name:
-                    logger.error(f"No parent for '{name}' in spec")
-                    continue
-                parent = human_bone_name_to_human_bone.get(specification.parent_name)
-                if not parent:
-                    logger.error(f"No parent for '{name}' in dict")
-                    continue
-                parent_specification = specification.parent()
-                if not parent_specification:
-                    logger.error(f"No parent specification for '{name}'")
-                    continue
-                if not parent.node.bone_name:
+        for name, human_bone in human_bone_name_to_human_bone.items():
+            specification = HumanBoneSpecifications.get(name)
+            if not human_bone.node.bone_name:
+                if specification.requirement:
                     messages.append(
-                        pgettext(
-                            'Please assign "{parent_name}" because "{name}" requires it as its child bone.'
-                        ).format(
-                            name=specification.title,
-                            parent_name=parent_specification.title,
+                        pgettext('Please assign Required VRM Bone "{name}".').format(
+                            name=specification.title
                         )
                     )
+                continue
+            if not specification.parent_requirement:
+                continue
+            if not specification.parent_name:
+                logger.error(f"No parent for '{name}' in spec")
+                continue
+            parent = human_bone_name_to_human_bone.get(specification.parent_name)
+            if not parent:
+                logger.error(f"No parent for '{name}' in dict")
+                continue
+            parent_specification = specification.parent()
+            if not parent_specification:
+                logger.error(f"No parent specification for '{name}'")
+                continue
+            if not parent.node.bone_name:
+                messages.append(
+                    pgettext(
+                        'Please assign "{parent_name}" because "{name}" requires it as its child bone.'
+                    ).format(
+                        name=specification.title,
+                        parent_name=parent_specification.title,
+                    )
+                )
 
         return messages
 

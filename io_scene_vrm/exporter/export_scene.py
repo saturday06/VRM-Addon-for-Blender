@@ -693,8 +693,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
                     "Non-Humanoid Armature Detected"
                 )  # This is a non-humanoid armature
                 return []
-            else:
-                error_messages.append("Please assign required human bones")
+            error_messages.append("Please assign required human bones")
         else:
             error_messages.append("Please set the version of VRM to 1.0")
 
