@@ -358,8 +358,25 @@ classes: list[
     extension.VrmAddonObjectExtensionPropertyGroup,
 ]
 
+from . import bl_info
+
+def cleanse_modules():
+    """search for your plugin modules in blender python sys.modules and remove them"""
+
+    import sys
+
+    all_modules = sys.modules 
+    all_modules = dict(sorted(all_modules.items(),key= lambda x:x[0])) #sort them
+   
+    for k,v in all_modules.items():
+        if k.startswith(__name__):
+            del sys.modules[k]
+
+    return None 
+
 
 def register(init_addon_version: object) -> None:
+    print("Registering: {}".format(bl_info["name"]))
     # Sanity check. Because a addon_version() implementation is very acrobatic
     # and it can break easily.
     if init_addon_version != addon_version():
@@ -421,6 +438,10 @@ def register(init_addon_version: object) -> None:
 
     io_scene_gltf2_support.init_extras_export()
 
+    print("Registered: {}".format(bl_info["name"]))
+
+    return
+
 
 def unregister() -> None:
     migration.teardown_subscription()  # migration.setup_subscription()はload_postで呼ばれる
@@ -475,3 +496,5 @@ def unregister() -> None:
             logger.exception(f"Failed to Unregister {cls}")
 
     bpy.app.translations.unregister(preferences.addon_package_name)
+    cleanse_modules()
+    return

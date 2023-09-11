@@ -98,8 +98,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 continue
             messages.append(
                 pgettext(
-                    'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
-                    + 'Please confirm "VRM" Panel → "VRM 0.x Humanoid" → {human_bone}.'
+                    'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
+                    + 'Confirm hierarchy of "{bone}" and its children. '
+                    + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty if wrong hierarchy'
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=human_bone.specification().title,
@@ -131,8 +132,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             specification = vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
             messages.append(
                 pgettext(
-                    'Couldn\'t assign the "{bone}" bone to a VRM "{human_bone}". '
-                    + 'Please confirm "VRM" Panel → "Humanoid" → {human_bone}.'
+                    'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
+                    + 'Confirm hierarchy of "{bone}" and its children. '
+                    + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty if wrong hierarchy'
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=specification.title,
@@ -305,11 +307,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         ):
                             continue
                         all_required_bones_exist = False
-                        error_messages.append(
+                        warning_messages.append(
                             pgettext(
-                                'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
-                                + ' "VRM" Panel → "Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
+                                'Rig will be exported as non-humanoid. Required VRM Bone "{humanoid_name}" is not assigned. '
+                                + 'Please confirm hierarchy of {humanoid_name} and its children. '
+                                + '"VRM" Panel → "Humanoid" → {humanoid_name} will be empty if hierarchy is wrong'
                             ).format(humanoid_name=human_bone_specification.title)
+
                         )
 
                     if all_required_bones_exist:
@@ -360,13 +364,13 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         ):
                             continue
                         all_required_bones_exist = False
-                        error_messages.append(
+                        warning_messages.append(
                             pgettext(
-                                'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
-                                + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".'
+                                'Rig will be exported as non-humanoid. Required VRM Bone "{humanoid_name}" is not assigned. '
+                                + 'Please confirm hierarchy of {humanoid_name} and its children. '
+                                + '"VRM" Panel → "Humanoid" → {humanoid_name} will be empty if hierarchy is wrong'
                             ).format(humanoid_name=humanoid_name.capitalize())
                         )
-
                 if all_required_bones_exist:
                     WM_OT_vrm_validator.validate_bone_order(
                         error_messages, armature, readonly
@@ -381,8 +385,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     if poly.loop_total > 3:  # polygons need all triangle
                         info_messages.append(
                             pgettext(
-                                'Faces must be Triangle, but not face in "{name}" or '
-                                + "it will be triangulated automatically.",
+                                'Non-tri faces detected in "{name}". '
+                                + "will be triangulated automatically.",
                             ).format(name=obj.name)
                         )
                         break

@@ -608,6 +608,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
         bpy.ops.export_scene.vrm(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
+
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
@@ -621,6 +622,8 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
                 continue
             candidate = self.armature_object_name_candidates.add()
             candidate.value = obj.name
+        from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
+        Vrm1HumanBonesPropertyGroup.armature_object_name = self.armature_object_name
         return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -686,6 +689,9 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+                print("Non-Humanoid Armature Detected") # This is a non-humanoid armature
+                return []
+            else:
                 error_messages.append("Please assign required human bones")
         else:
             error_messages.append("Please set the version of VRM to 1.0")
