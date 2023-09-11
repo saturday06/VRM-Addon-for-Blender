@@ -29,20 +29,22 @@ bl_info = {
     "category": "Import-Export",
 }
 
+
 # To support reload properly, try to access a package var, if it's there, reload everything
 def cleanse_modules():
     """search for your plugin modules in blender python sys.modules and remove them"""
 
     import sys
 
-    all_modules = sys.modules 
-    all_modules = dict(sorted(all_modules.items(),key= lambda x:x[0])) #sort them
-   
-    for k,v in all_modules.items():
+    all_modules = sys.modules
+    all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
+
+    for k, v in all_modules.items():
         if k.startswith(__name__):
             del sys.modules[k]
 
-    return None 
+    return None
+
 
 def register() -> None:
     # raise_error_if_unsupported()

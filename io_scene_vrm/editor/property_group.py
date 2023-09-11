@@ -216,7 +216,6 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
 
         return result
 
-
     def get_bone_name(self) -> str:
         if not self.bone_uuid:
             return ""

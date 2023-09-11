@@ -310,10 +310,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         warning_messages.append(
                             pgettext(
                                 'Rig will be exported as non-humanoid. Required VRM Bone "{humanoid_name}" is not assigned. '
-                                + 'Please confirm hierarchy of {humanoid_name} and its children. '
+                                + "Please confirm hierarchy of {humanoid_name} and its children. "
                                 + '"VRM" Panel → "Humanoid" → {humanoid_name} will be empty if hierarchy is wrong'
                             ).format(humanoid_name=human_bone_specification.title)
-
                         )
 
                     if all_required_bones_exist:
@@ -367,7 +366,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         warning_messages.append(
                             pgettext(
                                 'Rig will be exported as non-humanoid. Required VRM Bone "{humanoid_name}" is not assigned. '
-                                + 'Please confirm hierarchy of {humanoid_name} and its children. '
+                                + "Please confirm hierarchy of {humanoid_name} and its children. "
                                 + '"VRM" Panel → "Humanoid" → {humanoid_name} will be empty if hierarchy is wrong'
                             ).format(humanoid_name=humanoid_name.capitalize())
                         )

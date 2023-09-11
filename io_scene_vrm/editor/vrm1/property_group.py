@@ -314,29 +314,26 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
     def error_messages(self) -> list[str]:
         messages = []
 
-        #-------------------------------
+        # -------------------------------
         # Check if Humanoid Bones are assigned
-        #-------------------------------
-        from .. .common.vrm1 import human_bone as vrm1_human_bone
+        # -------------------------------
+        from ...common.vrm1 import human_bone as vrm1_human_bone
+
         armature_object_name = self.armature_object_name
         armature = bpy.data.objects.get(armature_object_name)
         armature_data = armature.data
-        
+
         all_required_bones_exist = True
         if armature_data.vrm_addon_extension.is_vrm1():
-            human_bones = (
-                armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-            )
+            human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
 
-            human_bone_name_to_human_bone = (
-                human_bones.human_bone_name_to_human_bone()
-            )
+            human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
             for (
                 human_bone_name,
                 human_bone,
             ) in human_bone_name_to_human_bone.items():
-                human_bone_specification = (
-                    vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
+                human_bone_specification = vrm1_human_bone.HumanBoneSpecifications.get(
+                    human_bone_name
                 )
                 if not human_bone_specification.requirement:
                     continue
@@ -367,9 +364,9 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
                 if not human_bone.node.bone_name:
                     if specification.requirement:
                         messages.append(
-                            pgettext('Please assign Required VRM Bone "{name}".').format(
-                                name=specification.title
-                            )
+                            pgettext(
+                                'Please assign Required VRM Bone "{name}".'
+                            ).format(name=specification.title)
                         )
                     continue
                 if not specification.parent_requirement:
@@ -390,7 +387,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
                         pgettext(
                             'Please assign "{parent_name}" because "{name}" requires it as its child bone.'
                         ).format(
-                            name=specification.title, parent_name=parent_specification.title
+                            name=specification.title,
+                            parent_name=parent_specification.title,
                         )
                     )
 
@@ -413,7 +411,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
 
         # 複数のボーンマップに同一のBlenderのボーンが設定されていたら片方を削除
         fixup = True
-        fixup = False # See if we can force non-humanoid export
+        fixup = False  # See if we can force non-humanoid export
         while fixup:
             fixup = False
             found_node_bone_names = []
