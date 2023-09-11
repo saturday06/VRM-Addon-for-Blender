@@ -54,7 +54,7 @@ def register() -> None:
     # support unzipping the partial add-on archive.
     from . import registration
 
-    registration.register(bl_info["version"])
+    registration.register(bl_info["name"], bl_info["version"])
 
 
 def unregister() -> None:

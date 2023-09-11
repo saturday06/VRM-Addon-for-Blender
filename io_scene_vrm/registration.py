@@ -358,8 +358,6 @@ classes: list[
     extension.VrmAddonObjectExtensionPropertyGroup,
 ]
 
-from . import bl_info
-
 
 def cleanse_modules() -> None:
     """search for your plugin modules in blender python sys.modules and remove them"""
@@ -376,8 +374,8 @@ def cleanse_modules() -> None:
     return None
 
 
-def register(init_addon_version: object) -> None:
-    print("Registering: {}".format(bl_info["name"]))
+def register(name: object, init_addon_version: object) -> None:
+    print("Registering: {}".format(name))
     # Sanity check. Because a addon_version() implementation is very acrobatic
     # and it can break easily.
     if init_addon_version != addon_version():
@@ -439,7 +437,7 @@ def register(init_addon_version: object) -> None:
 
     io_scene_gltf2_support.init_extras_export()
 
-    print("Registered: {}".format(bl_info["name"]))
+    print("Registered: {}".format(name))
 
     return
 
