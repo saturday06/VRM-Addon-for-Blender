@@ -43,8 +43,6 @@ def cleanse_modules() -> None:
         if k.startswith(__name__):
             del sys.modules[k]
 
-    return None
-
 
 def register() -> None:
     # raise_error_if_unsupported()

@@ -622,7 +622,6 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
                 continue
             candidate = self.armature_object_name_candidates.add()
             candidate.value = obj.name
-        from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 
         Vrm1HumanBonesPropertyGroup.armature_object_name = self.armature_object_name
         return context.window_manager.invoke_props_dialog(self, width=600)

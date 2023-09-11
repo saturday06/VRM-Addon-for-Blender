@@ -371,8 +371,6 @@ def cleanse_modules() -> None:
         if k.startswith(__name__):
             del sys.modules[k]
 
-    return None
-
 
 def register(name: object, init_addon_version: object) -> None:
     logger.debug(f"Registering: {name}")
@@ -439,8 +437,6 @@ def register(name: object, init_addon_version: object) -> None:
 
     logger.debug(f"Registered: {name}")
 
-    return
-
 
 def unregister() -> None:
     migration.teardown_subscription()  # migration.setup_subscription()はload_postで呼ばれる
@@ -496,4 +492,3 @@ def unregister() -> None:
 
     bpy.app.translations.unregister(preferences.addon_package_name)
     cleanse_modules()
-    return
