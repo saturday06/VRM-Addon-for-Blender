@@ -247,7 +247,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
     )
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default=""
+        default=""  # noqa: F722
     )
 
     def human_bone_name_to_human_bone(
