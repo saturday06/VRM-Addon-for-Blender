@@ -312,7 +312,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
         }
 
     def error_messages(self) -> list[str]:
-        messages = []
+        messages: list[str] = []
 
         # -------------------------------
         # Check if Humanoid Bones are assigned

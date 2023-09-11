@@ -361,7 +361,7 @@ classes: list[
 from . import bl_info
 
 
-def cleanse_modules():
+def cleanse_modules() -> None:
     """search for your plugin modules in blender python sys.modules and remove them"""
 
     import sys
