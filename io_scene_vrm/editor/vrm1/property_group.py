@@ -321,7 +321,11 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
 
         armature_object_name = self.armature_object_name
         armature = bpy.data.objects.get(armature_object_name)
+        if armature is None:
+            return messages
         armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return messages
 
         all_required_bones_exist = True
         if armature_data.vrm_addon_extension.is_vrm1():
