@@ -355,12 +355,12 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
 
         # If not humanoid, append a warning message
         if not humanoid_armature:
-            return messages
             messages.append(
                 pgettext(
                     "This armature will be exported but not as humanoid. Not compatible with most VRM apps.",
                 )
             )
+            return messages
         # If humanoid, return list of bones that are not assigned
         else:
             for name, human_bone in human_bone_name_to_human_bone.items():
