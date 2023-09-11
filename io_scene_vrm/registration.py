@@ -375,7 +375,7 @@ def cleanse_modules() -> None:
 
 
 def register(name: object, init_addon_version: object) -> None:
-    print("Registering: {}".format(name))
+    logger.debug(f"Registering: {name}")
     # Sanity check. Because a addon_version() implementation is very acrobatic
     # and it can break easily.
     if init_addon_version != addon_version():
@@ -437,7 +437,7 @@ def register(name: object, init_addon_version: object) -> None:
 
     io_scene_gltf2_support.init_extras_export()
 
-    print("Registered: {}".format(name))
+    logger.debug(f"Registered: {name}")
 
     return
 
