@@ -45,7 +45,7 @@ def cleanse_modules() -> None:
 
 
 def register() -> None:
-    # raise_error_if_unsupported()
+    raise_error_if_unsupported()
     # extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
