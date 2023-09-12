@@ -789,11 +789,20 @@ def copy_node_tree_interface(
             ui_item, bpy.types.NodeTreeInterfaceSocket
         ):
             continue
+        socket_type = ui_item.socket_type
+        if not socket_type:
+            logger.error(
+                ui_item.name
+                + f" type={type(ui_item).__name__}"
+                + f" socket_type={ui_item.socket_type}"
+            )
+            if isinstance(ui_item, bpy.types.NodeTreeInterfaceSocketFloatFactor):
+                socket_type = "NodeSocketFloat"
         to_node_tree.interface.new_socket(
             ui_item.name,
             description=ui_item.description,
             in_out={ui_item.in_out},
-            socket_type=ui_item.socket_type,
+            socket_type=socket_type,
         )
 
 

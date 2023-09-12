@@ -620,6 +620,7 @@ def get_nodes_modifier_input_key(
         if len(keys) < keys_len:
             return None
         return NodesModifierInputKey(*keys[:keys_len])
+    return None
 
 
 class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
