@@ -615,10 +615,11 @@ def get_nodes_modifier_input_key(
     node_group = modifier.node_group
     if not node_group:
         return None
-    keys = [i.identifier for i in node_group.inputs]
-    if len(keys) < keys_len:
-        return None
-    return NodesModifierInputKey(*keys[:keys_len])
+    if bpy.app.version < (4, 0):
+        keys = [i.identifier for i in node_group.inputs]
+        if len(keys) < keys_len:
+            return None
+        return NodesModifierInputKey(*keys[:keys_len])
 
 
 class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
