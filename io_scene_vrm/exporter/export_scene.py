@@ -6,6 +6,7 @@ from bpy.app.translations import pgettext
 from bpy_extras.io_utils import ExportHelper
 
 from ..common import version
+from ..common.logging import get_logger
 from ..common.preferences import get_preferences
 from ..editor import search, validation
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
@@ -27,6 +28,8 @@ from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .gltf2_addon_vrm_exporter import Gltf2AddonVrmExporter
 from .legacy_vrm_exporter import LegacyVrmExporter
 from .vrm_animation_exporter import VrmAnimationExporter
+
+logger = get_logger(__name__)
 
 
 def export_vrm_update_addon_preferences(
@@ -689,7 +692,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
-                print(
+                logger.debug(
                     "Non-Humanoid Armature Detected"
                 )  # This is a non-humanoid armature
                 return []
