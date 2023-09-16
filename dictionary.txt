@@ -81,6 +81,7 @@ glsl
 gltf
 gltf2
 hdr
+hitogata
 hpos
 hrad
 hx

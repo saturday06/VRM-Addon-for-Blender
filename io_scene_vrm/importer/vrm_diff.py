@@ -44,13 +44,37 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
     node_dicts = vrm_json.get("nodes")
     if isinstance(node_dicts, list):
         for node_dict in node_dicts:
-            if (
-                not isinstance(node_dict, dict)
-                or "matrix" in node_dict
-                or "scale" in node_dict
-            ):
+            if not isinstance(node_dict, dict):
                 continue
+
+            if deep.get(vrm_json, ["extensions", "VRM"]):
+                skin_index = node_dict.get("skin")
+                if isinstance(skin_index, int):
+                    skin_dicts = vrm_json.get("skins")
+                    if (
+                        isinstance(skin_dicts, list)
+                        and skin_dicts
+                        and 0 <= skin_index < len(skin_dicts)
+                        and not deep.diff(skin_dicts[0], skin_dicts[skin_index])
+                    ):
+                        node_dict["skin"] = 0
+
+            if "matrix" in node_dict or "scale" in node_dict:
+                continue
+
             node_dict["scale"] = [1.0, 1.0, 1.0]
+
+        if deep.get(vrm_json, ["extensions", "VRM"]):
+            skin_dicts = vrm_json.get("skins")
+            if isinstance(skin_dicts, list) and skin_dicts:
+                first_skin_dict = skin_dicts[0]
+                if all(
+                    not deep.diff(skin_dict, first_skin_dict)
+                    for skin_dict in skin_dicts
+                    if isinstance(skin_dict, dict)
+                ):
+                    while len(skin_dicts) > 1:
+                        skin_dicts.pop()
 
     scene_dicts = vrm_json.get("scenes")
     if isinstance(scene_dicts, list):

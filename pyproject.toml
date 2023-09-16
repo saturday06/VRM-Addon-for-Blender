@@ -40,7 +40,7 @@ py-version = "3.9"
 
 [tool.pylint.format]
 max-line-length = 120 # https://wiki.blender.org/wiki/Process/Addons/Guidelines
-max-module-lines = 2893
+max-module-lines = 3000
 
 [tool.pylint.design]
 max-args = 15

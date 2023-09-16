@@ -5,6 +5,7 @@ https://opensource.org/licenses/mit-license.php
 
 """
 
+import copy
 import importlib
 import math
 import re
@@ -1824,6 +1825,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if not swapped:
                 break
 
+        skin_count = 0
         for mesh in meshes:
             is_skin_mesh = self.is_skin_mesh(mesh)
             node_dict: dict[str, Json] = {
@@ -2190,8 +2192,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             mesh_index = len(mesh_dicts)
             node_dict["mesh"] = mesh_index
             if is_skin_mesh:
-                # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
-                node_dict["skin"] = 0
+                node_dict["skin"] = skin_count
+                if skin_count > 0:
+                    # Hitogata 0.6.0.1はskinを共有するとエラーになるようなのでskins[0]をコピーして使う。
+                    # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
+                    skin_dicts = self.json_dict.get("skins")
+                    if isinstance(skin_dicts, list) and skin_dicts:
+                        skin_dicts.append(copy.deepcopy(skin_dicts[0]))
+                    elif not skin_dicts:
+                        raise ValueError("No skin dictionaries exists")
+                skin_count += 1
 
             pos_glb = GlbBin(
                 position_bin,
