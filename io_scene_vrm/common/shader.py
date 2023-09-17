@@ -1,4 +1,5 @@
 import math
+from copy import deepcopy
 from pathlib import Path
 from sys import float_info
 from typing import Optional
@@ -278,24 +279,28 @@ def copy_socket_default_value(
     elif isinstance(from_socket, VECTOR_SOCKET_CLASSES) and isinstance(
         to_socket, VECTOR_SOCKET_CLASSES
     ):
-        to_socket.default_value = (  # copy
-            from_socket.default_value[0],
-            from_socket.default_value[1],
-            from_socket.default_value[2],
+        to_socket.default_value = deepcopy(
+            (
+                from_socket.default_value[0],
+                from_socket.default_value[1],
+                from_socket.default_value[2],
+            )
         )
     elif isinstance(from_socket, COLOR_SOCKET_CLASSES) and isinstance(
         to_socket, COLOR_SOCKET_CLASSES
     ):
-        to_socket.default_value = (  # copy
-            from_socket.default_value[0],
-            from_socket.default_value[1],
-            from_socket.default_value[2],
-            from_socket.default_value[3],
+        to_socket.default_value = deepcopy(
+            (
+                from_socket.default_value[0],
+                from_socket.default_value[1],
+                from_socket.default_value[2],
+                from_socket.default_value[3],
+            )
         )
     elif isinstance(from_socket, STRING_SOCKET_CLASSES) and isinstance(
         to_socket, STRING_SOCKET_CLASSES
     ):
-        to_socket.default_value = str(from_socket.default_value)  # copy
+        to_socket.default_value = deepcopy(from_socket.default_value)
 
 
 def copy_node_socket_default_value(
@@ -340,10 +345,12 @@ def copy_node(
     to_node: bpy.types.Node,
     from_to: dict[bpy.types.Node, bpy.types.Node],
 ) -> None:
-    to_node.color = (  # copy
-        from_node.color[0],
-        from_node.color[1],
-        from_node.color[2],
+    to_node.color = deepcopy(
+        (
+            from_node.color[0],
+            from_node.color[1],
+            from_node.color[2],
+        )
     )
     to_node.height = from_node.height
     to_node.hide = from_node.hide
@@ -352,9 +359,11 @@ def copy_node(
             to_input = to_node.inputs[index]
             copy_socket(from_input, to_input)
     to_node.label = from_node.label
-    to_node.location = (  # copy
-        from_node.location[0],
-        from_node.location[1],
+    to_node.location = deepcopy(
+        (
+            from_node.location[0],
+            from_node.location[1],
+        )
     )
     to_node.mute = from_node.mute
     to_node.name = from_node.name
@@ -428,10 +437,12 @@ def copy_node(
     ):
         # incomplete
         to_node.bands_direction = from_node.bands_direction
-        to_node.color_mapping.blend_color = (  # copy
-            from_node.color_mapping.blend_color[0],
-            from_node.color_mapping.blend_color[1],
-            from_node.color_mapping.blend_color[2],
+        to_node.color_mapping.blend_color = deepcopy(
+            (
+                from_node.color_mapping.blend_color[0],
+                from_node.color_mapping.blend_color[1],
+                from_node.color_mapping.blend_color[2],
+            )
         )
         to_node.color_mapping.blend_type = from_node.color_mapping.blend_type
         to_node.color_mapping.brightness = from_node.color_mapping.brightness
@@ -878,9 +889,11 @@ def copy_node_tree(
 
     # 親子関係の辻褄が合った状態でもう一度場所を設定することで完全にノードの位置を復元できる
     for from_node, to_node in from_to.items():
-        to_node.location = (  # copy
-            from_node.location[0],
-            from_node.location[1],
+        to_node.location = deepcopy(
+            (
+                from_node.location[0],
+                from_node.location[1],
+            )
         )
 
 
