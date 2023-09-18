@@ -48,7 +48,7 @@ def draw_roll_constraint_layout(
                 translate=False,
             )
 
-    constraints_help_column = constraints_column.box().column()
+    constraints_help_column = constraints_column.box().column(align=True)
     help_message = pgettext(
         "Conditions exported as Roll Constraint\n"
         + " - Copy Rotation\n"
@@ -109,7 +109,7 @@ def draw_aim_constraint_layout(
                 translate=False,
             )
 
-    constraints_help_column = constraints_column.box().column()
+    constraints_help_column = constraints_column.box().column(align=True)
     help_message = pgettext(
         "Conditions exported as Aim Constraint\n"
         + " - Damped Track\n"
@@ -166,7 +166,7 @@ def draw_rotation_constraint_layout(
                 translate=False,
             )
 
-    constraints_help_column = constraints_column.box().column()
+    constraints_help_column = constraints_column.box().column(align=True)
     help_message = pgettext(
         "Conditions exported as Rotation Constraint\n"
         + " - Copy Rotation\n"

@@ -192,7 +192,7 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
             return
 
         box = self.layout.box()
-        warning_column = box.column()
+        warning_column = box.column(align=True)
         for index, warning_line in enumerate(warning_message.splitlines()):
             warning_column.label(
                 text=warning_line,
@@ -435,7 +435,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
         )
 
         if error_messages:
-            error_column = layout.box().column()
+            error_column = layout.box().column(align=True)
             for error_message in error_messages:
                 error_column.label(text=error_message, icon="ERROR")
 

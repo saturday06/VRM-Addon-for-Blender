@@ -286,7 +286,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
         warning_message = version.panel_warning_message()
         if warning_message:
             box = layout.box()
-            warning_column = box.column()
+            warning_column = box.column(align=True)
             for index, warning_line in enumerate(warning_message.splitlines()):
                 warning_column.label(
                     text=warning_line,
@@ -505,7 +505,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
         else:
             alert_box = layout.box()
             alert_box.alert = True
-            alert_column = alert_box.column()
+            alert_column = alert_box.column(align=True)
             for error_message in human_bones.error_messages():
                 alert_column.label(text=error_message, translate=False, icon="ERROR")
 
@@ -739,7 +739,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
         )
 
         if error_messages:
-            error_column = layout.box().column()
+            error_column = layout.box().column(align=True)
             for error_message in error_messages:
                 error_column.label(text=error_message, icon="ERROR")
 
@@ -778,7 +778,7 @@ def draw_help_message(layout: bpy.types.UILayout) -> None:
         + '- "Look At" value currently not supported\n'
     )
     help_box = layout.box()
-    help_column = help_box.column()
+    help_column = help_box.column(align=True)
     for index, help_line in enumerate(help_message.splitlines()):
         help_column.label(
             text=help_line,

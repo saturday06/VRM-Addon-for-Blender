@@ -292,7 +292,7 @@ def draw_mtoon1_material(
             'The "Screen Coordinates" display is not yet implemented.\n'
             + 'It is displayed in the same way as "World Coordinates".'
         )
-        outline_warning_column = outline_box.box().column()
+        outline_warning_column = outline_box.box().column(align=True)
         for index, outline_warning_line in enumerate(
             outline_warning_message.splitlines()
         ):
@@ -379,7 +379,7 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     if node and node.node_tree.get("SHADER") in ["TRANSPARENT_ZWRITE", "GLTF"]:
         return
 
-    help_column = layout.box().column()
+    help_column = layout.box().column(align=True)
     help_message = pgettext(
         "How to export this material to VRM.\n"
         + "Meet one of the following conditions.\n"
