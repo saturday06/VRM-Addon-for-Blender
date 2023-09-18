@@ -17,7 +17,7 @@ https://opensource.org/licenses/mit-license.php
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 4),
+    "version": (2, 20, 5),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -30,6 +30,20 @@ bl_info = {
 }
 
 
+# To support reload properly, try to access a package var, if it's there, reload everything
+def cleanse_modules() -> None:
+    """search for your plugin modules in blender python sys.modules and remove them"""
+
+    import sys
+
+    all_modules = sys.modules
+    all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
+
+    for k in all_modules:
+        if k.startswith(__name__):
+            del sys.modules[k]
+
+
 def register() -> None:
     raise_error_if_unsupported()
     extract_github_private_partial_code_archive_if_necessary()
@@ -38,7 +52,7 @@ def register() -> None:
     # support unzipping the partial add-on archive.
     from . import registration
 
-    registration.register(bl_info["version"])
+    registration.register(bl_info["name"], bl_info["version"])
 
 
 def unregister() -> None:
@@ -46,6 +60,7 @@ def unregister() -> None:
     from . import registration
 
     registration.unregister()
+    cleanse_modules()
 
 
 def raise_error_if_unsupported() -> None:
