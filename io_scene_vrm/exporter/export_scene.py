@@ -221,7 +221,10 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
                     bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
                         armature_name=armature.name
                     )
-                if not human_bones.all_required_bones_are_assigned():
+                if (
+                    not human_bones.all_required_bones_are_assigned()
+                    and not human_bones.allow_non_humanoid_rig
+                ):
                     return bpy.ops.wm.vrm_export_human_bones_assignment(
                         "INVOKE_DEFAULT",
                         armature_object_name=self.armature_object_name,
@@ -431,7 +434,10 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
                 defer=False,
             )
             human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-            if not human_bones.all_required_bones_are_assigned():
+            if (
+                not human_bones.all_required_bones_are_assigned()
+                and not human_bones.allow_non_humanoid_rig
+            ):
                 return {"CANCELLED"}
         else:
             return {"CANCELLED"}
@@ -505,6 +511,14 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
             alert_box.label(
                 text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
             )
+        elif human_bones.allow_non_humanoid_rig:
+            alert_box = layout.box()
+            alert_box.label(
+                text="This armature will be exported but not as humanoid."
+                + " It can not have animations applied"
+                + " for humanoid avatars.",
+                icon="CHECKMARK",
+            )
         else:
             alert_box = layout.box()
             alert_box.alert = True
@@ -521,6 +535,9 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
         row = layout.split(factor=0.5)
         draw_vrm1_humanoid_required_bones_layout(human_bones, row.column())
         draw_vrm1_humanoid_optional_bones_layout(human_bones, row.column())
+
+        non_humanoid_export_column = layout.column()
+        non_humanoid_export_column.prop(human_bones, "allow_non_humanoid_rig")
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -626,7 +643,6 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
             candidate = self.armature_object_name_candidates.add()
             candidate.value = obj.name
 
-        Vrm1HumanBonesPropertyGroup.armature_object_name = self.armature_object_name
         return context.window_manager.invoke_props_dialog(self, width=600)
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -692,11 +708,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
-                logger.debug(
-                    "Non-Humanoid Armature Detected"
-                )  # This is a non-humanoid armature
-                return []
-            error_messages.append("Please assign required human bones")
+                error_messages.append(pgettext("Please assign required human bones"))
         else:
             error_messages.append(pgettext("Please set the version of VRM to 1.0"))
 

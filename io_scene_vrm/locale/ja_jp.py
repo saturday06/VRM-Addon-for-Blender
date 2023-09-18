@@ -431,4 +431,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "https://vrm-addon-for-blender.info/en/animation/",
     ): "https://vrm-addon-for-blender.info/ja/animation/",
     ("Operator", "Open help in a Web Browser"): "Webブラウザでヘルプを開く",
+    ("*", "Allow Non-Humanoid Rig"): "人型以外のリグを許可する",
+    (
+        "*",
+        "VRMs exported as Non-Humanoid\n"
+        + "Rigs can not have animations applied\n"
+        + "for humanoid avatars.",
+    ): ("人型以外のリグでVRMエクスポートを\nすると、人型アバター用のアニメーションが\n適用されません。"),
+    (
+        "*",
+        "This armature will be exported but not as humanoid."
+        + " It can not have animations applied"
+        + " for humanoid avatars.",
+    ): "アーマチュアは人型では無いリグでエクスポートされます。"
+    + "人型アバター用のアニメーションが適用されません。",
 }

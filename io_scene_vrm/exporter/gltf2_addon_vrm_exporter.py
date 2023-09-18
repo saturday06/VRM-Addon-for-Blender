@@ -1,12 +1,13 @@
 import math
 import tempfile
+from copy import deepcopy
 from os import environ
 from pathlib import Path
 from sys import float_info
 from typing import Optional, Union
 
 import bpy
-from mathutils import Matrix, Quaternion
+from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert, deep, shader
 from ..common.char import INTERNAL_NAME_PREFIX
@@ -14,6 +15,7 @@ from ..common.deep import Json, make_json
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.version import addon_version
+from ..common.vrm1.human_bone import HumanBoneName
 from ..editor import search
 from ..editor.mtoon1.property_group import (
     Mtoon1SamplerPropertyGroup,
@@ -24,6 +26,7 @@ from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
+    Vrm1HumanBonesPropertyGroup,
     Vrm1HumanoidPropertyGroup,
     Vrm1LookAtPropertyGroup,
     Vrm1MetaPropertyGroup,
@@ -1733,6 +1736,217 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         continue
                     target_dict.pop("NORMAL", None)
 
+    @staticmethod
+    def setup_dummy_human_bones(
+        context: bpy.types.Context,
+        armature: bpy.types.Object,
+        armature_data: bpy.types.Armature,
+    ) -> Optional[dict[HumanBoneName, str]]:
+        ext = armature_data.vrm_addon_extension
+        human_bones = ext.vrm1.humanoid.human_bones
+        if human_bones.all_required_bones_are_assigned():
+            return None
+
+        human_bone_name_to_bone_name: dict[HumanBoneName, str] = {}
+        for (
+            human_bone_name,
+            human_bone,
+        ) in human_bones.human_bone_name_to_human_bone().items():
+            if not human_bone.node.bone_name:
+                continue
+            human_bone_name_to_bone_name[human_bone_name] = human_bone.node.bone_name
+            human_bone.node.bone_name = ""
+
+        previous_active = context.view_layer.objects.active
+        try:
+            context.view_layer.objects.active = armature
+            bpy.ops.object.mode_set(mode="EDIT")
+
+            hips_bone = armature_data.edit_bones.new(HumanBoneName.HIPS.value)
+            hips_bone.head = Vector((0, 0, 0.5))
+            hips_bone.tail = Vector((0, 1, 0.5))
+            hips_bone_name = deepcopy(hips_bone.name)
+
+            right_upper_leg_bone = armature_data.edit_bones.new(
+                HumanBoneName.RIGHT_UPPER_LEG.value
+            )
+            right_upper_leg_bone.head = Vector((-0.125, 0, 0.5))
+            right_upper_leg_bone.tail = Vector((-0.125, 1, 0.5))
+            right_upper_leg_bone.parent = hips_bone
+            right_upper_leg_bone_name = deepcopy(right_upper_leg_bone.name)
+
+            right_lower_leg_bone = armature_data.edit_bones.new(
+                HumanBoneName.RIGHT_LOWER_LEG.value
+            )
+            right_lower_leg_bone.head = Vector((-0.125, 0, 0.25))
+            right_lower_leg_bone.tail = Vector((-0.125, 1, 0.25))
+            right_lower_leg_bone.parent = right_upper_leg_bone
+            right_lower_leg_bone_name = deepcopy(right_lower_leg_bone.name)
+
+            right_foot_bone = armature_data.edit_bones.new(
+                HumanBoneName.RIGHT_FOOT.value
+            )
+            right_foot_bone.head = Vector((-0.125, 0, 0))
+            right_foot_bone.tail = Vector((-0.125, 1, 0))
+            right_foot_bone.parent = right_lower_leg_bone
+            right_foot_bone_name = deepcopy(right_foot_bone.name)
+
+            left_upper_leg_bone = armature_data.edit_bones.new(
+                HumanBoneName.LEFT_UPPER_LEG.value
+            )
+            left_upper_leg_bone.head = Vector((0.125, 0, 0.5))
+            left_upper_leg_bone.tail = Vector((0.125, 1, 0.5))
+            left_upper_leg_bone.parent = hips_bone
+            left_upper_leg_bone_name = deepcopy(left_upper_leg_bone.name)
+
+            left_lower_leg_bone = armature_data.edit_bones.new(
+                HumanBoneName.LEFT_LOWER_LEG.value
+            )
+            left_lower_leg_bone.head = Vector((0.125, 0, 0.25))
+            left_lower_leg_bone.tail = Vector((0.125, 1, 0.25))
+            left_lower_leg_bone.parent = left_upper_leg_bone
+            left_lower_leg_bone_name = deepcopy(left_lower_leg_bone.name)
+
+            left_foot_bone = armature_data.edit_bones.new(HumanBoneName.LEFT_FOOT.value)
+            left_foot_bone.head = Vector((0.125, 0, 0))
+            left_foot_bone.tail = Vector((0.125, 1, 0))
+            left_foot_bone.parent = left_lower_leg_bone
+            left_foot_bone_name = deepcopy(left_foot_bone.name)
+
+            spine_bone = armature_data.edit_bones.new(HumanBoneName.SPINE.value)
+            spine_bone.head = Vector((0, 0, 0.625))
+            spine_bone.tail = Vector((0, 1, 0.625))
+            spine_bone.parent = hips_bone
+            spine_bone_name = deepcopy(spine_bone.name)
+
+            right_upper_arm_bone = armature_data.edit_bones.new(
+                HumanBoneName.RIGHT_UPPER_ARM.value
+            )
+            right_upper_arm_bone.head = Vector((-0.125, 0, 0.75))
+            right_upper_arm_bone.tail = Vector((-0.125, 1, 0.75))
+            right_upper_arm_bone.parent = spine_bone
+            right_upper_arm_bone_name = deepcopy(right_upper_arm_bone.name)
+
+            right_lower_arm_bone = armature_data.edit_bones.new(
+                HumanBoneName.RIGHT_LOWER_ARM.value
+            )
+            right_lower_arm_bone.head = Vector((-0.25, 0, 0.75))
+            right_lower_arm_bone.tail = Vector((-0.25, 1, 0.75))
+            right_lower_arm_bone.parent = right_upper_arm_bone
+            right_lower_arm_bone_name = deepcopy(right_lower_arm_bone.name)
+
+            right_hand_bone = armature_data.edit_bones.new(
+                HumanBoneName.RIGHT_HAND.value
+            )
+            right_hand_bone.head = Vector((-0.375, 0, 0.75))
+            right_hand_bone.tail = Vector((-0.375, 1, 0.75))
+            right_hand_bone.parent = right_lower_arm_bone
+            right_hand_bone_name = deepcopy(right_hand_bone.name)
+
+            left_upper_arm_bone = armature_data.edit_bones.new(
+                HumanBoneName.LEFT_UPPER_ARM.value
+            )
+            left_upper_arm_bone.head = Vector((0.125, 0, 0.75))
+            left_upper_arm_bone.tail = Vector((0.125, 1, 0.75))
+            left_upper_arm_bone.parent = spine_bone
+            left_upper_arm_bone_name = deepcopy(left_upper_arm_bone.name)
+
+            left_lower_arm_bone = armature_data.edit_bones.new(
+                HumanBoneName.LEFT_LOWER_ARM.value
+            )
+            left_lower_arm_bone.head = Vector((0.25, 0, 0.75))
+            left_lower_arm_bone.tail = Vector((0.25, 1, 0.75))
+            left_lower_arm_bone.parent = left_upper_arm_bone
+            left_lower_arm_bone_name = deepcopy(left_lower_arm_bone.name)
+
+            left_hand_bone = armature_data.edit_bones.new(HumanBoneName.LEFT_HAND.value)
+            left_hand_bone.head = Vector((0.375, 0, 0.75))
+            left_hand_bone.tail = Vector((0.375, 1, 0.75))
+            left_hand_bone.parent = left_lower_arm_bone
+            left_hand_bone_name = deepcopy(left_hand_bone.name)
+
+            head_bone = armature_data.edit_bones.new(HumanBoneName.HEAD.value)
+            head_bone.head = Vector((0, 0, 0.75))
+            head_bone.tail = Vector((0, 1, 0.75))
+            head_bone.parent = spine_bone
+            head_bone_name = deepcopy(head_bone.name)
+        finally:
+            if (
+                context.view_layer.objects.active
+                and context.view_layer.objects.active.mode != "OBJECT"
+            ):
+                bpy.ops.object.mode_set(mode="OBJECT")
+            context.view_layer.objects.active = previous_active
+
+        Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+            armature_data.name, defer=False
+        )
+
+        human_bones.head.node.bone_name = head_bone_name
+        human_bones.spine.node.bone_name = spine_bone_name
+        human_bones.hips.node.bone_name = hips_bone_name
+
+        human_bones.right_upper_arm.node.bone_name = right_upper_arm_bone_name
+        human_bones.right_lower_arm.node.bone_name = right_lower_arm_bone_name
+        human_bones.right_hand.node.bone_name = right_hand_bone_name
+
+        human_bones.left_upper_arm.node.bone_name = left_upper_arm_bone_name
+        human_bones.left_lower_arm.node.bone_name = left_lower_arm_bone_name
+        human_bones.left_hand.node.bone_name = left_hand_bone_name
+
+        human_bones.right_upper_leg.node.bone_name = right_upper_leg_bone_name
+        human_bones.right_lower_leg.node.bone_name = right_lower_leg_bone_name
+        human_bones.right_foot.node.bone_name = right_foot_bone_name
+
+        human_bones.left_upper_leg.node.bone_name = left_upper_leg_bone_name
+        human_bones.left_lower_leg.node.bone_name = left_lower_leg_bone_name
+        human_bones.left_foot.node.bone_name = left_foot_bone_name
+
+        return human_bone_name_to_bone_name
+
+    @staticmethod
+    def restore_dummy_human_bones(
+        context: bpy.types.Context,
+        armature: bpy.types.Object,
+        armature_data: bpy.types.Armature,
+        human_bone_name_to_bone_name: dict[HumanBoneName, str],
+    ) -> None:
+        ext = armature_data.vrm_addon_extension
+        human_bones = ext.vrm1.humanoid.human_bones
+
+        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
+        dummy_bone_names = deepcopy(
+            [
+                human_bone.node.bone_name
+                for human_bone in human_bone_name_to_human_bone.values()
+                if human_bone.node.bone_name
+            ]
+        )
+
+        for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+            bone_name = human_bone_name_to_bone_name.get(human_bone_name)
+            if bone_name:
+                human_bone.node.bone_name = bone_name
+            else:
+                human_bone.node.bone_name = ""
+
+        previous_active = context.view_layer.objects.active
+        try:
+            context.view_layer.objects.active = armature
+            bpy.ops.object.mode_set(mode="EDIT")
+
+            for dummy_bone_name in dummy_bone_names:
+                dummy_edit_bone = armature_data.edit_bones.get(dummy_bone_name)
+                if dummy_edit_bone:
+                    armature_data.edit_bones.remove(dummy_edit_bone)
+        finally:
+            if (
+                context.view_layer.objects.active
+                and context.view_layer.objects.active.mode != "OBJECT"
+            ):
+                bpy.ops.object.mode_set(mode="OBJECT")
+            context.view_layer.objects.active = previous_active
+
     def export_vrm(self) -> Optional[bytes]:
         init_extras_export()
 
@@ -1741,6 +1955,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             raise AssertionError(f"{type(armature_data)} is not an Armature")
 
         vrm = armature_data.vrm_addon_extension.vrm1
+        backup_human_bone_name_to_bone_name = self.setup_dummy_human_bones(
+            self.context, self.armature, armature_data
+        )
         # dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes()
         blend_shape_previews = self.clear_blend_shape_proxy_previews(armature_data)
@@ -2173,6 +2390,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         for key in gltf_root_non_empty_array_keys:
             if not json_dict.get(key):
                 json_dict.pop(key, None)
+
+        if backup_human_bone_name_to_bone_name is not None:
+            self.restore_dummy_human_bones(
+                self.context,
+                self.armature,
+                armature_data,
+                backup_human_bone_name_to_bone_name,
+            )
 
         return pack_glb(json_dict, body_binary)
 

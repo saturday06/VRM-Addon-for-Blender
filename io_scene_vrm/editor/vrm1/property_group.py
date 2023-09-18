@@ -246,8 +246,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
         default=True
     )
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default=""  # noqa: F722
+    allow_non_humanoid_rig: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Allow Non-Humanoid Rig",  # noqa: F722
     )
 
     def human_bone_name_to_human_bone(
@@ -313,55 +313,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
 
     def error_messages(self) -> list[str]:
         messages: list[str] = []
-
-        # -------------------------------
-        # Check if Humanoid Bones are assigned
-        # -------------------------------
-        from ...common.vrm1 import human_bone as vrm1_human_bone
-
-        armature_object_name = self.armature_object_name
-        armature = bpy.data.objects.get(armature_object_name)
-        if armature is None:
-            return messages
-        armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
-            return messages
-
-        all_required_bones_exist = True
-        if armature_data.vrm_addon_extension.is_vrm1():
-            human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-
-            human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-            for (
-                human_bone_name,
-                human_bone,
-            ) in human_bone_name_to_human_bone.items():
-                human_bone_specification = vrm1_human_bone.HumanBoneSpecifications.get(
-                    human_bone_name
-                )
-                if not human_bone_specification.requirement:
-                    continue
-                if (
-                    human_bone.node
-                    and human_bone.node.bone_name
-                    and human_bone.node.bone_name in armature_data.bones
-                ):
-                    continue
-                all_required_bones_exist = False
-
-        humanoid_armature = all_required_bones_exist
-
         human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
 
-        # If not humanoid, append a warning message
-        if not humanoid_armature:
-            messages.append(
-                pgettext(
-                    "This armature will be exported but not as humanoid. Not compatible with most VRM apps.",
-                )
-            )
-            return messages
-        # If humanoid, return list of bones that are not assigned
         for name, human_bone in human_bone_name_to_human_bone.items():
             specification = HumanBoneSpecifications.get(name)
             if not human_bone.node.bone_name:
@@ -414,7 +367,6 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
 
         # 複数のボーンマップに同一のBlenderのボーンが設定されていたら片方を削除
         fixup = True
-        fixup = False  # See if we can force non-humanoid export
         while fixup:
             fixup = False
             found_node_bone_names = []
@@ -538,6 +490,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
             StringPropertyGroup
         ]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
+        allow_non_humanoid_rig: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.schema.json

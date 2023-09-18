@@ -273,6 +273,23 @@ def draw_vrm1_humanoid_layout(
     draw_vrm1_humanoid_required_bones_layout(human_bones, armature_box.box())
     draw_vrm1_humanoid_optional_bones_layout(human_bones, armature_box.box())
 
+    non_humanoid_export_column = layout.column()
+    non_humanoid_export_column.prop(human_bones, "allow_non_humanoid_rig")
+    if human_bones.allow_non_humanoid_rig:
+        non_humanoid_warnings_box = non_humanoid_export_column.box()
+        non_humanoid_warnings_column = non_humanoid_warnings_box.column(align=True)
+        text = pgettext(
+            "VRMs exported as Non-Humanoid\n"
+            + "Rigs can not have animations applied\n"
+            + "for humanoid avatars."
+        )
+        for index, message in enumerate(pgettext(text).splitlines()):
+            non_humanoid_warnings_column.label(
+                text=message,
+                translate=False,
+                icon="ERROR" if index == 0 else "NONE",
+            )
+
 
 class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):
     bl_idname = "VRM_PT_vrm1_humanoid_armature_object_property"
