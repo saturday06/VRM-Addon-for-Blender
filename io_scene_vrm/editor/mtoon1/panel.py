@@ -297,7 +297,9 @@ def draw_mtoon1_material(
             outline_warning_message.splitlines()
         ):
             outline_warning_column.label(
-                text=outline_warning_line, icon="BLANK1" if index else "INFO"
+                text=outline_warning_line,
+                translate=False,
+                icon="BLANK1" if index else "INFO",
             )
     if (
         mtoon.outline_width_mode

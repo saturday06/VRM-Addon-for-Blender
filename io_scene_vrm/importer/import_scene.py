@@ -377,21 +377,21 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
             armature = context.blend_data.objects.get(armature_object_name)
 
         if not armature:
-            error_messages.append("Armature not found")
+            error_messages.append(pgettext("Armature not found"))
             return error_messages
 
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            error_messages.append("Armature not found")
+            error_messages.append(pgettext("Armature not found"))
             return error_messages
 
         ext = armature_data.vrm_addon_extension
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
-                error_messages.append("Please assign required human bones")
+                error_messages.append(pgettext("Please assign required human bones"))
         else:
-            error_messages.append("Please set the version of VRM to 1.0")
+            error_messages.append(pgettext("Please set the version of VRM to 1.0"))
 
         return error_messages
 
@@ -437,7 +437,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
         if error_messages:
             error_column = layout.box().column(align=True)
             for error_message in error_messages:
-                error_column.label(text=error_message, icon="ERROR")
+                error_column.label(text=error_message, icon="ERROR", translate=False)
 
         open_op = layout_operator(
             layout,
