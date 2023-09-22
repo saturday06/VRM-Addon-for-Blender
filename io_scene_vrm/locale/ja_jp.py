@@ -23,7 +23,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "VRM add-on is\nnot compatible with\nBlender {blender_version_cycle}.",
-    ): "VRMアドオンはBlenderの\n{blender_version_cycle}版には未対応です。",
+    ): "VRMアドオンはBlender\nの{blender_version_cycle}版には未対応です。",
     (
         "*",
         "VRM add-on is not compatible with Blender {blender_version_cycle}."
