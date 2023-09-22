@@ -181,8 +181,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "「{parent_name}」を割り当ててください。子ボーンである「{name}」の割り当てに必要になります。",
     (
         "*",
-        'Faces must be Triangle, but not face in "{name}" or '
-        + "it will be triangulated automatically.",
+        'Non-tri faces detected in "{name}". ' + "will be triangulated automatically.",
     ): "「{name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
     (
         "*",
