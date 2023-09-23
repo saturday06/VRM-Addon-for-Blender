@@ -105,7 +105,10 @@ def preferences_warning_message() -> Optional[str]:
             "The VRM add-on has been updated."
             + " Please restart Blender to apply the changes."
         )
-    if bpy.app.version_cycle != "release":
+    if bpy.app.version_cycle not in [
+        "release",
+        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
+    ]:
         return pgettext(
             "VRM add-on is not compatible with Blender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
@@ -144,7 +147,10 @@ def validation_warning_message() -> Optional[str]:
             "The VRM add-on has been updated."
             + " Please restart Blender to apply the changes."
         )
-    if bpy.app.version_cycle != "release":
+    if bpy.app.version_cycle not in [
+        "release",
+        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
+    ]:
         return pgettext(
             "VRM add-on is not compatible with Blender {blender_version_cycle}."
             + " The VRM may not be exported correctly.",
