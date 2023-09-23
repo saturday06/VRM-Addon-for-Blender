@@ -123,7 +123,10 @@ def panel_warning_message() -> Optional[str]:
             "The VRM add-on has been\nupdated."
             + " Please restart Blender\nto apply the changes."
         )
-    if bpy.app.version_cycle != "release":
+    if bpy.app.version_cycle not in [
+        "release",
+        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
+    ]:
         return pgettext(
             "VRM add-on is\nnot compatible with\nBlender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
