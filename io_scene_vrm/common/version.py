@@ -95,6 +95,13 @@ def blender_restart_required() -> bool:
     return True
 
 
+def stable_release() -> bool:
+    return bpy.app.version_cycle in [
+        "release",
+        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
+    ]
+
+
 def supported() -> bool:
     return bool(bpy.app.version[:2] <= MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION)
 
@@ -105,10 +112,7 @@ def preferences_warning_message() -> Optional[str]:
             "The VRM add-on has been updated."
             + " Please restart Blender to apply the changes."
         )
-    if bpy.app.version_cycle not in [
-        "release",
-        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
-    ]:
+    if not stable_release():
         return pgettext(
             "VRM add-on is not compatible with Blender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
@@ -126,10 +130,7 @@ def panel_warning_message() -> Optional[str]:
             "The VRM add-on has been\nupdated."
             + " Please restart Blender\nto apply the changes."
         )
-    if bpy.app.version_cycle not in [
-        "release",
-        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
-    ]:
+    if not stable_release():
         return pgettext(
             "VRM add-on is\nnot compatible with\nBlender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
@@ -147,10 +148,7 @@ def validation_warning_message() -> Optional[str]:
             "The VRM add-on has been updated."
             + " Please restart Blender to apply the changes."
         )
-    if bpy.app.version_cycle not in [
-        "release",
-        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
-    ]:
+    if not stable_release():
         return pgettext(
             "VRM add-on is not compatible with Blender {blender_version_cycle}."
             + " The VRM may not be exported correctly.",
