@@ -601,6 +601,10 @@ class NodesModifierInputKey:
     object_key: str
     enabled_key: str
 
+    @staticmethod
+    def keys_len() -> int:
+        return 15
+
     def outline_width_multiply_texture_uv_use_attribute_key(self) -> str:
         return self.outline_width_multiply_texture_uv_key + "_use_attribute"
 
@@ -611,16 +615,23 @@ class NodesModifierInputKey:
 def get_nodes_modifier_input_key(
     modifier: bpy.types.NodesModifier,
 ) -> Optional[NodesModifierInputKey]:
-    keys_len = 15
     node_group = modifier.node_group
     if not node_group:
         return None
     if bpy.app.version < (4, 0):
         keys = [i.identifier for i in node_group.inputs]
-        if len(keys) < keys_len:
-            return None
-        return NodesModifierInputKey(*keys[:keys_len])
-    return None
+    else:
+        keys = [
+            item.identifier
+            for item in node_group.interface.items_tree
+            if item.item_type == "SOCKET"
+            and isinstance(item, bpy.types.NodeTreeInterfaceSocket)
+            and item.in_out == "INPUT"
+        ]
+    keys_len = NodesModifierInputKey.keys_len()
+    if len(keys) < keys_len:
+        return None
+    return NodesModifierInputKey(*keys[:keys_len])
 
 
 class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):

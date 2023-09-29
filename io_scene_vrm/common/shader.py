@@ -795,24 +795,24 @@ def copy_node_tree_interface(
     # TODO: differential update
     to_node_tree.interface.clear()
 
-    for ui_item in from_node_tree.interface.ui_items:
-        if ui_item.item_type != "SOCKET" or not isinstance(
-            ui_item, bpy.types.NodeTreeInterfaceSocket
+    for item in from_node_tree.interface.items_tree:
+        if item.item_type != "SOCKET" or not isinstance(
+            item, bpy.types.NodeTreeInterfaceSocket
         ):
             continue
-        socket_type = ui_item.socket_type
+        socket_type = item.socket_type
         if not socket_type:
             logger.error(
-                ui_item.name
-                + f" type={type(ui_item).__name__}"
-                + f" socket_type={ui_item.socket_type}"
+                f"{item.name} has empty socket_type. type={type(item).__name__}"
             )
-            if isinstance(ui_item, bpy.types.NodeTreeInterfaceSocketFloatFactor):
+            if isinstance(item, bpy.types.NodeTreeInterfaceSocketFloatFactor):
                 socket_type = "NodeSocketFloat"
+            else:
+                continue
         to_node_tree.interface.new_socket(
-            ui_item.name,
-            description=ui_item.description,
-            in_out={ui_item.in_out},
+            item.name,
+            description=item.description,
+            in_out=item.in_out,
             socket_type=socket_type,
         )
 
