@@ -5,6 +5,7 @@ from sys import float_info
 from typing import Optional
 
 import bpy
+from mathutils import Color
 
 from . import convert
 from .char import INTERNAL_NAME_PREFIX
@@ -50,15 +51,22 @@ file_names = [
 ]
 
 OUTLINE_GEOMETRY_GROUP_NAME = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
-OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME = (
-    INTERNAL_NAME_PREFIX + OUTLINE_GEOMETRY_GROUP_NAME + " Template"
-)
-
-OUTPUT_GROUP_NAME = "VRM Add-on MToon 1.0 Output Revision 1"
-OUTPUT_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + OUTPUT_GROUP_NAME + " Template"
 
 UV_GROUP_NAME = "VRM Add-on MToon 1.0 UV Revision 1"
-UV_GROUP_TEMPLATE_NAME = INTERNAL_NAME_PREFIX + UV_GROUP_NAME + " Template"
+UV_ANIMATION_GROUP_NAME = "VRM Add-on MToon 1.0 UV Animation Revision 1"
+NORMAL_GROUP_NAME = "VRM Add-on MToon 1.0 Normal Revision 1"
+OUTPUT_GROUP_NAME = "VRM Add-on MToon 1.0 Output Revision 1"
+
+shader_node_group_names = [
+    UV_GROUP_NAME,
+    UV_ANIMATION_GROUP_NAME,
+    NORMAL_GROUP_NAME,
+    OUTPUT_GROUP_NAME,
+]
+
+
+def template_name(name: str) -> str:
+    return INTERNAL_NAME_PREFIX + name + " Template"
 
 
 def add_shaders() -> None:
@@ -79,11 +87,11 @@ def load_mtoon1_outline_geometry_node_group(
         return
 
     old_template_outline_group = bpy.data.node_groups.get(
-        OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
+        template_name(OUTLINE_GEOMETRY_GROUP_NAME)
     )
     if old_template_outline_group:
         logger.error(
-            f'Node Group "{OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME}" already exists'
+            f'Node Group "{template_name(OUTLINE_GEOMETRY_GROUP_NAME)}" already exists'
         )
         old_template_outline_group.name += ".old"
 
@@ -101,9 +109,11 @@ def load_mtoon1_outline_geometry_node_group(
     try:
         outline_node_tree_append_result = bpy.ops.wm.append(
             filepath=(
-                outline_node_tree_path + "/" + OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
+                outline_node_tree_path
+                + "/"
+                + template_name(OUTLINE_GEOMETRY_GROUP_NAME)
             ),
-            filename=OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME,
+            filename=template_name(OUTLINE_GEOMETRY_GROUP_NAME),
             directory=outline_node_tree_path,
         )
 
@@ -117,10 +127,10 @@ def load_mtoon1_outline_geometry_node_group(
                 + f"{outline_node_tree_append_result}"
             )
         template_outline_group = bpy.data.node_groups.get(
-            OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME
+            template_name(OUTLINE_GEOMETRY_GROUP_NAME)
         )
         if not template_outline_group:
-            raise ValueError("No " + OUTLINE_GEOMETRY_GROUP_TEMPLATE_NAME)
+            raise ValueError("No " + template_name(OUTLINE_GEOMETRY_GROUP_NAME))
 
         outline_group = bpy.data.node_groups.get(OUTLINE_GEOMETRY_GROUP_NAME)
         if not outline_group:
@@ -154,20 +164,15 @@ def load_mtoon1_shader(
         logger.error(f'Material "{material_name}" already exists')
         old_material.name += ".old"
 
-    old_template_output_group = bpy.data.node_groups.get(OUTPUT_GROUP_TEMPLATE_NAME)
-    if old_template_output_group:
-        logger.error(f'Node Group "{OUTPUT_GROUP_TEMPLATE_NAME}" already exists')
-        old_template_output_group.name += ".old"
-
-    old_template_uv_group = bpy.data.node_groups.get(UV_GROUP_TEMPLATE_NAME)
-    if old_template_uv_group:
-        logger.error(f'Node Group "{UV_GROUP_TEMPLATE_NAME}" already exists')
-        old_template_uv_group.name += ".old"
+    for shader_node_group_name in shader_node_group_names:
+        name = template_name(shader_node_group_name)
+        old_template_group = bpy.data.node_groups.get(name)
+        if old_template_group:
+            logger.error(f'Node Group "{name}" already exists')
+            old_template_group.name += ".old"
 
     material_path = str(Path(__file__).with_name("mtoon1.blend")) + "/Material"
 
-    template_uv_group = None
-    template_output_group = None
     template_material = None
 
     # https://git.blender.org/gitweb/gitweb.cgi/blender.git/blob/v2.83:/source/blender/windowmanager/intern/wm_files_link.c#l84
@@ -193,33 +198,25 @@ def load_mtoon1_shader(
                 + f"{material_append_result}"
             )
 
-        template_uv_group = bpy.data.node_groups.get(UV_GROUP_TEMPLATE_NAME)
-        if not template_uv_group:
-            raise ValueError("No " + UV_GROUP_TEMPLATE_NAME)
-
-        template_output_group = bpy.data.node_groups.get(OUTPUT_GROUP_TEMPLATE_NAME)
-        if not template_output_group:
-            raise ValueError("No " + OUTPUT_GROUP_TEMPLATE_NAME)
-
         template_material = bpy.data.materials.get(material_name)
         if not template_material:
             raise ValueError("No " + material_name)
 
-        uv_group = bpy.data.node_groups.get(UV_GROUP_NAME)
-        if not uv_group:
-            uv_group = bpy.data.node_groups.new(UV_GROUP_NAME, "ShaderNodeTree")
-            clear_node_tree(uv_group, clear_inputs_outputs=True)
-            copy_node_tree(template_uv_group, uv_group)
-        elif overwrite:
-            copy_node_tree(template_uv_group, uv_group)
+        for shader_node_group_name in shader_node_group_names:
+            shader_node_group_template_name = template_name(shader_node_group_name)
+            template_group = bpy.data.node_groups.get(shader_node_group_template_name)
+            if not template_group:
+                raise ValueError("No " + shader_node_group_template_name)
 
-        output_group = bpy.data.node_groups.get(OUTPUT_GROUP_NAME)
-        if not output_group:
-            output_group = bpy.data.node_groups.new(OUTPUT_GROUP_NAME, "ShaderNodeTree")
-            clear_node_tree(output_group, clear_inputs_outputs=True)
-            copy_node_tree(template_output_group, output_group)
-        elif overwrite:
-            copy_node_tree(template_output_group, output_group)
+            group = bpy.data.node_groups.get(shader_node_group_name)
+            if not group:
+                group = bpy.data.node_groups.new(
+                    shader_node_group_name, "ShaderNodeTree"
+                )
+                clear_node_tree(group, clear_inputs_outputs=True)
+                copy_node_tree(template_group, group)
+            elif overwrite:
+                copy_node_tree(template_group, group)
 
         template_material_node_tree = template_material.node_tree
         material_node_tree = material.node_tree
@@ -232,10 +229,14 @@ def load_mtoon1_shader(
     finally:
         if template_material and template_material.users <= 1:
             bpy.data.materials.remove(template_material)
-        if template_output_group and template_output_group.users <= 1:
-            bpy.data.node_groups.remove(template_output_group)
-        if template_uv_group and template_uv_group.users <= 1:
-            bpy.data.node_groups.remove(template_uv_group)
+
+        # reload and remove template groups
+        for shader_node_group_name in shader_node_group_names:
+            shader_node_group_template_name = template_name(shader_node_group_name)
+            template_group = bpy.data.node_groups.get(shader_node_group_template_name)
+            if template_group and template_group.users <= 1:
+                bpy.data.node_groups.remove(template_group)
+
         if edit_mode:
             bpy.ops.object.mode_set(mode="EDIT")
 
@@ -263,6 +264,54 @@ def copy_socket_interface(
         to_socket.bl_label = from_socket.bl_label
     to_socket.description = from_socket.description
     to_socket.name = from_socket.name
+
+    float_classes = (
+        bpy.types.NodeSocketInterfaceFloat,
+        bpy.types.NodeSocketInterfaceFloatAngle,
+        bpy.types.NodeSocketInterfaceFloatDistance,
+        bpy.types.NodeSocketInterfaceFloatFactor,
+        bpy.types.NodeSocketInterfaceFloatPercentage,
+        bpy.types.NodeSocketInterfaceFloatTime,
+        bpy.types.NodeSocketInterfaceFloatUnsigned,
+    )
+    color_classes = (bpy.types.NodeSocketInterfaceColor,)
+    vector_classes = (
+        bpy.types.NodeSocketInterfaceVector,
+        bpy.types.NodeSocketInterfaceVectorAcceleration,
+        bpy.types.NodeSocketInterfaceVectorDirection,
+        bpy.types.NodeSocketInterfaceVectorEuler,
+        bpy.types.NodeSocketInterfaceVectorTranslation,
+        bpy.types.NodeSocketInterfaceVectorVelocity,
+        bpy.types.NodeSocketInterfaceVectorXYZ,
+    )
+
+    if isinstance(from_socket, float_classes) and isinstance(to_socket, float_classes):
+        to_socket.default_value = from_socket.default_value
+        to_socket.min_value = from_socket.min_value
+        to_socket.max_value = from_socket.max_value
+    elif isinstance(from_socket, color_classes) and isinstance(
+        to_socket, color_classes
+    ):
+        to_socket.default_value = deepcopy(
+            (
+                from_socket.default_value[0],
+                from_socket.default_value[1],
+                from_socket.default_value[2],
+                from_socket.default_value[3],
+            )
+        )
+    elif isinstance(from_socket, vector_classes) and isinstance(
+        to_socket, vector_classes
+    ):
+        to_socket.default_value = deepcopy(
+            (
+                from_socket.default_value[0],
+                from_socket.default_value[1],
+                from_socket.default_value[2],
+            )
+        )
+        to_socket.min_value = from_socket.min_value
+        to_socket.max_value = from_socket.max_value
 
 
 def copy_socket_default_value(
@@ -321,23 +370,23 @@ def copy_shader_node_group(
     from_node: bpy.types.ShaderNodeGroup,
     to_node: bpy.types.ShaderNodeGroup,
 ) -> None:
-    if from_node.node_tree.name.startswith(UV_GROUP_TEMPLATE_NAME):
-        uv_group = bpy.data.node_groups.get(UV_GROUP_NAME)
-        if not uv_group:
-            logger.error("MToon UV Group Not Found")
-            return
-        to_node.node_tree = uv_group
-    elif from_node.node_tree.name.startswith(OUTPUT_GROUP_TEMPLATE_NAME):
-        output_group = bpy.data.node_groups.get(OUTPUT_GROUP_NAME)
-        if not output_group:
-            logger.error("MToon Output Group Not Found")
-            return
-        to_node.node_tree = output_group
-    else:
-        logger.error(
-            "Importing ShaderNodeGroup doesn't be supported yet: "
-            + f"{from_node.node_tree.name}"
-        )
+    for shader_node_group_name in shader_node_group_names:
+        shader_node_group_template_name = template_name(shader_node_group_name)
+        if not from_node.node_tree.name.startswith(shader_node_group_template_name):
+            continue
+
+        group = bpy.data.node_groups.get(shader_node_group_name)
+        if not group:
+            logger.error(f'"{shader_node_group_name}" Not Found')
+            continue
+
+        to_node.node_tree = group
+        return
+
+    logger.error(
+        "Importing ShaderNodeGroup doesn't be supported yet: "
+        + f"{from_node.node_tree.name}"
+    )
 
 
 def copy_node(
@@ -789,6 +838,49 @@ def copy_node_tree_inputs_outputs(
         copy_socket_interface(from_output, to_output)
 
 
+def copy_node_tree_interface_socket(
+    from_socket: "bpy.types.NodeTreeInterfaceSocket",
+    to_socket: "bpy.types.NodeTreeInterfaceSocket",
+) -> None:
+    float_classes = (
+        bpy.types.NodeTreeInterfaceSocketFloat,
+        bpy.types.NodeTreeInterfaceSocketFloatAngle,
+        bpy.types.NodeTreeInterfaceSocketFloatDistance,
+        bpy.types.NodeTreeInterfaceSocketFloatFactor,
+        bpy.types.NodeTreeInterfaceSocketFloatPercentage,
+        bpy.types.NodeTreeInterfaceSocketFloatTime,
+        bpy.types.NodeTreeInterfaceSocketFloatTimeAbsolute,
+        bpy.types.NodeTreeInterfaceSocketFloatUnsigned,
+    )
+    color_classes = (bpy.types.NodeTreeInterfaceSocketColor,)
+    vector_classes = (
+        bpy.types.NodeTreeInterfaceSocketVector,
+        bpy.types.NodeTreeInterfaceSocketVectorAcceleration,
+        bpy.types.NodeTreeInterfaceSocketVectorDirection,
+        bpy.types.NodeTreeInterfaceSocketVectorEuler,
+        bpy.types.NodeTreeInterfaceSocketVectorTranslation,
+        bpy.types.NodeTreeInterfaceSocketVectorVelocity,
+        bpy.types.NodeTreeInterfaceSocketVectorXYZ,
+    )
+
+    to_socket.attribute_domain = from_socket.attribute_domain
+    to_socket.default_attribute_name = from_socket.default_attribute_name
+
+    if isinstance(from_socket, float_classes) and isinstance(to_socket, float_classes):
+        to_socket.default_value = from_socket.default_value
+        to_socket.min_value = from_socket.min_value
+        to_socket.max_value = from_socket.max_value
+    elif isinstance(from_socket, color_classes) and isinstance(
+        to_socket, color_classes
+    ):
+        to_socket.default_value = deepcopy(from_socket.default_value[0:4])
+    elif isinstance(from_socket, vector_classes) and isinstance(
+        to_socket, vector_classes
+    ):
+        to_socket.min_value = from_socket.min_value
+        to_socket.max_value = from_socket.max_value
+
+
 def copy_node_tree_interface(
     from_node_tree: bpy.types.NodeTree, to_node_tree: bpy.types.NodeTree
 ) -> None:
@@ -809,12 +901,13 @@ def copy_node_tree_interface(
                 socket_type = "NodeSocketFloat"
             else:
                 continue
-        to_node_tree.interface.new_socket(
+        to_socket = to_node_tree.interface.new_socket(
             item.name,
             description=item.description,
             in_out=item.in_out,
             socket_type=socket_type,
         )
+        copy_node_tree_interface_socket(item, to_socket)
 
 
 def copy_node_tree(
@@ -1001,6 +1094,15 @@ def get_float_value(
 def rgba_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[tuple[float, float, float, float]]:
+    default_alpha_value = max(min_value, min(1.0, max_value))
+    if isinstance(vs, Color):
+        return (
+            max(min_value, min(vs.r, max_value)),
+            max(min_value, min(vs.g, max_value)),
+            max(min_value, min(vs.b, max_value)),
+            default_alpha_value,
+        )
+
     iterator = convert.iterator_or_none(vs)
     if iterator is None:
         return None
@@ -1015,7 +1117,7 @@ def rgba_or_none(
             return None
 
     if len(rgba) == 3:
-        rgba.append(max(min_value, min(1.0, max_value)))
+        rgba.append(default_alpha_value)
     if len(rgba) != 4:
         return None
 
@@ -1056,6 +1158,13 @@ def get_rgba_value(
 def rgb_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[tuple[float, float, float]]:
+    if isinstance(vs, Color):
+        return (
+            max(min_value, min(vs.r, max_value)),
+            max(min_value, min(vs.g, max_value)),
+            max(min_value, min(vs.b, max_value)),
+        )
+
     iterator = convert.iterator_or_none(vs)
     if iterator is None:
         return None

@@ -97,8 +97,12 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
             self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
             return
 
+        addon_version = tuple(material.vrm_addon_extension.mtoon1.addon_version)
         reset_shader_node_group(
-            context, material, reset_node_tree=True, overwrite=False
+            context,
+            material,
+            reset_node_tree=True,
+            overwrite=(addon_version < (2, 20, 8)),
         )
 
     def convert_mtoon_unversioned_to_mtoon1(

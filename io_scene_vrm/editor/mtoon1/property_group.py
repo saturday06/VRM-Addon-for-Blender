@@ -5,13 +5,17 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Union
 
 import bpy
-from mathutils import Color, Vector
+from mathutils import Vector
 
 from ...common import convert, shader
 from ...common.logging import get_logger
 from ...common.preferences import VrmAddonPreferences
+from ...common.version import addon_version
 
 logger = get_logger(__name__)
+
+
+MTOON1_OUTPUT_NODE_GROUP_NAME = "Mtoon1Material.Mtoon1Output"
 
 
 class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
@@ -70,220 +74,147 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
 
     def set_value(
         self,
-        name: str,
+        node_group_name: str,
+        group_label: str,
         value: object,
     ) -> None:
+        material = self.find_material()
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.set_value(node_group_name, group_label, value)
+
         if not isinstance(value, (int, float)):
             return
-        node_name = self.get_node_name(name)
-        material = self.find_material()
+
         node_tree = material.node_tree
         if not node_tree:
             return
-        node = node_tree.nodes.get(node_name)
-        if not isinstance(node, bpy.types.ShaderNodeValue):
-            if node_name != "Mtoon1Material.NormalScale":
-                logger.warning(
-                    f'No shader node value "{node_name}" for "{material.name}"'
-                )
-            return
-        output = node.outputs[0]
-        if isinstance(output, shader.BOOL_SOCKET_CLASSES):
-            output.default_value = bool(value)
-        elif isinstance(output, shader.FLOAT_SOCKET_CLASSES):
-            output.default_value = float(value)
-        elif isinstance(output, shader.INT_SOCKET_CLASSES):
-            output.default_value = int(value)
-        else:
-            logger.warning(f"{type(output)} doesn't have 'default_value'")
 
-        outline = self.find_outline_property_group(material)
-        if outline:
-            outline.set_value(name, value)
+        node = {
+            0: node
+            for node in node_tree.nodes
+            if isinstance(node, bpy.types.ShaderNodeGroup)
+            and node.node_tree
+            and node.node_tree.name == node_group_name
+        }.get(0)
+        if not node:
+            logger.warning(f'No group node "{node_group_name}"')
+            return
+
+        socket = node.inputs.get(group_label)
+        if isinstance(socket, shader.BOOL_SOCKET_CLASSES):
+            socket.default_value = bool(value)
+        elif isinstance(socket, shader.FLOAT_SOCKET_CLASSES):
+            socket.default_value = float(value)
+        elif isinstance(socket, shader.INT_SOCKET_CLASSES):
+            socket.default_value = int(value)
+        else:
+            logger.warning(
+                f'No "{group_label}" in shader node group "{node_group_name}"'
+            )
 
     def set_bool(
         self,
-        name: str,
+        node_group_name: str,
+        group_label: str,
         value: object,
     ) -> None:
-        self.set_value(name, 1 if value else 0)
+        self.set_value(node_group_name, group_label, 1 if value else 0)
 
     def set_int(
         self,
-        name: str,
+        node_group_name: str,
+        group_label: str,
         value: object,
     ) -> None:
-        self.set_value(name, value)
+        self.set_value(node_group_name, group_label, value)
 
     def set_rgba(
         self,
-        name: str,
+        node_group_name: str,
+        group_label: str,
         value: object,
         default_value: Optional[tuple[float, float, float, float]] = None,
     ) -> None:
-        if not default_value:
-            default_value = (0.0, 0.0, 0.0, 0.0)
-        node_name = self.get_node_name(name)
         material = self.find_material()
-        if not material.node_tree:
-            return
-        node = material.node_tree.nodes.get(node_name)
-        if not isinstance(node, bpy.types.ShaderNodeRGB):
-            logger.warning(f'No shader node rgb "{node_name}"')
-            return
-        output = node.outputs[0]
-        if isinstance(output, bpy.types.NodeSocketColor):
-            output.default_value = shader.rgba_or_none(value) or default_value
-        else:
-            logger.warning(f"{type(node)} does not have default_value")
 
         outline = self.find_outline_property_group(material)
         if outline:
-            outline.set_rgba(name, value, default_value)
+            outline.set_rgba(node_group_name, group_label, value, default_value)
+
+        if not default_value:
+            default_value = (0.0, 0.0, 0.0, 0.0)
+
+        node_tree = material.node_tree
+        if not node_tree:
+            return
+
+        rgba = shader.rgba_or_none(value) or default_value
+
+        node = {
+            0: node
+            for node in node_tree.nodes
+            if isinstance(node, bpy.types.ShaderNodeGroup)
+            and node.node_tree
+            and node.node_tree.name == node_group_name
+        }.get(0)
+        if not node:
+            logger.warning(f'No group node "{node_group_name}"')
+            return
+
+        socket = node.inputs.get(group_label)
+        if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
+            logger.warning(
+                f'No "{group_label}" in shader node group "{node_group_name}"'
+            )
+            return
+
+        socket.default_value = rgba
 
     def set_rgb(
         self,
-        name: str,
+        node_group_name: str,
+        group_label: Optional[str],
         value: object,
         default_value: Optional[tuple[float, float, float]] = None,
     ) -> None:
+        material = self.find_material()
+
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.set_rgb(node_group_name, group_label, value, default_value)
+
         if not default_value:
             default_value = (0.0, 0.0, 0.0)
-        node_name = self.get_node_name(name)
-        material = self.find_material()
-        if not material.node_tree:
-            return
-        node = material.node_tree.nodes.get(node_name)
-        if not isinstance(node, bpy.types.ShaderNodeRGB):
-            logger.warning(f'No shader node rgb "{node_name}"')
-            return
-        if isinstance(value, Color):
-            rgb = (value.r, value.g, value.b)
-        else:
-            rgb = shader.rgb_or_none(value) or default_value
-        output = node.outputs[0]
-        if isinstance(output, bpy.types.NodeSocketColor):
-            output.default_value = rgb + (1.0,)
-        else:
-            logger.warning(f"{type(node)} does not have default_value")
 
-        outline = self.find_outline_property_group(material)
-        if outline:
-            outline.set_rgb(name, value, default_value)
-
-    def get_node_name(self, extra: Optional[str] = None) -> str:
-        if extra and extra.startswith("Mtoon1"):
-            return extra
-        base = re.sub("PropertyGroup$", "", type(self).__name__)
-        if extra is not None:
-            return base + "." + extra
-        return base
-
-    def link_reroutes(self, base_node_name: str, connect: bool) -> None:
-        material = self.find_material()
-        if not material.node_tree:
+        node_tree = material.node_tree
+        if not node_tree:
             return
 
-        in_node_name = base_node_name + "In"
-        out_node_name = base_node_name + "Out"
+        rgb = shader.rgb_or_none(value) or default_value
 
-        if connect:
-            in_node = material.node_tree.nodes.get(in_node_name)
-            out_node = material.node_tree.nodes.get(out_node_name)
-            if not isinstance(in_node, bpy.types.NodeReroute):
-                return
-            if not isinstance(out_node, bpy.types.NodeReroute):
-                return
-
-            if not any(
-                1
-                for link in material.node_tree.links
-                if link.to_socket == in_node.inputs[0]
-                and link.from_socket == out_node.outputs[0]
-            ):
-                material.node_tree.links.new(in_node.inputs[0], out_node.outputs[0])
+        node = {
+            0: node
+            for node in node_tree.nodes
+            if isinstance(node, bpy.types.ShaderNodeGroup)
+            and node.node_tree
+            and node.node_tree.name == node_group_name
+        }.get(0)
+        if not node:
+            logger.warning(f'No group node "{node_group_name}"')
             return
 
-        while True:
-            # Refresh in_node/out_node. These nodes may be invalidated.
-            in_node = material.node_tree.nodes.get(in_node_name)
-            out_node = material.node_tree.nodes.get(out_node_name)
-            if not isinstance(in_node, bpy.types.NodeReroute):
-                return
-            if not isinstance(out_node, bpy.types.NodeReroute):
-                return
-
-            disconnecting_link = {
-                0: link
-                for link in material.node_tree.links
-                if link.to_socket == in_node.inputs[0]
-                and link.from_socket == out_node.outputs[0]
-            }.get(0)
-            if not disconnecting_link:
-                break
-            material.node_tree.links.remove(disconnecting_link)
-
-        outline = self.find_outline_property_group(material)
-        if outline:
-            outline.link_reroutes(base_node_name, connect)
-
-    # deprecated
-    def switch_link_reroutes(self, base_node_name: str, up: bool) -> None:
-        material = self.find_material()
-        if not material.node_tree:
+        if group_label is None:
             return
 
-        in_node_name = base_node_name + "SwitchIn"
-        down_node_name = base_node_name + "SwitchDown"
-        up_node_name = base_node_name + "SwitchUp"
-
-        while True:
-            # Refresh in_node/down_node/up_node. These nodes may be invalidated.
-            in_node = material.node_tree.nodes.get(in_node_name)
-            down_node = material.node_tree.nodes.get(down_node_name)
-            up_node = material.node_tree.nodes.get(up_node_name)
-
-            if not isinstance(in_node, bpy.types.NodeReroute):
-                return
-            if not isinstance(down_node, bpy.types.NodeReroute):
-                return
-            if not isinstance(up_node, bpy.types.NodeReroute):
-                return
-
-            disconnecting_socket = down_node.outputs[0] if up else up_node.outputs[0]
-            disconnecting_link = {
-                0: link
-                for link in material.node_tree.links
-                if link.to_socket == in_node.inputs[0]
-                and link.from_socket == disconnecting_socket
-            }.get(0)
-            if not disconnecting_link:
-                break
-            material.node_tree.links.remove(disconnecting_link)
-
-        # Refresh in_node/down_node/up_node. These nodes may be invalidated.
-        in_node = material.node_tree.nodes.get(in_node_name)
-        down_node = material.node_tree.nodes.get(down_node_name)
-        up_node = material.node_tree.nodes.get(up_node_name)
-        if not isinstance(in_node, bpy.types.NodeReroute):
-            return
-        if not isinstance(down_node, bpy.types.NodeReroute):
-            return
-        if not isinstance(up_node, bpy.types.NodeReroute):
+        socket = node.inputs.get(group_label)
+        if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
+            logger.warning(
+                f'No "{group_label}" in shader node group "{node_group_name}"'
+            )
             return
 
-        connecting_socket = up_node.outputs[0] if up else down_node.outputs[0]
-        if not any(
-            1
-            for link in material.node_tree.links
-            if link.to_socket == in_node.inputs[0]
-            and link.from_socket == connecting_socket
-        ):
-            material.node_tree.links.new(in_node.inputs[0], connecting_socket)
-
-        outline = self.find_outline_property_group(material)
-        if outline:
-            outline.switch_link_reroutes(base_node_name, up)
+        socket.default_value = rgb + (1.0,)
 
 
 class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
@@ -311,35 +242,167 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         name = type(texture_info.index).__name__
         return re.sub("PropertyGroup$", "", name) + "." + extra
 
-    def update_image(self, image: Optional[bpy.types.Image]) -> None:
-        node_name = self.get_texture_node_name("Image")
-        material = self.find_material()
+    @staticmethod
+    def link_tex_image_to_node_group(
+        material: bpy.types.Material,
+        tex_image_node_name: str,
+        tex_image_node_socket_name: str,
+        node_group_node_tree_name: str,
+        node_group_socket_name: str,
+    ) -> None:
         if not material.node_tree:
             return
+
+        if any(
+            1
+            for link in material.node_tree.links
+            if isinstance(link.from_node, bpy.types.ShaderNodeTexImage)
+            and link.from_node.name == tex_image_node_name
+            and link.from_socket
+            and link.from_socket.name == tex_image_node_socket_name
+            and isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+            and link.to_node.node_tree
+            and link.to_node.node_tree.name == node_group_node_tree_name
+            and link.to_socket
+            and link.to_socket.name == node_group_socket_name
+        ):
+            return
+
+        in_node = {
+            0: n
+            for n in material.node_tree.nodes
+            if isinstance(n, bpy.types.ShaderNodeGroup)
+            and n.node_tree
+            and n.node_tree.name == node_group_node_tree_name
+        }.get(0)
+        if not isinstance(in_node, bpy.types.ShaderNodeGroup):
+            logger.error(f'No shader node group with "{node_group_node_tree_name}"')
+            return
+
+        in_socket = in_node.inputs.get(node_group_socket_name)
+        if not in_socket:
+            logger.error(f"No group socket: {node_group_socket_name}")
+            return
+
+        out_node = material.node_tree.nodes.get(tex_image_node_name)
+        if not isinstance(out_node, bpy.types.ShaderNodeTexImage):
+            logger.error(f"No tex image node: {tex_image_node_name}")
+            return
+
+        out_socket = out_node.outputs.get(tex_image_node_socket_name)
+        if not out_socket:
+            logger.error(f"No tex image node socket: {tex_image_node_socket_name}")
+            return
+
+        material.node_tree.links.new(in_socket, out_socket)
+
+    @staticmethod
+    def unlink_tex_image_to_node_group(
+        material: bpy.types.Material,
+        tex_image_node_name: str,
+        tex_image_node_socket_name: str,
+        node_group_node_tree_name: str,
+        node_group_socket_name: str,
+    ) -> None:
+        while True:
+            # Refresh in_node/out_node. These nodes may be invalidated.
+            if not material.node_tree:
+                return
+
+            disconnecting_link = {
+                0: link
+                for link in material.node_tree.links
+                if isinstance(link.from_node, bpy.types.ShaderNodeTexImage)
+                and link.from_node.name == tex_image_node_name
+                and link.from_socket
+                and link.from_socket.name == tex_image_node_socket_name
+                and isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+                and link.to_node.node_tree
+                and link.to_node.node_tree.name == node_group_node_tree_name
+                and link.to_socket
+                and link.to_socket.name == node_group_socket_name
+            }.get(0)
+            if not disconnecting_link:
+                break
+
+            material.node_tree.links.remove(disconnecting_link)
+
+    @staticmethod
+    def connect_tex_image_to_node_group(
+        link: bool,
+        material: bpy.types.Material,
+        tex_image_node_name: str,
+        tex_image_node_socket_name: str,
+        node_group_node_tree_name: str,
+        node_group_socket_name: str,
+    ) -> None:
+        if link:
+            TextureTraceablePropertyGroup.link_tex_image_to_node_group(
+                material,
+                tex_image_node_name,
+                tex_image_node_socket_name,
+                node_group_node_tree_name,
+                node_group_socket_name,
+            )
+        else:
+            TextureTraceablePropertyGroup.unlink_tex_image_to_node_group(
+                material,
+                tex_image_node_name,
+                tex_image_node_socket_name,
+                node_group_node_tree_name,
+                node_group_socket_name,
+            )
+
+    def update_image(self, image: Optional[bpy.types.Image]) -> None:
+        material = self.find_material()
+
+        outline = self.find_outline_property_group(material)
+        if outline and isinstance(outline, TextureTraceablePropertyGroup):
+            outline.update_image(image)
+
         node_tree = material.node_tree
+        if not node_tree:
+            return
+
+        node_name = self.get_texture_node_name("Image")
+
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, bpy.types.ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
+
         node.image = image
 
         self.set_texture_uv("Image Width", max(image.size[0], 1) if image else 1)
         self.set_texture_uv("Image Height", max(image.size[1], 1) if image else 1)
 
-        self.link_reroutes(  # deprecated
-            self.get_texture_node_name("Color"), bool(node.image)
-        )
-        self.link_reroutes(  # deprecated
-            self.get_texture_node_name("Alpha"), bool(node.image)
-        )
-        self.set_bool(self.get_texture_node_name("Present"), bool(node.image))
-
-        outline = self.find_outline_property_group(material)
-        if not outline:
-            return
-        if not isinstance(outline, TextureTraceablePropertyGroup):
-            return
-        outline.update_image(image)
+        texture_info = self.get_texture_info_property_group()
+        if isinstance(texture_info, Mtoon1BaseColorTextureInfoPropertyGroup):
+            self.connect_tex_image_to_node_group(
+                bool(image),
+                material,
+                node_name,
+                "Color",
+                texture_info.node_group_name,
+                texture_info.group_label_base_name + " Color",
+            )
+            self.connect_tex_image_to_node_group(
+                bool(image),
+                material,
+                node_name,
+                "Alpha",
+                texture_info.node_group_name,
+                texture_info.group_label_base_name + " Alpha",
+            )
+        else:
+            self.connect_tex_image_to_node_group(
+                bool(image),
+                material,
+                node_name,
+                "Color",
+                texture_info.node_group_name,
+                texture_info.group_label_base_name,
+            )
 
     def set_texture_uv(self, name: str, value: object) -> None:
         node_name = self.get_texture_node_name("Uv")
@@ -964,12 +1027,6 @@ class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     panel_label = label
     colorspace = "Non-Color"
 
-    def update_source(self, _context: bpy.types.Context) -> None:
-        self.switch_link_reroutes(  # deprecated
-            self.get_node_name("Normal"), up=bool(self.source)
-        )
-        self.update_image(self.source)
-
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalSamplerPropertyGroup  # noqa: F722
     )
@@ -1118,6 +1175,9 @@ class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
+    group_label_base_name: str = ""
+    node_group_name: str = shader.OUTPUT_GROUP_NAME
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1TexturePropertyGroup  # noqa: F722
     )
@@ -1169,6 +1229,8 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    group_label_base_name = "Lit Color Texture"
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1BaseColorTexturePropertyGroup  # noqa: F722
     )
@@ -1184,6 +1246,8 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    group_label_base_name = "Shade Color Texture"
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadeMultiplyTexturePropertyGroup  # noqa: F722
     )
@@ -1201,13 +1265,15 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.normalTextureInfo.schema.json
 class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     material_property_chain: list[str] = ["normal_texture"]
+    group_label_base_name = "Normal Map Texture"
+    node_group_name: str = shader.NORMAL_GROUP_NAME
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalTexturePropertyGroup  # noqa: F722
     )
 
     def update_scale(self, _context: bpy.types.Context) -> None:
-        self.set_value("Scale", self.scale)
+        self.set_value(self.node_group_name, "Normal Map Texture Scale", self.scale)
 
     scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Scale",  # noqa: F821
@@ -1234,13 +1300,16 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
         "vrmc_materials_mtoon",
         "shading_shift_texture",
     ]
+    group_label_base_name = "Shading Shift Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftTexturePropertyGroup  # noqa: F722
     )
 
     def update_scale(self, _context: bpy.types.Context) -> None:
-        self.set_value("Scale", self.scale)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME, "Shading Shift Texture Scale", self.scale
+        )
 
     scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Scale",  # noqa: F821
@@ -1262,6 +1331,8 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    group_label_base_name = "Emissive Texture"
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1EmissiveTexturePropertyGroup  # noqa: F722
     )
@@ -1277,6 +1348,8 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    group_label_base_name = "Rim Color Texture"
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1RimMultiplyTexturePropertyGroup  # noqa: F722
     )
@@ -1292,6 +1365,8 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    group_label_base_name = "MatCap Texture"
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MatcapTexturePropertyGroup  # noqa: F722
     )
@@ -1309,6 +1384,8 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
     Mtoon1TextureInfoPropertyGroup
 ):
+    group_label_base_name = "Outline Width Texture"
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1OutlineWidthMultiplyTexturePropertyGroup  # noqa: F722
     )
@@ -1324,6 +1401,9 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
 
 
 class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    group_label_base_name = "Mask Texture"
+    node_group_name: str = shader.UV_ANIMATION_GROUP_NAME
+
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1UvAnimationMaskTexturePropertyGroup  # noqa: F722
     )
@@ -1408,8 +1488,10 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ["pbr_metallic_roughness"]
 
     def update_base_color_factor(self, _context: bpy.types.Context) -> None:
-        self.set_rgba("BaseColorFactor", self.base_color_factor)
-        self.set_value("BaseColorFactorAlpha", self.base_color_factor[3])
+        self.set_rgba(shader.OUTPUT_GROUP_NAME, "Lit Color", self.base_color_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME, "Lit Color Alpha", self.base_color_factor[3]
+        )
 
     base_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=4,
@@ -1435,7 +1517,12 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain: list[str] = ["extensions", "vrmc_materials_mtoon"]
 
     def update_transparent_with_z_write(self, _context: bpy.types.Context) -> None:
-        self.set_bool("TransparentWithZWrite", self.transparent_with_z_write)
+        self.set_bool(
+            shader.OUTPUT_GROUP_NAME,
+            "Transparent With Z-Write",
+            self.transparent_with_z_write,
+        )
+
         # call update_mtoon0_render_queue()
         material = self.find_material()
         material.vrm_addon_extension.mtoon1.mtoon0_render_queue = (
@@ -1448,7 +1535,11 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_render_queue_offset_number(self, _context: bpy.types.Context) -> None:
-        self.set_int("RenderQueueOffsetNumber", self.render_queue_offset_number)
+        self.set_int(
+            shader.OUTPUT_GROUP_NAME,
+            "Render Queue Offset Number",
+            self.render_queue_offset_number,
+        )
 
     render_queue_offset_number: bpy.props.IntProperty(  # type: ignore[valid-type]
         name="RenderQueue Offset",  # noqa: F722
@@ -1463,7 +1554,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_shade_color_factor(self, _context: bpy.types.Context) -> None:
-        self.set_rgb("ShadeColorFactor", self.shade_color_factor)
+        self.set_rgb(shader.OUTPUT_GROUP_NAME, "Shade Color", self.shade_color_factor)
 
     shade_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -1479,7 +1570,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_shading_shift_factor(self, _context: bpy.types.Context) -> None:
-        self.set_value("ShadingShiftFactor", self.shading_shift_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME, "Shading Shift", self.shading_shift_factor
+        )
 
     shading_shift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Shading Shift",  # noqa: F722
@@ -1490,7 +1583,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_shading_toony_factor(self, _context: bpy.types.Context) -> None:
-        self.set_value("ShadingToonyFactor", self.shading_toony_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME, "Shading Toony", self.shading_toony_factor
+        )
 
     shading_toony_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Shading Toony",  # noqa: F722
@@ -1501,7 +1596,11 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_gi_equalization_factor(self, _context: bpy.types.Context) -> None:
-        self.set_value("GiEqualizationFactor", self.gi_equalization_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME,
+            "GI Equalization Factor",
+            self.gi_equalization_factor,
+        )
 
     gi_equalization_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="GI Equalization",  # noqa: F722
@@ -1512,7 +1611,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_matcap_factor(self, _context: bpy.types.Context) -> None:
-        self.set_rgb("MatcapFactor", self.matcap_factor)
+        self.set_rgb(shader.OUTPUT_GROUP_NAME, "MatCap Factor", self.matcap_factor)
 
     matcap_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -1528,7 +1627,11 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_parametric_rim_color_factor(self, _context: bpy.types.Context) -> None:
-        self.set_rgb("ParametricRimColorFactor", self.parametric_rim_color_factor)
+        self.set_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            "Parametric Rim Color",
+            self.parametric_rim_color_factor,
+        )
 
     parametric_rim_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Parametric Rim Color",  # noqa: F722
@@ -1545,7 +1648,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_rim_lighting_mix_factor(self, _context: bpy.types.Context) -> None:
-        self.set_value("RimLightingMixFactor", self.rim_lighting_mix_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME, "Rim LightingMix", self.rim_lighting_mix_factor
+        )
 
     rim_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Rim LightingMix",  # noqa: F722
@@ -1558,7 +1663,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self, _context: bpy.types.Context
     ) -> None:
         self.set_value(
-            "ParametricRimFresnelPowerFactor", self.parametric_rim_fresnel_power_factor
+            shader.OUTPUT_GROUP_NAME,
+            "Parametric Rim Fresnel Power",
+            self.parametric_rim_fresnel_power_factor,
         )
 
     parametric_rim_fresnel_power_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1570,7 +1677,11 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_parametric_rim_lift_factor(self, _context: bpy.types.Context) -> None:
-        self.set_value("ParametricRimLiftFactor", self.parametric_rim_lift_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME,
+            "Parametric Rim Lift",
+            self.parametric_rim_lift_factor,
+        )
 
     parametric_rim_lift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Parametric Rim Lift",  # noqa: F722
@@ -1608,7 +1719,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_outline_width_factor(self, context: bpy.types.Context) -> None:
-        self.set_value("OutlineWidthFactor", self.outline_width_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME, "Outline Width", self.outline_width_factor
+        )
         self.update_outline_geometry(context)
 
     outline_width_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1623,7 +1736,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_outline_color_factor(self, context: bpy.types.Context) -> None:
-        self.set_rgb("OutlineColorFactor", self.outline_color_factor)
+        self.set_rgb(
+            shader.OUTPUT_GROUP_NAME, "Outline Color", self.outline_color_factor
+        )
         self.update_outline_geometry(context)
 
     outline_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -1637,7 +1752,11 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_outline_lighting_mix_factor(self, context: bpy.types.Context) -> None:
-        self.set_value("OutlineLightingMixFactor", self.outline_lighting_mix_factor)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME,
+            "Outline LightingMix",
+            self.outline_lighting_mix_factor,
+        )
         self.update_outline_geometry(context)
 
     outline_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1656,7 +1775,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self, _context: bpy.types.Context
     ) -> None:
         self.set_value(
-            "UvAnimationScrollXSpeedFactor", self.uv_animation_scroll_x_speed_factor
+            shader.UV_ANIMATION_GROUP_NAME,
+            "Translate X",
+            self.uv_animation_scroll_x_speed_factor,
         )
 
     uv_animation_scroll_x_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1668,7 +1789,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self, _context: bpy.types.Context
     ) -> None:
         self.set_value(
-            "UvAnimationScrollYSpeedFactor", self.uv_animation_scroll_y_speed_factor
+            shader.UV_ANIMATION_GROUP_NAME,
+            "Translate Y",
+            self.uv_animation_scroll_y_speed_factor,
         )
 
     uv_animation_scroll_y_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1680,7 +1803,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self, _context: bpy.types.Context
     ) -> None:
         self.set_value(
-            "UvAnimationRotationSpeedFactor", self.uv_animation_rotation_speed_factor
+            shader.UV_ANIMATION_GROUP_NAME,
+            "Rotation",
+            self.uv_animation_rotation_speed_factor,
         )
 
     uv_animation_rotation_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1725,7 +1850,9 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
     ]
 
     def update_emissive_strength(self, _context: bpy.types.Context) -> None:
-        self.set_value("EmissiveStrength", self.emissive_strength)
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME, "Emissive Strength", self.emissive_strength
+        )
 
     emissive_strength: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Strength",  # noqa: F821
@@ -1844,7 +1971,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def set_double_sided(self, value: bool) -> None:
         material = self.find_material()
         material.use_backface_culling = not value
-        self.set_bool("DoubleSided", value)
+        self.set_bool(shader.OUTPUT_GROUP_NAME, "Double Sided", value)
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
         outline_material = material.vrm_addon_extension.mtoon1.outline_material
@@ -1889,7 +2016,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_emissive_factor(self, _context: bpy.types.Context) -> None:
-        self.set_rgb("EmissiveFactor", self.emissive_factor)
+        self.set_rgb(shader.OUTPUT_GROUP_NAME, "Emissive Factor", self.emissive_factor)
 
     emissive_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -1920,31 +2047,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         ):
             return bool(self.get("enabled"))
 
-        surface_node_name = self.get_node_name("MaterialOutputSurfaceIn")
-        surface_node = material.node_tree.nodes.get(surface_node_name)
-        if not isinstance(surface_node, bpy.types.NodeReroute):
-            # logger.warning(f'No node reroute "{surface_node_name}"')
-            return False
-
-        connected = False
-        surface_socket = surface_node.outputs[0]
-        for link in material.node_tree.links:
-            if link.from_socket != surface_socket:
-                continue
-            to_socket = link.to_socket
-            if not to_socket:
-                continue
-            node = to_socket.node
-            if not node:
-                continue
-            if node.type != "OUTPUT_MATERIAL":
-                continue
-            connected = True
-            break
-        if not connected:
-            return False
-
-        return bool(self.get("enabled"))
+        return False
 
     def get_enabled(self) -> bool:
         return self.get_enabled_in_material(self.find_material())
@@ -1979,11 +2082,16 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_is_outline_material(self, _context: bpy.types.Context) -> None:
-        self.set_bool("IsOutlineMaterial", self.is_outline_material)
-        self.set_int("NormalScale", -1 if self.is_outline_material else 1)  # deprecated
-        self.set_int("OutlineNormalScale", -1 if self.is_outline_material else 1)
+        self.set_bool(shader.OUTPUT_GROUP_NAME, "Is Outline", self.is_outline_material)
         self.set_bool(
-            "DoubleSided", False if self.is_outline_material else self.double_sided
+            shader.NORMAL_GROUP_NAME,
+            "Is Outline",
+            self.is_outline_material,
+        )
+        self.set_bool(
+            shader.OUTPUT_GROUP_NAME,
+            "Double Sided",
+            False if self.is_outline_material else self.double_sided,
         )
 
     is_outline_material: bpy.props.BoolProperty(  # type: ignore[valid-type]
@@ -2237,3 +2345,5 @@ def reset_shader_node_group(
     mtoon.uv_animation_scroll_x_speed_factor = uv_animation_scroll_x_speed_factor
     mtoon.uv_animation_scroll_y_speed_factor = uv_animation_scroll_y_speed_factor
     mtoon.uv_animation_rotation_speed_factor = uv_animation_rotation_speed_factor
+
+    gltf.addon_version = addon_version()
