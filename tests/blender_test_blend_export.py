@@ -19,7 +19,11 @@ blend_dir = resources_dir / "blend"
 
 
 def get_test_command_args() -> list[list[str]]:
-    names = [blend_path.name for blend_path in blend_dir.glob("**/*.blend")]
+    names = [
+        blend_path.name
+        for blend_path in list(blend_dir.glob("*.blend"))
+        + list(blend_dir.glob("*.*/*.blend"))
+    ]
     command_args: list[list[str]] = [
         [name] for name in sorted(list(dict.fromkeys(names)))
     ]
