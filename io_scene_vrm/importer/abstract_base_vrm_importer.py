@@ -1298,16 +1298,6 @@ class AbstractBaseVrmImporter(ABC):
         for bone_group in secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
-    def cleaning_data(self) -> None:
-        # collection setting
-        bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        for obj in self.meshes.values():
-            self.context.view_layer.objects.active = obj
-            obj.select_set(True)
-            bpy.ops.object.shade_smooth()
-            bpy.ops.object.select_all(action="DESELECT")
-
     def viewport_setup(self) -> None:
         preferences = get_preferences(self.context)
         if self.armature and preferences.set_armature_display_to_wire:

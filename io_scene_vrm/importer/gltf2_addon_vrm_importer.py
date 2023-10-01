@@ -73,7 +73,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def import_vrm(self) -> None:
         wm = self.context.window_manager
-        wm.progress_begin(0, 9)
+        wm.progress_begin(0, 8)
         try:
             affected_object = self.scene_init()
             wm.progress_update(1)
@@ -97,10 +97,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             elif self.parse_result.vrm0_extension:
                 self.load_vrm0_extensions()
             wm.progress_update(6)
-            self.cleaning_data()
-            wm.progress_update(7)
             self.finishing(affected_object)
-            wm.progress_update(8)
+            wm.progress_update(7)
             self.viewport_setup()
         finally:
             try:
