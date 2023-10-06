@@ -268,6 +268,18 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         ):
             return
 
+        disconnecting_link = {
+            0: link
+            for link in material.node_tree.links
+            if isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+            and link.to_node.node_tree
+            and link.to_node.node_tree.name == node_group_node_tree_name
+            and link.to_socket
+            and link.to_socket.name == node_group_socket_name
+        }.get(0)
+        if disconnecting_link:
+            material.node_tree.links.remove(disconnecting_link)
+
         in_node = {
             0: n
             for n in material.node_tree.nodes
