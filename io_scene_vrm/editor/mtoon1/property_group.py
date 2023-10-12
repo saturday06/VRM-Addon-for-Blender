@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional, Union
 import bpy
 from mathutils import Vector
 
-from ...common import convert, shader
+from ...common import shader
 from ...common.logging import get_logger
 from ...common.preferences import VrmAddonPreferences
 from ...common.version import addon_version
@@ -431,9 +431,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             logger.warning(f'No "{name}" in shader node group "{node_name}"')
             return
 
-        float3 = convert.float3_or_none(value)
-        if float3 and isinstance(socket, shader.VECTOR_SOCKET_CLASSES):
-            socket.default_value = float3
+        if isinstance(value, (float, int)):
+            if isinstance(socket, shader.FLOAT_SOCKET_CLASSES):
+                socket.default_value = float(value)
+            if isinstance(socket, shader.INT_SOCKET_CLASSES):
+                socket.default_value = int(value)
 
         outline = self.find_outline_property_group(material)
         if not outline:
