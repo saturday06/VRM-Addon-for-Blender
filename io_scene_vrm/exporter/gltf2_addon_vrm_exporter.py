@@ -85,6 +85,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     def overwrite_object_visibility_and_selection(self) -> None:
         self.object_visibility_and_selection.clear()
+        # https://projects.blender.org/blender/blender/issues/113378
+        self.context.view_layer.update()
         for obj in self.context.view_layer.objects:
             self.object_visibility_and_selection[obj.name] = (
                 obj.hide_get(),

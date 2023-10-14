@@ -274,6 +274,9 @@ def export_objects(
 
     objects: list[bpy.types.Object] = []
 
+    # https://projects.blender.org/blender/blender/issues/113378
+    context.view_layer.update()
+
     armature_object = None
     if armature_object_name:
         armature_object = context.blend_data.objects.get(armature_object_name)
