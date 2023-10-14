@@ -159,6 +159,7 @@ prog
 proj
 pydata
 pylint
+pyright
 pythonpath
 qualname
 quaternion
