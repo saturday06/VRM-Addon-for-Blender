@@ -1304,8 +1304,18 @@ class AbstractBaseVrmImporter(ABC):
             self.armature.display_type = "WIRE"
         if self.armature and preferences.set_armature_display_to_show_in_front:
             self.armature.show_in_front = True
+
         if preferences.set_view_transform_to_standard_on_import:
-            self.context.scene.view_settings.view_transform = "Standard"
+            # https://github.com/saturday06/VRM-Addon-for-Blender/issues/336#issuecomment-1760729404
+            view_settings = self.context.scene.view_settings
+            try:
+                view_settings.view_transform = "Standard"
+            except TypeError:
+                logger.exception(
+                    "scene.view_settings.view_transform"
+                    + ' doesn\'t support "Standard".'
+                )
+
         if preferences.set_shading_type_to_material_on_import:
             screen = self.context.screen
             for area in screen.areas:

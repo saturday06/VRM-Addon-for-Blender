@@ -115,30 +115,19 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if isinstance(source, int):
             image = self.images.get(source)
             if image:
+                texture.source = image
+
                 # https://github.com/saturday06/VRM-Addon-for-Blender/issues/336#issuecomment-1760729404
                 colorspace_settings = image.colorspace_settings
-                name_property = colorspace_settings.bl_rna.properties["name"]
-                if isinstance(name_property, bpy.types.EnumProperty):
-                    identifiers = [
-                        enum_item.identifier for enum_item in name_property.enum_items
-                    ]
-                    non_color = "Non-Color"
-                    generic_data = "Generic Data"
-                    if texture.colorspace in identifiers:
-                        colorspace_settings.name = texture.colorspace
-                    elif (
-                        texture.colorspace == non_color and generic_data in identifiers
-                    ):
-                        colorspace_settings.name = generic_data
-                    else:
-                        logger.error(
-                            f"image.colorspace_settings.name doesn't support {texture.colorspace}."
-                            + f" Supported colorspaces are {identifiers}"
-                        )
-                else:
-                    logger.error("image.colorspace_settings.name is not a EnumProperty")
-
-                texture.source = image
+                try:
+                    colorspace_settings.name = texture.colorspace
+                except TypeError:
+                    logger.exception(
+                        f"image.colorspace_settings.name doesn't support {texture.colorspace}."
+                    )
+                    if texture.colorspace == "Non-Color":
+                        with contextlib.suppress(TypeError):
+                            colorspace_settings.name = "Generic Data"
 
         sampler = texture_dict.get("sampler")
         samplers = self.parse_result.json_dict.get("samplers")
