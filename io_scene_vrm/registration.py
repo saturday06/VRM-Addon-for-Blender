@@ -9,6 +9,8 @@ from typing import Union
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.props import FloatProperty, CollectionProperty
+from bpy.types import PropertyGroup
 
 from .common import preferences, shader
 from .common.logging import get_logger
@@ -96,6 +98,14 @@ def save_pre(_dummy: object) -> None:
     depsgraph_update_pre_once_if_load_post_is_unavailable(None)
     migration.migrate_all_objects()
     extension.update_internal_cache(bpy.context)
+
+# Each row of the matrix world
+class ViewportMatrixRow(PropertyGroup):
+    loc: FloatProperty()
+    rot: FloatProperty()
+    rotation_euler: FloatProperty()
+    scale: FloatProperty()
+    w: FloatProperty()  # Homogeneous coordinate
 
 
 classes: list[
@@ -317,8 +327,10 @@ classes: list[
     mtoon1_ops.VRM_OT_convert_material_to_mtoon1,
     mtoon1_ops.VRM_OT_convert_mtoon1_to_bsdf_principled,
     mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_tree,
+    mtoon1_ops.VRM_OT_update_all_mtoon1_material_node_groups,
     mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
+    mtoon1_ops.StoreViewportMatrixOperator,
     # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,
@@ -356,6 +368,7 @@ classes: list[
     extension.VrmAddonSceneExtensionPropertyGroup,
     extension.VrmAddonMaterialExtensionPropertyGroup,
     extension.VrmAddonObjectExtensionPropertyGroup,
+    ViewportMatrixRow, # The Viewport Matrix is used in a modal to update Matcaps
 ]
 
 
@@ -380,6 +393,7 @@ def register(name: object, init_addon_version: object) -> None:
         raise AssertionError(
             f"Sanity error: version mismatch: {init_addon_version} != {addon_version()}"
         )
+    
 
     bpy.app.translations.register(
         preferences.addon_package_name,
@@ -409,12 +423,17 @@ def register(name: object, init_addon_version: object) -> None:
         type=extension.VrmAddonObjectExtensionPropertyGroup
     )
 
+    # The Viewport Matrix is used in a modal to update Matcaps
+    # Add this collection property to the WindowManager
+    bpy.types.WindowManager.ViewportMatrixWorld = CollectionProperty(type=ViewportMatrixRow)
+
     bpy.types.TOPBAR_MT_file_import.append(import_scene.menu_import)
     bpy.types.TOPBAR_MT_file_export.append(export_scene.menu_export)
     bpy.types.VIEW3D_MT_armature_add.append(panel.add_armature)
     # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
     bpy.app.handlers.load_post.append(load_post)
+    bpy.app.handlers.load_post.append(mtoon1_ops.delayed_start_for_viewport_matrix) # The Viewport Matrix is used in a modal to update Matcaps
     bpy.app.handlers.depsgraph_update_pre.append(
         depsgraph_update_pre_once_if_load_post_is_unavailable
     )
@@ -434,6 +453,9 @@ def register(name: object, init_addon_version: object) -> None:
     )
 
     io_scene_gltf2_support.init_extras_export()
+
+    # The Viewport Matrix is used in a modal to update Matcaps
+    bpy.app.timers.register(mtoon1_ops.delayed_start_for_viewport_matrix, first_interval=1.0, persistent=True)
 
     logger.debug(f"Registered: {name}")
 
@@ -463,6 +485,7 @@ def unregister() -> None:
             depsgraph_update_pre_once_if_load_post_is_unavailable
         )
     bpy.app.handlers.load_post.remove(load_post)
+    bpy.app.handlers.load_post.remove(mtoon1_ops.delayed_start_for_viewport_matrix) # The Viewport Matrix is used in a modal to update Matcaps
 
     # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)
     bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)
@@ -490,5 +513,19 @@ def unregister() -> None:
         except RuntimeError:
             logger.exception(f"Failed to Unregister {cls}")
 
+    # The Viewport Matrix is used in a modal to update Matcaps
+    try:
+        bpy.app.timers.unregister(mtoon1_ops.delayed_start_for_viewport_matrix)
+    except:
+        pass
+    
+    # Do this after class unregistration so modal class can stop before removing timer-dependant property
+    if hasattr(bpy.types.WindowManager, "ViewportMatrixWorld"):
+        # remove the created viewportmatrixworld property
+        del bpy.types.WindowManager.ViewportMatrixWorld
+    
     bpy.app.translations.unregister(preferences.addon_package_name)
+
     cleanse_modules()
+
+    logger.debug("VRM Addon Unregistered Successfully")

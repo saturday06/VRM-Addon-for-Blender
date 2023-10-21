@@ -240,6 +240,34 @@ def load_mtoon1_shader(
         if edit_mode:
             bpy.ops.object.mode_set(mode="EDIT")
 
+def add_mtoon1_shader():
+    material_name = INTERNAL_NAME_PREFIX + "VRM Add-on MToon 1.0 Template"
+    material_path = str(Path(__file__).with_name("mtoon1.blend")) + "/Material"
+
+    # Append the shader node groups
+    for shader_node_group_name in shader_node_group_names:
+        name = template_name(shader_node_group_name)
+        old_template_group = bpy.data.node_groups.get(name)
+        if old_template_group:
+            old_template_group.name += ".old"
+
+    try:
+        # Append the material node groups from the blend file
+        material_append_result = bpy.ops.wm.append(
+            filepath=material_path + "/" + material_name,
+            filename=material_name,
+            directory=material_path,
+        )
+
+        if material_append_result != {"FINISHED"}:
+            raise RuntimeError(
+                "Failed to append MToon 1.0 template material: "
+                + f"{material_append_result}"
+            )
+
+    except:
+        logger.error("Failed to append MToon 1.0 template material")
+
 
 def copy_socket(
     from_socket: bpy.types.NodeSocket, to_socket: bpy.types.NodeSocket

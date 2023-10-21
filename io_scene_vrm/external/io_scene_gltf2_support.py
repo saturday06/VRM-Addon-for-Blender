@@ -114,6 +114,11 @@ def export_scene_gltf(
     use_selection: bool,
     export_animations: bool,
     export_rest_position_armature: bool,
+    export_def_bones: bool,
+    export_apply: bool,
+    export_all_influences: bool,
+    export_lights: bool,
+    use_active_scene: bool,
 ) -> set[str]:
     if bpy.app.version < (3, 6, 0):
         return bpy.ops.export_scene.gltf(
@@ -124,6 +129,11 @@ def export_scene_gltf(
             export_current_frame=export_current_frame,
             use_selection=use_selection,
             export_animations=export_animations,
+            export_def_bones=export_def_bones, # Don't export control bones not marked as deform
+            export_apply=export_apply, # Enable non-destructive export
+            export_all_influences=export_all_influences, # Models may appear incorrectly in many viewers
+            export_lights=export_lights, # TODO: Expose UI Option, Unity allows light export
+            use_active_scene=use_active_scene, # Reduce File Size
         )
 
     return bpy.ops.export_scene.gltf(
@@ -135,4 +145,9 @@ def export_scene_gltf(
         use_selection=use_selection,
         export_animations=export_animations,
         export_rest_position_armature=export_rest_position_armature,
+        export_def_bones=export_def_bones, # Don't export control bones not marked as deform
+        export_apply=export_apply, # Enable non-destructive export
+        export_all_influences=export_all_influences, # Models may appear incorrectly in many viewers
+        export_lights=export_lights, # TODO: Expose UI Option, Unity allows light export
+        use_active_scene=use_active_scene, # Reduce File Size
     )

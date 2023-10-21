@@ -49,6 +49,18 @@ def export_vrm_update_addon_preferences(
         preferences.export_only_selections = export_op.export_only_selections
         changed = True
 
+    if bool(preferences.export_only_deform_bones) != bool(
+        export_op.export_only_deform_bones
+    ):
+        preferences.export_only_deform_bones = export_op.export_only_deform_bones
+        changed = True
+
+    if bool(preferences.export_apply_modifiers) != bool(
+        export_op.export_apply_modifiers
+    ):
+        preferences.export_apply_modifiers = export_op.export_apply_modifiers
+        changed = True
+
     if bool(preferences.enable_advanced_preferences) != bool(
         export_op.enable_advanced_preferences
     ):
@@ -59,6 +71,20 @@ def export_vrm_update_addon_preferences(
         export_op.export_fb_ngon_encoding
     ):
         preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
+        changed = True
+
+    if bool(preferences.export_all_influences) != bool(
+        export_op.export_all_influences
+    ):
+        preferences.export_all_influences = export_op.export_all_influences
+        changed = True
+
+    if bool(preferences.export_lights) != bool(export_op.export_lights):
+        preferences.export_lights = export_op.export_lights
+        changed = True
+    
+    if bool(preferences.use_active_scene) != bool(export_op.use_active_scene):
+        preferences.use_active_scene = export_op.use_active_scene
         changed = True
 
     if changed:
@@ -88,6 +114,16 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         name="Export Only Selections",  # noqa: F722
         update=export_vrm_update_addon_preferences,
     )
+    export_only_deform_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export Only Deform Bones",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+        default=True,
+    )
+    export_apply_modifiers: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Apply Modifiers",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+        default=True,
+    )
     enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",  # noqa: F722
         update=export_vrm_update_addon_preferences,
@@ -95,6 +131,18 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
         update=export_vrm_update_addon_preferences,
+    )
+    export_all_influences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",  # noqa: F722
+        update=export_vrm_update_addon_preferences,
+        default=True,
+    )
+    export_lights: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export Lights",  # noqa: F722
+    )
+    use_active_scene: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Only Export the Active Scene",  # noqa: F722
+        default=True,
     )
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -118,15 +166,23 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         preferences = get_preferences(context)
         export_invisibles = bool(preferences.export_invisibles)
         export_only_selections = bool(preferences.export_only_selections)
+        export_lights = bool(preferences.export_lights)
         if preferences.enable_advanced_preferences:
             export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+            export_all_influences = bool(preferences.export_all_influences)
+            export_lights = bool(preferences.export_lights)
+            use_active_scene = bool(preferences.use_active_scene)
         else:
             export_fb_ngon_encoding = False
+            export_all_influences = True
+            export_lights = True
+            use_active_scene = True
 
         export_objects = search.export_objects(
             context,
             export_invisibles,
             export_only_selections,
+            export_lights,
             self.armature_object_name,
         )
         is_vrm1 = any(
@@ -145,6 +201,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
                 context,
                 export_objects,
                 export_fb_ngon_encoding,
+                export_all_influences,
+                export_lights,
+                use_active_scene,
             )
 
         vrm_bin = vrm_exporter.export_vrm()
@@ -158,13 +217,23 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         (
             self.export_invisibles,
             self.export_only_selections,
+            self.export_only_deform_bones,
+            self.export_apply_modifiers,
             self.enable_advanced_preferences,
             self.export_fb_ngon_encoding,
+            self.export_all_influences,
+            self.export_lights,
+            self.use_active_scene,
         ) = (
             bool(preferences.export_invisibles),
             bool(preferences.export_only_selections),
+            bool(preferences.export_only_deform_bones),
+            bool(preferences.export_apply_modifiers),
             bool(preferences.enable_advanced_preferences),
             bool(preferences.export_fb_ngon_encoding),
+            bool(preferences.export_all_influences),
+            bool(preferences.export_lights),
+            bool(preferences.use_active_scene),
         )
         if "gltf" not in dir(bpy.ops.export_scene):
             return bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
@@ -175,6 +244,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
             context,
             bool(self.export_invisibles),
             bool(self.export_only_selections),
+            bool(self.export_lights),
             self.armature_object_name,
         )
 
@@ -260,8 +330,13 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         filter_glob: str  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
+        export_only_deform_bones: bool  # type: ignore[no-redef]
+        export_apply_modifiers: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
         export_fb_ngon_encoding: bool  # type: ignore[no-redef]
+        export_all_influences: bool  # type: ignore[no-redef]
+        export_lights: bool  # type: ignore[no-redef]
+        use_active_scene: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]
         ignore_warning: bool  # type: ignore[no-redef]
@@ -303,10 +378,15 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
         operator = cast(EXPORT_SCENE_OT_vrm, space_data.active_operator)
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
+        layout.prop(operator, "export_only_deform_bones")
+        layout.prop(operator, "export_apply_modifiers")
         layout.prop(operator, "enable_advanced_preferences")
         if getattr(operator, "enable_advanced_preferences", False):
             advanced_options_box = layout.box()
             advanced_options_box.prop(operator, "export_fb_ngon_encoding")
+            advanced_options_box.prop(operator, "export_all_influences")
+            advanced_options_box.prop(operator, "export_lights")
+            advanced_options_box.prop(operator, "use_active_scene")
         validation.WM_OT_vrm_validator.draw_errors(operator.errors, False, layout.box())
 
 
@@ -405,10 +485,12 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
         preferences = get_preferences(context)
         export_invisibles = bool(preferences.export_invisibles)
         export_only_selections = bool(preferences.export_only_selections)
+        export_lights = bool(preferences.export_lights)
         export_objects = search.export_objects(
             context,
             export_invisibles,
             export_only_selections,
+            export_lights,
             self.armature_object_name,
         )
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
@@ -452,6 +534,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
         preferences = get_preferences(context)
         export_invisibles = bool(preferences.export_invisibles)
         export_only_selections = bool(preferences.export_only_selections)
+        export_lights = bool(preferences.export_lights)
 
         armatures = [
             obj
@@ -459,6 +542,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
                 context,
                 export_invisibles,
                 export_only_selections,
+                export_lights,
                 self.armature_object_name,
             )
             if obj.type == "ARMATURE"

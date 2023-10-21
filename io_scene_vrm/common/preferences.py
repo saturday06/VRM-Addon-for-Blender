@@ -44,11 +44,30 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
     export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",  # noqa: F722
     )
+    export_only_deform_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export Only Deform Bones",  # noqa: F722
+        default=True,
+    )
+    export_apply_modifiers: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Apply Modifiers",  # noqa: F722
+        default=True,
+    )
     enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",  # noqa: F722
     )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
+    )
+    export_all_influences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",  # noqa: F722
+        default=True,
+    )
+    export_lights: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Export Lights",  # noqa: F722
+    )
+    use_active_scene: bpy.props.BoolProperty(  # type: ignore[valid-type]
+        name="Use Active Scene",  # noqa: F722
+        default=True,
     )
 
     def draw(self, _context: bpy.types.Context) -> None:
@@ -76,10 +95,15 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         export_box.label(text="Export", icon="EXPORT")
         export_box.prop(self, "export_invisibles")
         export_box.prop(self, "export_only_selections")
+        export_box.prop(self, "export_only_deform_bones")
+        export_box.prop(self, "export_apply_modifiers")
         export_box.prop(self, "enable_advanced_preferences")
         if self.enable_advanced_preferences:
             advanced_options_box = export_box.box()
             advanced_options_box.prop(self, "export_fb_ngon_encoding")
+            advanced_options_box.prop(self, "export_all_influences")
+            advanced_options_box.prop(self, "export_lights")
+            advanced_options_box.prop(self, "use_active_scene")
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -91,8 +115,13 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
+        export_only_deform_bones: bool # type: ignore[no-redef]
+        export_apply_modifiers: bool # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
         export_fb_ngon_encoding: bool  # type: ignore[no-redef]
+        export_all_influences: bool # type: ignore[no-redef]
+        export_lights: bool # type: ignore[no-redef]
+        use_active_scene: bool # type: ignore[no-redef]
 
 
 def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:

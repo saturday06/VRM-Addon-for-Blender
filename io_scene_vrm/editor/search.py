@@ -262,6 +262,7 @@ def export_objects(
     context: bpy.types.Context,
     export_invisibles: bool,
     export_only_selections: bool,
+    export_lights: bool,
     armature_object_name: Optional[str],
 ) -> list[bpy.types.Object]:
     selected_objects = []
@@ -273,9 +274,6 @@ def export_objects(
         selected_objects = list(context.selectable_objects)
 
     objects: list[bpy.types.Object] = []
-
-    # https://projects.blender.org/blender/blender/issues/113378
-    context.view_layer.update()
 
     armature_object = None
     if armature_object_name:
@@ -292,7 +290,9 @@ def export_objects(
         )
 
     for obj in selected_objects:
-        if obj.type in ["ARMATURE", "LIGHT", "CAMERA"]:
+        if obj.type in ["ARMATURE", "CAMERA"]:
+            continue
+        if obj.type == "LIGHT" and not export_lights:
             continue
         if obj.name not in context.view_layer.objects:
             continue
