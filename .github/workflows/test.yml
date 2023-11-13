@@ -84,7 +84,6 @@ jobs:
         run: |
           hdiutil attach blender.dmg
           cp -fr /Volumes/Blender/Blender.app /Applications
-          hdiutil detach "$(mount -t hfs | grep '/Volumes/Blender' | awk '{print $1}')"
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/generate_dynamic_tests.py
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/unittest_discover.py
       - name: Archive failed io test result
