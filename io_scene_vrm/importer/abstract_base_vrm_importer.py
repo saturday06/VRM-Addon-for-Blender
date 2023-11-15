@@ -151,12 +151,6 @@ class AbstractBaseVrmImporter(ABC):
 
             bpy.ops.object.mode_set(mode="EDIT")
 
-            if bpy.app.version >= (4, 0):
-                connect_parent_tail_and_child_head_if_very_close_position(
-                    self.armature_data
-                )
-                return
-
             for bone_name in bone_name_to_human_bone_name:
                 bone = self.armature_data.edit_bones.get(bone_name)
                 while bone:

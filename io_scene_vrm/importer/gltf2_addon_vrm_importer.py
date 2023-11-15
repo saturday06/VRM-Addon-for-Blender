@@ -1103,7 +1103,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                                 else FLOAT_NEGATIVE_MAX
                             )
 
-        if self.parse_result.spec_version_number < (1, 0) and bpy.app.version < (4, 0):
+        if self.parse_result.spec_version_number < (1, 0):
             bone_heuristic = "FORTUNE"
         else:
             bone_heuristic = "BLENDER"
