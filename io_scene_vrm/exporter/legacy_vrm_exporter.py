@@ -1064,13 +1064,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pbr_dict: dict[str, Json] = {}
             pbr_dict["name"] = b_mat.name
 
-            if bpy.app.version >= (3, 6):
+            if bpy.app.version < (3, 6):
                 module_name = (
-                    "io_scene_gltf2.blender.exp.material.gltf2_blender_gather_materials"
+                    "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials"
                 )
             else:
                 module_name = (
-                    "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials"
+                    "io_scene_gltf2.blender.exp.material.gltf2_blender_gather_materials"
                 )
             try:
                 gltf2_blender_gather_materials = importlib.import_module(module_name)
@@ -1081,15 +1081,20 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             gltf2_io_material: Optional[object] = None
             try:
-                if bpy.app.version >= (3, 2):
-                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/master/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_primitives.py#L71-L96
+                if bpy.app.version < (3, 2):
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/abd8380e19dbe5e5fb9042513ad6b744032bc9bc/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
+                    gltf2_io_material = gather_material(
+                        b_mat, self.gltf2_addon_export_settings
+                    )
+                elif bpy.app.version < (4, 0):
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/9e08d423a803da52eb08fbc93d9aa99f3f681a27/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_primitives.py#L71-L96
                     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/9e08d423a803da52eb08fbc93d9aa99f3f681a27/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L42
                     gltf2_io_material = gather_material(
                         b_mat, 0, self.gltf2_addon_export_settings
                     )
                 else:
-                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/abd8380e19dbe5e5fb9042513ad6b744032bc9bc/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
-                    gltf2_io_material = gather_material(
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/765c1bd8f59ce34d6e346147f379af191969777f/addons/io_scene_gltf2/blender/exp/material/gltf2_blender_gather_materials.py#L47
+                    gltf2_io_material, _ = gather_material(
                         b_mat, self.gltf2_addon_export_settings
                     )
 

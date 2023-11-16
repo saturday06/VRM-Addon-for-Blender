@@ -50,7 +50,7 @@ max-locals = 99
 max-attributes = 15
 max-public-methods = 35
 max-returns = 22
-max-statements = 520
+max-statements = 550
 min-public-methods = 0
 
 [tool.pylint.refactoring]
