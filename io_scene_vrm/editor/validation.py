@@ -176,6 +176,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
         preferences = get_preferences(context)
         export_invisibles = bool(preferences.export_invisibles)
         export_only_selections = bool(preferences.export_only_selections)
+        export_lights = bool(preferences.export_lights)
         if preferences.enable_advanced_preferences:
             export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
         else:
@@ -186,7 +187,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             warning_messages.append(version_warning_message)
 
         export_objects = search.export_objects(
-            context, export_invisibles, export_only_selections, armature_object_name
+            context, export_invisibles, export_only_selections, export_lights, armature_object_name
         )
 
         if not any(

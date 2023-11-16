@@ -9,6 +9,7 @@ from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from .ops import (
     VRM_OT_import_mtoon1_texture_image_file,
     VRM_OT_reset_mtoon1_material_shader_node_tree,
+    VRM_OT_update_all_mtoon1_material_node_groups,
 )
 from .property_group import (
     Mtoon1MaterialPropertyGroup,
@@ -358,6 +359,7 @@ def draw_mtoon1_material(
         mtoon0_box.prop(gltf, "mtoon0_render_queue", slider=True)
 
     reset_op = layout_operator(layout, VRM_OT_reset_mtoon1_material_shader_node_tree)
+    layout_operator(layout, VRM_OT_update_all_mtoon1_material_node_groups)
     reset_op.material_name = material.name
 
 

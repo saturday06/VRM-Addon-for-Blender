@@ -49,11 +49,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", 'Set an imported armature display to show "In-Front"'): "アーマチュアを最前面に表示",
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
+    ("*", "Export Only Defom Bones"): "変形ボーンのみ",
+    ("*", "Apply Modifiers"): "モディファイアを適用",
     ("*", "Enable Advanced Options"): "高度なオプションを有効にする",
     (
         "*",
         "Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
     ): "開発中のFB_ngon_encodingエクステンションを試してみる(エクスポートされるメッシュが壊れることがあります)",
+    (   "*",
+        "Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
+    ): "全てのボーンウェイトをエクスポートする(4つに制限しない。多くのビューアは4つに制限するため、ボーンの動きがメッシュを乱す可能性があります)",
+    ("*", "Export Lights"): "ライトをエクスポート",
+    ("*", "Use Active Scene"): "アクティブなシーンのみをエクスポート",
     ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
     (
         "*",

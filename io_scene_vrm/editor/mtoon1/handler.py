@@ -5,7 +5,7 @@ import bpy
 from bpy.app.handlers import persistent
 
 from ...common.logging import get_logger
-from .ops import VRM_OT_refresh_mtoon1_outline
+from .ops import VRM_OT_refresh_mtoon1_outline, delayed_start_for_viewport_matrix
 
 logger = get_logger(__name__)
 
@@ -39,9 +39,10 @@ def update_mtoon1_outline() -> Optional[float]:
 
     compare_end_time = time.perf_counter()
 
-    logger.debug(
-        f"The duration to determine material updates is {compare_end_time - compare_start_time:.9f} seconds"
-    )
+    # Commented out to remove Print Time Overhead
+    # logger.debug(
+    #     f"The duration to determine material updates is {compare_end_time - compare_start_time:.9f} seconds"
+    # )
 
     if not_changed:
         return None
@@ -59,6 +60,17 @@ def trigger_update_mtoon1_outline() -> None:
         return
     bpy.app.timers.register(update_mtoon1_outline, first_interval=0.2)
 
+flagg = 0
+def check_matcap_operator_status(dummy=None):
+    if bpy.app.timers.is_registered(delayed_start_for_viewport_matrix):
+        return
+    
+    global flagg
+    if flagg == 0:
+        flagg = 1
+        bpy.app.timers.register(delayed_start_for_viewport_matrix, first_interval=1.0, persistent=True)
+        print("Registering delayed_start_for_viewport_matrix")
+
 
 @persistent
 def save_pre(_dummy: object) -> None:
@@ -68,3 +80,4 @@ def save_pre(_dummy: object) -> None:
 @persistent
 def depsgraph_update_pre(_dummy: object) -> None:
     trigger_update_mtoon1_outline()
+    check_matcap_operator_status()

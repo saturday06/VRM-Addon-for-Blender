@@ -3,6 +3,8 @@ locale_key = "zh_CN"
 translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Export Invisible Objects"): "导出不可见对象",
     ("*", "Export Only Selections"): "导出仅选中项",
+    ("*", "Export Only Deform Bones"): "导出仅变形骨骼",
+    ("*", "Apply Modifiers"): "应用变形",
     ("*", "No error. Ready for export VRM"): "无错误可导出",
     ("*", "VRM Export"): "导出VRM",
     ("*", "Create VRM Model"): "创建VRM",
