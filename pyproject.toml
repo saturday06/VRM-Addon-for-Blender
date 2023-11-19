@@ -75,7 +75,6 @@ ignore = [
     "S607", # Starting a process with a partial executable path
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
     "T201", # `print` found
-    "TCH003", # Move standard library import `x` into a type-checking block
     "TD001", # Invalid TODO tag
     "TD004", # Missing colon in TODO
     "TD005", # Missing issue description after `TODO`
@@ -98,6 +97,7 @@ ignore = [
     "RET504", # Unnecessary assignment to `x` before `return` statement
     "RUF011", # Dictionary comprehension uses static key: `x`
     "TCH001", # Move application import `x` into a type-checking block
+    "TCH003", # Move standard library import `x` into a type-checking block
     "TD002", # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
     "TD003", # Missing issue link on the line following this TODO
     "TID252", # Relative imports from parent modules are banned
