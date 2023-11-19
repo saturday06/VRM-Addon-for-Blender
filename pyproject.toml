@@ -23,6 +23,19 @@ allowed-confusables = [
     "\u30ce", # Katakana Letter No
 ]
 
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = [
+    "glTF2ExportUserExtension",
+    "glTF2ImportUserExtension",
+    "EXPORT_SCENE_OT_*",
+    "IMPORT_SCENE_OT_*",
+    "ICYP_OT_*",
+    "VRM_OT_*",
+    "VRM_PT_*",
+    "VRM_UL_*",
+    "WM_OT_*",
+]
+
 [tool.codespell]
 ignore-regex = ".* # codespell-ignore"
 
