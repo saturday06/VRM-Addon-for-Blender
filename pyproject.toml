@@ -56,7 +56,6 @@ ignore = [
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
     "INP001", # File `x.py` is part of an implicit namespace package. Add an `__init__.py`.
-    "PERF101", # Do not cast an iterable to `list` before iterating over it
     "PERF203", # `try`-`except` within a loop incurs performance overhead
     "PERF401", # Use a list comprehension to create a transformed list
     "PLR0911", # Too many return statements (8 > 6)
