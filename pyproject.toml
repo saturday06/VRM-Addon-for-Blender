@@ -55,10 +55,6 @@ ignore = [
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
     "INP001", # File `x.py` is part of an implicit namespace package. Add an `__init__.py`.
-    "PLR0911", # Too many return statements (8 > 6)
-    "PLR0912", # Too many branches (x > y)
-    "PLR0913", # Too many arguments in function definition (9 > 6)
-    "PLR0915", # Too many statements (x > y)
     "PLR2004", # Magic value used in comparison, consider replacing 3 with a constant variable
     "PLR5501", # Use `elif` instead of `else` then `if`, to reduce indentation
     "PLW2901", # `for` loop variable `v` overwritten by assignment target
@@ -110,7 +106,10 @@ convention = "pep257"
 max-complexity = 150
 
 [tool.ruff.lint.pylint]
-max-args = 6
+max-args = 15
+max-branches = 120
+max-returns = 25
+max-statements = 550
 
 [tool.codespell]
 ignore-regex = ".* # codespell-ignore"
