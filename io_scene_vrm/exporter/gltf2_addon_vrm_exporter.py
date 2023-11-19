@@ -2186,7 +2186,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 # or object_name == dummy_skinned_mesh_object_name
             ):
                 node_dict.clear()
-                for child_removing_node_dict in list(node_dicts):
+                for child_removing_node_dict in node_dicts:
                     if not isinstance(child_removing_node_dict, dict):
                         continue
                     children = child_removing_node_dict.get("children")

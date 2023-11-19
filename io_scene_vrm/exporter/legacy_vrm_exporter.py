@@ -1778,7 +1778,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     polys.append((face.material_index, tuple(face.loops)))
             else:
                 if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
-                    for i in range(0, len(face.loops) - 2):
+                    for i in range(len(face.loops) - 2):
                         polys.append(
                             (
                                 face.material_index,

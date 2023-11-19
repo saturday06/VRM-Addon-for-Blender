@@ -40,42 +40,42 @@ class BinaryReader:
         # unpackは内容の個数に関わらずタプルで返すので[0]が必要
         result = struct.unpack("<I", self.data[slice(self.pos, self.pos + 4)])[0]
         if not isinstance(result, int):
-            raise TypeError()
+            raise TypeError
         self.pos += 4
         return result
 
     def read_int(self) -> int:
         result = struct.unpack("<i", self.data[slice(self.pos, self.pos + 4)])[0]
         if not isinstance(result, int):
-            raise TypeError()
+            raise TypeError
         self.pos += 4
         return result
 
     def read_unsigned_short(self) -> int:
         result = struct.unpack("<H", self.data[slice(self.pos, self.pos + 2)])[0]
         if not isinstance(result, int):
-            raise TypeError()
+            raise TypeError
         self.pos += 2
         return result
 
     def read_short(self) -> int:
         result = struct.unpack("<h", self.data[slice(self.pos, self.pos + 2)])[0]
         if not isinstance(result, int):
-            raise TypeError()
+            raise TypeError
         self.pos += 2
         return result
 
     def read_float(self) -> float:
         result = struct.unpack("<f", self.data[slice(self.pos, self.pos + 4)])[0]
         if not isinstance(result, float):
-            raise TypeError()
+            raise TypeError
         self.pos += 4
         return result
 
     def read_unsigned_byte(self) -> int:
         result = struct.unpack("<B", self.data[slice(self.pos, self.pos + 1)])[0]
         if not isinstance(result, int):
-            raise TypeError()
+            raise TypeError
         self.pos += 1
         return result
 
