@@ -1322,7 +1322,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     khr_texture_transform.scale[1],
                 ]
 
-            vector_properties["_ShadeColor"] = list(mtoon.shade_color_factor) + [1]
+            vector_properties["_ShadeColor"] = [*mtoon.shade_color_factor, 1]
             add_mtoon1_downgraded_texture_info(
                 mtoon.shade_multiply_texture,
                 texture_properties,
@@ -1376,7 +1376,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             )
             emissive_factor = Vector(gltf.emissive_factor)
             hdr_emissive_factor = emissive_factor * emissive_strength
-            vector_properties["_EmissionColor"] = list(hdr_emissive_factor) + [1]
+            vector_properties["_EmissionColor"] = [*hdr_emissive_factor, 1]
             if emissive_factor.length_squared > 0:
                 material_dict["emissiveFactor"] = list(emissive_factor)
 
@@ -1402,9 +1402,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 khr_texture_transform=None,
             )
 
-            vector_properties["_RimColor"] = list(mtoon.parametric_rim_color_factor) + [
-                1
-            ]
+            vector_properties["_RimColor"] = [*mtoon.parametric_rim_color_factor, 1]
             add_mtoon1_downgraded_texture_info(
                 mtoon.rim_multiply_texture,
                 texture_properties,
@@ -1413,7 +1411,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 khr_texture_transform,
             )
 
-            vector_properties["_OutlineColor"] = list(mtoon.outline_color_factor) + [1]
+            vector_properties["_OutlineColor"] = [*mtoon.outline_color_factor, 1]
             add_mtoon1_downgraded_texture_info(
                 mtoon.outline_width_multiply_texture,
                 texture_properties,

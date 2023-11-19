@@ -214,7 +214,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
             )
             return
 
-        socket.default_value = rgb + (1.0,)
+        socket.default_value = (*rgb, 1.0)
 
 
 class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):

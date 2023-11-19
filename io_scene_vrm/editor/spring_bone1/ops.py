@@ -64,7 +64,7 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
             return {"CANCELLED"}
         bpy_object = colliders[self.collider_index].bpy_object
         if bpy_object:
-            remove_objects = list(bpy_object.children) + [bpy_object]
+            remove_objects = [*bpy_object.children, bpy_object]
             for collection in bpy.data.collections:
                 for remove_object in remove_objects:
                     remove_object.parent = None

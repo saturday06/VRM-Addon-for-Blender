@@ -681,7 +681,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     node_dicts,
                     bone_node_indices,
                     child_index,
-                    middle_bone_node_indices + [bone_node_index],
+                    [*middle_bone_node_indices, bone_node_index],
                 )
             )
         return result

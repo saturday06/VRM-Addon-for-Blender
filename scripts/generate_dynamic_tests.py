@@ -149,7 +149,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             raise ValueError(f"Test method name {method_name}_index is duplicated")
         existing_method_names.append(method_name)
 
-        escaped = [urlsafe_b64encode(a.encode()).decode() for a in [path] + args]
+        escaped = [urlsafe_b64encode(a.encode()).decode() for a in [path, *args]]
         args_str = "\n" + "".join(f'            "{e}",\n' for e in escaped) + "        "
         content += render_multiple_test(method_name, args_str)
     return content

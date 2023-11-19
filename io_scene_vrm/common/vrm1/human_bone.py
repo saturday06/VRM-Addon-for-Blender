@@ -210,7 +210,7 @@ class HumanBoneSpecification:
         parent = self.parent()
         if parent is None:
             return children
-        return children + [parent]
+        return [*children, parent]
 
     @staticmethod
     def create(
