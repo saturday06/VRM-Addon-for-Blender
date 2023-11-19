@@ -2002,8 +2002,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         export_animations=True,
                         export_rest_position_armature=False,
                     )
-                except RuntimeError as e:
-                    logger.error(str(e))
+                except RuntimeError:
+                    logger.exception("Failed to export VRM with animations")
                     # TODO: check traceback
                     export_scene_gltf(
                         filepath=str(filepath),
