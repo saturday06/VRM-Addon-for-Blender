@@ -1,3 +1,6 @@
+[project]
+requires-python = ">=3.9"
+
 [tool.poetry]
 name = "io_scene_vrm"
 version = "1.0.0" # Dummy version. See __init__.bl_info["version"] instead.
@@ -10,7 +13,6 @@ python = "3.10.*"
 bpy = "3.6.*"
 
 [tool.poetry.group.dev.dependencies]
-black = "*"
 codespell = "*"
 flake8 = "*"
 flake8-bandit = "*"
@@ -23,12 +25,10 @@ mypy = "*"
 pep8-naming = "*"
 pylint = "*"
 pyright = "*"
+ruff = "*"
 
 [tool.codespell]
 ignore-regex = ".* # codespell-ignore"
-
-[tool.black]
-target-version = ["py39"]
 
 [tool.mypy]
 python_version = "3.9"
