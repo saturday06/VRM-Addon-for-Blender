@@ -178,13 +178,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
-        'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
-        + 'Confirm hierarchy of "{bone}" and its children. '
-        + '"VRM" Panel → "Humanoid" → "{human_bone}" empty if wrong hierarchy',
-    ): "ボーン「{bone}」をVRMボーン「{human_bone}」に割り当てることができませんでした。"
-    + "「VRM」パネルの「Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
-    (
-        "*",
         'Please assign Required VRM Bone "{name}".',
     ): "VRM必須ボーン「{name}」を割り当ててください。",
     (
