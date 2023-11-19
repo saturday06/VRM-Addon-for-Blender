@@ -16,9 +16,7 @@ vrm_dir = resources_dir / "vrm" / "broken"
 
 def get_test_command_args() -> list[list[str]]:
     names = [blend_path.name for blend_path in vrm_dir.glob("*.vrm")]
-    command_args: list[list[str]] = [
-        [name] for name in sorted(list(dict.fromkeys(names)))
-    ]
+    command_args: list[list[str]] = [[name] for name in sorted(dict.fromkeys(names))]
     return command_args
 
 

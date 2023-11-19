@@ -532,8 +532,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         ) -> dict[str, Json]:
             """transparent_method = {"OPAQUE","MASK","BLEND"}"""
             if base_color is None:
-                base_color = (1.0, 1.0, 1.0, 1.0)
-            base_color = tuple(map(lambda v: max(0.0, min(1.0, v)), base_color))
+                base_color = [1.0, 1.0, 1.0, 1.0]
+            base_color = [max(0.0, min(1.0, v)) for v in base_color]
             if metalness is None:
                 metalness = 0
             metalness = max(0, min(1, metalness))

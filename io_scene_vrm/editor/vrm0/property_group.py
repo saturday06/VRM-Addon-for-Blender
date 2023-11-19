@@ -76,7 +76,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
             target,
             bpy_bone_name_to_human_bone_specification,
         )
-        if set(n.value for n in self.node_candidates) == new_candidates:
+        if {n.value for n in self.node_candidates} == new_candidates:
             return
 
         self.node_candidates.clear()

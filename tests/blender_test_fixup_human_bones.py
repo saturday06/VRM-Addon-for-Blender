@@ -51,9 +51,7 @@ def test() -> None:
     hips_bone = next(b for b in human_bones if b.bone == HumanBoneName.HIPS.value)
     assert not hips_bone.node.bone_name
     hips_bone.node.bone_name = "hips"
-    assert set(original) == set(
-        (str(b.node.bone_name), str(b.bone)) for b in human_bones
-    )
+    assert set(original) == {(str(b.node.bone_name), str(b.bone)) for b in human_bones}
 
 
 if __name__ == "__main__":
