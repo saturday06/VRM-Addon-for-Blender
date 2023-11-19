@@ -73,7 +73,7 @@ class NodeRestPoseTree:
             @ Matrix.Diagonal(scale).to_4x4()
         )
 
-        # TODO: 3要素の場合はオイラー角になるか？
+        # TODO: 3要素の場合はオイラー角になるか?
         # TODO: Matrixだったら分解する
 
         child_indices = node_dict.get("children")

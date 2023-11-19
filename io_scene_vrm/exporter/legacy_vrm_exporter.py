@@ -1738,9 +1738,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
     # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを再生できる
-    # メリット：ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、拡張非対応であればそのまま読めば普通に三角として表示できる
-    # 欠点：ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
-    # また、ngonが凸包ポリゴンで無い場合、見た目が破綻する(例：鈍角三角形の底辺を接合した4角形)
+    # メリット: ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、拡張非対応であればそのまま読めば普通に三角として表示できる
+    # 欠点: ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
+    # また、ngonが凸包ポリゴンで無い場合、見た目が破綻する(例: 鈍角三角形の底辺を接合した4角形)
     @staticmethod
     def tessface_fan(
         bm: bmesh.types.BMesh, export_fb_ngon_encoding: bool

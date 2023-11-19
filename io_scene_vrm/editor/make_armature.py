@@ -371,7 +371,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             bone_type="leg",
         )
 
-        # 肩～指
+        # 肩~指
         shoulder_in_pos = self.shoulder_in_width / 2
 
         shoulder_parent = chest
