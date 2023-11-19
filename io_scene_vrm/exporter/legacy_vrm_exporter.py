@@ -1,9 +1,6 @@
-"""
-Copyright (c) 2018 iCyP
-Released under the MIT license
-https://opensource.org/licenses/mit-license.php
-
-"""
+# Copyright (c) 2018 iCyP
+# Released under the MIT license
+# https://opensource.org/licenses/mit-license.php
 
 import copy
 import importlib
@@ -532,7 +529,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             double_sided: bool = False,
             texture_transform: Optional[LegacyVrmExporter.KhrTextureTransform] = None,
         ) -> dict[str, Json]:
-            """transparent_method = {"OPAQUE","MASK","BLEND"}"""
+            """transparent_method = {"OPAQUE","MASK","BLEND"}."""
             if base_color is None:
                 base_color = [1.0, 1.0, 1.0, 1.0]
             base_color = [max(0.0, min(1.0, v)) for v in base_color]

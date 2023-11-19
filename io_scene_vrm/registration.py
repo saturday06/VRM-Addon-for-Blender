@@ -1,9 +1,6 @@
-"""
-Copyright (c) 2018 iCyP
-Released under the MIT license
-https://opensource.org/licenses/mit-license.php
-
-"""
+# Copyright (c) 2018 iCyP
+# Released under the MIT license
+# https://opensource.org/licenses/mit-license.php
 
 from typing import Union
 
@@ -363,7 +360,7 @@ classes: list[
 
 
 def cleanse_modules() -> None:
-    """Search for your plugin modules in blender python sys.modules and remove them"""
+    """Search for your plugin modules in blender python sys.modules and remove them."""
     import sys
 
     all_modules = sys.modules

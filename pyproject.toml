@@ -43,7 +43,6 @@ ignore = [
     "BLE001", # Do not catch blind exception
     "C901", # `x` is too complex (y > z)
     "D205", # 1 blank line required between summary line and description
-    "D400", # First line should end with a period
     "D403", # First word of the first line should be capitalized
     "E501", # Line too long (x > y)
     "EM101", # Exception must not use a string literal, assign to variable first

@@ -1,9 +1,6 @@
-"""
-Copyright (c) 2018 iCyP
-Released under the MIT license
-https://opensource.org/licenses/mit-license.php
-
-"""
+# Copyright (c) 2018 iCyP
+# Released under the MIT license
+# https://opensource.org/licenses/mit-license.php
 
 #
 #
@@ -32,7 +29,7 @@ bl_info = {
 
 # To support reload properly, try to access a package var, if it's there, reload everything
 def cleanse_modules() -> None:
-    """Search for your plugin modules in blender python sys.modules and remove them"""
+    """Search for your plugin modules in blender python sys.modules and remove them."""
     import sys
 
     all_modules = sys.modules
@@ -111,7 +108,7 @@ def raise_error_if_unsupported() -> None:
 
 
 def extract_github_private_partial_code_archive_if_necessary() -> None:
-    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、足りないソースコードを展開する。
+    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、足りないソースコードを展開する.
 
     このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
     しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な

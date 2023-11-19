@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-"""
-Copyright (c) 2018 iCyP
-Released under the MIT license
-https://opensource.org/licenses/mit-license.php
-"""
+# Copyright (c) 2018 iCyP
+# Released under the MIT license
+# https://opensource.org/licenses/mit-license.php
 
 import json
 import struct
