@@ -411,14 +411,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             and isinstance(armature.data, bpy.types.Armature)
             and armature.data.vrm_addon_extension.is_vrm1()
         ):
-            for obj in export_objects:
-                if obj.scale[0] < 0 or obj.scale[1] < 0 or obj.scale[2] < 0:
-                    error_messages.append(
-                        pgettext(
-                            'Object "{name}" contains a negative value for the scale;'
-                            + " VRM 1.0 does not allow negative values to be specified for the scale."
-                        ).format(name=obj.name)
-                    )
+            error_messages.extend(
+                pgettext(
+                    'Object "{name}" contains a negative value for the scale;'
+                    + " VRM 1.0 does not allow negative values to be specified for the scale."
+                ).format(name=obj.name)
+                for obj in export_objects
+                if obj.scale[0] < 0 or obj.scale[1] < 0 or obj.scale[2] < 0
+            )
 
             joint_chain_bone_names_to_spring_vrm_name: dict[str, str] = {}
             for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
@@ -740,21 +740,19 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                             )
                         )
 
-        for image in used_images:
+        error_messages.extend(
+            pgettext(
+                '"{image_name}" is not found in file path "{image_filepath}". '
+                + "Please load file of it in Blender."
+            ).format(image_name=image.name, image_filepath=image.filepath_from_user())
+            for image in used_images
             if (
                 image.source == "FILE"
                 and not image.is_dirty
                 and image.packed_file is None
                 and not Path(image.filepath_from_user()).exists()
-            ):
-                error_messages.append(
-                    pgettext(
-                        '"{image_name}" is not found in file path "{image_filepath}". '
-                        + "Please load file of it in Blender."
-                    ).format(
-                        image_name=image.name, image_filepath=image.filepath_from_user()
-                    )
-                )
+            )
+        )
 
         error_collection.clear()
 

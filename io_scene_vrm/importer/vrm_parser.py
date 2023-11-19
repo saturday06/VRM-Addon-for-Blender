@@ -245,9 +245,9 @@ def decode_bin(
                 single_data = br.read_as_data_type(component_type)
                 data_list.append(single_data)
             else:
-                multiple_data = []
-                for _ in range(type_num):
-                    multiple_data.append(br.read_as_data_type(component_type))
+                multiple_data = [
+                    br.read_as_data_type(component_type) for _ in range(type_num)
+                ]
                 data_list.append(multiple_data)
         decoded_binary.append(data_list)
 

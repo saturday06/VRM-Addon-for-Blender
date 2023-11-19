@@ -460,9 +460,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     result.append(center_index)
                 bone_indices = bone_group_dict.get("bones")
                 if isinstance(bone_indices, list):
-                    for bone_index in bone_indices:
-                        if isinstance(bone_index, int):
-                            result.append(bone_index)
+                    result.extend(
+                        bone_index
+                        for bone_index in bone_indices
+                        if isinstance(bone_index, int)
+                    )
         return list(dict.fromkeys(result))  # Remove duplicates
 
     def find_vrm1_bone_node_indices(self) -> list[int]:

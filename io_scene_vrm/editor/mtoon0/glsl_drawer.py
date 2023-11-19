@@ -377,10 +377,9 @@ class GlslDrawObj:
 
         meshes = glsl_draw_obj.main_executor.map(build_mesh, glsl_draw_obj.objs)
         for mesh in meshes:
-            unneeded_mat = []
-            for k in mesh.index_per_mat.keys():
-                if not mesh.index_per_mat[k]:
-                    unneeded_mat.append(k)
+            unneeded_mat = [
+                k for k in mesh.index_per_mat.keys() if not mesh.index_per_mat[k]
+            ]
             for k in unneeded_mat:
                 mesh.index_per_mat.pop(k, None)
             scene_meshes = glsl_draw_obj.scene_meshes

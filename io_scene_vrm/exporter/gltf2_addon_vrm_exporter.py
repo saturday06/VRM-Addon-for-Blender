@@ -2410,15 +2410,17 @@ def find_node_world_matrix(
     parent_node_index: Optional[int],
 ) -> Optional[Matrix]:
     if parent_node_index is None:
-        all_child_indices = []
+        all_child_indices: list[int] = []
         for node_dict in node_dicts:
             if not isinstance(node_dict, dict):
                 continue
             child_node_indices = node_dict.get("children")
             if isinstance(child_node_indices, list):
-                for child_node_index in child_node_indices:
-                    if isinstance(child_node_index, int):
-                        all_child_indices.append(child_node_index)
+                all_child_indices.extend(
+                    child_node_index
+                    for child_node_index in child_node_indices
+                    if isinstance(child_node_index, int)
+                )
         for node_index in range(len(node_dicts)):
             if node_index in all_child_indices:
                 continue
