@@ -11,18 +11,21 @@ bpy = "3.6.*"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
+codespell = "*"
 flake8 = "*"
 flake8-bandit = "*"
 flake8-bugbear = "*"
 flake8-no-pep420 = "*"
 flake8-scream = "*"
 flake8-simplify = "*"
-flake8-spellcheck = "*"
 isort = "*"
 mypy = "*"
 pep8-naming = "*"
 pylint = "*"
 pyright = "*"
+
+[tool.codespell]
+ignore-regex = ".* # codespell-ignore"
 
 [tool.black]
 target-version = ["py39"]

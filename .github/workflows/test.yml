@@ -139,21 +139,6 @@ jobs:
               exit 1
             fi
           done
-      - name: Check dictionary.txt contents
-        run: |
-          LC_ALL=C tr '[:upper:]' '[:lower:]' < dictionary.txt > dictionary_lower.txt
-          diff -u dictionary.txt dictionary_lower.txt
-
-          result=0
-          while read -r word; do
-            if ! git grep -i "$word" "*.py" "*.pyi" > /dev/null; then
-              >&2 echo "dictionary.txt:$word is no longer necessary"
-              result=1
-            fi
-          done < dictionary.txt
-          exit $result
-      - name: Check dictionary.txt ordering
-        run: LC_ALL=C sort dictionary.txt | diff -u dictionary.txt -
       - name: Validate GLSL
         run: |
           git ls-files "**.glsl" | while read -r orig; do

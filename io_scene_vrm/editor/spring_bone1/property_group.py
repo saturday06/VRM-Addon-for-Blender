@@ -81,7 +81,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         if not collider.bpy_object:
-            logger.error(f"Faild to reset bpy_object for collider: {collider.name}")
+            logger.error(f"Failed to reset bpy_object for collider: {collider.name}")
             return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (
@@ -216,7 +216,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
         armature, collider = self.find_armature_and_collider()
         collider.reset_bpy_object(bpy.context, armature)
         if not collider.bpy_object:
-            logger.error(f"Faild to reset bpy_object for collider: {collider.name}")
+            logger.error(f"Failed to reset bpy_object for collider: {collider.name}")
             return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (

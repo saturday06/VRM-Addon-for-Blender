@@ -852,8 +852,8 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
         ("CC_BY_NC", "CC BY NC", "", 3),
         ("CC_BY_SA", "CC BY SA", "", 4),
         ("CC_BY_NC_SA", "CC BY NC SA", "", 5),
-        ("CC_BY_ND", "CC BY ND", "", 6),
-        ("CC_BY_NC_ND", "CC BY NC ND", "", 7),
+        ("CC_BY_ND", "CC BY ND", "", 6),  # codespell-ignore
+        ("CC_BY_NC_ND", "CC BY NC ND", "", 7),  # codespell-ignore
         (LICENSE_NAME_OTHER, "Other", "", 8),
     ]
     LICENSE_NAME_VALUES = [

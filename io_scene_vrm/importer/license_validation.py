@@ -123,7 +123,7 @@ def validate_license(json_dict: dict[str, Json]) -> None:
     license_name = str(
         deep.get(json_dict, ["extensions", "VRM", "meta", "licenseName"], "")
     )
-    if re.match("CC(.*)ND(.*)", license_name):
+    if re.match("CC(.*)ND(.*)", license_name):  # codespell-ignore
         confirmations.append(
             LicenseConfirmationRequiredProp(
                 None,
