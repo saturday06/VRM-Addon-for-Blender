@@ -62,7 +62,9 @@ logger = get_logger(__name__)
 
 class LegacyVrmExporter(AbstractBaseVrmExporter):
     class KhrTextureTransform:
-        def __init__(self, offset: tuple[float, float], scale: tuple[float, float]):
+        def __init__(
+            self, offset: tuple[float, float], scale: tuple[float, float]
+        ) -> None:
             self.offset = offset
             self.scale = scale
 
