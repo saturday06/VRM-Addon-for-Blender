@@ -40,7 +40,6 @@ extend-ignore-names = [
 select = ["ALL"]
 ignore = [
     "A003", # Class attribute `x` is shadowing a Python builtin
-    "B020", # Loop control variable `x` overrides iterable it iterates
     "BLE001", # Do not catch blind exception
     "C901", # `x` is too complex (y > z)
     "D205", # 1 blank line required between summary line and description

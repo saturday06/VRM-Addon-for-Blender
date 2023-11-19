@@ -109,8 +109,8 @@ def diff(
                 return result
             return result + unified_diff
         diffs: list[str] = []
-        for i, (left, right) in enumerate(zip(left, right)):
-            diffs.extend(diff(left, right, float_tolerance, f"{path}[{i}]"))
+        for i, (left_child, right_child) in enumerate(zip(left, right)):
+            diffs.extend(diff(left_child, right_child, float_tolerance, f"{path}[{i}]"))
         return diffs
 
     if isinstance(left, dict):
