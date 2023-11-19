@@ -59,7 +59,6 @@ ignore = [
     "PERF101", # Do not cast an iterable to `list` before iterating over it
     "PERF203", # `try`-`except` within a loop incurs performance overhead
     "PERF401", # Use a list comprehension to create a transformed list
-    "PERF402", # Use `list` or `list.copy` to create a copy of a list
     "PLR0911", # Too many return statements (8 > 6)
     "PLR0912", # Too many branches (x > y)
     "PLR0913", # Too many arguments in function definition (9 > 6)

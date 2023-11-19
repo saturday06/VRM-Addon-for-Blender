@@ -2347,9 +2347,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         base_extensions_dicts: list[Json] = []
         base_extensions_dicts.append(self.json_dict)
-
-        for mesh_dict in deep.get_list(self.json_dict, ["meshes"], []):
-            base_extensions_dicts.append(mesh_dict)
+        base_extensions_dicts.extend(deep.get_list(self.json_dict, ["meshes"], []))
 
         for material_dict in deep.get_list(self.json_dict, ["materials"], []):
             if not isinstance(material_dict, dict):

@@ -660,8 +660,7 @@ def connect_parent_tail_and_child_head_if_very_close_position(
                 bone.tail = child.head
             break
 
-        for child in bone.children:
-            bones.append(child)
+        bones.extend(bone.children)
 
     bones = [bone for bone in armature.edit_bones if not bone.parent]
     while bones:
