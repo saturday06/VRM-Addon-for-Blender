@@ -868,10 +868,10 @@ def node_material_input_check(
 ) -> None:
     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
     #
-    # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".  # noqa: SC100
+    # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".
     # But 'shader_val', which is come from MaterialMtoon.texture_kind_exchange_dict, can be "NormalmapTexture".
     # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
-    # So change it to "NomalmapTexture" which is typo but points to the same thing  # noqa: SC100
+    # So change it to "NomalmapTexture" which is typo but points to the same thing
     # in those models.
     if (
         shader_val == "NormalmapTexture"

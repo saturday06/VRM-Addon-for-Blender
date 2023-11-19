@@ -714,7 +714,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
 
     # typo in VRM 0.0 specification
     # https://github.com/vrm-c/vrm-specification/blob/1723a45abfb4f12ac5d3635a3f66dc45e2f93c83/specification/0.0/schema/vrm.secondaryanimation.spring.schema.json#L9-L12
-    stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type] # noqa: SC200
+    stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Stiffness",
         min=0.0,
         soft_max=4.0,
@@ -809,7 +809,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         comment: str  # type: ignore[no-redef]
-        stiffiness: float  # type: ignore[no-redef]  # noqa: SC200
+        stiffiness: float  # type: ignore[no-redef]
         gravity_power: float  # type: ignore[no-redef]
         gravity_dir: Sequence[float]  # type: ignore[no-redef]
         drag_force: float  # type: ignore[no-redef]
@@ -833,31 +833,31 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
         allowed_user_name_item[0] for allowed_user_name_item in allowed_user_name_items
     )
 
-    violent_ussage_name_items = (  # noqa: SC200
+    violent_ussage_name_items = (
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     )
-    VIOLENT_USSAGE_NAME_VALUES = tuple(  # noqa: SC200
-        violent_ussage_name_item[0]  # noqa: SC200
-        for violent_ussage_name_item in violent_ussage_name_items  # noqa: SC200
+    VIOLENT_USSAGE_NAME_VALUES = tuple(
+        violent_ussage_name_item[0]
+        for violent_ussage_name_item in violent_ussage_name_items
     )
 
-    sexual_ussage_name_items = (  # noqa: SC200
+    sexual_ussage_name_items = (
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     )
-    SEXUAL_USSAGE_NAME_VALUES = tuple(  # noqa: SC200
-        sexual_ussage_name_item[0]  # noqa: SC200
-        for sexual_ussage_name_item in sexual_ussage_name_items  # noqa: SC200
+    SEXUAL_USSAGE_NAME_VALUES = tuple(
+        sexual_ussage_name_item[0]
+        for sexual_ussage_name_item in sexual_ussage_name_items
     )
 
-    commercial_ussage_name_items = (  # noqa: SC200
+    commercial_ussage_name_items = (
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
     )
-    COMMERCIAL_USSAGE_NAME_VALUES = tuple(  # noqa: SC200
-        commercial_ussage_name_item[0]  # noqa: SC200
-        for commercial_ussage_name_item in commercial_ussage_name_items  # noqa: SC200
+    COMMERCIAL_USSAGE_NAME_VALUES = tuple(
+        commercial_ussage_name_item[0]
+        for commercial_ussage_name_item in commercial_ussage_name_items
     )
 
     LICENSE_NAME_OTHER = "Other"
@@ -901,18 +901,18 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
         name="Allowed User",
         description="Allowed user of the avatar",
     )
-    violent_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
-        items=violent_ussage_name_items,  # noqa: SC200
+    violent_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=violent_ussage_name_items,
         name="Violent Usage",
         description="Violent usage of the avatar",
     )
-    sexual_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
-        items=sexual_ussage_name_items,  # noqa: SC200
+    sexual_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=sexual_ussage_name_items,
         name="Sexual Usage",
         description="Sexual Usage of the avatar",
     )
-    commercial_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type] # noqa: SC200
-        items=commercial_ussage_name_items,  # noqa: SC200
+    commercial_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+        items=commercial_ussage_name_items,
         name="Commercial Usage",
         description="Commercial Usage of the avatar",
     )
@@ -944,9 +944,9 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
         contact_information: str  # type: ignore[no-redef]
         reference: str  # type: ignore[no-redef]
         allowed_user_name: str  # type: ignore[no-redef]
-        violent_ussage_name: str  # type: ignore[no-redef]  # noqa: SC200
-        sexual_ussage_name: str  # type: ignore[no-redef]  # noqa: SC200
-        commercial_ussage_name: str  # type: ignore[no-redef]  # noqa: SC200
+        violent_ussage_name: str  # type: ignore[no-redef]
+        sexual_ussage_name: str  # type: ignore[no-redef]
+        commercial_ussage_name: str  # type: ignore[no-redef]
         other_permission_url: str  # type: ignore[no-redef]
         license_name: str  # type: ignore[no-redef]
         other_license_url: str  # type: ignore[no-redef]

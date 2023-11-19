@@ -829,29 +829,27 @@ class AbstractBaseVrmImporter(ABC):
         ):
             meta.allowed_user_name = allowed_user_name
 
-        violent_ussage_name = meta_dict.get("violentUssageName")  # noqa: SC200
+        violent_ussage_name = meta_dict.get("violentUssageName")
         if (
-            isinstance(violent_ussage_name, str)  # noqa: SC200
-            and violent_ussage_name  # noqa: SC200
-            in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES  # noqa: SC200
+            isinstance(violent_ussage_name, str)
+            and violent_ussage_name in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES
         ):
-            meta.violent_ussage_name = violent_ussage_name  # noqa: SC200
+            meta.violent_ussage_name = violent_ussage_name
 
-        sexual_ussage_name = meta_dict.get("sexualUssageName")  # noqa: SC200
+        sexual_ussage_name = meta_dict.get("sexualUssageName")
         if (
-            isinstance(sexual_ussage_name, str)  # noqa: SC200
-            and sexual_ussage_name  # noqa: SC200
-            in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES  # noqa: SC200
+            isinstance(sexual_ussage_name, str)
+            and sexual_ussage_name in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES
         ):
-            meta.sexual_ussage_name = sexual_ussage_name  # noqa: SC200
+            meta.sexual_ussage_name = sexual_ussage_name
 
-        commercial_ussage_name = meta_dict.get("commercialUssageName")  # noqa: SC200
+        commercial_ussage_name = meta_dict.get("commercialUssageName")
         if (
-            isinstance(commercial_ussage_name, str)  # noqa: SC200
-            and commercial_ussage_name  # noqa: SC200
-            in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES  # noqa: SC200
+            isinstance(commercial_ussage_name, str)
+            and commercial_ussage_name
+            in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES
         ):
-            meta.commercial_ussage_name = commercial_ussage_name  # noqa: SC200
+            meta.commercial_ussage_name = commercial_ussage_name
 
         other_permission_url = meta_dict.get("otherPermissionUrl")
         if isinstance(other_permission_url, str):
@@ -1240,9 +1238,9 @@ class AbstractBaseVrmImporter(ABC):
             if isinstance(comment, str):
                 bone_group.comment = comment
 
-            stiffiness = bone_group_dict.get("stiffiness")  # noqa: SC200
-            if isinstance(stiffiness, (int, float)):  # noqa: SC200
-                bone_group.stiffiness = stiffiness  # noqa: SC200
+            stiffiness = bone_group_dict.get("stiffiness")
+            if isinstance(stiffiness, (int, float)):
+                bone_group.stiffiness = stiffiness
 
             gravity_power = bone_group_dict.get("gravityPower")
             if isinstance(gravity_power, (int, float)):

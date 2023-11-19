@@ -233,10 +233,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for shader_vals in MtoonUnversioned.texture_kind_exchange_dict.values():
                     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
                     #
-                    # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".  # noqa: SC100
+                    # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".
                     # But 'shader_vals' which comes from MaterialMtoon.texture_kind_exchange_dict is "NormalmapTexture".
                     # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
-                    # So change it to "NomalmapTexture" which is typo but points to the same thing  # noqa: SC100
+                    # So change it to "NomalmapTexture" which is typo but points to the same thing
                     # in those models.
                     if (
                         shader_vals == "NormalmapTexture"
@@ -2422,9 +2422,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             "contactInformation": meta.contact_information,
             "reference": meta.reference,
             "allowedUserName": meta.allowed_user_name,
-            "violentUssageName": meta.violent_ussage_name,  # noqa: SC200
-            "sexualUssageName": meta.sexual_ussage_name,  # noqa: SC200
-            "commercialUssageName": meta.commercial_ussage_name,  # noqa: SC200
+            "violentUssageName": meta.violent_ussage_name,
+            "sexualUssageName": meta.sexual_ussage_name,
+            "commercialUssageName": meta.commercial_ussage_name,
             "otherPermissionUrl": meta.other_permission_url,
             "licenseName": meta.license_name,
             "otherLicenseUrl": meta.other_license_url,
@@ -2708,7 +2708,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         for bone_group in secondary_animation.bone_groups:
             bone_group_dict: dict[str, Json] = {
                 "comment": bone_group.comment,
-                "stiffiness": bone_group.stiffiness,  # noqa: SC200
+                "stiffiness": bone_group.stiffiness,
                 "gravityPower": bone_group.gravity_power,
                 "gravityDir": {
                     # Axis confusing

@@ -49,13 +49,13 @@ def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: bpy.types.Object) -
     if isinstance(author, str):
         meta.author = author
 
-    commercial_ussage_name = armature.get("commercialUssageName")  # noqa: SC200
+    commercial_ussage_name = armature.get("commercialUssageName")
     if (
-        isinstance(commercial_ussage_name, str)  # noqa: SC200
-        and commercial_ussage_name  # noqa: SC200
-        in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES  # noqa: SC200
+        isinstance(commercial_ussage_name, str)
+        and commercial_ussage_name
+        in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES
     ):
-        meta.commercial_ussage_name = commercial_ussage_name  # noqa: SC200
+        meta.commercial_ussage_name = commercial_ussage_name
 
     contact_information = armature.get("contactInformation")
     if isinstance(contact_information, str):
@@ -80,13 +80,12 @@ def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: bpy.types.Object) -
     if isinstance(reference, str):
         meta.reference = reference
 
-    sexual_ussage_name = armature.get("sexualUssageName")  # noqa: SC200
+    sexual_ussage_name = armature.get("sexualUssageName")
     if (
-        isinstance(sexual_ussage_name, str)  # noqa: SC200
-        and sexual_ussage_name  # noqa: SC200
-        in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES  # noqa: SC200
+        isinstance(sexual_ussage_name, str)
+        and sexual_ussage_name in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES
     ):
-        meta.sexual_ussage_name = sexual_ussage_name  # noqa: SC200
+        meta.sexual_ussage_name = sexual_ussage_name
 
     title = armature.get("title")
     if isinstance(title, str):
@@ -96,13 +95,12 @@ def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: bpy.types.Object) -
     if isinstance(version, str):
         meta.version = version
 
-    violent_ussage_name = armature.get("violentUssageName")  # noqa: SC200
+    violent_ussage_name = armature.get("violentUssageName")
     if (
-        isinstance(violent_ussage_name, str)  # noqa: SC200
-        and violent_ussage_name  # noqa: SC200
-        in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES  # noqa: SC200
+        isinstance(violent_ussage_name, str)
+        and violent_ussage_name in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES
     ):
-        meta.violent_ussage_name = violent_ussage_name  # noqa: SC200
+        meta.violent_ussage_name = violent_ussage_name
 
     texture = armature.get("texture")
     if isinstance(texture, str):
@@ -375,9 +373,9 @@ def migrate_vrm0_secondary_animation(
         if isinstance(comment, str):
             bone_group.comment = comment
 
-        stiffiness = bone_group_dict.get("stiffiness")  # noqa: SC200
-        if isinstance(stiffiness, (int, float)):  # noqa: SC200
-            bone_group.stiffiness = stiffiness  # noqa: SC200
+        stiffiness = bone_group_dict.get("stiffiness")
+        if isinstance(stiffiness, (int, float)):
+            bone_group.stiffiness = stiffiness
 
         gravity_power = bone_group_dict.get("gravityPower")
         if isinstance(gravity_power, (int, float)):

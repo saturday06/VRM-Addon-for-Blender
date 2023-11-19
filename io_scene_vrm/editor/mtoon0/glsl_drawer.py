@@ -232,10 +232,10 @@ class GlslDrawObj:
         GlslDrawObj.instance = self
         self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
         GlslDrawObj.materials = {}
-        self.main_executor = (  # pylint: disable=R1732 # noqa: SC100
+        self.main_executor = (  # pylint: disable=R1732
             ThreadPoolExecutor()  # TODO: Fix it!!!
         )
-        self.sub_executor = (  # pylint: disable=R1732 # noqa: SC100
+        self.sub_executor = (  # pylint: disable=R1732
             ThreadPoolExecutor()  # TODO: Fix it!!!
         )
 
