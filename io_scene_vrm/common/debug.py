@@ -15,5 +15,5 @@ def dump(v: Union[Matrix, Vector, Quaternion, float, int]) -> str:
     if isinstance(v, Vector):
         return f"({v.x:.3f},{v.y:.3f},{v.z:.3f})"
 
-    x, y, z = [round(math.degrees(xyz)) for xyz in v.to_euler()[:]]
+    x, y, z = (round(math.degrees(xyz)) for xyz in v.to_euler()[:])
     return f"Euler({x},{y},{z})"
