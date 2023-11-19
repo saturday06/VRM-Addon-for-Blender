@@ -504,7 +504,6 @@ def export_constraints(
         Union[
             bpy.types.CopyRotationConstraint,
             bpy.types.DampedTrackConstraint,
-            bpy.types.CopyRotationConstraint,
         ]
     ] = []
 
