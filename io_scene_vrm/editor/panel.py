@@ -1,3 +1,5 @@
+from collections.abc import Set
+
 import bpy
 from bpy.app.translations import pgettext
 
@@ -74,7 +76,7 @@ class VRM_PT_current_selected_armature(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options = {"HIDE_HEADER"}
+    bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
@@ -138,7 +140,7 @@ class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options = {"HIDE_HEADER"}
+    bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, _context: bpy.types.Context) -> bool:

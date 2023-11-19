@@ -1,3 +1,5 @@
+from collections.abc import Set
+
 import bpy
 from bpy.types import GizmoGroup
 
@@ -8,7 +10,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
     bl_label = "First Person Bone Offset Gizmo"
     bl_space_type = "VIEW_3D"
     bl_region_type = "WINDOW"
-    bl_options = {"3D", "PERSISTENT"}
+    bl_options: Set[str] = {"3D", "PERSISTENT"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:

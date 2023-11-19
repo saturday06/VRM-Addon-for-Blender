@@ -2,7 +2,7 @@ import functools
 from collections.abc import Sequence
 from dataclasses import dataclass
 from sys import float_info
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from mathutils import Vector
@@ -334,7 +334,7 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
         type=MeshObjectPropertyGroup,
         description="Mesh on restrict render in the first person camera",
     )
-    first_person_flag_items = [
+    first_person_flag_items = (
         ("Auto", "Auto", "Auto restrict render", 0),
         (
             "FirstPersonOnly",
@@ -349,10 +349,10 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
             2,
         ),
         ("Both", "Both", "No restrict render for body, arms or legs", 3),
-    ]
-    FIRST_PERSON_FLAG_VALUES = [
+    )
+    FIRST_PERSON_FLAG_VALUES = tuple(
         first_person_flag_item[0] for first_person_flag_item in first_person_flag_items
-    ]
+    )
     first_person_flag: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=first_person_flag_items,
         name="First Person Flag",
@@ -385,7 +385,7 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):
         name="Mesh Annotations",
         type=Vrm0MeshAnnotationPropertyGroup,
     )
-    look_at_type_name_items = [
+    look_at_type_name_items = (
         ("Bone", "Bone", "Use bones to eye movement", "BONE_DATA", 0),
         (
             "BlendShape",
@@ -394,10 +394,10 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):
             "SHAPEKEY_DATA",
             1,
         ),
-    ]
-    LOOK_AT_TYPE_NAME_VALUES = [
+    )
+    LOOK_AT_TYPE_NAME_VALUES = tuple(
         look_at_type_name_item[0] for look_at_type_name_item in look_at_type_name_items
-    ]
+    )
     look_at_type_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=look_at_type_name_items,
         name="Look At Type Name",
@@ -496,7 +496,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
         number: int
         default_blend_shape_group_name: str
 
-    presets = [
+    presets = (
         Preset("unknown", "Unknown", "", "SHAPEKEY_DATA", 0, "Unknown"),
         Preset("neutral", "Neutral", "", "VIEW_ORTHO", 1, "Neutral"),
         Preset("a", "A", "", "EVENT_A", 2, "A"),
@@ -515,14 +515,14 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
         Preset("lookright", "Look Right", "", "ANCHOR_LEFT", 15, "LookRight"),
         Preset("blink_l", "Blink_L", "", "HIDE_ON", 16, "Blink_L"),
         Preset("blink_r", "Blink_R", "", "HIDE_ON", 17, "Blink_R"),
-    ]
+    )
 
-    preset_name_items = [
+    preset_name_items = tuple(
         (preset.identifier, preset.name, preset.description, preset.icon, preset.number)
         for preset in presets
-    ]
+    )
 
-    PRESET_NAME_VALUES = [preset.identifier for preset in presets]
+    PRESET_NAME_VALUES = tuple(preset.identifier for preset in presets)
 
     preset_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=preset_name_items,
@@ -554,7 +554,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
 
     # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の変更ができないので、
     # 変更された値をここに保存しておく
-    frame_change_post_shape_key_updates: dict[tuple[str, str], float] = {}
+    frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
 
     def get_preview(self) -> float:
         value = self.get("preview")
@@ -824,44 +824,44 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
 class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
-    allowed_user_name_items = [
+    allowed_user_name_items = (
         ("OnlyAuthor", "Only Author", "", 0),
         ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", 1),
         ("Everyone", "Everyone", "", 2),
-    ]
-    ALLOWED_USER_NAME_VALUES = [
+    )
+    ALLOWED_USER_NAME_VALUES = tuple(
         allowed_user_name_item[0] for allowed_user_name_item in allowed_user_name_items
-    ]
+    )
 
-    violent_ussage_name_items = [  # noqa: SC200
+    violent_ussage_name_items = (  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
-    ]
-    VIOLENT_USSAGE_NAME_VALUES = [  # noqa: SC200
+    )
+    VIOLENT_USSAGE_NAME_VALUES = tuple(  # noqa: SC200
         violent_ussage_name_item[0]  # noqa: SC200
         for violent_ussage_name_item in violent_ussage_name_items  # noqa: SC200
-    ]
+    )
 
-    sexual_ussage_name_items = [  # noqa: SC200
+    sexual_ussage_name_items = (  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
-    ]
-    SEXUAL_USSAGE_NAME_VALUES = [  # noqa: SC200
+    )
+    SEXUAL_USSAGE_NAME_VALUES = tuple(  # noqa: SC200
         sexual_ussage_name_item[0]  # noqa: SC200
         for sexual_ussage_name_item in sexual_ussage_name_items  # noqa: SC200
-    ]
+    )
 
-    commercial_ussage_name_items = [  # noqa: SC200
+    commercial_ussage_name_items = (  # noqa: SC200
         ("Disallow", "Disallow", "", 0),
         ("Allow", "Allow", "", 1),
-    ]
-    COMMERCIAL_USSAGE_NAME_VALUES = [  # noqa: SC200
+    )
+    COMMERCIAL_USSAGE_NAME_VALUES = tuple(  # noqa: SC200
         commercial_ussage_name_item[0]  # noqa: SC200
         for commercial_ussage_name_item in commercial_ussage_name_items  # noqa: SC200
-    ]
+    )
 
     LICENSE_NAME_OTHER = "Other"
-    license_name_items = [
+    license_name_items = (
         ("Redistribution_Prohibited", "Redistribution Prohibited", "", 0),
         ("CC0", "CC0", "", 1),
         ("CC_BY", "CC BY", "", 2),
@@ -871,10 +871,10 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
         ("CC_BY_ND", "CC BY ND", "", 6),  # codespell-ignore
         ("CC_BY_NC_ND", "CC BY NC ND", "", 7),  # codespell-ignore
         (LICENSE_NAME_OTHER, "Other", "", 8),
-    ]
-    LICENSE_NAME_VALUES = [
+    )
+    LICENSE_NAME_VALUES = tuple(
         license_name_item[0] for license_name_item in license_name_items
-    ]
+    )
 
     title: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Title",

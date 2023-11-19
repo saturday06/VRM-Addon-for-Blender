@@ -1,4 +1,5 @@
 import math
+from collections.abc import Set
 from dataclasses import dataclass
 from pathlib import Path
 from sys import float_info
@@ -36,7 +37,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
     bl_idname = "vrm.convert_material_to_mtoon1"
     bl_label = "Convert Material to MToon 1.0"
     bl_description = "Convert Material to MToon 1.0"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -417,7 +418,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
     bl_idname = "vrm.convert_mtoon1_to_bsdf_principled"
     bl_label = "Convert MToon 1.0 to Principled BSDF"
     bl_description = "Convert MToon 1.0 to Principled BSDF"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -453,7 +454,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
     bl_idname = "vrm.reset_mtoon1_material_shader_node_group"
     bl_label = "Reset Shader Nodes"
     bl_description = "Reset MToon 1.0 Material Shader Node Tree"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -476,7 +477,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
     bl_idname = "vrm.import_mtoon1_texture_image_file"
     bl_label = "Open"
     bl_description = "Import Texture Image File"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filepath: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -510,7 +511,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         options={"HIDDEN"},
     )
 
-    target_texture_items = [
+    target_texture_items = (
         (Mtoon1BaseColorTexturePropertyGroup.__name__, "", "", "NONE", 0),
         (Mtoon1ShadeMultiplyTexturePropertyGroup.__name__, "", "", "NONE", 1),
         (Mtoon1NormalTexturePropertyGroup.__name__, "", "", "NONE", 2),
@@ -528,7 +529,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         (Mtoon1UvAnimationMaskTexturePropertyGroup.__name__, "", "", "NONE", 8),
         (Mtoon0ReceiveShadowTexturePropertyGroup.__name__, "", "", "NONE", 9),
         (Mtoon0ShadingGradeTexturePropertyGroup.__name__, "", "", "NONE", 10),
-    ]
+    )
 
     target_texture: bpy.props.EnumProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -642,7 +643,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
     bl_idname = "vrm.refresh_mtoon1_outline"
     bl_label = "Refresh MToon 1.0 Outline Width Mode"
     bl_description = "Import Texture Image File"
-    bl_options = {"UNDO"}
+    bl_options: Set[str] = {"UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}

@@ -304,7 +304,7 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
             @ Matrix.Diagonal(scale).to_4x4()
         )
 
-    axis_translation_items = [
+    axis_translation_items = (
         (AXIS_TRANSLATION_AUTO_ID, "Auto", "", "NONE", 0),
         (AXIS_TRANSLATION_NONE_ID, "None", "", "NONE", 1),
         (AXIS_TRANSLATION_X_TO_Y_ID, "X,Y to Y,-X", "", "NONE", 2),
@@ -312,7 +312,7 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
         (AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID, "X,Y to -X,-Y", "", "NONE", 4),
         (AXIS_TRANSLATION_Z_TO_Y_ID, "Y,Z to -Z,Y", "", "NONE", 5),
         (AXIS_TRANSLATION_MINUS_Z_TO_Y_ID, "Y,Z to Z,-Y", "", "NONE", 6),
-    ]
+    )
 
     axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=axis_translation_items,
@@ -366,10 +366,10 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
 
     SPEC_VERSION_VRM0 = "0.0"
     SPEC_VERSION_VRM1 = "1.0"
-    spec_version_items = [
+    spec_version_items = (
         (SPEC_VERSION_VRM0, "VRM 0.0", "", "NONE", 0),
         (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
-    ]
+    )
 
     def update_spec_version(self, _context: bpy.types.Context) -> None:
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:

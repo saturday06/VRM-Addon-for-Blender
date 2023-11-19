@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Set
 from sys import float_info
 from typing import TYPE_CHECKING
 
@@ -11,7 +12,7 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Collider"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -40,7 +41,7 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 0.x Collider"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -100,7 +101,7 @@ class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_spring"
     bl_label = "Add Spring"
     bl_description = "Add VRM 1.0 Spring"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -127,7 +128,7 @@ class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_spring"
     bl_label = "Remove Spring"
     bl_description = "Remove VRM 1.0 Spring"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -161,7 +162,7 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -191,7 +192,7 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -241,7 +242,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group Collider"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -275,7 +276,7 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group Collider"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -317,7 +318,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_spring_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Spring Collider Group"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -351,7 +352,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Collider Group"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -393,7 +394,7 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):
     bl_idname = "vrm.add_spring_bone1_spring_joint"
     bl_label = "Add Joint"
     bl_description = "Add VRM 1.0 Spring Bone Spring Joint"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -446,7 +447,7 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_joint"
     bl_label = "Remove Joint"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Joint"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -488,7 +489,7 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):
     bl_idname = "vrm.reset_spring_bone1_animation_state"
     bl_label = "Reset SpringBone Animation State"
     bl_description = "Reset SpringBone Animation State"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -517,7 +518,7 @@ class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):
     bl_idname = "vrm.update_spring_bone1_animation"
     bl_label = "Update SpringBone Animation"
     bl_description = "Update SpringBone Animation"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     delta_time: bpy.props.FloatProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},

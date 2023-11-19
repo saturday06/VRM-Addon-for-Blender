@@ -1,10 +1,11 @@
-from typing import Optional
+from collections.abc import Mapping
+from typing import ClassVar, Optional
 
 
 class MtoonUnversioned:
     # {key = MToonProp, val = ShaderNodeGroup_member_name}
     version = 32
-    float_props_exchange_dict: dict[str, Optional[str]] = {
+    float_props_exchange_dict: Mapping[str, Optional[str]] = {
         "_MToonVersion": None,
         "_Cutoff": "CutoffRate",
         "_BumpScale": "BumpScale",
@@ -35,7 +36,7 @@ class MtoonUnversioned:
         "_IsFirstSetup": None,
     }
 
-    texture_kind_exchange_dict: dict[str, str] = {
+    texture_kind_exchange_dict: Mapping[str, str] = {
         "_MainTex": "MainTexture",
         "_ShadeTexture": "ShadeTexture",
         "_BumpMap": "NormalmapTexture",
@@ -47,7 +48,7 @@ class MtoonUnversioned:
         "_OutlineWidthTexture": "OutlineWidthTexture",
         "_UvAnimMaskTexture": "UV_Animation_Mask_Texture",  # TODO ####
     }
-    vector_base_props_exchange_dict: dict[str, str] = {
+    vector_base_props_exchange_dict: Mapping[str, str] = {
         "_Color": "DiffuseColor",
         "_ShadeColor": "ShadeColor",
         "_EmissionColor": "EmissionColor",
@@ -55,6 +56,6 @@ class MtoonUnversioned:
         "_OutlineColor": "OutlineColor",
     }
     # texture offset and scaling props by texture
-    vector_props_exchange_dict: dict[str, str] = {}
+    vector_props_exchange_dict: ClassVar[dict[str, str]] = {}
     vector_props_exchange_dict.update(vector_base_props_exchange_dict)
     vector_props_exchange_dict.update(texture_kind_exchange_dict)

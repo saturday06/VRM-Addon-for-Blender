@@ -1,3 +1,4 @@
+from collections.abc import Set
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
@@ -73,7 +74,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
     bl_description = "Export VRM"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -274,7 +275,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options = {"HIDE_HEADER"}
+    bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
@@ -317,7 +318,7 @@ class VRM_PT_export_vrma_help(bpy.types.Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options = {"HIDE_HEADER"}
+    bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
@@ -347,7 +348,7 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.vrma"
     bl_label = "Export VRM Animation"
     bl_description = "Export VRM Animation"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrma"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -397,7 +398,7 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
 class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
     bl_label = "VRM Required Bones Assignment"
     bl_idname = "wm.vrm_export_human_bones_assignment"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -550,7 +551,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
 class WM_OT_vrm_export_confirmation(bpy.types.Operator):
     bl_label = "VRM Export Confirmation"
     bl_idname = "wm.vrm_export_confirmation"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
@@ -611,7 +612,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
 class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
     bl_label = "VRM Export Armature Selection"
     bl_idname = "wm.vrm_export_armature_selection"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -674,7 +675,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
 class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
     bl_label = "VRM Animation Export Prerequisite"
     bl_idname = "wm.vrma_export_prerequisite"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},

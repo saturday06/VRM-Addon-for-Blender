@@ -6,9 +6,10 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import ClassVar, Optional
 
 from ..vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ..vrm0.human_bone import HumanBoneSpecification as Vrm0HumanBoneSpecification
@@ -313,7 +314,7 @@ def create_and_append_human_bone_specification(
 
 
 class HumanBoneSpecifications:
-    all_human_bones: list[HumanBoneSpecification] = []
+    all_human_bones: ClassVar[list[HumanBoneSpecification]] = []
 
     # https://github.com/vrm-c/vrm-specification/blob/6a996eb151770149ea4534b1edb70d913bb4014e/specification/VRMC_vrm-1.0-beta/humanoid.md#list-of-humanoid-bones
     # Torso
@@ -711,11 +712,11 @@ class HumanBoneSpecifications:
         parent_requirement=True,
     )
 
-    human_bone_name_to_human_bone: dict[HumanBoneName, HumanBoneSpecification] = {
+    human_bone_name_to_human_bone: Mapping[HumanBoneName, HumanBoneSpecification] = {
         human_bone.name: human_bone for human_bone in all_human_bones
     }
 
-    all_names: list[str] = [b.name.value for b in all_human_bones]
+    all_names: tuple[str, ...] = tuple(b.name.value for b in all_human_bones)
 
     @staticmethod
     def get(name: HumanBoneName) -> HumanBoneSpecification:

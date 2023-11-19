@@ -1,9 +1,9 @@
 import functools
 import math
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from sys import float_info
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -542,7 +542,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
     )
     TYPE_VALUE_BONE = "bone"
     TYPE_VALUE_EXPRESSION = "expression"
-    type_items = [
+    type_items = (
         (TYPE_VALUE_BONE, "Bone", "Bone", "BONE_DATA", 0),
         (
             TYPE_VALUE_EXPRESSION,
@@ -551,7 +551,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
             "SHAPEKEY_DATA",
             1,
         ),
-    ]
+    )
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         name="Type",
         items=type_items,
@@ -850,12 +850,12 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=MeshObjectPropertyGroup
     )
-    type_items = [
+    type_items = (
         ("auto", "Auto", "", 0),
         ("both", "Both", "", 1),
         ("thirdPersonOnly", "Third-Person Only", "", 2),
         ("firstPersonOnly", "First-Person Only", "", 3),
-    ]
+    )
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=type_items,
         name="First Person Type",
@@ -909,14 +909,14 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
         type=bpy.types.Material,
     )
 
-    type_items: list[tuple[str, str, str, int]] = [
+    type_items: tuple[tuple[str, str, str, int], ...] = (
         ("color", "Color", "", 0),
         ("emissionColor", "Emission Color", "", 1),
         ("shadeColor", "Shade Color", "", 2),
         ("matcapColor", "Matcap Color", "", 5),
         ("rimColor", "Rim Color", "", 3),
         ("outlineColor", "Outline Color", "", 4),
-    ]
+    )
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         name="Type",
         items=type_items,
@@ -1001,15 +1001,15 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
         name="Is Binary"
     )
 
-    expression_override_type_items = [
+    expression_override_type_items = (
         ("none", "None", "", 0),
         ("block", "Block", "", 1),
         ("blend", "Blend", "", 2),
-    ]
-    EXPRESSION_OVERRIDE_TYPE_VALUES = [
+    )
+    EXPRESSION_OVERRIDE_TYPE_VALUES = tuple(
         expression_override_type_item[0]
         for expression_override_type_item in expression_override_type_items
-    ]
+    )
 
     override_blink: bpy.props.EnumProperty(  # type: ignore[valid-type]
         name="Override Blink",
@@ -1038,7 +1038,7 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
 
     # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の変更ができないので、
     # 変更された値をここに保存しておく
-    frame_change_post_shape_key_updates: dict[tuple[str, str], float] = {}
+    frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
 
     def get_preview(self) -> float:
         value = self.get("preview")
@@ -1194,7 +1194,7 @@ class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):
     look_left: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     look_right: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
 
-    NAME_TO_ICON_DICT = {
+    NAME_TO_ICON_DICT: Mapping[str, str] = {
         "happy": "HEART",
         "angry": "ORPHAN_DATA",
         "sad": "MOD_FLUIDSIM",
@@ -1295,40 +1295,40 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json
 class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
-    avatar_permission_items = [
+    avatar_permission_items = (
         ("onlyAuthor", "Only Author", "", 0),
         ("onlySeparatelyLicensedPerson", "Only Separately Licensed Person", "", 1),
         ("everyone", "Everyone", "", 2),
-    ]
-    AVATAR_PERMISSION_VALUES = [
+    )
+    AVATAR_PERMISSION_VALUES = tuple(
         avatar_permission_item[0] for avatar_permission_item in avatar_permission_items
-    ]
+    )
 
-    commercial_usage_items = [
+    commercial_usage_items = (
         ("personalNonProfit", "Personal Non-Profit", "", 0),
         ("personalProfit", "Personal Profit", "", 1),
         ("corporation", "Corporation", "", 2),
-    ]
-    COMMERCIAL_USAGE_VALUES = [
+    )
+    COMMERCIAL_USAGE_VALUES = tuple(
         commercial_usage_item[0] for commercial_usage_item in commercial_usage_items
-    ]
+    )
 
-    credit_notation_items = [
+    credit_notation_items = (
         ("required", "Required", "", 0),
         ("unnecessary", "Unnecessary", "", 1),
-    ]
-    CREDIT_NOTATION_VALUES = [
+    )
+    CREDIT_NOTATION_VALUES = tuple(
         credit_notation_item[0] for credit_notation_item in credit_notation_items
-    ]
+    )
 
-    modification_items = [
+    modification_items = (
         ("prohibited", "Prohibited", "", 0),
         ("allowModification", "Allow Modification", "", 1),
         ("allowModificationRedistribution", "Allow Modification Redistribution", "", 2),
-    ]
-    MODIFICATION_VALUES = [
+    )
+    MODIFICATION_VALUES = tuple(
         modification_item[0] for modification_item in modification_items
-    ]
+    )
 
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name"

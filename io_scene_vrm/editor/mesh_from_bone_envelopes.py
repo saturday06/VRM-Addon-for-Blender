@@ -1,3 +1,4 @@
+from collections.abc import Set
 from math import ceil
 
 import bpy
@@ -10,7 +11,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):
     bl_idname = "icyp.make_mesh_from_envelopes"
     bl_label = "(WIP)basic mesh for vrm"
     bl_description = "Create mesh along with a simple setup for VRM export"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     @classmethod
     def poll(cls, _context: bpy.types.Context) -> bool:

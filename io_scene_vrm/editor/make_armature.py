@@ -1,4 +1,4 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Sequence, Set
 from math import radians
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
@@ -25,7 +25,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "Create armature along with a simple setup for VRM export"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     skip_heavy_armature_setup: bpy.props.BoolProperty(  # type: ignore[valid-type]
         default=False,
@@ -920,14 +920,14 @@ class IcypTemplateMeshMaker:
 
         return [rot_matrix @ Vector(p) for p in points]
 
-    cube_loop = [
+    cube_loop = (
         [0, 1, 2, 3],
         [7, 6, 5, 4],
         [4, 5, 1, 0],
         [5, 6, 2, 1],
         [6, 7, 3, 2],
         [7, 4, 0, 3],
-    ]
+    )
 
     def half_cubic_points(
         self, xyz: Sequence[float], translation: Sequence[float]
@@ -958,13 +958,13 @@ class IcypTemplateMeshMaker:
             (x / 2 + tx, -y / 2 + ty, z + tz),
         )
 
-    cube_loop_half = [
+    cube_loop_half = (
         [0, 1, 2, 3],
         [7, 6, 5, 4],
         [5, 6, 2, 1],
         [6, 7, 3, 2],
         [7, 4, 0, 3],
-    ]
+    )
 
     def make_half_trapezoid(
         self,
@@ -1005,13 +1005,13 @@ class IcypTemplateMeshMaker:
         )
         return [matrix @ Vector(p) for p in points]
 
-    half_trapezoid_loop = [
+    half_trapezoid_loop = (
         [3, 2, 1, 0],
         [7, 2, 3, 6],
         [6, 5, 4, 7],
         [7, 4, 1, 2],
         [5, 4, 1, 0],
-    ]
+    )
 
     def make_trapezoid(
         self,
@@ -1063,11 +1063,11 @@ class IcypTemplateMeshMaker:
 
         return [rot_matrix @ Vector(p) for p in points]
 
-    trapezoid_poly_indices = [
+    trapezoid_poly_indices = (
         [3, 2, 1, 0],
         [6, 5, 4, 7],
         [5, 1, 0, 4],
         [6, 2, 1, 5],
         [7, 3, 2, 6],
         [4, 0, 3, 7],
-    ]
+    )

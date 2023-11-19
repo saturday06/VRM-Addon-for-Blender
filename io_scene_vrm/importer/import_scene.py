@@ -1,3 +1,4 @@
+from collections.abc import Set
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING, Union
@@ -71,7 +72,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
     bl_description = "Import VRM"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -176,7 +177,7 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options = {"HIDE_HEADER"}
+    bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
@@ -205,7 +206,7 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
 class WM_OT_vrm_license_confirmation(bpy.types.Operator):
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filepath: bpy.props.StringProperty()  # type: ignore[valid-type]
 
@@ -308,7 +309,7 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
     bl_idname = "import_scene.vrma"
     bl_label = "Import VRM Animation"
     bl_description = "Import VRM Animation"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrma"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -355,7 +356,7 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
 class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
     bl_label = "VRM Animation Import Prerequisite"
     bl_idname = "wm.vrma_import_prerequisite"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},

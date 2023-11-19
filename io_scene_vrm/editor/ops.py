@@ -7,6 +7,7 @@ https://opensource.org/licenses/mit-license.php
 import json
 import re
 import webbrowser
+from collections.abc import Set
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, TypeVar, cast
 from urllib.parse import urlparse
@@ -23,7 +24,7 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):
     bl_idname = "vrm.bones_rename"
     bl_label = "Symmetrize VRoid Bone Names on X-Axis"
     bl_description = "Make VRoid bone names X-axis mirror editable"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     left__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_L_")
     right_pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_R_")
@@ -84,7 +85,7 @@ class VRM_OT_add_extensions_to_armature(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_extensions"
     bl_label = "Add VRM attributes"
     bl_description = "Add VRM extensions & metas to armature"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
         obj = context.active_object
@@ -99,7 +100,7 @@ class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_humanbone_custom_property"
     bl_label = "Add VRM Human Bone prop"
     bl_description = ""
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty()  # type: ignore[valid-type]
     bone_name: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -124,7 +125,7 @@ class VRM_OT_add_required_human_bone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_req_humanbone_prop"
     bl_label = "Add vrm human_bone_prop"
     bl_description = ""
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
         obj = context.active_object
@@ -144,7 +145,7 @@ class VRM_OT_add_defined_human_bone_custom_property(bpy.types.Operator):
     bl_idname = "vrm.add_vrm_def_humanbone_prop"
     bl_label = "Add vrm human_bone_prop"
     bl_description = ""
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
         obj = context.active_object
@@ -163,7 +164,7 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):
     bl_idname = "vrm.save_human_bone_mappings"
     bl_label = "Save Bone Mappings"
     bl_description = "Save Bone Mappings"
-    bl_options = {"REGISTER"}
+    bl_options: Set[str] = {"REGISTER"}
 
     filename_ext = ".json"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -211,7 +212,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):
     bl_idname = "vrm.load_human_bone_mappings"
     bl_label = "Load Bone Mappings"
     bl_description = "Load Bone Mappings"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".json"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -271,7 +272,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(bpy.types.Operator):
     bl_idname = "vrm.lipsync_vrm"
     bl_label = "Make lipsync4VRC"
     bl_description = "Make lipsync from VRoid to VRC by json"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context) -> bool:
@@ -323,7 +324,7 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):
     bl_idname = "vrm.open_url_in_web_browser"
     bl_label = "Open"
     bl_description = "Open the URL in the default web browser"
-    bl_options = {"REGISTER", "UNDO"}
+    bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     url: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}

@@ -1,9 +1,9 @@
 from collections import Counter
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Sequence, Set
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import ClassVar, Optional
 
 import bpy
 from mathutils import Matrix, Vector
@@ -17,7 +17,7 @@ class ICYP_OT_draw_model(bpy.types.Operator):
     bl_idname = "vrm.model_draw"
     bl_label = "Preview MToon 0.0"
     bl_description = "Draw selected with MToon of GLSL"
-    bl_options = {"REGISTER"}
+    bl_options: Set[str] = {"REGISTER"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
         GlslDrawObj()
@@ -32,7 +32,7 @@ class ICYP_OT_remove_draw_model(bpy.types.Operator):
     bl_idname = "vrm.model_draw_remove"
     bl_label = "Remove MToon preview"
     bl_description = "remove draw function"
-    bl_options = {"REGISTER"}
+    bl_options: Set[str] = {"REGISTER"}
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
         GlslDrawObj.draw_func_remove()
@@ -215,23 +215,23 @@ class GlslDrawObj:
     executor = None
     toon_shader = None
     depth_shader = None
-    objs: list[bpy.types.Object] = []
+    objs: ClassVar[list[bpy.types.Object]] = []
     light = None
     offscreen = None
-    materials: dict[str, MtoonGlsl] = {}
+    materials: ClassVar[dict[str, MtoonGlsl]] = {}
     instance: Optional["GlslDrawObj"] = None
-    draw_objs: list[bpy.types.Object] = []
+    draw_objs: ClassVar[list[bpy.types.Object]] = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
-    bounding_center = [0.0, 0.0, 0.0]
-    bounding_size = [1.0, 1.0, 1.0]
+    bounding_center: ClassVar[list[float]] = [0.0, 0.0, 0.0]
+    bounding_size: ClassVar[list[float]] = [1.0, 1.0, 1.0]
 
     def __init__(self) -> None:
         import gpu
 
         GlslDrawObj.instance = self
         self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
-        self.materials = {}
+        GlslDrawObj.materials = {}
         self.main_executor = (  # pylint: disable=R1732 # noqa: SC100
             ThreadPoolExecutor()  # TODO: Fix it!!!
         )
@@ -239,7 +239,7 @@ class GlslDrawObj:
             ThreadPoolExecutor()  # TODO: Fix it!!!
         )
 
-    scene_meshes: list[GlMesh] = []
+    scene_meshes: ClassVar[list[GlMesh]] = []
 
     @staticmethod
     def build_scene(_dummy: object = None) -> None:
@@ -250,7 +250,7 @@ class GlslDrawObj:
             glsl_draw_obj = GlslDrawObj.instance
         if glsl_draw_obj is None:
             return
-        glsl_draw_obj.objs = list(glsl_draw_obj.draw_objs)
+        GlslDrawObj.objs = list(glsl_draw_obj.draw_objs)
         lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
         if not lights:
             GlslDrawObj.draw_func_remove()
@@ -265,7 +265,7 @@ class GlslDrawObj:
                         mat_slot.material
                     )
         # if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier implementation
-        glsl_draw_obj.scene_meshes = []
+        GlslDrawObj.scene_meshes = []
         glsl_draw_obj.draw_x_offset = 0
         for obj in glsl_draw_obj.objs:
             if glsl_draw_obj.draw_x_offset < obj.bound_box[4][0] * 2:
@@ -277,10 +277,10 @@ class GlslDrawObj:
                         bounding_box_xyz[0][i] = xyz
                     if bounding_box_xyz[1][i] > xyz:
                         bounding_box_xyz[1][i] = xyz
-            glsl_draw_obj.bounding_center = [
+            GlslDrawObj.bounding_center = [
                 (i + n) / 2 for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
             ]
-            glsl_draw_obj.bounding_size = [
+            GlslDrawObj.bounding_size = [
                 i - n for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
             ]
 

@@ -6,9 +6,10 @@ https://opensource.org/licenses/mit-license.php
 """
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import ClassVar, Optional
 
 
 # https://github.com/vrm-c/vrm-specification/tree/b5793b4ca250ed3acbde3dd7a47ee9ee1b3d60e9/specification/0.0#vrm-extension-models-bone-mapping-jsonextensionsvrmhumanoid
@@ -297,7 +298,7 @@ def create_and_append_human_bone_specification(
 
 
 class HumanBoneSpecifications:
-    all_human_bones: list[HumanBoneSpecification] = []
+    all_human_bones: ClassVar[list[HumanBoneSpecification]] = []
 
     # https://github.com/vrm-c/vrm-specification/tree/b5793b4ca250ed3acbde3dd7a47ee9ee1b3d60e9/specification/0.0#vrm-extension-models-bone-mapping-jsonextensionsvrmhumanoid
     # Torso
@@ -475,41 +476,43 @@ class HumanBoneSpecifications:
         all_human_bones, HumanBoneName.RIGHT_LITTLE_DISTAL, False
     )
 
-    human_bone_name_to_human_bone: dict[HumanBoneName, HumanBoneSpecification] = {
+    human_bone_name_to_human_bone: Mapping[HumanBoneName, HumanBoneSpecification] = {
         human_bone.name: human_bone for human_bone in all_human_bones
     }
 
-    all_names: list[str] = [b.name.value for b in all_human_bones]
+    all_names = tuple(b.name.value for b in all_human_bones)
 
-    required_names: list[str] = [b.name.value for b in all_human_bones if b.requirement]
+    required_names = tuple(b.name.value for b in all_human_bones if b.requirement)
 
-    optional_names: list[str] = [
-        b.name.value for b in all_human_bones if not b.requirement
-    ]
+    optional_names = tuple(b.name.value for b in all_human_bones if not b.requirement)
 
     @staticmethod
     def get(name: HumanBoneName) -> HumanBoneSpecification:
         return HumanBoneSpecifications.human_bone_name_to_human_bone[name]
 
-    center_req = [b.name.value for b in [HIPS, SPINE, CHEST, NECK, HEAD]]
-    left_leg_req = [b.name.value for b in [LEFT_UPPER_LEG, LEFT_LOWER_LEG, LEFT_FOOT]]
-    left_arm_req = [b.name.value for b in [LEFT_UPPER_ARM, LEFT_LOWER_ARM, LEFT_HAND]]
-    right_leg_req = [
+    center_req = tuple(b.name.value for b in [HIPS, SPINE, CHEST, NECK, HEAD])
+    left_leg_req = tuple(
+        b.name.value for b in [LEFT_UPPER_LEG, LEFT_LOWER_LEG, LEFT_FOOT]
+    )
+    left_arm_req = tuple(
+        b.name.value for b in [LEFT_UPPER_ARM, LEFT_LOWER_ARM, LEFT_HAND]
+    )
+    right_leg_req = tuple(
         b.name.value for b in [RIGHT_UPPER_LEG, RIGHT_LOWER_LEG, RIGHT_FOOT]
-    ]
-    right_arm_req = [
+    )
+    right_arm_req = tuple(
         b.name.value for b in [RIGHT_UPPER_ARM, RIGHT_LOWER_ARM, RIGHT_HAND]
-    ]
+    )
 
-    requires = [
+    requires = (
         *center_req[:],
         *left_leg_req[:],
         *right_leg_req[:],
         *left_arm_req[:],
         *right_arm_req[:],
-    ]
+    )
 
-    left_arm_def = [
+    left_arm_def = tuple(
         b.name.value
         for b in [
             LEFT_SHOULDER,
@@ -529,9 +532,9 @@ class HumanBoneSpecifications:
             LEFT_LITTLE_INTERMEDIATE,
             LEFT_LITTLE_DISTAL,
         ]
-    ]
+    )
 
-    right_arm_def = [
+    right_arm_def = tuple(
         b.name.value
         for b in [
             RIGHT_SHOULDER,
@@ -551,11 +554,11 @@ class HumanBoneSpecifications:
             RIGHT_LITTLE_INTERMEDIATE,
             RIGHT_LITTLE_DISTAL,
         ]
-    ]
-    center_def = [UPPER_CHEST.name.value, JAW.name.value]
-    left_leg_def = [LEFT_TOES.name.value]
-    right_leg_def = [RIGHT_TOES.name.value]
-    defines = [
+    )
+    center_def = (UPPER_CHEST.name.value, JAW.name.value)
+    left_leg_def = (LEFT_TOES.name.value,)
+    right_leg_def = (RIGHT_TOES.name.value,)
+    defines = (
         LEFT_EYE.name.value,
         RIGHT_EYE.name.value,
         *center_def[:],
@@ -563,4 +566,4 @@ class HumanBoneSpecifications:
         *right_leg_def[:],
         *left_arm_def[:],
         *right_arm_def[:],
-    ]
+    )

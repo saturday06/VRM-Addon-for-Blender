@@ -1,5 +1,6 @@
 import datetime
 import importlib
+from collections.abc import Set
 
 import bpy
 
@@ -12,7 +13,7 @@ import bpy
 class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):
     bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.vrm_gltf2_addon_disabled_warning"
-    bl_options = {"REGISTER"}
+    bl_options: Set[str] = {"REGISTER"}
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
         return {"FINISHED"}

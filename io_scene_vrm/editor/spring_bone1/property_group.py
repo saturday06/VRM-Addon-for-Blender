@@ -316,10 +316,10 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
 
     SHAPE_TYPE_SPHERE = "Sphere"
     SHAPE_TYPE_CAPSULE = "Capsule"
-    shape_type_items = [
+    shape_type_items = (
         (SHAPE_TYPE_SPHERE, "Sphere", "", 0),
         (SHAPE_TYPE_CAPSULE, "Capsule", "", 1),
-    ]
+    )
 
     def update_shape_type(self, context: bpy.types.Context) -> None:
         if (
