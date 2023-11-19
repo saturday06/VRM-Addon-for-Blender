@@ -4,7 +4,7 @@ from typing import Union
 from mathutils import Matrix, Quaternion, Vector
 
 
-def dump(v: Union[Matrix, Vector, Quaternion, float, int]) -> str:
+def dump(v: Union[Matrix, Vector, Quaternion, float]) -> str:
     if isinstance(v, (float, int)):
         return str(v)
 
