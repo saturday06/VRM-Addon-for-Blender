@@ -117,7 +117,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             raise AssertionError("armature is not set")
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not an Armature")
+            raise TypeError(f"{type(armature_data)} is not an Armature")
         return armature_data
 
     def export_vrm(self) -> Optional[bytes]:

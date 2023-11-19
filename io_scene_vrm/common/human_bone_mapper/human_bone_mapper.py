@@ -61,7 +61,7 @@ def match_counts(
     armature: object, mapping: dict[str, HumanBoneSpecification]
 ) -> tuple[int, int]:
     if not isinstance(armature, bpy.types.Armature):
-        raise AssertionError(f"{type(armature)} is not an Armature")
+        raise TypeError(f"{type(armature)} is not an Armature")
     required_mapping = {
         bpy_name: required_specification
         for bpy_name, required_specification in mapping.items()

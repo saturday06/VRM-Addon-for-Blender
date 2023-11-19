@@ -59,7 +59,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.armature = armatures[0]
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not an Armature")
+            raise TypeError(f"{type(armature_data)} is not an Armature")
 
         for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
             if not collider.bpy_object:
@@ -166,7 +166,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not an Armature")
+            raise TypeError(f"{type(armature_data)} is not an Armature")
 
         mesh = bpy.data.meshes.new(self.export_id + "_mesh")
         mesh.from_pydata(vertices, edges, faces)
@@ -181,7 +181,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
         modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
         if not isinstance(modifier, bpy.types.ArmatureModifier):
-            raise AssertionError(f"{type(modifier)} is not a ArmatureModifier")
+            raise TypeError(f"{type(modifier)} is not a ArmatureModifier")
         modifier.object = self.armature
         self.context.scene.collection.objects.link(obj)
         obj[self.extras_object_name_key] = obj.name
@@ -1954,7 +1954,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not an Armature")
+            raise TypeError(f"{type(armature_data)} is not an Armature")
 
         vrm = armature_data.vrm_addon_extension.vrm1
         backup_human_bone_name_to_bone_name = self.setup_dummy_human_bones(

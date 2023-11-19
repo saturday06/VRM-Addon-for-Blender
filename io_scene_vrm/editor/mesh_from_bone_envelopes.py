@@ -139,7 +139,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):
                 raise ValueError("No node tree")
             node_group = material.node_tree.nodes.new("ShaderNodeGroup")
             if not isinstance(node_group, bpy.types.ShaderNodeGroup):
-                raise AssertionError(
+                raise TypeError(
                     f"{type(node_group)} is not a bpy.types.ShaderNodeGroup"
                 )
             node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
@@ -156,7 +156,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):
                 sg.outputs["Emission"],
             )
         if not isinstance(obj.data, bpy.types.Mesh):
-            raise AssertionError(f"{type(obj.data)} is not a Mesh")
+            raise TypeError(f"{type(obj.data)} is not a Mesh")
         obj.data.materials.append(b_mat)
 
         bpy.ops.object.mode_set(mode="OBJECT")

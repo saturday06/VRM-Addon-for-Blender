@@ -157,7 +157,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     def float_prop(self, name: str) -> float:
         prop = getattr(self, name)
         if not isinstance(prop, float):
-            raise ValueError(f"prop {name} is not float")
+            raise TypeError(f"prop {name} is not float")
         return prop
 
     def head_size(self) -> float:
@@ -175,7 +175,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             raise ValueError("armature is not created")
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise ValueError("armature data is not an Armature")
+            raise TypeError("armature data is not an Armature")
         armature_data.vrm_addon_extension.addon_version = addon_version()
 
         bone_dict = {}
@@ -190,7 +190,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         ) -> bpy.types.EditBone:
             armature_data = armature.data
             if not isinstance(armature_data, bpy.types.Armature):
-                raise ValueError("armature data is not an Armature")
+                raise TypeError("armature data is not an Armature")
             added_bone = armature_data.edit_bones.new(name)
             added_bone.head = head_pos
             added_bone.tail = tail_pos
@@ -697,7 +697,7 @@ class IcypTemplateMeshMaker:
             raise AssertionError("armature obj is None")
         armature_data = armature_obj.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not a Armature")
+            raise TypeError(f"{type(armature_data)} is not a Armature")
 
         tmp_dict = {
             v.bone: i
@@ -756,7 +756,7 @@ class IcypTemplateMeshMaker:
             raise AssertionError("armature obj is None")
         armature_data = armature_obj.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not a Armature")
+            raise TypeError(f"{type(armature_data)} is not a Armature")
 
         bm = bmesh.new()
         head_size = self.head_size

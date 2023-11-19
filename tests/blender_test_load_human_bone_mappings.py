@@ -17,7 +17,7 @@ def test() -> None:
         raise AssertionError
     data = active_object.data
     if not isinstance(data, bpy.types.Armature):
-        raise AssertionError
+        raise TypeError
 
     b = next(
         human_bone

@@ -102,7 +102,7 @@ def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
 
     preferences = addon.preferences
     if not isinstance(preferences, VrmAddonPreferences):
-        raise AssertionError(
+        raise TypeError(
             f"Add-on preferences for {addon_package_name} is not a VrmAddonPreferences"
             + f" but {type(preferences)}"
         )

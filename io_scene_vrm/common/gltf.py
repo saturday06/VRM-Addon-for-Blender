@@ -65,7 +65,7 @@ def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
 
     json_obj = json.loads(json_str)
     if not isinstance(json_obj, dict):
-        raise ValueError("VRM has invalid json: " + str(json_obj))
+        raise TypeError("VRM has invalid json: " + str(json_obj))
     return json_obj, body if body else bytes()
 
 

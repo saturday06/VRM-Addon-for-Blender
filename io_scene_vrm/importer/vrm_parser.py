@@ -242,7 +242,7 @@ def decode_bin(
             accessor_count = 0
         component_type = accessor_dict.get("componentType")
         if not isinstance(component_type, int):
-            raise ValueError(f"Unsupported component type: {component_type}")
+            raise TypeError(f"Unsupported component type: {component_type}")
         for _ in range(accessor_count):
             if type_num == 1:
                 single_data = br.read_as_data_type(component_type)
@@ -302,7 +302,7 @@ class VrmParser:
 
         human_bones = deep.get(vrm0_dict, ["humanoid", "humanBones"], [])
         if not isinstance(human_bones, list):
-            raise ValueError("No human bones")
+            raise TypeError("No human bones")
 
         hips_node_index: Optional[int] = None
         for human_bone in human_bones:

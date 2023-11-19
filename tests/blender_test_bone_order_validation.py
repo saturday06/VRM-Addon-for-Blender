@@ -7,7 +7,7 @@ def test() -> None:
     assert len(armatures) == 1
     armature = armatures[0]
     if not isinstance(armature.data, bpy.types.Armature):
-        raise AssertionError
+        raise TypeError
 
     humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}

@@ -91,7 +91,7 @@ class MtoonGlsl:
             raise ValueError("empty links")
         from_node = links[0].from_node
         if not isinstance(from_node, bpy.types.ShaderNodeTexImage):
-            raise ValueError("not ShaderNodeTexImage")
+            raise TypeError("Not a ShaderNodeTexImage")
         if from_node.image is not None:
             if (
                 default_color != "normal"

@@ -10,7 +10,7 @@ def test() -> None:
     assert len(armatures) == 1
     armature = armatures[0]
     if not isinstance(armature.data, bpy.types.Armature):
-        raise AssertionError
+        raise TypeError
 
     human_bones = armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
 

@@ -87,7 +87,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     ) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not an Armature")
+            raise TypeError(f"{type(armature_data)} is not an Armature")
         humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
         humanoid.check_last_bone_names_and_update(armature_data.name, defer=readonly)
         for human_bone in humanoid.human_bones:
@@ -116,7 +116,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     ) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not an Armature")
+            raise TypeError(f"{type(armature_data)} is not an Armature")
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bones.check_last_bone_names_and_update(armature_data.name, defer=readonly)
         for (
@@ -150,7 +150,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     ) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise AssertionError(f"{type(armature_data)} is not an Armature")
+            raise TypeError(f"{type(armature_data)} is not an Armature")
         if armature_data.vrm_addon_extension.is_vrm0():
             WM_OT_vrm_validator.validate_bone_order_vrm0(messages, armature, readonly)
         else:

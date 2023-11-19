@@ -232,9 +232,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         ext = material.vrm_addon_extension.mtoon1
         property_group = functools.reduce(getattr, chain, ext)
         if not isinstance(property_group, Mtoon1TextureInfoPropertyGroup):
-            raise ValueError(
-                f"{property_group} is not a Mtoon1TextureInfoPropertyGroup"
-            )
+            raise TypeError(f"{property_group} is not a Mtoon1TextureInfoPropertyGroup")
         return property_group
 
     def get_texture_node_name(self, extra: str) -> str:
