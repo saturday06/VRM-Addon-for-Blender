@@ -1140,14 +1140,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         bone_heuristic=bone_heuristic,
                         guess_original_bind_pose=False,
                     )
-                except RuntimeError as e:
+                except RuntimeError:
                     logger.exception(
                         f'Failed to import "{indexed_vrm_filepath}"'
                         + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
                         + " without animations key"
                     )
                     self.cleanup_gltf2_with_indices()
-                    raise e
+                    raise
 
         extras_node_index_key = self.import_id + "Nodes"
         for obj in self.context.selectable_objects:
