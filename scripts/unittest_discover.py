@@ -34,7 +34,7 @@ def run(stream: TextIO) -> None:
 
 
 if sys.platform == "win32":
-    with open(
+    with open(  # noqa: PTH123
         sys.stderr.fileno(), mode="w", encoding="ansi", buffering=1
     ) as windows_stderr:
         run(windows_stderr)

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from importlib.util import module_from_spec, spec_from_file_location
-from os.path import getmtime
 from pathlib import Path
 from sys import float_info
 from typing import Optional
@@ -64,7 +63,7 @@ def blender_restart_required() -> bool:
         return True
 
     root_init_py_path = Path(__file__).parent.parent / "__init__.py"
-    root_init_py_modification_time = getmtime(root_init_py_path)
+    root_init_py_modification_time = Path(root_init_py_path).stat().st_mtime
     if (
         abs(cache.last_root_init_py_modification_time - root_init_py_modification_time)
         < float_info.epsilon

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import contextlib
-import os
 import re
 import sys
 import uuid
@@ -177,7 +176,7 @@ def generate_dynamic_test(test_src_dir: Path, path: str) -> None:
     # It should be an atomic operation
     temp_out_path = out_path.with_name(out_path.name + f".{uuid.uuid4().hex}.temp")
     temp_out_path.write_bytes(content_bytes)
-    os.replace(temp_out_path, out_path)
+    Path.replace(temp_out_path, out_path)
 
 
 def generate_dynamic_tests() -> None:
@@ -210,7 +209,7 @@ def generate_dynamic_gui_tests() -> None:
     # It should be an atomic operation
     temp_out_path = out_path.with_name(out_path.name + f".{uuid.uuid4().hex}.temp")
     temp_out_path.write_bytes(content_bytes)
-    os.replace(temp_out_path, out_path)
+    Path.replace(temp_out_path, out_path)
 
 
 if __name__ in ["__main__", "blender_vrm_addon_run_scripts_generate_dynamic_tests"]:

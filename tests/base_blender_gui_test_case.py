@@ -76,8 +76,11 @@ class BaseBlenderGuiTestCase(TestCase):
             else:
                 self.skipTest(message)
             return
-        with open("var/repository_root_path_hash.txt", "rt", encoding="ascii") as f:
-            container_hash = f.read().strip()
+        container_hash = (
+            Path("var/repository_root_path_hash.txt")
+            .read_text(encoding="ascii")
+            .strip()
+        )
 
         commands = [
             "docker",

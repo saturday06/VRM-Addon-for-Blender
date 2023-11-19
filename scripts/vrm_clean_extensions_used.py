@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
-import glob
 import sys
+from pathlib import Path
 
 from io_scene_vrm.common import deep, gltf
 from io_scene_vrm.common.deep import Json
 
 
-def clean(path: str) -> None:
-    with open(path, "rb") as f:
-        input_bin = f.read()
+def clean(path: Path) -> None:
+    input_bin = path.read_bytes()
 
     json_dict, binary_chunk = gltf.parse_glb(input_bin)
 
@@ -55,12 +54,11 @@ def clean(path: str) -> None:
 
     output_bin = gltf.pack_glb(json_dict, binary_chunk)
 
-    with open(path, "wb") as f:
-        f.write(output_bin)
+    path.write_bytes(output_bin)
 
 
 def main() -> int:
-    for path in glob.glob("**/*.vrm", recursive=True):
+    for path in Path.cwd().rglob("**/*.vrm"):
         print(f"===== {path} =====")
         clean(path)
     return 0
