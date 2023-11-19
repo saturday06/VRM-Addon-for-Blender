@@ -15,11 +15,12 @@ def frame_change_pre(_dummy: object) -> None:
 @persistent
 def frame_change_post(_dummy: object) -> None:
     for (
-        shape_key_name,
-        key_block_name,
-    ), value in (
-        Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.items()
-    ):
+        (
+            shape_key_name,
+            key_block_name,
+        ),
+        value,
+    ) in Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.items():
         shape_key = bpy.data.shape_keys.get(shape_key_name)
         if not shape_key:
             continue

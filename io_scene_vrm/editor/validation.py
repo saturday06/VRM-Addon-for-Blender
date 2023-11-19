@@ -645,12 +645,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 ):
                     continue
 
-                base_scale = (
-                    gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale
-                )
-                base_offset = (
-                    gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset
-                )
+                base_scale = gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale
+                base_offset = gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset
                 scale = texture_info.extensions.khr_texture_transform.scale
                 offset = texture_info.extensions.khr_texture_transform.offset
                 if texture_info == gltf.extensions.vrmc_materials_mtoon.matcap_texture:

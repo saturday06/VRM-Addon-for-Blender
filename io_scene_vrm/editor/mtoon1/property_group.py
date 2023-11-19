@@ -1150,9 +1150,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
     colorspace = "Non-Color"
 
     def update_source(self, context: bpy.types.Context) -> None:
-        mtoon = (
-            self.find_material().vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
-        )
+        mtoon = self.find_material().vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
         mtoon.update_outline_geometry(context)
         super().update_source(context)
 

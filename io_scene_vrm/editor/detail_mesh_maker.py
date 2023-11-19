@@ -76,92 +76,139 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
         return armature_data.bones[str(armature_data[bone])]
 
     face_center_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=1, min=0.2, max=1, soft_min=0.6, name="Face center ratio"  # noqa: F722
+        default=1,
+        min=0.2,
+        max=1,
+        soft_min=0.6,
+        name="Face center ratio",  # noqa: F722
     )
     if TYPE_CHECKING:
         face_center_ratio: float  # type: ignore[no-redef]
 
     eye_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=2, min=0.5, max=4, name="Eye width ratio"  # noqa: F722
+        default=2,
+        min=0.5,
+        max=4,
+        name="Eye width ratio",  # noqa: F722
     )
     if TYPE_CHECKING:
         eye_width_ratio: float  # type: ignore[no-redef]
 
     nose_head_height: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=1, min=0, max=1, name="nose head"  # noqa: F722
+        default=1,
+        min=0,
+        max=1,
+        name="nose head",  # noqa: F722
     )
     if TYPE_CHECKING:
         nose_head_height: float  # type: ignore[no-redef]
 
     nose_top_pos: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.2, min=0, max=0.6, name="nose top position"  # noqa: F722
+        default=0.2,
+        min=0,
+        max=0.6,
+        name="nose top position",  # noqa: F722
     )
     if TYPE_CHECKING:
         nose_top_pos: float  # type: ignore[no-redef]
 
     nose_height: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.015, min=0.01, max=0.1, step=1, name="nose height"  # noqa: F722
+        default=0.015,
+        min=0.01,
+        max=0.1,
+        step=1,
+        name="nose height",  # noqa: F722
     )
     if TYPE_CHECKING:
         nose_height: float  # type: ignore[no-redef]
 
     nose_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.5, min=0.01, max=1, name="nose width"  # noqa: F722
+        default=0.5,
+        min=0.01,
+        max=1,
+        name="nose width",  # noqa: F722
     )
     if TYPE_CHECKING:
         nose_width: float  # type: ignore[no-redef]
 
     eye_depth: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.01, min=0.01, max=0.1, name="Eye depth"  # noqa: F722
+        default=0.01,
+        min=0.01,
+        max=0.1,
+        name="Eye depth",  # noqa: F722
     )
     if TYPE_CHECKING:
         eye_depth: float  # type: ignore[no-redef]
 
     eye_angle: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=radians(15), min=0, max=0.55, name="Eye angle"  # noqa: F722
+        default=radians(15),
+        min=0,
+        max=0.55,
+        name="Eye angle",  # noqa: F722
     )
     if TYPE_CHECKING:
         eye_angle: float  # type: ignore[no-redef]
 
     eye_rotate: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.43, min=0, max=0.86, name="Eye rotation"  # noqa: F722
+        default=0.43,
+        min=0,
+        max=0.86,
+        name="Eye rotation",  # noqa: F722
     )
     if TYPE_CHECKING:
         eye_rotate: float  # type: ignore[no-redef]
 
     cheek_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.5, min=0, max=1, name="cheek position"  # noqa: F722
+        default=0.5,
+        min=0,
+        max=1,
+        name="cheek position",  # noqa: F722
     )
     if TYPE_CHECKING:
         cheek_ratio: float  # type: ignore[no-redef]
 
     cheek_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.85, min=0.5, max=1, name="cheek width ratio"  # noqa: F722
+        default=0.85,
+        min=0.5,
+        max=1,
+        name="cheek width ratio",  # noqa: F722
     )
     if TYPE_CHECKING:
         cheek_width: float  # type: ignore[no-redef]
 
     mouth_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.5, min=0.3, max=0.9, name="Mouth width"  # noqa: F722
+        default=0.5,
+        min=0.3,
+        max=0.9,
+        name="Mouth width",  # noqa: F722
     )
     if TYPE_CHECKING:
         mouth_width_ratio: float  # type: ignore[no-redef]
 
     # 口角結節
     mouth_corner_nodule: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.1, min=0.01, max=1, name="oris width"  # noqa: F722
+        default=0.1,
+        min=0.01,
+        max=1,
+        name="oris width",  # noqa: F722
     )
     if TYPE_CHECKING:
         mouth_corner_nodule: float  # type: ignore[no-redef]
 
     mouth_position_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=2 / 3, min=0.3, max=0.7, name="Mouth position"  # noqa: F722
+        default=2 / 3,
+        min=0.3,
+        max=0.7,
+        name="Mouth position",  # noqa: F722
     )
     if TYPE_CHECKING:
         mouth_position_ratio: float  # type: ignore[no-redef]
 
     mouth_flatten: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=0.1, min=0.0, max=1, name="Mouth flat"  # noqa: F722
+        default=0.1,
+        min=0.0,
+        max=1,
+        name="Mouth flat",  # noqa: F722
     )
     if TYPE_CHECKING:
         mouth_flatten: float  # type: ignore[no-redef]

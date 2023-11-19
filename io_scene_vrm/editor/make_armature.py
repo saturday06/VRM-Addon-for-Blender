@@ -39,12 +39,18 @@ class ICYP_OT_make_armature(bpy.types.Operator):
 
     # 身長 at meter
     tall: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=1.70, min=0.3, step=1, name="Bone tall"  # noqa: F722
+        default=1.70,
+        min=0.3,
+        step=1,
+        name="Bone tall",  # noqa: F722
     )
 
     # 頭身
     head_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        default=8.0, min=4, step=5, description="height per heads"  # noqa: F722
+        default=8.0,
+        min=4,
+        step=5,
+        description="height per heads",  # noqa: F722
     )
 
     head_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -107,7 +113,8 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     )
 
     nail_bone: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        default=False, description="may need for finger collider"  # noqa: F722
+        default=False,
+        description="may need for finger collider",  # noqa: F722
     )  # 指先の当たり判定として必要
 
     # 足

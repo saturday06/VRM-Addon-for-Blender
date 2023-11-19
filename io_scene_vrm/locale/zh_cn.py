@@ -12,7 +12,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Official add-on "glTF 2.0 format" is required. Please enable it.',
     ): "请保证glTF 2.0 插件打开",
-    ("*", "For more information please check following URL."): "更多的信息请检查下方链接",
+    (
+        "*",
+        "For more information please check following URL.",
+    ): "更多的信息请检查下方链接",
     ("*", "Import Anyway"): "坚持导入",
     ("*", "A light is required"): "需要灯光",
     ("*", "License Confirmation"): "许可确认",
@@ -69,8 +72,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
         + "Add weight to parent bone automatically.",
-    ): "「{mesh_name}」的顶点id「{vertex_index}」无权重。"
-    + "自动添加权重到父级骨骼。",
+    ): "「{mesh_name}」的顶点id「{vertex_index}」无权重。" + "自动添加权重到父级骨骼。",
     (
         "*",
         'vertex index "{vertex_index}" has too many(over 4) weight in "{mesh_name}". '
@@ -87,8 +89,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         '"{image_name}" is not found in file path "{image_filepath}". '
         + "Please load file of it in Blender.",
-    ): '「{image_name}」在「"{image_filepath}"」未找到'
-    + "请加载文件到Blender。",
+    ): '「{image_name}」在「"{image_filepath}"」未找到' + "请加载文件到Blender。",
     (
         "*",
         "firstPersonBone is not found. "

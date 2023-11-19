@@ -167,7 +167,8 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):
 
     filename_ext = ".json"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.json", options={"HIDDEN"}  # noqa: F722,F821
+        default="*.json",  # noqa: F722
+        options={"HIDDEN"},  # noqa: F821
     )
 
     @classmethod
@@ -214,7 +215,8 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".json"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.json", options={"HIDDEN"}  # noqa: F722,F821
+        default="*.json",  # noqa: F722
+        options={"HIDDEN"},  # noqa: F821
     )
 
     @classmethod

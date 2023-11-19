@@ -177,8 +177,7 @@ class MtoonGlsl:
                 self.texture_dict[k] = self.get_texture(k, "black")
             elif (
                 # Support old version that had typo
-                k
-                in ["NormalmapTexture", "NomalmapTexture"]
+                k in ["NormalmapTexture", "NomalmapTexture"]
             ):
                 self.texture_dict[k] = self.get_texture(k, "normal")
             else:

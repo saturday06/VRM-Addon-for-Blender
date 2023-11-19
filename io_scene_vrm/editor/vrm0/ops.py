@@ -43,7 +43,8 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     mesh_annotation_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -78,7 +79,8 @@ class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -113,10 +115,12 @@ class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -157,10 +161,12 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -201,13 +207,16 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     target_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -252,7 +261,8 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -287,10 +297,12 @@ class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -329,7 +341,8 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(bpy.types.Oper
         options={"HIDDEN"}  # noqa: F821
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     bone_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}  # noqa: F821
@@ -383,10 +396,12 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(
         options={"HIDDEN"}  # noqa: F821
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -429,7 +444,8 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -464,10 +480,12 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     bone_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -506,7 +524,8 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operato
         options={"HIDDEN"}  # noqa: F821
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -541,10 +560,12 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(bpy.types.Oper
         options={"HIDDEN"}  # noqa: F821
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -593,9 +614,7 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
-        blend_shape_group = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups.add()
-        )
+        blend_shape_group = armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups.add()
         blend_shape_group.name = self.name
         return {"FINISHED"}
 
@@ -616,7 +635,8 @@ class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -651,7 +671,8 @@ class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -681,7 +702,8 @@ class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -723,9 +745,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
-        collider_group = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups.add()
-        )
+        collider_group = armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
         collider_group.refresh(armature)
         return {"FINISHED"}
@@ -746,7 +766,8 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         options={"HIDDEN"}  # noqa: F821
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        min=0, options={"HIDDEN"}  # noqa: F821
+        min=0,
+        options={"HIDDEN"},  # noqa: F821
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:

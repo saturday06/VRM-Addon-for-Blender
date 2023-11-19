@@ -75,7 +75,8 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".vrm"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrm", options={"HIDDEN"}  # noqa: F722,F821
+        default="*.vrm",  # noqa: F722
+        options={"HIDDEN"},  # noqa: F821
     )
 
     extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
@@ -266,9 +267,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         filepath: str  # type: ignore[no-redef]
-        license_confirmations: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            LicenseConfirmation
-        ]
+        license_confirmations: CollectionPropertyProtocol[LicenseConfirmation]  # type: ignore[no-redef]
         import_anyway: bool  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]
@@ -313,7 +312,8 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".vrma"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrma", options={"HIDDEN"}  # noqa: F722,F821
+        default="*.vrma",  # noqa: F722
+        options={"HIDDEN"},  # noqa: F821
     )
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
@@ -451,6 +451,4 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         armature_object_name: str  # type: ignore[no-redef]
-        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]

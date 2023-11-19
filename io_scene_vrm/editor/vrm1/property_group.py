@@ -65,9 +65,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
-        node_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        node_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
@@ -486,9 +484,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
         right_little_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
-        last_bone_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        last_bone_names: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
         allow_non_humanoid_rig: bool  # type: ignore[no-redef]
 
@@ -861,7 +857,8 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
         ("firstPersonOnly", "First-Person Only", "", 3),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=type_items, name="First Person Type"  # noqa: F722
+        items=type_items,
+        name="First Person Type",  # noqa: F722
     )
 
     if TYPE_CHECKING:
@@ -874,15 +871,14 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.schema.json
 class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
     mesh_annotations: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Mesh Annotations", type=Vrm1MeshAnnotationPropertyGroup  # noqa: F722
+        name="Mesh Annotations",  # noqa: F722
+        type=Vrm1MeshAnnotationPropertyGroup,
     )
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
-        mesh_annotations: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            Vrm1MeshAnnotationPropertyGroup
-        ]
+        mesh_annotations: CollectionPropertyProtocol[Vrm1MeshAnnotationPropertyGroup]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
@@ -894,7 +890,9 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
         # noqa: F821
     )
     weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        min=0, default=1, max=1  # noqa: F821
+        min=0,
+        default=1,
+        max=1,  # noqa: F821
     )
 
     if TYPE_CHECKING:
@@ -973,10 +971,12 @@ class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
         type=bpy.types.Material,  # noqa: F821
     )
     scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=2, default=(1, 1)  # noqa: F722
+        size=2,
+        default=(1, 1),  # noqa: F722
     )
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=2, default=(0, 0)  # noqa: F722
+        size=2,
+        default=(0, 0),  # noqa: F722
     )
 
     if TYPE_CHECKING:
@@ -1013,13 +1013,16 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
     ]
 
     override_blink: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Override Blink", items=expression_override_type_items  # noqa: F722
+        name="Override Blink",  # noqa: F722
+        items=expression_override_type_items,
     )
     override_look_at: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Override Look At", items=expression_override_type_items  # noqa: F722
+        name="Override Look At",  # noqa: F722
+        items=expression_override_type_items,
     )
     override_mouth: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Override Mouth", items=expression_override_type_items  # noqa: F722
+        name="Override Mouth",  # noqa: F722
+        items=expression_override_type_items,
     )
 
     # for UI
@@ -1106,9 +1109,7 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
-        morph_target_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            Vrm1MorphTargetBindPropertyGroup
-        ]
+        morph_target_binds: CollectionPropertyProtocol[Vrm1MorphTargetBindPropertyGroup]  # type: ignore[no-redef]
         material_color_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1MaterialColorBindPropertyGroup
         ]
@@ -1288,12 +1289,8 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         preset: Vrm1ExpressionsPresetPropertyGroup  # type: ignore[no-redef]
-        custom: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            Vrm1CustomExpressionPropertyGroup
-        ]
-        expression_ui_list_elements: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        custom: CollectionPropertyProtocol[Vrm1CustomExpressionPropertyGroup]  # type: ignore[no-redef]
+        expression_ui_list_elements: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         active_expression_ui_list_element_index: int  # type: ignore[no-redef]
 
 
@@ -1356,7 +1353,8 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
         name="Third Party Licenses"  # noqa: F722
     )
     thumbnail_image: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Thumbnail Image", type=bpy.types.Image  # noqa: F722
+        name="Thumbnail Image",  # noqa: F722
+        type=bpy.types.Image,
     )
     # license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
     #     name="License URL"  # noqa: F722
@@ -1389,7 +1387,8 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
         name="Allow Redistribution"  # noqa: F722
     )
     modification: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Modification", items=modification_items  # noqa: F821
+        name="Modification",  # noqa: F821
+        items=modification_items,
     )
     other_license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Other License URL"  # noqa: F722
@@ -1400,14 +1399,10 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
         # `poetry run ./scripts/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
         version: str  # type: ignore[no-redef]
-        authors: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        authors: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         copyright_information: str  # type: ignore[no-redef]
         contact_information: str  # type: ignore[no-redef]
-        references: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        references: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         third_party_licenses: str  # type: ignore[no-redef]
         thumbnail_image: Optional[bpy.types.Image]  # type: ignore[no-redef]
         avatar_permission: str  # type: ignore[no-redef]

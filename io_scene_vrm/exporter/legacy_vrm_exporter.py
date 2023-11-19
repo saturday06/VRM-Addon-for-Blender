@@ -745,8 +745,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     )
                 elif (
                     # Support older version that had typo
-                    texture_prop
-                    in ["NormalmapTexture", "NomalmapTexture"]
+                    texture_prop in ["NormalmapTexture", "NomalmapTexture"]
                 ):
                     use_normalmap = True
                     normal_texture = tex
@@ -1303,9 +1302,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pbr_metallic_roughness_dict["baseColorFactor"] = list(
                 gltf.pbr_metallic_roughness.base_color_factor
             )
-            khr_texture_transform = (
-                gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform
-            )
+            khr_texture_transform = gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform
 
             vector_properties["_Color"] = list(
                 gltf.pbr_metallic_roughness.base_color_factor
@@ -1840,7 +1837,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 "scale": [1, 1, 1],  # このへんは規約なので
             }
             if is_skin_mesh:
-                node_dict["translation"] = [0, 0, 0]  # skinnedmeshはtransformを無視される
+                node_dict["translation"] = [
+                    0,
+                    0,
+                    0,
+                ]  # skinnedmeshはtransformを無視される
 
             node_dicts = self.json_dict.get("nodes")
             if not isinstance(node_dicts, list):
@@ -2128,11 +2129,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                     break
                                 mesh_parent = mesh.parent
                             if not bone_name:
-                                for (
-                                    human_bone
-                                ) in (
-                                    self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
-                                ):
+                                for human_bone in self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
                                     if human_bone.bone == "hips":
                                         bone_name = human_bone.node.bone_name
                                 if (
@@ -2604,11 +2601,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         # meshを名前からid
         # weightを0-1から0-100に
         # shape_indexを名前からindexに
-        for (
-            blend_shape_group
-        ) in (
-            self.armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        ):
+        for blend_shape_group in self.armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group_dict = {}
 
             if not blend_shape_group.name:

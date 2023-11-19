@@ -165,9 +165,7 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
-        mesh_object_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        mesh_object_names: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         vrm0_material_gltf_property_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
         ]

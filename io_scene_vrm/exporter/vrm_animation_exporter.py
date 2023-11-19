@@ -262,7 +262,9 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
             ]
             input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
             buffer0_bytearray.extend(input_bytes)
-            while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
                 buffer0_bytearray.append(0)
             input_buffer_view_index = len(buffer_view_dicts)
             input_buffer_view_dict: dict[str, Json] = {
@@ -282,7 +284,9 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
                 *expression_translation_floats,
             )
             buffer0_bytearray.extend(translation_bytes)
-            while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
                 buffer0_bytearray.append(0)
             output_buffer_view_index = len(buffer_view_dicts)
             output_buffer_view_dict: dict[str, Json] = {
@@ -484,7 +488,9 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
             ]
             input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
             buffer0_bytearray.extend(input_bytes)
-            while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
                 buffer0_bytearray.append(0)
             input_buffer_view_index = len(buffer_view_dicts)
             input_buffer_view_dict = {
@@ -510,7 +516,9 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
                 "<" + "f" * len(quaternion_floats), *quaternion_floats
             )
             buffer0_bytearray.extend(quaternion_bytes)
-            while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
                 buffer0_bytearray.append(0)
             output_buffer_view_index = len(buffer_view_dicts)
             output_buffer_view_dict = {
@@ -582,7 +590,9 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
             ]
             input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
             buffer0_bytearray.extend(input_bytes)
-            while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
                 buffer0_bytearray.append(0)
             input_buffer_view_index = len(buffer_view_dicts)
             input_buffer_view_dict = {
@@ -607,7 +617,9 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
                 "<" + "f" * len(translation_floats), *translation_floats
             )
             buffer0_bytearray.extend(translation_bytes)
-            while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
                 buffer0_bytearray.append(0)
             output_buffer_view_index = len(buffer_view_dicts)
             output_buffer_view_dict = {

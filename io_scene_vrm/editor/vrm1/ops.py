@@ -894,9 +894,8 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
             armature_data.name, defer=False
         )
-        human_bone_name_to_human_bone = (
-            armature_data.vrm_addon_extension.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
-        )
+        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         bones = armature_data.bones
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)

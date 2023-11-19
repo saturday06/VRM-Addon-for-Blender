@@ -191,9 +191,9 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
         bone = armature.pose.bones.get(collider.node.bone_name)
         if not bone:
             if collider.bpy_object:
-                collider.bpy_object.children[
-                    0
-                ].matrix_world = armature.matrix_world @ Matrix.Translation(offset)
+                collider.bpy_object.children[0].matrix_world = (
+                    armature.matrix_world @ Matrix.Translation(offset)
+                )
             self.set_radius(backup_radius)
             return
         if collider.bpy_object:
@@ -491,11 +491,14 @@ class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
                 return
 
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Name", get=get_vrm_name, set=set_vrm_name  # noqa: F722, F821
+        name="Name",  # noqa: F821
+        get=get_vrm_name,
+        set=set_vrm_name,
     )
 
     colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Colliders", type=SpringBone1ColliderReferencePropertyGroup  # noqa: F821
+        name="Colliders",  # noqa: F821
+        type=SpringBone1ColliderReferencePropertyGroup,
     )
 
     # for UI
@@ -511,9 +514,7 @@ class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
-        colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            SpringBone1ColliderReferencePropertyGroup
-        ]
+        colliders: CollectionPropertyProtocol[SpringBone1ColliderReferencePropertyGroup]  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
@@ -691,9 +692,7 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
-        joints: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            SpringBone1JointPropertyGroup
-        ]
+        joints: CollectionPropertyProtocol[SpringBone1JointPropertyGroup]  # type: ignore[no-redef]
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1ColliderGroupReferencePropertyGroup
         ]
@@ -739,15 +738,11 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
-        colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            SpringBone1ColliderPropertyGroup
-        ]
+        colliders: CollectionPropertyProtocol[SpringBone1ColliderPropertyGroup]  # type: ignore[no-redef]
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1ColliderGroupPropertyGroup
         ]
-        springs: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            SpringBone1SpringPropertyGroup
-        ]
+        springs: CollectionPropertyProtocol[SpringBone1SpringPropertyGroup]  # type: ignore[no-redef]
         enable_animation: bool  # type: ignore[no-redef]
         show_expanded_colliders: bool  # type: ignore[no-redef]
         show_expanded_collider_groups: bool  # type: ignore[no-redef]

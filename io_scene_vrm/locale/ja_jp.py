@@ -46,7 +46,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Set an imported armature display to "Wire"',
     ): "アーマチュアのビューポート表示を「ワイヤーフレーム」に設定",
-    ("*", 'Set an imported armature display to show "In-Front"'): "アーマチュアを最前面に表示",
+    (
+        "*",
+        'Set an imported armature display to show "In-Front"',
+    ): "アーマチュアを最前面に表示",
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
     ("*", "Enable Advanced Options"): "高度なオプションを有効にする",
@@ -54,7 +57,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
     ): "開発中のFB_ngon_encodingエクステンションを試してみる(エクスポートされるメッシュが壊れることがあります)",
-    ("*", "No error. Ready for export VRM"): "エラーはありませんでした。VRMのエクスポートをすることができます",
+    (
+        "*",
+        "No error. Ready for export VRM",
+    ): "エラーはありませんでした。VRMのエクスポートをすることができます",
     (
         "*",
         "No error. But there're {warning_count} warning(s)."
@@ -68,7 +74,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Official add-on "glTF 2.0 format" is required. Please enable it.',
     ): "公式アドオン「glTF 2.0 format」が必要です。有効化してください。",
-    ("*", "For more information please check following URL."): "詳しくは下記のURLを確認してください。",
+    (
+        "*",
+        "For more information please check following URL.",
+    ): "詳しくは下記のURLを確認してください。",
     (
         "*",
         "Multiple armatures were found. Please select one to export as VRM.",
@@ -110,7 +119,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",
     ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{name}」が重複しています。",
-    ("*", 'There are not an object on the origin "{name}"'): "「{name}」が原点座標にありません",
+    (
+        "*",
+        'There are not an object on the origin "{name}"',
+    ): "「{name}」が原点座標にありません",
     (
         "*",
         "The same name cannot be used for a mesh object and a bone. "
@@ -251,11 +263,17 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'image in material "{material_name}" is not put. Please set image.',
     ): "マテリアル「{material_name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
     ("*", "Symmetrize VRoid Bone Names on X-Axis"): "VRoidのボーン名をX軸対称化",
-    ("*", "Make VRoid bone names X-axis mirror editable"): "VRoidのボーン名をX軸対称編集が可能な名前に変換",
+    (
+        "*",
+        "Make VRoid bone names X-axis mirror editable",
+    ): "VRoidのボーン名をX軸対称編集が可能な名前に変換",
     ("*", "Current Pose"): "現在のポーズ",
     ("*", "Save Bone Mappings"): "ボーンの対応を保存",
     ("*", "Load Bone Mappings"): "ボーンの対応を読み込み",
-    ("*", "All VRM Required Bones have been assigned."): "全てのVRM必須ボーンの割り当てが行われました。",
+    (
+        "*",
+        "All VRM Required Bones have been assigned.",
+    ): "全てのVRM必須ボーンの割り当てが行われました。",
     (
         "*",
         "There are unassigned VRM Required Bones. Please assign all.",
@@ -339,7 +357,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "This VRM uses Draco compression. Unable to decompress.",
     ): "Draco圧縮されたVRMは未対応です",
     ("*", "Axis Translation on Export"): "エクスポート時の軸の変換",
-    ("*", "Offset and Scale are ignored in VRM 0.0"): "VRM 0.0ではオフセットとスケールは無視されます",
+    (
+        "*",
+        "Offset and Scale are ignored in VRM 0.0",
+    ): "VRM 0.0ではオフセットとスケールは無視されます",
     (
         "*",
         'Material "{name}" {texture}\'s Offset and Scale are ignored in VRM 0.0',
@@ -395,9 +416,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + " - 「サーフェス」に「MToon_unversioned」を指定\n"
     + " - 「サーフェス」に「TRANSPARENT_ZWRITE」を指定\n"
     + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n",
-    ("*", "[Experimental!] Enable Animation"): "[実験中機能です!] アニメーションを有効にする",
+    (
+        "*",
+        "[Experimental!] Enable Animation",
+    ): "[実験中機能です!] アニメーションを有効にする",
     ("*", "Armature not found"): "アーマチュアが見つかりませんでした",
-    ("*", "Please assign required human bones"): "必須のヒューマンボーンの割り当ててください",
+    (
+        "*",
+        "Please assign required human bones",
+    ): "必須のヒューマンボーンの割り当ててください",
     ("*", "Please set the version of VRM to 1.0"): "VRMのバージョンを1.0にしてください",
     (
         "*",
@@ -436,7 +463,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "VRMs exported as Non-Humanoid\n"
         + "Rigs can not have animations applied\n"
         + "for humanoid avatars.",
-    ): ("人型以外のリグでVRMエクスポートを\nすると、人型アバター用のアニメーションが\n適用されません。"),
+    ): (
+        "人型以外のリグでVRMエクスポートを\nすると、人型アバター用のアニメーションが\n適用されません。"
+    ),
     (
         "*",
         "This armature will be exported but not as humanoid."
