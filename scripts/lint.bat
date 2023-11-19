@@ -3,6 +3,8 @@ setlocal
 setlocal enabledelayedexpansion
 pushd "%~dp0.."
 set PYTHONUTF8=1
+echo ### poetry check ###
+poetry check
 for /f "tokens=* usebackq" %%f in (`git ls-files "*.py"`) do ( set py_files=!py_files! %%f )
 echo ### mypy ###
 call poetry run mypy --show-error-codes %py_files%

@@ -99,7 +99,7 @@ jobs:
       - name: Install deb packages
         run: |
           sudo apt-get update -qq || true
-          sudo apt-get install -y clang-format-12 glslang-tools python3 shellcheck uchardet
+          sudo apt-get install -y clang-format-12 glslang-tools python3 shellcheck shfmt uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v4
@@ -167,31 +167,18 @@ jobs:
         run: |
           git ls-files "*.glsl" | xargs clang-format-12 -i
           git diff --exit-code
-      - name: Shellcheck
-        run: git ls-files "*.sh" | xargs shellcheck
       - name: Install poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - name: Check pyproject.toml format
-        run: poetry check
       - name: Install poetry dependencies
         run: poetry install
       - name: Check source code formatting
-        run: git ls-files "*.py" "*.pyi" | xargs poetry run black --check --diff
-      - name: Pylint
-        run: git ls-files "*.py" "*.pyi" | xargs poetry run pylint
-      - name: Pyright
-        run: git ls-files "*.py" "*.pyi" | xargs poetry run pyright
-      - name: Mypy
-        run: git ls-files "*.py" "*.pyi" | xargs poetry run mypy --show-error-codes
-      - name: Flake8
-        run: git ls-files "*.py" "*.pyi" | xargs poetry run flake8 --count --show-source --statistics
-      - name: Check import sorting order
         run: |
-          git ls-files "*.py" "*.pyi" | xargs poetry run isort
-          git ls-files "*.py" "*.pyi" | xargs poetry run black
+          ./scripts/format.sh
           git diff --exit-code
+      - name: Lint
+        run: ./scripts/lint.sh
       - name: Super-Linter
         uses: github/super-linter@v5
         env:
