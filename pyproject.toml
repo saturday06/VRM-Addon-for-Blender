@@ -14,16 +14,7 @@ bpy = "3.6.*"
 
 [tool.poetry.group.dev.dependencies]
 codespell = "*"
-flake8 = "*"
-flake8-bandit = "*"
-flake8-bugbear = "*"
-flake8-no-pep420 = "*"
-flake8-scream = "*"
-flake8-simplify = "*"
-isort = "*"
 mypy = "*"
-pep8-naming = "*"
-pylint = "*"
 pyright = "*"
 ruff = "*"
 
@@ -39,38 +30,7 @@ disallow_any_explicit = true
 mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
 
 [tool.pylint.main]
-py-version = "3.9"
-
-[tool.pylint.format]
-max-line-length = 120 # https://wiki.blender.org/wiki/Process/Addons/Guidelines
-max-module-lines = 3000
-
-[tool.pylint.design]
-max-args = 15
-max-bool-expr = 14
-max-branches = 121
-max-locals = 99
-max-attributes = 15
-max-public-methods = 35
-max-returns = 22
-max-statements = 550
-min-public-methods = 0
-
-[tool.pylint.refactoring]
-max-nested-blocks = 8
-
-[tool.pylint."messages control"]
-disable = [
-    "broad-exception-caught",
-    "duplicate-code", # https://github.com/PyCQA/pylint/issues/214
-    "fixme",
-    "import-error",
-    "import-outside-toplevel",
-    "invalid-name",
-    "missing-class-docstring",
-    "missing-function-docstring",
-    "missing-module-docstring",
-]
+ignore-paths = "." # Please use Ruff instead.
 
 [tool.pyright]
 pythonVersion = "3.9"

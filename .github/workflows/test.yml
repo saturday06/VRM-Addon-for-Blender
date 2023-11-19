@@ -173,5 +173,8 @@ jobs:
           GITHUB_ACTIONS_CONFIG_FILE: .github/actionlint.yaml
           VALIDATE_HTML: false
           VALIDATE_JSCPD: false
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_PYLINT: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

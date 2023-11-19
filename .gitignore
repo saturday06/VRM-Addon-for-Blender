@@ -20,7 +20,6 @@
 !/.gitignore
 !/.gitmodules
 !/.markdownlint.yaml
-!/.pylintrc.ci
 !/LICENSE
 !/LICENSE.*
 !/Notice.txt
