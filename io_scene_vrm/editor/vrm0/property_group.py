@@ -693,6 +693,9 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         name="Comment",  # noqa: F821
         description="Comment about the purpose of springs",  # noqa: F722
     )
+
+    # typo in VRM 0.0 specification
+    # https://github.com/vrm-c/vrm-specification/blob/1723a45abfb4f12ac5d3635a3f66dc45e2f93c83/specification/0.0/schema/vrm.secondaryanimation.spring.schema.json#L9-L12
     stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type] # noqa: SC200
         name="Stiffness",  # noqa: F821
         min=0.0,
@@ -700,6 +703,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         subtype="FACTOR",  # noqa: F821
         description="Stiffness of springs",  # noqa: F722
     )
+
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power",  # noqa: F722
         min=0.0,
