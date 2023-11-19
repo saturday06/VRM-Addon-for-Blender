@@ -41,7 +41,6 @@ select = ["ALL"]
 ignore = [
     "A003", # Class attribute `x` is shadowing a Python builtin
     "BLE001", # Do not catch blind exception
-    "C901", # `x` is too complex (y > z)
     "D205", # 1 blank line required between summary line and description
     "D403", # First word of the first line should be capitalized
     "E501", # Line too long (x > y)
@@ -106,6 +105,9 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 150
 
 [tool.ruff.lint.pylint]
 max-args = 6
