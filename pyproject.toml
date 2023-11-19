@@ -18,6 +18,11 @@ mypy = "*"
 pyright = "*"
 ruff = "*"
 
+[tool.ruff]
+allowed-confusables = [
+    "\u30ce", # Katakana Letter No
+]
+
 [tool.codespell]
 ignore-regex = ".* # codespell-ignore"
 

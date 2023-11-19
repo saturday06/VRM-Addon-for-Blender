@@ -22,7 +22,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'Is this VRM allowed to edited? Please check its "{json_key}" value.',
-    ): "允许被编辑吗？请检查「{json_key}」。",
+    ): "允许被编辑吗?请检查「{json_key}」。",
     (
         "*",
         'This VRM is licensed by VRoid Hub License "Alterations: No".',
