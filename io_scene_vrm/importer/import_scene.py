@@ -14,7 +14,7 @@ from ..editor import search
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter
-from .license_validation import LicenseConfirmationRequired
+from .license_validation import LicenseConfirmationRequiredError
 from .vrm_animation_importer import VrmAnimationImporter
 from .vrm_parser import VrmParser
 
@@ -121,7 +121,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
                 context,
                 license_validation=True,
             )
-        except LicenseConfirmationRequired as e:
+        except LicenseConfirmationRequiredError as e:
             license_error = e  # Prevent traceback dump on another exception
 
         logger.warning(license_error.description())

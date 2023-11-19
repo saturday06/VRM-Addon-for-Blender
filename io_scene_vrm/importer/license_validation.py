@@ -28,7 +28,7 @@ message={self.message}
 """
 
 
-class LicenseConfirmationRequired(Exception):
+class LicenseConfirmationRequiredError(Exception):
     def __init__(self, props: list[LicenseConfirmationRequiredProp]) -> None:
         self.props = props
         super().__init__(self.description())
@@ -162,4 +162,4 @@ def validate_license(json_dict: dict[str, Json]) -> None:
             )
 
     if confirmations:
-        raise LicenseConfirmationRequired(confirmations)
+        raise LicenseConfirmationRequiredError(confirmations)
