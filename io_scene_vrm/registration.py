@@ -100,12 +100,15 @@ def save_pre(_dummy: object) -> None:
 
 classes: list[
     Union[
-        type[bpy.types.Operator],
-        type[bpy.types.PropertyGroup],
         type[bpy.types.Panel],
         type[bpy.types.UIList],
-        type[bpy.types.Preferences],
+        type[bpy.types.Menu],
+        type[bpy.types.Header],
+        type[bpy.types.Operator],
+        type[bpy.types.KeyingSetInfo],
+        type[bpy.types.RenderEngine],
         type[bpy.types.AddonPreferences],
+        type[bpy.types.PropertyGroup],
     ]
 ] = [
     io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,

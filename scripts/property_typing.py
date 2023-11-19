@@ -69,12 +69,15 @@ def write_property_typing(
 
 def update_property_typing(
     c: Union[
-        type[bpy.types.PropertyGroup],
-        type[bpy.types.Operator],
         type[bpy.types.Panel],
         type[bpy.types.UIList],
-        type[bpy.types.Preferences],
+        type[bpy.types.Menu],
+        type[bpy.types.Header],
+        type[bpy.types.Operator],
+        type[bpy.types.KeyingSetInfo],
+        type[bpy.types.RenderEngine],
         type[bpy.types.AddonPreferences],
+        type[bpy.types.PropertyGroup],
     ],
     typing_code: str,
 ) -> None:
