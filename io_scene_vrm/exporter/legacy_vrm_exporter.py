@@ -2526,11 +2526,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 first_person.first_person_bone.bone_name
             ]
         else:
-            name = [
+            name = next(
                 human_bone.node.bone_name
                 for human_bone in self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
                 if human_bone.bone == "head"
-            ][0]
+            )
             first_person_dict["firstPersonBone"] = node_name_id_dict[name]
 
         first_person_dict["firstPersonBoneOffset"] = {

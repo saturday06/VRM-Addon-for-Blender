@@ -1699,11 +1699,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 main_child_bone_name = bone_name_to_main_child_bone_name.get(bone.name)
                 target_vector: Optional[Vector] = None
                 if main_child_bone_name:
-                    main_child = [
+                    main_child = next(
                         bone
                         for bone in bone.children
                         if bone.name == main_child_bone_name
-                    ][0]
+                    )
                     target_translation = (
                         armature.matrix_world @ Matrix.Translation(main_child.head)
                     ).to_translation()

@@ -32,8 +32,8 @@ def test() -> None:
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
     assert original == [(str(b.node.bone_name), str(b.bone)) for b in human_bones]
 
-    chest_bone = [b for b in human_bones if b.bone == HumanBoneName.CHEST.value][0]
-    spine_bone = [b for b in human_bones if b.bone == HumanBoneName.SPINE.value][0]
+    chest_bone = next(b for b in human_bones if b.bone == HumanBoneName.CHEST.value)
+    spine_bone = next(b for b in human_bones if b.bone == HumanBoneName.SPINE.value)
     chest_bone.node.bone_name = HumanBoneName.SPINE.value
     assert spine_bone.node.bone_name == HumanBoneName.SPINE.value
     assert chest_bone.node.bone_name == HumanBoneName.SPINE.value
@@ -48,7 +48,7 @@ def test() -> None:
     )
     human_bones.remove(hips_index)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    hips_bone = [b for b in human_bones if b.bone == HumanBoneName.HIPS.value][0]
+    hips_bone = next(b for b in human_bones if b.bone == HumanBoneName.HIPS.value)
     assert not hips_bone.node.bone_name
     hips_bone.node.bone_name = "hips"
     assert set(original) == set(

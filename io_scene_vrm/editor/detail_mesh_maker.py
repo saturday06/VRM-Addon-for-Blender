@@ -22,12 +22,12 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     # https://docs.blender.org/api/2.82/bpy.types.Operator.html#invoke-function
     # pylint: disable=W0201
     def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
-        self.base_armature_name = [
+        self.base_armature_name = next(
             o for o in context.selected_objects if o.type == "ARMATURE"
-        ][0].name
-        self.face_mesh_name = [o for o in context.selected_objects if o.type == "MESH"][
-            0
-        ].name
+        ).name
+        self.face_mesh_name = next(
+            o for o in context.selected_objects if o.type == "MESH"
+        ).name
         face_mesh = bpy.data.objects[self.face_mesh_name]
         face_mesh.display_type = "WIRE"
         rfd = face_mesh.bound_box[4]

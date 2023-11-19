@@ -780,7 +780,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     }
 
     def get_mag_filter(self) -> int:
-        default_value = list(self.MAG_FILTER_NUMBER_TO_ID.keys())[0]
+        default_value = next(iter(self.MAG_FILTER_NUMBER_TO_ID.keys()))
         value = self.get("mag_filter")
         if not isinstance(value, int):
             return default_value
