@@ -32,8 +32,7 @@ bl_info = {
 
 # To support reload properly, try to access a package var, if it's there, reload everything
 def cleanse_modules() -> None:
-    """search for your plugin modules in blender python sys.modules and remove them"""
-
+    """Search for your plugin modules in blender python sys.modules and remove them"""
     import sys
 
     all_modules = sys.modules
@@ -123,7 +122,6 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
     https://code.blender.org/2022/10/blender-extensions-platform/
     """
-
     import tarfile
     from logging import getLogger
     from pathlib import Path

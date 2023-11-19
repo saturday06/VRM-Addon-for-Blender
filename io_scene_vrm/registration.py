@@ -363,8 +363,7 @@ classes: list[
 
 
 def cleanse_modules() -> None:
-    """search for your plugin modules in blender python sys.modules and remove them"""
-
+    """Search for your plugin modules in blender python sys.modules and remove them"""
     import sys
 
     all_modules = sys.modules
