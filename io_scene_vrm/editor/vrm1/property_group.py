@@ -31,7 +31,7 @@ logger = get_logger(__name__)
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
 class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=BonePropertyGroup  # noqa: F722
+        type=BonePropertyGroup
     )
 
     # for UI
@@ -71,169 +71,169 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
 class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
     hips: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     spine: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     chest: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     upper_chest: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     neck: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     head: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_eye: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_eye: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     jaw: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_upper_leg: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_lower_leg: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_foot: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_toes: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_upper_leg: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_lower_leg: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_foot: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_toes: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_shoulder: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_upper_arm: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_lower_arm: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_hand: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_shoulder: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_upper_arm: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_lower_arm: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_hand: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_thumb_metacarpal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_thumb_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_thumb_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_index_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_index_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_index_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_middle_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_middle_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_middle_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_ring_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_ring_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_ring_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_little_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_little_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     left_little_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_thumb_metacarpal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_thumb_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_thumb_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_index_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_index_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_index_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_middle_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_middle_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_middle_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_ring_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_ring_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_ring_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_little_proximal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_little_intermediate: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
     right_little_distal: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup  # noqa: F722
+        type=Vrm1HumanBonePropertyGroup
     )
 
     # for UI
@@ -245,7 +245,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
     )
 
     allow_non_humanoid_rig: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Allow Non-Humanoid Rig",  # noqa: F722
+        name="Allow Non-Humanoid Rig",
     )
 
     def human_bone_name_to_human_bone(
@@ -514,13 +514,13 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.rangeMap.schema.json
 class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
     input_max_value: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Input Max Value",  # noqa: F722
+        name="Input Max Value",
         min=0.0001,  # https://github.com/pixiv/three-vrm/issues/1197#issuecomment-1498492002
         default=90.0,
         max=180.0,
     )
     output_scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Output Scale",  # noqa: F722
+        name="Output Scale",
         default=10.0,
     )
 
@@ -534,10 +534,10 @@ class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.schema.json
 class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
     offset_from_head_bone: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset From Head Bone",  # noqa: F722
+        name="Offset From Head Bone",
         size=3,
-        subtype="TRANSLATION",  # noqa: F821
-        unit="LENGTH",  # noqa: F821
+        subtype="TRANSLATION",
+        unit="LENGTH",
         default=(0, 0, 0),
     )
     TYPE_VALUE_BONE = "bone"
@@ -553,7 +553,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         ),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Type",  # noqa: F821
+        name="Type",
         items=type_items,
     )
     range_map_horizontal_inner: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -570,14 +570,14 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
     )
 
     enable_preview: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Enable Preview",  # noqa: F722
+        name="Enable Preview",
     )
     preview_target_bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object,  # noqa: F722
-        name="Preview Target",  # noqa: F722
+        type=bpy.types.Object,
+        name="Preview Target",
     )
     previous_preview_target_bpy_object_location: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        size=3,  # noqa: F722
+        size=3,
     )
 
     @staticmethod
@@ -848,7 +848,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json
 class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=MeshObjectPropertyGroup  # noqa: F821
+        type=MeshObjectPropertyGroup
     )
     type_items = [
         ("auto", "Auto", "", 0),
@@ -858,7 +858,7 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=type_items,
-        name="First Person Type",  # noqa: F722
+        name="First Person Type",
     )
 
     if TYPE_CHECKING:
@@ -871,7 +871,7 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.schema.json
 class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
     mesh_annotations: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Mesh Annotations",  # noqa: F722
+        name="Mesh Annotations",
         type=Vrm1MeshAnnotationPropertyGroup,
     )
 
@@ -884,15 +884,14 @@ class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
 class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=MeshObjectPropertyGroup  # noqa: F821
+        type=MeshObjectPropertyGroup
     )
     index: bpy.props.StringProperty(  # type: ignore[valid-type]
-        # noqa: F821
     )
     weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
         min=0,
         default=1,
-        max=1,  # noqa: F821
+        max=1,
     )
 
     if TYPE_CHECKING:
@@ -906,8 +905,8 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.materialColorBind.schema.json
 class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Material",  # noqa: F821
-        type=bpy.types.Material,  # noqa: F821
+        name="Material",
+        type=bpy.types.Material,
     )
 
     type_items: list[tuple[str, str, str, int]] = [
@@ -919,13 +918,13 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
         ("outlineColor", "Outline Color", "", 4),
     ]
     type: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Type",  # noqa: F821
-        items=type_items,  # noqa: F722
+        name="Type",
+        items=type_items,
     )
     target_value: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Target Value",  # noqa: F722
-        size=4,  # noqa: F722
-        subtype="COLOR",  # noqa: F821
+        name="Target Value",
+        size=4,
+        subtype="COLOR",
         min=0,
         max=1,  # TODO: hdr emission color?
     )
@@ -948,9 +947,9 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
         )
 
     target_value_as_rgb: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Target Value",  # noqa: F722
-        size=3,  # noqa: F722
-        subtype="COLOR",  # noqa: F821
+        name="Target Value",
+        size=3,
+        subtype="COLOR",
         get=get_target_value_as_rgb,
         set=set_target_value_as_rgb,
     )
@@ -967,16 +966,16 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.textureTransformBind.schema.json
 class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Material",  # noqa: F821
-        type=bpy.types.Material,  # noqa: F821
+        name="Material",
+        type=bpy.types.Material,
     )
     scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=2,
-        default=(1, 1),  # noqa: F722
+        default=(1, 1),
     )
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=2,
-        default=(0, 0),  # noqa: F722
+        default=(0, 0),
     )
 
     if TYPE_CHECKING:
@@ -990,16 +989,16 @@ class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.schema.json
 class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
     morph_target_binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1MorphTargetBindPropertyGroup  # noqa: F821
+        type=Vrm1MorphTargetBindPropertyGroup
     )
     material_color_binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1MaterialColorBindPropertyGroup  # noqa: F722
+        type=Vrm1MaterialColorBindPropertyGroup
     )
     texture_transform_binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1TextureTransformBindPropertyGroup  # noqa: F722
+        type=Vrm1TextureTransformBindPropertyGroup
     )
     is_binary: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Is Binary"  # noqa: F722
+        name="Is Binary"
     )
 
     expression_override_type_items = [
@@ -1013,28 +1012,28 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
     ]
 
     override_blink: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Override Blink",  # noqa: F722
+        name="Override Blink",
         items=expression_override_type_items,
     )
     override_look_at: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Override Look At",  # noqa: F722
+        name="Override Look At",
         items=expression_override_type_items,
     )
     override_mouth: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Override Mouth",  # noqa: F722
+        name="Override Mouth",
         items=expression_override_type_items,
     )
 
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
     show_expanded_morph_target_binds: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Morph Target Binds"  # noqa: F722
+        name="Morph Target Binds"
     )
     show_expanded_material_color_binds: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Material Color Binds"  # noqa: F722
+        name="Material Color Binds"
     )
     show_expanded_texture_transform_binds: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Texture Transform Binds"  # noqa: F722
+        name="Texture Transform Binds"
     )
 
     # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の変更ができないので、
@@ -1094,12 +1093,12 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
             ] = key_block_value
 
     preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Expression",  # noqa: F821
+        name="Expression",
         min=0,
         max=1,
-        subtype="FACTOR",  # noqa: F821
-        get=get_preview,  # noqa: F821
-        set=set_preview,  # noqa: F821
+        subtype="FACTOR",
+        get=get_preview,
+        set=set_preview,
     )
 
     active_morph_target_bind_index: bpy.props.IntProperty()  # type: ignore[valid-type]
@@ -1163,7 +1162,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
         self.name = custom_name  # pylint: disable=attribute-defined-outside-init
 
     custom_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Name",  # noqa: F821
+        name="Name",
         get=get_custom_name,
         set=set_custom_name,
     )
@@ -1264,11 +1263,11 @@ class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
 class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
     preset: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1ExpressionsPresetPropertyGroup,  # noqa: F722
+        type=Vrm1ExpressionsPresetPropertyGroup,
     )
 
     custom: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1CustomExpressionPropertyGroup,  # noqa: F722
+        type=Vrm1CustomExpressionPropertyGroup,
     )
 
     def all_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
@@ -1281,7 +1280,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
 
     # expressionのUIList表示のため、expressionの数だけ空の要素を持つ
     expression_ui_list_elements: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup  # noqa: F821
+        type=StringPropertyGroup
     )
     active_expression_ui_list_element_index: bpy.props.IntProperty()  # type: ignore[valid-type]
 
@@ -1332,66 +1331,66 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
     ]
 
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Name"  # noqa: F821
+        name="Name"
     )
     version: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Version"  # noqa: F821
+        name="Version"
     )
     authors: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup  # noqa: F821
+        type=StringPropertyGroup
     )
     copyright_information: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Copyright Information"  # noqa: F722
+        name="Copyright Information"
     )
     contact_information: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Contact Information"  # noqa: F722
+        name="Contact Information"
     )
     references: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup  # noqa: F821
+        type=StringPropertyGroup
     )
     third_party_licenses: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Third Party Licenses"  # noqa: F722
+        name="Third Party Licenses"
     )
     thumbnail_image: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        name="Thumbnail Image",  # noqa: F722
+        name="Thumbnail Image",
         type=bpy.types.Image,
     )
     # license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
-    #     name="License URL"  # noqa: F722
+    #     name="License URL"
     # )
     avatar_permission: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Avatar Permission",  # noqa: F722
+        name="Avatar Permission",
         items=avatar_permission_items,
     )
     allow_excessively_violent_usage: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Allow Excessively Violent Usage"  # noqa: F722
+        name="Allow Excessively Violent Usage"
     )
     allow_excessively_sexual_usage: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Allow Excessively Sexual Usage"  # noqa: F722
+        name="Allow Excessively Sexual Usage"
     )
     commercial_usage: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Commercial Usage",  # noqa: F722
+        name="Commercial Usage",
         items=commercial_usage_items,
     )
     allow_political_or_religious_usage: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Allow Political or Religious Usage"  # noqa: F722
+        name="Allow Political or Religious Usage"
     )
     allow_antisocial_or_hate_usage: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Allow Antisocial or Hate Usage"  # noqa: F722
+        name="Allow Antisocial or Hate Usage"
     )
     credit_notation: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Credit Notation",  # noqa: F722
+        name="Credit Notation",
         items=credit_notation_items,
     )
     allow_redistribution: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Allow Redistribution"  # noqa: F722
+        name="Allow Redistribution"
     )
     modification: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        name="Modification",  # noqa: F821
+        name="Modification",
         items=modification_items,
     )
     other_license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Other License URL"  # noqa: F722
+        name="Other License URL"
     )
 
     if TYPE_CHECKING:
@@ -1420,19 +1419,19 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.schema.json
 class Vrm1PropertyGroup(bpy.types.PropertyGroup):
     meta: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1MetaPropertyGroup  # noqa: F722
+        type=Vrm1MetaPropertyGroup
     )
     humanoid: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanoidPropertyGroup  # noqa: F722
+        type=Vrm1HumanoidPropertyGroup
     )
     first_person: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1FirstPersonPropertyGroup  # noqa: F722
+        type=Vrm1FirstPersonPropertyGroup
     )
     look_at: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1LookAtPropertyGroup  # noqa: F722
+        type=Vrm1LookAtPropertyGroup
     )
     expressions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1ExpressionsPropertyGroup  # noqa: F722
+        type=Vrm1ExpressionsPropertyGroup
     )
     if TYPE_CHECKING:
         # This code is auto generated.

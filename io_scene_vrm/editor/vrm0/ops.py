@@ -14,7 +14,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -40,11 +40,11 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     mesh_annotation_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -76,11 +76,11 @@ class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -112,15 +112,15 @@ class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -158,15 +158,15 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -204,19 +204,19 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     target_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -258,11 +258,11 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -294,15 +294,15 @@ class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -338,14 +338,14 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(bpy.types.Oper
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bone_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -393,15 +393,15 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -441,11 +441,11 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -477,15 +477,15 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bone_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -521,11 +521,11 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operato
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -557,15 +557,15 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(bpy.types.Oper
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -601,10 +601,10 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -632,11 +632,11 @@ class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -668,11 +668,11 @@ class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -699,11 +699,11 @@ class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -735,7 +735,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -763,11 +763,11 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
         min=0,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -804,7 +804,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:

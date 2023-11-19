@@ -30,7 +30,7 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):
     full__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?")
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     @staticmethod
@@ -167,8 +167,8 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):
 
     filename_ext = ".json"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.json",  # noqa: F722
-        options={"HIDDEN"},  # noqa: F821
+        default="*.json",
+        options={"HIDDEN"},
     )
 
     @classmethod
@@ -215,8 +215,8 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".json"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.json",  # noqa: F722
-        options={"HIDDEN"},  # noqa: F821
+        default="*.json",
+        options={"HIDDEN"},
     )
 
     @classmethod
@@ -326,7 +326,7 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     url: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F722,F821
+        options={"HIDDEN"}
     )
 
     @staticmethod

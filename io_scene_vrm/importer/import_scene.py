@@ -75,35 +75,35 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".vrm"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrm",  # noqa: F722
-        options={"HIDDEN"},  # noqa: F821
+        default="*.vrm",
+        options={"HIDDEN"},
     )
 
     extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Extract texture images into the folder",  # noqa: F722
+        name="Extract texture images into the folder",
         default=False,
     )
     make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Don't overwrite existing texture folder",  # noqa: F722
+        name="Don't overwrite existing texture folder",
         default=True,
     )
     set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set shading type to "Material"',  # noqa: F722
+        name='Set shading type to "Material"',
         update=import_vrm_update_addon_preferences,
         default=True,
     )
     set_view_transform_to_standard_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set view transform to "Standard"',  # noqa: F722
+        name='Set view transform to "Standard"',
         update=import_vrm_update_addon_preferences,
         default=True,
     )
     set_armature_display_to_wire: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set an imported armature display to "Wire"',  # noqa: F722
+        name='Set an imported armature display to "Wire"',
         update=import_vrm_update_addon_preferences,
         default=True,
     )
     set_armature_display_to_show_in_front: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set an imported armature display to show "In-Front"',  # noqa: F722
+        name='Set an imported armature display to show "In-Front"',
         update=import_vrm_update_addon_preferences,
         default=True,
     )
@@ -211,7 +211,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):
 
     license_confirmations: bpy.props.CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
     import_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Import Anyway",  # noqa: F722
+        name="Import Anyway",
     )
 
     extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
@@ -312,12 +312,12 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".vrma"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrma",  # noqa: F722
-        options={"HIDDEN"},  # noqa: F821
+        default="*.vrma",
+        options={"HIDDEN"},
     )
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -358,11 +358,11 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     @staticmethod

@@ -39,7 +39,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -420,7 +420,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -456,7 +456,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -479,15 +479,15 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
     bl_options = {"REGISTER", "UNDO"}
 
     filepath: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
-        default="",  # noqa: F722
+        options={"HIDDEN"},
+        default="",
     )
 
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         # https://docs.blender.org/api/2.83/bpy.types.Image.html#bpy.types.Image.file_format
         default=(
-            "*.bmp"  # noqa: F722
+            "*.bmp"
             ";*.sgi"
             ";*.bw"
             ";*.rgb"
@@ -507,7 +507,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
     )
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     target_texture_items = [
@@ -531,9 +531,9 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
     ]
 
     target_texture: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         items=target_texture_items,
-        name="Target Texture",  # noqa: F722
+        name="Target Texture",
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -645,10 +645,10 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
     bl_options = {"UNDO"}
 
     material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
     create_modifier: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     @staticmethod

@@ -14,7 +14,7 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -43,10 +43,10 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -103,7 +103,7 @@ class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -130,10 +130,10 @@ class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -164,7 +164,7 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -194,10 +194,10 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -244,10 +244,10 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -278,14 +278,14 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
     collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -320,10 +320,10 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -354,14 +354,14 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
     collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -396,14 +396,14 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
     guess_properties: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -449,14 +449,14 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
     joint_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -491,7 +491,7 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -520,7 +520,7 @@ class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     delta_time: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:

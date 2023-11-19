@@ -489,14 +489,14 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         outline.update_texture_scale(_context)
 
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
+        name="Offset",
         size=2,
         default=(0, 0),
         update=update_texture_offset,
     )
 
     scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
+        name="Scale",
         size=2,
         default=(1, 1),
         update=update_texture_scale,
@@ -614,14 +614,14 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         bpy.ops.vrm.refresh_mtoon1_outline(material_name=material.name)
 
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",  # noqa: F821
+        name="Offset",
         size=2,
         default=(0, 0),
         update=update_texture_offset_and_outline,
     )
 
     scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
+        name="Scale",
         size=2,
         default=(1, 1),
         update=update_texture_scale_and_outline,
@@ -654,7 +654,7 @@ class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1BaseColorKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -667,7 +667,7 @@ class Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -680,7 +680,7 @@ class Mtoon1NormalTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1NormalKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -693,7 +693,7 @@ class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1ShadingShiftKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -706,7 +706,7 @@ class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1EmissiveKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -719,7 +719,7 @@ class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1RimMultiplyKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -732,7 +732,7 @@ class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1MatcapKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -745,7 +745,7 @@ class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -758,7 +758,7 @@ class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
     Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup  # noqa: F722
+        type=Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -850,24 +850,24 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
     mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=mag_filter_items,
-        name="Mag Filter",  # noqa: F722
+        name="Mag Filter",
     )
 
     min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=min_filter_items,
-        name="Min Filter",  # noqa: F722
+        name="Min Filter",
     )
 
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=wrap_items,
-        name="Wrap S",  # noqa: F722
+        name="Wrap S",
         default=WRAP_DEFAULT_ID,
         update=update_wrap_s,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=wrap_items,
-        name="Wrap T",  # noqa: F722
+        name="Wrap T",
         default=WRAP_DEFAULT_ID,
         update=update_wrap_t,
     )
@@ -973,12 +973,12 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         self.update_image(self.source)
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Image,  # noqa: F722
+        type=bpy.types.Image,
         update=update_source,
     )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1SamplerPropertyGroup  # noqa: F722
+        type=Mtoon1SamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1000,7 +1000,7 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorSamplerPropertyGroup  # noqa: F722
+        type=Mtoon1BaseColorSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1022,7 +1022,7 @@ class Mtoon1ShadeMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplySamplerPropertyGroup  # noqa: F722
+        type=Mtoon1ShadeMultiplySamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1042,7 +1042,7 @@ class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "Non-Color"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalSamplerPropertyGroup  # noqa: F722
+        type=Mtoon1NormalSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1064,7 +1064,7 @@ class Mtoon1ShadingShiftTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "Non-Color"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftSamplerPropertyGroup  # noqa: F722
+        type=Mtoon1ShadingShiftSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1084,7 +1084,7 @@ class Mtoon1EmissiveTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveSamplerPropertyGroup  # noqa: F722
+        type=Mtoon1EmissiveSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1106,7 +1106,7 @@ class Mtoon1RimMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplySamplerPropertyGroup  # noqa: F722
+        type=Mtoon1RimMultiplySamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1128,7 +1128,7 @@ class Mtoon1MatcapTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapSamplerPropertyGroup  # noqa: F722
+        type=Mtoon1MatcapSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1155,7 +1155,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
         super().update_source(context)
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplySamplerPropertyGroup  # noqa: F722
+        type=Mtoon1OutlineWidthMultiplySamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1177,7 +1177,7 @@ class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "Non-Color"
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskSamplerPropertyGroup  # noqa: F722
+        type=Mtoon1UvAnimationMaskSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1191,11 +1191,11 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
     node_group_name: str = shader.OUTPUT_GROUP_NAME
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1TexturePropertyGroup  # noqa: F722
+        type=Mtoon1TexturePropertyGroup
     )
 
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1TextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1TextureInfoExtensionsPropertyGroup
     )
 
     @dataclass(frozen=True)
@@ -1244,10 +1244,10 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "Lit Color Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorTexturePropertyGroup  # noqa: F722
+        type=Mtoon1BaseColorTexturePropertyGroup
     )
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1BaseColorTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1261,10 +1261,10 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
     group_label_base_name = "Shade Color Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyTexturePropertyGroup  # noqa: F722
+        type=Mtoon1ShadeMultiplyTexturePropertyGroup
     )
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1281,20 +1281,20 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     node_group_name: str = shader.NORMAL_GROUP_NAME
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalTexturePropertyGroup  # noqa: F722
+        type=Mtoon1NormalTexturePropertyGroup
     )
 
     def update_scale(self, _context: bpy.types.Context) -> None:
         self.set_value(self.node_group_name, "Normal Map Texture Scale", self.scale)
 
     scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
+        name="Scale",
         default=1.0,
         update=update_scale,
     )
 
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1NormalTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1315,7 +1315,7 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
     group_label_base_name = "Shading Shift Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftTexturePropertyGroup  # noqa: F722
+        type=Mtoon1ShadingShiftTexturePropertyGroup
     )
 
     def update_scale(self, _context: bpy.types.Context) -> None:
@@ -1324,13 +1324,13 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
         )
 
     scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Scale",  # noqa: F821
+        name="Scale",
         default=1.0,
         update=update_scale,
     )
 
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1346,10 +1346,10 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "Emissive Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveTexturePropertyGroup  # noqa: F722
+        type=Mtoon1EmissiveTexturePropertyGroup
     )
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1EmissiveTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1363,10 +1363,10 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "Rim Color Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyTexturePropertyGroup  # noqa: F722
+        type=Mtoon1RimMultiplyTexturePropertyGroup
     )
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1380,10 +1380,10 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "MatCap Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapTexturePropertyGroup  # noqa: F722
+        type=Mtoon1MatcapTexturePropertyGroup
     )
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1MatcapTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1399,10 +1399,10 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
     group_label_base_name = "Outline Width Texture"
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyTexturePropertyGroup  # noqa: F722
+        type=Mtoon1OutlineWidthMultiplyTexturePropertyGroup
     )
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1417,10 +1417,10 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
     node_group_name: str = shader.UV_ANIMATION_GROUP_NAME
 
     index: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskTexturePropertyGroup  # noqa: F722
+        type=Mtoon1UvAnimationMaskTexturePropertyGroup
     )
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1433,23 +1433,23 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
 class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):
     mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.mag_filter_items,
-        name="Mag Filter",  # noqa: F722
+        name="Mag Filter",
     )
 
     min_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.min_filter_items,
-        name="Min Filter",  # noqa: F722
+        name="Min Filter",
     )
 
     wrap_s: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap S",  # noqa: F722
+        name="Wrap S",
         default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
     )
 
     wrap_t: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.wrap_items,
-        name="Wrap T",  # noqa: F722
+        name="Wrap T",
         default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
     )
 
@@ -1466,11 +1466,11 @@ class Mtoon0TexturePropertyGroup(bpy.types.PropertyGroup):
     colorspace = "sRGB"
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Image,  # noqa: F722
+        type=bpy.types.Image,
     )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon0SamplerPropertyGroup,  # noqa: F722
+        type=Mtoon0SamplerPropertyGroup,
     )
 
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
@@ -1507,7 +1507,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 
     base_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=4,
-        subtype="COLOR",  # noqa: F821
+        subtype="COLOR",
         default=(1, 1, 1, 1),
         min=0,
         max=1,
@@ -1515,7 +1515,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     base_color_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1BaseColorTextureInfoPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1542,7 +1542,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     transparent_with_z_write: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Transparent With ZWrite Mode",  # noqa: F722
+        name="Transparent With ZWrite Mode",
         update=update_transparent_with_z_write,
     )
 
@@ -1554,7 +1554,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     render_queue_offset_number: bpy.props.IntProperty(  # type: ignore[valid-type]
-        name="RenderQueue Offset",  # noqa: F722
+        name="RenderQueue Offset",
         min=-9,
         default=0,
         max=9,
@@ -1562,7 +1562,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     shade_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1ShadeMultiplyTextureInfoPropertyGroup
     )
 
     def update_shade_color_factor(self, _context: bpy.types.Context) -> None:
@@ -1570,7 +1570,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     shade_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        subtype="COLOR",  # noqa: F821
+        subtype="COLOR",
         default=(1.0, 1.0, 1.0),
         min=0.0,
         max=1.0,
@@ -1578,7 +1578,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     shading_shift_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1ShadingShiftTextureInfoPropertyGroup
     )
 
     def update_shading_shift_factor(self, _context: bpy.types.Context) -> None:
@@ -1587,7 +1587,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     shading_shift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Shading Shift",  # noqa: F722
+        name="Shading Shift",
         soft_min=-1.0,
         default=-0.2,
         soft_max=1.0,
@@ -1600,7 +1600,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     shading_toony_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Shading Toony",  # noqa: F722
+        name="Shading Toony",
         min=0.0,
         default=0.9,
         max=1.0,
@@ -1615,7 +1615,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     gi_equalization_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="GI Equalization",  # noqa: F722
+        name="GI Equalization",
         min=0.0,
         default=0.9,
         max=1.0,
@@ -1627,7 +1627,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     matcap_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        subtype="COLOR",  # noqa: F821
+        subtype="COLOR",
         default=(1, 1, 1),
         min=0,
         max=1,
@@ -1635,7 +1635,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     matcap_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1MatcapTextureInfoPropertyGroup
     )
 
     def update_parametric_rim_color_factor(self, _context: bpy.types.Context) -> None:
@@ -1646,9 +1646,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     parametric_rim_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Parametric Rim Color",  # noqa: F722
+        name="Parametric Rim Color",
         size=3,
-        subtype="COLOR",  # noqa: F821
+        subtype="COLOR",
         default=(0, 0, 0),
         min=0,
         max=1,
@@ -1656,7 +1656,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     rim_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1RimMultiplyTextureInfoPropertyGroup
     )
 
     def update_rim_lighting_mix_factor(self, _context: bpy.types.Context) -> None:
@@ -1665,7 +1665,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     rim_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Rim LightingMix",  # noqa: F722
+        name="Rim LightingMix",
         soft_min=0,
         soft_max=1,
         update=update_rim_lighting_mix_factor,
@@ -1681,7 +1681,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     parametric_rim_fresnel_power_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Parametric Rim Fresnel Power",  # noqa: F722
+        name="Parametric Rim Fresnel Power",
         min=0.0,
         default=1.0,
         soft_max=100.0,
@@ -1696,7 +1696,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     parametric_rim_lift_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Parametric Rim Lift",  # noqa: F722
+        name="Parametric Rim Lift",
         soft_min=0.0,
         default=1.0,
         soft_max=1.0,
@@ -1726,7 +1726,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     outline_width_mode: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=outline_width_mode_items,
-        name="Outline Width Mode",  # noqa: F722
+        name="Outline Width Mode",
         update=update_outline_geometry,
     )
 
@@ -1737,14 +1737,14 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self.update_outline_geometry(context)
 
     outline_width_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Outline Width",  # noqa: F722
+        name="Outline Width",
         min=0.0,
         soft_max=0.05,
         update=update_outline_width_factor,
     )
 
     outline_width_multiply_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup
     )
 
     def update_outline_color_factor(self, context: bpy.types.Context) -> None:
@@ -1754,9 +1754,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self.update_outline_geometry(context)
 
     outline_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Outline Color",  # noqa: F722
+        name="Outline Color",
         size=3,
-        subtype="COLOR",  # noqa: F821
+        subtype="COLOR",
         default=(0, 0, 0),
         min=0,
         max=1,
@@ -1772,7 +1772,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self.update_outline_geometry(context)
 
     outline_lighting_mix_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Outline LightingMix",  # noqa: F722
+        name="Outline LightingMix",
         min=0.0,
         default=1.0,
         max=1.0,
@@ -1780,7 +1780,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     uv_animation_mask_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup
     )
 
     def update_uv_animation_scroll_x_speed_factor(
@@ -1793,7 +1793,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     uv_animation_scroll_x_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Translate X",  # noqa: F722
+        name="Translate X",
         update=update_uv_animation_scroll_x_speed_factor,
     )
 
@@ -1807,7 +1807,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     uv_animation_scroll_y_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Translate Y",  # noqa: F722
+        name="Translate Y",
         update=update_uv_animation_scroll_y_speed_factor,
     )
 
@@ -1821,7 +1821,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     uv_animation_rotation_speed_factor: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Rotation",  # noqa: F821
+        name="Rotation",
         update=update_uv_animation_rotation_speed_factor,
     )
 
@@ -1867,7 +1867,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         )
 
     emissive_strength: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Strength",  # noqa: F821
+        name="Strength",
         min=0.0,
         default=1.0,
         update=update_emissive_strength,
@@ -1881,10 +1881,10 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
 
 class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):
     vrmc_materials_mtoon: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1VrmcMaterialsMtoonPropertyGroup  # noqa: F722
+        type=Mtoon1VrmcMaterialsMtoonPropertyGroup
     )
     khr_materials_emissive_strength: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup  # noqa: F722
+        type=Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1901,12 +1901,12 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
-        size=3,  # noqa: F722
+        size=3,
         default=INITIAL_ADDON_VERSION,
     )
 
     pbr_metallic_roughness: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1PbrMetallicRoughnessPropertyGroup  # noqa: F722
+        type=Mtoon1PbrMetallicRoughnessPropertyGroup
     )
 
     ALPHA_MODE_OPAQUE = "OPAQUE"
@@ -1972,7 +1972,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     alpha_mode: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=alpha_mode_items,
-        name="Alpha Mode",  # noqa: F722
+        name="Alpha Mode",
         get=get_alpha_mode,
         set=set_alpha_mode,
     )
@@ -1992,7 +1992,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         outline_material.vrm_addon_extension.mtoon1.double_sided = False
 
     double_sided: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Double Sided",  # noqa: F722
+        name="Double Sided",
         get=get_double_sided,
         set=set_double_sided,
     )
@@ -2012,7 +2012,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         outline_material.vrm_addon_extension.mtoon1.set_alpha_cutoff(value)
 
     alpha_cutoff: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Cutoff",  # noqa: F821
+        name="Cutoff",
         min=0,
         soft_max=1,
         get=get_alpha_cutoff,
@@ -2020,11 +2020,11 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     normal_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1NormalTextureInfoPropertyGroup
     )
 
     emissive_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveTextureInfoPropertyGroup  # noqa: F722
+        type=Mtoon1EmissiveTextureInfoPropertyGroup
     )
 
     def update_emissive_factor(self, _context: bpy.types.Context) -> None:
@@ -2032,7 +2032,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     emissive_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        subtype="COLOR",  # noqa: F821
+        subtype="COLOR",
         default=(0, 0, 0),
         min=0,
         max=1,
@@ -2040,7 +2040,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     extensions: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MaterialExtensionsPropertyGroup  # noqa: F722
+        type=Mtoon1MaterialExtensionsPropertyGroup
     )
 
     def get_enabled_in_material(self, material: bpy.types.Material) -> bool:
@@ -2084,13 +2084,13 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         self["enabled"] = True
 
     enabled: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Enable VRM MToon Material",  # noqa: F722
+        name="Enable VRM MToon Material",
         get=get_enabled,
         set=set_enabled,
     )
 
     export_shape_key_normals: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Shape Key Normals",  # noqa: F722
+        name="Export Shape Key Normals",
     )
 
     def update_is_outline_material(self, _context: bpy.types.Context) -> None:
@@ -2162,29 +2162,29 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         return result
 
     show_expanded_mtoon0: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Show MToon 0.0 Options",  # noqa: F722
+        name="Show MToon 0.0 Options",
     )
 
     mtoon0_front_cull_mode: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Front Face Culling",  # noqa: F722
+        name="Front Face Culling",
     )
 
     mtoon0_outline_scaled_max_distance: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Outline Width Scaled Max Distance",  # noqa: F722
+        name="Outline Width Scaled Max Distance",
         min=1,
         default=1,
         max=10,
     )
 
     mtoon0_light_color_attenuation: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="LightColor Attenuation",  # noqa: F722
+        name="LightColor Attenuation",
         min=0,
         default=0,
         max=1,
     )
 
     mtoon0_receive_shadow_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon0ReceiveShadowTexturePropertyGroup  # noqa: F722
+        type=Mtoon0ReceiveShadowTexturePropertyGroup
     )
 
     mtoon0_receive_shadow_rate: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -2194,7 +2194,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     mtoon0_shading_grade_texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon0ShadingGradeTexturePropertyGroup  # noqa: F722
+        type=Mtoon0ShadingGradeTexturePropertyGroup
     )
 
     mtoon0_shading_grade_rate: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -2204,7 +2204,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     mtoon0_rim_lighting_mix: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Rim LightingMix (MToon 0.0)",  # noqa: F722
+        name="Rim LightingMix (MToon 0.0)",
         min=0,
         default=0,
         max=1,
@@ -2224,7 +2224,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             self.mtoon0_render_queue = mtoon0_render_queue
 
     mtoon0_render_queue: bpy.props.IntProperty(  # type: ignore[valid-type]
-        name="Render Queue",  # noqa: F722
+        name="Render Queue",
         default=2000,
         update=update_mtoon0_render_queue,
     )

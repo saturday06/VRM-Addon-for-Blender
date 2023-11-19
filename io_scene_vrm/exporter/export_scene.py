@@ -77,32 +77,32 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
 
     filename_ext = ".vrm"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrm",  # noqa: F722
-        options={"HIDDEN"},  # noqa: F821
+        default="*.vrm",
+        options={"HIDDEN"},
     )
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Invisible Objects",  # noqa: F722
+        name="Export Invisible Objects",
         update=export_vrm_update_addon_preferences,
     )
     export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Only Selections",  # noqa: F722
+        name="Export Only Selections",
         update=export_vrm_update_addon_preferences,
     )
     enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Enable Advanced Options",  # noqa: F722
+        name="Enable Advanced Options",
         update=export_vrm_update_addon_preferences,
     )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
+        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
         update=export_vrm_update_addon_preferences,
     )
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     ignore_warning: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -351,12 +351,12 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
 
     filename_ext = ".vrma"
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
-        default="*.vrma",  # noqa: F722
-        options={"HIDDEN"},  # noqa: F821
+        default="*.vrma",
+        options={"HIDDEN"},
     )
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -400,7 +400,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -555,11 +555,11 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     export_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Anyway",  # noqa: F722
+        name="Export Anyway",
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -614,11 +614,11 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, context: bpy.types.Context) -> set[str]:
@@ -677,11 +677,11 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     @staticmethod

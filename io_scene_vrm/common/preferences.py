@@ -17,38 +17,38 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
     INITIAL_ADDON_VERSION = (0, 0, 0)
 
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
-        size=3,  # noqa: F722
+        size=3,
         default=INITIAL_ADDON_VERSION,
     )
 
     set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set shading type to "Material"',  # noqa: F722
+        name='Set shading type to "Material"',
         default=True,
     )
     set_view_transform_to_standard_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set view transform to "Standard"',  # noqa: F722
+        name='Set view transform to "Standard"',
         default=True,
     )
     set_armature_display_to_wire: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set an imported armature display to "Wire"',  # noqa: F722
+        name='Set an imported armature display to "Wire"',
         default=True,
     )
     set_armature_display_to_show_in_front: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name='Set an imported armature display to show "In-Front"',  # noqa: F722
+        name='Set an imported armature display to show "In-Front"',
         default=True,
     )
 
     export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Invisible Objects",  # noqa: F722
+        name="Export Invisible Objects",
     )
     export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Only Selections",  # noqa: F722
+        name="Export Only Selections",
     )
     enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Enable Advanced Options",  # noqa: F722
+        name="Enable Advanced Options",
     )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",  # noqa: F722
+        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
     )
 
     def draw(self, _context: bpy.types.Context) -> None:

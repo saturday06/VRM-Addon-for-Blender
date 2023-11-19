@@ -29,7 +29,7 @@ class StringPropertyGroup(bpy.types.PropertyGroup):
         self["value"] = value
 
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="String Value",  # noqa: F722
+        name="String Value",
         get=get_value,
         set=set_value,
     )
@@ -52,7 +52,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):
         self["value"] = value
 
     value: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Float Value",  # noqa: F722
+        name="Float Value",
         get=get_value,
         set=set_value,
     )
@@ -108,7 +108,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
     )
 
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object  # noqa: F722
+        type=bpy.types.Object
     )
 
     if TYPE_CHECKING:
@@ -333,7 +333,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
             )
 
     bone_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Bone",  # noqa: F821
+        name="Bone",
         get=get_bone_name,
         set=set_bone_name,
     )
@@ -354,7 +354,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
 
     # "value" is deprecated. Use "bone_name" instead
     value: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Bone",  # noqa: F821
+        name="Bone",
         get=get_value,
         set=set_value,
     )

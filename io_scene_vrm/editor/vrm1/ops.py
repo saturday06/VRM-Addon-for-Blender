@@ -19,7 +19,7 @@ class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -45,10 +45,10 @@ class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     author_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -79,7 +79,7 @@ class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -105,10 +105,10 @@ class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     reference_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -139,10 +139,10 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -186,10 +186,10 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -226,10 +226,10 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -268,10 +268,10 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -310,7 +310,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -336,10 +336,10 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     mesh_annotation_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -372,10 +372,10 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -410,13 +410,13 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -455,13 +455,13 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -498,13 +498,13 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -541,10 +541,10 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -578,13 +578,13 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -622,13 +622,13 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -665,13 +665,13 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -708,10 +708,10 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:
@@ -744,13 +744,13 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -788,13 +788,13 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -831,13 +831,13 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(bpy.types.Operator
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
     bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
         min=0,
     )
 
@@ -880,7 +880,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     def execute(self, _context: bpy.types.Context) -> set[str]:

@@ -29,7 +29,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
 
     skip_heavy_armature_setup: bpy.props.BoolProperty(  # type: ignore[valid-type]
         default=False,
-        options={"HIDDEN"},  # noqa: F821
+        options={"HIDDEN"},
     )
 
     #
@@ -42,7 +42,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         default=1.70,
         min=0.3,
         step=1,
-        name="Bone tall",  # noqa: F722
+        name="Bone tall",
     )
 
     # 頭身
@@ -50,7 +50,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         default=8.0,
         min=4,
         step=5,
-        description="height per heads",  # noqa: F722
+        description="height per heads",
     )
 
     head_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -58,7 +58,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         min=0.3,
         max=1.2,
         step=5,
-        description="height per heads",  # noqa: F722
+        description="height per heads",
     )
 
     # 足-胴比率:0:子供、1:大人 に近くなる(低等身で有効)
@@ -76,14 +76,14 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         default=0.05,
         min=0.01,
         step=1,
-        description="Inner shoulder position",  # noqa: F722
+        description="Inner shoulder position",
     )
 
     shoulder_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
         default=0.08,
         min=0.01,
         step=1,
-        description="shoulder roll position",  # noqa: F722
+        description="shoulder roll position",
     )
 
     # 腕長さ率
@@ -101,7 +101,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         min=0.5,
         max=1,
         step=1,
-        description="proximal / intermediate",  # noqa: F722,F821
+        description="proximal / intermediate",
     )
 
     finger_2_3_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -109,12 +109,12 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         min=0.5,
         max=1,
         step=1,
-        description="intermediate / distal",  # noqa: F722,F821
+        description="intermediate / distal",
     )
 
     nail_bone: bpy.props.BoolProperty(  # type: ignore[valid-type]
         default=False,
-        description="may need for finger collider",  # noqa: F722
+        description="may need for finger collider",
     )  # 指先の当たり判定として必要
 
     # 足
@@ -123,7 +123,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         min=0.3,
         max=0.6,
         step=1,
-        description="upper body/lower body",  # noqa: F722
+        description="upper body/lower body",
     )
 
     leg_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -135,7 +135,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     )
 
     custom_property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}  # noqa: F821
+        options={"HIDDEN"}
     )
 
     armature_obj = None

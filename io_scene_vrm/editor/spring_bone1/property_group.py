@@ -91,19 +91,19 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
 
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        subtype="TRANSLATION",  # noqa: F821
-        unit="LENGTH",  # noqa: F821
+        subtype="TRANSLATION",
+        unit="LENGTH",
         default=(0, 0, 0),
         get=get_offset,
         set=set_offset,
     )
 
     radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Radius",  # noqa: F821
+        name="Radius",
         min=0.0,
         default=0.0,
         soft_max=1.0,
-        unit="LENGTH",  # noqa: F821
+        unit="LENGTH",
         get=get_radius,
         set=set_radius,
     )
@@ -227,27 +227,27 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
 
     offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        subtype="TRANSLATION",  # noqa: F821
-        unit="LENGTH",  # noqa: F821
+        subtype="TRANSLATION",
+        unit="LENGTH",
         default=(0, 0, 0),
         get=get_offset,
         set=set_offset,
     )
 
     radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Radius",  # noqa: F821
+        name="Radius",
         min=0.0,
         default=0.0,
         soft_max=1.0,
-        unit="LENGTH",  # noqa: F821
+        unit="LENGTH",
         get=get_radius,
         set=set_radius,
     )
 
     tail: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        subtype="TRANSLATION",  # noqa: F821
-        unit="LENGTH",  # noqa: F821
+        subtype="TRANSLATION",
+        unit="LENGTH",
         default=(0, 0, 0),
         get=get_tail,
         set=set_tail,
@@ -264,10 +264,10 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json
 class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):
     sphere: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=SpringBone1ColliderShapeSpherePropertyGroup  # noqa: F722
+        type=SpringBone1ColliderShapeSpherePropertyGroup
     )
     capsule: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=SpringBone1ColliderShapeCapsulePropertyGroup  # noqa: F821
+        type=SpringBone1ColliderShapeCapsulePropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -331,13 +331,13 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
 
     shape_type: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=shape_type_items,
-        name="Shape",  # noqa: F821
+        name="Shape",
         update=update_shape_type,
     )
 
     # for View3D
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object  # noqa: F722
+        type=bpy.types.Object
     )
 
     # for references
@@ -491,13 +491,13 @@ class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
                 return
 
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Name",  # noqa: F821
+        name="Name",
         get=get_vrm_name,
         set=set_vrm_name,
     )
 
     colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
-        name="Colliders",  # noqa: F821
+        name="Colliders",
         type=SpringBone1ColliderReferencePropertyGroup,
     )
 
@@ -540,21 +540,21 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
     node: bpy.props.PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
 
     hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Joint Radius",  # noqa: F722
+        name="Joint Radius",
         min=0.0,
         default=0.0,
         soft_max=0.5,
     )
 
     stiffness: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Stiffness Force",  # noqa: F722
+        name="Stiffness Force",
         min=0.0,
         default=1.0,
         soft_max=4.0,
     )
 
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Gravity Power",  # noqa: F722
+        name="Gravity Power",
         min=0.0,
         default=0.0,
         soft_max=2.0,
@@ -569,17 +569,17 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
             self.gravity_dir = normalized_gravity_dir
 
     gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
-        name="Gravity Dir",  # noqa: F722
+        name="Gravity Dir",
         size=3,
         min=-1,
         max=1,
-        default=(0, 0, -1),  # noqa: F722
-        subtype="XYZ",  # noqa: F821
+        default=(0, 0, -1),
+        subtype="XYZ",
         update=update_gravity_dir,
     )
 
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
-        name="Drag Force",  # noqa: F722
+        name="Drag Force",
         default=0.5,
         min=0,
         max=1.0,
@@ -663,7 +663,7 @@ class SpringBone1SpringAnimationStatePropertyGroup(bpy.types.PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.spring.schema.json
 class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
-        name="Name"  # noqa: F821
+        name="Name"
     )
     joints: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=SpringBone1JointPropertyGroup
@@ -678,10 +678,10 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
     # for UI
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
     show_expanded_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Bones"  # noqa: F821
+        name="Bones"
     )
     show_expanded_collider_groups: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Collider Groups"  # noqa: F722
+        name="Collider Groups"
     )
 
     animation_state: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -721,19 +721,19 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
                 joint.animation_state.initialized_as_tail = False
 
     enable_animation: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="[Experimental!] Enable Animation",  # noqa: F722
+        name="[Experimental!] Enable Animation",
         update=update_enable_animation,
     )
 
     # for UI
     show_expanded_colliders: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Spring Bone Colliders"  # noqa: F722
+        name="Spring Bone Colliders"
     )
     show_expanded_collider_groups: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Spring Bone Collider Groups"  # noqa: F722
+        name="Spring Bone Collider Groups"
     )
     show_expanded_springs: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Spring Bone Springs"  # noqa: F722
+        name="Spring Bone Springs"
     )
     if TYPE_CHECKING:
         # This code is auto generated.

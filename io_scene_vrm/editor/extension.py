@@ -316,7 +316,7 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
 
     axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=axis_translation_items,
-        name="Axis Translation on Export",  # noqa: F722
+        name="Axis Translation on Export",
     )
 
     if TYPE_CHECKING:
@@ -329,7 +329,7 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
 class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):
     axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=VrmAddonBoneExtensionPropertyGroup.axis_translation_items,
-        name="Axis Translation on Export",  # noqa: F722
+        name="Axis Translation on Export",
     )
 
     if TYPE_CHECKING:
@@ -342,24 +342,24 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
-        size=3,  # noqa: F722
+        size=3,
         default=INITIAL_ADDON_VERSION,
     )
 
     vrm0: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm0PropertyGroup  # noqa: F722
+        type=Vrm0PropertyGroup
     )
 
     vrm1: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1PropertyGroup  # noqa: F722
+        type=Vrm1PropertyGroup
     )
 
     spring_bone1: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=SpringBone1SpringBonePropertyGroup  # noqa: F722
+        type=SpringBone1SpringBonePropertyGroup
     )
 
     node_constraint1: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=NodeConstraint1NodeConstraintPropertyGroup  # noqa: F722
+        type=NodeConstraint1NodeConstraintPropertyGroup
     )
 
     armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -403,7 +403,7 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
 
     spec_version: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=spec_version_items,
-        name="Spec Version",  # noqa: F722
+        name="Spec Version",
         update=update_spec_version,
     )
 
@@ -444,7 +444,7 @@ def update_internal_cache(context: bpy.types.Context) -> None:
 
 class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):
     mtoon1: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MaterialPropertyGroup  # noqa: F722
+        type=Mtoon1MaterialPropertyGroup
     )
     if TYPE_CHECKING:
         # This code is auto generated.
