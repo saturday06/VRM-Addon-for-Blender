@@ -771,10 +771,10 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         ("LINEAR", "Linear", "", 9729),
     )
     MAG_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
-        filter[-1]: filter[0] for filter in mag_filter_items
+        item[-1]: item[0] for item in mag_filter_items
     }
     MAG_FILTER_ID_TO_NUMBER: Mapping[str, int] = {
-        filter[0]: filter[-1] for filter in mag_filter_items
+        item[0]: item[-1] for item in mag_filter_items
     }
 
     def get_mag_filter(self) -> int:
@@ -820,10 +820,10 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         ),
     )
     MIN_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
-        filter[-1]: filter[0] for filter in min_filter_items
+        item[-1]: item[0] for item in min_filter_items
     }
     MIN_FILTER_ID_TO_NUMBER: Mapping[str, int] = {
-        filter[0]: filter[-1] for filter in min_filter_items
+        item[0]: item[-1] for item in min_filter_items
     }
 
     # https://github.com/KhronosGroup/glTF/blob/2a9996a2ea66ab712590eaf62f39f1115996f5a3/specification/2.0/schema/sampler.schema.json#L67-L117

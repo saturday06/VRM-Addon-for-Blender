@@ -39,7 +39,6 @@ extend-ignore-names = [
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "A001", # Variable `x` is shadowing a Python builtin
     "A003", # Class attribute `x` is shadowing a Python builtin
     "B020", # Loop control variable `x` overrides iterable it iterates
     "BLE001", # Do not catch blind exception
