@@ -56,7 +56,6 @@ ignore = [
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
     "INP001", # File `x.py` is part of an implicit namespace package. Add an `__init__.py`.
-    "PERF203", # `try`-`except` within a loop incurs performance overhead
     "PLR0911", # Too many return statements (8 > 6)
     "PLR0912", # Too many branches (x > y)
     "PLR0913", # Too many arguments in function definition (9 > 6)
@@ -89,6 +88,7 @@ ignore = [
     "FA100", # Missing `from __future__ import annotations`, but uses `x`
     "FIX002", # Line contains TODO, consider resolving the issue
     "ISC003", # Explicitly concatenated string should be implicitly concatenated
+    "PERF203", # `try`-`except` within a loop incurs performance overhead
     "PT", # flake8-pytest-style
     "RET504", # Unnecessary assignment to `x` before `return` statement
     "RUF011", # Dictionary comprehension uses static key: `x`
