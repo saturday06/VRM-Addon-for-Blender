@@ -691,21 +691,21 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(bpy.types.PropertyGroup):
 class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
     comment: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Comment",  # noqa: F821
-        description="Comment about the purpose of the springs",  # noqa: F722
+        description="Comment about the purpose of springs",  # noqa: F722
     )
     stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type] # noqa: SC200
         name="Stiffness",  # noqa: F821
         min=0.0,
         soft_max=4.0,
         subtype="FACTOR",  # noqa: F821
-        description="Stiffness of the springs",  # noqa: F722
+        description="Stiffness of springs",  # noqa: F722
     )
     gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power",  # noqa: F722
         min=0.0,
         soft_max=2.0,
         subtype="FACTOR",  # noqa: F821
-        description="Gravity power of the springs",  # noqa: F722
+        description="Gravity power of springs",  # noqa: F722
     )
 
     def update_gravity_dir(self, _context: bpy.types.Context) -> None:
@@ -720,7 +720,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         max=1,
         subtype="XYZ",  # noqa: F821
         name="Gravity Direction",  # noqa: F722
-        description="Gravity direction of the springs",  # noqa: F722
+        description="Gravity direction of springs",  # noqa: F722
         update=update_gravity_dir,
     )
     drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -728,19 +728,19 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         min=0.0,
         max=1.0,
         subtype="FACTOR",  # noqa: F821
-        description="Drag Force of the springs",  # noqa: F722
+        description="Drag Force of springs",  # noqa: F722
     )
     center: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Center",  # noqa: F821
         type=BonePropertyGroup,
-        description="Origin of Physics simulation to stop the springs on moving",  # noqa: F722
+        description="Origin of Physics simulation to stop springs on moving",  # noqa: F722
     )
     hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Hit Radius",  # noqa: F722
         min=0.0,
         soft_max=0.5,
         subtype="DISTANCE",  # noqa: F821
-        description="Hit Radius of the springs",  # noqa: F722
+        description="Hit Radius of springs",  # noqa: F722
     )
     bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Bones",  # noqa: F821
@@ -750,7 +750,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
     collider_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Collider Group",  # noqa: F722
         type=StringPropertyGroup,
-        description="Enabled collider Groups of the springs",  # noqa: F722
+        description="Enabled collider Groups of springs",  # noqa: F722
     )
 
     # for UI
