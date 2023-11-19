@@ -388,42 +388,32 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
         )
         mouth_rotate_radian = atan2(self.nose_height, nose_top_point[1])
         rotated_height_up = Vector(
-            (
-                Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
-                @ Vector(
-                    [
-                        self.mouth_width_ratio * -0.01 * self.mouth_flatten,
-                        self.mouth_width_ratio * 0.01,
-                        0,
-                    ]
-                )
+            Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
+            @ Vector(
+                [
+                    self.mouth_width_ratio * -0.01 * self.mouth_flatten,
+                    self.mouth_width_ratio * 0.01,
+                    0,
+                ]
             )
         )
         rotated_height_down = Vector(
-            (
-                Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
-                @ Vector(
-                    [
-                        self.mouth_width_ratio * 0.01 * self.mouth_flatten,
-                        self.mouth_width_ratio * 0.01 * 1.3,
-                        0,
-                    ]
-                )
+            Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
+            @ Vector(
+                [
+                    self.mouth_width_ratio * 0.01 * self.mouth_flatten,
+                    self.mouth_width_ratio * 0.01 * 1.3,
+                    0,
+                ]
             )
         )
         rotated_height_mid_up = Vector(
-            (
-                Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
-                @ Vector([0, self.mouth_width_ratio * 0.005 * self.mouth_flatten, 0])
-            )
+            Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
+            @ Vector([0, self.mouth_width_ratio * 0.005 * self.mouth_flatten, 0])
         )
         rotated_height_mid_down = Vector(
-            (
-                Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
-                @ Vector(
-                    [0, self.mouth_width_ratio * 0.005 * 1.3 * self.mouth_flatten, 0]
-                )
-            )
+            Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
+            @ Vector([0, self.mouth_width_ratio * 0.005 * 1.3 * self.mouth_flatten, 0])
         )
 
         mouth_point_up_vert = add_point(mouth_point + rotated_height_up)

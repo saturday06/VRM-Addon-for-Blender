@@ -332,7 +332,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     self.armature.matrix_world @ Matrix.Translation(b_bone.parent.head)
                 ).to_translation()
                 translation = Vector(
-                    (world_head[i] - parent_world_head[i] for i in range(3))
+                    world_head[i] - parent_world_head[i] for i in range(3)
                 )
             else:
                 translation = (
