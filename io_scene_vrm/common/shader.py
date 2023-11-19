@@ -1036,16 +1036,10 @@ def get_image_name_and_sampler_type(
         return None
 
     # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
-    if from_node.interpolation == "Closest":
-        filter_type = GL_NEAREST
-    else:
-        filter_type = GL_LINEAR
+    filter_type = GL_NEAREST if from_node.interpolation == "Closest" else GL_LINEAR
 
     # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
-    if from_node.extension == "REPEAT":
-        wrap_type = GL_REPEAT
-    else:
-        wrap_type = GL_CLAMP_TO_EDGE
+    wrap_type = GL_REPEAT if from_node.extension == "REPEAT" else GL_CLAMP_TO_EDGE
 
     return image_name, wrap_type, filter_type
 

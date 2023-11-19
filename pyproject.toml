@@ -75,7 +75,6 @@ ignore = [
     "S602", # `subprocess` call with `shell=True` seems safe, but may be changed in the future; consider rewriting without `shell`
     "S603", # `subprocess` call: check for execution of untrusted input
     "S607", # Starting a process with a partial executable path
-    "SIM108", # Use ternary operator `a = b if c else d` instead of `if`-`else`-block
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
     "T201", # `print` found
     "TCH001", # Move application import `x` into a type-checking block

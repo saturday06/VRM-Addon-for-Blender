@@ -862,10 +862,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 transparency_cutoff = None
 
             unlit_value = shader.get_float_value(gltf_shader_node, "unlit")
-            if unlit_value is None:
-                unlit = None
-            else:
-                unlit = unlit_value > 0.5
+            unlit = None if unlit_value is None else unlit_value > 0.5
             pbr_dict = pbr_fallback(
                 b_mat,
                 base_color=shader.get_rgba_value(

@@ -40,10 +40,7 @@ def image_to_image_bytes(
         )
     export_image = gltf2_blender_image.ExportImage.from_blender_image(image)
 
-    if image.file_format == "JPEG":
-        mime_type = "image/jpeg"
-    else:
-        mime_type = "image/png"
+    mime_type = "image/jpeg" if image.file_format == "JPEG" else "image/png"
 
     if bpy.app.version < (3, 3, 0):
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/518b6466032534c4be4a4c50ca72d37c169a5ebf/addons/io_scene_gltf2/blender/exp/gltf2_blender_image.py
