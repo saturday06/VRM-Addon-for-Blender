@@ -958,7 +958,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 getattr(source, "buffer_view", None), "data", None
             )
             if not isinstance(source_buffer_view_data, bytes):
-                source_buffer_view_data = bytes()
+                source_buffer_view_data = b""
 
             image_index = None
             for name, data, index in gltf2_io_texture_images:
