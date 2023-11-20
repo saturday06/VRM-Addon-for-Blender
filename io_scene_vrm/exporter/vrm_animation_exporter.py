@@ -81,9 +81,6 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
             continue
         # 現在注目しているヒューマンボーンに対応するポーズボーンを探す
         human_bone_specification = HumanBoneSpecifications.get(human_bone_name)
-        human_bone = human_bone_name_to_human_bone.get(human_bone_name)
-        if not human_bone:
-            continue
         bone = armature.pose.bones.get(human_bone.node.bone_name)
         if not bone:
             continue
