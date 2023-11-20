@@ -34,7 +34,7 @@ def test() -> None:
         actual_path.unlink()
     bpy.ops.export_scene.vrm(filepath=str(actual_path))
 
-    # TODO:
+    # TODO: compare bin
     actual_size = actual_path.stat().st_size
     expected_size = expected_path.stat().st_size
     assert (

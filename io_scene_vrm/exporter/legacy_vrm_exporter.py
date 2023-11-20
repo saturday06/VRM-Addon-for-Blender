@@ -558,11 +558,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 }
                 if texture_transform is not None:
                     texture_transform.add_to(texture_info)
-                pbr_metallic_roughness["baseColorTexture"] = texture_info  # TODO:
+                pbr_metallic_roughness["baseColorTexture"] = texture_info  # TODO: ?
             if metallic_roughness_texture is not None:
                 texture_info = {
                     "index": add_texture(*metallic_roughness_texture),
-                    "texCoord": 0,  # TODO:
+                    "texCoord": 0,  # TODO: 1+
                 }
                 if texture_transform is not None:
                     texture_transform.add_to(texture_info)
@@ -572,7 +572,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if normal_texture is not None:
                 normal_texture_info: dict[str, Json] = {
                     "index": add_texture(*normal_texture),
-                    "texCoord": 0,  # TODO:
+                    "texCoord": 0,  # TODO: 1+
                 }
                 if normal_texture_scale is not None:
                     normal_texture_info["scale"] = normal_texture_scale
@@ -582,7 +582,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if occlusion_texture is not None:
                 occlusion_texture_info: dict[str, Json] = {
                     "index": add_texture(*occlusion_texture),
-                    "texCoord": 0,  # TODO:
+                    "texCoord": 0,  # TODO: 1+
                 }
                 if texture_transform is not None:
                     texture_transform.add_to(occlusion_texture_info)
@@ -590,7 +590,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if emissive_texture is not None:
                 emissive_texture_info: dict[str, Json] = {
                     "index": add_texture(*emissive_texture),
-                    "texCoord": 0,  # TODO:
+                    "texCoord": 0,  # TODO: 1+
                 }
                 if texture_transform is not None:
                     texture_transform.add_to(emissive_texture_info)
@@ -1245,7 +1245,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             result: dict[str, Json] = {
                 "index": index,
-                "texCoord": 0,  # TODO:
+                "texCoord": 0,  # TODO: 1+
             }
             return result
 
