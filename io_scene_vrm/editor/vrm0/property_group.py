@@ -40,11 +40,11 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
         name="Unity's HumanLimit.useDefaultValues",
         default=True,
     )
-    min: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+    min: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]  # noqa: A003
         size=3,
         name="Unity's HumanLimit.min",
     )
-    max: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+    max: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]  # noqa: A003
         size=3,
         name="Unity's HumanLimit.max",
     )
@@ -100,8 +100,8 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
         bone: str  # type: ignore[no-redef]
         node: BonePropertyGroup  # type: ignore[no-redef]
         use_default_values: bool  # type: ignore[no-redef]
-        min: Sequence[float]  # type: ignore[no-redef]
-        max: Sequence[float]  # type: ignore[no-redef]
+        min: Sequence[float]  # type: ignore[no-redef]  # noqa: A003
+        max: Sequence[float]  # type: ignore[no-redef]  # noqa: A003
         center: Sequence[float]  # type: ignore[no-redef]
         axis_length: float  # type: ignore[no-redef]
         node_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]

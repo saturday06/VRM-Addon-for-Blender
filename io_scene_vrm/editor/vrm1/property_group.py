@@ -552,7 +552,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
             1,
         ),
     )
-    type: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    type: bpy.props.EnumProperty(  # type: ignore[valid-type]  # noqa: A003
         name="Type",
         items=type_items,
     )
@@ -835,7 +835,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         offset_from_head_bone: Sequence[float]  # type: ignore[no-redef]
-        type: str  # type: ignore[no-redef]
+        type: str  # type: ignore[no-redef]  # noqa: A003
         range_map_horizontal_inner: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
         range_map_horizontal_outer: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
         range_map_vertical_down: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
@@ -856,7 +856,7 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
         ("thirdPersonOnly", "Third-Person Only", "", 2),
         ("firstPersonOnly", "First-Person Only", "", 3),
     )
-    type: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    type: bpy.props.EnumProperty(  # type: ignore[valid-type]  # noqa: A003
         items=type_items,
         name="First Person Type",
     )
@@ -865,7 +865,7 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         node: MeshObjectPropertyGroup  # type: ignore[no-redef]
-        type: str  # type: ignore[no-redef]
+        type: str  # type: ignore[no-redef]  # noqa: A003
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.schema.json
@@ -917,7 +917,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
         ("rimColor", "Rim Color", "", 3),
         ("outlineColor", "Outline Color", "", 4),
     )
-    type: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    type: bpy.props.EnumProperty(  # type: ignore[valid-type]  # noqa: A003
         name="Type",
         items=type_items,
     )
@@ -958,7 +958,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run ./scripts/property_typing.py`
         material: Optional[bpy.types.Material]  # type: ignore[no-redef]
-        type: str  # type: ignore[no-redef]
+        type: str  # type: ignore[no-redef]  # noqa: A003
         target_value: Sequence[float]  # type: ignore[no-redef]
         target_value_as_rgb: Sequence[float]  # type: ignore[no-redef]
 

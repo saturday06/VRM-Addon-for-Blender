@@ -2,7 +2,6 @@
 # Released under the MIT license
 # https://opensource.org/licenses/mit-license.php
 
-from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from ..common.deep import Json, make_json
@@ -84,14 +83,11 @@ class GlbBinCollection:
         return len(self.vertex_attribute_bins)
 
 
-@dataclass
 class BaseBin:
-    bin: bytes
-    glb_bin_collection: GlbBinCollection
-    bin_length: int = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.bin_length = len(self.bin)
+    def __init__(self, base_bin: bytes, glb_bin_collection: GlbBinCollection) -> None:
+        self.bin = base_bin
+        self.bin_length = len(base_bin)
+        self.glb_bin_collection = glb_bin_collection
 
 
 class ImageBin(BaseBin):
