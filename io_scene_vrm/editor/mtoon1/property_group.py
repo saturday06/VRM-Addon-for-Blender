@@ -36,12 +36,12 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
     @classmethod
     def get_material_property_chain(cls) -> list[str]:
         chain = getattr(cls, "material_property_chain", None)
-        if not isinstance(chain, list):
+        if not isinstance(chain, tuple):
             raise NotImplementedError(
                 f"No material property chain: {cls}.{type(chain)} => {chain}",
             )
         result: list[str] = []
-        for property_name in list(chain):
+        for property_name in chain:
             if isinstance(property_name, str):
                 result.append(property_name)
                 continue
@@ -1894,7 +1894,7 @@ class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/8dc51ec7241be27ee95f159cefc0190a0e41967b/specification/VRMC_materials_mtoon-1.0-beta/schema/VRMC_materials_mtoon.schema.json
 class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain: tuple[str, ...] = ()
+    material_property_chain = ()
 
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
