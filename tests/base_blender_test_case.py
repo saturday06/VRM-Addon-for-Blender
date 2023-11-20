@@ -58,7 +58,8 @@ class BaseBlenderTestCase(TestCase):
             self.major_minor = ".".join(line.split(" ")[1].split(".")[:2])
             return
 
-        raise RuntimeError(f"Failed to detect Blender Version:\n---\n{stdout_str}\n---")
+        message = f"Failed to detect Blender Version:\n---\n{stdout_str}\n---"
+        raise RuntimeError(message)
 
     @staticmethod
     def process_output_to_str(process_output: Optional[bytes]) -> str:

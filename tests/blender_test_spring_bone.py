@@ -20,21 +20,19 @@ def assert_vector3_equals(
     expected: Vector, actual: Sequence[float], message: str
 ) -> None:
     if len(actual) != 3:
-        raise AssertionError(f"actual length is not 3: {actual}")
+        message = f"actual length is not 3: {actual}"
+        raise AssertionError(message)
 
     threshold = 0.0001
     if abs(expected[0] - actual[0]) > threshold:
-        raise AssertionError(
-            f"{message}: {tuple(expected)} is different from {tuple(actual)}"
-        )
+        message = f"{message}: {tuple(expected)} is different from {tuple(actual)}"
+        raise AssertionError(message)
     if abs(expected[1] - actual[1]) > threshold:
-        raise AssertionError(
-            f"{message}: {tuple(expected)} is different from {tuple(actual)}"
-        )
+        message = f"{message}: {tuple(expected)} is different from {tuple(actual)}"
+        raise AssertionError(message)
     if abs(expected[2] - actual[2]) > threshold:
-        raise AssertionError(
-            f"{message}: {tuple(expected)} is different from {tuple(actual)}"
-        )
+        message = f"{message}: {tuple(expected)} is different from {tuple(actual)}"
+        raise AssertionError(message)
 
 
 def clean_scene() -> None:
@@ -1352,7 +1350,8 @@ FUNCTIONS = [
 def test(function_name: str) -> None:
     function = {0: f for f in FUNCTIONS if f.__name__ == function_name}.get(0)
     if function is None:
-        raise AssertionError(f"No function name: {function_name}")
+        message = f"No function name: {function_name}"
+        raise AssertionError(message)
     function()
 
 

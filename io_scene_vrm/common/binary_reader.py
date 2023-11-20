@@ -89,7 +89,8 @@ class BinaryReader:
             return self.read_float()
         if data_type == GL_UNSIGNED_BYTE:
             return self.read_unsigned_byte()
-        raise ValueError(f"Unsupported type : {data_type}")
+        message = f"Unsupported type : {data_type}"
+        raise ValueError(message)
 
 
 if __name__ == "__main__":

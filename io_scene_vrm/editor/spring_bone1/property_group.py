@@ -31,7 +31,8 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
             for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.shape.sphere == self:
                     return (obj, collider)
-        raise ValueError("No armature")
+        message = "No armature"
+        raise ValueError(message)
 
     def get_offset(self) -> tuple[float, float, float]:
         armature, collider = self.find_armature_and_collider()
@@ -129,7 +130,8 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
             for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.shape.capsule == self:
                     return (obj, collider)
-        raise ValueError("No armature")
+        message = "No armature"
+        raise ValueError(message)
 
     def get_offset(self) -> tuple[float, float, float]:
         armature, collider = self.find_armature_and_collider()

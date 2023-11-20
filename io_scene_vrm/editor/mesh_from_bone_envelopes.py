@@ -35,13 +35,15 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):
     @staticmethod
     def find_material_output_node(material: bpy.types.Material) -> bpy.types.ShaderNode:
         if not material.node_tree:
-            raise ValueError("No node tree")
+            message = "No node tree"
+            raise ValueError(message)
         for node in material.node_tree.nodes:
             if node.bl_idname == "ShaderNodeOutputMaterial" and isinstance(
                 node, bpy.types.ShaderNodeOutputMaterial
             ):
                 return node
-        raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
+        message = f'No "ShaderNodeOutputMaterial" node in {material}'
+        raise ValueError(message)
 
     def build_mesh(self, context: bpy.types.Context) -> None:
         armature = context.active_object
@@ -136,12 +138,12 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):
             material: bpy.types.Material, shader_node_group_name: str
         ) -> bpy.types.ShaderNodeGroup:
             if not material.node_tree:
-                raise ValueError("No node tree")
+                message = "No node tree"
+                raise ValueError(message)
             node_group = material.node_tree.nodes.new("ShaderNodeGroup")
             if not isinstance(node_group, bpy.types.ShaderNodeGroup):
-                raise TypeError(
-                    f"{type(node_group)} is not a bpy.types.ShaderNodeGroup"
-                )
+                message = f"{type(node_group)} is not a bpy.types.ShaderNodeGroup"
+                raise TypeError(message)
             node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
             return node_group
 
@@ -156,7 +158,8 @@ class ICYP_OT_make_mesh_from_bone_envelopes(bpy.types.Operator):
                 sg.outputs["Emission"],
             )
         if not isinstance(obj.data, bpy.types.Mesh):
-            raise TypeError(f"{type(obj.data)} is not a Mesh")
+            message = f"{type(obj.data)} is not a Mesh"
+            raise TypeError(message)
         obj.data.materials.append(b_mat)
 
         bpy.ops.object.mode_set(mode="OBJECT")

@@ -85,13 +85,16 @@ class MtoonGlsl:
             tex_name += "_alpha"
         main_node = self.main_node
         if main_node is None:
-            raise ValueError("main node is None")
+            message = "main node is None"
+            raise ValueError(message)
         links = main_node.inputs[tex_name].links
         if not links:
-            raise ValueError("empty links")
+            message = "empty links"
+            raise ValueError(message)
         from_node = links[0].from_node
         if not isinstance(from_node, bpy.types.ShaderNodeTexImage):
-            raise TypeError("Not a ShaderNodeTexImage")
+            message = "Not a ShaderNodeTexImage"
+            raise TypeError(message)
         if from_node.image is not None:
             if (
                 default_color != "normal"
@@ -102,17 +105,20 @@ class MtoonGlsl:
             return from_node.image
         if default_color == "white":
             if not self.white_texture:
-                raise ValueError("No white_texture")
+                message = "No white_texture"
+                raise ValueError(message)
             self.white_texture.gl_load()
             return self.white_texture
         if default_color == "black":
             if not self.black_texture:
-                raise ValueError("No black_texture")
+                message = "No black_texture"
+                raise ValueError(message)
             self.black_texture.gl_load()
             return self.black_texture
         if default_color == "normal":
             if not self.normal_texture:
-                raise ValueError("No normal_texture")
+                message = "No normal_texture"
+                raise ValueError(message)
             self.normal_texture.gl_load()
             return self.normal_texture
         raise ValueError
@@ -120,7 +126,8 @@ class MtoonGlsl:
     def get_value(self, val_name: str) -> float:
         main_node = self.main_node
         if main_node is None:
-            raise ValueError("main node is None")
+            message = "main node is None"
+            raise ValueError(message)
         if val_name not in main_node.inputs:
             return 0.0
         if main_node.inputs[val_name].links:
@@ -136,7 +143,8 @@ class MtoonGlsl:
     def get_color(self, vec_name: str) -> list[float]:
         main_node = self.main_node
         if main_node is None:
-            raise ValueError("main node is None")
+            message = "main node is None"
+            raise ValueError(message)
         if vec_name not in main_node.inputs:
             return [0.0, 0.0, 0.0, 0.0]
         if main_node.inputs[vec_name].links:
@@ -254,7 +262,8 @@ class GlslDrawObj:
         lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
         if not lights:
             GlslDrawObj.draw_func_remove()
-            raise ValueError("Please add a light to scene")
+            message = "Please add a light to scene"
+            raise ValueError(message)
         glsl_draw_obj.light = lights[0]
         for obj in glsl_draw_obj.objs:
             for mat_slot in obj.material_slots:
@@ -286,7 +295,8 @@ class GlslDrawObj:
 
         def build_mesh(obj: bpy.types.Object) -> GlMesh:
             if glsl_draw_obj is None:
-                raise ValueError("glsl draw obj is None")
+                message = "glsl draw obj is None"
+                raise ValueError(message)
 
             scene_mesh = GlMesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
@@ -443,11 +453,13 @@ class GlslDrawObj:
         else:
             glsl_draw_obj = GlslDrawObj.instance
         if glsl_draw_obj is None:
-            raise ValueError("glsl draw obj is None")
+            message = "glsl draw obj is None"
+            raise ValueError(message)
         light = glsl_draw_obj.light
         if light is None:
             GlslDrawObj.draw_func_remove()
-            raise ValueError("no light exists")
+            message = "no light exists"
+            raise ValueError(message)
 
         model_offset = Matrix.Translation((glsl_draw_obj.draw_x_offset, 0, 0))
         light_pos = [
@@ -455,16 +467,20 @@ class GlslDrawObj:
         ]
         batches = glsl_draw_obj.batches
         if batches is None:
-            raise ValueError("batches is None")
+            message = "batches is None"
+            raise ValueError(message)
         depth_shader = glsl_draw_obj.depth_shader
         if depth_shader is None:
-            raise ValueError("depth shader is None")
+            message = "depth shader is None"
+            raise ValueError(message)
         toon_shader = glsl_draw_obj.toon_shader
         if toon_shader is None:
-            raise ValueError("toon shader is None")
+            message = "toon shader is None"
+            raise ValueError(message)
         offscreen = glsl_draw_obj.offscreen
         if offscreen is None:
-            raise ValueError("offscreen is None")
+            message = "offscreen is None"
+            raise ValueError(message)
         # need bone etc changed only update
         depth_matrix = None
 

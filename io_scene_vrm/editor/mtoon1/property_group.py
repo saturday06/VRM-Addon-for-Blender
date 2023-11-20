@@ -31,23 +31,22 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
             if functools.reduce(getattr, chain, ext) == self:
                 return material
 
-        raise AssertionError(f"No matching material: {type(self)} {chain}")
+        message = f"No matching material: {type(self)} {chain}"
+        raise AssertionError(message)
 
     @classmethod
     def get_material_property_chain(cls) -> list[str]:
         chain = getattr(cls, "material_property_chain", None)
         if not isinstance(chain, tuple):
-            raise NotImplementedError(
-                f"No material property chain: {cls}.{type(chain)} => {chain}",
-            )
+            message = f"No material property chain: {cls}.{type(chain)} => {chain}"
+            raise NotImplementedError(message)
         result: list[str] = []
         for property_name in chain:
             if isinstance(property_name, str):
                 result.append(property_name)
                 continue
-            raise AssertionError(
-                f"Invalid material property chain: {cls}.{type(chain)} => {chain}",
-            )
+            message = f"Invalid material property chain: {cls}.{type(chain)} => {chain}"
+            raise AssertionError(message)
         return result
 
     @classmethod
@@ -70,7 +69,8 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
             attr = getattr(attr, name, None)
         if isinstance(attr, MaterialTraceablePropertyGroup):
             return attr
-        raise AssertionError(f"No matching property group: {cls} {chain}")
+        message = f"No matching property group: {cls} {chain}"
+        raise AssertionError(message)
 
     def set_value(
         self,
@@ -232,7 +232,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         ext = material.vrm_addon_extension.mtoon1
         property_group = functools.reduce(getattr, chain, ext)
         if not isinstance(property_group, Mtoon1TextureInfoPropertyGroup):
-            raise TypeError(f"{property_group} is not a Mtoon1TextureInfoPropertyGroup")
+            message = f"{property_group} is not a Mtoon1TextureInfoPropertyGroup"
+            raise TypeError(message)
         return property_group
 
     def get_texture_node_name(self, extra: str) -> str:
@@ -1931,7 +1932,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             return self.ALPHA_MODE_MASK_VALUE
         if blend_method in ["HASHED", "BLEND"]:
             return self.ALPHA_MODE_BLEND_VALUE
-        raise ValueError(f"Unexpected blend_method: {blend_method}")
+        message = f"Unexpected blend_method: {blend_method}"
+        raise ValueError(message)
 
     def set_alpha_mode(self, value: int) -> None:
         material = self.find_material()

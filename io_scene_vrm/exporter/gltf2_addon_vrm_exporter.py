@@ -59,7 +59,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         self.armature = armatures[0]
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError(f"{type(armature_data)} is not an Armature")
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
 
         for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
             if not collider.bpy_object:
@@ -167,13 +168,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError(f"{type(armature_data)} is not an Armature")
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
 
         mesh = bpy.data.meshes.new(self.export_id + "_mesh")
         mesh.from_pydata(vertices, edges, faces)
         mesh.update()
         if mesh.validate():
-            raise ValueError("Invalid geometry")
+            message = "Invalid geometry"
+            raise ValueError(message)
         obj = bpy.data.objects.new("secondary", mesh)
         obj.parent_type = "OBJECT"
         obj.parent = self.armature
@@ -182,7 +185,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
         modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
         if not isinstance(modifier, bpy.types.ArmatureModifier):
-            raise TypeError(f"{type(modifier)} is not a ArmatureModifier")
+            message = f"{type(modifier)} is not a ArmatureModifier"
+            raise TypeError(message)
         modifier.object = self.armature
         self.context.scene.collection.objects.link(obj)
         obj[self.extras_object_name_key] = obj.name
@@ -625,7 +629,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 elif roll_constraint.use_z:
                     roll_axis = "Z"
                 else:
-                    raise ValueError("Unsupported roll axis")
+                    message = "Unsupported roll axis"
+                    raise ValueError(message)
                 constraint_dict["roll"] = {
                     "source": source_index,
                     "rollAxis": roll_axis,
@@ -1955,7 +1960,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError(f"{type(armature_data)} is not an Armature")
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
 
         vrm = armature_data.vrm_addon_extension.vrm1
         backup_human_bone_name_to_bone_name = self.setup_dummy_human_bones(

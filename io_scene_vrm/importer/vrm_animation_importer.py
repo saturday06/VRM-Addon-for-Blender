@@ -479,14 +479,16 @@ def work_in_progress_2(
     if not armature.animation_data:
         armature.animation_data_create()
     if not armature.animation_data:
-        raise ValueError("armature.animation_data is None")
+        message = "armature.animation_data is None"
+        raise ValueError(message)
     armature.animation_data.action = humanoid_action
 
     expression_action = bpy.data.actions.new(name="Expressions")
     if not armature_data.animation_data:
         armature_data.animation_data_create()
     if not armature_data.animation_data:
-        raise ValueError("armature_data.animation_data is None")
+        message = "armature_data.animation_data is None"
+        raise ValueError(message)
     armature_data.animation_data.action = expression_action
 
     node_index_to_translation_keyframes: dict[

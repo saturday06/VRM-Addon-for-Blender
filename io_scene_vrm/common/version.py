@@ -49,7 +49,8 @@ def addon_version() -> tuple[int, int, int]:
         or not isinstance(v[1], int)
         or not isinstance(v[2], int)
     ):
-        raise AssertionError(f"{v} is not valid type but {type(v)}")
+        message = f"{v} is not valid type but {type(v)}"
+        raise AssertionError(message)
     return (v[0], v[1], v[2])
 
 

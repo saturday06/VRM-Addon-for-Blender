@@ -2295,9 +2295,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
                 "FINISHED"
             }:
-                raise ValueError(
-                    f'Failed to add spring bone 1.0 collider to "{armature.name}"'
-                )
+                message = f'Failed to add spring bone 1.0 collider to "{armature.name}"'
+                raise ValueError(message)
 
             collider = spring_bone.colliders[-1]
 
@@ -2419,9 +2418,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if bpy.ops.vrm.add_spring_bone1_collider_group(
                 armature_name=armature_name
             ) != {"FINISHED"}:
-                raise ValueError(
+                message = (
                     f"Failed to add spring bone 1.0 collider group to {armature_name}"
                 )
+                raise ValueError(message)
 
             if not isinstance(collider_group_dict, dict):
                 continue
@@ -2557,7 +2557,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
         armature = self.armature
         if armature is None:
-            raise ValueError("armature is None")
+            message = "armature is None"
+            raise ValueError(message)
 
         self.load_spring_bone1_colliders(spring_bone, spring_bone_dict, armature)
 

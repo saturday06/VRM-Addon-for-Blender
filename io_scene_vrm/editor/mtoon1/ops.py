@@ -766,7 +766,8 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
         if not modifier:
             new_modifier = obj.modifiers.new(modifier_name, "NODES")
             if not isinstance(new_modifier, bpy.types.NodesModifier):
-                raise AssertionError(f"{type(new_modifier)} is not a NodesModifier")
+                message = f"{type(new_modifier)} is not a NodesModifier"
+                raise AssertionError(message)
             modifier = new_modifier
             modifier.show_expanded = False
             modifier.show_in_editmode = False

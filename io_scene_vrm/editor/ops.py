@@ -380,7 +380,8 @@ def layout_operator(
 
     split = operator_type.bl_idname.split(".")
     if len(split) != 2:
-        raise AssertionError(f"Unexpected bl_idname: {operator_type.bl_idname}")
+        message = f"Unexpected bl_idname: {operator_type.bl_idname}"
+        raise AssertionError(message)
     name = f"{split[0].encode().upper().decode()}_OT_{split[1]}"
     if type(operator).__qualname__ != name:
         raise AssertionError(

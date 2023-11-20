@@ -42,9 +42,6 @@ ignore = [
     "A003", # Class attribute `x` is shadowing a Python builtin
     "BLE001", # Do not catch blind exception
     "E501", # Line too long (x > y)
-    "EM101", # Exception must not use a string literal, assign to variable first
-    "EM102", # Exception must not use an f-string literal, assign to variable first
-    "EM103", # Exception must not use a `.format()` string directly, assign to variable first
     "FBT001", # Boolean-typed positional argument in function definition
     "FBT002", # Boolean default positional argument in function definition
     "FBT003", # Boolean positional value in function call

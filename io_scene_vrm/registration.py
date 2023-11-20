@@ -376,9 +376,10 @@ def register(name: object, init_addon_version: object) -> None:
     # Sanity check. Because a addon_version() implementation is very acrobatic
     # and it can break easily.
     if init_addon_version != addon_version():
-        raise AssertionError(
+        message = (
             f"Sanity error: version mismatch: {init_addon_version} != {addon_version()}"
         )
+        raise AssertionError(message)
 
     bpy.app.translations.register(
         preferences.addon_package_name,

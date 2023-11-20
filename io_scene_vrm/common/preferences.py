@@ -98,7 +98,8 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
 def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
     addon = context.preferences.addons.get(addon_package_name)
     if not addon:
-        raise AssertionError(f"No add-on preferences for {addon_package_name}")
+        message = f"No add-on preferences for {addon_package_name}"
+        raise AssertionError(message)
 
     preferences = addon.preferences
     if not isinstance(preferences, VrmAddonPreferences):

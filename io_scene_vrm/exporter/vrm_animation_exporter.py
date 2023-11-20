@@ -61,7 +61,8 @@ def connect_humanoid_node_dicts(
 def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -> bytes:
     armature_data = armature.data
     if not isinstance(armature_data, bpy.types.Armature):
-        raise TypeError("Armature data is not an Armature")
+        message = "Armature data is not an Armature"
+        raise TypeError(message)
     vrm1 = armature_data.vrm_addon_extension.vrm1
     human_bone_name_to_node_dict: dict[HumanBoneName, dict[str, Json]] = {}
     human_bone_name_to_node_index: dict[HumanBoneName, int] = {}
@@ -723,7 +724,8 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
     )
 
     if not isinstance(vrma_dict, dict):
-        raise TypeError("vrma_dict is not dict")
+        message = "vrma_dict is not dict"
+        raise TypeError(message)
 
     return pack_glb(vrma_dict, buffer0_bytearray)
 

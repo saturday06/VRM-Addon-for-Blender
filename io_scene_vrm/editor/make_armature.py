@@ -157,7 +157,8 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     def float_prop(self, name: str) -> float:
         prop = getattr(self, name)
         if not isinstance(prop, float):
-            raise TypeError(f"prop {name} is not float")
+            message = f"prop {name} is not float"
+            raise TypeError(message)
         return prop
 
     def head_size(self) -> float:
@@ -172,10 +173,12 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
         if not armature:
-            raise ValueError("armature is not created")
+            message = "armature is not created"
+            raise ValueError(message)
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError("armature data is not an Armature")
+            message = "armature data is not an Armature"
+            raise TypeError(message)
         armature_data.vrm_addon_extension.addon_version = addon_version()
 
         bone_dict = {}
@@ -190,7 +193,8 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         ) -> bpy.types.EditBone:
             armature_data = armature.data
             if not isinstance(armature_data, bpy.types.Armature):
-                raise TypeError("armature data is not an Armature")
+                message = "armature data is not an Armature"
+                raise TypeError(message)
             added_bone = armature_data.edit_bones.new(name)
             added_bone.head = head_pos
             added_bone.tail = tail_pos
@@ -693,10 +697,12 @@ class IcypTemplateMeshMaker:
     def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
         armature_obj = self.args.armature_obj
         if armature_obj is None:
-            raise AssertionError("armature obj is None")
+            message = "armature obj is None"
+            raise AssertionError(message)
         armature_data = armature_obj.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError(f"{type(armature_data)} is not a Armature")
+            message = f"{type(armature_data)} is not a Armature"
+            raise TypeError(message)
 
         tmp_dict = {
             v.bone: i
@@ -752,10 +758,12 @@ class IcypTemplateMeshMaker:
         args = self.args
         armature_obj = args.armature_obj
         if armature_obj is None:
-            raise AssertionError("armature obj is None")
+            message = "armature obj is None"
+            raise AssertionError(message)
         armature_data = armature_obj.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError(f"{type(armature_data)} is not a Armature")
+            message = f"{type(armature_data)} is not a Armature"
+            raise TypeError(message)
 
         bm = bmesh.new()
         head_size = self.head_size

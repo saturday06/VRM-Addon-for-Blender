@@ -13,7 +13,8 @@ def create_unique_indexed_directory_path(path: Path) -> Path:
         except OSError:
             continue
         return path
-    raise RuntimeError(f"Failed to create unique directory path: {path}")
+    message = f"Failed to create unique directory path: {path}"
+    raise RuntimeError(message)
 
 
 def create_unique_indexed_file_path(path: Path, binary: Optional[bytes] = None) -> Path:
@@ -36,4 +37,5 @@ def create_unique_indexed_file_path(path: Path, binary: Optional[bytes] = None) 
         path.write_bytes(binary)
         return path
 
-    raise RuntimeError(f"Failed to create unique file path: {path}")
+    message = f"Failed to create unique file path: {path}"
+    raise RuntimeError(message)

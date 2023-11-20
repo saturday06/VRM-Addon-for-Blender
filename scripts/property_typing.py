@@ -40,7 +40,8 @@ def write_property_typing(
     elif t == "bpy.props.PointerProperty":
         target_type = keywords.get("type")
         if not isinstance(target_type, type):
-            raise AssertionError(f"Unexpected {keywords}")
+            message = f"Unexpected {keywords}"
+            raise AssertionError(message)
         if issubclass(target_type, bpy.types.ID):
             target_name = f"Optional[bpy.types.{target_type.__name__}]"
         else:
@@ -49,7 +50,8 @@ def write_property_typing(
     elif t == "bpy.props.CollectionProperty":
         target_type = keywords.get("type")
         if not isinstance(target_type, type):
-            raise AssertionError(f"Unexpected {keywords}")
+            message = f"Unexpected {keywords}"
+            raise AssertionError(message)
         if issubclass(target_type, bpy.types.ID):
             target_name = f"Optional[bpy.types.{target_type.__name__}]"
         else:
@@ -93,7 +95,8 @@ def update_property_typing(
     modules.reverse()
     module = modules.pop()
     if module != "io_scene_vrm":
-        raise AssertionError(f"Unexpected module {module}")
+        message = f"Unexpected module {module}"
+        raise AssertionError(message)
 
     path = Path(__file__).parent.parent / "io_scene_vrm"
     while modules:
@@ -144,7 +147,8 @@ def update_property_typing(
             break
 
     if not class_def_colon_index:
-        raise AssertionError("Not found")
+        message = "Not found"
+        raise AssertionError(message)
 
     if not another_def_start_index:
         another_def_start_index = len(lines) + 1

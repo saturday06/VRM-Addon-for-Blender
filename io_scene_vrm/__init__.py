@@ -64,10 +64,9 @@ def raise_error_if_unsupported() -> None:
 
     minimum_version = bl_info["blender"]
     if not isinstance(minimum_version, tuple) or len(minimum_version) != 3:
-        raise AssertionError(
-            # use 'format()' method for legacy Blender versions
-            "Invalid version value: {}".format(minimum_version),  # noqa: UP032
-        )
+        # use 'format()' method to support legacy Blender versions
+        message = "Invalid version value: {}".format(minimum_version)  # noqa: UP032
+        raise AssertionError(message)
 
     if bpy.app.version >= minimum_version:
         return
@@ -91,20 +90,20 @@ def raise_error_if_unsupported() -> None:
     else:
         message = default_message
 
-    raise NotImplementedError(
-        # pylint: disable=consider-using-f-string; for legacy Blender versions
-        """
+    # use 'format()' method to support legacy Blender versions
+    highlighted_message = """
 
             ===========================================================
             {}
             ===========================================================
         """.format(
-            message.format(
-                minimum_version=".".join(map(str, minimum_version)),
-                current_version=".".join(map(str, bpy.app.version)),
-            )
+        message.format(
+            minimum_version=".".join(map(str, minimum_version)),
+            current_version=".".join(map(str, bpy.app.version)),
         )
     )
+
+    raise NotImplementedError(highlighted_message)
 
 
 def extract_github_private_partial_code_archive_if_necessary() -> None:

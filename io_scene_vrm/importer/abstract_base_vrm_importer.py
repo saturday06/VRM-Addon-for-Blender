@@ -76,10 +76,12 @@ class AbstractBaseVrmImporter(ABC):
     @property
     def armature_data(self) -> bpy.types.Armature:
         if not self.armature:
-            raise AssertionError("armature is not set")
+            message = "armature is not set"
+            raise AssertionError(message)
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError(f"{type(armature_data)} is not an Armature")
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
         return armature_data
 
     def save_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
@@ -326,7 +328,8 @@ class AbstractBaseVrmImporter(ABC):
                 if not isinstance(node, bpy.types.ShaderNodeOutputMaterial):
                     continue
                 return node
-        raise ValueError(f'No "ShaderNodeOutputMaterial" node in {material}')
+        message = f'No "ShaderNodeOutputMaterial" node in {material}'
+        raise ValueError(message)
 
     @staticmethod
     def reset_material(material: bpy.types.Material) -> None:
@@ -1145,7 +1148,8 @@ class AbstractBaseVrmImporter(ABC):
             return
         armature = self.armature
         if armature is None:
-            raise ValueError("armature is None")
+            message = "armature is None"
+            raise ValueError(message)
 
         collider_group_dicts = secondary_animation_dict.get("colliderGroups")
         if not isinstance(collider_group_dicts, list):

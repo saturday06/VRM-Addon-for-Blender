@@ -104,7 +104,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     self.export_objects.append(obj)
                     self.armature = obj
             if not self.armature:
-                raise RuntimeError("Failed to generate default armature")
+                message = "Failed to generate default armature"
+                raise RuntimeError(message)
             self.use_dummy_armature = True
         migration.migrate(self.armature.name, defer=False)
 
@@ -113,10 +114,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     @property
     def armature_data(self) -> bpy.types.Armature:
         if not self.armature:
-            raise AssertionError("armature is not set")
+            message = "armature is not set"
+            raise AssertionError(message)
         armature_data = self.armature.data
         if not isinstance(armature_data, bpy.types.Armature):
-            raise TypeError(f"{type(armature_data)} is not an Armature")
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
         return armature_data
 
     def export_vrm(self) -> Optional[bytes]:
@@ -1650,7 +1653,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         morph_normal_diff_dict: dict[str, list[list[float]]] = {}
         vert_base_normal_dict: dict[str, list[float]] = {}
         if not mesh_data.shape_keys:
-            raise AssertionError("mesh_data.shape_keys is None")
+            message = "mesh_data.shape_keys is None"
+            raise AssertionError(message)
         for kb in mesh_data.shape_keys.key_blocks:
             # 頂点のノーマルではなくsplit(loop)のノーマルを使う
             # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
@@ -2130,7 +2134,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                     bone_name is None
                                     or bone_name not in self.armature_data.bones
                                 ):
-                                    raise ValueError("No hips bone found")
+                                    message = "No hips bone found"
+                                    raise ValueError(message)
                             bone_index = next(
                                 index
                                 for index, node_dict in enumerate(node_dicts)
@@ -2196,7 +2201,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     if isinstance(skin_dicts, list) and skin_dicts:
                         skin_dicts.append(copy.deepcopy(skin_dicts[0]))
                     elif not skin_dicts:
-                        raise ValueError("No skin dictionaries exists")
+                        message = "No skin dictionaries exists"
+                        raise ValueError(message)
                 skin_count += 1
 
             pos_glb = GlbBin(
@@ -2288,9 +2294,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 primitive["attributes"] = attributes_dict
                 if is_skin_mesh:
                     if joints_glb is None:
-                        raise ValueError("joints glb is None")
+                        message = "joints glb is None"
+                        raise ValueError(message)
                     if weights_glb is None:
-                        raise ValueError("weights glb is None")
+                        message = "weights glb is None"
+                        raise ValueError(message)
                     attributes_dict.update(
                         {
                             "JOINTS_0": joints_glb.accessor_id,

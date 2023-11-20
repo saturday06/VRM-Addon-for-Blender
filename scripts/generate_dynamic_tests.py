@@ -118,10 +118,12 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             test_src_dir / path,
         )
         if spec is None:
-            raise AssertionError("Failed to create module spec")
+            message = "Failed to create module spec"
+            raise AssertionError(message)
         mod = module_from_spec(spec)
         if spec.loader is None:
-            raise AssertionError("Failed to create module spec loader")
+            message = "Failed to create module spec loader"
+            raise AssertionError(message)
         spec.loader.exec_module(mod)
 
         func: object = None
@@ -146,7 +148,8 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             if method_name not in existing_method_names:
                 break
         if method_name in existing_method_names:
-            raise ValueError(f"Test method name {method_name}_index is duplicated")
+            message = f"Test method name {method_name}_index is duplicated"
+            raise ValueError(message)
         existing_method_names.append(method_name)
 
         escaped = [urlsafe_b64encode(a.encode()).decode() for a in [path, *args]]
@@ -161,7 +164,8 @@ def generate_dynamic_test(test_src_dir: Path, path: str) -> None:
     out_path = test_src_dir / re.sub("^blender_test_", "test_GENERATED_", path)
     path_without_ext = re.sub("\\.py$", "", path)
     if not re.match("^[A-Za-z0-9_]+$", path_without_ext):
-        raise ValueError(f"Invalid file name: {path}")
+        message = f"Invalid file name: {path}"
+        raise ValueError(message)
     class_name = "".join(
         word.title()
         for word in re.sub("blender_test_", "", path_without_ext).split("_")
