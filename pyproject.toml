@@ -58,7 +58,6 @@ ignore = [
     "S603", # `subprocess` call: check for execution of untrusted input
     "S607", # Starting a process with a partial executable path
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
-    "T201", # `print` found
     "TD005", # Missing issue description after `TODO`
     "TRY301", # Abstract `raise` to an inner function
 

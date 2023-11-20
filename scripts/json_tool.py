@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: T201
 
 # Copyright (c) 2018 iCyP
 # Released under the MIT license
