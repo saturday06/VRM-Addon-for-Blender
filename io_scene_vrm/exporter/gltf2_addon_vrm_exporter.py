@@ -124,14 +124,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ]:
                 continue
 
-            while obj != armature:
-                if obj.parent:
-                    obj = obj.parent
+            search_obj = obj
+            while search_obj != armature:
+                if search_obj.parent:
+                    search_obj = search_obj.parent
                     continue
-                self.mounted_object_names.append(obj.name)
-                matrix_world = obj.matrix_world.copy()
-                obj.parent = armature
-                obj.matrix_world = matrix_world
+                self.mounted_object_names.append(search_obj.name)
+                matrix_world = search_obj.matrix_world.copy()
+                search_obj.parent = armature
+                search_obj.matrix_world = matrix_world
                 break
 
     def restore_skinned_mesh_parent(self) -> None:

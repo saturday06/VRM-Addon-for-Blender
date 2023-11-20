@@ -319,9 +319,9 @@ def migrate_vrm0_blend_shape_groups(
                 target_value_vector = material_value_dict.get("targetValue")
                 if isinstance(target_value_vector, list):
                     for v in target_value_vector:
-                        if not isinstance(v, (int, float)):
-                            v = 0
-                        material_value.target_value.add().value = v
+                        material_value.target_value.add().value = (
+                            v if isinstance(v, (int, float)) else 0
+                        )
 
         is_binary = blend_shape_group_dict.get("isBinary")
         if isinstance(is_binary, bool):
