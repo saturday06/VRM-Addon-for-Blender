@@ -404,7 +404,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         )
                         break
 
-                # TODO modifier applied, vertex weight Bone exist, vertex weight numbers.
+                # TODO: modifier applied, vertex weight Bone exist, vertex weight numbers.
 
         if (
             armature is not None
@@ -704,7 +704,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 )
 
             # blend_shape_master
-            # TODO material value and material existence
+            # TODO: material value and material existence
             blend_shape_master = (
                 armature.data.vrm_addon_extension.vrm0.blend_shape_master
             )

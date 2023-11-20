@@ -49,7 +49,6 @@ ignore = [
     "FBT001", # Boolean-typed positional argument in function definition
     "FBT002", # Boolean default positional argument in function definition
     "FBT003", # Boolean positional value in function call
-    "FIX001", # Line contains FIXME, consider resolving the issue
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
     "PLR2004", # Magic value used in comparison, consider replacing 3 with a constant variable
@@ -62,8 +61,6 @@ ignore = [
     "S607", # Starting a process with a partial executable path
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
     "T201", # `print` found
-    "TD001", # Invalid TODO tag
-    "TD004", # Missing colon in TODO
     "TD005", # Missing issue description after `TODO`
     "TRY301", # Abstract `raise` to an inner function
 

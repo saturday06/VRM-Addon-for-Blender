@@ -96,7 +96,7 @@ class MtoonGlsl:
             if (
                 default_color != "normal"
                 and from_node.image.colorspace_settings.name != "Linear"
-            ):  # TODO bugyyyyyyyyyyyyyyyyy
+            ):  # TODO: bugyyyyyyyyyyyyyyyyy
                 from_node.image.colorspace_settings.name = "Linear"
             from_node.image.gl_load()
             return from_node.image
@@ -469,7 +469,7 @@ class GlslDrawObj:
         depth_matrix = None
 
         light_lookat = light.rotation_euler.to_quaternion() @ Vector((0, 0, -1))
-        # TODO このへん
+        # TODO: このへん
         tar = light_lookat.normalized()
         up = light.rotation_euler.to_quaternion() @ Vector((0, 1, 0))
         tmp_bound_len = Vector(glsl_draw_obj.bounding_center).length
@@ -615,7 +615,7 @@ class GlslDrawObj:
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
                 bgl.glTexParameteri(
                     bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
-                )  # TODO
+                )  # TODO: ?
                 bgl.glTexParameteri(
                     bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
                 )
@@ -627,7 +627,7 @@ class GlslDrawObj:
                     bgl.glBindTexture(bgl.GL_TEXTURE_2D, texture.bindcode)
                     bgl.glTexParameteri(
                         bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
-                    )  # TODO
+                    )  # TODO: ?
                     bgl.glTexParameteri(
                         bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
                     )

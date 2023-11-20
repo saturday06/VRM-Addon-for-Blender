@@ -118,7 +118,7 @@ def on_change_bpy_object_name() -> None:
         ):
             continue
 
-        # FIXME: Needs optimization!
+        # TODO: Needs optimization!
         for collider in ext.spring_bone1.colliders:
             collider.broadcast_bpy_object_name()
 

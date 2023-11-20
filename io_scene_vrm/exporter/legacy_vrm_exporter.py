@@ -1026,7 +1026,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 )
             texture_info: dict[str, Union[int, float]] = {
                 "index": texture_dict[(image_index, sampler_dict[sampler_dict_key])],
-                "texCoord": 0,  # TODO
+                "texCoord": 0,  # TODO: 1+
             }
 
             texture_info_scale = getattr(gltf2_io_texture_info, "scale", None)

@@ -273,7 +273,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         hips_tall = body_separate + head_size * 3 / 4
         # 胸椎・spineの全長 #首の1/3は顎の後ろに隠れてる
         backbone_len = self.tall - hips_tall - head_size - neck_len / 2
-        # FIXME 胸椎と脊椎の割合の確認 //脊椎の基部に位置する主となる屈曲点と、胸郭基部に位置するもうひとつの屈曲点byHumanoid Doc
+        # TODO: 胸椎と脊椎の割合の確認 //脊椎の基部に位置する主となる屈曲点と、胸郭基部に位置するもうひとつの屈曲点byHumanoid Doc
         spine_len = backbone_len * 5 / 17
 
         root = bone_add("root", Vector((0, 0, 0)), Vector((0, 0, 0.3)))
@@ -816,10 +816,10 @@ class IcypTemplateMeshMaker:
             self.make_trapezoid(
                 bm, base_xz, top_xz, b.length, [0, 0, 0], b.matrix_local
             )
-        # TODO Thumb rotation
+        # TODO: Thumb rotation
 
         # leg
-        # TODO
+        # TODO: ?
         left_leg_bones = [
             self.get_humanoid_bone(v)
             for v in HumanBoneSpecifications.left_leg_req
