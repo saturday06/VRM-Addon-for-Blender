@@ -45,7 +45,6 @@ ignore = [
     "EM101", # Exception must not use a string literal, assign to variable first
     "EM102", # Exception must not use an f-string literal, assign to variable first
     "EM103", # Exception must not use a `.format()` string directly, assign to variable first
-    "ERA001", # Found commented-out code
     "FBT001", # Boolean-typed positional argument in function definition
     "FBT002", # Boolean default positional argument in function definition
     "FBT003", # Boolean positional value in function call
@@ -74,6 +73,7 @@ ignore = [
     "D105", # Missing docstring in magic method
     "D106", # Missing docstring in public nested class
     "D107", # Missing docstring in `__init__`
+    "ERA001", # Found commented-out code
     "FA100", # Missing `from __future__ import annotations`, but uses `x`
     "FIX002", # Line contains TODO, consider resolving the issue
     "ISC003", # Explicitly concatenated string should be implicitly concatenated
