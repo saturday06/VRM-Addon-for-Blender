@@ -135,12 +135,9 @@ def update_property_typing(
         # if TYPE_CHECKING: を探す
         if re.match("^    if TYPE_CHECKING:", line):
             class_type_checking_index = line_index
-        else:
+        elif class_type_checking_index is not None and re.match("^    [a-zA-Z#]", line):
             # if TYPE_CHECKING:が発見されたが、その後何かがあったら無かったことにする
-            if class_type_checking_index is not None and re.match(
-                "^    [a-zA-Z#]", line
-            ):
-                class_type_checking_index = None
+            class_type_checking_index = None
 
         if re.match("^[a-zA-Z#]", line):
             another_def_start_index = line_index

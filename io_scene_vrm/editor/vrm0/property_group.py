@@ -647,9 +647,8 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):
                 self.bpy_object.parent_type = "BONE"
             if self.bpy_object.parent_bone != bone_name:
                 self.bpy_object.parent_bone = bone_name
-        else:
-            if self.bpy_object.parent_type != "OBJECT":
-                self.bpy_object.parent_type = "OBJECT"
+        elif self.bpy_object.parent_type != "OBJECT":
+            self.bpy_object.parent_type = "OBJECT"
 
     if TYPE_CHECKING:
         # This code is auto generated.

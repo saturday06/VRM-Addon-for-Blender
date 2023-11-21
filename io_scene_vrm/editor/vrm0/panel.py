@@ -723,24 +723,23 @@ def draw_vrm0_blend_shape_master_layout(
                             "vrm0_material_mtoon0_property_names",
                             icon="PROPERTIES",
                         )
+                elif bpy.app.version >= (3, 2):
+                    material_value_column.prop_search(
+                        material_value,
+                        "property_name",
+                        context.scene.vrm_addon_extension,
+                        "vrm0_material_gltf_property_names",
+                        icon="PROPERTIES",
+                        results_are_suggestions=True,
+                    )
                 else:
-                    if bpy.app.version >= (3, 2):
-                        material_value_column.prop_search(
-                            material_value,
-                            "property_name",
-                            context.scene.vrm_addon_extension,
-                            "vrm0_material_gltf_property_names",
-                            icon="PROPERTIES",
-                            results_are_suggestions=True,
-                        )
-                    else:
-                        material_value_column.prop_search(
-                            material_value,
-                            "property_name",
-                            context.scene.vrm_addon_extension,
-                            "vrm0_material_gltf_property_names",
-                            icon="PROPERTIES",
-                        )
+                    material_value_column.prop_search(
+                        material_value,
+                        "property_name",
+                        context.scene.vrm_addon_extension,
+                        "vrm0_material_gltf_property_names",
+                        icon="PROPERTIES",
+                    )
 
             for (
                 target_value_index,

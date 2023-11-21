@@ -890,16 +890,15 @@ def node_material_input_check(
                     material_name=material.name,
                 )
             )
-        else:
-            if expect_node_type == "TEX_IMAGE" and isinstance(
-                n, bpy.types.ShaderNodeTexImage
-            ):
-                if n.image is not None:
-                    if n.image not in used_images:
-                        used_images.append(n.image)
-                else:
-                    messages.append(
-                        pgettext(
-                            'image in material "{material_name}" is not put. Please set image.',
-                        ).format(material_name=material.name)
-                    )
+        elif expect_node_type == "TEX_IMAGE" and isinstance(
+            n, bpy.types.ShaderNodeTexImage
+        ):
+            if n.image is not None:
+                if n.image not in used_images:
+                    used_images.append(n.image)
+            else:
+                messages.append(
+                    pgettext(
+                        'image in material "{material_name}" is not put. Please set image.',
+                    ).format(material_name=material.name)
+                )

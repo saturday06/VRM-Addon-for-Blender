@@ -1776,31 +1776,33 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     )
                 else:
                     polys.append((face.material_index, tuple(face.loops)))
-            else:
-                if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
-                    polys.extend(
+                continue
+
+            if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
+                polys.extend(
+                    (
+                        face.material_index,
                         (
-                            face.material_index,
-                            (
-                                face.loops[-1],
-                                face.loops[i],
-                                face.loops[i + 1],
-                            ),
-                        )
-                        for i in range(len(face.loops) - 2)
+                            face.loops[-1],
+                            face.loops[i],
+                            face.loops[i + 1],
+                        ),
                     )
-                else:
-                    polys.extend(
-                        (
-                            face.material_index,
-                            (
-                                face.loops[0],
-                                face.loops[i],
-                                face.loops[i + 1],
-                            ),
-                        )
-                        for i in range(1, len(face.loops) - 1)
-                    )
+                    for i in range(len(face.loops) - 2)
+                )
+                continue
+
+            polys.extend(
+                (
+                    face.material_index,
+                    (
+                        face.loops[0],
+                        face.loops[i],
+                        face.loops[i + 1],
+                    ),
+                )
+                for i in range(1, len(face.loops) - 1)
+            )
         return polys
 
     def mesh_to_bin_and_dict(self) -> None:
