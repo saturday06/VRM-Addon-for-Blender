@@ -4,7 +4,6 @@ import tempfile
 from pathlib import Path
 
 import bpy
-
 from io_scene_vrm.common import deep
 
 

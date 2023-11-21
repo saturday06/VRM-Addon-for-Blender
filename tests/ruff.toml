@@ -1,0 +1,4 @@
+extend = "../pyproject.toml"
+extend-ignore = [
+    "S101", # Use of `assert` detected
+]

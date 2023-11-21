@@ -4,7 +4,6 @@ from os import environ, getenv
 from pathlib import Path
 
 import bpy
-
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 repository_root_dir = Path(__file__).resolve(strict=True).parent.parent

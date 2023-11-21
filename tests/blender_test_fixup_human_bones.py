@@ -1,5 +1,4 @@
 import bpy
-
 from io_scene_vrm.common.vrm0.human_bone import HumanBoneName
 from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 

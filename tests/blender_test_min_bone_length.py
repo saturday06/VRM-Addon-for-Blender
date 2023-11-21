@@ -1,9 +1,8 @@
 from sys import float_info
 
 import bpy
-from mathutils import Vector
-
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
+from mathutils import Vector
 
 
 def test() -> None:

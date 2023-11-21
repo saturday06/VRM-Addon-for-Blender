@@ -35,6 +35,7 @@
 !/scripts/*.bat
 !/scripts/*.dockerfile
 !/scripts/*.sh
+!/tests/ruff.toml
 !/tests/resources
 
 *.blend1
