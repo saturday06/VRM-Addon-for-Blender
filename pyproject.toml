@@ -39,12 +39,16 @@ extend-ignore-names = [
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    # ----- fixing -----
+
     "E501", # Line too long (x > y)
     "FBT001", # Boolean-typed positional argument in function definition
     "FBT002", # Boolean default positional argument in function definition
     "FBT003", # Boolean positional value in function call
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
+
+    # ----- ignored -----
 
     # SIM118 does not handle `bpy_prop_collection` correctly.
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
