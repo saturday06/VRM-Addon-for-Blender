@@ -46,6 +46,8 @@ ignore = [
     "FBT003", # Boolean positional value in function call
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
+
+    # SIM118 does not handle `bpy_prop_collection` correctly.
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
 
     "ANN101", # Missing type annotation for `self` in method
