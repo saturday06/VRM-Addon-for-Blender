@@ -47,7 +47,6 @@ ignore = [
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
     "PLR5501", # Use `elif` instead of `else` then `if`, to reduce indentation
-    "PLW2901", # `for` loop variable `v` overwritten by assignment target
     "PYI025", # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
     "S101", # Use of `assert` detected
     "S602", # `subprocess` call with `shell=True` seems safe, but may be changed in the future; consider rewriting without `shell`

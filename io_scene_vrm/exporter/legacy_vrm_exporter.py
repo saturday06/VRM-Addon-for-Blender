@@ -230,7 +230,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         for node, mat in search.shader_nodes_and_materials(used_materials):
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 mat["vrm_shader"] = "MToon_unversioned"
-                for shader_vals in MtoonUnversioned.texture_kind_exchange_dict.values():
+                for (
+                    raw_shader_vals
+                ) in MtoonUnversioned.texture_kind_exchange_dict.values():
                     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
                     #
                     # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".
@@ -239,11 +241,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     # So change it to "NomalmapTexture" which is typo but points to the same thing
                     # in those models.
                     if (
-                        shader_vals == "NormalmapTexture"
+                        raw_shader_vals == "NormalmapTexture"
                         and "NormalmapTexture" not in node.inputs
                         and "NomalmapTexture" in node.inputs
                     ):
                         shader_vals = "NomalmapTexture"
+                    else:
+                        shader_vals = raw_shader_vals
 
                     if shader_vals == "ReceiveShadow_Texture":
                         if node.inputs[shader_vals + "_alpha"].links:

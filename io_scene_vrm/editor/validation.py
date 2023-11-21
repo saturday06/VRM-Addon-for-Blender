@@ -553,13 +553,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             # MToon
             if node.node_tree["SHADER"] == "MToon_unversioned":
                 for texture_val in MtoonUnversioned.texture_kind_exchange_dict.values():
-                    if texture_val == "ReceiveShadow_Texture":
-                        texture_val += "_alpha"
+                    suffix = "_alpha" if texture_val == "ReceiveShadow_Texture" else ""
                     node_material_input_check(
                         node,
                         material,
                         "TEX_IMAGE",
-                        texture_val,
+                        texture_val + suffix,
                         error_messages,
                         used_images,
                     )
