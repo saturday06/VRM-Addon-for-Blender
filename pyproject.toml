@@ -22,21 +22,6 @@ ruff = "*"
 allowed-confusables = [
     "\u30ce", # Katakana Letter No
 ]
-
-[tool.ruff.lint.pep8-naming]
-extend-ignore-names = [
-    "glTF2ExportUserExtension",
-    "glTF2ImportUserExtension",
-    "EXPORT_SCENE_OT_*",
-    "IMPORT_SCENE_OT_*",
-    "ICYP_OT_*",
-    "VRM_OT_*",
-    "VRM_PT_*",
-    "VRM_UL_*",
-    "WM_OT_*",
-]
-
-[tool.ruff.lint]
 select = ["ALL"]
 ignore = [
     # ----- fixing -----
@@ -83,6 +68,19 @@ ignore = [
     # Ruff 0.1.6 may cause conflicts when used with the formatter: `COM812`, `ISC001`.
     "COM812", # Trailing comma missing
     "ISC001", # Implicitly concatenated string literals on one line
+]
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = [
+    "glTF2ExportUserExtension",
+    "glTF2ImportUserExtension",
+    "EXPORT_SCENE_OT_*",
+    "IMPORT_SCENE_OT_*",
+    "ICYP_OT_*",
+    "VRM_OT_*",
+    "VRM_PT_*",
+    "VRM_UL_*",
+    "WM_OT_*",
 ]
 
 [tool.ruff.lint.pydocstyle]
