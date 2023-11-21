@@ -110,7 +110,8 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
                 "location",
             )
 
-        # 親ヒューマンボーンに対応するポーズボーンを探す。親がいない場合は再帰的に祖先を探す
+        # 親ヒューマンボーンに対応するポーズボーンを探す。
+        # 親がいない場合は再帰的に祖先を探す
         parent_bone = None
         parent_human_bone_specification = human_bone_specification
         while True:

@@ -48,7 +48,8 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         name="Enable Advanced Options",
     )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
+        name="Try the FB_ngon_encoding under development"
+        + " (Exported meshes can be corrupted)",
     )
 
     def draw(self, _context: bpy.types.Context) -> None:

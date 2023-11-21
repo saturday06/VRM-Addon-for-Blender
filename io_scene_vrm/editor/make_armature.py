@@ -402,7 +402,8 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             bone_type="arm",
         )
 
-        # グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが概ね一緒、けど手がでかすぎると破綻する
+        # グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが
+        # 概ね一緒、けど手がでかすぎると破綻する
         forearm_length = max(arm_length - self.hand_size() / 2, arm_length * 0.8)
         forearms = x_mirror_bones_add(
             "lower_arm",
@@ -717,7 +718,8 @@ class IcypTemplateMeshMaker:
         humanoid_bone = armature_data.bones[bone_name]
         return humanoid_bone
 
-    # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)にする変換(matrixはYupだけど、bone座標系はZup)
+    # ボーンマトリックスからY軸移動を打ち消して、あらためて欲しい高さ(上底が身長の高さ)
+    # にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod
     def head_bone_to_head_matrix(
         head_bone: bpy.types.Bone, head_tall_size: float, neck_depth_offset: float

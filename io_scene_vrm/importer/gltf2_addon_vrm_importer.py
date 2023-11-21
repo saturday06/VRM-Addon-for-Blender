@@ -638,7 +638,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     continue
                 search_bone_node_indices.append(child_index)
 
-        # メッシュノードの子供にボーンノードが存在する場合は、そのメッシュノードもボーン扱いする
+        # メッシュノードの子供にボーンノードが存在する場合は、
+        # そのメッシュノードもボーン扱いする
         bone_node_indices.extend(
             sum(
                 [
@@ -1056,7 +1057,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
                 scene_nodes.append(skin_node_index)
 
-        # glTF 2.0アドオンが未対応のエクステンションが"extensionsRequired"に含まれている場合はエラーになるのを抑止
+        # glTF 2.0アドオンが未対応のエクステンションが
+        # "extensionsRequired"に含まれている場合はエラーになる。それを抑止。
         extensions_required = json_dict.get("extensionsRequired")
         if isinstance(extensions_required, list):
             for supported_extension in [
@@ -1124,7 +1126,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             except RuntimeError:
                 logger.exception(
                     f'Failed to import "{indexed_vrm_filepath}"'
-                    + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
+                    + f' generated from "{self.parse_result.filepath}"'
+                    + " using glTF 2.0 Add-on"
                 )
                 self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
@@ -1515,7 +1518,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 return
 
-            # ボーンの子が複数ある場合そのボーン名からテールを向ける先の子ボーン名を拾えるdictを作る
+            # ボーンの子が複数ある場合
+            # そのボーン名からテールを向ける先の子ボーン名を拾えるdictを作る
             bone_name_to_main_child_bone_name: dict[str, str] = {}
             for (
                 bone_name,

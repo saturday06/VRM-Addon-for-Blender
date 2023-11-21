@@ -11,16 +11,20 @@ class TestImporter(TestCase):
             ("https://example.com", True),
             (
                 "https://hub.vroid.com/en/license?allowed_to_use_user=everyone&"
-                + "characterization_allowed_user=everyone&corporate_commercial_use=allow&"
-                + "credit=unnecessary&modification=allow&personal_commercial_use=profit&"
-                + "redistribution=allow&sexual_expression=allow&version=1&violent_expression=allow",
+                + "characterization_allowed_user=everyone&"
+                + "corporate_commercial_use=allow&credit=unnecessary&"
+                + "modification=allow&personal_commercial_use=profit&"
+                + "redistribution=allow&sexual_expression=allow&version=1&"
+                + "violent_expression=allow",
                 False,
             ),
             (
                 "https://hub.vroid.com/en/license?allowed_to_use_user=everyone&"
-                + "characterization_allowed_user=everyone&corporate_commercial_use=allow&"
-                + "credit=unnecessary&modification=disallow&personal_commercial_use=profit&"
-                + "redistribution=allow&sexual_expression=allow&version=1&violent_expression=allow",
+                + "characterization_allowed_user=everyone&"
+                + "corporate_commercial_use=allow&credit=unnecessary&"
+                + "modification=disallow&personal_commercial_use=profit&"
+                + "redistribution=allow&sexual_expression=allow&version=1&"
+                + "violent_expression=allow",
                 True,
             ),
             ("https://uv-license.com/en/license?utf8=%E2%9C%93&pcu=true", False),

@@ -66,7 +66,8 @@ def load_post(_dummy: object) -> None:
 @persistent
 def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> None:
     # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
-    # Blender起動直後のコンテキストではエラーになってしまう。そのためdepsgraph_update_preを使う。
+    # Blender起動直後のコンテキストではエラーになってしまう。
+    # そのためdepsgraph_update_preを使う。
     if (
         depsgraph_update_pre_once_if_load_post_is_unavailable
         not in bpy.app.handlers.depsgraph_update_pre
@@ -89,7 +90,8 @@ def depsgraph_update_pre(_dummy: object) -> None:
 
 @persistent
 def save_pre(_dummy: object) -> None:
-    # 保存の際にtimersに登録したコールバックがもし起動しても内部データを変更しないようにする
+    # 保存の際にtimersに登録したコールバックがもし起動しても
+    # 内部データを変更しないようにする
     depsgraph_update_pre_once_if_load_post_is_unavailable(None)
     migration.migrate_all_objects()
     extension.update_internal_cache(bpy.context)
@@ -439,7 +441,8 @@ def register(name: object, init_addon_version: object) -> None:
 
 
 def unregister() -> None:
-    migration.teardown_subscription()  # migration.setup_subscription()はload_postで呼ばれる
+    # migration.setup_subscription()はload_postで呼ばれる
+    migration.teardown_subscription()
 
     bpy.app.handlers.depsgraph_update_pre.remove(
         spring_bone1_handler.depsgraph_update_pre

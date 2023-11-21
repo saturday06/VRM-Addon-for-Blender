@@ -5,8 +5,8 @@ from collections.abc import Set
 import bpy
 
 #
-# ここで `import io_scene_gltf2` をするとio_scene_gltf2が無効化されている場合全体を巻き込んで
-# エラーになる。そのため関数内でインポートするように注意する。
+# ここで `import io_scene_gltf2` をするとio_scene_gltf2が無効化されている場合
+# 全体を巻き込んでエラーになる。そのため関数内でインポートするように注意する。
 #
 
 

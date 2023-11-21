@@ -1736,11 +1736,17 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             minmax[0][i] = position[i] if position[i] < minmax[0][i] else minmax[0][i]
             minmax[1][i] = position[i] if position[i] > minmax[1][i] else minmax[1][i]
 
-    # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
-    # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを再生できる
-    # メリット: ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、拡張非対応であればそのまま読めば普通に三角として表示できる
-    # 欠点: ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が汚く見える可能性が高い
-    # また、ngonが凸包ポリゴンで無い場合、見た目が破綻する(例: 鈍角三角形の底辺を接合した4角形)
+    # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが
+    # 最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
+    # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを
+    # 再生できる
+    # メリット:
+    #   ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、
+    #   拡張非対応であればそのまま読めば普通に三角として表示できる
+    # 欠点:
+    #   ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が
+    #   汚く見える可能性が高い。また、ngonが凸包ポリゴンで無い場合、見た目が破綻する
+    #   (例: 鈍角三角形の底辺を接合した4角形)
     @staticmethod
     def tessface_fan(
         bm: bmesh.types.BMesh, export_fb_ngon_encoding: bool
@@ -2086,10 +2092,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             joint_id = self.joint_id_from_node_name_solver(
                                 v_group_name, node_id_dict
                             )
-                            # 存在しないボーンを指してる場合は-1を返されてるので、その場合は飛ばす
+                            # 存在しないボーンを指してる場合は-1を返されてるので、
+                            # その場合は飛ばす
                             if joint_id == -1:
                                 continue
-                            # ウエイトがゼロのジョイントの値は無視してゼロになるようにする
+                            # ウエイトがゼロのジョイントの値は無視して
+                            # ゼロになるようにする
                             # https://github.com/KhronosGroup/glTF/tree/f33f90ad9439a228bf90cde8319d851a52a3f470/specification/2.0#skinned-mesh-attributes
                             if v_group.weight < float_info.epsilon:
                                 continue
@@ -2112,7 +2120,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
                         if sum(weights) < float_info.epsilon:
                             logger.warning(
-                                f"No weight on vertex id:{loop.vert.index} in: {mesh.name}"
+                                "No weight on vertex "
+                                + f"id:{loop.vert.index} in:{mesh.name}"
                             )
 
                             # Attach near bone
@@ -2201,8 +2210,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if is_skin_mesh:
                 node_dict["skin"] = skin_count
                 if skin_count > 0:
-                    # Hitogata 0.6.0.1はskinを共有するとエラーになるようなのでskins[0]をコピーして使う。
-                    # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る(から決め打ち(やめろ(やだ))
+                    # Hitogata 0.6.0.1はskinを共有するとエラーになるようなので
+                    # skins[0]をコピーして使う。
+                    # TODO: 決め打ちってどうよ:一体のモデルなのだから2つもあっては困る
+                    #       (から決め打ち(やめろ(やだ))
                     skin_dicts = self.json_dict.get("skins")
                     if isinstance(skin_dicts, list) and skin_dicts:
                         skin_dicts.append(copy.deepcopy(skin_dicts[0]))
