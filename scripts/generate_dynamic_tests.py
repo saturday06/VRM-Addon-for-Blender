@@ -55,7 +55,7 @@ If so please run `git submodule update --init`.\""")
 """
 
 
-def render_generation_failed_test(e: BaseException) -> str:
+def render_generation_failed_test(e: Exception) -> str:
     import_exception_str = rf"{e}".replace('"', '\\"')
     return f"""
     def test_dynamic_test_case_generation_failed(self) -> None:
@@ -133,7 +133,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             func = getattr(mod, "get_test_command_args")  # noqa: B009
         if callable(func):
             test_command_args_list = func()
-    except BaseException as e:
+    except Exception as e:  # noqa: BLE001
         return render_generation_failed_test(e)
 
     if not isinstance(test_command_args_list, Sequence):
