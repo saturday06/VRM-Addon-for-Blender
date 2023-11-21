@@ -98,7 +98,7 @@ def update_property_typing(
         message = f"Unexpected module {module}"
         raise AssertionError(message)
 
-    path = Path(__file__).parent.parent / "io_scene_vrm"
+    path = Path(__file__).parent.parent / "src" / "io_scene_vrm"
     while modules:
         module = modules.pop()
         path = path / module

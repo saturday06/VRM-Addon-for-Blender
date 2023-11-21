@@ -7,6 +7,9 @@ import unittest
 from pathlib import Path
 from typing import TextIO
 
+# This is not necessary if executed from poetry
+sys.path.append(str(Path(__file__).parent.parent / "src"))
+
 
 def run(stream: TextIO) -> None:
     argv = sys.argv

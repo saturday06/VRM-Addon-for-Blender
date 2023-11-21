@@ -31,7 +31,7 @@ fi
 for postfix in "$release_postfix" "$tag_name"; do
   work_dir=$(mktemp -d)
   base="${prefix_name}-${postfix}"
-  cp -r io_scene_vrm "${work_dir}/${base}"
+  cp -r src/io_scene_vrm "${work_dir}/${base}"
   cp -r LICENSE* "${work_dir}/${base}/"
   (
     cd "$work_dir"
@@ -103,7 +103,7 @@ readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
 find "$readme_addon_dir" -name "*.zip" -exec rm -v {} \;
 find "$readme_addon_dir" -name "*.tar.xz" -exec rm -v {} \;
 cp "${readme_tar_xz_abs_path}" "${readme_addon_dir}/"
-cp io_scene_vrm/__init__.py "$readme_branch_dir/"
+cp src/io_scene_vrm/__init__.py "$readme_branch_dir/"
 github_downloaded_zip_path="${PWD}/readme.zip"
 (
   cd "$readme_branch_dir"

@@ -28,8 +28,8 @@
 !/docs/*.png
 !/docs/*.pptx
 !/docs/website/**
-!/io_scene_vrm/README.txt
-!/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
+!/src/io_scene_vrm/README.txt
+!/src/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
 !/poetry.lock
 !/pyproject.toml
 !/tools/*.bat

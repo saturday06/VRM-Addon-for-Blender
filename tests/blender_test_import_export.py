@@ -4,6 +4,7 @@ from os import environ, getenv
 from pathlib import Path
 
 import bpy
+
 from io_scene_vrm.common.logging import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 

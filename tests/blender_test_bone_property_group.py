@@ -1,12 +1,13 @@
 from typing import Optional
 
 import bpy
+from mathutils import Vector
+
 from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
 from io_scene_vrm.editor.property_group import BonePropertyGroup
-from mathutils import Vector
 
 Tree = dict[str, "Tree"]
 

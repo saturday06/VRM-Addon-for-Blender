@@ -3,9 +3,10 @@ import sys
 from collections.abc import Sequence
 
 import bpy
+from mathutils import Euler, Quaternion, Vector
+
 from io_scene_vrm.common import version
 from io_scene_vrm.editor.extension import VrmAddonArmatureExtensionPropertyGroup
-from mathutils import Euler, Quaternion, Vector
 
 addon_version = version.addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1

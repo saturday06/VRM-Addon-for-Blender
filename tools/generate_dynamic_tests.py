@@ -10,6 +10,9 @@ from importlib.util import module_from_spec, spec_from_file_location
 from os import environ
 from pathlib import Path
 
+# This is not necessary if executed from poetry
+sys.path.append(str(Path(__file__).parent.parent / "src"))
+
 
 def to_function_component_literal(s: object) -> str:
     if not isinstance(s, str):

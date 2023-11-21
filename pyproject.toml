@@ -20,6 +20,7 @@ ruff = "*"
 starry-bpy-type-stubs = { git = "https://github.com/saturday06/starry-bpy-type-stubs.git" }
 
 [tool.ruff]
+src = ["src"]
 allowed-confusables = [
     "\u30ce", # Katakana Letter No
 ]
@@ -72,7 +73,7 @@ ignore = [
 ]
 
 [tool.ruff.per-file-ignores]
-"io_scene_vrm/__init__.py" = ["UP"]  # It should work with Blender 2.79.
+"src/io_scene_vrm/__init__.py" = ["UP"]  # It should work with Blender 2.79.
 
 [tool.ruff.lint.pep8-naming]
 extend-ignore-names = [

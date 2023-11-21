@@ -21,7 +21,7 @@ class BaseBlenderTestCase(TestCase):
             self.exeext = ""
 
         self.repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
-        repository_addon_dir = self.repository_root_dir / "io_scene_vrm"
+        repository_addon_dir = self.repository_root_dir / "src" / "io_scene_vrm"
         self.user_scripts_dir = Path(tempfile.mkdtemp(prefix="blender_vrm_"))
         (self.user_scripts_dir / "addons").mkdir(parents=True, exist_ok=True)
         self.addons_pythonpath = self.user_scripts_dir / "addons"

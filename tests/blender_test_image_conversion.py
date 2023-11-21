@@ -2,6 +2,7 @@ import tempfile
 from pathlib import Path
 
 import bpy
+
 from io_scene_vrm.external import io_scene_gltf2_support
 
 

@@ -28,7 +28,7 @@ call docker run ^
   --publish 127.0.0.1:6080:6080/tcp ^
   --volume "%cd%\var":/root/var ^
   --volume "%cd%\tests\resources\gui":/root/tests ^
-  --volume "%cd%\io_scene_vrm":/root/io_scene_vrm ^
+  --volume "%cd%\src\io_scene_vrm":/root/io_scene_vrm ^
   --rm ^
   --name %container_name% ^
   %tag_name%

@@ -1,7 +1,8 @@
 import math
 
-from io_scene_vrm.editor.extension import VrmAddonBoneExtensionPropertyGroup
 from mathutils import Matrix, Vector
+
+from io_scene_vrm.editor.extension import VrmAddonBoneExtensionPropertyGroup
 
 
 def assert_axis_translation(
