@@ -2021,9 +2021,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             normal_bin = bytearray()
             joints_bin = bytearray()
             weights_bin = bytearray()
-            texcoord_bins = {
-                uvlayer_id: bytearray() for uvlayer_id in uvlayers_dict.keys()
-            }
+            texcoord_bins = {uvlayer_id: bytearray() for uvlayer_id in uvlayers_dict}
             float_vec4_packer = struct.Struct("<ffff").pack
             float_vec3_packer = struct.Struct("<fff").pack
             float_pair_packer = struct.Struct("<ff").pack
