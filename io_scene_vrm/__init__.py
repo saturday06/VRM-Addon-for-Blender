@@ -65,7 +65,7 @@ def raise_error_if_unsupported() -> None:
     minimum_version = bl_info["blender"]
     if not isinstance(minimum_version, tuple) or len(minimum_version) != 3:
         # use 'format()' method to support legacy Blender versions
-        message = "Invalid version value: {}".format(minimum_version)  # noqa: UP032
+        message = "Invalid version value: {}".format(minimum_version)
         raise AssertionError(message)
 
     if bpy.app.version >= minimum_version:
