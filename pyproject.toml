@@ -48,9 +48,6 @@ ignore = [
     "G004", # Logging statement uses f-string
     "PLR5501", # Use `elif` instead of `else` then `if`, to reduce indentation
     "PYI025", # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
-    "S602", # `subprocess` call with `shell=True` seems safe, but may be changed in the future; consider rewriting without `shell`
-    "S603", # `subprocess` call: check for execution of untrusted input
-    "S607", # Starting a process with a partial executable path
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
 
     "ANN101", # Missing type annotation for `self` in method
