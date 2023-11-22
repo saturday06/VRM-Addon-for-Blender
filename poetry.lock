@@ -510,8 +510,10 @@ develop = false
 bpy = "3.6.*"
 
 [package.source]
-type = "directory"
-url = "typings"
+type = "git"
+url = "https://github.com/saturday06/starry-bpy-type-stubs.git"
+reference = "HEAD"
+resolved_reference = "9a316c04847adad5eb1e91be2ac37088e48615fa"
 
 [[package]]
 name = "tomli"
@@ -615,4 +617,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "3.10.*"
-content-hash = "370281328c89a9a95a6b51cde04d221b6b895fe08eba1f8102cdcb529ed3040c"
+content-hash = "587e90b168f7c0dd1aa03de2a9e53b35db958cba36af03cddccedcf584555ef3"

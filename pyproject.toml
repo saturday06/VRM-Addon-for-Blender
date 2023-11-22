@@ -17,7 +17,7 @@ codespell = "*"
 mypy = "*"
 pyright = "*"
 ruff = "*"
-starry-bpy-type-stubs = { path = "typings/" }
+starry-bpy-type-stubs = { git = "https://github.com/saturday06/starry-bpy-type-stubs.git" }
 
 [tool.ruff]
 allowed-confusables = [
