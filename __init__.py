@@ -1,9 +1,6 @@
-"""
-Copyright (c) 2018 iCyP
-Released under the MIT license
-https://opensource.org/licenses/mit-license.php
-
-"""
+# Copyright (c) 2018 iCyP
+# Released under the MIT license
+# https://opensource.org/licenses/mit-license.php
 
 #
 #
@@ -17,7 +14,7 @@ https://opensource.org/licenses/mit-license.php
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 18),
+    "version": (2, 20, 19),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -32,8 +29,7 @@ bl_info = {
 
 # To support reload properly, try to access a package var, if it's there, reload everything
 def cleanse_modules() -> None:
-    """search for your plugin modules in blender python sys.modules and remove them"""
-
+    """Search for your plugin modules in blender python sys.modules and remove them."""
     import sys
 
     all_modules = sys.modules
@@ -68,10 +64,9 @@ def raise_error_if_unsupported() -> None:
 
     minimum_version = bl_info["blender"]
     if not isinstance(minimum_version, tuple) or len(minimum_version) != 3:
-        raise AssertionError(
-            # pylint: disable=consider-using-f-string; for legacy Blender versions
-            "Invalid version value: {}".format(minimum_version),
-        )
+        # use 'format()' method to support legacy Blender versions
+        message = "Invalid version value: {}".format(minimum_version)
+        raise AssertionError(message)
 
     if bpy.app.version >= minimum_version:
         return
@@ -95,24 +90,24 @@ def raise_error_if_unsupported() -> None:
     else:
         message = default_message
 
-    raise NotImplementedError(
-        # pylint: disable=consider-using-f-string; for legacy Blender versions
-        """
+    # use 'format()' method to support legacy Blender versions
+    highlighted_message = """
 
             ===========================================================
             {}
             ===========================================================
         """.format(
-            message.format(
-                minimum_version=".".join(map(str, minimum_version)),
-                current_version=".".join(map(str, bpy.app.version)),
-            )
+        message.format(
+            minimum_version=".".join(map(str, minimum_version)),
+            current_version=".".join(map(str, bpy.app.version)),
         )
     )
 
+    raise NotImplementedError(highlighted_message)
+
 
 def extract_github_private_partial_code_archive_if_necessary() -> None:
-    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、足りないソースコードを展開する。
+    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、足りないソースコードを展開する.
 
     このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
     しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
@@ -123,7 +118,6 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
     https://code.blender.org/2022/10/blender-extensions-platform/
     """
-
     import tarfile
     from logging import getLogger
     from pathlib import Path
