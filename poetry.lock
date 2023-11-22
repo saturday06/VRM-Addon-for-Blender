@@ -498,6 +498,22 @@ testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8-2020", "ini2toml[l
 testing-integration = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "packaging (>=23.1)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
+name = "starry-bpy-type-stubs"
+version = "1.0.0"
+description = ""
+optional = false
+python-versions = "3.10.*"
+files = []
+develop = false
+
+[package.dependencies]
+bpy = "3.6.*"
+
+[package.source]
+type = "directory"
+url = "typings"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -600,4 +616,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "3.10.*"
-content-hash = "cddec3adfacca640294a2fb331728d4ddda21fc069c688075b7abe5bab810ca9"
+content-hash = "370281328c89a9a95a6b51cde04d221b6b895fe08eba1f8102cdcb529ed3040c"

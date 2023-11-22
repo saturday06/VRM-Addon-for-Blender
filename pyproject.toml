@@ -17,6 +17,7 @@ codespell = "*"
 mypy = "*"
 pyright = "*"
 ruff = "*"
+starry-bpy-type-stubs = { path = "typings/" }
 
 [tool.ruff]
 allowed-confusables = [
@@ -107,7 +108,6 @@ strict = true
 disallow_any_unimported = true
 disallow_any_decorated = true
 disallow_any_explicit = true
-mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
 
 [tool.pylint.main]
 ignore-paths = "." # Please use Ruff instead.
