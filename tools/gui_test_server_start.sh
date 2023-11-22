@@ -49,7 +49,7 @@ fi
 
 docker build \
   . \
-  --file scripts/gui_test_server.dockerfile \
+  --file tools/gui_test_server.dockerfile \
   --tag "$tag_name" \
   --build-arg "CI=$CI"
 

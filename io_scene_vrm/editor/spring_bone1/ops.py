@@ -33,7 +33,7 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -92,7 +92,7 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
 
@@ -120,7 +120,7 @@ class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -153,7 +153,7 @@ class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
 
@@ -184,7 +184,7 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -233,7 +233,7 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -267,7 +267,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -308,7 +308,7 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
@@ -343,7 +343,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
 
@@ -384,7 +384,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
@@ -437,7 +437,7 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         guess_properties: bool  # type: ignore[no-redef]
@@ -479,7 +479,7 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         joint_index: int  # type: ignore[no-redef]
@@ -510,7 +510,7 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -535,5 +535,5 @@ class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         delta_time: float  # type: ignore[no-redef]

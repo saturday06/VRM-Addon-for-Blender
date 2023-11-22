@@ -47,9 +47,9 @@ class BaseBlenderGuiTestCase(TestCase):
             return
 
         if sys.platform == "win32":
-            server_start_bat_path = "scripts\\gui_test_server_start.bat"
+            server_start_bat_path = "tools\\gui_test_server_start.bat"
         else:
-            server_start_bat_path = "scripts/gui_test_server_start.sh"
+            server_start_bat_path = "tools/gui_test_server_start.sh"
         completed_process = subprocess.run(
             server_start_bat_path,
             check=False,

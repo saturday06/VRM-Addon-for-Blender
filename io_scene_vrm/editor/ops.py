@@ -75,7 +75,7 @@ class VRM_OT_simplify_vroid_bones(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -113,7 +113,7 @@ class VRM_OT_add_human_bone_custom_property(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         bone_name: str  # type: ignore[no-redef]
 
@@ -202,7 +202,7 @@ class VRM_OT_save_human_bone_mappings(bpy.types.Operator, ExportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         filter_glob: str  # type: ignore[no-redef]
 
 
@@ -262,7 +262,7 @@ class VRM_OT_load_human_bone_mappings(bpy.types.Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         filter_glob: str  # type: ignore[no-redef]
 
 
@@ -349,7 +349,7 @@ class VRM_OT_open_url_in_web_browser(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         url: str  # type: ignore[no-redef]
 
 

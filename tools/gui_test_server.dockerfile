@@ -43,6 +43,6 @@ RUN mkdir noVNC \
 RUN mkdir noVNC/utils/websockify \
     && curl -LSf --retry 5 https://github.com/novnc/websockify/archive/33910d758d2c495dd1d380729c31bacbf8229ed0.tar.gz | tar -C noVNC/utils/websockify --strip-component=1 -zxf -
 
-COPY scripts/gui_test_server_entrypoint.sh /root/
+COPY tools/gui_test_server_entrypoint.sh /root/
 RUN mkdir -p /root/var/log /root/var/tmp /root/tests /root/io_scene_vrm
 ENTRYPOINT ["/bin/sh", "-c", "dbus-run-session /root/gui_test_server_entrypoint.sh 2>&1 | tee var/log/entrypoint.log"]

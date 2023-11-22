@@ -258,7 +258,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         filter_glob: str  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
@@ -390,7 +390,7 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         filter_glob: str  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]
 
@@ -544,7 +544,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_object_name: str  # type: ignore[no-redef]
 
 
@@ -603,7 +603,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]
         export_anyway: bool  # type: ignore[no-redef]
@@ -667,7 +667,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_object_name: str  # type: ignore[no-redef]
         armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
 
@@ -778,7 +778,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_object_name: str  # type: ignore[no-redef]
         armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
 

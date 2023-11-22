@@ -30,7 +30,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -65,7 +65,7 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -101,7 +101,7 @@ class VRM_OT_add_vrm0_material_value_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
@@ -146,7 +146,7 @@ class VRM_OT_remove_vrm0_material_value_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
@@ -192,7 +192,7 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
@@ -245,7 +245,7 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
@@ -283,7 +283,7 @@ class VRM_OT_add_vrm0_blend_shape_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
@@ -326,7 +326,7 @@ class VRM_OT_remove_vrm0_blend_shape_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -379,7 +379,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(bpy.types.Oper
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         bone_name: str  # type: ignore[no-redef]
@@ -429,7 +429,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
@@ -466,7 +466,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
@@ -509,7 +509,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         bone_index: int  # type: ignore[no-redef]
@@ -546,7 +546,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(bpy.types.Operato
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
@@ -589,7 +589,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(bpy.types.Oper
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
@@ -621,7 +621,7 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         name: str  # type: ignore[no-redef]
 
@@ -657,7 +657,7 @@ class VRM_OT_remove_vrm0_blend_shape_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
@@ -688,7 +688,7 @@ class VRM_OT_add_vrm0_secondary_animation_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
@@ -724,7 +724,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
@@ -753,7 +753,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -793,7 +793,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -841,5 +841,5 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]

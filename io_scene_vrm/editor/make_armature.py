@@ -624,7 +624,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         skip_heavy_armature_setup: bool  # type: ignore[no-redef]
         WIP_with_template_mesh: bool  # type: ignore[no-redef]
         tall: float  # type: ignore[no-redef]

@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       - name: Release
-        run: ./scripts/release.sh
+        run: ./tools/release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}

@@ -19,7 +19,7 @@ if "%running_container%" neq "" goto test_web_connection
 
 call docker build ^
   . ^
-  --file scripts\gui_test_server.dockerfile ^
+  --file tools\gui_test_server.dockerfile ^
   --tag %tag_name%
 if %errorlevel% neq 0 goto error
 

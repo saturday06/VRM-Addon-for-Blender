@@ -48,8 +48,8 @@ jobs:
       - name: Test
         run: |
           Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
-          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\generate_dynamic_tests.py
-          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python scripts\unittest_discover.py
+          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python tools\generate_dynamic_tests.py
+          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@v3
         if: failure()
@@ -84,8 +84,8 @@ jobs:
         run: |
           hdiutil attach blender.dmg
           cp -fr /Volumes/Blender/Blender.app /Applications
-          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/generate_dynamic_tests.py
-          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python scripts/unittest_discover.py
+          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/generate_dynamic_tests.py
+          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@v3
         if: failure()
@@ -109,14 +109,14 @@ jobs:
         run: git config core.quotepath off
       - name: Check file permissions
         run: |
-          git ls-files ':!scripts/*.sh' ':!scripts/*.py' ':!tests/resources' ':!typings' | while read -r f; do
+          git ls-files ':!tools/*.sh' ':!tools/*.py' ':!tests/resources' ':!typings' | while read -r f; do
             echo "$f"
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."
               exit 1
             fi
           done
-          git ls-files 'scripts/*.sh' 'scripts/*.py' | while read -r f; do
+          git ls-files 'tools/*.sh' 'tools/*.py' | while read -r f; do
             echo "$f"
             if [ ! -x "$f" ]; then
               echo "$f has no executable permission."
@@ -160,10 +160,10 @@ jobs:
         run: poetry install
       - name: Check source code formatting
         run: |
-          ./scripts/format.sh
+          ./tools/format.sh
           git diff --exit-code
       - name: Lint
-        run: ./scripts/lint.sh
+        run: ./tools/lint.sh
       - name: Super-Linter
         uses: github/super-linter@v5
         env:

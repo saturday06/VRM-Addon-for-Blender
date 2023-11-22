@@ -36,7 +36,7 @@ class StringPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         value: str  # type: ignore[no-redef]
 
 
@@ -59,7 +59,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         value: float  # type: ignore[no-redef]
 
 
@@ -113,7 +113,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         mesh_object_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
         bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
@@ -363,7 +363,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         bone_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
         bone_uuid: str  # type: ignore[no-redef]

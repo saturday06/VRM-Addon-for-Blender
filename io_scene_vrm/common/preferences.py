@@ -84,7 +84,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./scripts/property_typing.py`
+        # `poetry run ./tools/property_typing.py`
         addon_version: Sequence[int]  # type: ignore[no-redef]
         set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
         set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]

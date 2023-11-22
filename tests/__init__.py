@@ -4,7 +4,7 @@ def io_scene_vrm_tests_generate_dynamic_tests() -> None:
 
     spec = importlib.util.spec_from_file_location(
         "blender_vrm_addon_run_scripts_generate_dynamic_tests",
-        Path(__file__).parent.parent / "scripts" / "generate_dynamic_tests.py",
+        Path(__file__).parent.parent / "tools" / "generate_dynamic_tests.py",
     )
     if spec is None:
         return

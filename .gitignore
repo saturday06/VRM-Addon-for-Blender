@@ -32,9 +32,9 @@
 !/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
 !/poetry.lock
 !/pyproject.toml
-!/scripts/*.bat
-!/scripts/*.dockerfile
-!/scripts/*.sh
+!/tools/*.bat
+!/tools/*.dockerfile
+!/tools/*.sh
 !/tests/ruff.toml
 !/tests/resources
 
