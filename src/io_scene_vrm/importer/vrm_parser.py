@@ -73,7 +73,7 @@ class Vrm0MaterialProperty:
         raw_float_properties = json_dict.get("floatProperties")
         if isinstance(raw_float_properties, dict):
             float_properties = {
-                k: v
+                k: float(v)
                 for k, v in raw_float_properties.items()
                 if isinstance(v, (float, int))
             }
