@@ -71,7 +71,7 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加やM
 ## 開発するには
 
 開発用のソースコードは<a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm">`src/io_scene_vrm`</a> フォルダがアドオン本体です。
-`io_scene_vrm` フォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
+そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
 テストの実行など、より高度な開発をする場合は[Poetry](https://python-poetry.org/)をご利用ください。
 
