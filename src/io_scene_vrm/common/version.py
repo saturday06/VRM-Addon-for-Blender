@@ -127,17 +127,21 @@ def preferences_warning_message() -> Optional[str]:
 def panel_warning_message() -> Optional[str]:
     if blender_restart_required():
         return pgettext(
-            "The VRM add-on has been\nupdated."
-            + " Please restart Blender\nto apply the changes."
+            "The VRM add-on has been\n"
+            + "updated. Please restart Blender\n"
+            + "to apply the changes."
         )
     if not stable_release():
         return pgettext(
-            "VRM add-on is\nnot compatible with\nBlender {blender_version_cycle}."
+            "VRM add-on is\n"
+            + "not compatible with\n"
+            + "Blender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
     if not supported():
         return pgettext(
-            "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
-            + " Please update."
+            "The installed VRM add-\n"
+            + "on is not compatible with\n"
+            + "Blender {blender_version}. Please update."
         ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
     return None
 

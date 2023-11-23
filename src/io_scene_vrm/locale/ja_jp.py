@@ -8,8 +8,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。\nアドオンをアップデートしてください。",
     (
         "*",
-        "The installed VRM add-\non is not compatible with\nBlender {blender_version}."
-        + " Please update.",
+        "The installed VRM add-\n"
+        + "on is not compatible with\n"
+        + "Blender {blender_version}. Please update.",
     ): "インストールされている\nVRMアドオンは、Blender {blender_version}\nには未対応です。アドオンを\nアップデートしてください。",
     (
         "*",
@@ -22,7 +23,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRMアドオンはBlenderの{blender_version_cycle}版には未対応です。",
     (
         "*",
-        "VRM add-on is\nnot compatible with\nBlender {blender_version_cycle}.",
+        "VRM add-on is\n"
+        + "not compatible with\n"
+        + "Blender {blender_version_cycle}.",
     ): "VRMアドオンはBlender\nの{blender_version_cycle}版には未対応です。",
     (
         "*",
@@ -37,8 +40,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRMアドオンはアップデートされました。変更を適用するためにBlenderを再起動してください。",
     (
         "*",
-        "The VRM add-on has been\nupdated."
-        + " Please restart Blender\nto apply the changes.",
+        "The VRM add-on has been\n"
+        + "updated. Please restart Blender\n"
+        + "to apply the changes.",
     ): "VRMアドオンはアップデート\nされました。変更を適用するため\nBlenderを再起動してください。",
     ("*", 'Set shading type to "Material"'): "3Dビューをマテリアルプレビューに設定",
     ("*", 'Set view transform to "Standard"'): "ビュー変換を「標準」に設定",
