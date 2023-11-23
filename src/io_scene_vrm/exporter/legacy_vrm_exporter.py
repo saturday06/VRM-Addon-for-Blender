@@ -1762,9 +1762,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         faces = bm.faces
         sorted_faces = sorted(
             faces,
-            key=lambda f: int(  # material_indexの型をintとして明示的に指定しないとmypyがエラーになる
-                f.material_index
-            ),
+            key=lambda f: f.material_index,
         )
         polys: list[tuple[int, tuple[bmesh.types.BMLoop, ...]]] = []
         for face in sorted_faces:
