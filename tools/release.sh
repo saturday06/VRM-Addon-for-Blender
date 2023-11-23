@@ -19,7 +19,7 @@ if [ -z "$tag_name" ]; then
 fi
 
 version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$tag_name")
-bl_info_version=$(python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
+bl_info_version=$(cd src && python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
 if [ "$version" != "$bl_info_version" ]; then
   release_postfix=draft
 elif [ "$(git rev-parse origin/main)" != "$(git rev-parse HEAD)" ]; then
