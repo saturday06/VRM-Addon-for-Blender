@@ -884,30 +884,53 @@ def copy_node_tree_interface_socket(
 def copy_node_tree_interface(
     from_node_tree: bpy.types.NodeTree, to_node_tree: bpy.types.NodeTree
 ) -> None:
-    # TODO: differential update
-    to_node_tree.interface.clear()
+    to_items = list(to_node_tree.interface.items_tree.values())
+    to_items_index = 0
 
-    for item in from_node_tree.interface.items_tree:
-        if item.item_type != "SOCKET" or not isinstance(
-            item, bpy.types.NodeTreeInterfaceSocket
+    for from_item in from_node_tree.interface.items_tree:
+        if from_item.item_type != "SOCKET" or not isinstance(
+            from_item, bpy.types.NodeTreeInterfaceSocket
         ):
             continue
-        socket_type = item.socket_type
-        if not socket_type:
+        from_socket_type = from_item.socket_type
+        if not from_socket_type:
             logger.error(
-                f"{item.name} has empty socket_type. type={type(item).__name__}"
+                f"{from_item.name} has empty socket_type."
+                + f" type={type(from_item).__name__}"
             )
-            if isinstance(item, bpy.types.NodeTreeInterfaceSocketFloatFactor):
-                socket_type = "NodeSocketFloat"
+            if isinstance(from_item, bpy.types.NodeTreeInterfaceSocketFloatFactor):
+                from_socket_type = "NodeSocketFloat"
             else:
                 continue
-        to_socket = to_node_tree.interface.new_socket(
-            item.name,
-            description=item.description,
-            in_out=item.in_out,
-            socket_type=socket_type,
-        )
-        copy_node_tree_interface_socket(item, to_socket)
+
+        to_socket: Optional[bpy.types.NodeTreeInterfaceSocket] = None
+        for to_item in to_items[to_items_index:]:
+            if to_item.item_type != "SOCKET" or not isinstance(
+                to_item, bpy.types.NodeTreeInterfaceSocket
+            ):
+                to_items_index += 1
+                continue
+            to_socket = to_item
+            if to_socket.name != from_item.name:
+                to_socket.name = from_item.name
+            if to_socket.description != from_item.description:
+                to_socket.description = from_item.description
+            if to_socket.in_out != from_item.in_out:
+                to_socket.in_out = from_item.in_out
+            if to_socket.socket_type != from_socket_type:
+                to_socket.socket_type = from_socket_type
+            break
+        if to_socket is None:
+            to_socket = to_node_tree.interface.new_socket(
+                from_item.name,
+                description=from_item.description,
+                in_out=from_item.in_out,
+                socket_type=from_socket_type,
+            )
+        else:
+            to_items_index += 1
+
+        copy_node_tree_interface_socket(from_item, to_socket)
 
 
 def copy_node_tree(
