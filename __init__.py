@@ -14,7 +14,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 19),
+    "version": (2, 20, 20),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -27,7 +27,8 @@ bl_info = {
 }
 
 
-# To support reload properly, try to access a package var, if it's there, reload everything
+# To support reload properly, try to access a package var, if it's there,
+# reload everything
 def cleanse_modules() -> None:
     """Search for your plugin modules in blender python sys.modules and remove them."""
     import sys
@@ -107,10 +108,10 @@ def raise_error_if_unsupported() -> None:
 
 
 def extract_github_private_partial_code_archive_if_necessary() -> None:
-    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、足りないソースコードを展開する.
+    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、ソースを展開する.
 
-    このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用していた。
-    しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
+    このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用
+    していた。しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
     ソースコード配置から離れてしまい、開発ツールのサポートが弱くなってしまうのでそのダウンロード方式は廃止した。
     しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがるため
     どうにかソースコード配置を変えずに、その方式でも動作するように頑張った結果がこれである。
@@ -138,7 +139,8 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
 
     logger.warning(
         "%s Extracting the partial add-on archive for "
-        'users who have acquired the add-on from "Code" -> "Download ZIP" on GitHub ...',
+        + "users who have acquired the add-on "
+        + 'from "Code" -> "Download ZIP" on GitHub ...',
         log_warning_prefix,
     )
 
