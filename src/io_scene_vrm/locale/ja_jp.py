@@ -59,7 +59,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Enable Advanced Options"): "高度なオプションを有効にする",
     (
         "*",
-        "Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
+        "Try the FB_ngon_encoding under development"
+        + " (Exported meshes can be corrupted)",
     ): "開発中のFB_ngon_encodingエクステンションを試してみる(エクスポートされるメッシュが壊れることがあります)",
     (
         "*",
@@ -112,16 +113,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "指定されたVRMには「Other」ライセンスが設定されていますが、URLが設定されていません。",
     (
         "*",
-        'The VRM is licensed by "{license_name}". No derivative works are allowed.',
+        'The VRM is licensed by "{license_name}".'
+        + " No derivative works are allowed.",
     ): "指定されたVRMには改変不可ライセンス「{license_name}」が設定されています。改変することはできません。",
     (
         "*",
-        "The FB_ngon_encoding extension under development will be used. "
-        + "The exported mesh may be corrupted.",
+        "FB_ngon_encoding extension under development will be used."
+        + " The exported mesh may be corrupted.",
     ): "開発中のFB_ngon_encodingエクステンションが有効です。エクスポートされるメッシュが壊れることがあります。",
     (
         "*",
-        "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",
+        "Nodes(mesh,bones) require unique names for VRM export."
+        + " {name} is duplicated.",
     ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{name}」が重複しています。",
     (
         "*",
@@ -129,14 +132,16 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "「{name}」が原点座標にありません",
     (
         "*",
-        "The same name cannot be used for a mesh object and a bone. "
-        + 'Rename either one whose name is "{name}".',
+        "The same name cannot be used"
+        + " for a mesh object and a bone."
+        + ' Rename either one whose name is "{name}".',
     ): "メッシュオブジェクトとボーンで同じ名前を使うことができません。"
     + "名前が「{name}」のどちらかの名前を変更してください。",
     (
         "*",
-        'The "{name}" mesh has both a non-armature modifier and a shape key. '
-        + "However, they cannot coexist, so shape keys may not be export correctly.",
+        'The "{name}" mesh has both a non-armature modifier'
+        + " and a shape key. However, they cannot coexist"
+        + ", so shape keys may not be export correctly.",
     ): "メッシュ「{name}」にアーマチュア以外のモディファイアとシェイプキーが両方設定されていますが、"
     + "それらは共存できないためシェイプキーが正しく出力されないことがあります。",
     (
@@ -146,12 +151,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "Spring 「{spring_name1}」と「{spring_name2}」が「{bone_name}」ボーンを共有しています。",
     (
         "*",
-        '"{export_only_selections}" is enabled, but no mesh is selected.',
+        '"{export_only_selections}" is enabled' + ", but no mesh is selected.",
     ): "「{export_only_selections}」が有効ですが、メッシュが一つも選択されていません。",
     ("*", "There is no mesh to export."): "エクスポート対象のメッシュがありません。",
     (
         "*",
-        "Only one armature is required for VRM export. Multiple armatures found.",
+        "Only one armature is required for VRM export." + " Multiple armatures found.",
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
         "*",
@@ -163,21 +168,31 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRMオプションボーン",
     (
         "*",
-        'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
-        + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".',
+        'Required VRM Bone "{humanoid_name}" is'
+        + " not assigned. Please confirm hierarchy"
+        + " of {humanoid_name} and its children."
+        + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
+        + " will be empty or displayed in red"
+        + " if hierarchy is wrong",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
     + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
-        'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
+        'Couldn\'t assign "{bone}" bone'
+        + ' to VRM Humanoid Bone: "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '
-        + '"VRM" Panel → "Humanoid" → "{human_bone}" empty if wrong hierarchy',
+        + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
+        + " if wrong hierarchy",
     ): "ボーン「{bone}」をVRMボーン「{human_bone}」に割り当てることができませんでした。"
     + "「VRM」パネルの「VRM 0.x Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
     (
         "*",
-        'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
-        + ' "VRM" Panel → "Humanoid" → "VRM Required Bones" → "{humanoid_name}".',
+        'Required VRM Bone "{humanoid_name}" is'
+        + " not assigned. Please confirm hierarchy"
+        + " of {humanoid_name} and its children. "
+        + '"VRM" Panel → "Humanoid" → {humanoid_name}'
+        + " will be empty or displayed in red"
+        + " if hierarchy is wrong",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
     + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
     (
@@ -186,7 +201,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRM必須ボーン「{name}」を割り当ててください。",
     (
         "*",
-        'Please assign "{parent_name}" because "{name}" requires it as its child bone.',
+        'Please assign "{parent_name}"'
+        + ' because "{name}" requires it as its child bone.',
     ): "「{parent_name}」を割り当ててください。子ボーンである「{name}」の割り当てに必要になります。",
     (
         "*",
@@ -194,36 +210,44 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "「{name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
     (
         "*",
-        'VRM Bone "{child}" needs "{parent}". Please confirm'
-        + ' "VRM" Panel → "Humanoid" → "VRM Optional Bones" → "{parent}".',
+        'VRM Bone "{child}" needs "{parent}".'
+        + " Please confirm"
+        + ' "VRM" Panel → "Humanoid"'
+        + ' → "VRM Optional Bones" → "{parent}".',
     ): "VRMボーン「{child}」は「{parent}」が必要です。"
     + "「VRM」パネルの「Humanoid」→「VRMオプションボーン」で「{parent}」ボーンの設定をしてください。",
     (
         "*",
         'Object "{name}" contains a negative value for the scale;'
-        + " VRM 1.0 does not allow negative values to be specified for the scale.",
+        + " VRM 1.0 does not allow negative values to be specified"
+        + " for the scale.",
     ): "オブジェクト「{name}」にスケールにマイナス値が含まれています。VRM 1.0ではスケールにマイナス値を指定できません。",
     (
         "*",
-        'Node Constraint "{owner_name} / {constraint_name}" has a circular dependency',
+        'Node Constraint "{owner_name} / {constraint_name}" has'
+        + " a circular dependency",
     ): "ノードコンストレイント「{owner_name} / {constraint_name}」に循環依存関係が存在します。",
     ("*", "No armature exists."): "アーマチュアが存在しません。",
     (
         "*",
-        'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
-        + "Add weight to parent bone automatically.",
+        'vertex index "{vertex_index}" is no weight'
+        + ' in "{mesh_name}".'
+        + " Add weight to parent bone automatically.",
     ): "「{mesh_name}」の頂点id「{vertex_index}」にウェイトが乗っていません。"
     + "親ボーンへのウエイトを自動で割り当てます。",
     (
         "*",
-        'vertex index "{vertex_index}" has too many(over 4) weight in "{mesh_name}". '
-        + "It will be truncated to 4 descending order by its weight.",
+        'vertex index "{vertex_index}" has'
+        + ' too many (over 4) weight in "{mesh_name}".'
+        + " It will be truncated to 4 descending"
+        + " order by its weight.",
     ): "「{mesh_name}」の頂点id「{vertex_index}」に影響を与えるボーンが5以上あります。"
     + "重い順に4つまでエクスポートされます。",
     (
         "*",
-        '"{material_name}" needs to enable "VRM MToon Material" or'
-        + " connect Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
+        '"{material_name}" needs to enable'
+        + ' "VRM MToon Material" or connect'
+        + " Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
         + ' to "Surface" directly. Empty material will be exported.',
     ): "マテリアル「{material_name}」は「VRM MToon Material」を有効にするか"
     + "「プリンシプルBSDF」「MToon_unversioned」「TRANSPARENT_ZWRITE」の"
@@ -243,21 +267,23 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'mesh "{mesh_name}" doesn\'t have shape key. '
-        + 'But blend shape group needs "{shape_key_name}" in its shape key.',
+        + 'But blend shape group needs "{shape_key_name}"'
+        + " in its shape key.",
     ): "blend shape groupが参照しているメッシュ「{mesh_name}」のシェイプキー「{shape_key_name}」が存在しません。",
     (
         "*",
-        'mesh "{mesh_name}" doesn\'t have "{shape_key_name}" shape key. '
+        'mesh "{mesh_name}" doesn\'t have '
+        + '"{shape_key_name}" shape key. '
         + "But blend shape group needs it.",
     ): "メッシュ「{mesh_name}」にはシェイプキー「{shape_key_name}」が存在しません。"
     + "しかし blend shape group の設定はそれを必要としています。",
     (
         "*",
-        'need "{expect_node_type}" input in "{shader_val}" of "{material_name}"',
+        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',
     ): "「{material_name}」の「{shader_val}」には、「{expect_node_type}」を直接つないでください。 ",
     (
         "*",
-        'image in material "{material_name}" is not put. Please set image.',
+        'image in material "{material_name}" is not put.' + " Please set image.",
     ): "マテリアル「{material_name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
     ("*", "Symmetrize VRoid Bone Names on X-Axis"): "VRoidのボーン名をX軸対称化",
     (
@@ -360,24 +386,27 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRM 0.0ではオフセットとスケールは無視されます",
     (
         "*",
-        'Material "{name}" {texture}\'s Offset and Scale are ignored in VRM 0.0',
+        'Material "{name}" {texture}\'s Offset and Scale are' + " ignored in VRM 0.0",
     ): "VRM 0.0ではマテリアル「{name}」の{texture}のオフセットとスケールは無視されます",
     (
         "*",
-        "Offset and Scale in VRM 0.0 are the values of the Lit Color Texture",
+        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture",
     ): "VRM 0.0でのオフセットとスケールはLit Colorテクスチャの値になります",
     (
         "*",
-        'Material "{name}" {texture}\'s Offset and Scale in VRM 0.0 are the values of '
-        + "the Lit Color Texture",
+        'Material "{name}" {texture}\'s Offset and Scale'
+        + " in VRM 0.0 are the values of"
+        + " the Lit Color Texture",
     ): "VRM 0.0でのマテリアル「name」の{texture}のオフセットとスケールはLit Colorテクスチャの値になります",
     (
         "*",
-        'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"',
+        'It is recommended to set "{colorspace}"'
+        + ' to "{input_colorspace}" for "{texture_label}"',
     ): "{texture_label}の{input_colorspace}には「{colorspace}」の設定が推奨されます",
     (
         "*",
-        'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
+        'It is recommended to set "{colorspace}"'
+        + ' to "{input_colorspace}" for "{texture_label}"'
         + ' in Material "{name}"',
     ): "マテリアル{name}の{texture_label}の{input_colorspace}には「{colorspace}」の設定が推奨されます。",
     (

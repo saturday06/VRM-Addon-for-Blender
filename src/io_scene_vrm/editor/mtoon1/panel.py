@@ -66,7 +66,8 @@ def draw_texture_info(
         ):
             box.box().label(
                 text=pgettext(
-                    'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
+                    'It is recommended to set "{colorspace}"'
+                    + ' to "{input_colorspace}" for "{texture_label}"'
                 ).format(
                     texture_label=texture_info.index.label,
                     colorspace=pgettext(texture_info.index.colorspace),
@@ -88,7 +89,8 @@ def draw_texture_info(
             )
         elif ext.pbr_metallic_roughness.base_color_texture != texture_info:
             box.box().label(
-                text="Offset and Scale in VRM 0.0 are the values of the Lit Color Texture",
+                text="Offset and Scale in VRM 0.0 are"
+                + " the values of the Lit Color Texture",
                 icon="ERROR",
             )
 
@@ -138,7 +140,8 @@ def draw_mtoon0_texture(
         if texture.source.colorspace_settings.name != texture.colorspace:
             box.box().label(
                 text=pgettext(
-                    'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
+                    'It is recommended to set "{colorspace}"'
+                    + ' to "{input_colorspace}" for "{texture_label}"'
                 ).format(
                     texture_label=texture.label,
                     colorspace=pgettext(texture.colorspace),

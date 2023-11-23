@@ -95,7 +95,8 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         update=export_vrm_update_addon_preferences,
     )
     export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Try the FB_ngon_encoding under development (Exported meshes can be corrupted)",
+        name="Try the FB_ngon_encoding under development"
+        + " (Exported meshes can be corrupted)",
         update=export_vrm_update_addon_preferences,
     )
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]

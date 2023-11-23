@@ -129,7 +129,8 @@ def validate_license(json_dict: dict[str, Json]) -> None:
                 None,
                 None,
                 pgettext(
-                    'The VRM is licensed by "{license_name}". No derivative works are allowed.'
+                    'The VRM is licensed by "{license_name}".'
+                    + " No derivative works are allowed."
                 ).format(license_name=license_name),
             )
         )

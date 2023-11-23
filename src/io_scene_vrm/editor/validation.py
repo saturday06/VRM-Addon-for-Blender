@@ -99,9 +99,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 continue
             messages.append(
                 pgettext(
-                    'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
+                    'Couldn\'t assign "{bone}" bone'
+                    + ' to VRM Humanoid Bone: "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
-                    + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty if wrong hierarchy'
+                    + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
+                    + " if wrong hierarchy"
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=human_bone.specification().title,
@@ -134,9 +136,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             specification = vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
             messages.append(
                 pgettext(
-                    'Couldn\'t assign "{bone}" bone to VRM Humanoid Bone: "{human_bone}". '
+                    'Couldn\'t assign "{bone}" bone'
+                    + ' to VRM Humanoid Bone: "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
-                    + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty if wrong hierarchy'
+                    + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
+                    + " if wrong hierarchy"
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=specification.title,
@@ -198,7 +202,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             if export_only_selections:
                 warning_messages.append(
                     pgettext(
-                        '"{export_only_selections}" is enabled, but no mesh is selected.'
+                        '"{export_only_selections}" is enabled'
+                        + ", but no mesh is selected."
                     ).format(export_only_selections=pgettext("Export Only Selections"))
                 )
             else:
@@ -208,7 +213,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
         if armature_count >= 2:  # only one armature
             error_messages.append(
                 pgettext(
-                    "Only one armature is required for VRM export. Multiple armatures found."
+                    "Only one armature is required for VRM export."
+                    + " Multiple armatures found."
                 )
             )
         if armature_count == 0:
@@ -219,7 +225,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 if obj.name in node_names:
                     error_messages.append(
                         pgettext(
-                            "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated."
+                            "Nodes(mesh,bones) require unique names for VRM export."
+                            + " {name} is duplicated."
                         ).format(name=obj.name)
                     )
                 if obj.name not in node_names:
@@ -255,8 +262,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             ):
                 skippable_warning_messages.append(
                     pgettext(
-                        'The "{name}" mesh has both a non-armature modifier and a shape key. '
-                        + "However, they cannot coexist, so shape keys may not be export correctly."
+                        'The "{name}" mesh has both a non-armature modifier'
+                        + " and a shape key. However, they cannot coexist"
+                        + ", so shape keys may not be export correctly."
                     ).format(name=obj.name)
                 )
             if obj.type == "ARMATURE" and armature_count == 1:
@@ -272,8 +280,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     if bone.name in node_names:  # nodes name is unique
                         error_messages.append(
                             pgettext(
-                                "The same name cannot be used for a mesh object and a bone. "
-                                + 'Rename either one whose name is "{name}".'
+                                "The same name cannot be used"
+                                + " for a mesh object and a bone."
+                                + ' Rename either one whose name is "{name}".'
                             ).format(name=bone.name)
                         )
                     if bone.name not in node_names:
@@ -313,10 +322,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         if not human_bones.allow_non_humanoid_rig:
                             error_messages.append(
                                 pgettext(
-                                    'Required VRM Bone "{humanoid_name}" is not assigned. '
-                                    + "Please confirm hierarchy of {humanoid_name} and its children. "
-                                    + '"VRM" Panel → "Humanoid" → {humanoid_name} will be '
-                                    + "empty or displayed in red if hierarchy is wrong"
+                                    'Required VRM Bone "{humanoid_name}" is'
+                                    + " not assigned. Please confirm hierarchy"
+                                    + " of {humanoid_name} and its children. "
+                                    + '"VRM" Panel → "Humanoid" → {humanoid_name}'
+                                    + " will be empty or displayed in red"
+                                    + " if hierarchy is wrong"
                                 ).format(humanoid_name=human_bone_specification.title)
                             )
 
@@ -346,8 +357,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                             ):
                                 error_messages.append(
                                     pgettext(
-                                        'VRM Bone "{child}" needs "{parent}". Please confirm'
-                                        + ' "VRM" Panel → "Humanoid" → "VRM Optional Bones" → "{parent}".'
+                                        'VRM Bone "{child}" needs "{parent}".'
+                                        + " Please confirm"
+                                        + ' "VRM" Panel → "Humanoid"'
+                                        + ' → "VRM Optional Bones" → "{parent}".'
                                     ).format(
                                         child=human_bone_specification.title,
                                         parent=parent.title,
@@ -383,10 +396,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         all_required_bones_exist = False
                         error_messages.append(
                             pgettext(
-                                'Required VRM Bone "{humanoid_name}" is not assigned. '
-                                + "Please confirm hierarchy of {humanoid_name} and its children. "
-                                + '"VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name} will be '
-                                + "empty or displayed in red if hierarchy is wrong"
+                                'Required VRM Bone "{humanoid_name}" is'
+                                + " not assigned. Please confirm hierarchy"
+                                + " of {humanoid_name} and its children."
+                                + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
+                                + " will be empty or displayed in red"
+                                + " if hierarchy is wrong"
                             ).format(humanoid_name=humanoid_name.capitalize())
                         )
                 if all_required_bones_exist:
@@ -420,7 +435,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             error_messages.extend(
                 pgettext(
                     'Object "{name}" contains a negative value for the scale;'
-                    + " VRM 1.0 does not allow negative values to be specified for the scale."
+                    + " VRM 1.0 does not allow negative values to be specified"
+                    + " for the scale."
                 ).format(name=obj.name)
                 for obj in export_objects
                 if obj.scale[0] < 0 or obj.scale[1] < 0 or obj.scale[2] < 0
@@ -496,8 +512,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         continue
                     info_messages.append(
                         pgettext(
-                            'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
-                            + "Add weight to parent bone automatically."
+                            'vertex index "{vertex_index}" is no weight'
+                            + ' in "{mesh_name}".'
+                            + " Add weight to parent bone automatically."
                         ).format(vertex_index=v.index, mesh_name=mesh.name)
                     )
                     vertex_error_count = vertex_error_count + 1
@@ -513,8 +530,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     if weight_count > 4 and vertex_error_count < 5:
                         info_messages.append(
                             pgettext(
-                                'vertex index "{vertex_index}" has too many(over 4) weight in "{mesh_name}". '
-                                + "It will be truncated to 4 descending order by its weight."
+                                'vertex index "{vertex_index}" has'
+                                + ' too many (over 4) weight in "{mesh_name}".'
+                                + " It will be truncated to 4 descending"
+                                + " order by its weight."
                             ).format(vertex_index=v.index, mesh_name=mesh.name)
                         )
                         vertex_error_count = vertex_error_count + 1
@@ -547,8 +566,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
                 skippable_warning_messages.append(
                     pgettext(
-                        '"{material_name}" needs to enable "VRM MToon Material" or'
-                        + " connect Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
+                        '"{material_name}" needs to enable'
+                        + ' "VRM MToon Material" or connect'
+                        + " Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
                         + ' to "Surface" directly. Empty material will be exported.'
                     ).format(material_name=mat.name)
                 )
@@ -627,7 +647,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     continue
                 skippable_warning_messages.append(
                     pgettext(
-                        'It is recommended to set "{colorspace}" to "{input_colorspace}" for "{texture_label}"'
+                        'It is recommended to set "{colorspace}"'
+                        + ' to "{input_colorspace}" for "{texture_label}"'
                         + ' in Material "{name}"'
                     ).format(
                         name=mat.name,
@@ -665,7 +686,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     ):
                         skippable_warning_messages.append(
                             pgettext(
-                                'Material "{name}" {texture}\'s Offset and Scale are ignored in VRM 0.0'
+                                'Material "{name}" {texture}\'s Offset and Scale are'
+                                + " ignored in VRM 0.0"
                             ).format(
                                 name=mat.name,
                                 texture=texture_info.index.label,
@@ -679,8 +701,9 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 ):
                     skippable_warning_messages.append(
                         pgettext(
-                            'Material "{name}" {texture}\'s Offset and Scale in VRM 0.0 are the values of '
-                            + "the Lit Color Texture"
+                            'Material "{name}" {texture}\'s Offset and Scale'
+                            + " in VRM 0.0 are the values of"
+                            + " the Lit Color Texture"
                         ).format(
                             name=mat.name,
                             texture=texture_info.index.label,
@@ -695,8 +718,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             if export_fb_ngon_encoding:
                 warning_messages.append(
                     pgettext(
-                        "The FB_ngon_encoding extension under development will be used. "
-                        + "The exported mesh may be corrupted."
+                        "FB_ngon_encoding extension under development will be used."
+                        + " The exported mesh may be corrupted."
                     )
                 )
 
@@ -728,7 +751,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         info_messages.append(
                             pgettext(
                                 'mesh "{mesh_name}" doesn\'t have shape key. '
-                                + 'But blend shape group needs "{shape_key_name}" in its shape key.'
+                                + 'But blend shape group needs "{shape_key_name}"'
+                                + " in its shape key."
                             ).format(
                                 mesh_name=bind.mesh.name,
                                 shape_key_name=bind.index,
@@ -739,7 +763,8 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     if bind.index not in shape_keys.key_blocks:
                         info_messages.append(
                             pgettext(
-                                'mesh "{mesh_name}" doesn\'t have "{shape_key_name}" shape key. '
+                                'mesh "{mesh_name}" doesn\'t have '
+                                + '"{shape_key_name}" shape key. '
                                 + "But blend shape group needs it."
                             ).format(
                                 mesh_name=bind.mesh.name,
@@ -890,7 +915,8 @@ def node_material_input_check(
         if n.type != expect_node_type:
             messages.append(
                 pgettext(
-                    'need "{expect_node_type}" input in "{shader_val}" of "{material_name}"',
+                    'need "{expect_node_type}" input'
+                    + ' in "{shader_val}" of "{material_name}"',
                 ).format(
                     expect_node_type=expect_node_type,
                     shader_val=shader_val,
@@ -906,6 +932,7 @@ def node_material_input_check(
             else:
                 messages.append(
                     pgettext(
-                        'image in material "{material_name}" is not put. Please set image.',
+                        'image in material "{material_name}" is not put.'
+                        + " Please set image.",
                     ).format(material_name=material.name)
                 )

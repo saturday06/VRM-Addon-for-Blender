@@ -37,16 +37,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "此VRM附加其他许可 但是未找到许可链接。",
     (
         "*",
-        'The VRM is licensed by "{license_name}". No derivative works are allowed.',
+        'The VRM is licensed by "{license_name}".'
+        + " No derivative works are allowed.",
     ): "此VRM附加「{license_name}」许可。允许任何衍生作品。",
     (
         "*",
-        "Nodes(mesh,bones) require unique names for VRM export. {name} is duplicated.",
+        "Nodes(mesh,bones) require unique names for VRM export."
+        + " {name} is duplicated.",
     ): "glTFノNodes(mesh,bones) 骨骼需要唯一名字。「{name}」重复。",
     ("*", 'There are not an object on the origin "{name}"'): "「{name}」原点座標无对象",
     (
         "*",
-        "Only one armature is required for VRM export. Multiple armatures found.",
+        "Only one armature is required for VRM export." + " Multiple armatures found.",
     ): "VRM导出只需要一个骨架。检测到负数选择。",
     (
         "*",
@@ -58,8 +60,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRM可选的骨骼",
     (
         "*",
-        'Required VRM Bone "{humanoid_name}" is not assigned. Please confirm'
-        + ' "VRM" Panel → "VRM 0.x Humanoid" → "VRM Required Bones" → "{humanoid_name}".',
+        'Required VRM Bone "{humanoid_name}" is'
+        + " not assigned. Please confirm hierarchy"
+        + " of {humanoid_name} and its children."
+        + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
+        + " will be empty or displayed in red"
+        + " if hierarchy is wrong",
     ): "VRM必须的「{humanoid_name}」未设定。"
     + "「VRM」面板的「VRM 0.x Humanoid」→「VRM必要骨骼」で「{humanoid_name}」设定正确。",
     (
@@ -70,18 +76,23 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Please add ARMATURE to selections"): "庆为所选项添加骨架",
     (
         "*",
-        'vertex index "{vertex_index}" is no weight in "{mesh_name}". '
-        + "Add weight to parent bone automatically.",
+        'vertex index "{vertex_index}" is no weight'
+        + ' in "{mesh_name}".'
+        + " Add weight to parent bone automatically.",
     ): "「{mesh_name}」的顶点id「{vertex_index}」无权重。" + "自动添加权重到父级骨骼。",
     (
         "*",
-        'vertex index "{vertex_index}" has too many(over 4) weight in "{mesh_name}". '
-        + "It will be truncated to 4 descending order by its weight.",
+        'vertex index "{vertex_index}" has'
+        + ' too many (over 4) weight in "{mesh_name}".'
+        + " It will be truncated to 4 descending"
+        + " order by its weight.",
     ): "「{mesh_name}」的顶点id「{vertex_index}」有太多权重(over 4)。"
     + "按照权重缩减到4。",
     (
         "*",
-        '"{material_name}" needs to connect Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE'
+        '"{material_name}" needs to enable'
+        + ' "VRM MToon Material" or connect'
+        + " Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
         + ' to "Surface" directly. Empty material will be exported.',
     ): "「{material_name}」需要通过Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE直接指定到面。"
     + "空材质会被导出。",
@@ -98,11 +109,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "firstPersonBone 设置 VRM HumanBone「head」取代自动设定。",
     (
         "*",
-        'need "{expect_node_type}" input in "{shader_val}" of "{material_name}"',
+        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',
     ): "需要在「{material_name}」的「{shader_val}」中输入、「{expect_node_type}」请直接连接。 ",
     (
         "*",
-        'image in material "{material_name}" is not put. Please set image.',
+        'image in material "{material_name}" is not put.' + " Please set image.",
     ): "「{material_name}」有一个没有设置纹理的图像节点。请删除或设置图片。",
     ("*", "Simplify VRoid Bones"): "简化VRoid骨骼名",
     ("*", "Save Bone Mappings"): "保存映射文件",

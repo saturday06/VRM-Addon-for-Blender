@@ -565,7 +565,8 @@ def export_constraints(
                 excluded_constraints.append(search_constraint)
                 messages.append(
                     pgettext(
-                        'Node Constraint "{owner_name} / {constraint_name}" has a circular dependency'
+                        'Node Constraint "{owner_name} / {constraint_name}" has'
+                        + " a circular dependency"
                     ).format(
                         owner_name=owner_name,
                         constraint_name=search_constraint.name,

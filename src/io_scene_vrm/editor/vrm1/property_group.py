@@ -339,7 +339,8 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
             if not parent.node.bone_name:
                 messages.append(
                     pgettext(
-                        'Please assign "{parent_name}" because "{name}" requires it as its child bone.'
+                        'Please assign "{parent_name}"'
+                        + ' because "{name}" requires it as its child bone.'
                     ).format(
                         name=specification.title,
                         parent_name=parent_specification.title,

@@ -377,7 +377,9 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):
     first_person_bone_offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         name="First Person Bone Offset",
-        description="Offset from the first person bone to follow the first person camera",
+        description=(
+            "Offset from the first person bone to follow the first person camera"
+        ),
         subtype="TRANSLATION",
         unit="LENGTH",
         default=(0, 0, 0),
