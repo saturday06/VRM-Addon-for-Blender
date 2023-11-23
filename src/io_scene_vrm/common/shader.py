@@ -884,7 +884,6 @@ def copy_node_tree_interface_socket(
 def copy_node_tree_interface(
     from_node_tree: bpy.types.NodeTree, to_node_tree: bpy.types.NodeTree
 ) -> None:
-    to_items = list(to_node_tree.interface.items_tree.values())
     to_items_index = 0
 
     for from_item in from_node_tree.interface.items_tree:
@@ -904,22 +903,23 @@ def copy_node_tree_interface(
                 continue
 
         to_socket: Optional[bpy.types.NodeTreeInterfaceSocket] = None
-        for to_item in to_items[to_items_index:]:
-            if to_item.item_type != "SOCKET" or not isinstance(
-                to_item, bpy.types.NodeTreeInterfaceSocket
+        while len(to_node_tree.interface.items_tree) > to_items_index:
+            to_item = list(to_node_tree.interface.items_tree.values())[to_items_index]
+            if (
+                to_item.item_type != "SOCKET"
+                or not isinstance(to_item, bpy.types.NodeTreeInterfaceSocket)
+                or to_item.in_out != from_item.in_out
+                or to_item.socket_type != from_socket_type
             ):
-                to_items_index += 1
+                to_node_tree.interface.remove(to_item)
                 continue
+            if to_item.name != from_item.name:
+                to_item.name = from_item.name
+            if to_item.description != from_item.description:
+                to_item.description = from_item.description
             to_socket = to_item
-            if to_socket.name != from_item.name:
-                to_socket.name = from_item.name
-            if to_socket.description != from_item.description:
-                to_socket.description = from_item.description
-            if to_socket.in_out != from_item.in_out:
-                to_socket.in_out = from_item.in_out
-            if to_socket.socket_type != from_socket_type:
-                to_socket.socket_type = from_socket_type
             break
+
         if to_socket is None:
             to_socket = to_node_tree.interface.new_socket(
                 from_item.name,
@@ -927,10 +927,14 @@ def copy_node_tree_interface(
                 in_out=from_item.in_out,
                 socket_type=from_socket_type,
             )
-        else:
-            to_items_index += 1
 
         copy_node_tree_interface_socket(from_item, to_socket)
+        to_items_index += 1
+
+    while len(to_node_tree.interface.items_tree) > to_items_index:
+        to_node_tree.interface.remove(
+            list(to_node_tree.interface.items_tree.values())[-1]
+        )
 
 
 def copy_node_tree(
