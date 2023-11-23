@@ -126,7 +126,7 @@ cp "${prefix_name}-${release_postfix}.zip" "${gh_pages_branch_dir}/releases/"
   git commit -m "docs: deploy the latest release [BOT]"
 )
 
-addon_dir="$HOME/.config/blender/3.0/tools/addons/${prefix_name}-README"
+addon_dir="$HOME/.config/blender/3.0/scripts/addons/${prefix_name}-README"
 if ! BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
   --background \
   -noaudio \
