@@ -202,8 +202,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             dummy_skinned_mesh_object
         )
 
-    @staticmethod
+    @classmethod
     def create_meta_dict(
+        cls,
         meta: Vrm1MetaPropertyGroup,
         json_dict: dict[str, Json],
         body_binary: bytearray,
@@ -246,7 +247,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             meta_dict["otherLicenseUrl"] = meta.other_license_url
 
         if meta.thumbnail_image:
-            meta_dict["thumbnailImage"] = Gltf2AddonVrmExporter.find_or_create_image(
+            meta_dict["thumbnailImage"] = cls.find_or_create_image(
                 json_dict,
                 body_binary,
                 image_name_to_index_dict,
@@ -256,8 +257,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return meta_dict
 
-    @staticmethod
+    @classmethod
     def create_humanoid_dict(
+        cls,
         humanoid: Vrm1HumanoidPropertyGroup,
         bone_name_to_index_dict: dict[str, int],
     ) -> dict[str, Json]:
@@ -274,8 +276,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "humanBones": human_bones_dict,
         }
 
-    @staticmethod
+    @classmethod
     def create_first_person_dict(
+        cls,
         first_person: Vrm1FirstPersonPropertyGroup,
         mesh_object_name_to_node_index_dict: dict[str, int],
     ) -> dict[str, Json]:
@@ -298,8 +301,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             return {}
         return {"meshAnnotations": mesh_annotation_dicts}
 
-    @staticmethod
+    @classmethod
     def create_look_at_dict(
+        cls,
         look_at: Vrm1LookAtPropertyGroup,
     ) -> dict[str, Json]:
         return {
@@ -323,8 +327,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             },
         }
 
-    @staticmethod
+    @classmethod
     def create_expression_dict(
+        cls,
         expression: Vrm1ExpressionPropertyGroup,
         mesh_object_name_to_node_index_dict: dict[str, int],
         mesh_object_name_to_morph_target_names_dict: dict[str, list[str]],
@@ -416,8 +421,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return expression_dict
 
-    @staticmethod
+    @classmethod
     def create_expressions_dict(
+        cls,
         expressions: Vrm1ExpressionsPropertyGroup,
         mesh_object_name_to_node_index_dict: dict[str, int],
         mesh_object_name_to_morph_target_names_dict: dict[str, list[str]],
@@ -428,7 +434,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             preset_name,
             expression,
         ) in expressions.preset.name_to_expression_dict().items():
-            preset_dict[preset_name] = Gltf2AddonVrmExporter.create_expression_dict(
+            preset_dict[preset_name] = cls.create_expression_dict(
                 expression,
                 mesh_object_name_to_node_index_dict,
                 mesh_object_name_to_morph_target_names_dict,
@@ -436,9 +442,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             )
         custom_dict: dict[str, Json] = {}
         for custom_expression in expressions.custom:
-            custom_dict[
-                custom_expression.custom_name
-            ] = Gltf2AddonVrmExporter.create_expression_dict(
+            custom_dict[custom_expression.custom_name] = cls.create_expression_dict(
                 custom_expression,
                 mesh_object_name_to_node_index_dict,
                 mesh_object_name_to_morph_target_names_dict,
@@ -449,8 +453,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "custom": custom_dict,
         }
 
-    @staticmethod
+    @classmethod
     def create_spring_bone_collider_dicts(
+        cls,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         bone_name_to_index_dict: dict[str, int],
     ) -> tuple[list[Json], dict[str, int]]:
@@ -487,8 +492,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return collider_dicts, collider_uuid_to_index_dict
 
-    @staticmethod
+    @classmethod
     def create_spring_bone_collider_group_dicts(
+        cls,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         collider_uuid_to_index_dict: dict[str, int],
     ) -> tuple[list[Json], dict[str, int]]:
@@ -517,8 +523,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return collider_group_dicts, collider_group_uuid_to_index_dict
 
-    @staticmethod
+    @classmethod
     def create_spring_bone_spring_dicts(
+        cls,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         bone_name_to_index_dict: dict[str, int],
         collider_group_uuid_to_index_dict: dict[str, int],
@@ -589,8 +596,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             spring_dicts.append(spring_dict)
         return spring_dicts
 
-    @staticmethod
+    @classmethod
     def search_constraint_target_index(
+        cls,
         constraint: Union[
             bpy.types.CopyRotationConstraint, bpy.types.DampedTrackConstraint
         ],
@@ -604,8 +612,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             return bone_name_to_index_dict.get(constraint.subtarget)
         return object_name_to_index_dict.get(target.name)
 
-    @staticmethod
+    @classmethod
     def create_constraint_dict(
+        cls,
         name: str,
         constraints: search.ExportConstraint,
         object_name_to_index_dict: dict[str, int],
@@ -616,7 +625,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         rotation_constraint = constraints.rotation_constraints.get(name)
         constraint_dict: dict[str, Json] = {}
         if roll_constraint:
-            source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
+            source_index = cls.search_constraint_target_index(
                 roll_constraint,
                 object_name_to_index_dict,
                 bone_name_to_index_dict,
@@ -637,7 +646,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "weight": max(0.0, min(1.0, roll_constraint.influence)),
                 }
         elif aim_constraint:
-            source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
+            source_index = cls.search_constraint_target_index(
                 aim_constraint,
                 object_name_to_index_dict,
                 bone_name_to_index_dict,
@@ -651,7 +660,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "weight": max(0.0, min(1.0, aim_constraint.influence)),
                 }
         elif rotation_constraint:
-            source_index = Gltf2AddonVrmExporter.search_constraint_target_index(
+            source_index = cls.search_constraint_target_index(
                 rotation_constraint,
                 object_name_to_index_dict,
                 bone_name_to_index_dict,
@@ -663,9 +672,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 }
         return constraint_dict
 
-    @staticmethod
+    @classmethod
     def create_mtoon0_khr_texture_transform(
-        node: bpy.types.Node, texture_input_name: str
+        cls, node: bpy.types.Node, texture_input_name: str
     ) -> dict[str, Json]:
         default: dict[str, Json] = {
             "offset": [0, 0],
@@ -714,8 +723,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return result
 
-    @staticmethod
+    @classmethod
     def find_or_create_image(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         image_name_to_index_dict: dict[str, int],
@@ -766,8 +776,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return image_index
 
-    @staticmethod
+    @classmethod
     def create_mtoon1_texture_info_dict(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         texture_info: Mtoon1TextureInfoPropertyGroup,
@@ -778,7 +789,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if not image:
             return None
 
-        image_index = Gltf2AddonVrmExporter.find_or_create_image(
+        image_index = cls.find_or_create_image(
             json_dict,
             body_binary,
             image_name_to_index_dict,
@@ -844,8 +855,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "extensions": {"KHR_texture_transform": khr_texture_transform_dict},
         }
 
-    @staticmethod
+    @classmethod
     def create_mtoon0_texture_info_dict(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         node: bpy.types.Node,
@@ -860,7 +872,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             return None
 
         image_name, wrap_type, filter_type = image_name_and_sampler_type
-        image_index = Gltf2AddonVrmExporter.find_or_create_image(
+        image_index = cls.find_or_create_image(
             json_dict,
             body_binary,
             image_name_to_index_dict,
@@ -905,10 +917,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             extensions_used.append("KHR_texture_transform")
         json_dict["extensionsUsed"] = extensions_used
 
-        khr_texture_transform_dict = (
-            Gltf2AddonVrmExporter.create_mtoon0_khr_texture_transform(
-                node, texture_input_name
-            )
+        khr_texture_transform_dict = cls.create_mtoon0_khr_texture_transform(
+            node, texture_input_name
         )
 
         return {
@@ -916,12 +926,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "extensions": {"KHR_texture_transform": khr_texture_transform_dict},
         }
 
-    @staticmethod
-    def lerp(a: float, b: float, t: float) -> float:
+    @classmethod
+    def lerp(cls, a: float, b: float, t: float) -> float:
         return (1 - t) * a + t * b
 
-    @staticmethod
+    @classmethod
     def create_mtoon1_material_dict(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
@@ -971,7 +982,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             pbr_metallic_roughness_dict,
             "baseColorTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 gltf.pbr_metallic_roughness.base_color_texture,
@@ -983,7 +994,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "shadeMultiplyTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 mtoon.shade_multiply_texture,
@@ -994,7 +1005,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             material_dict,
             "normalTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 gltf.normal_texture,
@@ -1009,7 +1020,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "shadingShiftTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 mtoon.shading_shift_texture,
@@ -1026,7 +1037,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             material_dict,
             "emissiveTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 gltf.emissive_texture,
@@ -1037,7 +1048,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if assign_dict(
             mtoon_dict,
             "matcapTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 mtoon.matcap_texture,
@@ -1055,7 +1066,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "rimMultiplyTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 mtoon.rim_multiply_texture,
@@ -1069,7 +1080,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "outlineWidthMultiplyTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 mtoon.outline_width_multiply_texture,
@@ -1082,7 +1093,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "uvAnimationMaskTexture",
-            Gltf2AddonVrmExporter.create_mtoon1_texture_info_dict(
+            cls.create_mtoon1_texture_info_dict(
                 json_dict,
                 body_binary,
                 mtoon.uv_animation_mask_texture,
@@ -1108,8 +1119,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return material_dict
 
-    @staticmethod
+    @classmethod
     def create_legacy_gltf_material_dict(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
@@ -1137,7 +1149,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "baseColorFactor",
             shader.get_rgba_value(node, "base_Color", 0.0, 1.0),
         )
-        base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+        base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
             json_dict,
             body_binary,
             node,
@@ -1164,7 +1176,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             pbr_metallic_roughness_dict,
             "metallicRoughnessTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1174,7 +1186,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ),
         )
 
-        normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+        normal_texture_dict = cls.create_mtoon0_texture_info_dict(
             json_dict,
             body_binary,
             node,
@@ -1192,7 +1204,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             material_dict,
             "emissiveTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1205,7 +1217,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             material_dict,
             "occlusionTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1232,8 +1244,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return material_dict
 
-    @staticmethod
+    @classmethod
     def create_legacy_transparent_zwrite_material_dict(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
@@ -1274,7 +1287,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             material_dict, "doubleSided", not material.use_backface_culling, False
         )
-        base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+        base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
             json_dict,
             body_binary,
             node,
@@ -1297,8 +1310,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return material_dict
 
-    @staticmethod
+    @classmethod
     def create_mtoon_unversioned_material_dict(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material: bpy.types.Material,
@@ -1362,7 +1376,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "baseColorFactor",
             shader.get_rgba_value(node, "DiffuseColor", 0.0, 1.0),
         )
-        base_color_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+        base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
             json_dict,
             body_binary,
             node,
@@ -1378,22 +1392,20 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             "shadeColorFactor",
             shader.get_rgb_value(node, "ShadeColor", 0.0, 1.0),
         )
-        shade_multiply_texture_dict = (
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
-                json_dict,
-                body_binary,
-                node,
-                "ShadeTexture",
-                image_name_to_index_dict,
-                gltf2_addon_export_settings,
-            )
+        shade_multiply_texture_dict = cls.create_mtoon0_texture_info_dict(
+            json_dict,
+            body_binary,
+            node,
+            "ShadeTexture",
+            image_name_to_index_dict,
+            gltf2_addon_export_settings,
         )
         if shade_multiply_texture_dict is not None:
             mtoon_dict["shadeMultiplyTexture"] = shade_multiply_texture_dict
         elif base_color_texture_dict is not None:
             # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L185-L204
             mtoon_dict["shadeMultiplyTexture"] = base_color_texture_dict
-        normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+        normal_texture_dict = cls.create_mtoon0_texture_info_dict(
             json_dict,
             body_binary,
             node,
@@ -1402,7 +1414,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             gltf2_addon_export_settings,
         )
         if not normal_texture_dict:
-            normal_texture_dict = Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            normal_texture_dict = cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1447,7 +1459,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             material_dict,
             "emissiveTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1459,7 +1471,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if assign_dict(
             mtoon_dict,
             "matcapTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1488,7 +1500,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "rimMultiplyTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1530,7 +1542,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "outlineWidthMultiplyTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1562,7 +1574,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         assign_dict(
             mtoon_dict,
             "uvAnimationMaskTexture",
-            Gltf2AddonVrmExporter.create_mtoon0_texture_info_dict(
+            cls.create_mtoon0_texture_info_dict(
                 json_dict,
                 body_binary,
                 node,
@@ -1597,8 +1609,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return material_dict
 
-    @staticmethod
+    @classmethod
     def save_vrm_materials(
+        cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material_name_to_index_dict: dict[str, int],
@@ -1618,9 +1631,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 continue
 
             if material.vrm_addon_extension.mtoon1.enabled:
-                material_dicts[
-                    index
-                ] = Gltf2AddonVrmExporter.create_mtoon1_material_dict(
+                material_dicts[index] = cls.create_mtoon1_material_dict(
                     json_dict,
                     body_binary,
                     material,
@@ -1635,9 +1646,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 continue
             shader_name = node.node_tree.get("SHADER")
             if shader_name == "MToon_unversioned":
-                material_dicts[
-                    index
-                ] = Gltf2AddonVrmExporter.create_mtoon_unversioned_material_dict(
+                material_dicts[index] = cls.create_mtoon_unversioned_material_dict(
                     json_dict,
                     body_binary,
                     material,
@@ -1646,9 +1655,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     gltf2_addon_export_settings,
                 )
             elif shader_name == "GLTF":
-                material_dicts[
-                    index
-                ] = Gltf2AddonVrmExporter.create_legacy_gltf_material_dict(
+                material_dicts[index] = cls.create_legacy_gltf_material_dict(
                     json_dict,
                     body_binary,
                     material,
@@ -1659,7 +1666,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             elif shader_name == "TRANSPARENT_ZWRITE":
                 material_dicts[
                     index
-                ] = Gltf2AddonVrmExporter.create_legacy_transparent_zwrite_material_dict(
+                ] = cls.create_legacy_transparent_zwrite_material_dict(
                     json_dict,
                     body_binary,
                     material,
@@ -1671,8 +1678,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if material_dicts:
             json_dict["materials"] = material_dicts
 
-    @staticmethod
-    def disable_mtoon1_material_nodes() -> list[str]:
+    @classmethod
+    def disable_mtoon1_material_nodes(cls) -> list[str]:
         disabled_material_names = []
         for material in bpy.data.materials:
             if not material:
@@ -1682,8 +1689,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 disabled_material_names.append(material.name)
         return disabled_material_names
 
-    @staticmethod
-    def restore_mtoon1_material_nodes(disabled_material_names: list[str]) -> None:
+    @classmethod
+    def restore_mtoon1_material_nodes(cls, disabled_material_names: list[str]) -> None:
         for disabled_material_name in disabled_material_names:
             material = bpy.data.materials.get(disabled_material_name)
             if not material:
@@ -1691,8 +1698,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not material.use_nodes:
                 material.use_nodes = True
 
-    @staticmethod
+    @classmethod
     def unassign_normal_from_mtoon_primitive_morph_target(
+        cls,
         json_dict: dict[str, Json],
         material_name_to_index_dict: dict[str, int],
     ) -> None:
@@ -1744,8 +1752,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         continue
                     target_dict.pop("NORMAL", None)
 
-    @staticmethod
+    @classmethod
     def setup_dummy_human_bones(
+        cls,
         context: bpy.types.Context,
         armature: bpy.types.Object,
         armature_data: bpy.types.Armature,
@@ -1912,8 +1921,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         return human_bone_name_to_bone_name
 
-    @staticmethod
+    @classmethod
     def restore_dummy_human_bones(
+        cls,
         context: bpy.types.Context,
         armature: bpy.types.Object,
         armature_data: bpy.types.Armature,
