@@ -361,18 +361,6 @@ classes: list[
 ]
 
 
-def cleanse_modules() -> None:
-    """Search for your plugin modules in blender python sys.modules and remove them."""
-    import sys
-
-    all_modules = sys.modules
-    all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
-
-    for k in all_modules:
-        if k.startswith(__name__):
-            del sys.modules[k]
-
-
 def register(name: object, init_addon_version: object) -> None:
     logger.debug(f"Registering: {name}")
     # Sanity check. Because a addon_version() implementation is very acrobatic
@@ -494,4 +482,3 @@ def unregister() -> None:
             logger.exception(f"Failed to Unregister {cls}")
 
     bpy.app.translations.unregister(preferences.addon_package_name)
-    cleanse_modules()
