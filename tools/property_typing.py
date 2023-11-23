@@ -22,6 +22,8 @@ def write_property_typing(
     comment = "  # type: ignore[no-redef]"
     if n == "stiffiness" or n.endswith("_ussage_name"):
         comment += "  # noqa: SC200"
+    if n in ["min", "max", "type"]:
+        comment += "  # noqa: A003"
 
     if t in ["bpy.props.StringProperty", "bpy.props.EnumProperty"]:
         line = f"        {n}: str{comment}"
