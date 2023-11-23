@@ -615,7 +615,8 @@ class VRM_OT_add_vrm0_blend_shape_group(bpy.types.Operator):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
-        blend_shape_group = armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups.add()
+        ext = armature_data.vrm_addon_extension
+        blend_shape_group = ext.vrm0.blend_shape_master.blend_shape_groups.add()
         blend_shape_group.name = self.name
         return {"FINISHED"}
 
@@ -746,7 +747,8 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(bpy.types.Operator):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
-        collider_group = armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups.add()
+        ext = armature_data.vrm_addon_extension
+        collider_group = ext.vrm0.secondary_animation.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
         collider_group.refresh(armature)
         return {"FINISHED"}

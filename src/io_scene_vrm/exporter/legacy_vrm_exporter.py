@@ -357,7 +357,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         human_bone_node_names = [
             human_bone.node.bone_name
-            for human_bone in self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
+            for human_bone in (
+                self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
+            )
         ]
 
         for bone in self.armature.pose.bones:
@@ -1307,7 +1309,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             pbr_metallic_roughness_dict["baseColorFactor"] = list(
                 gltf.pbr_metallic_roughness.base_color_factor
             )
-            khr_texture_transform = gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform
+            extensions = gltf.pbr_metallic_roughness.base_color_texture.extensions
+            khr_texture_transform = extensions.khr_texture_transform
 
             vector_properties["_Color"] = list(
                 gltf.pbr_metallic_roughness.base_color_factor
@@ -2110,7 +2113,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
                         if len(weight_and_joint_list) > 4:
                             logger.warning(
-                                f"Joints on vertex id:{loop.vert.index} in: {mesh.name} are truncated"
+                                "Joints on vertex "
+                                + f"id: {loop.vert.index} in: {mesh.name} are truncated"
                             )
                             weight_and_joint_list = weight_and_joint_list[:4]
 
@@ -2141,7 +2145,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                     break
                                 mesh_parent = mesh.parent
                             if not bone_name:
-                                for human_bone in self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
+                                ext = self.armature_data.vrm_addon_extension
+                                for human_bone in ext.vrm0.humanoid.human_bones:
                                     if human_bone.bone == "hips":
                                         bone_name = human_bone.node.bone_name
                                 if (
@@ -2544,7 +2549,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         else:
             name = next(
                 human_bone.node.bone_name
-                for human_bone in self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
+                for human_bone in (
+                    self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
+                )
                 if human_bone.bone == "head"
             )
             first_person_dict["firstPersonBone"] = node_name_id_dict[name]
@@ -2617,7 +2624,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         # meshを名前からid
         # weightを0-1から0-100に
         # shape_indexを名前からindexに
-        for blend_shape_group in self.armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups:
+        blend_shape_master = (
+            self.armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        )
+        for blend_shape_group in blend_shape_master.blend_shape_groups:
             blend_shape_group_dict = {}
 
             if not blend_shape_group.name:

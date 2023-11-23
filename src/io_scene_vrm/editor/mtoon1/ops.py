@@ -668,7 +668,9 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
         mtoon = material.vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
         outline_width_mode_value = {
             0: value
-            for mode, _, _, _, value in Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_items
+            for mode, _, _, _, value in (
+                Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_items
+            )
             if mode == mtoon.outline_width_mode
         }.get(0)
         if not isinstance(outline_width_mode_value, int):

@@ -555,7 +555,8 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
-        expression = armature_data.vrm_addon_extension.vrm1.expressions.all_name_to_expression_dict().get(
+        ext = armature_data.vrm_addon_extension
+        expression = ext.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
         if expression is None:

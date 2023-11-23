@@ -27,7 +27,7 @@ from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
-from ..editor.extension import VrmAddonBoneExtensionPropertyGroup
+from ..editor.extension import VrmAddonBoneExtensionPropertyGroup as BoneExtension
 from ..editor.make_armature import (
     connect_parent_tail_and_child_head_if_very_close_position,
 )
@@ -123,7 +123,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     colorspace_settings.name = texture.colorspace
                 except TypeError:
                     logger.exception(
-                        f"image.colorspace_settings.name doesn't support {texture.colorspace}."
+                        "image.colorspace_settings.name doesn't support"
+                        + f" {texture.colorspace}."
                     )
                     if texture.colorspace == "Non-Color":
                         with contextlib.suppress(TypeError):
@@ -1149,8 +1150,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 except RuntimeError:
                     logger.exception(
                         f'Failed to import "{indexed_vrm_filepath}"'
-                        + f' generated from "{self.parse_result.filepath}" using glTF 2.0 Add-on'
-                        + " without animations key"
+                        + f' generated from "{self.parse_result.filepath}"'
+                        + " using glTF 2.0 Add-on without animations key"
                     )
                     self.cleanup_gltf2_with_indices()
                     raise
@@ -1686,7 +1687,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                             if group_axis_translation is not None:
                                 break
                     if group_axis_translation is not None:
-                        bone.matrix = VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                        bone.matrix = BoneExtension.translate_axis(
                             bone.matrix,
                             group_axis_translation,
                         )
@@ -1729,7 +1730,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 elif not bone.parent:
                     bone_name_to_axis_translation[
                         bone.name
-                    ] = VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_NONE_ID
+                    ] = BoneExtension.AXIS_TRANSLATION_NONE_ID
                     continue
                 elif bone_name_to_human_bone_name.get(bone.name) in [
                     HumanBoneName.RIGHT_EYE,
@@ -1765,33 +1766,33 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bone_length_and_axis_translations: list[tuple[float, str]] = [
                     (
                         target_vector.dot(x_vector),
-                        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_X_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_X_TO_Y_ID,
                     ),
                     (
                         target_vector.dot(y_vector),
-                        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_NONE_ID,
+                        BoneExtension.AXIS_TRANSLATION_NONE_ID,
                     ),
                     (
                         target_vector.dot(z_vector),
-                        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_Z_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_Z_TO_Y_ID,
                     ),
                     (
                         target_vector.dot(x_negated_vector),
-                        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_X_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_MINUS_X_TO_Y_ID,
                     ),
                     (
                         target_vector.dot(y_negated_vector),
-                        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID,
+                        BoneExtension.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID,
                     ),
                     (
                         target_vector.dot(z_negated_vector),
-                        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
                     ),
                 ]
                 bone_length, axis_translation = sorted(
                     bone_length_and_axis_translations, reverse=True, key=lambda x: x[0]
                 )[0]
-                bone.matrix = VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                bone.matrix = BoneExtension.translate_axis(
                     bone.matrix,
                     axis_translation,
                 )
@@ -1813,9 +1814,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if not data_bone:
                     continue
                 data_bone.vrm_addon_extension.axis_translation = (
-                    VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
-                        axis_translation
-                    )
+                    BoneExtension.reverse_axis_translation(axis_translation)
                 )
 
             for node_index in set(constraint_node_index_to_source_index.keys()) | set(
@@ -1833,7 +1832,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     if isinstance(group_object_or_bone, bpy.types.PoseBone):
                         self.translate_object_axis(
                             object_or_bone,
-                            VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
+                            BoneExtension.reverse_axis_translation(
                                 group_object_or_bone.bone.vrm_addon_extension.axis_translation
                             ),
                         )
@@ -1852,14 +1851,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def translate_object_axis(
         self, obj: bpy.types.Object, axis_translation: str
     ) -> None:
-        if (
-            axis_translation
-            != VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_AUTO_ID
-        ):
+        if axis_translation != BoneExtension.AXIS_TRANSLATION_AUTO_ID:
             return
-        matrix = VrmAddonBoneExtensionPropertyGroup.translate_axis(
-            obj.matrix_world, axis_translation
-        )
+        matrix = BoneExtension.translate_axis(obj.matrix_world, axis_translation)
         location, rotation, _ = matrix.decompose()
         matrix = Matrix.Translation(location) @ rotation.to_matrix().to_4x4()
         bpy.ops.object.select_all(action="DESELECT")
@@ -1868,9 +1862,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         bpy.ops.object.origin_set(type="ORIGIN_CURSOR", center="MEDIAN")
 
         obj.vrm_addon_extension.axis_translation = (
-            VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
-                axis_translation
-            )
+            BoneExtension.reverse_axis_translation(axis_translation)
         )
 
     def load_vrm1_extensions(self) -> None:
@@ -2077,9 +2069,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         if head_bone:
             offset_from_head_bone = (
                 offset_from_head_bone
-                @ VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                @ BoneExtension.translate_axis(
                     Matrix(),
-                    VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
+                    BoneExtension.reverse_axis_translation(
                         head_bone.vrm_addon_extension.axis_translation
                     ),
                 )
@@ -2330,13 +2322,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
                 if bone:
                     axis_translation = bone.vrm_addon_extension.axis_translation
-                    offset = Vector(
-                        offset
-                    ) @ VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                    offset = Vector(offset) @ BoneExtension.translate_axis(
                         Matrix(),
-                        VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
-                            axis_translation
-                        ),
+                        BoneExtension.reverse_axis_translation(axis_translation),
                     )
                 shape.sphere.offset = offset
                 radius = sphere_dict.get("radius")
@@ -2357,13 +2345,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
-                offset = Vector(
-                    offset
-                ) @ VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                offset = Vector(offset) @ BoneExtension.translate_axis(
                     Matrix(),
-                    VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
-                        axis_translation
-                    ),
+                    BoneExtension.reverse_axis_translation(axis_translation),
                 )
             shape.capsule.offset = offset
 
@@ -2378,11 +2362,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
-                tail = Vector(tail) @ VrmAddonBoneExtensionPropertyGroup.translate_axis(
+                tail = Vector(tail) @ BoneExtension.translate_axis(
                     Matrix(),
-                    VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
-                        axis_translation
-                    ),
+                    BoneExtension.reverse_axis_translation(axis_translation),
                 )
             shape.capsule.tail = tail
 
@@ -2614,12 +2596,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not object_or_bone:
                 continue
 
-            axis_translation = (
-                VrmAddonBoneExtensionPropertyGroup.reverse_axis_translation(
-                    object_or_bone.bone.vrm_addon_extension.axis_translation
-                    if isinstance(object_or_bone, bpy.types.PoseBone)
-                    else object_or_bone.vrm_addon_extension.axis_translation
-                )
+            axis_translation = BoneExtension.reverse_axis_translation(
+                object_or_bone.bone.vrm_addon_extension.axis_translation
+                if isinstance(object_or_bone, bpy.types.PoseBone)
+                else object_or_bone.vrm_addon_extension.axis_translation
             )
 
             if isinstance(roll_dict, dict):
@@ -2634,7 +2614,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(object_or_bone, bpy.types.PoseBone) and isinstance(
                     roll_axis, str
                 ):
-                    roll_axis = VrmAddonBoneExtensionPropertyGroup.node_constraint_roll_axis_translation(
+                    roll_axis = BoneExtension.node_constraint_roll_axis_translation(
                         axis_translation,
                         roll_axis,
                     )
@@ -2660,7 +2640,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(aim_axis, str) and isinstance(
                     object_or_bone, bpy.types.PoseBone
                 ):
-                    aim_axis = VrmAddonBoneExtensionPropertyGroup.node_constraint_aim_axis_translation(
+                    aim_axis = BoneExtension.node_constraint_aim_axis_translation(
                         axis_translation,
                         aim_axis,
                     )

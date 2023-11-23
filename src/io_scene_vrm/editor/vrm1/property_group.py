@@ -410,16 +410,17 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
         for bone_name in bone_names:
             last_bone_name = human_bones.last_bone_names.add()
             last_bone_name.value = bone_name
+        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
             human_bone.node.bone_name: HumanBoneSpecifications.get(human_bone_name)
-            for human_bone_name, human_bone in human_bones.human_bone_name_to_human_bone().items()
+            for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
             if human_bone.node.bone_name
         }
 
         for (
             human_bone_name,
             human_bone,
-        ) in human_bones.human_bone_name_to_human_bone().items():
+        ) in human_bone_name_to_human_bone.items():
             human_bone.update_node_candidates(
                 armature_data,
                 HumanBoneSpecifications.get(human_bone_name),
@@ -546,7 +547,8 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         (TYPE_VALUE_BONE, "Bone", "Bone", "BONE_DATA", 0),
         (
             TYPE_VALUE_EXPRESSION,
-            "Expression\N{ZERO WIDTH SPACE}",  # {ZERO WIDTH SPACE} to disable translation
+            # Use \N{ZERO WIDTH SPACE} to disable translation
+            "Expression\N{ZERO WIDTH SPACE}",
             "Expression",
             "SHAPEKEY_DATA",
             1,
@@ -836,13 +838,21 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         # `poetry run ./tools/property_typing.py`
         offset_from_head_bone: Sequence[float]  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]  # noqa: A003
-        range_map_horizontal_inner: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
-        range_map_horizontal_outer: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
-        range_map_vertical_down: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
+        range_map_horizontal_inner: (  # type: ignore[no-redef]
+            Vrm1LookAtRangeMapPropertyGroup
+        )
+        range_map_horizontal_outer: (  # type: ignore[no-redef]
+            Vrm1LookAtRangeMapPropertyGroup
+        )
+        range_map_vertical_down: (  # type: ignore[no-redef]
+            Vrm1LookAtRangeMapPropertyGroup
+        )
         range_map_vertical_up: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
         enable_preview: bool  # type: ignore[no-redef]
         preview_target_bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
-        previous_preview_target_bpy_object_location: Sequence[float]  # type: ignore[no-redef]
+        previous_preview_target_bpy_object_location: (  # type: ignore[no-redef]
+            Sequence[float]
+        )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json

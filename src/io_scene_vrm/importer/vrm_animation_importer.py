@@ -829,10 +829,12 @@ def assign_humanoid_keyframe(
                     logger.debug(f"pose_world_matrix     = {dump(pose_world_matrix)}")
                     logger.debug(f"rest_to_pose_matrix  = {dump(rest_to_pose_matrix)}")
                     logger.debug(
-                        f"rest_to_pose_world_rotation = {dump(rest_to_pose_world_rotation)}"
+                        "rest_to_pose_world_rotation = "
+                        + dump(rest_to_pose_world_rotation)
                     )
                     logger.debug(
-                        f"rest_to_pose_target_local_rotation = {dump(rest_to_pose_target_local_rotation)}"
+                        "rest_to_pose_target_local_rotation = "
+                        + dump(rest_to_pose_target_local_rotation)
                     )
 
                     # logger.debug(f"parent bone matrix  = {dump(parent_matrix)}")

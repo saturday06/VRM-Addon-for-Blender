@@ -603,7 +603,9 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
         gravity_power: float  # type: ignore[no-redef]
         gravity_dir: Sequence[float]  # type: ignore[no-redef]
         drag_force: float  # type: ignore[no-redef]
-        animation_state: SpringBone1JointAnimationStatePropertyGroup  # type: ignore[no-redef]
+        animation_state: (  # type: ignore[no-redef]
+            SpringBone1JointAnimationStatePropertyGroup
+        )
         show_expanded: bool  # type: ignore[no-redef]
 
 
@@ -702,7 +704,9 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
         show_expanded: bool  # type: ignore[no-redef]
         show_expanded_bones: bool  # type: ignore[no-redef]
         show_expanded_collider_groups: bool  # type: ignore[no-redef]
-        animation_state: SpringBone1SpringAnimationStatePropertyGroup  # type: ignore[no-redef]
+        animation_state: (  # type: ignore[no-redef]
+            SpringBone1SpringAnimationStatePropertyGroup
+        )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.schema.json

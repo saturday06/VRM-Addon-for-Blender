@@ -192,7 +192,8 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
             )
 
     if tuple(armature_data.vrm_addon_extension.addon_version) <= (2, 14, 10):
-        head_bone_name = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones.head.node.bone_name
+        ext = armature_data.vrm_addon_extension
+        head_bone_name = ext.vrm1.humanoid.human_bones.head.node.bone_name
         head_bone = armature_data.bones.get(head_bone_name)
         if head_bone:
             look_at = armature_data.vrm_addon_extension.vrm1.look_at

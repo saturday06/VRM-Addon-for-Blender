@@ -218,7 +218,9 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
                 )
                 if all(
                     human_bone.node.bone_name not in human_bone.node_candidates
-                    for human_bone in human_bones.human_bone_name_to_human_bone().values()
+                    for human_bone in (
+                        human_bones.human_bone_name_to_human_bone().values()
+                    )
                 ):
                     bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
                         armature_name=armature.name

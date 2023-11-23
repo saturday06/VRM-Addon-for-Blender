@@ -964,7 +964,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         extensions_dict: dict[str, Json] = {
             "KHR_materials_unlit": {},
             "KHR_materials_emissive_strength": {
-                "emissiveStrength": gltf.extensions.khr_materials_emissive_strength.emissive_strength,
+                "emissiveStrength": (
+                    gltf.extensions.khr_materials_emissive_strength.emissive_strength
+                ),
             },
             "VRMC_materials_mtoon": mtoon_dict,
         }

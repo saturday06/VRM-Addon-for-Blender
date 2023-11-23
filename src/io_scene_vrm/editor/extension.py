@@ -194,7 +194,9 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
             cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID: cls.AXIS_TRANSLATION_X_TO_Y_ID,
             cls.AXIS_TRANSLATION_Z_TO_Y_ID: cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
             cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID: cls.AXIS_TRANSLATION_Z_TO_Y_ID,
-            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID,
+            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: (
+                cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID
+            ),
         }[axis_translation]
 
     @classmethod
@@ -420,7 +422,9 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
         vrm0: Vrm0PropertyGroup  # type: ignore[no-redef]
         vrm1: Vrm1PropertyGroup  # type: ignore[no-redef]
         spring_bone1: SpringBone1SpringBonePropertyGroup  # type: ignore[no-redef]
-        node_constraint1: NodeConstraint1NodeConstraintPropertyGroup  # type: ignore[no-redef]
+        node_constraint1: (  # type: ignore[no-redef]
+            NodeConstraint1NodeConstraintPropertyGroup
+        )
         armature_data_name: str  # type: ignore[no-redef]
         spec_version: str  # type: ignore[no-redef]
 

@@ -329,7 +329,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                                 continue
                             parent = human_bone_specification.parent()
                             if parent is None:
-                                message = f"Fatal: {human_bone_specification.name} has no parent"
+                                message = (
+                                    f"Fatal: {human_bone_specification.name} has"
+                                    + " no parent"
+                                )
                                 raise ValueError(message)
                             child_human_bone = human_bone_name_to_human_bone[
                                 human_bone_specification.name
@@ -647,8 +650,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 ):
                     continue
 
-                base_scale = gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale
-                base_offset = gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset
+                base_color_texture = gltf.pbr_metallic_roughness.base_color_texture
+                base_extensions = base_color_texture.extensions
+                base_scale = base_extensions.khr_texture_transform.scale
+                base_offset = base_extensions.khr_texture_transform.offset
                 scale = texture_info.extensions.khr_texture_transform.scale
                 offset = texture_info.extensions.khr_texture_transform.offset
                 if texture_info == gltf.extensions.vrmc_materials_mtoon.matcap_texture:

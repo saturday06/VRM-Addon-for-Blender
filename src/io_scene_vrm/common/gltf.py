@@ -76,7 +76,8 @@ def pack_glb(
     magic = b"glTF" + struct.pack("<I", 2)
     json_str = json.dumps(
         json_dict,
-        ensure_ascii=False,  # UniVRM 0.56.3はエディタインポート時のUnicodeエスケープに未対応
+        # UniVRM 0.56.3はエディタインポート時のUnicodeエスケープに未対応
+        ensure_ascii=False,
     ).encode("utf-8")
     if len(json_str) % 4 != 0:
         json_str += b"\x20" * (4 - len(json_str) % 4)

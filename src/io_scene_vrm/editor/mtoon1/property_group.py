@@ -659,7 +659,9 @@ class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1BaseColorKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1BaseColorKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup(
@@ -672,7 +674,9 @@ class Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1NormalTextureInfoExtensionsPropertyGroup(
@@ -685,7 +689,9 @@ class Mtoon1NormalTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1NormalKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1NormalKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(
@@ -698,7 +704,9 @@ class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1ShadingShiftKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1ShadingShiftKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(
@@ -711,7 +719,9 @@ class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1EmissiveKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1EmissiveKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(
@@ -724,7 +734,9 @@ class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1RimMultiplyKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1RimMultiplyKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(
@@ -737,7 +749,9 @@ class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1MatcapKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1MatcapKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(
@@ -750,7 +764,9 @@ class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
@@ -763,7 +779,9 @@ class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        khr_texture_transform: Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup  # type: ignore[no-redef]
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
@@ -1149,7 +1167,8 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
     colorspace = "Non-Color"
 
     def update_source(self, context: bpy.types.Context) -> None:
-        mtoon = self.find_material().vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
+        ext = self.find_material().vrm_addon_extension
+        mtoon = ext.mtoon1.extensions.vrmc_materials_mtoon
         mtoon.update_outline_geometry(context)
         super().update_source(context)
 
@@ -1160,7 +1179,9 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        sampler: Mtoon1OutlineWidthMultiplySamplerPropertyGroup  # type: ignore[no-redef]
+        sampler: (  # type: ignore[no-redef]
+            Mtoon1OutlineWidthMultiplySamplerPropertyGroup
+        )
 
 
 class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
@@ -1253,7 +1274,9 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1BaseColorTexturePropertyGroup  # type: ignore[no-redef]
-        extensions: Mtoon1BaseColorTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1BaseColorTextureInfoExtensionsPropertyGroup
+        )
 
 
 class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -1270,7 +1293,9 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1ShadeMultiplyTexturePropertyGroup  # type: ignore[no-redef]
-        extensions: Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup
+        )
 
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.normalTextureInfo.schema.json
@@ -1301,7 +1326,9 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1NormalTexturePropertyGroup  # type: ignore[no-redef]
         scale: float  # type: ignore[no-redef]
-        extensions: Mtoon1NormalTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1NormalTextureInfoExtensionsPropertyGroup
+        )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/c5d1afdc4d59c292cb4fd6d54cad1dc0c4d19c60/specification/VRMC_materials_mtoon-1.0/schema/mtoon.shadingShiftTexture.schema.json
@@ -1337,7 +1364,9 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1ShadingShiftTexturePropertyGroup  # type: ignore[no-redef]
         scale: float  # type: ignore[no-redef]
-        extensions: Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup
+        )
 
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
@@ -1355,7 +1384,9 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1EmissiveTexturePropertyGroup  # type: ignore[no-redef]
-        extensions: Mtoon1EmissiveTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1EmissiveTextureInfoExtensionsPropertyGroup
+        )
 
 
 class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -1372,7 +1403,9 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1RimMultiplyTexturePropertyGroup  # type: ignore[no-redef]
-        extensions: Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup
+        )
 
 
 class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -1389,7 +1422,9 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1MatcapTexturePropertyGroup  # type: ignore[no-redef]
-        extensions: Mtoon1MatcapTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1MatcapTextureInfoExtensionsPropertyGroup
+        )
 
 
 class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
@@ -1408,7 +1443,9 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1OutlineWidthMultiplyTexturePropertyGroup  # type: ignore[no-redef]
-        extensions: Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup
+        )
 
 
 class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
@@ -1426,7 +1463,9 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         index: Mtoon1UvAnimationMaskTexturePropertyGroup  # type: ignore[no-redef]
-        extensions: Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        extensions: (  # type: ignore[no-redef]
+            Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup
+        )
 
 
 class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):
@@ -1521,7 +1560,9 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         base_color_factor: Sequence[float]  # type: ignore[no-redef]
-        base_color_texture: Mtoon1BaseColorTextureInfoPropertyGroup  # type: ignore[no-redef]
+        base_color_texture: (  # type: ignore[no-redef]
+            Mtoon1BaseColorTextureInfoPropertyGroup
+        )
 
 
 class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
@@ -1829,25 +1870,35 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         # `poetry run ./tools/property_typing.py`
         transparent_with_z_write: bool  # type: ignore[no-redef]
         render_queue_offset_number: int  # type: ignore[no-redef]
-        shade_multiply_texture: Mtoon1ShadeMultiplyTextureInfoPropertyGroup  # type: ignore[no-redef]
+        shade_multiply_texture: (  # type: ignore[no-redef]
+            Mtoon1ShadeMultiplyTextureInfoPropertyGroup
+        )
         shade_color_factor: Sequence[float]  # type: ignore[no-redef]
-        shading_shift_texture: Mtoon1ShadingShiftTextureInfoPropertyGroup  # type: ignore[no-redef]
+        shading_shift_texture: (  # type: ignore[no-redef]
+            Mtoon1ShadingShiftTextureInfoPropertyGroup
+        )
         shading_shift_factor: float  # type: ignore[no-redef]
         shading_toony_factor: float  # type: ignore[no-redef]
         gi_equalization_factor: float  # type: ignore[no-redef]
         matcap_factor: Sequence[float]  # type: ignore[no-redef]
         matcap_texture: Mtoon1MatcapTextureInfoPropertyGroup  # type: ignore[no-redef]
         parametric_rim_color_factor: Sequence[float]  # type: ignore[no-redef]
-        rim_multiply_texture: Mtoon1RimMultiplyTextureInfoPropertyGroup  # type: ignore[no-redef]
+        rim_multiply_texture: (  # type: ignore[no-redef]
+            Mtoon1RimMultiplyTextureInfoPropertyGroup
+        )
         rim_lighting_mix_factor: float  # type: ignore[no-redef]
         parametric_rim_fresnel_power_factor: float  # type: ignore[no-redef]
         parametric_rim_lift_factor: float  # type: ignore[no-redef]
         outline_width_mode: str  # type: ignore[no-redef]
         outline_width_factor: float  # type: ignore[no-redef]
-        outline_width_multiply_texture: Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup  # type: ignore[no-redef]
+        outline_width_multiply_texture: (  # type: ignore[no-redef]
+            Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup
+        )
         outline_color_factor: Sequence[float]  # type: ignore[no-redef]
         outline_lighting_mix_factor: float  # type: ignore[no-redef]
-        uv_animation_mask_texture: Mtoon1UvAnimationMaskTextureInfoPropertyGroup  # type: ignore[no-redef]
+        uv_animation_mask_texture: (  # type: ignore[no-redef]
+            Mtoon1UvAnimationMaskTextureInfoPropertyGroup
+        )
         uv_animation_scroll_x_speed_factor: float  # type: ignore[no-redef]
         uv_animation_scroll_y_speed_factor: float  # type: ignore[no-redef]
         uv_animation_rotation_speed_factor: float  # type: ignore[no-redef]
@@ -1889,8 +1940,12 @@ class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
-        vrmc_materials_mtoon: Mtoon1VrmcMaterialsMtoonPropertyGroup  # type: ignore[no-redef]
-        khr_materials_emissive_strength: Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup  # type: ignore[no-redef]
+        vrmc_materials_mtoon: (  # type: ignore[no-redef]
+            Mtoon1VrmcMaterialsMtoonPropertyGroup
+        )
+        khr_materials_emissive_strength: (  # type: ignore[no-redef]
+            Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup
+        )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/8dc51ec7241be27ee95f159cefc0190a0e41967b/specification/VRMC_materials_mtoon-1.0-beta/schema/VRMC_materials_mtoon.schema.json
@@ -2233,13 +2288,17 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         # This code is auto generated.
         # `poetry run ./tools/property_typing.py`
         addon_version: Sequence[int]  # type: ignore[no-redef]
-        pbr_metallic_roughness: Mtoon1PbrMetallicRoughnessPropertyGroup  # type: ignore[no-redef]
+        pbr_metallic_roughness: (  # type: ignore[no-redef]
+            Mtoon1PbrMetallicRoughnessPropertyGroup
+        )
         alpha_mode_blend_method_hashed: bool  # type: ignore[no-redef]
         alpha_mode: str  # type: ignore[no-redef]
         double_sided: bool  # type: ignore[no-redef]
         alpha_cutoff: float  # type: ignore[no-redef]
         normal_texture: Mtoon1NormalTextureInfoPropertyGroup  # type: ignore[no-redef]
-        emissive_texture: Mtoon1EmissiveTextureInfoPropertyGroup  # type: ignore[no-redef]
+        emissive_texture: (  # type: ignore[no-redef]
+            Mtoon1EmissiveTextureInfoPropertyGroup
+        )
         emissive_factor: Sequence[float]  # type: ignore[no-redef]
         extensions: Mtoon1MaterialExtensionsPropertyGroup  # type: ignore[no-redef]
         enabled: bool  # type: ignore[no-redef]
@@ -2250,9 +2309,13 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         mtoon0_front_cull_mode: bool  # type: ignore[no-redef]
         mtoon0_outline_scaled_max_distance: float  # type: ignore[no-redef]
         mtoon0_light_color_attenuation: float  # type: ignore[no-redef]
-        mtoon0_receive_shadow_texture: Mtoon0ReceiveShadowTexturePropertyGroup  # type: ignore[no-redef]
+        mtoon0_receive_shadow_texture: (  # type: ignore[no-redef]
+            Mtoon0ReceiveShadowTexturePropertyGroup
+        )
         mtoon0_receive_shadow_rate: float  # type: ignore[no-redef]
-        mtoon0_shading_grade_texture: Mtoon0ShadingGradeTexturePropertyGroup  # type: ignore[no-redef]
+        mtoon0_shading_grade_texture: (  # type: ignore[no-redef]
+            Mtoon0ShadingGradeTexturePropertyGroup
+        )
         mtoon0_shading_grade_rate: float  # type: ignore[no-redef]
         mtoon0_rim_lighting_mix: float  # type: ignore[no-redef]
         mtoon0_render_queue: int  # type: ignore[no-redef]

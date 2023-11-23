@@ -34,14 +34,16 @@ class Gltf2AddonImporterUserExtension:
 
         if not isinstance(bpy_image, bpy.types.Image):
             logger.warning(
-                f"gather_import_image_after_hook: bpy_image is not a bpy.types.Image but {type(bpy_image)}"
+                "gather_import_image_after_hook: "
+                + "bpy_image is not a bpy.types.Image but {type(bpy_image)}"
             )
             return
 
         images = getattr(getattr(gltf_importer, "data", None), "images", None)
         if not isinstance(images, Sequence):
             logger.warning(
-                f"gather_import_image_after_hook: gltf_importer is unexpected structure: {gltf_importer}"
+                "gather_import_image_after_hook: "
+                + f"gltf_importer is unexpected structure: {gltf_importer}"
             )
             return
 

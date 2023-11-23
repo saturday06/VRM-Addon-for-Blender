@@ -244,8 +244,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
                 continue
             if all(
                 bone_property_group.search_one_time_uuid != self.search_one_time_uuid
-                for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(
-                    found_armature
+                for bone_property_group in (
+                    BonePropertyGroup.get_all_bone_property_groups(found_armature)
                 )
             ):
                 continue

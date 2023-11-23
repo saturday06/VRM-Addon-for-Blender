@@ -788,9 +788,10 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         armature_data = armature.data
         if not isinstance(armature_data, bpy.types.Armature):
             return
+        ext = armature_data.vrm_addon_extension
         collider_group_uuid_to_name = {
             collider_group.uuid: collider_group.name
-            for collider_group in armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+            for collider_group in ext.vrm0.secondary_animation.collider_groups
         }
         for index, collider_group in reversed(list(enumerate(self.collider_groups))):
             uuid_str = collider_group.value.split("#")[-1:][0]
@@ -1036,4 +1037,6 @@ class Vrm0PropertyGroup(bpy.types.PropertyGroup):
         humanoid: Vrm0HumanoidPropertyGroup  # type: ignore[no-redef]
         first_person: Vrm0FirstPersonPropertyGroup  # type: ignore[no-redef]
         blend_shape_master: Vrm0BlendShapeMasterPropertyGroup  # type: ignore[no-redef]
-        secondary_animation: Vrm0SecondaryAnimationPropertyGroup  # type: ignore[no-redef]
+        secondary_animation: (  # type: ignore[no-redef]
+            Vrm0SecondaryAnimationPropertyGroup
+        )
