@@ -18,7 +18,7 @@ def write_property_typing(
     keywords: dict[str, object],
 ) -> str:
     print(f"  ==> prop={n}")
-
+    ruff_line_len = 88
     comment = "  # type: ignore[no-redef]"
     if n == "stiffiness" or n.endswith("_ussage_name"):
         comment += "  # noqa: SC200"
@@ -31,14 +31,20 @@ def write_property_typing(
         line = f"        {n}: float{comment}"
     elif t == "bpy.props.FloatVectorProperty":
         line = f"        {n}: Sequence[float]{comment}"
+        if len(line) > ruff_line_len:
+            line = f"        {n}: ({comment}\n            Sequence[float]\n        )"
     elif t == "bpy.props.IntProperty":
         line = f"        {n}: int{comment}"
     elif t == "bpy.props.IntVectorProperty":
         line = f"        {n}: Sequence[int]{comment}"
+        if len(line) > ruff_line_len:
+            line = f"        {n}: ({comment}\n            Sequence[int]\n        )"
     elif t == "bpy.props.BoolProperty":
         line = f"        {n}: bool{comment}"
     elif t == "bpy.props.BoolVectorProperty":
         line = f"        {n}: Sequence[bool]{comment}"
+        if len(line) > ruff_line_len:
+            line = f"        {n}: ({comment}\n            Sequence[bool]\n        )"
     elif t == "bpy.props.PointerProperty":
         target_type = keywords.get("type")
         if not isinstance(target_type, type):
@@ -49,6 +55,12 @@ def write_property_typing(
         else:
             target_name = target_type.__name__
         line = f"        {n}: {target_name}{comment}"
+        if len(line) > ruff_line_len:
+            line = (
+                f"        {n}: ({comment}\n"
+                + f"            {target_name}\n"
+                + "        )"
+            )
     elif t == "bpy.props.CollectionProperty":
         target_type = keywords.get("type")
         if not isinstance(target_type, type):
