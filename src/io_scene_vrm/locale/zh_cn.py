@@ -67,7 +67,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " will be empty or displayed in red"
         + " if hierarchy is wrong",
     ): "VRM必须的「{humanoid_name}」未设定。"
-    + "「VRM」面板的「VRM 0.x Humanoid」→「VRM必要骨骼」で「{humanoid_name}」设定正确。",
+    + "「VRM」面板的「VRM 0.x Humanoid」→「VRM必要骨骼」で"
+    + "「{humanoid_name}」设定正确。",
     (
         "*",
         'Faces must be Triangle, but not face in "{name}" or '
@@ -94,7 +95,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' "VRM MToon Material" or connect'
         + " Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
         + ' to "Surface" directly. Empty material will be exported.',
-    ): "「{material_name}」需要通过Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE直接指定到面。"
+    ): "「{material_name}」需要通过"
+    + "Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
+    + "直接指定到面。"
     + "空材质会被导出。",
     (
         "*",
@@ -110,7 +113,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',
-    ): "需要在「{material_name}」的「{shader_val}」中输入、「{expect_node_type}」请直接连接。 ",
+    ): "需要在「{material_name}」的「{shader_val}」中输入、"
+    + "「{expect_node_type}」请直接连接。 ",
     (
         "*",
         'image in material "{material_name}" is not put.' + " Please set image.",

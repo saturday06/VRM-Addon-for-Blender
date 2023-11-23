@@ -5,18 +5,24 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}."
         + " Please upgrade the add-on.",
-    ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。\nアドオンをアップデートしてください。",
+    ): "インストールされているVRMアドオンは、"
+    + "Blender {blender_version}には未対応です。\n"
+    + "アドオンをアップデートしてください。",
     (
         "*",
         "The installed VRM add-\n"
         + "on is not compatible with\n"
         + "Blender {blender_version}. Please update.",
-    ): "インストールされている\nVRMアドオンは、Blender {blender_version}\nには未対応です。アドオンを\nアップデートしてください。",
+    ): "インストールされている\n"
+    + "VRMアドオンは、Blender {blender_version}\n"
+    + "には未対応です。アドオンを\n"
+    + "アップデートしてください。",
     (
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}."
         + " The VRM may not be exported correctly.",
-    ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。VRMが正しくエクスポートされない可能性があります。",
+    ): "インストールされているVRMアドオンは、Blender {blender_version}には未対応です。"
+    + "VRMが正しくエクスポートされない可能性があります。",
     (
         "*",
         "VRM add-on is not compatible with Blender {blender_version_cycle}.",
@@ -26,7 +32,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "VRM add-on is\n"
         + "not compatible with\n"
         + "Blender {blender_version_cycle}.",
-    ): "VRMアドオンはBlender\nの{blender_version_cycle}版には未対応です。",
+    ): "VRMアドオンはBlender\n" + "の{blender_version_cycle}版には未対応です。",
     (
         "*",
         "VRM add-on is not compatible with Blender {blender_version_cycle}."
@@ -37,13 +43,16 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "The VRM add-on has been updated."
         + " Please restart Blender to apply the changes.",
-    ): "VRMアドオンはアップデートされました。変更を適用するためにBlenderを再起動してください。",
+    ): "VRMアドオンはアップデートされました。"
+    + "変更を適用するためにBlenderを再起動してください。",
     (
         "*",
         "The VRM add-on has been\n"
         + "updated. Please restart Blender\n"
         + "to apply the changes.",
-    ): "VRMアドオンはアップデート\nされました。変更を適用するため\nBlenderを再起動してください。",
+    ): "VRMアドオンはアップデート\nされました。"
+    + "変更を適用するため\n"
+    + "Blenderを再起動してください。",
     ("*", 'Set shading type to "Material"'): "3Dビューをマテリアルプレビューに設定",
     ("*", 'Set view transform to "Standard"'): "ビュー変換を「標準」に設定",
     (
@@ -61,7 +70,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Try the FB_ngon_encoding under development"
         + " (Exported meshes can be corrupted)",
-    ): "開発中のFB_ngon_encodingエクステンションを試してみる(エクスポートされるメッシュが壊れることがあります)",
+    ): "開発中のFB_ngon_encodingエクステンションを試してみる"
+    + "(エクスポートされるメッシュが壊れることがあります)",
     (
         "*",
         "No error. Ready for export VRM",
@@ -70,7 +80,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "No error. But there're {warning_count} warning(s)."
         + " The output may not be what you expected.",
-    ): "エラーはありませんでしたが、{warning_count}件の警告があります。期待通りの出力にはならないかもしれません。",
+    ): "エラーはありませんでしたが、{warning_count}件の警告があります。"
+    + "期待通りの出力にはならないかもしれません。",
     ("*", "VRM Export"): "VRMエクスポート",
     ("*", "Create VRM Model"): "VRMモデルを作成",
     ("*", "Validate VRM Model"): "VRMモデルのチェック",
@@ -86,19 +97,22 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Multiple armatures were found. Please select one to export as VRM.",
-    ): "複数のアーマチュアが存在します。VRMとしてエクスポートするアーマチュアを選択してください。",
+    ): "複数のアーマチュアが存在します。"
+    + "VRMとしてエクスポートするアーマチュアを選択してください。",
     ("*", "Import Anyway"): "インポートします",
     ("*", "Export Anyway"): "エクスポートします",
     (
         "*",
         "There is a high-impact warning. VRM may not export as intended.",
-    ): "影響の大きい警告があります。意図通りのVRMがエクスポートされないかもしれません。",
+    ): "影響の大きい警告があります。"
+    + "意図通りのVRMがエクスポートされないかもしれません。",
     ("*", "A light is required"): "ライトが必要です",
     ("*", "License Confirmation"): "ライセンスの確認",
     (
         "*",
         'Is this VRM allowed to edited? Please check its "{json_key}" value.',
-    ): "指定されたVRMのメタデータ「{json_key}」には独自のライセンスのURLが設定されています。",
+    ): "指定されたVRMのメタデータ「{json_key}」には"
+    + "独自のライセンスのURLが設定されています。",
     (
         "*",
         'This VRM is licensed by VRoid Hub License "Alterations: No".',
@@ -110,22 +124,26 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'The VRM selects "Other" license but no license url is found.',
-    ): "指定されたVRMには「Other」ライセンスが設定されていますが、URLが設定されていません。",
+    ): "指定されたVRMには「Other」ライセンスが設定されていますが、"
+    + "URLが設定されていません。",
     (
         "*",
         'The VRM is licensed by "{license_name}".'
         + " No derivative works are allowed.",
-    ): "指定されたVRMには改変不可ライセンス「{license_name}」が設定されています。改変することはできません。",
+    ): "指定されたVRMには改変不可ライセンス「{license_name}」が設定されています。"
+    + "改変することはできません。",
     (
         "*",
         "FB_ngon_encoding extension under development will be used."
         + " The exported mesh may be corrupted.",
-    ): "開発中のFB_ngon_encodingエクステンションが有効です。エクスポートされるメッシュが壊れることがあります。",
+    ): "開発中のFB_ngon_encodingエクステンションが有効です。"
+    + "エクスポートされるメッシュが壊れることがあります。",
     (
         "*",
         "Nodes(mesh,bones) require unique names for VRM export."
         + " {name} is duplicated.",
-    ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。「{name}」が重複しています。",
+    ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。"
+    + "「{name}」が重複しています。",
     (
         "*",
         'There are not an object on the origin "{name}"',
@@ -142,13 +160,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'The "{name}" mesh has both a non-armature modifier'
         + " and a shape key. However, they cannot coexist"
         + ", so shape keys may not be export correctly.",
-    ): "メッシュ「{name}」にアーマチュア以外のモディファイアとシェイプキーが両方設定されていますが、"
+    ): "メッシュ「{name}」に"
+    + "アーマチュア以外のモディファイアとシェイプキーが両方設定されていますが、"
     + "それらは共存できないためシェイプキーが正しく出力されないことがあります。",
     (
         "*",
         'Spring "{spring_name1}" and "{spring_name2}" have'
         + ' common bone "{bone_name}".',
-    ): "Spring 「{spring_name1}」と「{spring_name2}」が「{bone_name}」ボーンを共有しています。",
+    ): "Spring 「{spring_name1}」と「{spring_name2}」が"
+    + "「{bone_name}」ボーンを共有しています。",
     (
         "*",
         '"{export_only_selections}" is enabled' + ", but no mesh is selected.",
@@ -175,7 +195,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " will be empty or displayed in red"
         + " if hierarchy is wrong",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
-    + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
+    + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で"
+    + "「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
         'Couldn\'t assign "{bone}" bone'
@@ -184,7 +205,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
         + " if wrong hierarchy",
     ): "ボーン「{bone}」をVRMボーン「{human_bone}」に割り当てることができませんでした。"
-    + "「VRM」パネルの「VRM 0.x Humanoid」で「{human_bone}」ボーンの設定を確認してください。",
+    + "「VRM」パネルの「VRM 0.x Humanoid」で"
+    + "「{human_bone}」ボーンの設定を確認してください。",
     (
         "*",
         'Required VRM Bone "{humanoid_name}" is'
@@ -194,7 +216,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " will be empty or displayed in red"
         + " if hierarchy is wrong",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
-    + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で「{humanoid_name}」ボーンの設定をしてください。",
+    + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で"
+    + "「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
         'Please assign Required VRM Bone "{name}".',
@@ -203,11 +226,13 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Please assign "{parent_name}"'
         + ' because "{name}" requires it as its child bone.',
-    ): "「{parent_name}」を割り当ててください。子ボーンである「{name}」の割り当てに必要になります。",
+    ): "「{parent_name}」を割り当ててください。"
+    + "子ボーンである「{name}」の割り当てに必要になります。",
     (
         "*",
         'Non-tri faces detected in "{name}". ' + "will be triangulated automatically.",
-    ): "「{name}」のポリゴンに三角形以外のものが含まれます。自動的に三角形に分割されます。",
+    ): "「{name}」のポリゴンに三角形以外のものが含まれます。"
+    + "自動的に三角形に分割されます。",
     (
         "*",
         'VRM Bone "{child}" needs "{parent}".'
@@ -215,18 +240,21 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' "VRM" Panel → "Humanoid"'
         + ' → "VRM Optional Bones" → "{parent}".',
     ): "VRMボーン「{child}」は「{parent}」が必要です。"
-    + "「VRM」パネルの「Humanoid」→「VRMオプションボーン」で「{parent}」ボーンの設定をしてください。",
+    + "「VRM」パネルの「Humanoid」→「VRMオプションボーン」で"
+    + "「{parent}」ボーンの設定をしてください。",
     (
         "*",
         'Object "{name}" contains a negative value for the scale;'
         + " VRM 1.0 does not allow negative values to be specified"
         + " for the scale.",
-    ): "オブジェクト「{name}」にスケールにマイナス値が含まれています。VRM 1.0ではスケールにマイナス値を指定できません。",
+    ): "オブジェクト「{name}」にスケールにマイナス値が含まれています。"
+    + "VRM 1.0ではスケールにマイナス値を指定できません。",
     (
         "*",
         'Node Constraint "{owner_name} / {constraint_name}" has'
         + " a circular dependency",
-    ): "ノードコンストレイント「{owner_name} / {constraint_name}」に循環依存関係が存在します。",
+    ): "ノードコンストレイント「{owner_name} / {constraint_name}」に"
+    + "循環依存関係が存在します。",
     ("*", "No armature exists."): "アーマチュアが存在しません。",
     (
         "*",
@@ -269,7 +297,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'mesh "{mesh_name}" doesn\'t have shape key. '
         + 'But blend shape group needs "{shape_key_name}"'
         + " in its shape key.",
-    ): "blend shape groupが参照しているメッシュ「{mesh_name}」のシェイプキー「{shape_key_name}」が存在しません。",
+    ): "blend shape groupが参照しているメッシュ「{mesh_name}」の"
+    + "シェイプキー「{shape_key_name}」が存在しません。",
     (
         "*",
         'mesh "{mesh_name}" doesn\'t have '
@@ -280,11 +309,14 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',
-    ): "「{material_name}」の「{shader_val}」には、「{expect_node_type}」を直接つないでください。 ",
+    ): "「{material_name}」の「{shader_val}」には、"
+    + "「{expect_node_type}」を直接つないでください。 ",
     (
         "*",
         'image in material "{material_name}" is not put.' + " Please set image.",
-    ): "マテリアル「{material_name}」にテクスチャが設定されていないimageノードがあります。削除か画像を設定してください。",
+    ): "マテリアル「{material_name}」に"
+    + "テクスチャが設定されていないimageノードがあります。"
+    + "削除か画像を設定してください。",
     ("*", "Symmetrize VRoid Bone Names on X-Axis"): "VRoidのボーン名をX軸対称化",
     (
         "*",
@@ -300,7 +332,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "There are unassigned VRM Required Bones. Please assign all.",
-    ): "未割り当てのVRM必須ボーンが存在します。全てのVRM必須ボーンを割り当ててください。",
+    ): "未割り当てのVRM必須ボーンが存在します。"
+    + "全てのVRM必須ボーンを割り当ててください。",
     ("Operator", "Automatic Bone Assignment"): "ボーンの自動割り当て",
     ("Operator", "Export VRM"): "VRMをエクスポート",
     ("Operator", "Import VRM"): "VRMをインポート",
@@ -397,7 +430,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'Material "{name}" {texture}\'s Offset and Scale'
         + " in VRM 0.0 are the values of"
         + " the Lit Color Texture",
-    ): "VRM 0.0でのマテリアル「name」の{texture}のオフセットとスケールはLit Colorテクスチャの値になります",
+    ): "VRM 0.0でのマテリアル「name」の{texture}のオフセットとスケールは"
+    + "Lit Colorテクスチャの値になります",
     (
         "*",
         'It is recommended to set "{colorspace}"'
@@ -408,7 +442,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'It is recommended to set "{colorspace}"'
         + ' to "{input_colorspace}" for "{texture_label}"'
         + ' in Material "{name}"',
-    ): "マテリアル{name}の{texture_label}の{input_colorspace}には「{colorspace}」の設定が推奨されます。",
+    ): "マテリアル{name}の{texture_label}の{input_colorspace}には"
+    + "「{colorspace}」の設定が推奨されます。",
     (
         "*",
         "VRM Material",
@@ -425,7 +460,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'The "Screen Coordinates" display is not yet implemented.\n'
         + 'It is displayed in the same way as "World Coordinates".',
-    ): "「Screen Coordinates」の表示は未実装です\n「World Coordinates」と同じ表示をします",
+    ): "「Screen Coordinates」の表示は未実装です\n"
+    + "「World Coordinates」と同じ表示をします",
     (
         "*",
         "How to export this material to VRM.\n"
@@ -490,7 +526,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + "Rigs can not have animations applied\n"
         + "for humanoid avatars.",
     ): (
-        "人型以外のリグでVRMエクスポートを\nすると、人型アバター用のアニメーションが\n適用されません。"
+        "人型以外のリグでVRMエクスポートを\n"
+        + "すると、人型アバター用のアニメーションが\n"
+        + "適用されません。"
     ),
     (
         "*",
