@@ -1036,8 +1036,8 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
         name="Texture Transform Binds"
     )
 
-    # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の変更ができないので、
-    # 変更された値をここに保存しておく
+    # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の
+    # 変更ができないので、変更された値をここに保存しておく
     frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
 
     def get_preview(self) -> float:

@@ -379,7 +379,11 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
         ear_hole_point = [0, eye_point[1], self.head_width_size / 2]
         ear_hole_vert = add_point(ear_hole_point)
 
-        # mouth_point = Vector([-self.head_depth_size/2+self.nose_height*2/3,face_tall*2/9,0])
+        # mouth_point = Vector([
+        #     -self.head_depth_size / 2 + self.nose_height * 2 / 3,
+        #     face_tall * 2 / 9,
+        #     0,
+        # ])
         mouth_point = Vector(
             [
                 -self.head_depth_size / 2 + self.nose_height * 2 / 3,

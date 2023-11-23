@@ -97,7 +97,7 @@ def update_pose_bone_rotations(delta_time: float) -> None:
         if pose_bone.rotation_mode != "QUATERNION":
             pose_bone.rotation_mode = "QUATERNION"
 
-        # pose_bone.rotation_quaternionの代入は負荷が高いのでできるだけ実行しないようにする
+        # pose_bone.rotation_quaternionの代入は負荷が高いのでできるだけ実行しない
         angle_diff = pose_bone_rotation.rotation_difference(
             pose_bone.rotation_quaternion
         ).angle

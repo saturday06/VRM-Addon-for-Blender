@@ -112,11 +112,13 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if not armature:
             return
 
-        # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たすとき
-        # inverseBindMatricesが不正なglbが出力される:
-        # - アーマチュアの子孫になっていないメッシュがそのアーマチュアのボーンにスキニングされている
+        # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たす
+        # ときinverseBindMatricesが不正なglbが出力される:
+        # - アーマチュアの子孫になっていないメッシュがそのアーマチュアのボーンに
+        #   スキニングされている
         # - スキニングされたボーンの子供に別のメッシュが存在する
-        # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアにし、後で戻す
+        # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアに
+        # し、後で戻す
         for obj in self.export_objects:
             if obj.type != "MESH" or not [
                 True
@@ -1990,13 +1992,16 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             )
 
             self.armature[self.extras_main_armature_key] = True
-            # 他glTF2ExportUserExtensionの影響を最小化するため、影響が少ないと思われるカスタムプロパティを使ってBlenderのオブジェクトとインデックスの対応をとる。
+            # 他glTF2ExportUserExtensionの影響を最小化するため、
+            # 影響が少ないと思われるカスタムプロパティを使って
+            # Blenderのオブジェクトとインデックスの対応をとる。
             for obj in bpy.data.objects:
                 obj[self.extras_object_name_key] = obj.name
             for material in bpy.data.materials:
                 material[self.extras_material_name_key] = material.name
 
-            # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると書いてあるが、実際にはBoneのカスタムプロパティを参照している。
+            # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると
+            # 書いてあるが、実際にはBoneのカスタムプロパティを参照している。
             # そのため、いちおう両方に書いておく
             for pose_bone in self.armature.pose.bones:
                 pose_bone[self.extras_bone_name_key] = pose_bone.name

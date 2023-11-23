@@ -818,7 +818,7 @@ def assign_humanoid_keyframe(
 
                 if rotation_keyframes:
                     logger.debug(
-                        f"===================== {human_bone_name.value} ===================="
+                        f"================= {human_bone_name.value} ================="
                     )
                     logger.debug(
                         f"humanoid world matrix = {dump(humanoid_rest_world_matrix)}"
@@ -851,13 +851,6 @@ def assign_humanoid_keyframe(
                     bone.rotation_quaternion = backup_rotation_quaternion
 
                 if human_bone_name == HumanBoneName.HIPS and translation_keyframes:
-                    # logger.debug(f"===================== {human_bone_name.value} TRANSLATION ====================")
-                    # logger.debug(f"humanoid world matrix = {dump(humanoid_rest_world_matrix)}")
-                    # logger.debug(f"rest_local_matrix     = {dump(rest_local_matrix)}")
-                    # logger.debug(f"pose_local_matrix     = {dump(pose_local_matrix)}")
-                    # logger.debug(f"bone.matrix           = {dump(bone.matrix)}")
-                    # logger.debug(f"rest_to_pose          = {dump(rest_to_pose_matrix)}")
-                    # translation = rest_to_pose_matrix.to_translation()
                     translation = (
                         bone.matrix.to_quaternion().inverted()
                         @ humanoid_rest_world_matrix.to_quaternion()

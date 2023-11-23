@@ -980,7 +980,8 @@ def copy_node_tree(
     for from_node, to_node in from_to.items():
         copy_node_socket_default_value(from_node, to_node)
 
-    # 親子関係の辻褄が合った状態でもう一度場所を設定することで完全にノードの位置を復元できる
+    # 親子関係の辻褄が合った状態でもう一度場所を設定することで
+    # 完全にノードの位置を復元できる
     for from_node, to_node in from_to.items():
         to_node.location = deepcopy(
             (
@@ -1035,10 +1036,12 @@ def get_image_name_and_sampler_type(
     if not image_name:
         return None
 
-    # blender is ('Linear', 'Closest', 'Cubic', 'Smart') glTF is Linear, Closest
+    # blender is ('Linear', 'Closest', 'Cubic', 'Smart')
+    # glTF is Linear, Closest
     filter_type = GL_NEAREST if from_node.interpolation == "Closest" else GL_LINEAR
 
-    # blender is ('REPEAT', 'EXTEND', 'CLIP') glTF is CLAMP_TO_EDGE,MIRRORED_REPEAT,REPEAT
+    # blender is ('REPEAT', 'EXTEND', 'CLIP')
+    # glTF is CLAMP_TO_EDGE, MIRRORED_REPEAT, REPEAT
     wrap_type = GL_REPEAT if from_node.extension == "REPEAT" else GL_CLAMP_TO_EDGE
 
     return image_name, wrap_type, filter_type

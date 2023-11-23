@@ -507,7 +507,7 @@ class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
     show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     # for reference
-    # オブジェクトをコピーした場合同じuuidをもつオブジェクトが複数ある可能性があるのに注意する。
+    # オブジェクトをコピーした場合同じuuidをもつオブジェクトが複数ある可能性がある
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]

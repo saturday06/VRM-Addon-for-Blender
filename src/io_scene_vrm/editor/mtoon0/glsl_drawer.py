@@ -273,7 +273,8 @@ class GlslDrawObj:
                     glsl_draw_obj.materials[mat_slot.material.name] = MtoonGlsl(
                         mat_slot.material
                     )
-        # if bpy.context.mode != 'POSE' or self.scene_meshes == None: #need skin mesh modifier implementation
+        # if bpy.context.mode != 'POSE' or self.scene_meshes == None:
+        #     need skin mesh modifier implementation
         GlslDrawObj.scene_meshes = []
         glsl_draw_obj.draw_x_offset = 0
         for obj in glsl_draw_obj.objs:

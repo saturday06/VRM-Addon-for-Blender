@@ -27,7 +27,8 @@ bl_info = {
 }
 
 
-# To support reload properly, try to access a package var, if it's there, reload everything
+# To support reload properly, try to access a package var, if it's there,
+# reload everything
 def cleanse_modules() -> None:
     """Search for your plugin modules in blender python sys.modules and remove them."""
     import sys

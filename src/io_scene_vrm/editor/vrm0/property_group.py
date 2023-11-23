@@ -553,8 +553,8 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
         default=0,
     )
 
-    # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の変更ができないので、
-    # 変更された値をここに保存しておく
+    # アニメーション再生中はframe_change_pre/frame_change_postでしか
+    # シェイプキーの値の変更ができないので、変更された値をここに保存しておく
     frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
 
     def get_preview(self) -> float:

@@ -273,7 +273,8 @@ class AbstractBaseVrmImporter(ABC):
         self.load_bone_child_object_world_matrices(armature)
 
     def scene_init(self) -> Optional[bpy.types.Object]:
-        # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るのでその回避と、それを元に戻す
+        # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るの
+        # でその回避と、それを元に戻す
         affected_object = None
         if self.context.active_object is not None:
             if (
@@ -297,7 +298,8 @@ class AbstractBaseVrmImporter(ABC):
         # image_path_to Texture
 
     def use_fake_user_for_thumbnail(self) -> None:
-        # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtextureのインデックスになっている
+        # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
+        # のインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
         json_texture_index = deep.get(
             self.parse_result.vrm0_extension, ["meta", "texture"]

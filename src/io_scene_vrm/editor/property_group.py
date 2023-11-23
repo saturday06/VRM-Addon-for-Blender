@@ -190,7 +190,9 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
                 grand_parent = parent.parent
                 if not grand_parent:
                     if remove_ancestor_branches:
-                        # logger.debug(f"Removing ancestor branches, except: {parent.name}")
+                        # logger.debug(
+                        #     f"Removing ancestor branches, except: {parent.name}"
+                        # )
                         remove_bones_tree.update(
                             bone
                             for bone in bones.values()
@@ -234,7 +236,8 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
     def set_bone_name(self, value: object) -> None:
         armature: Optional[bpy.types.Object] = None
 
-        # アーマチュアの複製が行われた場合を考えてself.armature_data_nameの振り直しをする
+        # アーマチュアの複製が行われた場合を考えて
+        # self.armature_data_nameの振り直しをする
         self.search_one_time_uuid = uuid.uuid4().hex
         for found_armature in bpy.data.objects:
             if found_armature.type != "ARMATURE":

@@ -258,7 +258,8 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             return Vector((pos[0], pos[1], pos[2]))
 
         head_size = self.head_size()
-        # down side (前は8頭身の時の股上/股下の股下側割合、後ろは4頭身のときの〃を年齢具合で線形補完)(股上高めにすると破綻する)
+        # down side (前は8頭身の時の股上/股下の股下側割合、
+        # 後ろは4頭身のときの〃を年齢具合で線形補完)(股上高めにすると破綻する)
         eight_upside_ratio, four_upside_ratio = (
             1 - self.leg_length_ratio,
             (2.5 / 4) * (1 - self.aging_ratio)
@@ -277,7 +278,9 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         hips_tall = body_separate + head_size * 3 / 4
         # 胸椎・spineの全長 #首の1/3は顎の後ろに隠れてる
         backbone_len = self.tall - hips_tall - head_size - neck_len / 2
-        # TODO: 胸椎と脊椎の割合の確認 //脊椎の基部に位置する主となる屈曲点と、胸郭基部に位置するもうひとつの屈曲点byHumanoid Doc
+        # TODO: 胸椎と脊椎の割合の確認
+        # 脊椎の基部に位置する主となる屈曲点と、胸郭基部に位置するもうひとつの屈曲点
+        # by Humanoid Doc
         spine_len = backbone_len * 5 / 17
 
         root = bone_add("root", Vector((0, 0, 0)), Vector((0, 0, 0.3)))

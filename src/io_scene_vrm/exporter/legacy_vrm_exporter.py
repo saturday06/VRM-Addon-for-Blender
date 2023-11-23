@@ -233,13 +233,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for (
                     raw_shader_vals
                 ) in MtoonUnversioned.texture_kind_exchange_dict.values():
-                    # Support models that were loaded by earlier versions (1.3.5 or earlier), which had this typo
+                    # Support models that were loaded by earlier versions
+                    # (1.3.5 or earlier), which had this typo
                     #
-                    # Those models have node.inputs["NomalmapTexture"] instead of "NormalmapTexture".
-                    # But 'shader_vals' which comes from MaterialMtoon.texture_kind_exchange_dict is "NormalmapTexture".
-                    # if script reference node.inputs["NormalmapTexture"] in that situation, it will occur error.
-                    # So change it to "NomalmapTexture" which is typo but points to the same thing
-                    # in those models.
+                    # Those models have node.inputs["NomalmapTexture"] instead of
+                    # "NormalmapTexture". But 'shader_vals' which comes from
+                    # MaterialMtoon.texture_kind_exchange_dict is "NormalmapTexture".
+                    # if script reference node.inputs["NormalmapTexture"] in that
+                    # situation, it will occur error. So change it to "NomalmapTexture"
+                    # which is typo but points to the same thing in those models.
                     if (
                         raw_shader_vals == "NormalmapTexture"
                         and "NormalmapTexture" not in node.inputs
@@ -1977,7 +1979,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             v_group_name_dict = {i: vg.name for i, vg in enumerate(mesh.vertex_groups)}
             fmin, fmax = FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX
             unique_vertex_id = 0
-            # {(uv...,vertex_index):unique_vertex_id} (uvと頂点番号が同じ頂点は同じものとして省くようにする)
+            # {(uv...,vertex_index):unique_vertex_id}
+            # (uvと頂点番号が同じ頂点は同じものとして省くようにする)
             unique_vertex_dict: dict[tuple[object, ...], int] = {}
             uvlayers_dict = {
                 i: uvlayer.name for i, uvlayer in enumerate(mesh_data.uv_layers)
@@ -2035,8 +2038,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
                         uv_list.extend([loop[uv_layer].uv[0], loop[uv_layer].uv[1]])
 
-                    # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると思うが、
-                    # glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
+                    # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると
+                    # 思うが、glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
                     # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
                     vert_normal = mesh_data.loops[loop.index].normal
                     vertex_key = (*uv_list, *vert_normal, loop.vert.index)
@@ -2672,8 +2675,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             blend_shape_group_dict["isBinary"] = blend_shape_group.is_binary
             blend_shape_group_dicts.append(blend_shape_group_dict)
 
-        # VirtualMotionCapture requires some blend shape presets https://twitter.com/sh_akira/status/1674237253231714305
-        # (The VRM specification does not require them. UniVRM 0.112.0 can be configured not to output them.)
+        # VirtualMotionCapture requires some blend shape presets
+        # https://twitter.com/sh_akira/status/1674237253231714305
+        # Note: the VRM specification does not require them. UniVRM 0.112.0
+        # can be configured not to output them.
         for preset_name in remaining_preset_names:
             if first_person.look_at_type_name == "Bone" and preset_name.startswith(
                 "look"
@@ -2815,7 +2820,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             first_scene_nodes.append(len(node_dicts) - 1)
 
     def fill_empty_material(self) -> None:
-        # clusterではマテリアル無しのプリミティブが許可されないため、空のマテリアルを付与する。
+        # clusterではマテリアル無しのプリミティブが許可されないため、
+        # 空のマテリアルを付与する。
         material_dicts = self.json_dict.get("materials")
         if not isinstance(material_dicts, list):
             material_dicts = []

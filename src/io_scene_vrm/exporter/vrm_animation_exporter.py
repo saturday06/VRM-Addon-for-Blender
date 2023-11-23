@@ -431,7 +431,8 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
             if base_quaternion is None:
                 continue
             bone_name_to_quaternions[bone_name] = [
-                # ミュートされている項目とかあるとクオータニオンの値がノーマライズされていないのでノーマライズしておく
+                # ミュートされている項目とかあるとクオータニオンの値がノーマライズされて
+                # いないのでノーマライズしておく
                 base_quaternion @ quaternion_offset.normalized()
                 for quaternion_offset in quaternion_offsets
             ]

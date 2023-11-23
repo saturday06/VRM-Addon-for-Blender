@@ -560,7 +560,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         bone_node_indices = self.find_vrm_bone_node_indices()
 
-        # シーンノードツリーのうち、hipsボーンが存在するツリーの全てのノードを集める。また、そのツリーのルートノードもボーン扱いする。
+        # シーンノードツリーのうち、hipsボーンが存在するツリーの全てのノードを集める。
+        # また、そのツリーのルートノードもボーン扱いする。
         all_scene_node_indices: list[int] = []
         hips_found = False
         for scene_node_index in scene_node_indices:
@@ -1282,7 +1283,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(image_dicts, list) and 0 <= custom_image_index < len(
                 image_dicts
             ):
-                # image.nameはインポート時に勝手に縮められてしまうことがあるので、jsonの値から復元する
+                # image.nameはインポート時に勝手に縮められてしまうことがあるので、
+                # jsonの値から復元する
                 image_dict = image_dicts[custom_image_index]
                 indexed_image_name = None
 
@@ -1651,8 +1653,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if not found:
                     constraint_node_index_groups.append({node_index, source_index})
 
-            # 軸変換時コンストレイントがついている場合にヒューマンボーンとその先祖ボーンを優先したいので、
-            # それらを深さ優先で先に処理し、その後その他のボーンを深さ優先で処理する
+            # 軸変換時コンストレイントがついている場合にヒューマンボーンと
+            # その先祖ボーンを優先したいので、それらを深さ優先で先に処理し、
+            # その後その他のボーンを深さ優先で処理する
             unsorted_bones = [
                 bone for bone in self.armature_data.edit_bones if not bone.parent
             ]
