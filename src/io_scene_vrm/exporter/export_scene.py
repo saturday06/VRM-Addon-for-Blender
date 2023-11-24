@@ -74,16 +74,14 @@ def export_vrm_update_addon_preferences(
         preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
         changed = True
 
-    if bool(preferences.export_all_influences) != bool(
-        export_op.export_all_influences
-    ):
+    if bool(preferences.export_all_influences) != bool(export_op.export_all_influences):
         preferences.export_all_influences = export_op.export_all_influences
         changed = True
 
     if bool(preferences.export_lights) != bool(export_op.export_lights):
         preferences.export_lights = export_op.export_lights
         changed = True
-    
+
     if bool(preferences.use_active_scene) != bool(export_op.use_active_scene):
         preferences.use_active_scene = export_op.use_active_scene
         changed = True
@@ -117,12 +115,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         update=export_vrm_update_addon_preferences,
     )
     export_only_deform_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Only Deform Bones",  # noqa: F722
+        name="Export Only Deform Bones",
         update=export_vrm_update_addon_preferences,
         default=True,
     )
     export_apply_modifiers: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Apply Modifiers",  # noqa: F722
+        name="Apply Modifiers",
         update=export_vrm_update_addon_preferences,
         default=True,
     )
@@ -136,15 +134,15 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         update=export_vrm_update_addon_preferences,
     )
     export_all_influences: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",  # noqa: F722
+        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
         update=export_vrm_update_addon_preferences,
         default=True,
     )
     export_lights: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Lights",  # noqa: F722
+        name="Export Lights",
     )
     use_active_scene: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Only Export the Active Scene",  # noqa: F722
+        name="Only Export the Active Scene",
         default=True,
     )
     errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]

@@ -1,4 +1,4 @@
-﻿locale_key = "ja_JP"
+locale_key = "ja_JP"
 
 translation_dictionary: dict[tuple[str, str], str] = {
     (
@@ -74,7 +74,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " (Exported meshes can be corrupted)",
     ): "開発中のFB_ngon_encodingエクステンションを試してみる"
     + "(エクスポートされるメッシュが壊れることがあります)",
-    (   "*",
+    (
+        "*",
         "Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
     ): "全てのボーンウェイトをエクスポートする(4つに制限しない。多くのビューアは4つに制限するため、ボーンの動きがメッシュを乱す可能性があります)",
     ("*", "Export Lights"): "ライトをエクスポート",

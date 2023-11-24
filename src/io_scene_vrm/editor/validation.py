@@ -194,7 +194,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             warning_messages.append(version_warning_message)
 
         export_objects = search.export_objects(
-            context, export_invisibles, export_only_selections, export_lights, armature_object_name
+            context,
+            export_invisibles,
+            export_only_selections,
+            export_lights,
+            armature_object_name,
         )
 
         if not any(

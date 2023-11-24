@@ -2026,10 +2026,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         export_def_bones=True,
                         export_animations=True,
                         export_rest_position_armature=False,
-                        export_apply=True, # Enable non-destructive export
-                        export_all_influences=True, # Models may appear incorrectly in many viewers
-                        export_lights=True, # TODO: Expose UI Option, Unity allows light export
-                        use_active_scene=True, # Reduce File Size
+                        export_apply=True,  # Enable non-destructive export
+                        export_all_influences=True,  # Models may appear incorrectly in many viewers
+                        export_lights=True,  # TODO: Expose UI Option, Unity allows light export
+                        use_active_scene=True,  # Reduce File Size
                     )
                 except RuntimeError:
                     logger.exception("Failed to export VRM with animations")
@@ -2044,10 +2044,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         export_def_bones=True,
                         export_animations=False,
                         export_rest_position_armature=False,
-                        export_apply=True, # Enable non-destructive export
-                        export_all_influences=True, # Models may appear incorrectly in many viewers
-                        export_lights=True, # TODO: Expose UI Option, Unity allows light export
-                        use_active_scene=True, # Reduce File Size
+                        export_apply=True,  # Enable non-destructive export
+                        export_all_influences=True,  # Models may appear incorrectly in many viewers
+                        export_lights=True,  # TODO: Expose UI Option, Unity allows light export
+                        use_active_scene=True,  # Reduce File Size
                     )
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:

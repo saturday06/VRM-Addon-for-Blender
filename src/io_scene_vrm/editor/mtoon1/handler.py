@@ -1,4 +1,4 @@
-﻿import time
+import time
 from typing import Optional
 
 import bpy
@@ -60,15 +60,20 @@ def trigger_update_mtoon1_outline() -> None:
         return
     bpy.app.timers.register(update_mtoon1_outline, first_interval=0.2)
 
+
 flagg = 0
+
+
 def check_matcap_operator_status(dummy=None):
     if bpy.app.timers.is_registered(delayed_start_for_viewport_matrix):
         return
-    
+
     global flagg
     if flagg == 0:
         flagg = 1
-        bpy.app.timers.register(delayed_start_for_viewport_matrix, first_interval=1.0, persistent=True)
+        bpy.app.timers.register(
+            delayed_start_for_viewport_matrix, first_interval=1.0, persistent=True
+        )
         print("Registering delayed_start_for_viewport_matrix")
 
 

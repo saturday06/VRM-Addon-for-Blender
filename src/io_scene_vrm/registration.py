@@ -1,4 +1,4 @@
-﻿# Copyright (c) 2018 iCyP
+# Copyright (c) 2018 iCyP
 # Released under the MIT license
 # https://opensource.org/licenses/mit-license.php
 
@@ -6,7 +6,7 @@ from typing import Union
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy.props import FloatProperty, CollectionProperty
+from bpy.props import CollectionProperty, FloatProperty
 from bpy.types import PropertyGroup
 
 from .common import preferences, shader
@@ -97,6 +97,7 @@ def save_pre(_dummy: object) -> None:
     depsgraph_update_pre_once_if_load_post_is_unavailable(None)
     migration.migrate_all_objects()
     extension.update_internal_cache(bpy.context)
+
 
 # Each row of the matrix world
 class ViewportMatrixRow(PropertyGroup):
@@ -370,7 +371,7 @@ classes: list[
     extension.VrmAddonSceneExtensionPropertyGroup,
     extension.VrmAddonMaterialExtensionPropertyGroup,
     extension.VrmAddonObjectExtensionPropertyGroup,
-    ViewportMatrixRow, # The Viewport Matrix is used in a modal to update Matcaps
+    ViewportMatrixRow,  # The Viewport Matrix is used in a modal to update Matcaps
 ]
 
 
@@ -414,7 +415,9 @@ def register(name: object, init_addon_version: object) -> None:
 
     # The Viewport Matrix is used in a modal to update Matcaps
     # Add this collection property to the WindowManager
-    bpy.types.WindowManager.ViewportMatrixWorld = CollectionProperty(type=ViewportMatrixRow)
+    bpy.types.WindowManager.ViewportMatrixWorld = CollectionProperty(
+        type=ViewportMatrixRow
+    )
 
     bpy.types.TOPBAR_MT_file_import.append(import_scene.menu_import)
     bpy.types.TOPBAR_MT_file_export.append(export_scene.menu_export)
@@ -422,7 +425,9 @@ def register(name: object, init_addon_version: object) -> None:
     # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
     bpy.app.handlers.load_post.append(load_post)
-    bpy.app.handlers.load_post.append(mtoon1_ops.delayed_start_for_viewport_matrix) # The Viewport Matrix is used in a modal to update Matcaps
+    bpy.app.handlers.load_post.append(
+        mtoon1_ops.delayed_start_for_viewport_matrix
+    )  # The Viewport Matrix is used in a modal to update Matcaps
     bpy.app.handlers.depsgraph_update_pre.append(
         depsgraph_update_pre_once_if_load_post_is_unavailable
     )
@@ -444,7 +449,11 @@ def register(name: object, init_addon_version: object) -> None:
     io_scene_gltf2_support.init_extras_export()
 
     # The Viewport Matrix is used in a modal to update Matcaps
-    bpy.app.timers.register(mtoon1_ops.delayed_start_for_viewport_matrix, first_interval=1.0, persistent=True)
+    bpy.app.timers.register(
+        mtoon1_ops.delayed_start_for_viewport_matrix,
+        first_interval=1.0,
+        persistent=True,
+    )
 
     logger.debug(f"Registered: {name}")
 
@@ -475,7 +484,9 @@ def unregister() -> None:
             depsgraph_update_pre_once_if_load_post_is_unavailable
         )
     bpy.app.handlers.load_post.remove(load_post)
-    bpy.app.handlers.load_post.remove(mtoon1_ops.delayed_start_for_viewport_matrix) # The Viewport Matrix is used in a modal to update Matcaps
+    bpy.app.handlers.load_post.remove(
+        mtoon1_ops.delayed_start_for_viewport_matrix
+    )  # The Viewport Matrix is used in a modal to update Matcaps
 
     # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)
     bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)
@@ -508,12 +519,12 @@ def unregister() -> None:
         bpy.app.timers.unregister(mtoon1_ops.delayed_start_for_viewport_matrix)
     except:
         pass
-    
+
     # Do this after class unregistration so modal class can stop before removing timer-dependant property
     if hasattr(bpy.types.WindowManager, "ViewportMatrixWorld"):
         # remove the created viewportmatrixworld property
         del bpy.types.WindowManager.ViewportMatrixWorld
-    
+
     bpy.app.translations.unregister(preferences.addon_package_name)
 
     logger.debug("VRM Addon Unregistered Successfully")

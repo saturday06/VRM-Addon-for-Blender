@@ -4,11 +4,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
-from bpy.app.handlers import persistent
 
 import bpy
-from bpy_extras.io_utils import ImportHelper
 from bpy_extras import view3d_utils
+from bpy_extras.io_utils import ImportHelper
 
 from ...common import convert, shader
 from ...common.logging import get_logger
@@ -34,17 +33,20 @@ from .property_group import (
 
 logger = get_logger(__name__)
 
+
 # The Viewport Matrix is used in a modal to update Matcaps
 def store_viewport_matrix():
     wm = bpy.context.window_manager
-    active_hash = getattr(wm, "ActiveView3DIndex", None)  # Get the stored active VIEW_3D area hash
+    active_hash = getattr(
+        wm, "ActiveView3DIndex", None
+    )  # Get the stored active VIEW_3D area hash
     view_3d_area = None  # Initialize variable to store the 'VIEW_3D' area
 
     # Try to find the active VIEW_3D area using the hash value
     for window in bpy.context.window_manager.windows:
         screen = window.screen
         for area in screen.areas:
-            if area.type == 'VIEW_3D' and str(hash(area)) == active_hash:
+            if area.type == "VIEW_3D" and str(hash(area)) == active_hash:
                 view_3d_area = area
                 break
         if view_3d_area:
@@ -55,7 +57,7 @@ def store_viewport_matrix():
         for window in bpy.context.window_manager.windows:
             screen = window.screen
             for area in screen.areas:
-                if area.type == 'VIEW_3D':
+                if area.type == "VIEW_3D":
                     view_3d_area = area
                     break
             if view_3d_area:
@@ -64,40 +66,56 @@ def store_viewport_matrix():
     try:
         if view_3d_area:
             # Find the first SpaceView3D object within the view_3d_area's spaces list.
-            space_view_3d = next((space for space in view_3d_area.spaces if space.type == 'VIEW_3D'), None)
-            
+            space_view_3d = next(
+                (space for space in view_3d_area.spaces if space.type == "VIEW_3D"),
+                None,
+            )
+
             if space_view_3d:
                 rv3d = space_view_3d.region_3d
-                region = next((region for region in view_3d_area.regions if region.type == 'WINDOW'), None)
-                
+                region = next(
+                    (
+                        region
+                        for region in view_3d_area.regions
+                        if region.type == "WINDOW"
+                    ),
+                    None,
+                )
+
                 # Store matrix_world
                 view_matrix = rv3d.view_matrix.inverted()
-                
+
                 # Store rotation as Euler angles
                 quat_rotation = view_matrix.to_quaternion()
                 euler_rotation = quat_rotation.to_euler()
-                
+
                 # Store view origin
-                view_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, (region.width / 2, region.height / 2))
-                
+                view_origin = view3d_utils.region_2d_to_origin_3d(
+                    region, rv3d, (region.width / 2, region.height / 2)
+                )
+
                 for i in range(4):
                     if i < 3:  # Handle location differently
                         wm.ViewportMatrixWorld[i].loc = view_origin[i]
-                    wm.ViewportMatrixWorld[i].rot = view_matrix[i][1]  # The original rotation value
-                    
+                    wm.ViewportMatrixWorld[i].rot = view_matrix[i][
+                        1
+                    ]  # The original rotation value
+
                     # Store Euler rotation values as individual components
                     if i < 3:
                         wm.ViewportMatrixWorld[i].rotation_euler = euler_rotation[i]
-                    
+
                     wm.ViewportMatrixWorld[i].scale = view_matrix[i][2]
                     wm.ViewportMatrixWorld[i].w = view_matrix[i][3]
 
     except Exception as e:
-        logger.error(f"An error occurred when trying to store the viewport matrix: {e} \n if this error occurs only once, it can be ignored. If it occurs repeatedly, please report it.")
+        logger.error(
+            f"An error occurred when trying to store the viewport matrix: {e} \n if this error occurs only once, it can be ignored. If it occurs repeatedly, please report it."
+        )
 
 
 def delayed_start_for_viewport_matrix():
-    bpy.ops.wm.store_viewport_matrix('INVOKE_DEFAULT')
+    bpy.ops.wm.store_viewport_matrix("INVOKE_DEFAULT")
 
 
 def initialize_viewport_matrix():
@@ -106,8 +124,10 @@ def initialize_viewport_matrix():
         for _ in range(5):  # 5x5 matrix
             wm.ViewportMatrixWorld.add()
 
+
 # Cache to store references to inputs of nodes that need updating
 input_cache = {}
+
 
 def update_input_cache():
     global input_cache
@@ -115,27 +135,29 @@ def update_input_cache():
     for material in bpy.data.materials:
         if material.use_nodes and material.node_tree:
             for node in material.node_tree.nodes:
-                if node.type == 'GROUP' and node.node_tree:
+                if node.type == "GROUP" and node.node_tree:
                     if node.node_tree.name == "Unity style Matcap UV":
                         for sub_node in node.node_tree.nodes:
                             input_cache[sub_node.name] = sub_node.inputs
 
+
 def set_values_in_unity_style_matcap_uv(wm):
     for node_name, inputs in input_cache.items():
         if node_name == "camera matrix":
-            inputs['X'].default_value = wm.ViewportMatrixWorld[0].rot
-            inputs['Y'].default_value = wm.ViewportMatrixWorld[1].rot
-            inputs['Z'].default_value = wm.ViewportMatrixWorld[2].rot
+            inputs["X"].default_value = wm.ViewportMatrixWorld[0].rot
+            inputs["Y"].default_value = wm.ViewportMatrixWorld[1].rot
+            inputs["Z"].default_value = wm.ViewportMatrixWorld[2].rot
         elif node_name == "camera rotation":
-            inputs['X'].default_value = wm.ViewportMatrixWorld[0].rotation_euler
-            inputs['Y'].default_value = wm.ViewportMatrixWorld[1].rotation_euler
-            inputs['Z'].default_value = wm.ViewportMatrixWorld[2].rotation_euler
+            inputs["X"].default_value = wm.ViewportMatrixWorld[0].rotation_euler
+            inputs["Y"].default_value = wm.ViewportMatrixWorld[1].rotation_euler
+            inputs["Z"].default_value = wm.ViewportMatrixWorld[2].rotation_euler
         elif node_name == "camera loc":
-            inputs['X'].default_value = wm.ViewportMatrixWorld[0].loc
-            inputs['Y'].default_value = wm.ViewportMatrixWorld[1].loc
-            inputs['Z'].default_value = wm.ViewportMatrixWorld[2].loc
+            inputs["X"].default_value = wm.ViewportMatrixWorld[0].loc
+            inputs["Y"].default_value = wm.ViewportMatrixWorld[1].loc
+            inputs["Z"].default_value = wm.ViewportMatrixWorld[2].loc
 
-# The Viewport Matrix is used in a modal to update Matcaps    
+
+# The Viewport Matrix is used in a modal to update Matcaps
 class StoreViewportMatrixOperator(bpy.types.Operator):
     bl_idname = "wm.store_viewport_matrix"
     bl_label = "Store Viewport Matrix Operator"
@@ -156,42 +178,52 @@ class StoreViewportMatrixOperator(bpy.types.Operator):
             # Call this before you call store_viewport_matrix
             initialize_viewport_matrix()
 
-        if event.type == 'MOUSEMOVE':  # Update on mouse move
+        if event.type == "MOUSEMOVE":  # Update on mouse move
             # Iterate through areas to find the VIEW_3D area under the mouse cursor
             for i, area in enumerate(bpy.context.screen.areas):
-                if area.type == 'VIEW_3D':
+                if area.type == "VIEW_3D":
                     x, y, width, height = area.x, area.y, area.width, area.height
-                    if (x < event.mouse_x < x + width) and (y < event.mouse_y < y + height):
-                        context.window_manager.ActiveView3DIndex = str(hash(area))  # Update the active VIEW_3D area hash
+                    if (x < event.mouse_x < x + width) and (
+                        y < event.mouse_y < y + height
+                    ):
+                        context.window_manager.ActiveView3DIndex = str(
+                            hash(area)
+                        )  # Update the active VIEW_3D area hash
                         break  # Exit the loop once the active VIEW_3D area is found
                     # Set the values in the Unity style Matcap UV node group
-                    set_values_in_unity_style_matcap_uv(wm)  
+                    set_values_in_unity_style_matcap_uv(wm)
 
-        if event.type == 'MIDDLEMOUSE' and event.value == 'PRESS':
+        if event.type == "MIDDLEMOUSE" and event.value == "PRESS":
             store_viewport_matrix()  # Store the current view matrix
             self._prev_view_matrix = self.get_view_matrix_as_tuple()
 
-        if event.type == 'TIMER':  # Update on a timer
+        if event.type == "TIMER":  # Update on a timer
             store_viewport_matrix()  # Update the stored view matrix
             current_view_matrix = self.get_view_matrix_as_tuple()
 
-            if self._prev_view_matrix != current_view_matrix:  # Check if the view matrix has changed
-                self._prev_view_matrix = current_view_matrix  # Update the stored view matrix
+            if (
+                self._prev_view_matrix != current_view_matrix
+            ):  # Check if the view matrix has changed
+                self._prev_view_matrix = (
+                    current_view_matrix  # Update the stored view matrix
+                )
                 store_viewport_matrix()  # Call your store_viewport_matrix function here
 
                 # Set the values in the Unity style Matcap UV node group
-                set_values_in_unity_style_matcap_uv(wm)         
+                set_values_in_unity_style_matcap_uv(wm)
 
-        return {'PASS_THROUGH'}
+        return {"PASS_THROUGH"}
 
     def execute(self, context):
-        update_input_cache() # Initialize the matcap input cache
+        update_input_cache()  # Initialize the matcap input cache
         store_viewport_matrix()  # Initialize the stored view matrix
         self._prev_view_matrix = self.get_view_matrix_as_tuple()
-        self._timer = context.window_manager.event_timer_add(0.015, window=context.window)  # 60 FPS
+        self._timer = context.window_manager.event_timer_add(
+            0.015, window=context.window
+        )  # 60 FPS
         context.window_manager.modal_handler_add(self)
-        return {'RUNNING_MODAL'}
-    
+        return {"RUNNING_MODAL"}
+
     def cancel(self, context):
         self._timer = None
 
@@ -643,7 +675,9 @@ class VRM_OT_update_all_mtoon1_material_node_groups(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context) -> set[str]:
-        groupNames = shader.shader_node_group_names  # Replace with your actual function or variable
+        groupNames = (
+            shader.shader_node_group_names
+        )  # Replace with your actual function or variable
         outputGroup = shader.template_name(groupNames[3])
 
         # Loop through materials
@@ -651,14 +685,21 @@ class VRM_OT_update_all_mtoon1_material_node_groups(bpy.types.Operator):
             if material.vrm_addon_extension.mtoon1.enabled == True:
                 if not isinstance(material, bpy.types.Material):
                     return {"CANCELLED"}
-                reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
+                reset_shader_node_group(
+                    context, material, reset_node_tree=True, overwrite=True
+                )
 
         # Delete and unlink all instances of outputGroup.old and outputGroup.00x
         for group in bpy.data.node_groups:
-            if group.name == f"{outputGroup}.old" or group.name.startswith(f"{outputGroup}.00") or group.name.startswith(f"{outputGroup}.old.00"):
+            if (
+                group.name == f"{outputGroup}.old"
+                or group.name.startswith(f"{outputGroup}.00")
+                or group.name.startswith(f"{outputGroup}.old.00")
+            ):
                 bpy.data.node_groups.remove(group)
 
         return {"FINISHED"}
+
 
 # class VRM_OT_update_all_mtoon1_material_node_groups(bpy.types.Operator):
 #     bl_idname = "vrm.update_all_mtoon1_material_node_groups"
@@ -695,6 +736,7 @@ class VRM_OT_update_all_mtoon1_material_node_groups(bpy.types.Operator):
 #                 bpy.data.node_groups.remove(group)
 
 #         return {"FINISHED"}
+
 
 class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
     bl_idname = "vrm.import_mtoon1_texture_image_file"

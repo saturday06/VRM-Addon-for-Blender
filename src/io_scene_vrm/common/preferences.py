@@ -45,11 +45,11 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         name="Export Only Selections",
     )
     export_only_deform_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Only Deform Bones",  # noqa: F722
+        name="Export Only Deform Bones",
         default=True,
     )
     export_apply_modifiers: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Apply Modifiers",  # noqa: F722
+        name="Apply Modifiers",
         default=True,
     )
     enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
@@ -60,14 +60,14 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         + " (Exported meshes can be corrupted)",
     )
     export_all_influences: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",  # noqa: F722
+        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
         default=True,
     )
     export_lights: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Export Lights",  # noqa: F722
+        name="Export Lights",
     )
     use_active_scene: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="Use Active Scene",  # noqa: F722
+        name="Use Active Scene",
         default=True,
     )
 
@@ -116,13 +116,13 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
-        export_only_deform_bones: bool # type: ignore[no-redef]
-        export_apply_modifiers: bool # type: ignore[no-redef]
+        export_only_deform_bones: bool  # type: ignore[no-redef]
+        export_apply_modifiers: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
         export_fb_ngon_encoding: bool  # type: ignore[no-redef]
-        export_all_influences: bool # type: ignore[no-redef]
-        export_lights: bool # type: ignore[no-redef]
-        use_active_scene: bool # type: ignore[no-redef]
+        export_all_influences: bool  # type: ignore[no-redef]
+        export_lights: bool  # type: ignore[no-redef]
+        use_active_scene: bool  # type: ignore[no-redef]
 
 
 def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
