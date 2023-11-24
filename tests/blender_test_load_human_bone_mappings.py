@@ -17,13 +17,13 @@ def test() -> None:
         raise AssertionError
     data = active_object.data
     if not isinstance(data, bpy.types.Armature):
-        raise AssertionError
+        raise TypeError
 
-    b = [
+    b = next(
         human_bone
         for human_bone in data.vrm_addon_extension.vrm0.humanoid.human_bones
         if human_bone.bone == "head"
-    ][0]
+    )
     assert (
         b.node.bone_name == new_head_name
     ), f"head is expected to {new_head_name} but {b.node.bone_name}"

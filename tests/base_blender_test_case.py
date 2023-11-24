@@ -21,7 +21,7 @@ class BaseBlenderTestCase(TestCase):
             self.exeext = ""
 
         self.repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
-        repository_addon_dir = self.repository_root_dir / "io_scene_vrm"
+        repository_addon_dir = self.repository_root_dir / "src" / "io_scene_vrm"
         self.user_scripts_dir = Path(tempfile.mkdtemp(prefix="blender_vrm_"))
         (self.user_scripts_dir / "addons").mkdir(parents=True, exist_ok=True)
         self.addons_pythonpath = self.user_scripts_dir / "addons"
@@ -58,7 +58,8 @@ class BaseBlenderTestCase(TestCase):
             self.major_minor = ".".join(line.split(" ")[1].split(".")[:2])
             return
 
-        raise RuntimeError(f"Failed to detect Blender Version:\n---\n{stdout_str}\n---")
+        message = f"Failed to detect Blender Version:\n---\n{stdout_str}\n---"
+        raise RuntimeError(message)
 
     @staticmethod
     def process_output_to_str(process_output: Optional[bytes]) -> str:

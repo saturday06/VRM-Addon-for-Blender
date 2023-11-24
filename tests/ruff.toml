@@ -1,0 +1,12 @@
+extend = "../pyproject.toml"
+extend-ignore = [
+    # ----- fixing -----
+
+    "S602", # `subprocess` call with `shell=True` seems safe, but may be changed in the future; consider rewriting without `shell`
+    "S603", # `subprocess` call: check for execution of untrusted input
+    "S607", # Starting a process with a partial executable path
+
+    # ----- ignored -----
+
+    "S101", # Use of `assert` detected
+]

@@ -47,9 +47,9 @@ class BaseBlenderGuiTestCase(TestCase):
             return
 
         if sys.platform == "win32":
-            server_start_bat_path = "scripts\\gui_test_server_start.bat"
+            server_start_bat_path = "tools\\gui_test_server_start.bat"
         else:
-            server_start_bat_path = "scripts/gui_test_server_start.sh"
+            server_start_bat_path = "tools/gui_test_server_start.sh"
         completed_process = subprocess.run(
             server_start_bat_path,
             check=False,
@@ -76,8 +76,11 @@ class BaseBlenderGuiTestCase(TestCase):
             else:
                 self.skipTest(message)
             return
-        with open("var/repository_root_path_hash.txt", "rt", encoding="ascii") as f:
-            container_hash = f.read().strip()
+        container_hash = (
+            Path("var/repository_root_path_hash.txt")
+            .read_text(encoding="ascii")
+            .strip()
+        )
 
         commands = [
             "docker",

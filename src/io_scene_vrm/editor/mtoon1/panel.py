@@ -1,0 +1,422 @@
+from typing import Optional
+
+import bpy
+from bpy.app.translations import pgettext
+
+from ...common.logging import get_logger
+from .. import search
+from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
+from .ops import (
+    VRM_OT_import_mtoon1_texture_image_file,
+    VRM_OT_reset_mtoon1_material_shader_node_tree,
+    VRM_OT_update_all_mtoon1_material_node_groups,
+)
+from .property_group import (
+    Mtoon1MaterialPropertyGroup,
+    Mtoon1VrmcMaterialsMtoonPropertyGroup,
+)
+
+logger = get_logger(__name__)
+
+
+def draw_texture_info(
+    material_name: str,
+    ext: Mtoon1MaterialPropertyGroup,
+    is_vrm0: bool,
+    parent_layout: bpy.types.UILayout,
+    base_property_group: bpy.types.PropertyGroup,
+    texture_info_attr_name: str,
+    color_factor_attr_name: Optional[str] = None,
+) -> bpy.types.UILayout:
+    texture_info = getattr(base_property_group, texture_info_attr_name)
+    layout = parent_layout.split(factor=0.3)
+    toggle_layout = layout.row()
+    toggle_layout.alignment = "LEFT"
+    toggle_layout.prop(
+        texture_info,
+        "show_expanded",
+        emboss=False,
+        text=texture_info.index.panel_label,
+        translate=False,
+        icon="TRIA_DOWN" if texture_info.show_expanded else "TRIA_RIGHT",
+    )
+    input_layout = layout.row(align=True)
+    input_layout.prop(texture_info.index, "source", text="")
+    import_image_file_op = layout_operator(
+        input_layout,
+        VRM_OT_import_mtoon1_texture_image_file,
+        text="",
+        translate=False,
+        icon="FILEBROWSER",
+    )
+    import_image_file_op.material_name = material_name
+    import_image_file_op.target_texture = type(texture_info.index).__name__
+    if color_factor_attr_name:
+        input_layout.separator(factor=0.5)
+        input_layout.prop(base_property_group, color_factor_attr_name, text="")
+
+    if not texture_info.show_expanded:
+        return input_layout
+
+    box = parent_layout.box().column()
+    if texture_info.index.source:
+        box.prop(texture_info.index.source.colorspace_settings, "name")
+        if (
+            texture_info.index.source.colorspace_settings.name
+            != texture_info.index.colorspace
+        ):
+            box.box().label(
+                text=pgettext(
+                    'It is recommended to set "{colorspace}"'
+                    + ' to "{input_colorspace}" for "{texture_label}"'
+                ).format(
+                    texture_label=texture_info.index.label,
+                    colorspace=pgettext(texture_info.index.colorspace),
+                    input_colorspace=pgettext("Input Color Space"),
+                ),
+                icon="ERROR",
+            )
+    box.prop(texture_info.index.sampler, "mag_filter")
+    box.prop(texture_info.index.sampler, "min_filter")
+    box.prop(texture_info.index.sampler, "wrap_s")
+    box.prop(texture_info.index.sampler, "wrap_t")
+    box.prop(texture_info.extensions.khr_texture_transform, "offset")
+    box.prop(texture_info.extensions.khr_texture_transform, "scale")
+
+    if is_vrm0:
+        if ext.extensions.vrmc_materials_mtoon.matcap_texture == texture_info:
+            box.box().label(
+                text="Offset and Scale are ignored in VRM 0.0", icon="ERROR"
+            )
+        elif ext.pbr_metallic_roughness.base_color_texture != texture_info:
+            box.box().label(
+                text="Offset and Scale in VRM 0.0 are"
+                + " the values of the Lit Color Texture",
+                icon="ERROR",
+            )
+
+    return input_layout
+
+
+def draw_mtoon0_texture(
+    material_name: str,
+    parent_layout: bpy.types.UILayout,
+    base_property_group: bpy.types.PropertyGroup,
+    texture_attr_name: str,
+    scalar_factor_attr_name: str,
+) -> bpy.types.UILayout:
+    texture = getattr(base_property_group, texture_attr_name)
+    layout = parent_layout.split(factor=0.3)
+    toggle_layout = layout.row()
+    toggle_layout.alignment = "LEFT"
+    toggle_layout.prop(
+        texture,
+        "show_expanded",
+        emboss=False,
+        text=texture.panel_label,
+        translate=False,
+        icon="TRIA_DOWN" if texture.show_expanded else "TRIA_RIGHT",
+    )
+    input_layout = layout.row(align=True)
+    input_layout.prop(texture, "source", text="")
+    import_image_file_op = layout_operator(
+        input_layout,
+        VRM_OT_import_mtoon1_texture_image_file,
+        text="",
+        translate=False,
+        icon="FILEBROWSER",
+    )
+    import_image_file_op.material_name = material_name
+    import_image_file_op.target_texture = type(texture).__name__
+
+    input_layout.separator(factor=0.5)
+    input_layout.prop(base_property_group, scalar_factor_attr_name, text="")
+
+    if not texture.show_expanded:
+        return input_layout
+
+    box = parent_layout.box().column()
+    if texture.source:
+        box.prop(texture.source.colorspace_settings, "name")
+        if texture.source.colorspace_settings.name != texture.colorspace:
+            box.box().label(
+                text=pgettext(
+                    'It is recommended to set "{colorspace}"'
+                    + ' to "{input_colorspace}" for "{texture_label}"'
+                ).format(
+                    texture_label=texture.label,
+                    colorspace=pgettext(texture.colorspace),
+                    input_colorspace=pgettext("Input Color Space"),
+                ),
+                icon="ERROR",
+            )
+    box.prop(texture.sampler, "mag_filter")
+    box.prop(texture.sampler, "min_filter")
+    box.prop(texture.sampler, "wrap_s")
+    box.prop(texture.sampler, "wrap_t")
+    return input_layout
+
+
+def draw_mtoon1_material(
+    context: bpy.types.Context, layout: bpy.types.UILayout
+) -> None:
+    material = context.material
+    if not material:
+        return
+    ext = material.vrm_addon_extension
+    layout = layout.column()
+
+    layout.prop(ext.mtoon1, "enabled")
+    if not ext.mtoon1.enabled:
+        return
+
+    is_vrm0 = search.current_armature_is_vrm0(context)
+    gltf = ext.mtoon1
+    mtoon = gltf.extensions.vrmc_materials_mtoon
+
+    # https://github.com/vrm-c/UniVRM/blob/v0.102.0/Assets/VRMShaders/VRM10/MToon10/Editor/MToonInspector.cs#L14
+    layout.label(text="Rendering", translate=False)
+    rendering_box = layout.box().column()
+    rendering_box.prop(gltf, "alpha_mode")
+    if gltf.alpha_mode == gltf.ALPHA_MODE_MASK:
+        rendering_box.prop(gltf, "alpha_cutoff", slider=True)
+    if gltf.alpha_mode == gltf.ALPHA_MODE_BLEND:
+        rendering_box.prop(mtoon, "transparent_with_z_write")
+    rendering_box.prop(gltf, "double_sided")
+    rendering_box.prop(mtoon, "render_queue_offset_number", slider=True)
+
+    layout.label(text="Lighting", translate=False)
+    lighting_box = layout.box().column()
+    draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        lighting_box,
+        gltf.pbr_metallic_roughness,
+        "base_color_texture",
+        "base_color_factor",
+    )
+    draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        lighting_box,
+        mtoon,
+        "shade_multiply_texture",
+        "shade_color_factor",
+    )
+    normal_texture_layout = draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        lighting_box,
+        gltf,
+        "normal_texture",
+    )
+    normal_texture_layout.separator(factor=0.5)
+    normal_texture_layout.prop(gltf.normal_texture, "scale")
+
+    lighting_box.prop(mtoon, "shading_toony_factor", slider=True)
+    lighting_box.prop(mtoon, "shading_shift_factor", slider=True)
+    shading_shift_texture_layout = draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        lighting_box,
+        mtoon,
+        "shading_shift_texture",
+    )
+    shading_shift_texture_layout.separator(factor=0.5)
+    shading_shift_texture_layout.prop(mtoon.shading_shift_texture, "scale")
+
+    # UniVRM (MIT License)
+    # https://github.com/vrm-c/UniVRM/blob/d2b4ad1964b754341873f2a1b093d58e1df1713f/Assets/VRMShaders/VRM10/MToon10/Editor/MToonInspector.cs#L120-L128
+    if (
+        not mtoon.shading_shift_texture.index.source
+        and mtoon.shading_toony_factor - mtoon.shading_shift_factor < 1.0 - 0.001
+    ):
+        lighting_box.box().label(
+            text="The lit area includes non-lit area.", icon="ERROR"
+        )
+
+    layout.label(text="Global Illumination", translate=False)
+    gi_box = layout.box()
+    gi_box.prop(mtoon, "gi_equalization_factor", slider=True)
+
+    layout.label(text="Emission", translate=False)
+    emission_box = layout.box().column()
+    emissive_texture_layout = draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        emission_box,
+        gltf,
+        "emissive_texture",
+    ).row(align=True)
+    emissive_texture_layout.scale_x = 0.71
+    emissive_texture_layout.separator(factor=0.5 / 0.71)
+    emissive_texture_layout.prop(gltf, "emissive_factor", text="")
+    emissive_texture_layout.prop(
+        gltf.extensions.khr_materials_emissive_strength, "emissive_strength"
+    )
+
+    layout.label(text="Rim Lighting", translate=False)
+    rim_lighting_box = layout.box().column()
+    draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        rim_lighting_box,
+        mtoon,
+        "rim_multiply_texture",
+    )
+    rim_lighting_box.prop(mtoon, "rim_lighting_mix_factor", slider=True)
+    draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        rim_lighting_box,
+        mtoon,
+        "matcap_texture",
+        "matcap_factor",
+    )
+    rim_lighting_box.row().prop(mtoon, "parametric_rim_color_factor")
+    rim_lighting_box.prop(mtoon, "parametric_rim_fresnel_power_factor", slider=True)
+    rim_lighting_box.prop(mtoon, "parametric_rim_lift_factor", slider=True)
+
+    layout.label(text="Outline", translate=False)
+    outline_box = layout.box().column()
+    outline_box.prop(mtoon, "outline_width_mode")
+    if (
+        bpy.app.version >= (3, 3)
+        and mtoon.outline_width_mode
+        == Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
+    ):
+        outline_warning_message = pgettext(
+            'The "Screen Coordinates" display is not yet implemented.\n'
+            + 'It is displayed in the same way as "World Coordinates".'
+        )
+        outline_warning_column = outline_box.box().column(align=True)
+        for index, outline_warning_line in enumerate(
+            outline_warning_message.splitlines()
+        ):
+            outline_warning_column.label(
+                text=outline_warning_line,
+                translate=False,
+                icon="BLANK1" if index else "INFO",
+            )
+    if (
+        mtoon.outline_width_mode
+        != Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
+    ):
+        outline_width_multiply_texture_layout = draw_texture_info(
+            material.name,
+            ext.mtoon1,
+            is_vrm0,
+            outline_box,
+            mtoon,
+            "outline_width_multiply_texture",
+        )
+        outline_width_multiply_texture_layout.separator(factor=0.5)
+        outline_width_multiply_texture_layout.prop(
+            mtoon, "outline_width_factor", slider=True, text=""
+        )
+        outline_box.row().prop(mtoon, "outline_color_factor")
+        outline_box.prop(mtoon, "outline_lighting_mix_factor", slider=True)
+
+    layout.label(text="UV Animation", translate=False)
+    uv_animation_box = layout.box().column()
+    draw_texture_info(
+        material.name,
+        ext.mtoon1,
+        is_vrm0,
+        uv_animation_box,
+        mtoon,
+        "uv_animation_mask_texture",
+    )
+    uv_animation_box.prop(mtoon, "uv_animation_scroll_x_speed_factor")
+    uv_animation_box.prop(mtoon, "uv_animation_scroll_y_speed_factor")
+    uv_animation_box.prop(mtoon, "uv_animation_rotation_speed_factor")
+
+    layout.prop(gltf, "show_expanded_mtoon0")
+    if gltf.show_expanded_mtoon0:
+        mtoon0_box = layout.box().column()
+        mtoon0_box.prop(gltf, "mtoon0_front_cull_mode")
+        draw_mtoon0_texture(
+            material.name,
+            mtoon0_box,
+            ext.mtoon1,
+            "mtoon0_receive_shadow_texture",
+            "mtoon0_receive_shadow_rate",
+        )
+        draw_mtoon0_texture(
+            material.name,
+            mtoon0_box,
+            ext.mtoon1,
+            "mtoon0_shading_grade_texture",
+            "mtoon0_shading_grade_rate",
+        )
+        mtoon0_box.prop(gltf, "mtoon0_light_color_attenuation", slider=True)
+        mtoon0_box.prop(gltf, "mtoon0_rim_lighting_mix", slider=True)
+        mtoon0_box.prop(gltf, "mtoon0_outline_scaled_max_distance", slider=True)
+        mtoon0_box.prop(gltf, "mtoon0_render_queue", slider=True)
+
+    reset_op = layout_operator(layout, VRM_OT_reset_mtoon1_material_shader_node_tree)
+    layout_operator(layout, VRM_OT_update_all_mtoon1_material_node_groups)
+    reset_op.material_name = material.name
+
+
+def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> None:
+    material = context.material
+    if not material:
+        return
+    ext = material.vrm_addon_extension
+    if ext.mtoon1.is_outline_material:
+        layout.box().label(icon="INFO", text="This is a MToon Outline material")
+        return
+
+    draw_mtoon1_material(context, layout)
+
+    node = search.vrm_shader_node(material)
+    if ext.mtoon1.enabled or (
+        node and node.node_tree.get("SHADER") == "MToon_unversioned"
+    ):
+        layout.prop(ext.mtoon1, "export_shape_key_normals")
+        return
+    if node and node.node_tree.get("SHADER") in ["TRANSPARENT_ZWRITE", "GLTF"]:
+        return
+
+    help_column = layout.box().column(align=True)
+    help_message = pgettext(
+        "How to export this material to VRM.\n"
+        + "Meet one of the following conditions.\n"
+        + " - VRM MToon Material is enabled\n"
+        + ' - Connect the "Surface" to a "Principled BSDF"\n'
+        + ' - Connect the "Surface" to a "MToon_unversioned"\n'
+        + ' - Connect the "Surface" to a "TRANSPARENT_ZWRITE"\n'
+        + " - Others that are compatible with the glTF 2.0 add-on export\n"
+    )
+    for index, help_line in enumerate(help_message.splitlines()):
+        help_column.label(
+            text=help_line, translate=False, icon="HELP" if index == 0 else "NONE"
+        )
+    url = "https://docs.blender.org/manual/en/2.93/addons/import_export/scene_gltf2.html#exported-materials"
+    link_row = help_column.split(factor=0.8)
+    link_row.label(text="   " + url, translate=False)
+    web_op = layout_operator(link_row, VRM_OT_open_url_in_web_browser, icon="URL")
+    web_op.url = url
+
+
+class VRM_PT_vrm_material_property(bpy.types.Panel):
+    bl_idname = "VRM_PT_vrm_material_property"
+    bl_label = "VRM Material"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "material"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context) -> bool:
+        return bool(context.material)
+
+    def draw(self, context: bpy.types.Context) -> None:
+        draw_material(context, self.layout)

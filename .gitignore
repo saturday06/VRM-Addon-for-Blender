@@ -20,7 +20,6 @@
 !/.gitignore
 !/.gitmodules
 !/.markdownlint.yaml
-!/.pylintrc.ci
 !/LICENSE
 !/LICENSE.*
 !/Notice.txt
@@ -29,13 +28,14 @@
 !/docs/*.png
 !/docs/*.pptx
 !/docs/website/**
-!/io_scene_vrm/README.txt
-!/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
+!/src/io_scene_vrm/README.txt
+!/src/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
 !/poetry.lock
 !/pyproject.toml
-!/scripts/*.bat
-!/scripts/*.dockerfile
-!/scripts/*.sh
+!/tools/*.bat
+!/tools/*.dockerfile
+!/tools/*.sh
+!/tests/ruff.toml
 !/tests/resources
 
 *.blend1

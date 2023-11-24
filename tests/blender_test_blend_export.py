@@ -24,9 +24,7 @@ def get_test_command_args() -> list[list[str]]:
         for blend_path in list(blend_dir.glob("*.blend"))
         + list(blend_dir.glob("*.*/*.blend"))
     ]
-    command_args: list[list[str]] = [
-        [name] for name in sorted(list(dict.fromkeys(names)))
-    ]
+    command_args: list[list[str]] = [[name] for name in sorted(dict.fromkeys(names))]
     return command_args
 
 

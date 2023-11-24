@@ -1,6 +1,7 @@
 import json
 import sys
 import tempfile
+from pathlib import Path
 
 import bpy
 
@@ -13,8 +14,7 @@ def test() -> None:
     with tempfile.NamedTemporaryFile() as file:
         file.close()
         bpy.ops.vrm.save_human_bone_mappings(filepath=file.name)
-        with open(file.name, "rb") as read_file:
-            loaded_json = json.load(read_file)
+        loaded_json = json.loads(Path(file.name).read_text())
 
     diffs = deep.diff(
         loaded_json,

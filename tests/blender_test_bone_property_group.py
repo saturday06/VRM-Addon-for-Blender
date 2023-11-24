@@ -21,7 +21,7 @@ def assert_bone_candidates(
 ) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
     if not isinstance(armature.data, bpy.types.Armature):
-        raise AssertionError
+        raise TypeError
     for bone in list(armature.data.edit_bones):
         armature.data.edit_bones.remove(bone)
     parent_and_trees: list[tuple[Optional[bpy.types.EditBone], dict[str, Tree]]] = [
