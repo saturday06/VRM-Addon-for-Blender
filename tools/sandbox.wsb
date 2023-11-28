@@ -1,0 +1,6 @@
+<Configuration>
+  <vGpu>Enable</vGpu>
+  <LogonCommand>
+    <Command>cmd /c start powershell -c "$blender_url = 'https://mirrors.ocf.berkeley.edu/blender/release/Blender4.0/blender-4.0.1-windows-x64.msi'; Write-Output URL=$blender_url; Start-Process 'https://vrm-addon-for-blender.info'; Invoke-WebRequest $blender_url -OutFile output.msi; Start-Process msiexec -ArgumentList /i,output.msi,/passive -Wait; pause"</Command>
+  </LogonCommand>
+</Configuration>
