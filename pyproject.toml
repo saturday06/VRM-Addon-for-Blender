@@ -54,7 +54,10 @@ ignore = [
     "D106", # Missing docstring in public nested class
     "D107", # Missing docstring in `__init__`
     "ERA001", # Found commented-out code
+
+    # https://projects.blender.org/blender/blender/issues/63713
     "FA100", # Missing `from __future__ import annotations`, but uses `x`
+
     "FIX002", # Line contains TODO, consider resolving the issue
     "ISC001", # Implicitly concatenated string literals on one line
     "ISC003", # Explicitly concatenated string should be implicitly concatenated
