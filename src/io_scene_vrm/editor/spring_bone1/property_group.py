@@ -727,7 +727,7 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
                 joint.animation_state.initialized_as_tail = False
 
     enable_animation: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="[Experimental!] Enable Animation",
+        name="Enable Animation",
         update=update_enable_animation,
     )
 

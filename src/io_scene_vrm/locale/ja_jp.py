@@ -480,8 +480,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + " - その他、glTF 2.0アドオンのエクスポートに対応しているもの\n",
     (
         "*",
-        "[Experimental!] Enable Animation",
-    ): "[実験中機能です!] アニメーションを有効にする",
+        "Enable Animation",
+    ): "アニメーションを有効にする",
     ("*", "Armature not found"): "アーマチュアが見つかりませんでした",
     (
         "*",
