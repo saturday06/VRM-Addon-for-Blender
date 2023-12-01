@@ -72,7 +72,10 @@ ignore = [
 ]
 
 [tool.ruff.per-file-ignores]
-"src/io_scene_vrm/__init__.py" = ["UP"] # It should work with Blender 2.79.
+"src/io_scene_vrm/__init__.py" = [
+    # It should work with Blender 2.79.
+    "UP", # pyupgrade
+]
 
 [tool.ruff.lint.pep8-naming]
 extend-ignore-names = [
