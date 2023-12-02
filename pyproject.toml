@@ -9,7 +9,7 @@ authors = ["Isamu Mogi <isamu@leafytree.jp>", "iCyP"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "3.10.*"
+python = "3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 bpy = "3.6.*"
 
 [tool.poetry.group.dev.dependencies]
