@@ -103,7 +103,8 @@ def create_export_settings() -> dict[str, object]:
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/a2eac6c4b4ef957b654b61970dc554e3803a642e/addons/io_scene_gltf2/__init__.py#L233-L240
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/a2eac6c4b4ef957b654b61970dc554e3803a642e/addons/io_scene_gltf2/__init__.py#L787
         "gltf_image_quality": 75,
-        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/765c1bd8f59ce34d6e346147f379af191969777f/addons/io_scene_gltf2/__init__.py#L606
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/765c1bd8f59ce34d6e346147f379af191969777f/addons/io_scene_gltf2/__init__.py#L785
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/765c1bd8f59ce34d6e346147f379af191969777f/addons/io_scene_gltf2/__init__.py#L201-L208
         "gltf_add_webp": False,
     }
 
