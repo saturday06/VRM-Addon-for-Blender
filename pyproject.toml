@@ -117,6 +117,7 @@ ignore-regex = ".* # codespell-ignore"
 
 [tool.mypy]
 python_version = "3.9"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
 strict = true
 disallow_any_unimported = true
 disallow_any_decorated = true
