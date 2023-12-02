@@ -666,13 +666,16 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
         if not node_group:
             return
         mtoon = material.vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
-        outline_width_mode_value = {
-            0: value
-            for mode, _, _, _, value in (
-                Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_items
-            )
-            if mode == mtoon.outline_width_mode
-        }.get(0)
+        outline_width_mode_value = next(
+            (
+                value
+                for mode, _, _, _, value in (
+                    Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_items
+                )
+                if mode == mtoon.outline_width_mode
+            ),
+            None,
+        )
         if not isinstance(outline_width_mode_value, int):
             return
 
@@ -796,11 +799,14 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
 
         uv_layer_name = None
         if isinstance(obj.data, bpy.types.Mesh):
-            uv_layer_name = {
-                0: uv_layer.name
-                for uv_layer in obj.data.uv_layers
-                if uv_layer and uv_layer.active_render
-            }.get(0)
+            uv_layer_name = next(
+                (
+                    uv_layer.name
+                    for uv_layer in obj.data.uv_layers
+                    if uv_layer and uv_layer.active_render
+                ),
+                None,
+            )
         if uv_layer_name is None:
             uv_layer_name = "UVMap"
 

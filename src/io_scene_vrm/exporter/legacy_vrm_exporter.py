@@ -2571,12 +2571,15 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if mesh_object:
                 mesh_data = mesh_object.data
                 if isinstance(mesh_data, bpy.types.Mesh):
-                    mesh_index = {
-                        0: i
-                        for i, mesh_dict in enumerate(mesh_dicts)
-                        if isinstance(mesh_dict, dict)
-                        and mesh_dict.get("name") == mesh_data.name
-                    }.get(0, mesh_index)
+                    mesh_index = next(
+                        (
+                            i
+                            for i, mesh_dict in enumerate(mesh_dicts)
+                            if isinstance(mesh_dict, dict)
+                            and mesh_dict.get("name") == mesh_data.name
+                        ),
+                        mesh_index,
+                    )
             mesh_annotation_dicts.append(
                 {
                     "mesh": mesh_index,
@@ -2694,11 +2697,14 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 "look"
             ):
                 continue
-            name = {
-                0: preset.default_blend_shape_group_name
-                for preset in Vrm0BlendShapeGroupPropertyGroup.presets
-                if preset.identifier == preset_name
-            }.get(0, preset_name.capitalize())
+            name = next(
+                (
+                    preset.default_blend_shape_group_name
+                    for preset in Vrm0BlendShapeGroupPropertyGroup.presets
+                    if preset.identifier == preset_name
+                ),
+                preset_name.capitalize(),
+            )
             blend_shape_group_dicts.append(
                 {
                     "name": name,

@@ -241,11 +241,14 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(bpy.types.Operator):
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
         expressions = armature_data.vrm_addon_extension.vrm1.expressions
-        expression_index = {
-            0: i
-            for i, expression in enumerate(expressions.custom)
-            if expression.custom_name == self.custom_expression_name
-        }.get(0)
+        expression_index = next(
+            (
+                i
+                for i, expression in enumerate(expressions.custom)
+                if expression.custom_name == self.custom_expression_name
+            ),
+            None,
+        )
         if expression_index is None:
             return {"CANCELLED"}
         new_expression_index = (expression_index - 1) % len(expressions.custom)
@@ -283,11 +286,14 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(bpy.types.Operator):
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
         expressions = armature_data.vrm_addon_extension.vrm1.expressions
-        expression_index = {
-            0: i
-            for i, expression in enumerate(expressions.custom)
-            if expression.custom_name == self.custom_expression_name
-        }.get(0)
+        expression_index = next(
+            (
+                i
+                for i, expression in enumerate(expressions.custom)
+                if expression.custom_name == self.custom_expression_name
+            ),
+            None,
+        )
         if expression_index is None:
             return {"CANCELLED"}
         new_expression_index = (expression_index + 1) % len(expressions.custom)

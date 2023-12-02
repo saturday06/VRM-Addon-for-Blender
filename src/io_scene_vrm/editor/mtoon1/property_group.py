@@ -90,13 +90,16 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
         if not node_tree:
             return
 
-        node = {
-            0: node
-            for node in node_tree.nodes
-            if isinstance(node, bpy.types.ShaderNodeGroup)
-            and node.node_tree
-            and node.node_tree.name == node_group_name
-        }.get(0)
+        node = next(
+            (
+                node
+                for node in node_tree.nodes
+                if isinstance(node, bpy.types.ShaderNodeGroup)
+                and node.node_tree
+                and node.node_tree.name == node_group_name
+            ),
+            None,
+        )
         if not node:
             logger.warning(f'No group node "{node_group_name}"')
             return
@@ -151,13 +154,16 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
 
         rgba = shader.rgba_or_none(value) or default_value
 
-        node = {
-            0: node
-            for node in node_tree.nodes
-            if isinstance(node, bpy.types.ShaderNodeGroup)
-            and node.node_tree
-            and node.node_tree.name == node_group_name
-        }.get(0)
+        node = next(
+            (
+                node
+                for node in node_tree.nodes
+                if isinstance(node, bpy.types.ShaderNodeGroup)
+                and node.node_tree
+                and node.node_tree.name == node_group_name
+            ),
+            None,
+        )
         if not node:
             logger.warning(f'No group node "{node_group_name}"')
             return
@@ -193,13 +199,16 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
 
         rgb = shader.rgb_or_none(value) or default_value
 
-        node = {
-            0: node
-            for node in node_tree.nodes
-            if isinstance(node, bpy.types.ShaderNodeGroup)
-            and node.node_tree
-            and node.node_tree.name == node_group_name
-        }.get(0)
+        node = next(
+            (
+                node
+                for node in node_tree.nodes
+                if isinstance(node, bpy.types.ShaderNodeGroup)
+                and node.node_tree
+                and node.node_tree.name == node_group_name
+            ),
+            None,
+        )
         if not node:
             logger.warning(f'No group node "{node_group_name}"')
             return
@@ -267,25 +276,31 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         ):
             return
 
-        disconnecting_link = {
-            0: link
-            for link in material.node_tree.links
-            if isinstance(link.to_node, bpy.types.ShaderNodeGroup)
-            and link.to_node.node_tree
-            and link.to_node.node_tree.name == node_group_node_tree_name
-            and link.to_socket
-            and link.to_socket.name == node_group_socket_name
-        }.get(0)
+        disconnecting_link = next(
+            (
+                link
+                for link in material.node_tree.links
+                if isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+                and link.to_node.node_tree
+                and link.to_node.node_tree.name == node_group_node_tree_name
+                and link.to_socket
+                and link.to_socket.name == node_group_socket_name
+            ),
+            None,
+        )
         if disconnecting_link:
             material.node_tree.links.remove(disconnecting_link)
 
-        in_node = {
-            0: n
-            for n in material.node_tree.nodes
-            if isinstance(n, bpy.types.ShaderNodeGroup)
-            and n.node_tree
-            and n.node_tree.name == node_group_node_tree_name
-        }.get(0)
+        in_node = next(
+            (
+                n
+                for n in material.node_tree.nodes
+                if isinstance(n, bpy.types.ShaderNodeGroup)
+                and n.node_tree
+                and n.node_tree.name == node_group_node_tree_name
+            ),
+            None,
+        )
         if not isinstance(in_node, bpy.types.ShaderNodeGroup):
             logger.error(f'No shader node group with "{node_group_node_tree_name}"')
             return
@@ -320,19 +335,22 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             if not material.node_tree:
                 return
 
-            disconnecting_link = {
-                0: link
-                for link in material.node_tree.links
-                if isinstance(link.from_node, bpy.types.ShaderNodeTexImage)
-                and link.from_node.name == tex_image_node_name
-                and link.from_socket
-                and link.from_socket.name == tex_image_node_socket_name
-                and isinstance(link.to_node, bpy.types.ShaderNodeGroup)
-                and link.to_node.node_tree
-                and link.to_node.node_tree.name == node_group_node_tree_name
-                and link.to_socket
-                and link.to_socket.name == node_group_socket_name
-            }.get(0)
+            disconnecting_link = next(
+                (
+                    link
+                    for link in material.node_tree.links
+                    if isinstance(link.from_node, bpy.types.ShaderNodeTexImage)
+                    and link.from_node.name == tex_image_node_name
+                    and link.from_socket
+                    and link.from_socket.name == tex_image_node_socket_name
+                    and isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+                    and link.to_node.node_tree
+                    and link.to_node.node_tree.name == node_group_node_tree_name
+                    and link.to_socket
+                    and link.to_socket.name == node_group_socket_name
+                ),
+                None,
+            )
             if not disconnecting_link:
                 break
 

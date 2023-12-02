@@ -902,11 +902,14 @@ class AbstractBaseVrmImporter(ABC):
                 if not isinstance(node, int) or node not in self.bone_names:
                     continue
 
-                human_bone = {
-                    0: human_bone
-                    for human_bone in humanoid.human_bones
-                    if human_bone.bone == bone
-                }.get(0)
+                human_bone = next(
+                    (
+                        human_bone
+                        for human_bone in humanoid.human_bones
+                        if human_bone.bone == bone
+                    ),
+                    None,
+                )
                 if human_bone:
                     logger.warning(f'Duplicated bone: "{bone}"')
                 else:

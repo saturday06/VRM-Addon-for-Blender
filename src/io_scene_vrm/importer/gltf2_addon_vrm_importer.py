@@ -1313,31 +1313,40 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             bpy.ops.object.mode_set(mode="OBJECT")
 
         while True:
-            temp_object = {
-                0: o
-                for o in bpy.data.objects
-                if o and o.users <= 1 and self.is_temp_object_name(o.name)
-            }.get(0)
+            temp_object = next(
+                (
+                    o
+                    for o in bpy.data.objects
+                    if o and o.users <= 1 and self.is_temp_object_name(o.name)
+                ),
+                None,
+            )
             if not temp_object:
                 break
             bpy.data.objects.remove(temp_object)
 
         while True:
-            temp_mesh = {
-                0: m
-                for m in bpy.data.meshes
-                if m and m.users <= 1 and self.is_temp_object_name(m.name)
-            }.get(0)
+            temp_mesh = next(
+                (
+                    m
+                    for m in bpy.data.meshes
+                    if m and m.users <= 1 and self.is_temp_object_name(m.name)
+                ),
+                None,
+            )
             if not temp_mesh:
                 break
             bpy.data.meshes.remove(temp_mesh)
 
         while True:
-            temp_material = {
-                0: m
-                for m in bpy.data.materials
-                if m and m.users <= 1 and self.is_temp_object_name(m.name)
-            }.get(0)
+            temp_material = next(
+                (
+                    m
+                    for m in bpy.data.materials
+                    if m and m.users <= 1 and self.is_temp_object_name(m.name)
+                ),
+                None,
+            )
             if not temp_material:
                 break
             bpy.data.materials.remove(temp_material)
@@ -1669,14 +1678,15 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     non_human_bone_tree_bones.append(bone)
 
             for bone in human_bone_tree_bones + non_human_bone_tree_bones:
-                bone_index = {
-                    0: i for i, n in self.bone_names.items() if n == bone.name
-                }.get(0)
+                bone_index = next(
+                    (i for i, n in self.bone_names.items() if n == bone.name), None
+                )
                 if isinstance(bone_index, int):
                     group_axis_translation: Optional[str] = None
-                    for node_index in {
-                        0: g for g in constraint_node_index_groups if bone_index in g
-                    }.get(0, set()):
+                    for node_index in next(
+                        (g for g in constraint_node_index_groups if bone_index in g),
+                        set(),
+                    ):
                         object_or_bone = self.get_object_or_bone_by_node_index(
                             node_index
                         )
@@ -1823,9 +1833,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 object_or_bone = self.get_object_or_bone_by_node_index(node_index)
                 if not isinstance(object_or_bone, bpy.types.Object):
                     continue
-                for group_node_index in {
-                    0: g for g in constraint_node_index_groups if node_index in g
-                }.get(0, set()):
+                for group_node_index in next(
+                    (g for g in constraint_node_index_groups if node_index in g), set()
+                ):
                     group_object_or_bone = self.get_object_or_bone_by_node_index(
                         group_node_index
                     )
