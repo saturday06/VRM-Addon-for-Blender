@@ -153,7 +153,7 @@ def update_property_typing(
             # if TYPE_CHECKING:が発見されたが、その後何かがあったら無かったことにする
             class_type_checking_index = None
 
-        if re.match("^[a-zA-Z#]", line):
+        if re.match(r"^\S", line):
             another_def_start_index = line_index
             break
 
