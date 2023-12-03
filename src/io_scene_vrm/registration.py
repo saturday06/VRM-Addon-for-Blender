@@ -107,6 +107,15 @@ class ViewportMatrixRow(PropertyGroup):
     scale: FloatProperty()
     w: FloatProperty()  # Homogeneous coordinate
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        loc: float  # type: ignore[no-redef]
+        rot: float  # type: ignore[no-redef]
+        rotation_euler: float  # type: ignore[no-redef]
+        scale: float  # type: ignore[no-redef]
+        w: float  # type: ignore[no-redef]
+
 
 classes: list[
     Union[
