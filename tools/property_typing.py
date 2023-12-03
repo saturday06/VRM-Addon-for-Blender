@@ -153,7 +153,7 @@ def update_property_typing(
             # if TYPE_CHECKING:が発見されたが、その後何かがあったら無かったことにする
             class_type_checking_index = None
 
-        if re.match("^[a-zA-Z#]", line):
+        if re.match(r"^\S", line):
             another_def_start_index = line_index
             break
 
@@ -176,10 +176,10 @@ def update_property_typing(
         another_def_start_index - 1,
         "    if TYPE_CHECKING:\n"
         + "        # This code is auto generated.\n"
-        + "        # `poetry run ./tools/property_typing.py`\n"
+        + "        # `poetry run python tools/property_typing.py`\n"
         + typing_code,
     )
-    path.write_text(str.join("\n", lines), encoding="UTF-8")
+    path.write_bytes(str.join("\n", lines).encode())
 
 
 def main() -> int:

@@ -164,7 +164,7 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         mesh_object_names: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         vrm0_material_gltf_property_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
@@ -323,7 +323,7 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         uuid: str  # type: ignore[no-redef]
         axis_translation: str  # type: ignore[no-redef]
 
@@ -336,7 +336,7 @@ class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         axis_translation: str  # type: ignore[no-redef]
 
 
@@ -417,7 +417,7 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         addon_version: Sequence[int]  # type: ignore[no-redef]
         vrm0: Vrm0PropertyGroup  # type: ignore[no-redef]
         vrm1: Vrm1PropertyGroup  # type: ignore[no-redef]
@@ -452,5 +452,5 @@ class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         mtoon1: Mtoon1MaterialPropertyGroup  # type: ignore[no-redef]

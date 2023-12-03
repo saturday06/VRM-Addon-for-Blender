@@ -162,6 +162,11 @@ jobs:
         run: |
           ./tools/format.sh
           git diff --exit-code
+      - name: Check property type annotations
+        run: |
+          poetry run python tools/property_typing.py > property_typing.log
+          ./tools/format.sh
+          git diff --exit-code
       - name: Lint
         run: ./tools/lint.sh
       - name: Super-Linter

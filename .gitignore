@@ -35,6 +35,7 @@
 !/tools/*.bat
 !/tools/*.dockerfile
 !/tools/*.sh
+!/tools/*.wsb
 !/tests/ruff.toml
 !/tests/resources
 

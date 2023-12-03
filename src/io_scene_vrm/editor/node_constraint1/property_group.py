@@ -17,7 +17,7 @@ class NodeConstraint1NodeConstraintPropertyGroup(bpy.types.PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         show_expanded_roll_constraints: bool  # type: ignore[no-redef]
         show_expanded_aim_constraints: bool  # type: ignore[no-redef]
         show_expanded_rotation_constraints: bool  # type: ignore[no-redef]

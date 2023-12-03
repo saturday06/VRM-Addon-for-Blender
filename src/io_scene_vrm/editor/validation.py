@@ -25,7 +25,7 @@ class VrmValidationError(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         message: str  # type: ignore[no-redef]
         severity: int  # type: ignore[no-redef]
 
@@ -887,7 +887,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         show_successful_message: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]

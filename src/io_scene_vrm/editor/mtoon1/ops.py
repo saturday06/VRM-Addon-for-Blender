@@ -605,7 +605,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
 
 
@@ -641,7 +641,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
 
 
@@ -664,7 +664,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
 
 
@@ -846,7 +846,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         filepath: str  # type: ignore[no-redef]
         filter_glob: str  # type: ignore[no-redef]
         material_name: str  # type: ignore[no-redef]
@@ -931,13 +931,16 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
         if not node_group:
             return
         mtoon = material.vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
-        outline_width_mode_value = {
-            0: value
-            for mode, _, _, _, value in (
-                Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_items
-            )
-            if mode == mtoon.outline_width_mode
-        }.get(0)
+        outline_width_mode_value = next(
+            (
+                value
+                for mode, _, _, _, value in (
+                    Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_items
+                )
+                if mode == mtoon.outline_width_mode
+            ),
+            None,
+        )
         if not isinstance(outline_width_mode_value, int):
             return
 
@@ -1061,11 +1064,14 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
 
         uv_layer_name = None
         if isinstance(obj.data, bpy.types.Mesh):
-            uv_layer_name = {
-                0: uv_layer.name
-                for uv_layer in obj.data.uv_layers
-                if uv_layer and uv_layer.active_render
-            }.get(0)
+            uv_layer_name = next(
+                (
+                    uv_layer.name
+                    for uv_layer in obj.data.uv_layers
+                    if uv_layer and uv_layer.active_render
+                ),
+                None,
+            )
         if uv_layer_name is None:
             uv_layer_name = "UVMap"
 
@@ -1219,6 +1225,6 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
         create_modifier: bool  # type: ignore[no-redef]

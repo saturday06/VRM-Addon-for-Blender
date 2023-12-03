@@ -132,11 +132,14 @@ class VRM_UL_vrm1_material_color_bind(bpy.types.UIList):
         name = ""
         if material_color_bind.material:
             name = material_color_bind.material.name
-            type_str = {
-                0: s
-                for (t, s, _, _) in Vrm1MaterialColorBindPropertyGroup.type_items
-                if t == material_color_bind.type
-            }.get(0)
+            type_str = next(
+                (
+                    s
+                    for (t, s, _, _) in Vrm1MaterialColorBindPropertyGroup.type_items
+                    if t == material_color_bind.type
+                ),
+                None,
+            )
             if type_str:
                 name += " / " + type_str
         layout.label(text=name, translate=False, icon="MATERIAL")

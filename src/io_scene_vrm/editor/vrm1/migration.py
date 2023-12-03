@@ -60,16 +60,19 @@ def migrate_old_expression_layout(
             if isinstance(old_material, bpy.types.Material):
                 material_color_bind.material = old_material
 
-            old_type = {
-                0: value
-                for (
-                    value,
-                    _,
-                    _,
-                    value_int,
-                ) in Vrm1MaterialColorBindPropertyGroup.type_items
-                if old_material_color_bind.get("type") == value_int
-            }.get(0)
+            old_type = next(
+                (
+                    value
+                    for (
+                        value,
+                        _,
+                        _,
+                        value_int,
+                    ) in Vrm1MaterialColorBindPropertyGroup.type_items
+                    if old_material_color_bind.get("type") == value_int
+                ),
+                None,
+            )
             if old_type is not None:
                 material_color_bind.type = old_type
 
@@ -110,42 +113,51 @@ def migrate_old_expression_layout(
     if isinstance(old_is_binary, int):
         expression.is_binary = bool(old_is_binary)
 
-    old_override_blink = {
-        0: value
-        for (
-            value,
-            _,
-            _,
-            value_int,
-        ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
-        if old_expression.get("override_blink") == value_int
-    }.get(0)
+    old_override_blink = next(
+        (
+            value
+            for (
+                value,
+                _,
+                _,
+                value_int,
+            ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
+            if old_expression.get("override_blink") == value_int
+        ),
+        None,
+    )
     if old_override_blink is not None:
         expression.override_blink = old_override_blink
 
-    old_override_look_at = {
-        0: value
-        for (
-            value,
-            _,
-            _,
-            value_int,
-        ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
-        if old_expression.get("override_look_at") == value_int
-    }.get(0)
+    old_override_look_at = next(
+        (
+            value
+            for (
+                value,
+                _,
+                _,
+                value_int,
+            ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
+            if old_expression.get("override_look_at") == value_int
+        ),
+        None,
+    )
     if old_override_look_at is not None:
         expression.override_look_at = old_override_look_at
 
-    old_override_mouth = {
-        0: value
-        for (
-            value,
-            _,
-            _,
-            value_int,
-        ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
-        if old_expression.get("override_mouth") == value_int
-    }.get(0)
+    old_override_mouth = next(
+        (
+            value
+            for (
+                value,
+                _,
+                _,
+                value_int,
+            ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
+            if old_expression.get("override_mouth") == value_int
+        ),
+        None,
+    )
     if old_override_mouth is not None:
         expression.override_mouth = old_override_mouth
 

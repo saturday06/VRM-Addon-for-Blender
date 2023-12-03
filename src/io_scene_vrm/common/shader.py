@@ -960,11 +960,14 @@ def copy_node_tree(
         if not from_link.is_valid:
             continue
 
-        input_socket_index = {
-            0: i
-            for i, s in enumerate(from_link.to_node.inputs)
-            if s == from_link.to_socket
-        }.get(0)
+        input_socket_index = next(
+            (
+                i
+                for i, s in enumerate(from_link.to_node.inputs)
+                if s == from_link.to_socket
+            ),
+            None,
+        )
         if input_socket_index is None:
             continue
         input_node = from_to.get(from_link.to_node)
@@ -981,11 +984,14 @@ def copy_node_tree(
             logger.error(f"No input socket: {from_link.to_socket.name}")
             continue
 
-        output_socket_index = {
-            0: i
-            for i, s in enumerate(from_link.from_node.outputs)
-            if s == from_link.from_socket
-        }.get(0)
+        output_socket_index = next(
+            (
+                i
+                for i, s in enumerate(from_link.from_node.outputs)
+                if s == from_link.from_socket
+            ),
+            None,
+        )
         if output_socket_index is None:
             continue
         output_node = from_to.get(from_link.from_node)

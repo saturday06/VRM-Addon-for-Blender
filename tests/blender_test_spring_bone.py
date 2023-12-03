@@ -1348,7 +1348,7 @@ FUNCTIONS = [
 
 
 def test(function_name: str) -> None:
-    function = {0: f for f in FUNCTIONS if f.__name__ == function_name}.get(0)
+    function = next((f for f in FUNCTIONS if f.__name__ == function_name), None)
     if function is None:
         message = f"No function name: {function_name}"
         raise AssertionError(message)

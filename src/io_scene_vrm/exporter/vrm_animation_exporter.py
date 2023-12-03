@@ -467,11 +467,14 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
 
         # 回転のエクスポート
         for bone_name, quaternions in bone_name_to_quaternions.items():
-            human_bone_name = {
-                0: human_bone_name
-                for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
-                if human_bone.node.bone_name == bone_name
-            }.get(0)
+            human_bone_name = next(
+                (
+                    n
+                    for n, human_bone in human_bone_name_to_human_bone.items()
+                    if human_bone.node.bone_name == bone_name
+                ),
+                None,
+            )
             if human_bone_name is None:
                 logger.error(f"Failed to find human bone name for bone {bone_name}")
                 continue

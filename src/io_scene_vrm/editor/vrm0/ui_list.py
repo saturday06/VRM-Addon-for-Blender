@@ -93,11 +93,14 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
         if not isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
             return
 
-        preset = {
-            0: preset
-            for preset in Vrm0BlendShapeGroupPropertyGroup.presets
-            if preset.identifier == blend_shape_group.preset_name
-        }.get(0)
+        preset = next(
+            (
+                preset
+                for preset in Vrm0BlendShapeGroupPropertyGroup.presets
+                if preset.identifier == blend_shape_group.preset_name
+            ),
+            None,
+        )
         if not preset:
             return
 

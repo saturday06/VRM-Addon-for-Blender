@@ -829,13 +829,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if not isinstance(texture_dicts, list):
             texture_dicts = []
             json_dict["textures"] = texture_dicts
-        texture_index = len(texture_dicts)
-        texture_dicts.append(
-            {
-                "sampler": sampler_index,
-                "source": image_index,
-            },
-        )
+
+        texture_dict: dict[str, Json] = {
+            "sampler": sampler_index,
+            "source": image_index,
+        }
+
+        if texture_dict in texture_dicts:
+            texture_index = texture_dicts.index(texture_dict)
+        else:
+            texture_index = len(texture_dicts)
+            texture_dicts.append(texture_dict)
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
@@ -902,13 +906,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if not isinstance(texture_dicts, list):
             texture_dicts = []
             json_dict["textures"] = texture_dicts
-        texture_index = len(texture_dicts)
-        texture_dicts.append(
-            {
-                "sampler": sampler_index,
-                "source": image_index,
-            },
-        )
+
+        texture_dict: dict[str, Json] = {
+            "sampler": sampler_index,
+            "source": image_index,
+        }
+
+        if texture_dict in texture_dicts:
+            texture_index = texture_dicts.index(texture_dict)
+        else:
+            texture_index = len(texture_dicts)
+            texture_dicts.append(texture_dict)
 
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):

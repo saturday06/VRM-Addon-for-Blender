@@ -111,7 +111,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         offset: Sequence[float]  # type: ignore[no-redef]
         radius: float  # type: ignore[no-redef]
 
@@ -257,7 +257,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         offset: Sequence[float]  # type: ignore[no-redef]
         radius: float  # type: ignore[no-redef]
         tail: Sequence[float]  # type: ignore[no-redef]
@@ -274,7 +274,7 @@ class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         sphere: SpringBone1ColliderShapeSpherePropertyGroup  # type: ignore[no-redef]
         capsule: SpringBone1ColliderShapeCapsulePropertyGroup  # type: ignore[no-redef]
 
@@ -408,7 +408,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
         shape: SpringBone1ColliderShapePropertyGroup  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
@@ -455,7 +455,7 @@ class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         collider_name: str  # type: ignore[no-redef]
         collider_uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
@@ -514,7 +514,7 @@ class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
         colliders: CollectionPropertyProtocol[SpringBone1ColliderReferencePropertyGroup]  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
@@ -531,7 +531,7 @@ class SpringBone1JointAnimationStatePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         initialized_as_tail: bool  # type: ignore[no-redef]
         previous_world_translation: Sequence[float]  # type: ignore[no-redef]
         current_world_translation: Sequence[float]  # type: ignore[no-redef]
@@ -596,7 +596,7 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
         hit_radius: float  # type: ignore[no-redef]
         stiffness: float  # type: ignore[no-redef]
@@ -646,7 +646,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         collider_group_name: str  # type: ignore[no-redef]
         collider_group_uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
@@ -659,7 +659,7 @@ class SpringBone1SpringAnimationStatePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         use_center_space: bool  # type: ignore[no-redef]
         previous_center_world_translation: Sequence[float]  # type: ignore[no-redef]
 
@@ -694,7 +694,7 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
         joints: CollectionPropertyProtocol[SpringBone1JointPropertyGroup]  # type: ignore[no-redef]
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
@@ -727,7 +727,7 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
                 joint.animation_state.initialized_as_tail = False
 
     enable_animation: bpy.props.BoolProperty(  # type: ignore[valid-type]
-        name="[Experimental!] Enable Animation",
+        name="Enable Animation",
         update=update_enable_animation,
     )
 
@@ -743,7 +743,7 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         colliders: CollectionPropertyProtocol[SpringBone1ColliderPropertyGroup]  # type: ignore[no-redef]
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1ColliderGroupPropertyGroup
