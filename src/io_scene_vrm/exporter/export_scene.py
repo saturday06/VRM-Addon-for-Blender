@@ -204,9 +204,6 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
                 context,
                 export_objects,
                 export_fb_ngon_encoding,
-                export_all_influences,
-                export_lights,
-                use_active_scene,
             )
 
         vrm_bin = vrm_exporter.export_vrm()
