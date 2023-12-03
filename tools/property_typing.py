@@ -176,7 +176,7 @@ def update_property_typing(
         another_def_start_index - 1,
         "    if TYPE_CHECKING:\n"
         + "        # This code is auto generated.\n"
-        + "        # `poetry run ./tools/property_typing.py`\n"
+        + "        # `poetry run python tools/property_typing.py`\n"
         + typing_code,
     )
     path.write_text(str.join("\n", lines), encoding="UTF-8")

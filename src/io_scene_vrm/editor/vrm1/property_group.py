@@ -63,7 +63,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
         node_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
 
@@ -430,7 +430,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         hips: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         spine: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         chest: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
@@ -507,7 +507,7 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         human_bones: Vrm1HumanBonesPropertyGroup  # type: ignore[no-redef]
         pose_library: Optional[bpy.types.Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
@@ -528,7 +528,7 @@ class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         input_max_value: float  # type: ignore[no-redef]
         output_scale: float  # type: ignore[no-redef]
 
@@ -836,7 +836,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         offset_from_head_bone: Sequence[float]  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]  # noqa: A003
         range_map_horizontal_inner: (  # type: ignore[no-redef]
@@ -874,7 +874,7 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         node: MeshObjectPropertyGroup  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]  # noqa: A003
 
@@ -888,7 +888,7 @@ class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         mesh_annotations: CollectionPropertyProtocol[Vrm1MeshAnnotationPropertyGroup]  # type: ignore[no-redef]
 
 
@@ -907,7 +907,7 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         node: MeshObjectPropertyGroup  # type: ignore[no-redef]
         index: str  # type: ignore[no-redef]
         weight: float  # type: ignore[no-redef]
@@ -967,7 +967,7 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material: Optional[bpy.types.Material]  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]  # noqa: A003
         target_value: Sequence[float]  # type: ignore[no-redef]
@@ -991,7 +991,7 @@ class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material: Optional[bpy.types.Material]  # type: ignore[no-redef]
         scale: Sequence[float]  # type: ignore[no-redef]
         offset: Sequence[float]  # type: ignore[no-redef]
@@ -1118,7 +1118,7 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         morph_target_binds: CollectionPropertyProtocol[Vrm1MorphTargetBindPropertyGroup]  # type: ignore[no-redef]
         material_color_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1MaterialColorBindPropertyGroup
@@ -1180,7 +1180,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         custom_name: str  # type: ignore[no-redef]
 
 
@@ -1250,7 +1250,7 @@ class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         happy: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
         angry: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
         sad: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
@@ -1297,7 +1297,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         preset: Vrm1ExpressionsPresetPropertyGroup  # type: ignore[no-redef]
         custom: CollectionPropertyProtocol[Vrm1CustomExpressionPropertyGroup]  # type: ignore[no-redef]
         expression_ui_list_elements: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
@@ -1406,7 +1406,7 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
         version: str  # type: ignore[no-redef]
         authors: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
@@ -1446,7 +1446,7 @@ class Vrm1PropertyGroup(bpy.types.PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         meta: Vrm1MetaPropertyGroup  # type: ignore[no-redef]
         humanoid: Vrm1HumanoidPropertyGroup  # type: ignore[no-redef]
         first_person: Vrm1FirstPersonPropertyGroup  # type: ignore[no-redef]

@@ -35,7 +35,7 @@ class VRM_OT_add_vrm1_meta_author(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -68,7 +68,7 @@ class VRM_OT_remove_vrm1_meta_author(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         author_index: int  # type: ignore[no-redef]
 
@@ -95,7 +95,7 @@ class VRM_OT_add_vrm1_meta_reference(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -128,7 +128,7 @@ class VRM_OT_remove_vrm1_meta_reference(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         reference_index: int  # type: ignore[no-redef]
 
@@ -175,7 +175,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -215,7 +215,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -260,7 +260,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -305,7 +305,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -332,7 +332,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -367,7 +367,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -405,7 +405,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -449,7 +449,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -492,7 +492,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -535,7 +535,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -574,7 +574,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -617,7 +617,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -660,7 +660,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -703,7 +703,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -740,7 +740,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -783,7 +783,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -826,7 +826,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -869,7 +869,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(bpy.types.Operator
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -955,7 +955,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
 

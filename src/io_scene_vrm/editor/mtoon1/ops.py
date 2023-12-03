@@ -410,7 +410,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
 
 
@@ -446,7 +446,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
 
 
@@ -469,7 +469,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
 
 
@@ -581,7 +581,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         filepath: str  # type: ignore[no-redef]
         filter_glob: str  # type: ignore[no-redef]
         material_name: str  # type: ignore[no-redef]
@@ -960,6 +960,6 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run ./tools/property_typing.py`
+        # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
         create_modifier: bool  # type: ignore[no-redef]
