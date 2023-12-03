@@ -179,7 +179,7 @@ def update_property_typing(
         + "        # `poetry run python tools/property_typing.py`\n"
         + typing_code,
     )
-    path.write_text(str.join("\n", lines), encoding="UTF-8")
+    path.write_bytes(str.join("\n", lines).encode())
 
 
 def main() -> int:
