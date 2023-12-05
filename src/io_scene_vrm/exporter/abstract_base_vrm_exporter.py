@@ -177,7 +177,7 @@ class AbstractBaseVrmExporter(ABC):
 
     @staticmethod
     def restore_mtoon1_outline_geometry_nodes(
-        object_name_to_modifier_names: list[tuple[str, str]]
+        object_name_to_modifier_names: list[tuple[str, str]],
     ) -> None:
         for object_name, modifier_name in object_name_to_modifier_names:
             obj = bpy.data.objects.get(object_name)
