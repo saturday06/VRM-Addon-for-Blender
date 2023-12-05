@@ -118,6 +118,7 @@ def export_scene_gltf(
     use_selection: bool,
     export_animations: bool,
     export_rest_position_armature: bool,
+    export_try_sparse_sk: bool,
 ) -> set[str]:
     if bpy.app.version < (3, 6, 0):
         return bpy.ops.export_scene.gltf(
@@ -130,6 +131,18 @@ def export_scene_gltf(
             export_animations=export_animations,
         )
 
+    if bpy.app.version < (4,):
+        return bpy.ops.export_scene.gltf(
+            filepath=filepath,
+            check_existing=check_existing,
+            export_format=export_format,
+            export_extras=export_extras,
+            export_current_frame=export_current_frame,
+            use_selection=use_selection,
+            export_animations=export_animations,
+            export_rest_position_armature=export_rest_position_armature,
+        )
+
     return bpy.ops.export_scene.gltf(
         filepath=filepath,
         check_existing=check_existing,
@@ -139,4 +152,5 @@ def export_scene_gltf(
         use_selection=use_selection,
         export_animations=export_animations,
         export_rest_position_armature=export_rest_position_armature,
+        export_try_sparse_sk=export_try_sparse_sk,
     )

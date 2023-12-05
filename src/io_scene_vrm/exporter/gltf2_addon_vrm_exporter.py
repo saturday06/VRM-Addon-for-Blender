@@ -2033,6 +2033,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         export_animations=True,
                         export_rest_position_armature=False,
+                        # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
+                        # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
+                        export_try_sparse_sk=False,
                     )
                 except RuntimeError:
                     logger.exception("Failed to export VRM with animations")
@@ -2046,6 +2049,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         export_animations=False,
                         export_rest_position_armature=False,
+                        # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
+                        # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
+                        export_try_sparse_sk=False,
                     )
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:
