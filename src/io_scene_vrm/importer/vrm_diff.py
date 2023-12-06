@@ -158,7 +158,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
         if isinstance(vrm0_collider_group_dicts, list):
 
             def sort_collider_groups_with_index_key(
-                collider_group_with_index: tuple[int, Json]
+                collider_group_with_index: tuple[int, Json],
             ) -> int:
                 (_, collider_group) = collider_group_with_index
                 if not isinstance(collider_group, dict):

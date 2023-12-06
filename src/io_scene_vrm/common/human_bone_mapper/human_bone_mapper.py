@@ -72,7 +72,7 @@ def match_counts(
 
 
 def sorted_required_first(
-    mapping: dict[str, HumanBoneSpecification]
+    mapping: dict[str, HumanBoneSpecification],
 ) -> dict[str, HumanBoneSpecification]:
     sorted_mapping: dict[str, HumanBoneSpecification] = {}
     for bpy_name, specification in mapping.items():
