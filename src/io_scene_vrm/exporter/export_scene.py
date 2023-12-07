@@ -1,6 +1,6 @@
 from collections.abc import Set
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import bpy
 from bpy.app.translations import pgettext
@@ -286,6 +286,10 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
         if not isinstance(space_data, bpy.types.SpaceFileBrowser):
             return
 
+        operator = space_data.active_operator
+        if not isinstance(operator, EXPORT_SCENE_OT_vrm):
+            return
+
         layout = self.layout
 
         warning_message = version.panel_warning_message()
@@ -299,7 +303,6 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
                     icon="NONE" if index else "ERROR",
                 )
 
-        operator = cast(EXPORT_SCENE_OT_vrm, space_data.active_operator)
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
         layout.prop(operator, "enable_advanced_preferences")
