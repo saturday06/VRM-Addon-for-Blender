@@ -2023,8 +2023,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             disabled_mtoon1_material_names = self.disable_mtoon1_material_nodes()
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = Path(temp_dir, "out.glb")
-                try:
-                    export_scene_gltf(
+                export_scene_gltf(
+                    ExportSceneGltfArguments(
                         filepath=str(filepath),
                         check_existing=False,
                         export_format="GLB",
@@ -2037,22 +2037,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
                         export_try_sparse_sk=False,
                     )
-                except RuntimeError:
-                    logger.exception("Failed to export VRM with animations")
-                    # TODO: check traceback
-                    export_scene_gltf(
-                        filepath=str(filepath),
-                        check_existing=False,
-                        export_format="GLB",
-                        export_extras=True,
-                        export_current_frame=True,
-                        use_selection=True,
-                        export_animations=False,
-                        export_rest_position_armature=False,
-                        # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
-                        # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
-                        export_try_sparse_sk=False,
-                    )
+                )
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:
             self.restore_mtoon1_material_nodes(disabled_mtoon1_material_names)
