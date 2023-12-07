@@ -39,29 +39,33 @@ def import_vrm_update_addon_preferences(
 ) -> None:
     preferences = get_preferences(context)
 
-    if bool(preferences.set_shading_type_to_material_on_import) != bool(
-        import_op.set_shading_type_to_material_on_import
+    if (
+        preferences.set_shading_type_to_material_on_import
+        != import_op.set_shading_type_to_material_on_import
     ):
         preferences.set_shading_type_to_material_on_import = (
             import_op.set_shading_type_to_material_on_import
         )
 
-    if bool(preferences.set_view_transform_to_standard_on_import) != bool(
-        import_op.set_view_transform_to_standard_on_import
+    if (
+        preferences.set_view_transform_to_standard_on_import
+        != import_op.set_view_transform_to_standard_on_import
     ):
         preferences.set_view_transform_to_standard_on_import = (
             import_op.set_view_transform_to_standard_on_import
         )
 
-    if bool(preferences.set_armature_display_to_wire) != bool(
-        import_op.set_armature_display_to_wire
+    if (
+        preferences.set_armature_display_to_wire
+        != import_op.set_armature_display_to_wire
     ):
         preferences.set_armature_display_to_wire = (
             import_op.set_armature_display_to_wire
         )
 
-    if bool(preferences.set_armature_display_to_show_in_front) != bool(
-        import_op.set_armature_display_to_show_in_front
+    if (
+        preferences.set_armature_display_to_show_in_front
+        != import_op.set_armature_display_to_show_in_front
     ):
         preferences.set_armature_display_to_show_in_front = (
             import_op.set_armature_display_to_show_in_front
@@ -389,7 +393,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
         ext = armature_data.vrm_addon_extension
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
-            if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+            if not humanoid.human_bones.all_required_bones_are_assigned():
                 error_messages.append(pgettext("Please assign required human bones"))
         else:
             error_messages.append(pgettext("Please set the version of VRM to 1.0"))

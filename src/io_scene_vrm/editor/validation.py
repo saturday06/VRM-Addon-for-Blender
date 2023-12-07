@@ -181,10 +181,10 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
         # export object seeking
         preferences = get_preferences(context)
-        export_invisibles = bool(preferences.export_invisibles)
-        export_only_selections = bool(preferences.export_only_selections)
+        export_invisibles = preferences.export_invisibles
+        export_only_selections = preferences.export_only_selections
         if preferences.enable_advanced_preferences:
-            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+            export_fb_ngon_encoding = preferences.export_fb_ngon_encoding
         else:
             export_fb_ngon_encoding = False
 

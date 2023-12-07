@@ -2679,9 +2679,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     {
                         "materialName": material_value.material.name,
                         "propertyName": material_value.property_name,
-                        "targetValue": [
-                            float(v.value) for v in material_value.target_value
-                        ],
+                        "targetValue": [v.value for v in material_value.target_value],
                     }
                 )
 

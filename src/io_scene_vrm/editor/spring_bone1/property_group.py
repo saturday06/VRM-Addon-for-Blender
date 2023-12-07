@@ -76,7 +76,8 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
         mean_scale = statistics.mean(
             abs(s) for s in collider.bpy_object.matrix_basis.to_scale()
         )
-        return float(mean_scale * collider.bpy_object.empty_display_size)
+        empty_display_size: float = collider.bpy_object.empty_display_size
+        return float(mean_scale) * empty_display_size
 
     def set_radius(self, v: float) -> None:
         armature, collider = self.find_armature_and_collider()
@@ -209,10 +210,11 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
         if not collider.bpy_object:
             logger.error(f"Failed to get bpy object of {collider.name} in get_radius()")
             return 0.0
-        mean_scale = statistics.mean(
+        mean_scale: float = statistics.mean(
             abs(s) for s in collider.bpy_object.matrix_basis.to_scale()
         )
-        return float(mean_scale * collider.bpy_object.empty_display_size)
+        empty_display_size: float = collider.bpy_object.empty_display_size
+        return mean_scale * empty_display_size
 
     def set_radius(self, v: float) -> None:
         armature, collider = self.find_armature_and_collider()

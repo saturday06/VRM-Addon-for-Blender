@@ -527,9 +527,7 @@ class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):
     def execute(self, context: bpy.types.Context) -> set[str]:
         delta_time = self.delta_time
         if abs(delta_time) < float_info.epsilon:
-            delta_time = float(context.scene.render.fps_base) / float(
-                context.scene.render.fps
-            )
+            delta_time = context.scene.render.fps_base / float(context.scene.render.fps)
         update_pose_bone_rotations(delta_time)
         return {"FINISHED"}
 

@@ -942,19 +942,19 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
 
     def get_target_value_as_rgb(self) -> tuple[float, float, float]:
         return (
-            float(self.target_value[0]),
-            float(self.target_value[1]),
-            float(self.target_value[2]),
+            self.target_value[0],
+            self.target_value[1],
+            self.target_value[2],
         )
 
     def set_target_value_as_rgb(self, value: Sequence[float]) -> None:
         if len(value) < 3:
             return
         self.target_value = (
-            float(value[0]),
-            float(value[1]),
-            float(value[2]),
-            float(self.target_value[3]),
+            value[0],
+            value[1],
+            value[2],
+            self.target_value[3],
         )
 
     target_value_as_rgb: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]

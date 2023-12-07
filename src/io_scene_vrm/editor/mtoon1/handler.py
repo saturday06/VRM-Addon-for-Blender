@@ -20,13 +20,11 @@ def update_mtoon1_outline() -> Optional[float]:
     object_material_state = [
         [
             (
-                str(material_slot.material.name),
-                bool(
-                    material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
-                        material_slot.material
-                    )
+                material_slot.material.name,
+                material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
+                    material_slot.material
                 ),
-                bool(obj.data.use_auto_smooth),
+                obj.data.use_auto_smooth,
             )
             if material_slot.material
             else None

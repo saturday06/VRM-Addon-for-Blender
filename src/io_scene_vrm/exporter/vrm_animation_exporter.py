@@ -73,7 +73,7 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
     bone_name_to_base_quaternion: dict[str, Quaternion] = {}
 
     data_path_to_bone_and_property_name: dict[str, tuple[bpy.types.PoseBone, str]] = {}
-    frame_to_timestamp_factor = float(context.scene.render.fps_base) / float(
+    frame_to_timestamp_factor = context.scene.render.fps_base / float(
         context.scene.render.fps
     )
 
@@ -226,7 +226,7 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
                     ] = expression_values
                 expression_values.append(
                     (
-                        max(0, min(float(fcurve.evaluate(frame)), 1)),
+                        max(0, min(fcurve.evaluate(frame), 1)),
                         0,
                         expression_export_index / 8.0,
                     )

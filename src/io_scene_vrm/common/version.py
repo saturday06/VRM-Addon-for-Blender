@@ -103,7 +103,7 @@ def stable_release() -> bool:
 
 
 def supported() -> bool:
-    return bool(bpy.app.version[:2] <= MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION)
+    return bpy.app.version[:2] <= MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION
 
 
 def preferences_warning_message() -> Optional[str]:

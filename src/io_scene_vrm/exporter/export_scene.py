@@ -40,25 +40,19 @@ def export_vrm_update_addon_preferences(
 
     changed = False
 
-    if bool(preferences.export_invisibles) != bool(export_op.export_invisibles):
+    if preferences.export_invisibles != export_op.export_invisibles:
         preferences.export_invisibles = export_op.export_invisibles
         changed = True
 
-    if bool(preferences.export_only_selections) != bool(
-        export_op.export_only_selections
-    ):
+    if preferences.export_only_selections != export_op.export_only_selections:
         preferences.export_only_selections = export_op.export_only_selections
         changed = True
 
-    if bool(preferences.enable_advanced_preferences) != bool(
-        export_op.enable_advanced_preferences
-    ):
+    if preferences.enable_advanced_preferences != export_op.enable_advanced_preferences:
         preferences.enable_advanced_preferences = export_op.enable_advanced_preferences
         changed = True
 
-    if bool(preferences.export_fb_ngon_encoding) != bool(
-        export_op.export_fb_ngon_encoding
-    ):
+    if preferences.export_fb_ngon_encoding != export_op.export_fb_ngon_encoding:
         preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
         changed = True
 
@@ -119,10 +113,10 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
             return {"CANCELLED"}
 
         preferences = get_preferences(context)
-        export_invisibles = bool(preferences.export_invisibles)
-        export_only_selections = bool(preferences.export_only_selections)
+        export_invisibles = preferences.export_invisibles
+        export_only_selections = preferences.export_only_selections
         if preferences.enable_advanced_preferences:
-            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+            export_fb_ngon_encoding = preferences.export_fb_ngon_encoding
         else:
             export_fb_ngon_encoding = False
 
@@ -164,10 +158,10 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
             self.enable_advanced_preferences,
             self.export_fb_ngon_encoding,
         ) = (
-            bool(preferences.export_invisibles),
-            bool(preferences.export_only_selections),
-            bool(preferences.enable_advanced_preferences),
-            bool(preferences.export_fb_ngon_encoding),
+            preferences.export_invisibles,
+            preferences.export_only_selections,
+            preferences.enable_advanced_preferences,
+            preferences.export_fb_ngon_encoding,
         )
         if "gltf" not in dir(bpy.ops.export_scene):
             return bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
@@ -176,8 +170,8 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
 
         export_objects = search.export_objects(
             context,
-            bool(self.export_invisibles),
-            bool(self.export_only_selections),
+            self.export_invisibles,
+            self.export_only_selections,
             self.armature_object_name,
         )
 
@@ -409,8 +403,8 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
 
     def execute(self, context: bpy.types.Context) -> set[str]:
         preferences = get_preferences(context)
-        export_invisibles = bool(preferences.export_invisibles)
-        export_only_selections = bool(preferences.export_only_selections)
+        export_invisibles = preferences.export_invisibles
+        export_only_selections = preferences.export_only_selections
         export_objects = search.export_objects(
             context,
             export_invisibles,
@@ -456,8 +450,8 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
 
     def draw(self, context: bpy.types.Context) -> None:
         preferences = get_preferences(context)
-        export_invisibles = bool(preferences.export_invisibles)
-        export_only_selections = bool(preferences.export_only_selections)
+        export_invisibles = preferences.export_invisibles
+        export_only_selections = preferences.export_only_selections
 
         armatures = [
             obj
@@ -711,7 +705,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
         ext = armature_data.vrm_addon_extension
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
-            if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+            if not humanoid.human_bones.all_required_bones_are_assigned():
                 error_messages.append(pgettext("Please assign required human bones"))
         else:
             error_messages.append(pgettext("Please set the version of VRM to 1.0"))
@@ -772,7 +766,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
                 ext = armature_data.vrm_addon_extension
                 if armature_data.vrm_addon_extension.is_vrm1():
                     humanoid = ext.vrm1.humanoid
-                    if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+                    if not humanoid.human_bones.all_required_bones_are_assigned():
                         WM_OT_vrm_export_human_bones_assignment.draw_vrm1(
                             self.layout, armature
                         )

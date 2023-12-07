@@ -2071,7 +2071,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def get_alpha_cutoff(self) -> float:
-        return max(0, min(1, float(self.find_material().alpha_threshold)))
+        return max(0, min(1, self.find_material().alpha_threshold))
 
     def set_alpha_cutoff(self, value: float) -> None:
         material = self.find_material()
