@@ -32,6 +32,7 @@ from ..editor.vrm1.property_group import (
     Vrm1MetaPropertyGroup,
 )
 from ..external.io_scene_gltf2_support import (
+    ExportSceneGltfArguments,
     export_scene_gltf,
     image_to_image_bytes,
     init_extras_export,
@@ -2023,7 +2024,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             disabled_mtoon1_material_names = self.disable_mtoon1_material_nodes()
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = Path(temp_dir, "out.glb")
-                export_scene_gltf(
+                export_scene_gltf_result = export_scene_gltf(
                     ExportSceneGltfArguments(
                         filepath=str(filepath),
                         check_existing=False,
@@ -2038,6 +2039,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         export_try_sparse_sk=False,
                     )
                 )
+                if export_scene_gltf_result == {"CANCELLED"}:
+                    return None
+                if export_scene_gltf_result != {"FINISHED"}:
+                    message = (
+                        'The glTF2 Exporter has not been {"FINISHED"}'
+                        f" but {export_scene_gltf_result}"
+                    )
+                    raise AssertionError(message)
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:
             self.restore_mtoon1_material_nodes(disabled_mtoon1_material_names)
