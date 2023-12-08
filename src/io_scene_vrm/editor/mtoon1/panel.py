@@ -2,6 +2,7 @@ from typing import Optional
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.types import Context, Panel, PropertyGroup, UILayout
 
 from ...common.logging import get_logger
 from .. import search
@@ -22,11 +23,11 @@ def draw_texture_info(
     material_name: str,
     ext: Mtoon1MaterialPropertyGroup,
     is_vrm0: bool,
-    parent_layout: bpy.types.UILayout,
-    base_property_group: bpy.types.PropertyGroup,
+    parent_layout: UILayout,
+    base_property_group: PropertyGroup,
     texture_info_attr_name: str,
     color_factor_attr_name: Optional[str] = None,
-) -> bpy.types.UILayout:
+) -> UILayout:
     texture_info = getattr(base_property_group, texture_info_attr_name)
     layout = parent_layout.split(factor=0.3)
     toggle_layout = layout.row()
@@ -99,11 +100,11 @@ def draw_texture_info(
 
 def draw_mtoon0_texture(
     material_name: str,
-    parent_layout: bpy.types.UILayout,
-    base_property_group: bpy.types.PropertyGroup,
+    parent_layout: UILayout,
+    base_property_group: PropertyGroup,
     texture_attr_name: str,
     scalar_factor_attr_name: str,
-) -> bpy.types.UILayout:
+) -> UILayout:
     texture = getattr(base_property_group, texture_attr_name)
     layout = parent_layout.split(factor=0.3)
     toggle_layout = layout.row()
@@ -156,9 +157,7 @@ def draw_mtoon0_texture(
     return input_layout
 
 
-def draw_mtoon1_material(
-    context: bpy.types.Context, layout: bpy.types.UILayout
-) -> None:
+def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     material = context.material
     if not material:
         return
@@ -364,7 +363,7 @@ def draw_mtoon1_material(
     reset_op.material_name = material.name
 
 
-def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> None:
+def draw_material(context: Context, layout: UILayout) -> None:
     material = context.material
     if not material:
         return
@@ -405,7 +404,7 @@ def draw_material(context: bpy.types.Context, layout: bpy.types.UILayout) -> Non
     web_op.url = url
 
 
-class VRM_PT_vrm_material_property(bpy.types.Panel):
+class VRM_PT_vrm_material_property(Panel):
     bl_idname = "VRM_PT_vrm_material_property"
     bl_label = "VRM Material"
     bl_space_type = "PROPERTIES"
@@ -413,8 +412,8 @@ class VRM_PT_vrm_material_property(bpy.types.Panel):
     bl_context = "material"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return bool(context.material)
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         draw_material(context, self.layout)

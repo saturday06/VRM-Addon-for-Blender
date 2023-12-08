@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import bpy
+from bpy.types import AddonPreferences, Context
 
 from . import version
 from .logging import get_logger
@@ -11,10 +12,10 @@ logger = get_logger(__name__)
 addon_package_name = ".".join(__name__.split(".")[:-2])
 
 
-class VrmAddonPreferences(bpy.types.AddonPreferences):
+class VrmAddonPreferences(AddonPreferences):
     bl_idname = addon_package_name
 
-    INITIAL_ADDON_VERSION = (0, 0, 0)
+    INITIAL_ADDON_VERSION: tuple[int, int, int] = (0, 0, 0)
 
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -52,7 +53,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         + " (Exported meshes can be corrupted)",
     )
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         layout = self.layout
 
         warning_message = version.preferences_warning_message()
@@ -96,7 +97,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         export_fb_ngon_encoding: bool  # type: ignore[no-redef]
 
 
-def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
+def get_preferences(context: Context) -> VrmAddonPreferences:
     addon = context.preferences.addons.get(addon_package_name)
     if not addon:
         message = f"No add-on preferences for {addon_package_name}"

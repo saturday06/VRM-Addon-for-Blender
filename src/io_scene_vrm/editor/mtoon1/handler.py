@@ -3,6 +3,7 @@ from typing import Optional
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.types import Mesh
 
 from ...common.logging import get_logger
 from .ops import VRM_OT_refresh_mtoon1_outline
@@ -31,7 +32,7 @@ def update_mtoon1_outline() -> Optional[float]:
             for material_slot in obj.material_slots
         ]
         for obj in bpy.data.objects
-        if isinstance(obj.data, bpy.types.Mesh)
+        if isinstance(obj.data, Mesh)
     ]
     not_changed = object_material_state == previous_object_material_state
 

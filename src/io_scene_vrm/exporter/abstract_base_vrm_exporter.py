@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Union
 
 import bpy
+from bpy.types import Action, Armature, Context, NodesModifier, Object
 from mathutils import Matrix, Quaternion
 
 from ..common import shader
@@ -14,7 +15,7 @@ from ..external import io_scene_gltf2_support
 class AbstractBaseVrmExporter(ABC):
     def __init__(
         self,
-        context: bpy.types.Context,
+        context: Context,
     ) -> None:
         self.context = context
         self.saved_current_pose_matrix_basis_dict: dict[str, Matrix] = {}
@@ -34,9 +35,9 @@ class AbstractBaseVrmExporter(ABC):
 
     def setup_pose(
         self,
-        armature: bpy.types.Object,
-        armature_data: bpy.types.Armature,
-        action: Optional[bpy.types.Action],
+        armature: Object,
+        armature_data: Armature,
+        action: Optional[Action],
         pose_marker_name: str,
     ) -> None:
         if (
@@ -96,9 +97,7 @@ class AbstractBaseVrmExporter(ABC):
 
         bpy.context.view_layer.update()
 
-    def restore_pose(
-        self, armature: bpy.types.Object, armature_data: bpy.types.Armature
-    ) -> None:
+    def restore_pose(self, armature: Object, armature_data: Armature) -> None:
         if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
@@ -135,9 +134,7 @@ class AbstractBaseVrmExporter(ABC):
         ):
             ext.vrm1.look_at.enable_preview = self.saved_vrm1_look_at_preview
 
-    def clear_blend_shape_proxy_previews(
-        self, armature_data: bpy.types.Armature
-    ) -> list[float]:
+    def clear_blend_shape_proxy_previews(self, armature_data: Armature) -> list[float]:
         ext = armature_data.vrm_addon_extension
         saved_previews = []
         for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
@@ -146,7 +143,7 @@ class AbstractBaseVrmExporter(ABC):
         return saved_previews
 
     def restore_blend_shape_proxy_previews(
-        self, armature_data: bpy.types.Armature, previews: list[float]
+        self, armature_data: Armature, previews: list[float]
     ) -> None:
         ext = armature_data.vrm_addon_extension
         for blend_shape_group, blend_shape_preview in zip(
@@ -163,7 +160,7 @@ class AbstractBaseVrmExporter(ABC):
                     continue
                 if modifier.type != "NODES":
                     continue
-                if not isinstance(modifier, bpy.types.NodesModifier):
+                if not isinstance(modifier, NodesModifier):
                     continue
                 node_group = modifier.node_group
                 if (

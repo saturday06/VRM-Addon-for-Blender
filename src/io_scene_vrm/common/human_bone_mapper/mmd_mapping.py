@@ -1,4 +1,4 @@
-import bpy
+from bpy.types import Object
 
 from ..logging import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
@@ -71,7 +71,7 @@ mmd_bone_name_and_human_bone_specification_pairs: list[
 
 
 def create_config(
-    armature: bpy.types.Object,
+    armature: Object,
 ) -> tuple[str, dict[str, HumanBoneSpecification]]:
     mmd_bone_name_to_bpy_bone_name: dict[str, str] = {}
     for bone in armature.pose.bones:

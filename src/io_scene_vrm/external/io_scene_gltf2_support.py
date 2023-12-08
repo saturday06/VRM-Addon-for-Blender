@@ -4,6 +4,7 @@ import importlib
 from collections.abc import Set
 
 import bpy
+from bpy.types import Context, Event, Image, Operator
 
 from ..common.logging import get_logger
 
@@ -15,25 +16,25 @@ from ..common.logging import get_logger
 logger = get_logger(__name__)
 
 
-class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):
+class WM_OT_vrm_io_scene_gltf2_disabled_warning(Operator):
     bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.vrm_gltf2_addon_disabled_warning"
     bl_options: Set[str] = {"REGISTER"}
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=500)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         self.layout.label(
             text='Official add-on "glTF 2.0 format" is required. Please enable it.'
         )
 
 
 def image_to_image_bytes(
-    image: bpy.types.Image, export_settings: dict[str, object]
+    image: Image, export_settings: dict[str, object]
 ) -> tuple[bytes, str]:
     if bpy.app.version < (3, 6, 0):
         gltf2_blender_image = importlib.import_module(

@@ -7,6 +7,16 @@ from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.types import (
+    Action,
+    Armature,
+    Context,
+    Image,
+    Material,
+    Mesh,
+    Object,
+    PropertyGroup,
+)
 from mathutils import Matrix, Quaternion, Vector
 
 from ...common.logging import get_logger
@@ -29,7 +39,7 @@ logger = get_logger(__name__)
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
-class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
+class Vrm1HumanBonePropertyGroup(PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=BonePropertyGroup
     )
@@ -41,7 +51,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
 
     def update_node_candidates(
         self,
-        armature_data: bpy.types.Armature,
+        armature_data: Armature,
         target: HumanBoneSpecification,
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     ) -> None:
@@ -69,7 +79,7 @@ class Vrm1HumanBonePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
-class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     hips: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup
     )
@@ -353,11 +363,11 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
         return len(self.error_messages()) == 0
 
     @staticmethod
-    def fixup_human_bones(obj: bpy.types.Object) -> None:
+    def fixup_human_bones(obj: Object) -> None:
         armature_data = obj.data
         if (
             obj.type != "ARMATURE"
-            or not isinstance(armature_data, bpy.types.Armature)
+            or not isinstance(armature_data, Armature)
             or not hasattr(armature_data, "vrm_addon_extension")
         ):
             return
@@ -385,7 +395,7 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
         defer: bool = True,
     ) -> None:
         armature_data = bpy.data.armatures.get(armature_data_name)
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         bone_names = []
@@ -492,15 +502,15 @@ class Vrm1HumanBonesPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.schema.json
-class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1HumanoidPropertyGroup(PropertyGroup):
     human_bones: bpy.props.PointerProperty(type=Vrm1HumanBonesPropertyGroup)  # type: ignore[valid-type]
 
     # for T-Pose
-    def update_pose_library(self, _context: bpy.types.Context) -> None:
+    def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
     pose_library: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Action,
+        type=Action,
         update=update_pose_library,
     )
     pose_marker_name: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -509,12 +519,12 @@ class Vrm1HumanoidPropertyGroup(bpy.types.PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         human_bones: Vrm1HumanBonesPropertyGroup  # type: ignore[no-redef]
-        pose_library: Optional[bpy.types.Action]  # type: ignore[no-redef]
+        pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.rangeMap.schema.json
-class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1LookAtRangeMapPropertyGroup(PropertyGroup):
     input_max_value: bpy.props.FloatProperty(  # type: ignore[valid-type]
         name="Input Max Value",
         min=0.0001,  # https://github.com/pixiv/three-vrm/issues/1197#issuecomment-1498492002
@@ -534,7 +544,7 @@ class Vrm1LookAtRangeMapPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.lookAt.schema.json
-class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1LookAtPropertyGroup(PropertyGroup):
     offset_from_head_bone: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         name="Offset From Head Bone",
         size=3,
@@ -576,7 +586,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         name="Enable Preview",
     )
     preview_target_bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object,
+        type=Object,
         name="Preview Target",
     )
     previous_preview_target_bpy_object_location: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -584,21 +594,21 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
     )
 
     @staticmethod
-    def update_all_previews(context: bpy.types.Context) -> None:
+    def update_all_previews(context: Context) -> None:
         for armature_object in context.blend_data.objects:
             if armature_object.type != "ARMATURE":
                 continue
             armature_data = armature_object.data
-            if not isinstance(armature_data, bpy.types.Armature):
+            if not isinstance(armature_data, Armature):
                 continue
             look_at = armature_data.vrm_addon_extension.vrm1.look_at
             look_at.update_preview(context, armature_object, armature_data)
 
     def update_preview(
         self,
-        _context: bpy.types.Context,
-        armature_object: bpy.types.Object,
-        armature_data: bpy.types.Armature,
+        _context: Context,
+        armature_object: Object,
+        armature_data: Armature,
     ) -> None:
         ext = armature_data.vrm_addon_extension
         if not ext.is_vrm1():
@@ -695,7 +705,7 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         vrm1: "Vrm1PropertyGroup",
         yaw_degrees: float,
         pitch_degrees: float,
-        armature_object: bpy.types.Object,
+        armature_object: Object,
         human_bone_name: HumanBoneName,
     ) -> None:
         if human_bone_name == HumanBoneName.RIGHT_EYE:
@@ -850,14 +860,14 @@ class Vrm1LookAtPropertyGroup(bpy.types.PropertyGroup):
         )
         range_map_vertical_up: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
         enable_preview: bool  # type: ignore[no-redef]
-        preview_target_bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
+        preview_target_bpy_object: Optional[Object]  # type: ignore[no-redef]
         previous_preview_target_bpy_object_location: (  # type: ignore[no-redef]
             Sequence[float]
         )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json
-class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1MeshAnnotationPropertyGroup(PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=MeshObjectPropertyGroup
     )
@@ -880,7 +890,7 @@ class Vrm1MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.schema.json
-class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1FirstPersonPropertyGroup(PropertyGroup):
     mesh_annotations: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Mesh Annotations",
         type=Vrm1MeshAnnotationPropertyGroup,
@@ -893,7 +903,7 @@ class Vrm1FirstPersonPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
-class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1MorphTargetBindPropertyGroup(PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=MeshObjectPropertyGroup
     )
@@ -914,10 +924,10 @@ class Vrm1MorphTargetBindPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.materialColorBind.schema.json
-class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Material",
-        type=bpy.types.Material,
+        type=Material,
     )
 
     type_items: tuple[tuple[str, str, str, int], ...] = (
@@ -968,17 +978,17 @@ class Vrm1MaterialColorBindPropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        material: Optional[bpy.types.Material]  # type: ignore[no-redef]
+        material: Optional[Material]  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]  # noqa: A003
         target_value: Sequence[float]  # type: ignore[no-redef]
         target_value_as_rgb: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.textureTransformBind.schema.json
-class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1TextureTransformBindPropertyGroup(PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Material",
-        type=bpy.types.Material,
+        type=Material,
     )
     scale: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=2,
@@ -992,13 +1002,13 @@ class Vrm1TextureTransformBindPropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        material: Optional[bpy.types.Material]  # type: ignore[no-redef]
+        material: Optional[Material]  # type: ignore[no-redef]
         scale: Sequence[float]  # type: ignore[no-redef]
         offset: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.schema.json
-class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1ExpressionPropertyGroup(PropertyGroup):
     morph_target_binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=Vrm1MorphTargetBindPropertyGroup
     )
@@ -1078,7 +1088,7 @@ class Vrm1ExpressionPropertyGroup(bpy.types.PropertyGroup):
             if not mesh_object or mesh_object.type != "MESH":
                 continue
             mesh = mesh_object.data
-            if not isinstance(mesh, bpy.types.Mesh):
+            if not isinstance(mesh, Mesh):
                 continue
             mesh_shape_keys = mesh.shape_keys
             if not mesh_shape_keys:
@@ -1185,7 +1195,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
-class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
     happy: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     angry: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     sad: bpy.props.PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
@@ -1272,7 +1282,7 @@ class Vrm1ExpressionsPresetPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
-class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1ExpressionsPropertyGroup(PropertyGroup):
     preset: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1ExpressionsPresetPropertyGroup,
     )
@@ -1305,7 +1315,7 @@ class Vrm1ExpressionsPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json
-class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
+class Vrm1MetaPropertyGroup(PropertyGroup):
     avatar_permission_items = (
         ("onlyAuthor", "Only Author", "", 0),
         ("onlySeparatelyLicensedPerson", "Only Separately Licensed Person", "", 1),
@@ -1364,7 +1374,7 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
     )
     thumbnail_image: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Thumbnail Image",
-        type=bpy.types.Image,
+        type=Image,
     )
     # license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
     #     name="License URL"
@@ -1414,7 +1424,7 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
         contact_information: str  # type: ignore[no-redef]
         references: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         third_party_licenses: str  # type: ignore[no-redef]
-        thumbnail_image: Optional[bpy.types.Image]  # type: ignore[no-redef]
+        thumbnail_image: Optional[Image]  # type: ignore[no-redef]
         avatar_permission: str  # type: ignore[no-redef]
         allow_excessively_violent_usage: bool  # type: ignore[no-redef]
         allow_excessively_sexual_usage: bool  # type: ignore[no-redef]
@@ -1428,7 +1438,7 @@ class Vrm1MetaPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.schema.json
-class Vrm1PropertyGroup(bpy.types.PropertyGroup):
+class Vrm1PropertyGroup(PropertyGroup):
     meta: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Vrm1MetaPropertyGroup
     )

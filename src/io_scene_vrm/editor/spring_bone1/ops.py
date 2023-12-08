@@ -4,11 +4,12 @@ from sys import float_info
 from typing import TYPE_CHECKING
 
 import bpy
+from bpy.types import Armature, Context, Operator
 
 from .handler import reset_state, update_pose_bone_rotations
 
 
-class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):
+class VRM_OT_add_spring_bone1_collider(Operator):
     bl_idname = "vrm.add_spring_bone1_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Collider"
@@ -18,12 +19,12 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         collider = armature_data.vrm_addon_extension.spring_bone1.colliders.add()
         collider.uuid = uuid.uuid4().hex
@@ -37,7 +38,7 @@ class VRM_OT_add_spring_bone1_collider(bpy.types.Operator):
         armature_name: str  # type: ignore[no-redef]
 
 
-class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
+class VRM_OT_remove_spring_bone1_collider(Operator):
     bl_idname = "vrm.remove_spring_bone1_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 0.x Collider"
@@ -51,12 +52,12 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         spring_bone = armature_data.vrm_addon_extension.spring_bone1
         colliders = spring_bone.colliders
@@ -97,7 +98,7 @@ class VRM_OT_remove_spring_bone1_collider(bpy.types.Operator):
         collider_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):
+class VRM_OT_add_spring_bone1_spring(Operator):
     bl_idname = "vrm.add_spring_bone1_spring"
     bl_label = "Add Spring"
     bl_description = "Add VRM 1.0 Spring"
@@ -107,12 +108,12 @@ class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         spring = armature_data.vrm_addon_extension.spring_bone1.springs.add()
         spring.vrm_name = "Spring"
@@ -124,7 +125,7 @@ class VRM_OT_add_spring_bone1_spring(bpy.types.Operator):
         armature_name: str  # type: ignore[no-redef]
 
 
-class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):
+class VRM_OT_remove_spring_bone1_spring(Operator):
     bl_idname = "vrm.remove_spring_bone1_spring"
     bl_label = "Remove Spring"
     bl_description = "Remove VRM 1.0 Spring"
@@ -138,12 +139,12 @@ class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
@@ -158,7 +159,7 @@ class VRM_OT_remove_spring_bone1_spring(bpy.types.Operator):
         spring_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):
+class VRM_OT_add_spring_bone1_collider_group(Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group"
@@ -168,12 +169,12 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         collider_group = (
             armature_data.vrm_addon_extension.spring_bone1.collider_groups.add()
@@ -188,7 +189,7 @@ class VRM_OT_add_spring_bone1_collider_group(bpy.types.Operator):
         armature_name: str  # type: ignore[no-redef]
 
 
-class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):
+class VRM_OT_remove_spring_bone1_collider_group(Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group"
@@ -202,12 +203,12 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         spring_bone = armature_data.vrm_addon_extension.spring_bone1
         collider_groups = spring_bone.collider_groups
@@ -238,7 +239,7 @@ class VRM_OT_remove_spring_bone1_collider_group(bpy.types.Operator):
         collider_group_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):
+class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group Collider"
@@ -252,12 +253,12 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         collider_groups = armature_data.vrm_addon_extension.spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
@@ -272,7 +273,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(bpy.types.Operator):
         collider_group_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):
+class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group Collider"
@@ -290,12 +291,12 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         collider_groups = armature_data.vrm_addon_extension.spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
@@ -314,7 +315,7 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(bpy.types.Operator):
         collider_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):
+class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
     bl_idname = "vrm.add_spring_bone1_spring_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Spring Collider Group"
@@ -328,12 +329,12 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
@@ -348,7 +349,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(bpy.types.Operator):
         spring_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):
+class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Collider Group"
@@ -366,12 +367,12 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
@@ -390,7 +391,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(bpy.types.Operator):
         collider_group_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):
+class VRM_OT_add_spring_bone1_spring_joint(Operator):
     bl_idname = "vrm.add_spring_bone1_spring_joint"
     bl_label = "Add Joint"
     bl_description = "Add VRM 1.0 Spring Bone Spring Joint"
@@ -407,12 +408,12 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
@@ -443,7 +444,7 @@ class VRM_OT_add_spring_bone1_spring_joint(bpy.types.Operator):
         guess_properties: bool  # type: ignore[no-redef]
 
 
-class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):
+class VRM_OT_remove_spring_bone1_spring_joint(Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_joint"
     bl_label = "Remove Joint"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Joint"
@@ -461,12 +462,12 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):
         min=0,
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         springs = armature_data.vrm_addon_extension.spring_bone1.springs
         if len(springs) <= self.spring_index:
@@ -485,7 +486,7 @@ class VRM_OT_remove_spring_bone1_spring_joint(bpy.types.Operator):
         joint_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):
+class VRM_OT_reset_spring_bone1_animation_state(Operator):
     bl_idname = "vrm.reset_spring_bone1_animation_state"
     bl_label = "Reset SpringBone Animation State"
     bl_description = "Reset SpringBone Animation State"
@@ -495,12 +496,12 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         armature = bpy.data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         for spring in armature_data.vrm_addon_extension.spring_bone1.springs:
             for joint in spring.joints:
@@ -514,7 +515,7 @@ class VRM_OT_reset_spring_bone1_animation_state(bpy.types.Operator):
         armature_name: str  # type: ignore[no-redef]
 
 
-class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):
+class VRM_OT_update_spring_bone1_animation(Operator):
     bl_idname = "vrm.update_spring_bone1_animation"
     bl_label = "Update SpringBone Animation"
     bl_description = "Update SpringBone Animation"
@@ -524,7 +525,7 @@ class VRM_OT_update_spring_bone1_animation(bpy.types.Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         delta_time = self.delta_time
         if abs(delta_time) < float_info.epsilon:
             delta_time = context.scene.render.fps_base / float(context.scene.render.fps)

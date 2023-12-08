@@ -5,6 +5,16 @@ from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
+from bpy.types import (
+    Action,
+    Armature,
+    Context,
+    Image,
+    Material,
+    Mesh,
+    Object,
+    PropertyGroup,
+)
 from mathutils import Vector
 
 from ...common.logging import get_logger
@@ -28,7 +38,7 @@ logger = get_logger(__name__)
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L70-L164
-class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
+class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
     bone: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="VRM Humanoid Bone Name"
     )
@@ -63,7 +73,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
 
     def update_node_candidates(
         self,
-        armature_data: bpy.types.Armature,
+        armature_data: Armature,
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     ) -> None:
         human_bone_name = HumanBoneName.from_str(self.bone)
@@ -108,7 +118,7 @@ class Vrm0HumanoidBonePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
-class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0HumanoidPropertyGroup(PropertyGroup):
     human_bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Human Bones",
         type=Vrm0HumanoidBonePropertyGroup,
@@ -147,11 +157,11 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):
     )
 
     # for T-Pose
-    def update_pose_library(self, _context: bpy.types.Context) -> None:
+    def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
     pose_library: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Action,
+        type=Action,
         name="Pose Library",
         description="Pose library for T Pose",
         update=update_pose_library,
@@ -225,9 +235,9 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):
             )
 
     @staticmethod
-    def fixup_human_bones(obj: bpy.types.Object) -> None:
+    def fixup_human_bones(obj: Object) -> None:
         armature_data = obj.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
 
         humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
@@ -298,14 +308,14 @@ class Vrm0HumanoidPropertyGroup(bpy.types.PropertyGroup):
         lower_leg_twist: float  # type: ignore[no-redef]
         feet_spacing: float  # type: ignore[no-redef]
         has_translation_dof: bool  # type: ignore[no-redef]
-        pose_library: Optional[bpy.types.Action]  # type: ignore[no-redef]
+        pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
         last_bone_names: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22
-class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0DegreeMapPropertyGroup(PropertyGroup):
     curve: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
         size=8,
         name="Curve",
@@ -329,7 +339,7 @@ class Vrm0DegreeMapPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L32-L41
-class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0MeshAnnotationPropertyGroup(PropertyGroup):
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Mesh",
         type=MeshObjectPropertyGroup,
@@ -368,7 +378,7 @@ class Vrm0MeshAnnotationPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L50-L91
-class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0FirstPersonPropertyGroup(PropertyGroup):
     first_person_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="First Person Bone",
         type=BonePropertyGroup,
@@ -437,7 +447,7 @@ class Vrm0FirstPersonPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
-class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
     mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Mesh",
         type=MeshObjectPropertyGroup,
@@ -462,10 +472,10 @@ class Vrm0BlendShapeBindPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L9-L16
-class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
     material: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Material",
-        type=bpy.types.Material,
+        type=Material,
     )
     property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Property Name"
@@ -478,13 +488,13 @@ class Vrm0MaterialValueBindPropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        material: Optional[bpy.types.Material]  # type: ignore[no-redef]
+        material: Optional[Material]  # type: ignore[no-redef]
         property_name: str  # type: ignore[no-redef]
         target_value: CollectionPropertyProtocol[FloatPropertyGroup]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L62-L99
-class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name",
         description="Name of the blendshape group",
@@ -584,7 +594,7 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
             if not mesh_object or mesh_object.type != "MESH":
                 continue
             mesh = mesh_object.data
-            if not isinstance(mesh, bpy.types.Mesh):
+            if not isinstance(mesh, Mesh):
                 continue
             mesh_shape_keys = mesh.shape_keys
             if not mesh_shape_keys:
@@ -630,12 +640,12 @@ class Vrm0BlendShapeGroupPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
-class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object
+        type=Object
     )
 
-    def refresh(self, armature: bpy.types.Object, bone_name: str) -> None:
+    def refresh(self, armature: Object, bone_name: str) -> None:
         if not self.bpy_object or not self.bpy_object.name:
             return
 
@@ -655,12 +665,12 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
+        bpy_object: Optional[Object]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L21-L29
-class Vrm0SecondaryAnimationColliderGroupPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     node: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Node",
         type=BonePropertyGroup,
@@ -671,7 +681,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(bpy.types.PropertyGroup):
         type=Vrm0SecondaryAnimationColliderPropertyGroup,
     )
 
-    def refresh(self, armature: bpy.types.Object) -> None:
+    def refresh(self, armature: Object) -> None:
         self.name = (
             str(self.node.bone_name) if self.node and self.node.bone_name else ""
         ) + f"#{self.uuid}"
@@ -681,7 +691,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(bpy.types.PropertyGroup):
             else:
                 collider.refresh(armature, self.node.bone_name)
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         for (
             bone_group
@@ -708,7 +718,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L32-L67
-class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     comment: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Comment",
         description="Comment about the purpose of springs",
@@ -732,7 +742,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         description="Gravity power of springs",
     )
 
-    def update_gravity_dir(self, _context: bpy.types.Context) -> None:
+    def update_gravity_dir(self, _context: Context) -> None:
         gravity_dir = Vector(self.gravity_dir)
         normalized_gravity_dir = gravity_dir.normalized()
         if (gravity_dir - normalized_gravity_dir).length > 0.0001:
@@ -786,9 +796,9 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
         name="Collider Groups"
     )
 
-    def refresh(self, armature: bpy.types.Object) -> None:
+    def refresh(self, armature: Object) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         ext = armature_data.vrm_addon_extension
         collider_group_uuid_to_name = {
@@ -826,7 +836,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
-class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0MetaPropertyGroup(PropertyGroup):
     allowed_user_name_items = (
         ("OnlyAuthor", "Only Author", "", 0),
         ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", 1),
@@ -934,7 +944,7 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
     )
     texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="Thumbnail",
-        type=bpy.types.Image,
+        type=Image,
         description="Thumbnail of the avatar",
     )
 
@@ -953,11 +963,11 @@ class Vrm0MetaPropertyGroup(bpy.types.PropertyGroup):
         other_permission_url: str  # type: ignore[no-redef]
         license_name: str  # type: ignore[no-redef]
         other_license_url: str  # type: ignore[no-redef]
-        texture: Optional[bpy.types.Image]  # type: ignore[no-redef]
+        texture: Optional[Image]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L101-L106
-class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0BlendShapeMasterPropertyGroup(PropertyGroup):
     blend_shape_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Blend Shape Group",
         type=Vrm0BlendShapeGroupPropertyGroup,
@@ -977,7 +987,7 @@ class Vrm0BlendShapeMasterPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L69-L78
-class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):
+class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
     bone_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         name="Secondary Animation Groups",
         type=Vrm0SecondaryAnimationGroupPropertyGroup,
@@ -1011,7 +1021,7 @@ class Vrm0SecondaryAnimationPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_extensions.cs#L8-L48
-class Vrm0PropertyGroup(bpy.types.PropertyGroup):
+class Vrm0PropertyGroup(PropertyGroup):
     meta: bpy.props.PointerProperty(  # type: ignore[valid-type]
         name="VRM Meta",
         type=Vrm0MetaPropertyGroup,

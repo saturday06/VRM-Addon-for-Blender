@@ -7,6 +7,18 @@ from sys import float_info
 from typing import Optional, Union
 
 import bpy
+from bpy.types import (
+    Armature,
+    ArmatureModifier,
+    Bone,
+    Context,
+    CopyRotationConstraint,
+    DampedTrackConstraint,
+    Image,
+    Material,
+    Node,
+    Object,
+)
 from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert, deep, shader
@@ -45,8 +57,8 @@ logger = get_logger(__name__)
 class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     def __init__(
         self,
-        context: bpy.types.Context,
-        export_objects: list[bpy.types.Object],
+        context: Context,
+        export_objects: list[Object],
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
@@ -59,7 +71,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             )
         self.armature = armatures[0]
         armature_data = self.armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
@@ -124,7 +136,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if obj.type != "MESH" or not [
                 True
                 for m in obj.modifiers
-                if isinstance(m, bpy.types.ArmatureModifier) and m.object == armature
+                if isinstance(m, ArmatureModifier) and m.object == armature
             ]:
                 continue
 
@@ -170,7 +182,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             faces.append((index * 3, index * 3 + 1, index * 3 + 2))
 
         armature_data = self.armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
@@ -187,7 +199,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             vertex_group = obj.vertex_groups.new(name=bone_name)
             vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
         modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
-        if not isinstance(modifier, bpy.types.ArmatureModifier):
+        if not isinstance(modifier, ArmatureModifier):
             message = f"{type(modifier)} is not a ArmatureModifier"
             raise TypeError(message)
         modifier.object = self.armature
@@ -197,7 +209,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     def destroy_dummy_skinned_mesh_object(self, name: str) -> None:
         dummy_skinned_mesh_object = bpy.data.objects.get(name)
-        if not isinstance(dummy_skinned_mesh_object, bpy.types.Object):
+        if not isinstance(dummy_skinned_mesh_object, Object):
             return
         dummy_skinned_mesh_object.modifiers.clear()
         dummy_skinned_mesh_object.vertex_groups.clear()
@@ -532,17 +544,17 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         spring_bone: SpringBone1SpringBonePropertyGroup,
         bone_name_to_index_dict: dict[str, int],
         collider_group_uuid_to_index_dict: dict[str, int],
-        armature: bpy.types.Object,
+        armature: Object,
     ) -> list[Json]:
         spring_dicts: list[Json] = []
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             logger.error(f"{type(armature_data)} is not an Armature")
             return []
         for spring in spring_bone.springs:
             spring_dict: dict[str, Json] = {"name": spring.vrm_name}
 
-            first_bone: Optional[bpy.types.Bone] = None
+            first_bone: Optional[Bone] = None
             joint_dicts: list[Json] = []
             for joint in spring.joints:
                 bone = armature_data.bones.get(joint.node.bone_name)
@@ -602,9 +614,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @classmethod
     def search_constraint_target_index(
         cls,
-        constraint: Union[
-            bpy.types.CopyRotationConstraint, bpy.types.DampedTrackConstraint
-        ],
+        constraint: Union[CopyRotationConstraint, DampedTrackConstraint],
         object_name_to_index_dict: dict[str, int],
         bone_name_to_index_dict: dict[str, int],
     ) -> Optional[int]:
@@ -677,7 +687,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @classmethod
     def create_mtoon0_khr_texture_transform(
-        cls, node: bpy.types.Node, texture_input_name: str
+        cls, node: Node, texture_input_name: str
     ) -> dict[str, Json]:
         default: dict[str, Json] = {
             "offset": [0, 0],
@@ -732,7 +742,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict: dict[str, Json],
         body_binary: bytearray,
         image_name_to_index_dict: dict[str, int],
-        image: bpy.types.Image,
+        image: Image,
         gltf2_addon_export_settings: dict[str, object],
     ) -> int:
         # TODO: Verify alignment requirement and optimize
@@ -867,7 +877,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
-        node: bpy.types.Node,
+        node: Node,
         texture_input_name: str,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
@@ -946,7 +956,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
-        material: bpy.types.Material,
+        material: Material,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> dict[str, Json]:
@@ -1137,8 +1147,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
-        material: bpy.types.Material,
-        node: bpy.types.Node,
+        material: Material,
+        node: Node,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> dict[str, Json]:
@@ -1260,8 +1270,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
-        material: bpy.types.Material,
-        node: bpy.types.Node,
+        material: Material,
+        node: Node,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> dict[str, Json]:
@@ -1326,8 +1336,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         cls,
         json_dict: dict[str, Json],
         body_binary: bytearray,
-        material: bpy.types.Material,
-        node: bpy.types.Node,
+        material: Material,
+        node: Node,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> dict[str, Json]:
@@ -1636,7 +1646,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         for material_name, index in material_name_to_index_dict.items():
             material = bpy.data.materials.get(material_name)
-            if not isinstance(material, bpy.types.Material) or not (
+            if not isinstance(material, Material) or not (
                 0 <= index < len(material_dicts)
             ):
                 continue
@@ -1653,7 +1663,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
             # MToon_unversioned (MToon for VRM 0.0)
             node = search.vrm_shader_node(material)
-            if not isinstance(node, bpy.types.Node):
+            if not isinstance(node, Node):
                 continue
             shader_name = node.node_tree.get("SHADER")
             if shader_name == "MToon_unversioned":
@@ -1766,9 +1776,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @classmethod
     def setup_dummy_human_bones(
         cls,
-        context: bpy.types.Context,
-        armature: bpy.types.Object,
-        armature_data: bpy.types.Armature,
+        context: Context,
+        armature: Object,
+        armature_data: Armature,
     ) -> Optional[dict[HumanBoneName, str]]:
         ext = armature_data.vrm_addon_extension
         human_bones = ext.vrm1.humanoid.human_bones
@@ -1935,9 +1945,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
     @classmethod
     def restore_dummy_human_bones(
         cls,
-        context: bpy.types.Context,
-        armature: bpy.types.Object,
-        armature_data: bpy.types.Armature,
+        context: Context,
+        armature: Object,
+        armature_data: Armature,
         human_bone_name_to_bone_name: dict[HumanBoneName, str],
     ) -> None:
         ext = armature_data.vrm_addon_extension
@@ -1980,7 +1990,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         init_extras_export()
 
         armature_data = self.armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 

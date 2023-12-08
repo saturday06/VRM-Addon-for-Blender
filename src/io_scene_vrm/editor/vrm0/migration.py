@@ -4,6 +4,7 @@ import uuid
 from typing import Optional
 
 import bpy
+from bpy.types import ID, Armature, Mesh, Object, Text
 
 from ...common import convert
 from ...common.deep import Json, make_json
@@ -21,15 +22,15 @@ from .property_group import (
 )
 
 
-def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Json:
+def read_textblock_json(armature: Object, armature_key: str) -> Json:
     text_key = armature.get(armature_key)
-    if isinstance(text_key, bpy.types.Text):
-        textblock: Optional[bpy.types.Text] = text_key
+    if isinstance(text_key, Text):
+        textblock: Optional[Text] = text_key
     elif not isinstance(text_key, str):
         return None
     else:
         textblock = bpy.data.texts.get(text_key)
-    if not isinstance(textblock, bpy.types.Text):
+    if not isinstance(textblock, Text):
         return None
     textblock_str = "".join([line.body for line in textblock.lines])
     with contextlib.suppress(json.JSONDecodeError):
@@ -37,7 +38,7 @@ def read_textblock_json(armature: bpy.types.Object, armature_key: str) -> Json:
     return None
 
 
-def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: bpy.types.Object) -> None:
+def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: Object) -> None:
     allowed_user_name = armature.get("allowedUserName")
     if (
         isinstance(allowed_user_name, str)
@@ -268,7 +269,7 @@ def migrate_vrm0_blend_shape_groups(
                 mesh_name = bind_dict.get("mesh")
                 if isinstance(mesh_name, str):
                     if mesh_name in bpy.data.meshes:
-                        mesh: Optional[bpy.types.ID] = bpy.data.meshes[mesh_name]
+                        mesh: Optional[ID] = bpy.data.meshes[mesh_name]
                         for obj in bpy.data.objects:
                             if obj.data == mesh:
                                 bind.mesh.mesh_object_name = obj.name
@@ -283,7 +284,7 @@ def migrate_vrm0_blend_shape_groups(
                     else:
                         mesh = None
 
-                    if isinstance(mesh, bpy.types.Mesh):
+                    if isinstance(mesh, Mesh):
                         index = bind_dict.get("index")
                         shape_keys = mesh.shape_keys
                         if (
@@ -331,10 +332,10 @@ def migrate_vrm0_blend_shape_groups(
 def migrate_vrm0_secondary_animation(
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
     bone_group_dicts: Json,
-    armature: bpy.types.Object,
-    armature_data: bpy.types.Armature,
+    armature: Object,
+    armature_data: Armature,
 ) -> None:
-    bone_name_to_collider_objects: dict[str, list[bpy.types.Object]] = {}
+    bone_name_to_collider_objects: dict[str, list[Object]] = {}
     for collider_object in [
         child
         for child in armature.children
@@ -427,9 +428,7 @@ def migrate_vrm0_secondary_animation(
         bone_group.refresh(armature)
 
 
-def migrate_legacy_custom_properties(
-    armature: bpy.types.Object, armature_data: bpy.types.Armature
-) -> None:
+def migrate_legacy_custom_properties(armature: Object, armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 0, 1):
         return
@@ -469,7 +468,7 @@ def migrate_legacy_custom_properties(
                 break
 
 
-def migrate_blender_object(armature_data: bpy.types.Armature) -> None:
+def migrate_blender_object(armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
@@ -477,13 +476,11 @@ def migrate_blender_object(armature_data: bpy.types.Armature) -> None:
     for collider_group in ext.vrm0.secondary_animation.collider_groups:
         for collider in collider_group.colliders:
             bpy_object = collider.pop("blender_object", None)
-            if isinstance(bpy_object, bpy.types.Object):
+            if isinstance(bpy_object, Object):
                 collider.bpy_object = bpy_object
 
 
-def migrate_link_to_bone_object(
-    armature: bpy.types.Object, armature_data: bpy.types.Armature
-) -> None:
+def migrate_link_to_bone_object(armature: Object, armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
@@ -492,16 +489,13 @@ def migrate_link_to_bone_object(
         bone_property_group.armature_data_name = armature_data.name
 
         link_to_bone = bone_property_group.get("link_to_bone")
-        if (
-            not isinstance(link_to_bone, bpy.types.Object)
-            or not link_to_bone.parent_bone
-        ):
+        if not isinstance(link_to_bone, Object) or not link_to_bone.parent_bone:
             continue
         parent = link_to_bone.parent
         if not parent or not parent.name or parent.type != "ARMATURE":
             continue
         parent_data = parent.data
-        if not isinstance(parent_data, bpy.types.Armature):
+        if not isinstance(parent_data, Armature):
             continue
         bone = parent_data.bones.get(link_to_bone.parent_bone)
         if not bone:
@@ -512,7 +506,7 @@ def migrate_link_to_bone_object(
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
         link_to_bone = bone_property_group.pop("link_to_bone", None)
-        if not isinstance(link_to_bone, bpy.types.Object):
+        if not isinstance(link_to_bone, Object):
             continue
         if link_to_bone.parent_type != "OBJECT":
             link_to_bone.parent_type = "OBJECT"
@@ -528,7 +522,7 @@ def migrate_link_to_bone_object(
     )
 
 
-def migrate_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
+def migrate_link_to_mesh_object(armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 23):
         return
@@ -547,7 +541,7 @@ def migrate_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
             continue
         link_to_mesh = mesh.get("link_to_mesh")
         if (
-            not isinstance(link_to_mesh, bpy.types.Object)
+            not isinstance(link_to_mesh, Object)
             or not link_to_mesh.parent
             or not link_to_mesh.parent.name
             or link_to_mesh.parent.type != "MESH"
@@ -556,7 +550,7 @@ def migrate_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
         mesh.mesh_object_name = link_to_mesh.parent.name
 
 
-def remove_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
+def remove_link_to_mesh_object(armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
@@ -574,7 +568,7 @@ def remove_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
         if not mesh:
             continue
         link_to_mesh = mesh.pop("link_to_mesh", None)
-        if not isinstance(link_to_mesh, bpy.types.Object):
+        if not isinstance(link_to_mesh, Object):
             continue
         if link_to_mesh.parent_type != "OBJECT":
             link_to_mesh.parent_type = "OBJECT"
@@ -584,7 +578,7 @@ def remove_link_to_mesh_object(armature_data: bpy.types.Armature) -> None:
             link_to_mesh.parent = None
 
 
-def fixup_gravity_dir(armature_data: bpy.types.Armature) -> None:
+def fixup_gravity_dir(armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 15, 4):
         return
@@ -595,7 +589,7 @@ def fixup_gravity_dir(armature_data: bpy.types.Armature) -> None:
         bone_group.gravity_dir = gravity_dir
 
 
-def fixup_humanoid_feet_spacing(armature_data: bpy.types.Armature) -> None:
+def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 18, 2):
         return
@@ -616,9 +610,9 @@ def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     )
 
 
-def migrate(vrm0: Vrm0PropertyGroup, armature: bpy.types.Object) -> None:
+def migrate(vrm0: Vrm0PropertyGroup, armature: Object) -> None:
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return
 
     migrate_blender_object(armature_data)

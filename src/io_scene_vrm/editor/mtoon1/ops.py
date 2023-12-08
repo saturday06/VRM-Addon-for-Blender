@@ -6,6 +6,17 @@ from sys import float_info
 from typing import TYPE_CHECKING, Optional
 
 import bpy
+from bpy.types import (
+    Context,
+    Event,
+    Material,
+    Mesh,
+    Node,
+    NodesModifier,
+    Object,
+    Operator,
+    ShaderNodeMapping,
+)
 from bpy_extras.io_utils import ImportHelper
 
 from ...common import convert, shader
@@ -33,7 +44,7 @@ from .property_group import (
 logger = get_logger(__name__)
 
 
-class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
+class VRM_OT_convert_material_to_mtoon1(Operator):
     bl_idname = "vrm.convert_material_to_mtoon1"
     bl_label = "Convert Material to MToon 1.0"
     bl_description = "Convert Material to MToon 1.0"
@@ -43,9 +54,9 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         material = bpy.data.materials.get(self.material_name)
-        if not isinstance(material, bpy.types.Material):
+        if not isinstance(material, Material):
             return {"CANCELLED"}
         self.convert_material_to_mtoon1(context, material)
         return {"FINISHED"}
@@ -87,14 +98,9 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
             texture_info.index.sampler.wrap_s = wrap
             texture_info.index.sampler.wrap_t = wrap
 
-    def convert_material_to_mtoon1(
-        self, context: bpy.types.Context, material: bpy.types.Material
-    ) -> None:
+    def convert_material_to_mtoon1(self, context: Context, material: Material) -> None:
         node = search.vrm_shader_node(material)
-        if (
-            isinstance(node, bpy.types.Node)
-            and node.node_tree["SHADER"] == "MToon_unversioned"
-        ):
+        if isinstance(node, Node) and node.node_tree["SHADER"] == "MToon_unversioned":
             self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
             return
 
@@ -108,9 +114,9 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
 
     def convert_mtoon_unversioned_to_mtoon1(
         self,
-        context: bpy.types.Context,
-        material: bpy.types.Material,
-        node: bpy.types.Node,
+        context: Context,
+        material: Material,
+        node: Node,
     ) -> None:
         transparent_with_z_write = False
         alpha_cutoff: Optional[float] = 0.5
@@ -160,7 +166,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
             mapping_node = (
                 main_texture_socket.links[0].from_node.inputs[0].links[0].from_node
             )
-            if isinstance(mapping_node, bpy.types.ShaderNodeMapping):
+            if isinstance(mapping_node, ShaderNodeMapping):
                 location_socket = mapping_node.inputs.get("Location")
                 if location_socket and isinstance(
                     location_socket, shader.VECTOR_SOCKET_CLASSES
@@ -414,7 +420,7 @@ class VRM_OT_convert_material_to_mtoon1(bpy.types.Operator):
         material_name: str  # type: ignore[no-redef]
 
 
-class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
+class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
     bl_idname = "vrm.convert_mtoon1_to_bsdf_principled"
     bl_label = "Convert MToon 1.0 to Principled BSDF"
     bl_description = "Convert MToon 1.0 to Principled BSDF"
@@ -424,14 +430,14 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         material = bpy.data.materials.get(self.material_name)
-        if not isinstance(material, bpy.types.Material):
+        if not isinstance(material, Material):
             return {"CANCELLED"}
         self.convert_mtoon1_to_bsdf_principled(material)
         return {"FINISHED"}
 
-    def convert_mtoon1_to_bsdf_principled(self, material: bpy.types.Material) -> None:
+    def convert_mtoon1_to_bsdf_principled(self, material: Material) -> None:
         if not material.use_nodes:
             material.use_nodes = True
         shader.clear_node_tree(material.node_tree, clear_inputs_outputs=True)
@@ -450,7 +456,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(bpy.types.Operator):
         material_name: str  # type: ignore[no-redef]
 
 
-class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
+class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
     bl_idname = "vrm.reset_mtoon1_material_shader_node_group"
     bl_label = "Reset Shader Nodes"
     bl_description = "Reset MToon 1.0 Material Shader Node Tree"
@@ -460,9 +466,9 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         material = bpy.data.materials.get(self.material_name)
-        if not isinstance(material, bpy.types.Material):
+        if not isinstance(material, Material):
             return {"CANCELLED"}
         reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
         return {"FINISHED"}
@@ -473,7 +479,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(bpy.types.Operator):
         material_name: str  # type: ignore[no-redef]
 
 
-class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
+class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
     bl_idname = "vrm.import_mtoon1_texture_image_file"
     bl_label = "Open"
     bl_description = "Import Texture Image File"
@@ -486,7 +492,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
     filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        # https://docs.blender.org/api/2.83/bpy.types.Image.html#bpy.types.Image.file_format
+        # https://docs.blender.org/api/2.83/Image.html#Image.file_format
         default=(
             "*.bmp"
             ";*.sgi"
@@ -537,7 +543,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         name="Target Texture",
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         filepath = self.filepath
         if not filepath or not Path(filepath).exists():
             return {"CANCELLED"}
@@ -547,7 +553,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
         created = last_images_len < len(bpy.data.images)
 
         material = bpy.data.materials.get(self.material_name)
-        if not isinstance(material, bpy.types.Material):
+        if not isinstance(material, Material):
             return {"FINISHED"}
 
         gltf = material.vrm_addon_extension.mtoon1
@@ -575,7 +581,7 @@ class VRM_OT_import_mtoon1_texture_image_file(bpy.types.Operator, ImportHelper):
 
         return {"CANCELLED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, event: Event) -> set[str]:
         self.filepath = ""
         return ImportHelper.invoke(self, context, event)
 
@@ -618,8 +624,10 @@ class NodesModifierInputKey:
 
 
 def get_nodes_modifier_input_key(
-    modifier: bpy.types.NodesModifier,
+    modifier: NodesModifier,
 ) -> Optional[NodesModifierInputKey]:
+    from bpy.types import NodeTreeInterfaceSocket
+
     node_group = modifier.node_group
     if not node_group:
         return None
@@ -630,7 +638,7 @@ def get_nodes_modifier_input_key(
             item.identifier
             for item in node_group.interface.items_tree
             if item.item_type == "SOCKET"
-            and isinstance(item, bpy.types.NodeTreeInterfaceSocket)
+            and isinstance(item, NodeTreeInterfaceSocket)
             and item.in_out == "INPUT"
         ]
     keys_len = NodesModifierInputKey.keys_len()
@@ -639,7 +647,7 @@ def get_nodes_modifier_input_key(
     return NodesModifierInputKey(*keys[:keys_len])
 
 
-class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
+class VRM_OT_refresh_mtoon1_outline(Operator):
     bl_idname = "vrm.refresh_mtoon1_outline"
     bl_label = "Refresh MToon 1.0 Outline Width Mode"
     bl_description = "Import Texture Image File"
@@ -654,9 +662,9 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
 
     @staticmethod
     def assign(
-        context: bpy.types.Context,
-        material: bpy.types.Material,
-        obj: bpy.types.Object,
+        context: Context,
+        material: Material,
+        obj: Object,
         create_modifier: bool,
     ) -> None:
         shader.load_mtoon1_outline_geometry_node_group(context, overwrite=False)
@@ -693,7 +701,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
                 continue
             if search_modifier.type != "NODES":
                 continue
-            if not isinstance(search_modifier, bpy.types.NodesModifier):
+            if not isinstance(search_modifier, NodesModifier):
                 continue
             if not search_modifier.node_group:
                 continue
@@ -703,7 +711,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
             if input_key is None:
                 continue
             search_material = search_modifier.get(input_key.material_key)
-            if not isinstance(search_material, bpy.types.Material):
+            if not isinstance(search_material, Material):
                 continue
             if search_material.name != material.name:
                 continue
@@ -770,7 +778,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
 
         if not modifier:
             new_modifier = obj.modifiers.new(modifier_name, "NODES")
-            if not isinstance(new_modifier, bpy.types.NodesModifier):
+            if not isinstance(new_modifier, NodesModifier):
                 message = f"{type(new_modifier)} is not a NodesModifier"
                 raise AssertionError(message)
             modifier = new_modifier
@@ -798,7 +806,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
         ) = mtoon.outline_width_multiply_texture.extensions.khr_texture_transform.scale
 
         uv_layer_name = None
-        if isinstance(obj.data, bpy.types.Mesh):
+        if isinstance(obj.data, Mesh):
             uv_layer_name = next(
                 (
                     uv_layer.name
@@ -848,7 +856,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
                 input_key.extrude_mesh_individual_key,
                 (
                     obj.type == "MESH"
-                    and isinstance(obj.data, bpy.types.Mesh)
+                    and isinstance(obj.data, Mesh)
                     and not obj.data.use_auto_smooth
                     and not any(polygon.use_smooth for polygon in obj.data.polygons)
                 ),
@@ -875,7 +883,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
             )
 
     @staticmethod
-    def refresh_object(context: bpy.types.Context, obj: bpy.types.Object) -> None:
+    def refresh_object(context: Context, obj: Object) -> None:
         if bpy.app.version < (3, 3):
             return
         for material_slot in obj.material_slots:
@@ -895,7 +903,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
 
     @staticmethod
     def refresh(
-        context: bpy.types.Context,
+        context: Context,
         create_modifier: bool,
         material_name: Optional[str] = None,
     ) -> None:
@@ -936,7 +944,7 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
                     continue
                 if search_modifier.type != "NODES":
                     continue
-                if not isinstance(search_modifier, bpy.types.NodesModifier):
+                if not isinstance(search_modifier, NodesModifier):
                     continue
                 node_group = search_modifier.node_group
                 if not node_group:
@@ -948,13 +956,13 @@ class VRM_OT_refresh_mtoon1_outline(bpy.types.Operator):
                     continue
                 search_material = search_modifier.get(input_key.material_key)
                 if (
-                    isinstance(search_material, bpy.types.Material)
+                    isinstance(search_material, Material)
                     and search_material.name in outline_material_names
                 ):
                     continue
                 obj.modifiers.remove(search_modifier)
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         self.refresh(context, self.create_modifier, self.material_name)
         return {"FINISHED"}
 

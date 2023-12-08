@@ -1,4 +1,4 @@
-import bpy
+from bpy.types import Context, Mesh, UILayout, UIList
 
 from .property_group import (
     Vrm0BlendShapeBindPropertyGroup,
@@ -9,13 +9,13 @@ from .property_group import (
 )
 
 
-class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):
+class VRM_UL_vrm0_secondary_animation_group(UIList):
     bl_idname = "VRM_UL_vrm0_secondary_animation_group"
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        _context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         icon: int,
@@ -42,13 +42,13 @@ class VRM_UL_vrm0_secondary_animation_group(bpy.types.UIList):
         layout.label(text=text, translate=False, icon="GROUP_BONE")
 
 
-class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):
+class VRM_UL_vrm0_secondary_animation_collider_group(UIList):
     bl_idname = "VRM_UL_vrm0_secondary_animation_collider_group"
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        _context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         icon: int,
@@ -74,13 +74,13 @@ class VRM_UL_vrm0_secondary_animation_collider_group(bpy.types.UIList):
         layout.label(text=collider_group.name, translate=False, icon="SPHERE")
 
 
-class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
+class VRM_UL_vrm0_blend_shape_group(UIList):
     bl_idname = "VRM_UL_vrm0_blend_shape_group"
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        _context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         _icon: int,
@@ -118,13 +118,13 @@ class VRM_UL_vrm0_blend_shape_group(bpy.types.UIList):
         split.prop(blend_shape_group, "preview", text="Preview")
 
 
-class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):
+class VRM_UL_vrm0_blend_shape_bind(UIList):
     bl_idname = "VRM_UL_vrm0_blend_shape_bind"
 
     def draw_item(
         self,
-        context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         icon: int,
@@ -150,7 +150,7 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):
         mesh_object = blend_data.objects.get(blend_shape_bind.mesh.mesh_object_name)
         if mesh_object:
             mesh_data = mesh_object.data
-            if isinstance(mesh_data, bpy.types.Mesh):
+            if isinstance(mesh_data, Mesh):
                 shape_keys = mesh_data.shape_keys
                 if shape_keys:
                     keys = shape_keys.key_blocks.keys()
@@ -159,13 +159,13 @@ class VRM_UL_vrm0_blend_shape_bind(bpy.types.UIList):
         layout.label(text=name, translate=False, icon="MESH_DATA")
 
 
-class VRM_UL_vrm0_material_value_bind(bpy.types.UIList):
+class VRM_UL_vrm0_material_value_bind(UIList):
     bl_idname = "VRM_UL_vrm0_material_value_bind"
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        _context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         icon: int,

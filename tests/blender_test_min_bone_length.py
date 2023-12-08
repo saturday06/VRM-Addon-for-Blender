@@ -1,6 +1,7 @@
 from sys import float_info
 
 import bpy
+from bpy.types import Armature
 from mathutils import Vector
 
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
@@ -15,7 +16,7 @@ def test() -> None:
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
     armature = bpy.context.object
-    if not armature or not isinstance(armature.data, bpy.types.Armature):
+    if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
     bpy.ops.object.mode_set(mode="EDIT")

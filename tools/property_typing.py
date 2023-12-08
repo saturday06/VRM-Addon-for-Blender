@@ -7,7 +7,18 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Union
 
-import bpy
+from bpy.types import (
+    ID,
+    AddonPreferences,
+    Header,
+    KeyingSetInfo,
+    Menu,
+    Operator,
+    Panel,
+    PropertyGroup,
+    RenderEngine,
+    UIList,
+)
 
 from io_scene_vrm import registration
 
@@ -50,8 +61,8 @@ def write_property_typing(
         if not isinstance(target_type, type):
             message = f"Unexpected {keywords}"
             raise AssertionError(message)
-        if issubclass(target_type, bpy.types.ID):
-            target_name = f"Optional[bpy.types.{target_type.__name__}]"
+        if issubclass(target_type, ID):
+            target_name = f"Optional[{target_type.__name__}]"
         else:
             target_name = target_type.__name__
         line = f"        {n}: {target_name}{comment}"
@@ -66,8 +77,8 @@ def write_property_typing(
         if not isinstance(target_type, type):
             message = f"Unexpected {keywords}"
             raise AssertionError(message)
-        if issubclass(target_type, bpy.types.ID):
-            target_name = f"Optional[bpy.types.{target_type.__name__}]"
+        if issubclass(target_type, ID):
+            target_name = f"Optional[{target_type.__name__}]"
         else:
             target_name = target_type.__name__
         line = (
@@ -86,15 +97,15 @@ def write_property_typing(
 
 def update_property_typing(
     c: Union[
-        type[bpy.types.Panel],
-        type[bpy.types.UIList],
-        type[bpy.types.Menu],
-        type[bpy.types.Header],
-        type[bpy.types.Operator],
-        type[bpy.types.KeyingSetInfo],
-        type[bpy.types.RenderEngine],
-        type[bpy.types.AddonPreferences],
-        type[bpy.types.PropertyGroup],
+        type[Panel],
+        type[UIList],
+        type[Menu],
+        type[Header],
+        type[Operator],
+        type[KeyingSetInfo],
+        type[RenderEngine],
+        type[AddonPreferences],
+        type[PropertyGroup],
     ],
     typing_code: str,
 ) -> None:

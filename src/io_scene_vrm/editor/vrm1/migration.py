@@ -1,5 +1,6 @@
 import bpy
-import idprop
+from bpy.types import Armature, Material, Object
+from idprop.types import IDPropertyGroup
 from mathutils import Vector
 
 from ...common import convert, shader
@@ -15,7 +16,7 @@ from .property_group import (
 def migrate_old_expression_layout(
     old_expression: object, expression: Vrm1ExpressionPropertyGroup
 ) -> None:
-    if not isinstance(old_expression, idprop.types.IDPropertyGroup):
+    if not isinstance(old_expression, IDPropertyGroup):
         return
 
     old_morph_target_binds = convert.iterator_or_none(
@@ -23,17 +24,14 @@ def migrate_old_expression_layout(
     )
     if old_morph_target_binds is not None:
         for old_morph_target_bind in old_morph_target_binds:
-            if not isinstance(old_morph_target_bind, idprop.types.IDPropertyGroup):
+            if not isinstance(old_morph_target_bind, IDPropertyGroup):
                 continue
 
             morph_target_bind = expression.morph_target_binds.add()
             old_node = old_morph_target_bind.get("node")
-            if isinstance(old_node, idprop.types.IDPropertyGroup):
+            if isinstance(old_node, IDPropertyGroup):
                 old_bpy_object = old_node.get("bpy_object")
-                if (
-                    isinstance(old_bpy_object, bpy.types.Object)
-                    and old_bpy_object.type == "MESH"
-                ):
+                if isinstance(old_bpy_object, Object) and old_bpy_object.type == "MESH":
                     morph_target_bind.node.mesh_object_name = old_bpy_object.name
                 old_node.clear()
 
@@ -52,12 +50,12 @@ def migrate_old_expression_layout(
     )
     if old_material_color_binds is not None:
         for old_material_color_bind in old_material_color_binds:
-            if not isinstance(old_material_color_bind, idprop.types.IDPropertyGroup):
+            if not isinstance(old_material_color_bind, IDPropertyGroup):
                 continue
 
             material_color_bind = expression.material_color_binds.add()
             old_material = old_material_color_bind.get("material")
-            if isinstance(old_material, bpy.types.Material):
+            if isinstance(old_material, Material):
                 material_color_bind.material = old_material
 
             old_type = next(
@@ -89,12 +87,12 @@ def migrate_old_expression_layout(
     )
     if old_texture_transform_binds is not None:
         for old_texture_transform_bind in old_texture_transform_binds:
-            if not isinstance(old_texture_transform_bind, idprop.types.IDPropertyGroup):
+            if not isinstance(old_texture_transform_bind, IDPropertyGroup):
                 continue
 
             texture_transform_bind = expression.texture_transform_binds.add()
             old_material = old_texture_transform_bind.get("material")
-            if isinstance(old_material, bpy.types.Material):
+            if isinstance(old_material, Material):
                 texture_transform_bind.material = old_material
 
             old_scale = convert.float2_or_none(old_texture_transform_bind.get("scale"))
@@ -182,9 +180,9 @@ def migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) ->
         migrate_old_expression_layout(old_expression, expression)
 
 
-def migrate(vrm1: Vrm1PropertyGroup, armature: bpy.types.Object) -> None:
+def migrate(vrm1: Vrm1PropertyGroup, armature: Object) -> None:
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return
 
     human_bones = vrm1.humanoid.human_bones

@@ -5,6 +5,15 @@ from typing import TYPE_CHECKING, Union
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.types import (
+    Armature,
+    Context,
+    Event,
+    Operator,
+    Panel,
+    PropertyGroup,
+    SpaceFileBrowser,
+)
 from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
@@ -21,7 +30,7 @@ from .vrm_parser import VrmParser
 logger = get_logger(__name__)
 
 
-class LicenseConfirmation(bpy.types.PropertyGroup):
+class LicenseConfirmation(PropertyGroup):
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
     url: bpy.props.StringProperty()  # type: ignore[valid-type]
     json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
@@ -35,7 +44,7 @@ class LicenseConfirmation(bpy.types.PropertyGroup):
 
 
 def import_vrm_update_addon_preferences(
-    import_op: "IMPORT_SCENE_OT_vrm", context: bpy.types.Context
+    import_op: "IMPORT_SCENE_OT_vrm", context: Context
 ) -> None:
     preferences = get_preferences(context)
 
@@ -72,7 +81,7 @@ def import_vrm_update_addon_preferences(
         )
 
 
-class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
+class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
     bl_label = "Import VRM"
     bl_description = "Import VRM"
@@ -113,7 +122,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         filepath = Path(self.filepath)
         if not filepath.is_file():
             return {"CANCELLED"}
@@ -145,7 +154,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
             make_new_texture_folder=self.make_new_texture_folder,
         )
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, event: Event) -> set[str]:
         preferences = get_preferences(context)
         (
             self.set_shading_type_to_material_on_import,
@@ -175,7 +184,7 @@ class IMPORT_SCENE_OT_vrm(bpy.types.Operator, ImportHelper):
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
 
 
-class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
+class VRM_PT_import_unsupported_blender_version_warning(Panel):
     bl_idname = "VRM_PT_import_unsupported_blender_version_warning"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -184,15 +193,15 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
     bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         space_data = context.space_data
-        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+        if not isinstance(space_data, SpaceFileBrowser):
             return False
         if space_data.active_operator.bl_idname != "IMPORT_SCENE_OT_vrm":
             return False
         return bool(version.panel_warning_message())
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         warning_message = version.panel_warning_message()
         if warning_message is None:
             return
@@ -207,7 +216,7 @@ class VRM_PT_import_unsupported_blender_version_warning(bpy.types.Panel):
             )
 
 
-class WM_OT_vrm_license_confirmation(bpy.types.Operator):
+class WM_OT_vrm_license_confirmation(Operator):
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
@@ -222,7 +231,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):
     extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
     make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         filepath = Path(self.filepath)
         if not filepath.is_file():
             return {"CANCELLED"}
@@ -234,10 +243,10 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):
             license_validation=False,
         )
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=600)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         layout = self.layout
         layout.label(text=self.filepath, translate=False)
         for license_confirmation in self.license_confirmations:
@@ -280,7 +289,7 @@ class WM_OT_vrm_license_confirmation(bpy.types.Operator):
 
 def create_blend_model(
     addon: Union[IMPORT_SCENE_OT_vrm, WM_OT_vrm_license_confirmation],
-    context: bpy.types.Context,
+    context: Context,
     license_validation: bool,
 ) -> set[str]:
     parse_result = VrmParser(
@@ -300,7 +309,7 @@ def create_blend_model(
 
 
 def menu_import(
-    menu_op: bpy.types.Operator, _context: bpy.types.Context
+    menu_op: Operator, _context: Context
 ) -> None:  # Same as test/blender_io.py for now
     menu_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
     vrma_import_op = layout_operator(
@@ -309,7 +318,7 @@ def menu_import(
     vrma_import_op.armature_object_name = ""
 
 
-class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
+class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
     bl_idname = "import_scene.vrma"
     bl_label = "Import VRM Animation"
     bl_description = "Import VRM Animation"
@@ -325,7 +334,7 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
         options={"HIDDEN"},
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         if WM_OT_vrma_import_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
@@ -340,7 +349,7 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
             return {"CANCELLED"}
         return VrmAnimationImporter.execute(context, Path(self.filepath), armature)
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_import_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
@@ -357,7 +366,7 @@ class IMPORT_SCENE_OT_vrma(bpy.types.Operator, ImportHelper):
         armature_object_name: str  # type: ignore[no-redef]
 
 
-class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
+class WM_OT_vrma_import_prerequisite(Operator):
     bl_label = "VRM Animation Import Prerequisite"
     bl_idname = "wm.vrma_import_prerequisite"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
@@ -371,9 +380,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
     )
 
     @staticmethod
-    def detect_errors(
-        context: bpy.types.Context, armature_object_name: str
-    ) -> list[str]:
+    def detect_errors(context: Context, armature_object_name: str) -> list[str]:
         error_messages = []
 
         if not armature_object_name:
@@ -386,7 +393,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
             return error_messages
 
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             error_messages.append(pgettext("Armature not found"))
             return error_messages
 
@@ -400,12 +407,12 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
 
         return error_messages
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         return bpy.ops.import_scene.vrma(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         if not self.armature_object_name:
             armature_object = search.current_armature(context)
             if armature_object:
@@ -418,7 +425,7 @@ class WM_OT_vrma_import_prerequisite(bpy.types.Operator):
             candidate.value = obj.name
         return context.window_manager.invoke_props_dialog(self, width=800)
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         layout = self.layout
 
         layout.label(

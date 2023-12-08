@@ -3,7 +3,7 @@ import string
 from collections.abc import Sequence
 from typing import Optional
 
-import bpy
+from bpy.types import Image
 
 from ..common.logging import get_logger
 
@@ -32,10 +32,10 @@ class Gltf2AddonImporterUserExtension:
         if self.current_import_id is None:
             return
 
-        if not isinstance(bpy_image, bpy.types.Image):
+        if not isinstance(bpy_image, Image):
             logger.warning(
                 "gather_import_image_after_hook: "
-                + "bpy_image is not a bpy.types.Image but {type(bpy_image)}"
+                + "bpy_image is not a Image but {type(bpy_image)}"
             )
             return
 

@@ -12,6 +12,17 @@ from typing import Optional, Union
 
 import bpy
 import mathutils
+from bpy.types import (
+    Armature,
+    Bone,
+    Context,
+    CopyRotationConstraint,
+    DampedTrackConstraint,
+    EditBone,
+    Mesh,
+    Object,
+    PoseBone,
+)
 from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
@@ -58,7 +69,7 @@ logger = get_logger(__name__)
 class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
     def __init__(
         self,
-        context: bpy.types.Context,
+        context: Context,
         parse_result: ParseResult,
         extract_textures_into_folder: bool,
         make_new_texture_folder: bool,
@@ -1161,13 +1172,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             node_index = obj.pop(extras_node_index_key, None)
             if isinstance(node_index, int):
                 self.object_names[node_index] = obj.name
-                if isinstance(obj.data, bpy.types.Mesh):
+                if isinstance(obj.data, Mesh):
                     self.mesh_object_names[node_index] = obj.name
             data = obj.data
-            if isinstance(data, bpy.types.Mesh):
+            if isinstance(data, Mesh):
                 data.pop(extras_node_index_key, None)
 
-            if not isinstance(data, bpy.types.Armature):
+            if not isinstance(data, Armature):
                 continue
 
             for pose_bone in obj.pose.bones:
@@ -1216,7 +1227,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
                 bone_name_to_roll = {}
                 bpy.ops.object.mode_set(mode="EDIT")
-                if isinstance(obj.data, bpy.types.Armature):
+                if isinstance(obj.data, Armature):
                     for edit_bone in obj.data.edit_bones:
                         bone_name_to_roll[edit_bone.name] = edit_bone.roll
                 bpy.ops.object.mode_set(mode="OBJECT")
@@ -1228,7 +1239,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 self.save_bone_child_object_world_matrices(obj)
 
                 bpy.ops.object.mode_set(mode="EDIT")
-                if isinstance(obj.data, bpy.types.Armature):
+                if isinstance(obj.data, Armature):
                     edit_bones = [
                         edit_bone
                         for edit_bone in obj.data.edit_bones
@@ -1247,7 +1258,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         extras_mesh_index_key = self.import_id + "Meshes"
         for obj in self.context.selectable_objects:
             data = obj.data
-            if not isinstance(data, bpy.types.Mesh):
+            if not isinstance(data, Mesh):
                 continue
             custom_mesh_index = data.get(extras_mesh_index_key)
             if isinstance(custom_mesh_index, int):
@@ -1364,14 +1375,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         nodes_key = self.import_id + "Nodes"
         remove_objs = []
         for obj in list(self.context.scene.collection.objects):
-            if isinstance(obj.data, bpy.types.Armature):
+            if isinstance(obj.data, Armature):
                 for bone in obj.data.bones:
                     if nodes_key in bone:
                         remove_objs.append(obj)
                         break
                 continue
 
-            if isinstance(obj.data, bpy.types.Mesh) and (
+            if isinstance(obj.data, Mesh) and (
                 nodes_key in obj.data
                 or meshes_key in obj.data
                 or self.is_temp_object_name(obj.data.name)
@@ -1611,8 +1622,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             bone_name_to_axis_translation: dict[str, str] = {}
 
-            human_bone_tree_bones: list[bpy.types.EditBone] = []
-            non_human_bone_tree_bones: list[bpy.types.EditBone] = []
+            human_bone_tree_bones: list[EditBone] = []
+            non_human_bone_tree_bones: list[EditBone] = []
             constraint_node_index_to_source_index: dict[int, int] = {}
             constraint_node_index_groups: list[set[int]] = []
             nodes = self.parse_result.json_dict.get("nodes")
@@ -1690,7 +1701,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         object_or_bone = self.get_object_or_bone_by_node_index(
                             node_index
                         )
-                        if isinstance(object_or_bone, bpy.types.PoseBone):
+                        if isinstance(object_or_bone, PoseBone):
                             group_axis_translation = bone_name_to_axis_translation.get(
                                 object_or_bone.name
                             )
@@ -1831,7 +1842,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 constraint_node_index_to_source_index.values()
             ):
                 object_or_bone = self.get_object_or_bone_by_node_index(node_index)
-                if not isinstance(object_or_bone, bpy.types.Object):
+                if not isinstance(object_or_bone, Object):
                     continue
                 for group_node_index in next(
                     (g for g in constraint_node_index_groups if node_index in g), set()
@@ -1839,7 +1850,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     group_object_or_bone = self.get_object_or_bone_by_node_index(
                         group_node_index
                     )
-                    if isinstance(group_object_or_bone, bpy.types.PoseBone):
+                    if isinstance(group_object_or_bone, PoseBone):
                         self.translate_object_axis(
                             object_or_bone,
                             BoneExtension.reverse_axis_translation(
@@ -1858,9 +1869,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         self.load_bone_child_object_world_matrices(armature)
 
-    def translate_object_axis(
-        self, obj: bpy.types.Object, axis_translation: str
-    ) -> None:
+    def translate_object_axis(self, obj: Object, axis_translation: str) -> None:
         if axis_translation != BoneExtension.AXIS_TRANSLATION_AUTO_ID:
             return
         matrix = BoneExtension.translate_axis(obj.matrix_world, axis_translation)
@@ -2168,7 +2177,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not isinstance(index, int):
                 continue
             mesh_data = mesh_obj.data
-            if not isinstance(mesh_data, bpy.types.Mesh):
+            if not isinstance(mesh_data, Mesh):
                 continue
             shape_keys = mesh_data.shape_keys
             if not shape_keys:
@@ -2288,7 +2297,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: dict[str, Json],
-        armature: bpy.types.Object,
+        armature: Object,
     ) -> None:
         collider_dicts = spring_bone_dict.get("colliders")
         if not isinstance(collider_dicts, list):
@@ -2306,7 +2315,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not isinstance(collider_dict, dict):
                 continue
 
-            bone: Optional[bpy.types.Bone] = None
+            bone: Optional[Bone] = None
             node_index = collider_dict.get("node")
             if isinstance(node_index, int):
                 bone_name = self.bone_names.get(node_index)
@@ -2569,7 +2578,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def get_object_or_bone_by_node_index(
         self, node_index: int
-    ) -> Union[bpy.types.Object, bpy.types.PoseBone, None]:
+    ) -> Union[Object, PoseBone, None]:
         object_name = self.object_names.get(node_index)
         bone_name = self.bone_names.get(node_index)
         if object_name is not None:
@@ -2608,22 +2617,20 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             axis_translation = BoneExtension.reverse_axis_translation(
                 object_or_bone.bone.vrm_addon_extension.axis_translation
-                if isinstance(object_or_bone, bpy.types.PoseBone)
+                if isinstance(object_or_bone, PoseBone)
                 else object_or_bone.vrm_addon_extension.axis_translation
             )
 
             if isinstance(roll_dict, dict):
                 constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
-                if not isinstance(constraint, bpy.types.CopyRotationConstraint):
+                if not isinstance(constraint, CopyRotationConstraint):
                     logger.error(f"{type(constraint)} is not a CopyRotationConstraint")
                     continue
                 constraint.mix_mode = "ADD"
                 constraint.owner_space = "LOCAL"
                 constraint.target_space = "LOCAL"
                 roll_axis = roll_dict.get("rollAxis")
-                if isinstance(object_or_bone, bpy.types.PoseBone) and isinstance(
-                    roll_axis, str
-                ):
+                if isinstance(object_or_bone, PoseBone) and isinstance(roll_axis, str):
                     roll_axis = BoneExtension.node_constraint_roll_axis_translation(
                         axis_translation,
                         roll_axis,
@@ -2643,13 +2650,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 source_index = roll_dict.get("source")
             elif isinstance(aim_dict, dict):
                 constraint = object_or_bone.constraints.new(type="DAMPED_TRACK")
-                if not isinstance(constraint, bpy.types.DampedTrackConstraint):
+                if not isinstance(constraint, DampedTrackConstraint):
                     logger.error(f"{type(constraint)} is not a CopyRotationConstraint")
                     continue
                 aim_axis = aim_dict.get("aimAxis")
-                if isinstance(aim_axis, str) and isinstance(
-                    object_or_bone, bpy.types.PoseBone
-                ):
+                if isinstance(aim_axis, str) and isinstance(object_or_bone, PoseBone):
                     aim_axis = BoneExtension.node_constraint_aim_axis_translation(
                         axis_translation,
                         aim_axis,
@@ -2664,7 +2669,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 source_index = aim_dict.get("source")
             elif isinstance(rotation_dict, dict):
                 constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
-                if not isinstance(constraint, bpy.types.CopyRotationConstraint):
+                if not isinstance(constraint, CopyRotationConstraint):
                     logger.error(f"{type(constraint)} is not a CopyRotationConstraint")
                     continue
                 constraint.mix_mode = "ADD"
@@ -2683,14 +2688,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             # TODO: mypyが賢くなったら消す
             if not isinstance(  # type: ignore[reportUnnecessaryIsInstance, unused-ignore]
                 constraint,
-                (bpy.types.CopyRotationConstraint, bpy.types.DampedTrackConstraint),
+                (CopyRotationConstraint, DampedTrackConstraint),
             ):
                 continue
 
             if isinstance(source_index, int):
                 source = self.get_object_or_bone_by_node_index(source_index)
-                if isinstance(source, bpy.types.Object):
+                if isinstance(source, Object):
                     constraint.target = source
-                elif isinstance(source, bpy.types.PoseBone):
+                elif isinstance(source, PoseBone):
                     constraint.target = armature
                     constraint.subtarget = source.name

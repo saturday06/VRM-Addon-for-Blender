@@ -10,6 +10,16 @@ from collections.abc import Sequence
 from typing import Optional, Union
 
 import bpy
+from bpy.types import (
+    Armature,
+    Context,
+    Image,
+    Material,
+    Mesh,
+    Object,
+    ShaderNodeOutputMaterial,
+    SpaceView3D,
+)
 from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
@@ -46,7 +56,7 @@ logger = get_logger(__name__)
 class AbstractBaseVrmImporter(ABC):
     def __init__(
         self,
-        context: bpy.types.Context,
+        context: Context,
         parse_result: ParseResult,
         extract_textures_into_folder: bool,
         make_new_texture_folder: bool,
@@ -56,11 +66,11 @@ class AbstractBaseVrmImporter(ABC):
         self.extract_textures_into_folder = extract_textures_into_folder
         self.make_new_texture_folder = make_new_texture_folder
 
-        self.meshes: dict[int, bpy.types.Object] = {}
-        self.images: dict[int, bpy.types.Image] = {}
-        self.armature: Optional[bpy.types.Object] = None
+        self.meshes: dict[int, Object] = {}
+        self.images: dict[int, Image] = {}
+        self.armature: Optional[Object] = None
         self.bone_names: dict[int, str] = {}
-        self.materials: dict[int, bpy.types.Material] = {}
+        self.materials: dict[int, Material] = {}
         self.primitive_obj_dict: Optional[dict[Optional[int], list[float]]] = None
         self.mesh_joined_objects = None
         self.bone_child_object_world_matrices: dict[str, Matrix] = {}
@@ -74,17 +84,17 @@ class AbstractBaseVrmImporter(ABC):
         return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
 
     @property
-    def armature_data(self) -> bpy.types.Armature:
+    def armature_data(self) -> Armature:
         if not self.armature:
             message = "armature is not set"
             raise AssertionError(message)
         armature_data = self.armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         return armature_data
 
-    def save_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
+    def save_bone_child_object_world_matrices(self, armature: Object) -> None:
         for obj in bpy.data.objects:
             if (
                 obj.parent_type == "BONE"
@@ -95,7 +105,7 @@ class AbstractBaseVrmImporter(ABC):
                     obj.name
                 ] = obj.matrix_world.copy()
 
-    def load_bone_child_object_world_matrices(self, armature: bpy.types.Object) -> None:
+    def load_bone_child_object_world_matrices(self, armature: Object) -> None:
         for obj in bpy.data.objects:
             if (
                 obj.parent_type == "BONE"
@@ -272,7 +282,7 @@ class AbstractBaseVrmImporter(ABC):
 
         self.load_bone_child_object_world_matrices(armature)
 
-    def scene_init(self) -> Optional[bpy.types.Object]:
+    def scene_init(self) -> Optional[Object]:
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るの
         # でその回避と、それを元に戻す
         affected_object = None
@@ -287,7 +297,7 @@ class AbstractBaseVrmImporter(ABC):
             bpy.ops.object.select_all(action="DESELECT")
         return affected_object
 
-    def finishing(self, affected_object: Optional[bpy.types.Object]) -> None:
+    def finishing(self, affected_object: Optional[Object]) -> None:
         # initで弄ったやつを戻す
         if affected_object is not None:
             affected_object.hide_viewport = True
@@ -323,18 +333,18 @@ class AbstractBaseVrmImporter(ABC):
     # material
     @staticmethod
     def find_material_output_node(
-        material: bpy.types.Material,
-    ) -> bpy.types.ShaderNodeOutputMaterial:
+        material: Material,
+    ) -> ShaderNodeOutputMaterial:
         if material.node_tree:
             for node in material.node_tree.nodes:
-                if not isinstance(node, bpy.types.ShaderNodeOutputMaterial):
+                if not isinstance(node, ShaderNodeOutputMaterial):
                     continue
                 return node
         message = f'No "ShaderNodeOutputMaterial" node in {material}'
         raise ValueError(message)
 
     @staticmethod
-    def reset_material(material: bpy.types.Material) -> None:
+    def reset_material(material: Material) -> None:
         if not material.use_nodes:
             material.use_nodes = True
         shader.clear_node_tree(material.node_tree)
@@ -457,7 +467,7 @@ class AbstractBaseVrmImporter(ABC):
         )
 
     def build_material_from_mtoon0(
-        self, material: bpy.types.Material, vrm0_material_property: Vrm0MaterialProperty
+        self, material: Material, vrm0_material_property: Vrm0MaterialProperty
     ) -> None:
         # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
         material.use_backface_culling = True
@@ -728,7 +738,7 @@ class AbstractBaseVrmImporter(ABC):
 
     def build_material_from_transparent_z_write(
         self,
-        material: bpy.types.Material,
+        material: Material,
         vrm0_material_property: Vrm0MaterialProperty,
     ) -> None:
         gltf = material.vrm_addon_extension.mtoon1
@@ -1099,7 +1109,7 @@ class AbstractBaseVrmImporter(ABC):
                     bind = blend_shape_group.binds.add()
                     bind.mesh.mesh_object_name = mesh_object.name
                     mesh_data = mesh_object.data
-                    if isinstance(mesh_data, bpy.types.Mesh):
+                    if isinstance(mesh_data, Mesh):
                         shape_keys = mesh_data.shape_keys
                         if shape_keys:
                             index = bind_dict.get("index")
@@ -1318,7 +1328,5 @@ class AbstractBaseVrmImporter(ABC):
             screen = self.context.screen
             for area in screen.areas:
                 for space in area.spaces:
-                    if space.type == "VIEW_3D" and isinstance(
-                        space, bpy.types.SpaceView3D
-                    ):
+                    if space.type == "VIEW_3D" and isinstance(space, SpaceView3D):
                         space.shading.type = "MATERIAL"

@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Optional
 
 import bpy
+from bpy.types import Context, PropertyGroup
 from mathutils import Matrix, Quaternion
 
 from ..common.logging import get_logger
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
-class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):
+class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     mesh_object_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
@@ -174,7 +175,7 @@ class VrmAddonSceneExtensionPropertyGroup(bpy.types.PropertyGroup):
         ]
 
 
-class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
+class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
     AXIS_TRANSLATION_AUTO_ID = "AUTO"
@@ -328,7 +329,7 @@ class VrmAddonBoneExtensionPropertyGroup(bpy.types.PropertyGroup):
         axis_translation: str  # type: ignore[no-redef]
 
 
-class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):
+class VrmAddonObjectExtensionPropertyGroup(PropertyGroup):
     axis_translation: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=VrmAddonBoneExtensionPropertyGroup.axis_translation_items,
         name="Axis Translation on Export",
@@ -340,7 +341,7 @@ class VrmAddonObjectExtensionPropertyGroup(bpy.types.PropertyGroup):
         axis_translation: str  # type: ignore[no-redef]
 
 
-class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
+class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
     addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
@@ -373,7 +374,7 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
         (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
     )
 
-    def update_spec_version(self, _context: bpy.types.Context) -> None:
+    def update_spec_version(self, _context: Context) -> None:
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 
@@ -429,7 +430,7 @@ class VrmAddonArmatureExtensionPropertyGroup(bpy.types.PropertyGroup):
         spec_version: str  # type: ignore[no-redef]
 
 
-def update_internal_cache(context: bpy.types.Context) -> None:
+def update_internal_cache(context: Context) -> None:
     VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
         context.scene.name,
         defer=False,
@@ -446,7 +447,7 @@ def update_internal_cache(context: bpy.types.Context) -> None:
     )
 
 
-class VrmAddonMaterialExtensionPropertyGroup(bpy.types.PropertyGroup):
+class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
     mtoon1: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MaterialPropertyGroup
     )

@@ -1,4 +1,4 @@
-import bpy
+from bpy.types import Context, Mesh, UILayout, UIList
 
 from ...common.logging import get_logger
 from .property_group import (
@@ -12,13 +12,13 @@ from .property_group import (
 logger = get_logger(__name__)
 
 
-class VRM_UL_vrm1_expression(bpy.types.UIList):
+class VRM_UL_vrm1_expression(UIList):
     bl_idname = "VRM_UL_vrm1_expression"
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        _context: Context,
+        layout: UILayout,
         data: object,
         _item: object,
         _icon: int,
@@ -61,13 +61,13 @@ class VRM_UL_vrm1_expression(bpy.types.UIList):
         split.prop(expression, "preview", text="Preview")
 
 
-class VRM_UL_vrm1_morph_target_bind(bpy.types.UIList):
+class VRM_UL_vrm1_morph_target_bind(UIList):
     bl_idname = "VRM_UL_vrm1_morph_target_bind"
 
     def draw_item(
         self,
-        context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         icon: int,
@@ -93,7 +93,7 @@ class VRM_UL_vrm1_morph_target_bind(bpy.types.UIList):
         mesh_object = blend_data.objects.get(morph_target_bind.node.mesh_object_name)
         if mesh_object:
             mesh_data = mesh_object.data
-            if isinstance(mesh_data, bpy.types.Mesh):
+            if isinstance(mesh_data, Mesh):
                 shape_keys = mesh_data.shape_keys
                 if shape_keys:
                     keys = shape_keys.key_blocks.keys()
@@ -102,13 +102,13 @@ class VRM_UL_vrm1_morph_target_bind(bpy.types.UIList):
         layout.label(text=name, translate=False, icon="MESH_DATA")
 
 
-class VRM_UL_vrm1_material_color_bind(bpy.types.UIList):
+class VRM_UL_vrm1_material_color_bind(UIList):
     bl_idname = "VRM_UL_vrm0_material_color_bind"
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        _context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         icon: int,
@@ -145,13 +145,13 @@ class VRM_UL_vrm1_material_color_bind(bpy.types.UIList):
         layout.label(text=name, translate=False, icon="MATERIAL")
 
 
-class VRM_UL_vrm1_texture_transform_bind(bpy.types.UIList):
+class VRM_UL_vrm1_texture_transform_bind(UIList):
     bl_idname = "VRM_UL_vrm1_texture_transform_bind"
 
     def draw_item(
         self,
-        _context: bpy.types.Context,
-        layout: bpy.types.UILayout,
+        _context: Context,
+        layout: UILayout,
         _data: object,
         item: object,
         icon: int,

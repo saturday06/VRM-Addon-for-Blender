@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 import bpy
+from bpy.types import Armature, Context, Object, PoseBone
 from mathutils import Euler, Quaternion, Vector
 
 from ..common import version
@@ -23,9 +24,7 @@ logger = get_logger(__name__)
 
 class VrmAnimationExporter:
     @staticmethod
-    def execute(
-        context: bpy.types.Context, path: Path, armature: bpy.types.Object
-    ) -> set[str]:
+    def execute(context: Context, path: Path, armature: Object) -> set[str]:
         return work_in_progress(context, path, armature)
 
 
@@ -58,9 +57,9 @@ def connect_humanoid_node_dicts(
         )
 
 
-def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -> bytes:
+def work_in_progress_2(context: Context, armature: Object) -> bytes:
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         message = "Armature data is not an Armature"
         raise TypeError(message)
     vrm1 = armature_data.vrm_addon_extension.vrm1
@@ -72,7 +71,7 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
     bone_name_to_parent_bone_name_without_non_human_bone: dict[str, str] = {}
     bone_name_to_base_quaternion: dict[str, Quaternion] = {}
 
-    data_path_to_bone_and_property_name: dict[str, tuple[bpy.types.PoseBone, str]] = {}
+    data_path_to_bone_and_property_name: dict[str, tuple[PoseBone, str]] = {}
     frame_to_timestamp_factor = context.scene.render.fps_base / float(
         context.scene.render.fps
     )
@@ -735,11 +734,9 @@ def work_in_progress_2(context: bpy.types.Context, armature: bpy.types.Object) -
     return pack_glb(vrma_dict, buffer0_bytearray)
 
 
-def work_in_progress(
-    context: bpy.types.Context, path: Path, armature: bpy.types.Object
-) -> set[str]:
+def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]:
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
     humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():

@@ -4,6 +4,22 @@ from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.types import (
+    Armature,
+    Bone,
+    Context,
+    Event,
+    Image,
+    Material,
+    Mesh,
+    NodesModifier,
+    Object,
+    Operator,
+    PropertyGroup,
+    ShaderNodeGroup,
+    ShaderNodeTexImage,
+    UILayout,
+)
 from mathutils import Vector
 
 from ..common import shader, version
@@ -19,7 +35,7 @@ from . import migration, search
 logger = get_logger(__name__)
 
 
-class VrmValidationError(bpy.types.PropertyGroup):
+class VrmValidationError(PropertyGroup):
     message: bpy.props.StringProperty()  # type: ignore[valid-type]
     severity: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
 
@@ -30,7 +46,7 @@ class VrmValidationError(bpy.types.PropertyGroup):
         severity: int  # type: ignore[no-redef]
 
 
-class WM_OT_vrm_validator(bpy.types.Operator):
+class WM_OT_vrm_validator(Operator):
     bl_idname = "vrm.model_validate"
     bl_label = "Validate VRM Model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."
@@ -41,7 +57,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     errors: bpy.props.CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
     armature_object_name: bpy.props.StringProperty()  # type: ignore[valid-type]
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         self.detect_errors(
             context,
             self.errors,
@@ -61,7 +77,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             return {"CANCELLED"}
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         self.detect_errors(
             context,
             self.errors,
@@ -76,17 +92,17 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             return {"FINISHED"}
         return context.window_manager.invoke_props_dialog(self, width=800)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         self.draw_errors(self.errors, self.show_successful_message, self.layout)
 
     @staticmethod
     def validate_bone_order_vrm0(
         messages: list[str],
-        armature: bpy.types.Object,
+        armature: Object,
         readonly: bool,
     ) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
@@ -114,11 +130,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     @staticmethod
     def validate_bone_order_vrm1(
         messages: list[str],
-        armature: bpy.types.Object,
+        armature: Object,
         readonly: bool,
     ) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
@@ -151,11 +167,11 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     @staticmethod
     def validate_bone_order(
         messages: list[str],
-        armature: bpy.types.Object,
+        armature: Object,
         readonly: bool,
     ) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         if armature_data.vrm_addon_extension.is_vrm0():
@@ -165,7 +181,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
     @staticmethod
     def detect_errors(
-        context: bpy.types.Context,
+        context: Context,
         error_collection: CollectionPropertyProtocol[VrmValidationError],
         armature_object_name: str,
         execute_migration: bool = False,
@@ -176,7 +192,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
         skippable_warning_messages: list[str] = []
         info_messages: list[str] = []
         armature_count = 0
-        armature: Optional[bpy.types.Object] = None
+        armature: Optional[Object] = None
         node_names: list[str] = []
 
         # export object seeking
@@ -244,7 +260,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 )
             if (
                 obj.type == "MESH"
-                and isinstance(obj.data, bpy.types.Mesh)
+                and isinstance(obj.data, Mesh)
                 and obj.data.shape_keys is not None
                 and len(obj.data.shape_keys.key_blocks)
                 >= 2  # Exclude a "Basis" shape key
@@ -252,7 +268,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     modifier.type != "ARMATURE"
                     and not (
                         modifier.type == "NODES"
-                        and isinstance(modifier, bpy.types.NodesModifier)
+                        and isinstance(modifier, NodesModifier)
                         and modifier.node_group
                         and modifier.node_group.name
                         == shader.OUTLINE_GEOMETRY_GROUP_NAME
@@ -270,12 +286,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             if obj.type == "ARMATURE" and armature_count == 1:
                 armature = obj
                 armature_data = armature.data
-                if not isinstance(armature_data, bpy.types.Armature):
+                if not isinstance(armature_data, Armature):
                     logger.error(f"{type(armature_data)} is not an Armature")
                     continue
                 if execute_migration:
                     migration.migrate(armature.name, defer=False)
-                bone: Optional[bpy.types.Bone] = None
+                bone: Optional[Bone] = None
                 for bone in armature_data.bones:
                     if bone.name in node_names:  # nodes name is unique
                         error_messages.append(
@@ -411,7 +427,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
             if obj.type == "MESH":
                 mesh_data = obj.data
-                if not isinstance(mesh_data, bpy.types.Mesh):
+                if not isinstance(mesh_data, Mesh):
                     logger.error(f"{type(mesh_data)} is not a Mesh")
                     continue
                 for poly in mesh_data.polygons:
@@ -429,7 +445,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
         if (
             armature is not None
-            and isinstance(armature.data, bpy.types.Armature)
+            and isinstance(armature.data, Armature)
             and armature.data.vrm_addon_extension.is_vrm1()
         ):
             error_messages.extend(
@@ -488,14 +504,14 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     )
 
         used_materials = search.export_materials(export_objects)
-        used_images: list[bpy.types.Image] = []
+        used_images: list[Image] = []
         bones_name = []
-        if armature is not None and isinstance(armature.data, bpy.types.Armature):
+        if armature is not None and isinstance(armature.data, Armature):
             bones_name = [b.name for b in armature.data.bones]
         vertex_error_count = 0
 
         for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
-            if not isinstance(mesh.data, bpy.types.Mesh):
+            if not isinstance(mesh.data, Mesh):
                 continue
 
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
@@ -506,7 +522,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                         continue
                     if (
                         armature is not None
-                        and isinstance(armature.data, bpy.types.Armature)
+                        and isinstance(armature.data, Armature)
                         and armature.data.vrm_addon_extension.is_vrm1()
                     ):
                         continue
@@ -558,7 +574,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                 if links:
                     from_node = links[0].from_node
                     if from_node.type == "GROUP" and isinstance(
-                        from_node, bpy.types.ShaderNodeGroup
+                        from_node, ShaderNodeGroup
                     ):
                         node_tree = from_node.node_tree
                         if node_tree and node_tree.get("SHADER") in groups:
@@ -634,7 +650,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
             for texture in gltf.all_textures(
                 downgrade_to_mtoon0=(
                     armature is None
-                    or not isinstance(armature.data, bpy.types.Armature)
+                    or not isinstance(armature.data, Armature)
                     or armature.data.vrm_addon_extension.is_vrm0()
                 )
             ):
@@ -665,7 +681,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
                 if (
                     armature is None
-                    or not isinstance(armature.data, bpy.types.Armature)
+                    or not isinstance(armature.data, Armature)
                     or not armature.data.vrm_addon_extension.is_vrm0()
                     or not source
                 ):
@@ -712,7 +728,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
         if (
             armature is not None
-            and isinstance(armature.data, bpy.types.Armature)
+            and isinstance(armature.data, Armature)
             and armature.data.vrm_addon_extension.is_vrm0()
         ):
             if export_fb_ngon_encoding:
@@ -744,7 +760,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
                     if not mesh_object:
                         continue
                     mesh_data = mesh_object.data
-                    if not isinstance(mesh_data, bpy.types.Mesh):
+                    if not isinstance(mesh_data, Mesh):
                         continue
                     shape_keys = mesh_data.shape_keys
                     if not shape_keys:
@@ -816,7 +832,7 @@ class WM_OT_vrm_validator(bpy.types.Operator):
     def draw_errors(
         error_collection: CollectionPropertyProtocol[VrmValidationError],
         show_successful_message: bool,
-        layout: bpy.types.UILayout,
+        layout: UILayout,
     ) -> None:
         error_errors = []
         warning_errors = []
@@ -889,12 +905,12 @@ class WM_OT_vrm_validator(bpy.types.Operator):
 
 
 def node_material_input_check(
-    node: bpy.types.ShaderNodeGroup,
-    material: bpy.types.Material,
+    node: ShaderNodeGroup,
+    material: Material,
     expect_node_type: str,
     shader_val: str,
     messages: list[str],
-    used_images: list[bpy.types.Image],
+    used_images: list[Image],
 ) -> None:
     # Support models that were loaded by earlier versions (1.3.5 or earlier), which had
     # this typo
@@ -923,9 +939,7 @@ def node_material_input_check(
                     material_name=material.name,
                 )
             )
-        elif expect_node_type == "TEX_IMAGE" and isinstance(
-            n, bpy.types.ShaderNodeTexImage
-        ):
+        elif expect_node_type == "TEX_IMAGE" and isinstance(n, ShaderNodeTexImage):
             if n.image is not None:
                 if n.image not in used_images:
                     used_images.append(n.image)

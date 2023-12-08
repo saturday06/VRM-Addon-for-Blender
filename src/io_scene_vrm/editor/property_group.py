@@ -3,6 +3,7 @@ from collections.abc import Iterator, ValuesView
 from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, overload
 
 import bpy
+from bpy.types import Armature, Bone, Object, PropertyGroup
 
 from ..common.logging import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
@@ -17,7 +18,7 @@ HumanBoneSpecification = TypeVar(
 logger = get_logger(__name__)
 
 
-class StringPropertyGroup(bpy.types.PropertyGroup):
+class StringPropertyGroup(PropertyGroup):
     def get_value(self) -> str:
         value = self.get("value")
         if isinstance(value, str):
@@ -40,7 +41,7 @@ class StringPropertyGroup(bpy.types.PropertyGroup):
         value: str  # type: ignore[no-redef]
 
 
-class FloatPropertyGroup(bpy.types.PropertyGroup):
+class FloatPropertyGroup(PropertyGroup):
     def get_value(self) -> float:
         value = self.get("value")
         if isinstance(value, (float, int)):
@@ -63,7 +64,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):
         value: float  # type: ignore[no-redef]
 
 
-class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
+class MeshObjectPropertyGroup(PropertyGroup):
     def get_mesh_object_name(self) -> str:
         if (
             not self.bpy_object
@@ -108,7 +109,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
     )
 
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object
+        type=Object
     )
 
     if TYPE_CHECKING:
@@ -116,16 +117,16 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
         # `poetry run python tools/property_typing.py`
         mesh_object_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
-        bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
+        bpy_object: Optional[Object]  # type: ignore[no-redef]
 
 
-class BonePropertyGroup(bpy.types.PropertyGroup):
+class BonePropertyGroup(PropertyGroup):
     @staticmethod
     def get_all_bone_property_groups(
-        armature: bpy.types.Object,
+        armature: Object,
     ) -> Iterator["BonePropertyGroup"]:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         ext = armature_data.vrm_addon_extension
         yield ext.vrm0.first_person.first_person_bone
@@ -149,13 +150,13 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
 
     @staticmethod
     def find_bone_candidates(
-        armature_data: bpy.types.Armature,
+        armature_data: Armature,
         target: HumanBoneSpecification,
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     ) -> set[str]:
         bones = armature_data.bones
         result: set[str] = set(bones.keys())
-        remove_bones_tree: set[bpy.types.Bone] = set()
+        remove_bones_tree: set[Bone] = set()
 
         for (
             bpy_bone_name,
@@ -234,7 +235,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
         return ""
 
     def set_bone_name(self, value: object) -> None:
-        armature: Optional[bpy.types.Object] = None
+        armature: Optional[Object] = None
 
         # アーマチュアの複製が行われた場合を考えて
         # self.armature_data_nameの振り直しをする
@@ -257,7 +258,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
             return
 
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             self.armature_data_name = ""
             self.bone_uuid = ""
             return
@@ -303,7 +304,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
         }
 
         for human_bone in ext.vrm0.humanoid.human_bones:
-            if not isinstance(armature.data, bpy.types.Armature):
+            if not isinstance(armature.data, Armature):
                 continue
             human_bone.update_node_candidates(
                 armature.data,
@@ -327,7 +328,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
             human_bone_name,
             human_bone,
         ) in human_bone_name_to_human_bone.items():
-            if not isinstance(armature.data, bpy.types.Armature):
+            if not isinstance(armature.data, Armature):
                 continue
             human_bone.update_node_candidates(
                 armature.data,

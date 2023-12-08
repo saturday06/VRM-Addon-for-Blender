@@ -1,6 +1,7 @@
 import functools
 
 import bpy
+from bpy.types import Armature, Bone, Object
 
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences
@@ -30,7 +31,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     if not armature:
         return False
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return False
 
     ext = armature_data.vrm_addon_extension
@@ -168,7 +169,7 @@ def setup_subscription(load_post: bool) -> None:
         return
     setup_once.append(True)
 
-    object_name_subscribe_to = (bpy.types.Object, "name")
+    object_name_subscribe_to = (Object, "name")
     bpy.msgbus.subscribe_rna(
         key=object_name_subscribe_to,
         owner=object_name_subscription_owner,
@@ -176,7 +177,7 @@ def setup_subscription(load_post: bool) -> None:
         notify=on_change_bpy_object_name,
     )
 
-    object_mode_subscribe_to = (bpy.types.Object, "mode")
+    object_mode_subscribe_to = (Object, "mode")
     bpy.msgbus.subscribe_rna(
         key=object_mode_subscribe_to,
         owner=object_mode_subscription_owner,
@@ -184,7 +185,7 @@ def setup_subscription(load_post: bool) -> None:
         notify=on_change_bpy_object_mode,
     )
 
-    object_location_subscribe_to = (bpy.types.Object, "location")
+    object_location_subscribe_to = (Object, "location")
     bpy.msgbus.subscribe_rna(
         key=object_location_subscribe_to,
         owner=object_location_subscription_owner,
@@ -192,7 +193,7 @@ def setup_subscription(load_post: bool) -> None:
         notify=on_change_bpy_object_location,
     )
 
-    bone_name_subscribe_to = (bpy.types.Bone, "name")
+    bone_name_subscribe_to = (Bone, "name")
     bpy.msgbus.subscribe_rna(
         key=bone_name_subscribe_to,
         owner=bone_name_subscription_owner,
@@ -200,7 +201,7 @@ def setup_subscription(load_post: bool) -> None:
         notify=on_change_bpy_bone_name,
     )
 
-    armature_name_subscribe_to = (bpy.types.Armature, "name")
+    armature_name_subscribe_to = (Armature, "name")
     bpy.msgbus.subscribe_rna(
         key=armature_name_subscribe_to,
         owner=armature_name_subscription_owner,

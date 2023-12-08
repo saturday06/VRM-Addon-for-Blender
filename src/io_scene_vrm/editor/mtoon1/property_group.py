@@ -5,6 +5,14 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Union
 
 import bpy
+from bpy.types import (
+    Context,
+    Image,
+    Material,
+    PropertyGroup,
+    ShaderNodeGroup,
+    ShaderNodeTexImage,
+)
 from mathutils import Vector
 
 from ...common import shader
@@ -18,8 +26,8 @@ logger = get_logger(__name__)
 MTOON1_OUTPUT_NODE_GROUP_NAME = "Mtoon1Material.Mtoon1Output"
 
 
-class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
-    def find_material(self) -> bpy.types.Material:
+class MaterialTraceablePropertyGroup(PropertyGroup):
+    def find_material(self) -> Material:
         if self.id_data and self.id_data.is_evaluated:
             logger.error(f"{self} is evaluated. May cause a problem.")
 
@@ -51,7 +59,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
 
     @classmethod
     def find_outline_property_group(
-        cls, material: bpy.types.Material
+        cls, material: Material
     ) -> Optional["MaterialTraceablePropertyGroup"]:
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return None
@@ -94,7 +102,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
             (
                 node
                 for node in node_tree.nodes
-                if isinstance(node, bpy.types.ShaderNodeGroup)
+                if isinstance(node, ShaderNodeGroup)
                 and node.node_tree
                 and node.node_tree.name == node_group_name
             ),
@@ -158,7 +166,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
             (
                 node
                 for node in node_tree.nodes
-                if isinstance(node, bpy.types.ShaderNodeGroup)
+                if isinstance(node, ShaderNodeGroup)
                 and node.node_tree
                 and node.node_tree.name == node_group_name
             ),
@@ -203,7 +211,7 @@ class MaterialTraceablePropertyGroup(bpy.types.PropertyGroup):
             (
                 node
                 for node in node_tree.nodes
-                if isinstance(node, bpy.types.ShaderNodeGroup)
+                if isinstance(node, ShaderNodeGroup)
                 and node.node_tree
                 and node.node_tree.name == node_group_name
             ),
@@ -252,7 +260,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
     @staticmethod
     def link_tex_image_to_node_group(
-        material: bpy.types.Material,
+        material: Material,
         tex_image_node_name: str,
         tex_image_node_socket_name: str,
         node_group_node_tree_name: str,
@@ -264,11 +272,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         if any(
             1
             for link in material.node_tree.links
-            if isinstance(link.from_node, bpy.types.ShaderNodeTexImage)
+            if isinstance(link.from_node, ShaderNodeTexImage)
             and link.from_node.name == tex_image_node_name
             and link.from_socket
             and link.from_socket.name == tex_image_node_socket_name
-            and isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+            and isinstance(link.to_node, ShaderNodeGroup)
             and link.to_node.node_tree
             and link.to_node.node_tree.name == node_group_node_tree_name
             and link.to_socket
@@ -280,7 +288,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             (
                 link
                 for link in material.node_tree.links
-                if isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+                if isinstance(link.to_node, ShaderNodeGroup)
                 and link.to_node.node_tree
                 and link.to_node.node_tree.name == node_group_node_tree_name
                 and link.to_socket
@@ -295,13 +303,13 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             (
                 n
                 for n in material.node_tree.nodes
-                if isinstance(n, bpy.types.ShaderNodeGroup)
+                if isinstance(n, ShaderNodeGroup)
                 and n.node_tree
                 and n.node_tree.name == node_group_node_tree_name
             ),
             None,
         )
-        if not isinstance(in_node, bpy.types.ShaderNodeGroup):
+        if not isinstance(in_node, ShaderNodeGroup):
             logger.error(f'No shader node group with "{node_group_node_tree_name}"')
             return
 
@@ -311,7 +319,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             return
 
         out_node = material.node_tree.nodes.get(tex_image_node_name)
-        if not isinstance(out_node, bpy.types.ShaderNodeTexImage):
+        if not isinstance(out_node, ShaderNodeTexImage):
             logger.error(f"No tex image node: {tex_image_node_name}")
             return
 
@@ -324,7 +332,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
     @staticmethod
     def unlink_tex_image_to_node_group(
-        material: bpy.types.Material,
+        material: Material,
         tex_image_node_name: str,
         tex_image_node_socket_name: str,
         node_group_node_tree_name: str,
@@ -339,11 +347,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 (
                     link
                     for link in material.node_tree.links
-                    if isinstance(link.from_node, bpy.types.ShaderNodeTexImage)
+                    if isinstance(link.from_node, ShaderNodeTexImage)
                     and link.from_node.name == tex_image_node_name
                     and link.from_socket
                     and link.from_socket.name == tex_image_node_socket_name
-                    and isinstance(link.to_node, bpy.types.ShaderNodeGroup)
+                    and isinstance(link.to_node, ShaderNodeGroup)
                     and link.to_node.node_tree
                     and link.to_node.node_tree.name == node_group_node_tree_name
                     and link.to_socket
@@ -359,7 +367,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     @staticmethod
     def connect_tex_image_to_node_group(
         link: bool,
-        material: bpy.types.Material,
+        material: Material,
         tex_image_node_name: str,
         tex_image_node_socket_name: str,
         node_group_node_tree_name: str,
@@ -382,7 +390,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 node_group_socket_name,
             )
 
-    def update_image(self, image: Optional[bpy.types.Image]) -> None:
+    def update_image(self, image: Optional[Image]) -> None:
         material = self.find_material()
 
         outline = self.find_outline_property_group(material)
@@ -396,7 +404,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         node_name = self.get_texture_node_name("Image")
 
         node = node_tree.nodes.get(node_name)
-        if not isinstance(node, bpy.types.ShaderNodeTexImage):
+        if not isinstance(node, ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
 
@@ -440,7 +448,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             return
         node_tree = material.node_tree
         node = node_tree.nodes.get(node_name)
-        if not isinstance(node, bpy.types.ShaderNodeGroup):
+        if not isinstance(node, ShaderNodeGroup):
             logger.warning(f'No shader node group "{node_name}"')
             return
         socket = node.inputs.get(name)
@@ -463,7 +471,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
 
 class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
-    def update_texture_offset(self, _context: bpy.types.Context) -> None:
+    def update_texture_offset(self, _context: Context) -> None:
         self.set_texture_uv("UV Offset X", self.offset[0])
         self.set_texture_uv("UV Offset Y", self.offset[1])
 
@@ -472,7 +480,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         if not material.node_tree:
             return
         node = material.node_tree.nodes.get(node_name)
-        if not isinstance(node, bpy.types.ShaderNodeTexImage):
+        if not isinstance(node, ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
         node.texture_mapping.translation = Vector((0, 0, 0))
@@ -484,7 +492,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
             return
         outline.update_texture_offset(_context)
 
-    def update_texture_scale(self, _context: bpy.types.Context) -> None:
+    def update_texture_scale(self, _context: Context) -> None:
         self.set_texture_uv("UV Scale X", self.scale[0])
         self.set_texture_uv("UV Scale Y", self.scale[1])
 
@@ -493,7 +501,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         if not material.node_tree:
             return
         node = material.node_tree.nodes.get(node_name)
-        if not isinstance(node, bpy.types.ShaderNodeTexImage):
+        if not isinstance(node, ShaderNodeTexImage):
             logger.warning(f'No shader node tex image "{node_name}"')
             return
         node.texture_mapping.scale = Vector((1, 1, 1))
@@ -616,14 +624,14 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         "khr_texture_transform",
     )
 
-    def update_texture_offset_and_outline(self, context: bpy.types.Context) -> None:
+    def update_texture_offset_and_outline(self, context: Context) -> None:
         material = self.find_material()
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
         self.update_texture_offset(context)
         bpy.ops.vrm.refresh_mtoon1_outline(material_name=material.name)
 
-    def update_texture_scale_and_outline(self, context: bpy.types.Context) -> None:
+    def update_texture_scale_and_outline(self, context: Context) -> None:
         material = self.find_material()
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
@@ -663,7 +671,7 @@ class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
     )
 
 
-class Mtoon1TextureInfoExtensionsPropertyGroup(bpy.types.PropertyGroup):
+class Mtoon1TextureInfoExtensionsPropertyGroup(PropertyGroup):
     pass
 
 
@@ -875,11 +883,11 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     WRAP_NUMBER_TO_ID: Mapping[int, str] = {wrap[-1]: wrap[0] for wrap in wrap_items}
     WRAP_ID_TO_NUMBER: Mapping[str, int] = {wrap[0]: wrap[-1] for wrap in wrap_items}
 
-    def update_wrap_s(self, _context: bpy.types.Context) -> None:
+    def update_wrap_s(self, _context: Context) -> None:
         wrap_s = self.WRAP_ID_TO_NUMBER.get(self.wrap_s, self.WRAP_DEFAULT_NUMBER)
         self.set_texture_uv("Wrap S", wrap_s)
 
-    def update_wrap_t(self, _context: bpy.types.Context) -> None:
+    def update_wrap_t(self, _context: Context) -> None:
         wrap_t = self.WRAP_ID_TO_NUMBER.get(self.wrap_t, self.WRAP_DEFAULT_NUMBER)
         self.set_texture_uv("Wrap T", wrap_t)
 
@@ -1004,11 +1012,11 @@ class Mtoon1UvAnimationMaskSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
 class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
     colorspace = "sRGB"
 
-    def update_source(self, _context: bpy.types.Context) -> None:
+    def update_source(self, _context: Context) -> None:
         self.update_image(self.source)
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Image,
+        type=Image,
         update=update_source,
     )
 
@@ -1019,7 +1027,7 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        source: Optional[bpy.types.Image]  # type: ignore[no-redef]
+        source: Optional[Image]  # type: ignore[no-redef]
         sampler: Mtoon1SamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1184,7 +1192,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
     panel_label = label
     colorspace = "Non-Color"
 
-    def update_source(self, context: bpy.types.Context) -> None:
+    def update_source(self, context: Context) -> None:
         ext = self.find_material().vrm_addon_extension
         mtoon = ext.mtoon1.extensions.vrmc_materials_mtoon
         mtoon.update_outline_geometry(context)
@@ -1238,7 +1246,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     @dataclass(frozen=True)
     class TextureInfoBackup:
-        source: bpy.types.Image
+        source: Image
         mag_filter: str
         min_filter: str
         wrap_s: str
@@ -1326,7 +1334,7 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         type=Mtoon1NormalTexturePropertyGroup
     )
 
-    def update_scale(self, _context: bpy.types.Context) -> None:
+    def update_scale(self, _context: Context) -> None:
         self.set_value(self.node_group_name, "Normal Map Texture Scale", self.scale)
 
     scale: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -1362,7 +1370,7 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
         type=Mtoon1ShadingShiftTexturePropertyGroup
     )
 
-    def update_scale(self, _context: bpy.types.Context) -> None:
+    def update_scale(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Shading Shift Texture Scale", self.scale
         )
@@ -1486,7 +1494,7 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
         )
 
 
-class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):
+class Mtoon0SamplerPropertyGroup(PropertyGroup):
     mag_filter: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Mtoon1SamplerPropertyGroup.mag_filter_items,
         name="Mag Filter",
@@ -1518,11 +1526,11 @@ class Mtoon0SamplerPropertyGroup(bpy.types.PropertyGroup):
         wrap_t: str  # type: ignore[no-redef]
 
 
-class Mtoon0TexturePropertyGroup(bpy.types.PropertyGroup):
+class Mtoon0TexturePropertyGroup(PropertyGroup):
     colorspace = "sRGB"
 
     source: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Image,
+        type=Image,
     )
 
     sampler: bpy.props.PointerProperty(  # type: ignore[valid-type]
@@ -1534,7 +1542,7 @@ class Mtoon0TexturePropertyGroup(bpy.types.PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        source: Optional[bpy.types.Image]  # type: ignore[no-redef]
+        source: Optional[Image]  # type: ignore[no-redef]
         sampler: Mtoon0SamplerPropertyGroup  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
 
@@ -1555,7 +1563,7 @@ class Mtoon0ShadingGradeTexturePropertyGroup(Mtoon0TexturePropertyGroup):
 class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ("pbr_metallic_roughness",)
 
-    def update_base_color_factor(self, _context: bpy.types.Context) -> None:
+    def update_base_color_factor(self, _context: Context) -> None:
         self.set_rgba(shader.OUTPUT_GROUP_NAME, "Lit Color", self.base_color_factor)
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Lit Color Alpha", self.base_color_factor[3]
@@ -1586,7 +1594,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ("extensions", "vrmc_materials_mtoon")
 
-    def update_transparent_with_z_write(self, _context: bpy.types.Context) -> None:
+    def update_transparent_with_z_write(self, _context: Context) -> None:
         self.set_bool(
             shader.OUTPUT_GROUP_NAME,
             "Transparent With Z-Write",
@@ -1604,7 +1612,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_transparent_with_z_write,
     )
 
-    def update_render_queue_offset_number(self, _context: bpy.types.Context) -> None:
+    def update_render_queue_offset_number(self, _context: Context) -> None:
         self.set_int(
             shader.OUTPUT_GROUP_NAME,
             "Render Queue Offset Number",
@@ -1623,7 +1631,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1ShadeMultiplyTextureInfoPropertyGroup
     )
 
-    def update_shade_color_factor(self, _context: bpy.types.Context) -> None:
+    def update_shade_color_factor(self, _context: Context) -> None:
         self.set_rgb(shader.OUTPUT_GROUP_NAME, "Shade Color", self.shade_color_factor)
 
     shade_color_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -1639,7 +1647,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1ShadingShiftTextureInfoPropertyGroup
     )
 
-    def update_shading_shift_factor(self, _context: bpy.types.Context) -> None:
+    def update_shading_shift_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Shading Shift", self.shading_shift_factor
         )
@@ -1652,7 +1660,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_shading_shift_factor,
     )
 
-    def update_shading_toony_factor(self, _context: bpy.types.Context) -> None:
+    def update_shading_toony_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Shading Toony", self.shading_toony_factor
         )
@@ -1665,7 +1673,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_shading_toony_factor,
     )
 
-    def update_gi_equalization_factor(self, _context: bpy.types.Context) -> None:
+    def update_gi_equalization_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             "GI Equalization Factor",
@@ -1680,7 +1688,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_gi_equalization_factor,
     )
 
-    def update_matcap_factor(self, _context: bpy.types.Context) -> None:
+    def update_matcap_factor(self, _context: Context) -> None:
         self.set_rgb(shader.OUTPUT_GROUP_NAME, "MatCap Factor", self.matcap_factor)
 
     matcap_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -1696,7 +1704,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1MatcapTextureInfoPropertyGroup
     )
 
-    def update_parametric_rim_color_factor(self, _context: bpy.types.Context) -> None:
+    def update_parametric_rim_color_factor(self, _context: Context) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME,
             "Parametric Rim Color",
@@ -1717,7 +1725,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1RimMultiplyTextureInfoPropertyGroup
     )
 
-    def update_rim_lighting_mix_factor(self, _context: bpy.types.Context) -> None:
+    def update_rim_lighting_mix_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Rim LightingMix", self.rim_lighting_mix_factor
         )
@@ -1729,9 +1737,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_rim_lighting_mix_factor,
     )
 
-    def update_parametric_rim_fresnel_power_factor(
-        self, _context: bpy.types.Context
-    ) -> None:
+    def update_parametric_rim_fresnel_power_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             "Parametric Rim Fresnel Power",
@@ -1746,7 +1752,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_parametric_rim_fresnel_power_factor,
     )
 
-    def update_parametric_rim_lift_factor(self, _context: bpy.types.Context) -> None:
+    def update_parametric_rim_lift_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             "Parametric Rim Lift",
@@ -1774,7 +1780,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         for outline_width_mode_item in outline_width_mode_items
     )
 
-    def update_outline_geometry(self, _context: bpy.types.Context) -> None:
+    def update_outline_geometry(self, _context: Context) -> None:
         material = self.find_material()
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
@@ -1788,7 +1794,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_outline_geometry,
     )
 
-    def update_outline_width_factor(self, context: bpy.types.Context) -> None:
+    def update_outline_width_factor(self, context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Outline Width", self.outline_width_factor
         )
@@ -1805,7 +1811,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup
     )
 
-    def update_outline_color_factor(self, context: bpy.types.Context) -> None:
+    def update_outline_color_factor(self, context: Context) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME, "Outline Color", self.outline_color_factor
         )
@@ -1821,7 +1827,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_outline_color_factor,
     )
 
-    def update_outline_lighting_mix_factor(self, context: bpy.types.Context) -> None:
+    def update_outline_lighting_mix_factor(self, context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             "Outline LightingMix",
@@ -1841,9 +1847,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup
     )
 
-    def update_uv_animation_scroll_x_speed_factor(
-        self, _context: bpy.types.Context
-    ) -> None:
+    def update_uv_animation_scroll_x_speed_factor(self, _context: Context) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
             "Translate X",
@@ -1855,9 +1859,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_uv_animation_scroll_x_speed_factor,
     )
 
-    def update_uv_animation_scroll_y_speed_factor(
-        self, _context: bpy.types.Context
-    ) -> None:
+    def update_uv_animation_scroll_y_speed_factor(self, _context: Context) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
             "Translate Y",
@@ -1869,9 +1871,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_uv_animation_scroll_y_speed_factor,
     )
 
-    def update_uv_animation_rotation_speed_factor(
-        self, _context: bpy.types.Context
-    ) -> None:
+    def update_uv_animation_rotation_speed_factor(self, _context: Context) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
             "Rotation",
@@ -1929,7 +1929,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         "khr_materials_emissive_strength",
     )
 
-    def update_emissive_strength(self, _context: bpy.types.Context) -> None:
+    def update_emissive_strength(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Emissive Strength", self.emissive_strength
         )
@@ -1947,7 +1947,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         emissive_strength: float  # type: ignore[no-redef]
 
 
-class Mtoon1MaterialExtensionsPropertyGroup(bpy.types.PropertyGroup):
+class Mtoon1MaterialExtensionsPropertyGroup(PropertyGroup):
     vrmc_materials_mtoon: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1VrmcMaterialsMtoonPropertyGroup
     )
@@ -1997,7 +1997,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     alpha_mode_blend_method_hashed: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     def get_alpha_mode(self) -> int:
-        # https://docs.blender.org/api/2.93/bpy.types.Material.html#bpy.types.Material.blend_method
+        # https://docs.blender.org/api/2.93/Material.html#Material.blend_method
         blend_method = self.find_material().blend_method
         if blend_method == "OPAQUE":
             return self.ALPHA_MODE_OPAQUE_VALUE
@@ -2100,7 +2100,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1EmissiveTextureInfoPropertyGroup
     )
 
-    def update_emissive_factor(self, _context: bpy.types.Context) -> None:
+    def update_emissive_factor(self, _context: Context) -> None:
         self.set_rgb(shader.OUTPUT_GROUP_NAME, "Emissive Factor", self.emissive_factor)
 
     emissive_factor: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
@@ -2116,7 +2116,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1MaterialExtensionsPropertyGroup
     )
 
-    def get_enabled_in_material(self, material: bpy.types.Material) -> bool:
+    def get_enabled_in_material(self, material: Material) -> bool:
         if self.is_outline_material:
             return False
         if not material.use_nodes:
@@ -2126,7 +2126,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         group_node = material.node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
         if (
-            isinstance(group_node, bpy.types.ShaderNodeGroup)
+            isinstance(group_node, ShaderNodeGroup)
             and group_node.node_tree
             and group_node.node_tree.name == shader.OUTPUT_GROUP_NAME
         ):
@@ -2166,7 +2166,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         name="Export Shape Key Normals",
     )
 
-    def update_is_outline_material(self, _context: bpy.types.Context) -> None:
+    def update_is_outline_material(self, _context: Context) -> None:
         self.set_bool(shader.OUTPUT_GROUP_NAME, "Is Outline", self.is_outline_material)
         self.set_bool(
             shader.NORMAL_GROUP_NAME,
@@ -2184,7 +2184,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     outline_material: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Material,
+        type=Material,
     )
 
     def all_texture_info(self) -> list[Mtoon1TextureInfoPropertyGroup]:
@@ -2283,7 +2283,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         max=1,
     )
 
-    def update_mtoon0_render_queue(self, _context: bpy.types.Context) -> None:
+    def update_mtoon0_render_queue(self, _context: Context) -> None:
         # https://github.com/Santarh/MToon/blob/42b03163459ac8e6b7aee08070d0f4f912035069/MToon/Scripts/Utils.cs#L74-L113
         if self.alpha_mode == self.ALPHA_MODE_OPAQUE:
             mtoon0_render_queue = 2000
@@ -2322,7 +2322,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         enabled: bool  # type: ignore[no-redef]
         export_shape_key_normals: bool  # type: ignore[no-redef]
         is_outline_material: bool  # type: ignore[no-redef]
-        outline_material: Optional[bpy.types.Material]  # type: ignore[no-redef]
+        outline_material: Optional[Material]  # type: ignore[no-redef]
         show_expanded_mtoon0: bool  # type: ignore[no-redef]
         mtoon0_front_cull_mode: bool  # type: ignore[no-redef]
         mtoon0_outline_scaled_max_distance: float  # type: ignore[no-redef]
@@ -2340,8 +2340,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
 
 def reset_shader_node_group(
-    context: bpy.types.Context,
-    material: bpy.types.Material,
+    context: Context,
+    material: Material,
     reset_node_tree: bool,
     overwrite: bool,
 ) -> None:

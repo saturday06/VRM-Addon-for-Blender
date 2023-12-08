@@ -6,6 +6,25 @@ from typing import Union
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.types import (
+    AddonPreferences,
+    Armature,
+    Bone,
+    Header,
+    KeyingSetInfo,
+    Material,
+    Menu,
+    Object,
+    Operator,
+    Panel,
+    PropertyGroup,
+    RenderEngine,
+    Scene,
+    TOPBAR_MT_file_export,
+    TOPBAR_MT_file_import,
+    UIList,
+    VIEW3D_MT_armature_add,
+)
 
 from .common import preferences, shader
 from .common.logging import get_logger
@@ -99,15 +118,15 @@ def save_pre(_dummy: object) -> None:
 
 classes: list[
     Union[
-        type[bpy.types.Panel],
-        type[bpy.types.UIList],
-        type[bpy.types.Menu],
-        type[bpy.types.Header],
-        type[bpy.types.Operator],
-        type[bpy.types.KeyingSetInfo],
-        type[bpy.types.RenderEngine],
-        type[bpy.types.AddonPreferences],
-        type[bpy.types.PropertyGroup],
+        type[Panel],
+        type[UIList],
+        type[Menu],
+        type[Header],
+        type[Operator],
+        type[KeyingSetInfo],
+        type[RenderEngine],
+        type[AddonPreferences],
+        type[PropertyGroup],
     ]
 ] = [
     io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,
@@ -379,30 +398,30 @@ def register(name: object, init_addon_version: object) -> None:
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Material.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Material.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonMaterialExtensionPropertyGroup
     )
 
-    bpy.types.Scene.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Scene.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonSceneExtensionPropertyGroup
     )
 
-    bpy.types.Bone.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Bone.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonBoneExtensionPropertyGroup
     )
 
-    bpy.types.Armature.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Armature.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonArmatureExtensionPropertyGroup
     )
 
-    bpy.types.Object.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Object.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonObjectExtensionPropertyGroup
     )
 
-    bpy.types.TOPBAR_MT_file_import.append(import_scene.menu_import)
-    bpy.types.TOPBAR_MT_file_export.append(export_scene.menu_export)
-    bpy.types.VIEW3D_MT_armature_add.append(panel.add_armature)
-    # bpy.types.VIEW3D_MT_mesh_add.append(panel.make_mesh)
+    TOPBAR_MT_file_import.append(import_scene.menu_import)
+    TOPBAR_MT_file_export.append(export_scene.menu_export)
+    VIEW3D_MT_armature_add.append(panel.add_armature)
+    # VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
     bpy.app.handlers.load_post.append(load_post)
     bpy.app.handlers.depsgraph_update_pre.append(
@@ -455,25 +474,25 @@ def unregister() -> None:
         )
     bpy.app.handlers.load_post.remove(load_post)
 
-    # bpy.types.VIEW3D_MT_mesh_add.remove(panel.make_mesh)
-    bpy.types.VIEW3D_MT_armature_add.remove(panel.add_armature)
-    bpy.types.TOPBAR_MT_file_export.remove(export_scene.menu_export)
-    bpy.types.TOPBAR_MT_file_import.remove(import_scene.menu_import)
+    # VIEW3D_MT_mesh_add.remove(panel.make_mesh)
+    VIEW3D_MT_armature_add.remove(panel.add_armature)
+    TOPBAR_MT_file_export.remove(export_scene.menu_export)
+    TOPBAR_MT_file_import.remove(import_scene.menu_import)
 
-    if hasattr(bpy.types.Object, "vrm_addon_extension"):
-        del bpy.types.Object.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+    if hasattr(Object, "vrm_addon_extension"):
+        del Object.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
-    if hasattr(bpy.types.Armature, "vrm_addon_extension"):
-        del bpy.types.Armature.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+    if hasattr(Armature, "vrm_addon_extension"):
+        del Armature.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
-    if hasattr(bpy.types.Bone, "vrm_addon_extension"):
-        del bpy.types.Bone.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+    if hasattr(Bone, "vrm_addon_extension"):
+        del Bone.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
-    if hasattr(bpy.types.Scene, "vrm_addon_extension"):
-        del bpy.types.Scene.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+    if hasattr(Scene, "vrm_addon_extension"):
+        del Scene.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
-    if hasattr(bpy.types.Material, "vrm_addon_extension"):
-        del bpy.types.Material.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+    if hasattr(Material, "vrm_addon_extension"):
+        del Material.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
 
     for cls in reversed(classes):
         try:

@@ -15,6 +15,19 @@ from typing import Optional, Union
 
 import bmesh
 import bpy
+from bmesh.types import BMesh, BMLoop
+from bpy.types import (
+    Armature,
+    Context,
+    Image,
+    Material,
+    Mesh,
+    Node,
+    NodesModifier,
+    Object,
+    PoseBone,
+    ShaderNodeTexImage,
+)
 from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
@@ -79,8 +92,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def __init__(
         self,
-        context: bpy.types.Context,
-        export_objects: list[bpy.types.Object],
+        context: Context,
+        export_objects: list[Object],
         export_fb_ngon_encoding: bool,
     ) -> None:
         super().__init__(context)
@@ -112,12 +125,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         self.result: Optional[bytes] = None
 
     @property
-    def armature_data(self) -> bpy.types.Armature:
+    def armature_data(self) -> Armature:
         if not self.armature:
             message = "armature is not set"
             raise AssertionError(message)
         armature_data = self.armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         return armature_data
@@ -183,7 +196,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if (
                     not modifier
                     or modifier.type != "NODES"
-                    or not isinstance(modifier, bpy.types.NodesModifier)
+                    or not isinstance(modifier, NodesModifier)
                     or not modifier.node_group
                     or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
                 ):
@@ -211,7 +224,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if (
                     not modifier
                     or modifier.type != "NODES"
-                    or not isinstance(modifier, bpy.types.NodesModifier)
+                    or not isinstance(modifier, NodesModifier)
                     or not modifier.node_group
                     or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
                 ):
@@ -221,7 +234,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def image_to_bin(self) -> None:
         # collect used image
-        used_images: list[bpy.types.Image] = []
+        used_images: list[Image] = []
         used_materials = search.export_materials(self.export_objects)
         for mat in used_materials:
             mat.pop("vrm_shader", None)
@@ -255,7 +268,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         if node.inputs[shader_vals + "_alpha"].links:
                             n = node.inputs[shader_vals + "_alpha"].links[0].from_node
                             if (
-                                isinstance(n, bpy.types.ShaderNodeTexImage)
+                                isinstance(n, ShaderNodeTexImage)
                                 and n.image
                                 and n.image not in used_images
                             ):
@@ -263,7 +276,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     elif node.inputs[shader_vals].links:
                         n = node.inputs[shader_vals].links[0].from_node
                         if (
-                            isinstance(n, bpy.types.ShaderNodeTexImage)
+                            isinstance(n, ShaderNodeTexImage)
                             and n.image
                             and n.image not in used_images
                         ):
@@ -274,7 +287,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     if node.inputs[k].links:
                         n = node.inputs[k].links[0].from_node
                         if (
-                            isinstance(n, bpy.types.ShaderNodeTexImage)
+                            isinstance(n, ShaderNodeTexImage)
                             and n.image
                             and n.image not in used_images
                         ):
@@ -285,7 +298,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if node.inputs["Main_Texture"].links:
                     n = node.inputs["Main_Texture"].links[0].from_node
                     if (
-                        isinstance(n, bpy.types.ShaderNodeTexImage)
+                        isinstance(n, ShaderNodeTexImage)
                         and n.image
                         and n.image not in used_images
                     ):
@@ -329,7 +342,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             b.name: bone_id for bone_id, b in enumerate(self.armature.pose.bones)
         }
 
-        def bone_to_node(b_bone: bpy.types.PoseBone) -> dict[str, Json]:
+        def bone_to_node(b_bone: PoseBone) -> dict[str, Json]:
             if b_bone.parent is not None:
                 world_head = (
                     self.armature.matrix_world @ Matrix.Translation(b_bone.head)
@@ -524,7 +537,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         # function separate by shader
         def pbr_fallback(
-            b_mat: bpy.types.Material,
+            b_mat: Material,
             base_color: Optional[Sequence[float]] = None,
             metalness: Optional[float] = None,
             roughness: Optional[float] = None,
@@ -634,7 +647,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 keyword_map["MTOON_OUTLINE_COLOR_MIXED"] = color_mixed
 
         def make_mtoon_unversioned_extension_dict(
-            b_mat: bpy.types.Material, mtoon_shader_node: bpy.types.Node
+            b_mat: Material, mtoon_shader_node: Node
         ) -> tuple[dict[str, Json], dict[str, Json]]:
             mtoon_dict: dict[str, Json] = {}
             mtoon_dict["name"] = b_mat.name
@@ -850,7 +863,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             return mtoon_dict, pbr_dict
 
         def make_gltf_mat_dict(
-            b_mat: bpy.types.Material, gltf_shader_node: bpy.types.Node
+            b_mat: Material, gltf_shader_node: Node
         ) -> tuple[dict[str, Json], dict[str, Json]]:
             gltf_dict: dict[str, Json] = {}
             gltf_dict["name"] = b_mat.name
@@ -919,7 +932,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             return gltf_dict, pbr_dict
 
         def make_transzw_mat_dict(
-            b_mat: bpy.types.Material, transzw_shader_node: bpy.types.Node
+            b_mat: Material, transzw_shader_node: Node
         ) -> tuple[dict[str, Json], dict[str, Json]]:
             zw_dict: dict[str, Json] = {}
             zw_dict["name"] = b_mat.name
@@ -1051,7 +1064,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             return make_json(texture_info)
 
         def make_non_vrm_mat_dict(
-            b_mat: bpy.types.Material,
+            b_mat: Material,
         ) -> tuple[dict[str, Json], dict[str, Json]]:
             vrm_dict: dict[str, Json] = {
                 "name": b_mat.name,
@@ -1286,7 +1299,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             return texture_info_dict
 
         def make_mtoon1_downgraded_mat_dict(
-            b_mat: bpy.types.Material,
+            b_mat: Material,
         ) -> tuple[dict[str, Json], dict[str, Json]]:
             gltf = b_mat.vrm_addon_extension.mtoon1
             mtoon = gltf.extensions.vrmc_materials_mtoon
@@ -1637,7 +1650,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def fetch_morph_vertex_normal_difference(
-        mesh_data: bpy.types.Mesh,
+        mesh_data: Mesh,
     ) -> dict[str, list[list[float]]]:
         exclusion_vertex_indices: set[int] = set()
         for polygon in mesh_data.polygons:
@@ -1715,7 +1728,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             morph_normal_diff_dict.update({k: values})
         return morph_normal_diff_dict
 
-    def is_skin_mesh(self, mesh: bpy.types.Object) -> bool:
+    def is_skin_mesh(self, mesh: Object) -> bool:
         while mesh:
             if [True for m in mesh.modifiers if m.type == "ARMATURE"]:
                 return True
@@ -1754,8 +1767,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     #   (例: 鈍角三角形の底辺を接合した4角形)
     @staticmethod
     def tessface_fan(
-        bm: bmesh.types.BMesh, export_fb_ngon_encoding: bool
-    ) -> list[tuple[int, tuple[bmesh.types.BMLoop, ...]]]:
+        bm: BMesh, export_fb_ngon_encoding: bool
+    ) -> list[tuple[int, tuple[BMLoop, ...]]]:
         if not export_fb_ngon_encoding:
             return [
                 (loops[0].face.material_index, loops)
@@ -1769,7 +1782,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             faces,
             key=lambda f: f.material_index,
         )
-        polys: list[tuple[int, tuple[bmesh.types.BMLoop, ...]]] = []
+        polys: list[tuple[int, tuple[BMLoop, ...]]] = []
         for face in sorted_faces:
             if len(face.loops) <= 3:
                 if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
@@ -1926,7 +1939,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if self.context.view_layer.objects.active is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
 
-            # https://docs.blender.org/api/2.80/bpy.types.Depsgraph.html
+            # https://docs.blender.org/api/2.80/Depsgraph.html
             depsgraph = self.context.evaluated_depsgraph_get()
             mesh_owner = mesh.evaluated_get(depsgraph)
             mesh_from_mesh_owner = mesh_owner.to_mesh(
@@ -1935,7 +1948,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if not mesh_from_mesh_owner:
                 continue
             mesh_data = mesh_from_mesh_owner.copy()
-            if isinstance(mesh.data, bpy.types.Mesh):
+            if isinstance(mesh.data, Mesh):
                 for prop in mesh.data.keys():
                     mesh_data[prop] = mesh.data[prop]
 
@@ -2129,7 +2142,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
                             # Attach near bone
                             bone_name: Optional[str] = None
-                            mesh_parent: Optional[bpy.types.Object] = mesh
+                            mesh_parent: Optional[Object] = mesh
                             while (
                                 mesh_parent
                                 and mesh_parent.type
@@ -2570,7 +2583,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             mesh_object = bpy.data.objects.get(mesh_annotation.mesh.mesh_object_name)
             if mesh_object:
                 mesh_data = mesh_object.data
-                if isinstance(mesh_data, bpy.types.Mesh):
+                if isinstance(mesh_data, Mesh):
                     mesh_index = next(
                         (
                             i

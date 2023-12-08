@@ -5,6 +5,7 @@ from sys import float_info
 from typing import TYPE_CHECKING, Optional
 
 import bpy
+from bpy.types import Armature, Context, Object, PropertyGroup
 from mathutils import Matrix, Vector
 
 from ...common import convert
@@ -18,15 +19,15 @@ logger = get_logger(__name__)
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L7-L27
-class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
     def find_armature_and_collider(
         self,
-    ) -> tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
+    ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
         for obj in bpy.data.objects:
             if obj.type != "ARMATURE":
                 continue
             armature_data = obj.data
-            if not isinstance(armature_data, bpy.types.Armature):
+            if not isinstance(armature_data, Armature):
                 continue
             for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.shape.sphere == self:
@@ -118,15 +119,15 @@ class SpringBone1ColliderShapeSpherePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L28-L58
-class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
     def find_armature_and_collider(
         self,
-    ) -> tuple[bpy.types.Object, "SpringBone1ColliderPropertyGroup"]:
+    ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
         for obj in bpy.data.objects:
             if obj.type != "ARMATURE":
                 continue
             armature_data = obj.data
-            if not isinstance(armature_data, bpy.types.Armature):
+            if not isinstance(armature_data, Armature):
                 continue
             for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.shape.capsule == self:
@@ -266,7 +267,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json
-class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1ColliderShapePropertyGroup(PropertyGroup):
     sphere: bpy.props.PointerProperty(  # type: ignore[valid-type]
         type=SpringBone1ColliderShapeSpherePropertyGroup
     )
@@ -282,7 +283,7 @@ class SpringBone1ColliderShapePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
-class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1ColliderPropertyGroup(PropertyGroup):
     def broadcast_bpy_object_name(self) -> None:
         if not self.bpy_object or not self.bpy_object.name:
             self.name = ""  # pylint: disable=attribute-defined-outside-init
@@ -325,7 +326,7 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
         (SHAPE_TYPE_CAPSULE, "Capsule", "", 1),
     )
 
-    def update_shape_type(self, context: bpy.types.Context) -> None:
+    def update_shape_type(self, context: Context) -> None:
         if (
             self.bpy_object
             and self.bpy_object.parent
@@ -341,18 +342,16 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
 
     # for View3D
     bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object
+        type=Object
     )
 
     # for references
     uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
 
-    def reset_bpy_object(
-        self, context: bpy.types.Context, armature: bpy.types.Object
-    ) -> None:
+    def reset_bpy_object(self, context: Context, armature: Object) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         collider_prefix = armature_data.name
         if self.node and self.node.bone_name:
@@ -415,12 +414,12 @@ class SpringBone1ColliderPropertyGroup(bpy.types.PropertyGroup):
         shape: SpringBone1ColliderShapePropertyGroup  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
         shape_type: str  # type: ignore[no-redef]
-        bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
+        bpy_object: Optional[Object]  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
 
 
-class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
     def get_collider_name(self) -> str:
         value = self.get("collider_name", "")
         return value if isinstance(value, str) else str(value)
@@ -464,7 +463,7 @@ class SpringBone1ColliderReferencePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
-class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
     def get_vrm_name(self) -> str:
         value = self.get("vrm_name", "")
         return value if isinstance(value, str) else str(value)
@@ -525,7 +524,7 @@ class SpringBone1ColliderGroupPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#initialization
-class SpringBone1JointAnimationStatePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1JointAnimationStatePropertyGroup(PropertyGroup):
     initialized_as_tail: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     previous_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
@@ -540,7 +539,7 @@ class SpringBone1JointAnimationStatePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.joint.schema.json
-class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1JointPropertyGroup(PropertyGroup):
     node: bpy.props.PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
 
     hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
@@ -564,7 +563,7 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
         soft_max=2.0,
     )
 
-    def update_gravity_dir(self, _context: bpy.types.Context) -> None:
+    def update_gravity_dir(self, _context: Context) -> None:
         gravity_dir = Vector(self.gravity_dir)
         normalized_gravity_dir = gravity_dir.normalized()
         if abs(normalized_gravity_dir.length) < float_info.epsilon:
@@ -611,7 +610,7 @@ class SpringBone1JointPropertyGroup(bpy.types.PropertyGroup):
         show_expanded: bool  # type: ignore[no-redef]
 
 
-class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
     def get_collider_group_name(self) -> str:
         value = self.get("collider_group_name", "")
         return value if isinstance(value, str) else str(value)
@@ -654,7 +653,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(bpy.types.PropertyGroup):
         search_one_time_uuid: str  # type: ignore[no-redef]
 
 
-class SpringBone1SpringAnimationStatePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1SpringAnimationStatePropertyGroup(PropertyGroup):
     use_center_space: bpy.props.BoolProperty()  # type: ignore[valid-type]
 
     previous_center_world_translation: bpy.props.FloatVectorProperty(size=3)  # type: ignore[valid-type]
@@ -667,7 +666,7 @@ class SpringBone1SpringAnimationStatePropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.spring.schema.json
-class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1SpringPropertyGroup(PropertyGroup):
     vrm_name: bpy.props.StringProperty(  # type: ignore[valid-type]
         name="Name"
     )
@@ -712,7 +711,7 @@ class SpringBone1SpringPropertyGroup(bpy.types.PropertyGroup):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.schema.json
-class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
+class SpringBone1SpringBonePropertyGroup(PropertyGroup):
     colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
         type=SpringBone1ColliderPropertyGroup,
     )
@@ -723,7 +722,7 @@ class SpringBone1SpringBonePropertyGroup(bpy.types.PropertyGroup):
         type=SpringBone1SpringPropertyGroup,
     )
 
-    def update_enable_animation(self, _context: bpy.types.Context) -> None:
+    def update_enable_animation(self, _context: Context) -> None:
         for spring in self.springs:
             for joint in spring.joints:
                 joint.animation_state.initialized_as_tail = False

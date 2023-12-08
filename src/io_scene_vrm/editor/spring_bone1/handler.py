@@ -5,6 +5,7 @@ from typing import Optional, Union
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.types import Armature, Object, PoseBone
 from mathutils import Matrix, Quaternion, Vector
 
 from .property_group import (
@@ -88,7 +89,7 @@ class CapsuleWorldCollider:
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#update-procedure
 def update_pose_bone_rotations(delta_time: float) -> None:
-    pose_bone_and_rotations: list[tuple[bpy.types.PoseBone, Quaternion]] = []
+    pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]] = []
 
     for obj in bpy.data.objects:
         calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
@@ -108,13 +109,13 @@ def update_pose_bone_rotations(delta_time: float) -> None:
 
 def calculate_object_pose_bone_rotations(
     delta_time: float,
-    obj: bpy.types.Object,
-    pose_bone_and_rotations: list[tuple[bpy.types.PoseBone, Quaternion]],
+    obj: Object,
+    pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
 ) -> None:
     if obj.type != "ARMATURE":
         return
     armature_data = obj.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return
     ext = armature_data.vrm_addon_extension
     if not ext.is_vrm1():
@@ -185,7 +186,7 @@ def calculate_object_pose_bone_rotations(
 
         # https://github.com/vrm-c/vrm-specification/blob/7279e169ac0dcf37e7d81b2adcad9107101d7e25/specification/VRMC_springBone-1.0/README.md#center-space
         center_pose_bone_is_ancestor_of_first_pose_bone = False
-        ancestor_of_first_pose_bone: Optional[bpy.types.PoseBone] = first_pose_bone
+        ancestor_of_first_pose_bone: Optional[PoseBone] = first_pose_bone
         while ancestor_of_first_pose_bone:
             if center_pose_bone == ancestor_of_first_pose_bone:
                 center_pose_bone_is_ancestor_of_first_pose_bone = True
@@ -231,9 +232,9 @@ def calculate_object_pose_bone_rotations(
 
 def calculate_spring_pose_bone_rotations(
     delta_time: float,
-    obj: bpy.types.Object,
+    obj: Object,
     spring: SpringBone1SpringPropertyGroup,
-    pose_bone_and_rotations: list[tuple[bpy.types.PoseBone, Quaternion]],
+    pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
     collider_group_uuid_to_world_colliders: dict[
         str, list[Union[SphereWorldCollider, CapsuleWorldCollider]]
     ],
@@ -242,10 +243,10 @@ def calculate_spring_pose_bone_rotations(
     inputs: list[
         tuple[
             SpringBone1JointPropertyGroup,
-            bpy.types.PoseBone,
+            PoseBone,
             Matrix,
             SpringBone1JointPropertyGroup,
-            bpy.types.PoseBone,
+            PoseBone,
             Matrix,
         ]
     ] = []
@@ -253,7 +254,7 @@ def calculate_spring_pose_bone_rotations(
     joints: list[
         tuple[
             SpringBone1JointPropertyGroup,
-            bpy.types.PoseBone,
+            PoseBone,
             Matrix,
         ]
     ] = []
@@ -332,12 +333,12 @@ def calculate_spring_pose_bone_rotations(
 
 def calculate_joint_pair_head_pose_bone_rotations(
     delta_time: float,
-    obj: bpy.types.Object,
+    obj: Object,
     head_joint: SpringBone1JointPropertyGroup,
-    head_pose_bone: bpy.types.PoseBone,
+    head_pose_bone: PoseBone,
     current_head_rest_object_matrix: Matrix,
     tail_joint: SpringBone1JointPropertyGroup,
-    tail_pose_bone: bpy.types.PoseBone,
+    tail_pose_bone: PoseBone,
     current_tail_rest_object_matrix: Matrix,
     next_head_pose_bone_before_rotation_matrix: Optional[Matrix],
     world_colliders: list[Union[SphereWorldCollider, CapsuleWorldCollider]],
