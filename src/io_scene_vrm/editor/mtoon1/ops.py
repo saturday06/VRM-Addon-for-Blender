@@ -626,14 +626,14 @@ class NodesModifierInputKey:
 def get_nodes_modifier_input_key(
     modifier: NodesModifier,
 ) -> Optional[NodesModifierInputKey]:
-    from bpy.types import NodeTreeInterfaceSocket
-
     node_group = modifier.node_group
     if not node_group:
         return None
     if bpy.app.version < (4, 0):
         keys = [i.identifier for i in node_group.inputs]
     else:
+        from bpy.types import NodeTreeInterfaceSocket
+
         keys = [
             item.identifier
             for item in node_group.interface.items_tree
