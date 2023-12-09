@@ -4,6 +4,7 @@ from sys import float_info
 from typing import TYPE_CHECKING
 
 import bpy
+from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
 
 from .handler import reset_state, update_pose_bone_rotations
@@ -15,7 +16,7 @@ class VRM_OT_add_spring_bone1_collider(Operator):
     bl_description = "Add VRM 1.0 Collider"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -44,10 +45,10 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
     bl_description = "Remove VRM 0.x Collider"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    collider_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -104,7 +105,7 @@ class VRM_OT_add_spring_bone1_spring(Operator):
     bl_description = "Add VRM 1.0 Spring"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -131,10 +132,10 @@ class VRM_OT_remove_spring_bone1_spring(Operator):
     bl_description = "Remove VRM 1.0 Spring"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    spring_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -165,7 +166,7 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
     bl_description = "Add VRM 1.0 Spring Bone Collider Group"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -195,10 +196,10 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -245,10 +246,10 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
     bl_description = "Add VRM 1.0 Spring Bone Collider Group Collider"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -279,14 +280,14 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group Collider"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
-    collider_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    collider_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -321,10 +322,10 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
     bl_description = "Add VRM 1.0 Spring Bone Spring Collider Group"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    spring_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -355,14 +356,14 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
     bl_description = "Remove VRM 1.0 Spring Bone Spring Collider Group"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    spring_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
-    collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -397,14 +398,14 @@ class VRM_OT_add_spring_bone1_spring_joint(Operator):
     bl_description = "Add VRM 1.0 Spring Bone Spring Joint"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    spring_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
-    guess_properties: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    guess_properties: BoolProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -450,14 +451,14 @@ class VRM_OT_remove_spring_bone1_spring_joint(Operator):
     bl_description = "Remove VRM 1.0 Spring Bone Spring Joint"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    spring_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    spring_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
-    joint_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    joint_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -492,7 +493,7 @@ class VRM_OT_reset_spring_bone1_animation_state(Operator):
     bl_description = "Reset SpringBone Animation State"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -521,7 +522,7 @@ class VRM_OT_update_spring_bone1_animation(Operator):
     bl_description = "Update SpringBone Animation"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    delta_time: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    delta_time: FloatProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 

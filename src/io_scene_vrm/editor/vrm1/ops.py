@@ -2,6 +2,7 @@ from collections.abc import Set
 from typing import TYPE_CHECKING
 
 import bpy
+from bpy.props import IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
 
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
@@ -20,7 +21,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
     bl_description = "Add VRM 1.0 Meta Author"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -46,10 +47,10 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
     bl_description = "Remove VRM 1.0 Meta Author"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    author_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    author_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -80,7 +81,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
     bl_description = "Add VRM 1.0 Meta Reference"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -106,10 +107,10 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
     bl_description = "Remove VRM 1.0 Meta Reference"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    reference_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    reference_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -140,10 +141,10 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
     bl_description = "Add VRM 1.0 Custom Expression"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -187,10 +188,10 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
     bl_description = "Remove VRM 1.0 Custom Expression"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -227,10 +228,10 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
     bl_description = "Move Up VRM 1.0 Custom Expression"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -272,10 +273,10 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
     bl_description = "Move Down VRM 1.0 Custom Expression"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    custom_expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -317,7 +318,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
     bl_description = "Add VRM 1.0 First Person Mesh Annotation"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -343,10 +344,10 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
     bl_description = "Remove VRM 1.0 First Person Mesh Annotation"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    mesh_annotation_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -379,10 +380,10 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Add VRM 1.0 Expression Morph Target Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -417,13 +418,13 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Remove VRM 1.0 Expression Morph Target Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -462,13 +463,13 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Move Up VRM 1.0 Expression Morph Target Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -505,13 +506,13 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -548,10 +549,10 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
     bl_description = "Add VRM 1.0 Expression Material Value Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -586,13 +587,13 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
     bl_description = "Remove VRM 1.0 Expression Material Color Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -630,13 +631,13 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
     bl_description = "Move Up VRM 1.0 Expression Material Color Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -673,13 +674,13 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
     bl_description = "Move Down VRM 1.0 Expression Material Color Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -716,10 +717,10 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Add VRM 1.0 Expression Texture Transform Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -752,13 +753,13 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Remove VRM 1.0 Expression Texture Transform Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -796,13 +797,13 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Move Up VRM 1.0 Expression Texture Transform Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -839,13 +840,13 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    expression_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    bind_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
@@ -888,7 +889,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
     bl_description = "Assign VRM 1.0 Humanoid Human Bones"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 

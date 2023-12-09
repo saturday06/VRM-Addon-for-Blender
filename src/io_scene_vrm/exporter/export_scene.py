@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.props import BoolProperty, CollectionProperty, StringProperty
 from bpy.types import (
     Armature,
     Context,
@@ -81,33 +82,33 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.vrm",
         options={"HIDDEN"},
     )
 
-    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
         update=export_vrm_update_addon_preferences,
     )
-    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_only_selections: BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",
         update=export_vrm_update_addon_preferences,
     )
-    enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    enable_advanced_preferences: BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",
         update=export_vrm_update_addon_preferences,
     )
-    export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_fb_ngon_encoding: BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development"
         + " (Exported meshes can be corrupted)",
         update=export_vrm_update_addon_preferences,
     )
-    errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    errors: CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    ignore_warning: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    ignore_warning: BoolProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -361,12 +362,12 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrma"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.vrma",
         options={"HIDDEN"},
     )
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -410,7 +411,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
     bl_idname = "wm.vrm_export_human_bones_assignment"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -563,13 +564,13 @@ class WM_OT_vrm_export_confirmation(Operator):
     bl_idname = "wm.vrm_export_confirmation"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
+    errors: CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
-    export_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_anyway: BoolProperty(  # type: ignore[valid-type]
         name="Export Anyway",
     )
 
@@ -624,10 +625,10 @@ class WM_OT_vrm_export_armature_selection(Operator):
     bl_idname = "wm.vrm_export_armature_selection"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    armature_object_name_candidates: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
         options={"HIDDEN"},
     )
@@ -687,10 +688,10 @@ class WM_OT_vrma_export_prerequisite(Operator):
     bl_idname = "wm.vrma_export_prerequisite"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    armature_object_name_candidates: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
         options={"HIDDEN"},
     )

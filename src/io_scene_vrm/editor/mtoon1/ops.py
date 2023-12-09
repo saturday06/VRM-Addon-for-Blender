@@ -6,6 +6,7 @@ from sys import float_info
 from typing import TYPE_CHECKING, Optional
 
 import bpy
+from bpy.props import BoolProperty, EnumProperty, StringProperty
 from bpy.types import (
     Context,
     Event,
@@ -50,7 +51,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
     bl_description = "Convert Material to MToon 1.0"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 
@@ -426,7 +427,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
     bl_description = "Convert MToon 1.0 to Principled BSDF"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 
@@ -462,7 +463,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
     bl_description = "Reset MToon 1.0 Material Shader Node Tree"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 
@@ -485,12 +486,12 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
     bl_description = "Import Texture Image File"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    filepath: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filepath: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         default="",
     )
 
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         # https://docs.blender.org/api/2.83/Image.html#Image.file_format
         default=(
@@ -513,7 +514,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
         ),
     )
 
-    material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -537,7 +538,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
         (Mtoon0ShadingGradeTexturePropertyGroup.__name__, "", "", "NONE", 10),
     )
 
-    target_texture: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    target_texture: EnumProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         items=target_texture_items,
         name="Target Texture",
@@ -653,10 +654,10 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
     bl_description = "Import Texture Image File"
     bl_options: Set[str] = {"UNDO"}
 
-    material_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
-    create_modifier: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    create_modifier: BoolProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 

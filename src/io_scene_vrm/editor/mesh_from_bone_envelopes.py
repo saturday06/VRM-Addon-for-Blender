@@ -2,6 +2,7 @@ from collections.abc import Set
 from math import ceil
 
 import bpy
+from bpy.props import BoolProperty, FloatProperty, IntProperty
 from bpy.types import (
     Armature,
     Context,
@@ -31,16 +32,16 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
         self.build_mesh(context)
         return {"FINISHED"}
 
-    resolution: bpy.props.IntProperty(default=5, min=2)  # type: ignore[valid-type]
-    max_distance_between_mataballs: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    resolution: IntProperty(default=5, min=2)  # type: ignore[valid-type]
+    max_distance_between_mataballs: FloatProperty(  # type: ignore[valid-type]
         default=0.1, min=0.001
     )
-    use_selected_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    use_selected_bones: BoolProperty(  # type: ignore[valid-type]
         default=False
     )
-    may_vrm_humanoid: bpy.props.BoolProperty(default=True)  # type: ignore[valid-type]
-    with_auto_weight: bpy.props.BoolProperty(default=False)  # type: ignore[valid-type]
-    not_to_mesh: bpy.props.BoolProperty(default=True)  # type: ignore[valid-type]
+    may_vrm_humanoid: BoolProperty(default=True)  # type: ignore[valid-type]
+    with_auto_weight: BoolProperty(default=False)  # type: ignore[valid-type]
+    not_to_mesh: BoolProperty(default=True)  # type: ignore[valid-type]
 
     @staticmethod
     def find_material_output_node(material: Material) -> ShaderNode:

@@ -5,6 +5,16 @@ from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
+from bpy.props import (
+    BoolProperty,
+    CollectionProperty,
+    EnumProperty,
+    FloatProperty,
+    FloatVectorProperty,
+    IntProperty,
+    PointerProperty,
+    StringProperty,
+)
 from bpy.types import (
     Action,
     Armature,
@@ -39,35 +49,35 @@ logger = get_logger(__name__)
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L70-L164
 class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
-    bone: bpy.props.StringProperty(  # type: ignore[valid-type]
+    bone: StringProperty(  # type: ignore[valid-type]
         name="VRM Humanoid Bone Name"
     )
-    node: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    node: PointerProperty(  # type: ignore[valid-type]
         name="Bone Name",
         type=BonePropertyGroup,
     )
-    use_default_values: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    use_default_values: BoolProperty(  # type: ignore[valid-type]
         name="Unity's HumanLimit.useDefaultValues",
         default=True,
     )
-    min: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]  # noqa: A003
+    min: FloatVectorProperty(  # type: ignore[valid-type]  # noqa: A003
         size=3,
         name="Unity's HumanLimit.min",
     )
-    max: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]  # noqa: A003
+    max: FloatVectorProperty(  # type: ignore[valid-type]  # noqa: A003
         size=3,
         name="Unity's HumanLimit.max",
     )
-    center: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+    center: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         name="Unity's HumanLimit.center",
     )
-    axis_length: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    axis_length: FloatProperty(  # type: ignore[valid-type]
         name="Unity's HumanLimit.axisLength"
     )
 
     # for UI
-    node_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    node_candidates: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
 
@@ -119,39 +129,39 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
 class Vrm0HumanoidPropertyGroup(PropertyGroup):
-    human_bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    human_bones: CollectionProperty(  # type: ignore[valid-type]
         name="Human Bones",
         type=Vrm0HumanoidBonePropertyGroup,
     )
-    arm_stretch: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    arm_stretch: FloatProperty(  # type: ignore[valid-type]
         name="Arm Stretch",
         default=0.05,
     )
-    leg_stretch: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    leg_stretch: FloatProperty(  # type: ignore[valid-type]
         name="Leg Stretch",
         default=0.05,
     )
-    upper_arm_twist: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    upper_arm_twist: FloatProperty(  # type: ignore[valid-type]
         name="Upper Arm Twist",
         default=0.5,
     )
-    lower_arm_twist: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    lower_arm_twist: FloatProperty(  # type: ignore[valid-type]
         name="Lower Arm Twist",
         default=0.5,
     )
-    upper_leg_twist: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    upper_leg_twist: FloatProperty(  # type: ignore[valid-type]
         name="Upper Leg Twist",
         default=0.5,
     )
-    lower_leg_twist: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    lower_leg_twist: FloatProperty(  # type: ignore[valid-type]
         name="Lower Leg Twist",
         default=0.5,
     )
-    feet_spacing: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    feet_spacing: FloatProperty(  # type: ignore[valid-type]
         name="Feet Spacing",
         default=0,
     )
-    has_translation_dof: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    has_translation_dof: BoolProperty(  # type: ignore[valid-type]
         name="Has Translation DoF",
         default=False,
     )
@@ -160,19 +170,19 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
     def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
-    pose_library: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    pose_library: PointerProperty(  # type: ignore[valid-type]
         type=Action,
         name="Pose Library",
         description="Pose library for T Pose",
         update=update_pose_library,
     )
-    pose_marker_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    pose_marker_name: StringProperty()  # type: ignore[valid-type]
 
     # for UI
-    last_bone_names: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    last_bone_names: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
-    initial_automatic_bone_assignment: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    initial_automatic_bone_assignment: BoolProperty(  # type: ignore[valid-type]
         default=True
     )
 
@@ -316,16 +326,16 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22
 class Vrm0DegreeMapPropertyGroup(PropertyGroup):
-    curve: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+    curve: FloatVectorProperty(  # type: ignore[valid-type]
         size=8,
         name="Curve",
         default=(0, 0, 0, 1, 1, 1, 1, 0),
     )
-    x_range: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    x_range: FloatProperty(  # type: ignore[valid-type]
         name="X Range",
         default=90,
     )
-    y_range: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    y_range: FloatProperty(  # type: ignore[valid-type]
         name="Y Range",
         default=10,
     )
@@ -340,7 +350,7 @@ class Vrm0DegreeMapPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L32-L41
 class Vrm0MeshAnnotationPropertyGroup(PropertyGroup):
-    mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    mesh: PointerProperty(  # type: ignore[valid-type]
         name="Mesh",
         type=MeshObjectPropertyGroup,
         description="Mesh on restrict render in the first person camera",
@@ -364,7 +374,7 @@ class Vrm0MeshAnnotationPropertyGroup(PropertyGroup):
     FIRST_PERSON_FLAG_VALUES = tuple(
         first_person_flag_item[0] for first_person_flag_item in first_person_flag_items
     )
-    first_person_flag: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    first_person_flag: EnumProperty(  # type: ignore[valid-type]
         items=first_person_flag_items,
         name="First Person Flag",
         description="Restrict render in the first person camera",
@@ -379,12 +389,12 @@ class Vrm0MeshAnnotationPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L50-L91
 class Vrm0FirstPersonPropertyGroup(PropertyGroup):
-    first_person_bone: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    first_person_bone: PointerProperty(  # type: ignore[valid-type]
         name="First Person Bone",
         type=BonePropertyGroup,
         description="Bone to follow the first person camera",
     )
-    first_person_bone_offset: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+    first_person_bone_offset: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         name="First Person Bone Offset",
         description=(
@@ -394,7 +404,7 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
         unit="LENGTH",
         default=(0, 0, 0),
     )
-    mesh_annotations: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    mesh_annotations: CollectionProperty(  # type: ignore[valid-type]
         name="Mesh Annotations",
         type=Vrm0MeshAnnotationPropertyGroup,
     )
@@ -411,24 +421,24 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
     LOOK_AT_TYPE_NAME_VALUES = tuple(
         look_at_type_name_item[0] for look_at_type_name_item in look_at_type_name_items
     )
-    look_at_type_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    look_at_type_name: EnumProperty(  # type: ignore[valid-type]
         items=look_at_type_name_items,
         name="Look At Type Name",
         description="How to eye movement",
     )
-    look_at_horizontal_inner: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    look_at_horizontal_inner: PointerProperty(  # type: ignore[valid-type]
         type=Vrm0DegreeMapPropertyGroup,
         name="Look At Horizontal Inner",
     )
-    look_at_horizontal_outer: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    look_at_horizontal_outer: PointerProperty(  # type: ignore[valid-type]
         type=Vrm0DegreeMapPropertyGroup,
         name="Look At Horizontal Outer",
     )
-    look_at_vertical_down: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    look_at_vertical_down: PointerProperty(  # type: ignore[valid-type]
         type=Vrm0DegreeMapPropertyGroup,
         name="Look At Vertical Down",
     )
-    look_at_vertical_up: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    look_at_vertical_up: PointerProperty(  # type: ignore[valid-type]
         type=Vrm0DegreeMapPropertyGroup,
         name="lookAt Vertical Up",
     )
@@ -448,14 +458,14 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
-    mesh: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    mesh: PointerProperty(  # type: ignore[valid-type]
         name="Mesh",
         type=MeshObjectPropertyGroup,
     )
-    index: bpy.props.StringProperty(  # type: ignore[valid-type]
+    index: StringProperty(  # type: ignore[valid-type]
         name="Index"
     )
-    weight: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    weight: FloatProperty(  # type: ignore[valid-type]
         name="Weight",
         min=0,
         default=1,
@@ -473,14 +483,14 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L9-L16
 class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
-    material: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    material: PointerProperty(  # type: ignore[valid-type]
         name="Material",
         type=Material,
     )
-    property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    property_name: StringProperty(  # type: ignore[valid-type]
         name="Property Name"
     )
-    target_value: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    target_value: CollectionProperty(  # type: ignore[valid-type]
         name="Target Value",
         type=FloatPropertyGroup,
     )
@@ -495,7 +505,7 @@ class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L62-L99
 class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
-    name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    name: StringProperty(  # type: ignore[valid-type]
         name="Name",
         description="Name of the blendshape group",
     )
@@ -537,30 +547,30 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
 
     PRESET_NAME_VALUES = tuple(preset.identifier for preset in presets)
 
-    preset_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    preset_name: EnumProperty(  # type: ignore[valid-type]
         items=preset_name_items,
         name="Preset",
         description="Preset name in VRM avatar",
     )
-    binds: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    binds: CollectionProperty(  # type: ignore[valid-type]
         type=Vrm0BlendShapeBindPropertyGroup,
         name="Binds",
     )
-    material_values: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    material_values: CollectionProperty(  # type: ignore[valid-type]
         type=Vrm0MaterialValueBindPropertyGroup,
         name="Material Values",
     )
-    is_binary: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    is_binary: BoolProperty(  # type: ignore[valid-type]
         name="Is Binary",
         description="Use binary change in the blendshape group",
     )
 
     # for UI
-    active_bind_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    active_bind_index: IntProperty(  # type: ignore[valid-type]
         name="Active Bind Index",
         default=0,
     )
-    active_material_value_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    active_material_value_index: IntProperty(  # type: ignore[valid-type]
         name="Active Material Value Index",
         default=0,
     )
@@ -617,7 +627,7 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
                 (shape_key.name, bind.index)
             ] = key_block_value
 
-    preview: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    preview: FloatProperty(  # type: ignore[valid-type]
         name="Blend Shape Proxy",
         min=0,
         max=1,
@@ -641,7 +651,7 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
 class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
-    bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    bpy_object: PointerProperty(  # type: ignore[valid-type]
         type=Object
     )
 
@@ -671,12 +681,12 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L21-L29
 class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
-    node: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    node: PointerProperty(  # type: ignore[valid-type]
         name="Node",
         type=BonePropertyGroup,
     )
     # offsetとradiusはコライダー自身のデータを用いる
-    colliders: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    colliders: CollectionProperty(  # type: ignore[valid-type]
         name="Colliders",
         type=Vrm0SecondaryAnimationColliderPropertyGroup,
     )
@@ -699,11 +709,11 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
             bone_group.refresh(armature)
 
     # for UI
-    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    show_expanded: BoolProperty()  # type: ignore[valid-type]
 
     # for reference from Vrm0SecondaryAnimationGroupPropertyGroup
-    name: bpy.props.StringProperty()  # type: ignore[valid-type]
-    uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    name: StringProperty()  # type: ignore[valid-type]
+    uuid: StringProperty()  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -719,14 +729,14 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L32-L67
 class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
-    comment: bpy.props.StringProperty(  # type: ignore[valid-type]
+    comment: StringProperty(  # type: ignore[valid-type]
         name="Comment",
         description="Comment about the purpose of springs",
     )
 
     # typo in VRM 0.0 specification
     # https://github.com/vrm-c/vrm-specification/blob/1723a45abfb4f12ac5d3635a3f66dc45e2f93c83/specification/0.0/schema/vrm.secondaryanimation.spring.schema.json#L9-L12
-    stiffiness: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    stiffiness: FloatProperty(  # type: ignore[valid-type]
         name="Stiffness",
         min=0.0,
         soft_max=4.0,
@@ -734,7 +744,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         description="Stiffness of springs",
     )
 
-    gravity_power: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    gravity_power: FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power",
         min=0.0,
         soft_max=2.0,
@@ -748,7 +758,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         if (gravity_dir - normalized_gravity_dir).length > 0.0001:
             self.gravity_dir = normalized_gravity_dir
 
-    gravity_dir: bpy.props.FloatVectorProperty(  # type: ignore[valid-type]
+    gravity_dir: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         min=-1,
         max=1,
@@ -757,42 +767,42 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         description="Gravity direction of springs",
         update=update_gravity_dir,
     )
-    drag_force: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    drag_force: FloatProperty(  # type: ignore[valid-type]
         name="Drag Force",
         min=0.0,
         max=1.0,
         subtype="FACTOR",
         description="Drag Force of springs",
     )
-    center: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    center: PointerProperty(  # type: ignore[valid-type]
         name="Center",
         type=BonePropertyGroup,
         description="Origin of Physics simulation to stop springs on moving",
     )
-    hit_radius: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    hit_radius: FloatProperty(  # type: ignore[valid-type]
         name="Hit Radius",
         min=0.0,
         soft_max=0.5,
         subtype="DISTANCE",
         description="Hit Radius of springs",
     )
-    bones: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    bones: CollectionProperty(  # type: ignore[valid-type]
         name="Bones",
         type=BonePropertyGroup,
         description="Bones of the spring roots",
     )
-    collider_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    collider_groups: CollectionProperty(  # type: ignore[valid-type]
         name="Collider Group",
         type=StringPropertyGroup,
         description="Enabled collider Groups of springs",
     )
 
     # for UI
-    show_expanded: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    show_expanded_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    show_expanded: BoolProperty()  # type: ignore[valid-type]
+    show_expanded_bones: BoolProperty(  # type: ignore[valid-type]
         name="Bones"
     )
-    show_expanded_collider_groups: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    show_expanded_collider_groups: BoolProperty(  # type: ignore[valid-type]
         name="Collider Groups"
     )
 
@@ -889,60 +899,60 @@ class Vrm0MetaPropertyGroup(PropertyGroup):
         license_name_item[0] for license_name_item in license_name_items
     )
 
-    title: bpy.props.StringProperty(  # type: ignore[valid-type]
+    title: StringProperty(  # type: ignore[valid-type]
         name="Title",
         description="Title of the avatar",
     )
-    version: bpy.props.StringProperty(  # type: ignore[valid-type]
+    version: StringProperty(  # type: ignore[valid-type]
         name="Version",
         description="Version of the avatar",
     )
-    author: bpy.props.StringProperty(  # type: ignore[valid-type]
+    author: StringProperty(  # type: ignore[valid-type]
         name="Author",
         description="Author of the avatar",
     )
-    contact_information: bpy.props.StringProperty(  # type: ignore[valid-type]
+    contact_information: StringProperty(  # type: ignore[valid-type]
         name="Contact Information",
         description="Contact Information about the avatar",
     )
-    reference: bpy.props.StringProperty(  # type: ignore[valid-type]
+    reference: StringProperty(  # type: ignore[valid-type]
         name="Reference",
         description="Referenced works about the avatar",
     )
-    allowed_user_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    allowed_user_name: EnumProperty(  # type: ignore[valid-type]
         items=allowed_user_name_items,
         name="Allowed User",
         description="Allowed user of the avatar",
     )
-    violent_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    violent_ussage_name: EnumProperty(  # type: ignore[valid-type]
         items=violent_ussage_name_items,
         name="Violent Usage",
         description="Violent usage of the avatar",
     )
-    sexual_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    sexual_ussage_name: EnumProperty(  # type: ignore[valid-type]
         items=sexual_ussage_name_items,
         name="Sexual Usage",
         description="Sexual Usage of the avatar",
     )
-    commercial_ussage_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    commercial_ussage_name: EnumProperty(  # type: ignore[valid-type]
         items=commercial_ussage_name_items,
         name="Commercial Usage",
         description="Commercial Usage of the avatar",
     )
-    other_permission_url: bpy.props.StringProperty(  # type: ignore[valid-type]
+    other_permission_url: StringProperty(  # type: ignore[valid-type]
         name="Other Permission URL",
         description="URL about other permissions of the avatar",
     )
-    license_name: bpy.props.EnumProperty(  # type: ignore[valid-type]
+    license_name: EnumProperty(  # type: ignore[valid-type]
         items=license_name_items,
         name="License",
         description="License of the avatar",
     )
-    other_license_url: bpy.props.StringProperty(  # type: ignore[valid-type]
+    other_license_url: StringProperty(  # type: ignore[valid-type]
         name="Other License URL",
         description="URL about other License of the avatar",
     )
-    texture: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    texture: PointerProperty(  # type: ignore[valid-type]
         name="Thumbnail",
         type=Image,
         description="Thumbnail of the avatar",
@@ -968,13 +978,13 @@ class Vrm0MetaPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L101-L106
 class Vrm0BlendShapeMasterPropertyGroup(PropertyGroup):
-    blend_shape_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    blend_shape_groups: CollectionProperty(  # type: ignore[valid-type]
         name="Blend Shape Group",
         type=Vrm0BlendShapeGroupPropertyGroup,
     )
 
     # for UI
-    active_blend_shape_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    active_blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         name="Active Blend Shape Group Index",
         default=0,
     )
@@ -988,21 +998,21 @@ class Vrm0BlendShapeMasterPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L69-L78
 class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
-    bone_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    bone_groups: CollectionProperty(  # type: ignore[valid-type]
         name="Secondary Animation Groups",
         type=Vrm0SecondaryAnimationGroupPropertyGroup,
     )
-    collider_groups: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    collider_groups: CollectionProperty(  # type: ignore[valid-type]
         name="Collider Groups",
         type=Vrm0SecondaryAnimationColliderGroupPropertyGroup,
     )
 
     # for UI
-    active_bone_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    active_bone_group_index: IntProperty(  # type: ignore[valid-type]
         name="Active Bone Group Index",
         default=0,
     )
-    active_collider_group_index: bpy.props.IntProperty(  # type: ignore[valid-type]
+    active_collider_group_index: IntProperty(  # type: ignore[valid-type]
         name="Active Collider Group Index",
         default=0,
     )
@@ -1022,23 +1032,23 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_extensions.cs#L8-L48
 class Vrm0PropertyGroup(PropertyGroup):
-    meta: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    meta: PointerProperty(  # type: ignore[valid-type]
         name="VRM Meta",
         type=Vrm0MetaPropertyGroup,
     )
-    humanoid: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    humanoid: PointerProperty(  # type: ignore[valid-type]
         name="VRM Humanoid",
         type=Vrm0HumanoidPropertyGroup,
     )
-    first_person: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    first_person: PointerProperty(  # type: ignore[valid-type]
         name="VRM First Person",
         type=Vrm0FirstPersonPropertyGroup,
     )
-    blend_shape_master: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    blend_shape_master: PointerProperty(  # type: ignore[valid-type]
         name="VRM Blend Shape Master",
         type=Vrm0BlendShapeMasterPropertyGroup,
     )
-    secondary_animation: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    secondary_animation: PointerProperty(  # type: ignore[valid-type]
         name="VRM Secondary Animation",
         type=Vrm0SecondaryAnimationPropertyGroup,
     )

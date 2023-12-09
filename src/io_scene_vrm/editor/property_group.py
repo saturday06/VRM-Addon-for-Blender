@@ -3,6 +3,7 @@ from collections.abc import Iterator, ValuesView
 from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, overload
 
 import bpy
+from bpy.props import FloatProperty, PointerProperty, StringProperty
 from bpy.types import Armature, Bone, Object, PropertyGroup
 
 from ..common.logging import get_logger
@@ -29,7 +30,7 @@ class StringPropertyGroup(PropertyGroup):
         self.name = value  # pylint: disable=attribute-defined-outside-init
         self["value"] = value
 
-    value: bpy.props.StringProperty(  # type: ignore[valid-type]
+    value: StringProperty(  # type: ignore[valid-type]
         name="String Value",
         get=get_value,
         set=set_value,
@@ -52,7 +53,7 @@ class FloatPropertyGroup(PropertyGroup):
         self.name = str(value)  # pylint: disable=attribute-defined-outside-init
         self["value"] = value
 
-    value: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    value: FloatProperty(  # type: ignore[valid-type]
         name="Float Value",
         get=get_value,
         set=set_value,
@@ -84,7 +85,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
             return
         self.bpy_object = bpy.data.objects[value]
 
-    mesh_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    mesh_object_name: StringProperty(  # type: ignore[valid-type]
         get=get_mesh_object_name, set=set_mesh_object_name
     )
 
@@ -103,12 +104,12 @@ class MeshObjectPropertyGroup(PropertyGroup):
         self.mesh_object_name = value
 
     # "value" is deprecated. Use "mesh_object_name" instead
-    value: bpy.props.StringProperty(  # type: ignore[valid-type]
+    value: StringProperty(  # type: ignore[valid-type]
         get=get_value,
         set=set_value,
     )
 
-    bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
+    bpy_object: PointerProperty(  # type: ignore[valid-type]
         type=Object
     )
 
@@ -336,7 +337,7 @@ class BonePropertyGroup(PropertyGroup):
                 vrm1_bpy_bone_name_to_human_bone_specification,
             )
 
-    bone_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    bone_name: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_bone_name,
         set=set_bone_name,
@@ -357,14 +358,14 @@ class BonePropertyGroup(PropertyGroup):
         self.bone_name = value
 
     # "value" is deprecated. Use "bone_name" instead
-    value: bpy.props.StringProperty(  # type: ignore[valid-type]
+    value: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_value,
         set=set_value,
     )
-    bone_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
-    armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
-    search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    bone_uuid: StringProperty()  # type: ignore[valid-type]
+    armature_data_name: StringProperty()  # type: ignore[valid-type]
+    search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`

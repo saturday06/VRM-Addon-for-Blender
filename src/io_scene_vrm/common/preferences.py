@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-import bpy
+from bpy.props import BoolProperty, IntVectorProperty
 from bpy.types import AddonPreferences, Context
 
 from . import version
@@ -17,38 +17,38 @@ class VrmAddonPreferences(AddonPreferences):
 
     INITIAL_ADDON_VERSION: tuple[int, int, int] = (0, 0, 0)
 
-    addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
+    addon_version: IntVectorProperty(  # type: ignore[valid-type]
         size=3,
         default=INITIAL_ADDON_VERSION,
     )
 
-    set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_shading_type_to_material_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set shading type to "Material"',
         default=True,
     )
-    set_view_transform_to_standard_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_view_transform_to_standard_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set view transform to "Standard"',
         default=True,
     )
-    set_armature_display_to_wire: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_armature_display_to_wire: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to "Wire"',
         default=True,
     )
-    set_armature_display_to_show_in_front: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_armature_display_to_show_in_front: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to show "In-Front"',
         default=True,
     )
 
-    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
     )
-    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_only_selections: BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",
     )
-    enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    enable_advanced_preferences: BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",
     )
-    export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_fb_ngon_encoding: BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development"
         + " (Exported meshes can be corrupted)",
     )

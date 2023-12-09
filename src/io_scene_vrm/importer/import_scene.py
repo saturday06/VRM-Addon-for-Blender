@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Union
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.props import BoolProperty, CollectionProperty, StringProperty
 from bpy.types import (
     Armature,
     Context,
@@ -31,9 +32,9 @@ logger = get_logger(__name__)
 
 
 class LicenseConfirmation(PropertyGroup):
-    message: bpy.props.StringProperty()  # type: ignore[valid-type]
-    url: bpy.props.StringProperty()  # type: ignore[valid-type]
-    json_key: bpy.props.StringProperty()  # type: ignore[valid-type]
+    message: StringProperty()  # type: ignore[valid-type]
+    url: StringProperty()  # type: ignore[valid-type]
+    json_key: StringProperty()  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -88,35 +89,35 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.vrm",
         options={"HIDDEN"},
     )
 
-    extract_textures_into_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]
         name="Extract texture images into the folder",
         default=False,
     )
-    make_new_texture_folder: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    make_new_texture_folder: BoolProperty(  # type: ignore[valid-type]
         name="Don't overwrite existing texture folder",
         default=True,
     )
-    set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_shading_type_to_material_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set shading type to "Material"',
         update=import_vrm_update_addon_preferences,
         default=True,
     )
-    set_view_transform_to_standard_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_view_transform_to_standard_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set view transform to "Standard"',
         update=import_vrm_update_addon_preferences,
         default=True,
     )
-    set_armature_display_to_wire: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_armature_display_to_wire: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to "Wire"',
         update=import_vrm_update_addon_preferences,
         default=True,
     )
-    set_armature_display_to_show_in_front: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_armature_display_to_show_in_front: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to show "In-Front"',
         update=import_vrm_update_addon_preferences,
         default=True,
@@ -221,15 +222,15 @@ class WM_OT_vrm_license_confirmation(Operator):
     bl_idname = "wm.vrm_license_warning"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    filepath: bpy.props.StringProperty()  # type: ignore[valid-type]
+    filepath: StringProperty()  # type: ignore[valid-type]
 
-    license_confirmations: bpy.props.CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
-    import_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    license_confirmations: CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
+    import_anyway: BoolProperty(  # type: ignore[valid-type]
         name="Import Anyway",
     )
 
-    extract_textures_into_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
-    make_new_texture_folder: bpy.props.BoolProperty()  # type: ignore[valid-type]
+    extract_textures_into_folder: BoolProperty()  # type: ignore[valid-type]
+    make_new_texture_folder: BoolProperty()  # type: ignore[valid-type]
 
     def execute(self, context: Context) -> set[str]:
         filepath = Path(self.filepath)
@@ -325,12 +326,12 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrma"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.vrma",
         options={"HIDDEN"},
     )
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
@@ -371,10 +372,10 @@ class WM_OT_vrma_import_prerequisite(Operator):
     bl_idname = "wm.vrma_import_prerequisite"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    armature_object_name_candidates: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
         options={"HIDDEN"},
     )

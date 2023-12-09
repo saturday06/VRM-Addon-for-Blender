@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import bmesh
 import bpy
 from bmesh.types import BMVert
+from bpy.props import FloatProperty
 from bpy.types import Armature, Bone, Context, Event, Mesh, Operator
 from mathutils import Matrix, Vector
 
@@ -78,7 +79,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
             raise TypeError(message)
         return armature_data.bones[str(armature_data[bone])]
 
-    face_center_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    face_center_ratio: FloatProperty(  # type: ignore[valid-type]
         default=1,
         min=0.2,
         max=1,
@@ -88,7 +89,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         face_center_ratio: float  # type: ignore[no-redef]
 
-    eye_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=2,
         min=0.5,
         max=4,
@@ -97,7 +98,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         eye_width_ratio: float  # type: ignore[no-redef]
 
-    nose_head_height: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_head_height: FloatProperty(  # type: ignore[valid-type]
         default=1,
         min=0,
         max=1,
@@ -106,7 +107,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         nose_head_height: float  # type: ignore[no-redef]
 
-    nose_top_pos: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_top_pos: FloatProperty(  # type: ignore[valid-type]
         default=0.2,
         min=0,
         max=0.6,
@@ -115,7 +116,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         nose_top_pos: float  # type: ignore[no-redef]
 
-    nose_height: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_height: FloatProperty(  # type: ignore[valid-type]
         default=0.015,
         min=0.01,
         max=0.1,
@@ -125,7 +126,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         nose_height: float  # type: ignore[no-redef]
 
-    nose_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_width: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
         min=0.01,
         max=1,
@@ -134,7 +135,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         nose_width: float  # type: ignore[no-redef]
 
-    eye_depth: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_depth: FloatProperty(  # type: ignore[valid-type]
         default=0.01,
         min=0.01,
         max=0.1,
@@ -143,7 +144,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         eye_depth: float  # type: ignore[no-redef]
 
-    eye_angle: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_angle: FloatProperty(  # type: ignore[valid-type]
         default=radians(15),
         min=0,
         max=0.55,
@@ -152,7 +153,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         eye_angle: float  # type: ignore[no-redef]
 
-    eye_rotate: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_rotate: FloatProperty(  # type: ignore[valid-type]
         default=0.43,
         min=0,
         max=0.86,
@@ -161,7 +162,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         eye_rotate: float  # type: ignore[no-redef]
 
-    cheek_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    cheek_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
         min=0,
         max=1,
@@ -170,7 +171,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         cheek_ratio: float  # type: ignore[no-redef]
 
-    cheek_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    cheek_width: FloatProperty(  # type: ignore[valid-type]
         default=0.85,
         min=0.5,
         max=1,
@@ -179,7 +180,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         cheek_width: float  # type: ignore[no-redef]
 
-    mouth_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
         min=0.3,
         max=0.9,
@@ -189,7 +190,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
         mouth_width_ratio: float  # type: ignore[no-redef]
 
     # 口角結節
-    mouth_corner_nodule: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_corner_nodule: FloatProperty(  # type: ignore[valid-type]
         default=0.1,
         min=0.01,
         max=1,
@@ -198,7 +199,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         mouth_corner_nodule: float  # type: ignore[no-redef]
 
-    mouth_position_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_position_ratio: FloatProperty(  # type: ignore[valid-type]
         default=2 / 3,
         min=0.3,
         max=0.7,
@@ -207,7 +208,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     if TYPE_CHECKING:
         mouth_position_ratio: float  # type: ignore[no-redef]
 
-    mouth_flatten: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_flatten: FloatProperty(  # type: ignore[valid-type]
         default=0.1,
         min=0.0,
         max=1,

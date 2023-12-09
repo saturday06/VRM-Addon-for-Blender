@@ -6,6 +6,7 @@ from typing import Union
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.props import PointerProperty
 from bpy.types import (
     AddonPreferences,
     Armature,
@@ -398,23 +399,23 @@ def register(name: object, init_addon_version: object) -> None:
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    Material.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Material.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonMaterialExtensionPropertyGroup
     )
 
-    Scene.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Scene.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonSceneExtensionPropertyGroup
     )
 
-    Bone.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Bone.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonBoneExtensionPropertyGroup
     )
 
-    Armature.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Armature.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonArmatureExtensionPropertyGroup
     )
 
-    Object.vrm_addon_extension = bpy.props.PointerProperty(  # type: ignore[assignment]
+    Object.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonObjectExtensionPropertyGroup
     )
 

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.props import BoolProperty, CollectionProperty, IntProperty, StringProperty
 from bpy.types import (
     Armature,
     Bone,
@@ -36,8 +37,8 @@ logger = get_logger(__name__)
 
 
 class VrmValidationError(PropertyGroup):
-    message: bpy.props.StringProperty()  # type: ignore[valid-type]
-    severity: bpy.props.IntProperty(min=0)  # type: ignore[valid-type]
+    message: StringProperty()  # type: ignore[valid-type]
+    severity: IntProperty(min=0)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -51,11 +52,11 @@ class WM_OT_vrm_validator(Operator):
     bl_label = "Validate VRM Model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."
 
-    show_successful_message: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    show_successful_message: BoolProperty(  # type: ignore[valid-type]
         default=True
     )
-    errors: bpy.props.CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
-    armature_object_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    errors: CollectionProperty(type=VrmValidationError)  # type: ignore[valid-type]
+    armature_object_name: StringProperty()  # type: ignore[valid-type]
 
     def execute(self, context: Context) -> set[str]:
         self.detect_errors(

@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Optional, TypeVar, cast
 from urllib.parse import urlparse
 
 import bpy
+from bpy.props import StringProperty
 from bpy.types import Armature, Context, Event, Mesh, Operator, UILayout
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
@@ -29,7 +30,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
     right_pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_R_")
     full__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?")
 
-    armature_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 
@@ -101,8 +102,8 @@ class VRM_OT_add_human_bone_custom_property(Operator):
     bl_description = ""
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_name: bpy.props.StringProperty()  # type: ignore[valid-type]
-    bone_name: bpy.props.StringProperty()  # type: ignore[valid-type]
+    armature_name: StringProperty()  # type: ignore[valid-type]
+    bone_name: StringProperty()  # type: ignore[valid-type]
 
     def execute(self, _context: Context) -> set[str]:
         if self.armature_name not in bpy.data.armatures:
@@ -166,7 +167,7 @@ class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
     bl_options: Set[str] = {"REGISTER"}
 
     filename_ext = ".json"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.json",
         options={"HIDDEN"},
     )
@@ -214,7 +215,7 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".json"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.json",
         options={"HIDDEN"},
     )
@@ -327,7 +328,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
     bl_description = "Open the URL in the default web browser"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    url: bpy.props.StringProperty(  # type: ignore[valid-type]
+    url: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 
