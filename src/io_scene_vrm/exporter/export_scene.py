@@ -104,7 +104,11 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         + " (Exported meshes can be corrupted)",
         update=export_vrm_update_addon_preferences,
     )
-    errors: CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
+
+    errors: CollectionProperty(  # type: ignore[valid-type]
+        type=validation.VrmValidationError,
+        options={"HIDDEN"},
+    )
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
