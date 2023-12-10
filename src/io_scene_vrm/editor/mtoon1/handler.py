@@ -63,7 +63,7 @@ def trigger_update_mtoon1_outline() -> None:
 flagg = 0
 
 
-def check_matcap_operator_status(dummy=None):
+def check_matcap_operator_status(dummy: object = None) -> None:
     if bpy.app.timers.is_registered(delayed_start_for_viewport_matrix):
         return
 

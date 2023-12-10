@@ -17,6 +17,7 @@ from bpy.types import (
     Object,
     Operator,
     ShaderNodeMapping,
+    WindowManager,
 )
 from bpy_extras import view3d_utils
 from bpy_extras.io_utils import ImportHelper
@@ -47,7 +48,7 @@ logger = get_logger(__name__)
 
 
 # The Viewport Matrix is used in a modal to update Matcaps
-def store_viewport_matrix():
+def store_viewport_matrix() -> None:
     wm = bpy.context.window_manager
     active_hash = getattr(
         wm, "ActiveView3DIndex", None
@@ -126,11 +127,11 @@ def store_viewport_matrix():
         )
 
 
-def delayed_start_for_viewport_matrix():
+def delayed_start_for_viewport_matrix() -> None:
     bpy.ops.wm.store_viewport_matrix("INVOKE_DEFAULT")
 
 
-def initialize_viewport_matrix():
+def initialize_viewport_matrix() -> None:
     wm = bpy.context.window_manager
     if len(wm.ViewportMatrixWorld) == 0:
         for _ in range(5):  # 5x5 matrix
@@ -141,7 +142,7 @@ def initialize_viewport_matrix():
 input_cache = {}
 
 
-def update_input_cache():
+def update_input_cache() -> None:
     global input_cache
     input_cache.clear()
     for material in bpy.data.materials:
@@ -153,7 +154,7 @@ def update_input_cache():
                             input_cache[sub_node.name] = sub_node.inputs
 
 
-def set_values_in_unity_style_matcap_uv(wm):
+def set_values_in_unity_style_matcap_uv(wm: WindowManager) -> None:
     for node_name, inputs in input_cache.items():
         if node_name == "camera matrix":
             inputs["X"].default_value = wm.ViewportMatrixWorld[0].rot
@@ -184,7 +185,7 @@ class StoreViewportMatrixOperator(Operator):
             matrix.append((row.loc, row.rot, row.scale, row.w))
         return tuple(matrix)
 
-    def modal(self, context, event):
+    def modal(self, context: Context, event: Event) -> set[str]:
         wm = bpy.context.window_manager
         if len(wm.ViewportMatrixWorld) == 0:
             # Call this before you call store_viewport_matrix
@@ -226,7 +227,7 @@ class StoreViewportMatrixOperator(Operator):
 
         return {"PASS_THROUGH"}
 
-    def execute(self, context):
+    def execute(self, context: Context) -> set[str]:
         update_input_cache()  # Initialize the matcap input cache
         store_viewport_matrix()  # Initialize the stored view matrix
         self._prev_view_matrix = self.get_view_matrix_as_tuple()
@@ -236,7 +237,7 @@ class StoreViewportMatrixOperator(Operator):
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
 
-    def cancel(self, context):
+    def cancel(self, context: Context) -> None:
         self._timer = None
 
 
