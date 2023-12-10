@@ -19,7 +19,11 @@ from bpy_extras.io_utils import ExportHelper
 
 from ..common import version
 from ..common.logging import get_logger
-from ..common.preferences import get_preferences
+from ..common.preferences import (
+    copy_export_preferences,
+    draw_export_preferences_layout,
+    get_preferences,
+)
 from ..editor import search, validation
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
@@ -47,32 +51,14 @@ logger = get_logger(__name__)
 def export_vrm_update_addon_preferences(
     export_op: "EXPORT_SCENE_OT_vrm", context: Context
 ) -> None:
-    preferences = get_preferences(context)
+    if export_op.use_addon_preferences:
+        copy_export_preferences(source=export_op, destination=get_preferences(context))
 
-    changed = False
-
-    if preferences.export_invisibles != export_op.export_invisibles:
-        preferences.export_invisibles = export_op.export_invisibles
-        changed = True
-
-    if preferences.export_only_selections != export_op.export_only_selections:
-        preferences.export_only_selections = export_op.export_only_selections
-        changed = True
-
-    if preferences.enable_advanced_preferences != export_op.enable_advanced_preferences:
-        preferences.enable_advanced_preferences = export_op.enable_advanced_preferences
-        changed = True
-
-    if preferences.export_fb_ngon_encoding != export_op.export_fb_ngon_encoding:
-        preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
-        changed = True
-
-    if changed:
-        validation.WM_OT_vrm_validator.detect_errors(
-            context,
-            export_op.errors,
-            export_op.armature_object_name,
-        )
+    validation.WM_OT_vrm_validator.detect_errors(
+        context,
+        export_op.errors,
+        export_op.armature_object_name,
+    )
 
 
 class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
@@ -87,6 +73,10 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         options={"HIDDEN"},
     )
 
+    use_addon_preferences: BoolProperty(  # type: ignore[valid-type]
+        name="Export using add-on preferences",
+        description="Export using add-on preferences instead of operator arguments",
+    )
     export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
         update=export_vrm_update_addon_preferences,
@@ -120,6 +110,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         if not self.filepath:
             return {"CANCELLED"}
 
+        if self.use_addon_preferences:
+            copy_export_preferences(source=get_preferences(context), destination=self)
+
         if bpy.ops.vrm.model_validate(
             "INVOKE_DEFAULT",
             show_successful_message=False,
@@ -127,18 +120,15 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         ) != {"FINISHED"}:
             return {"CANCELLED"}
 
-        preferences = get_preferences(context)
-        export_invisibles = preferences.export_invisibles
-        export_only_selections = preferences.export_only_selections
-        if preferences.enable_advanced_preferences:
-            export_fb_ngon_encoding = preferences.export_fb_ngon_encoding
+        if self.enable_advanced_preferences:
+            export_fb_ngon_encoding = self.export_fb_ngon_encoding
         else:
             export_fb_ngon_encoding = False
 
         export_objects = search.export_objects(
             context,
-            export_invisibles,
-            export_only_selections,
+            self.export_invisibles,
+            self.export_only_selections,
             self.armature_object_name,
         )
         is_vrm1 = any(
@@ -166,18 +156,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         return {"FINISHED"}
 
     def invoke(self, context: Context, event: Event) -> set[str]:
-        preferences = get_preferences(context)
-        (
-            self.export_invisibles,
-            self.export_only_selections,
-            self.enable_advanced_preferences,
-            self.export_fb_ngon_encoding,
-        ) = (
-            preferences.export_invisibles,
-            preferences.export_only_selections,
-            preferences.enable_advanced_preferences,
-            preferences.export_fb_ngon_encoding,
-        )
+        self.use_addon_preferences = True
+        copy_export_preferences(source=get_preferences(context), destination=self)
+
         if "gltf" not in dir(bpy.ops.export_scene):
             return bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
                 "INVOKE_DEFAULT",
@@ -272,6 +253,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         filter_glob: str  # type: ignore[no-redef]
+        use_addon_preferences: bool  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
@@ -281,7 +263,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         ignore_warning: bool  # type: ignore[no-redef]
 
 
-class VRM_PT_export_error_messages(Panel):
+class VRM_PT_export_file_browser_tool_props(Panel):
     bl_idname = "VRM_IMPORTER_PT_export_error_messages"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -318,13 +300,12 @@ class VRM_PT_export_error_messages(Panel):
                     icon="NONE" if index else "ERROR",
                 )
 
-        layout.prop(operator, "export_invisibles")
-        layout.prop(operator, "export_only_selections")
-        layout.prop(operator, "enable_advanced_preferences")
-        if getattr(operator, "enable_advanced_preferences", False):
-            advanced_options_box = layout.box()
-            advanced_options_box.prop(operator, "export_fb_ngon_encoding")
-        validation.WM_OT_vrm_validator.draw_errors(operator.errors, False, layout.box())
+        draw_export_preferences_layout(operator, layout)
+
+        if operator.errors:
+            validation.WM_OT_vrm_validator.draw_errors(
+                operator.errors, False, layout.box()
+            )
 
 
 class VRM_PT_export_vrma_help(Panel):
@@ -350,6 +331,7 @@ def menu_export(menu_op: Operator, _context: Context) -> None:
     vrm_export_op = layout_operator(
         menu_op.layout, EXPORT_SCENE_OT_vrm, text="VRM (.vrm)"
     )
+    vrm_export_op.use_addon_preferences = True
     vrm_export_op.armature_object_name = ""
     vrm_export_op.ignore_warning = False
 

@@ -19,7 +19,11 @@ from bpy_extras.io_utils import ImportHelper
 
 from ..common import version
 from ..common.logging import get_logger
-from ..common.preferences import get_preferences
+from ..common.preferences import (
+    copy_import_preferences,
+    draw_import_preferences_layout,
+    get_preferences,
+)
 from ..editor import search
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
@@ -47,39 +51,8 @@ class LicenseConfirmation(PropertyGroup):
 def import_vrm_update_addon_preferences(
     import_op: "IMPORT_SCENE_OT_vrm", context: Context
 ) -> None:
-    preferences = get_preferences(context)
-
-    if (
-        preferences.set_shading_type_to_material_on_import
-        != import_op.set_shading_type_to_material_on_import
-    ):
-        preferences.set_shading_type_to_material_on_import = (
-            import_op.set_shading_type_to_material_on_import
-        )
-
-    if (
-        preferences.set_view_transform_to_standard_on_import
-        != import_op.set_view_transform_to_standard_on_import
-    ):
-        preferences.set_view_transform_to_standard_on_import = (
-            import_op.set_view_transform_to_standard_on_import
-        )
-
-    if (
-        preferences.set_armature_display_to_wire
-        != import_op.set_armature_display_to_wire
-    ):
-        preferences.set_armature_display_to_wire = (
-            import_op.set_armature_display_to_wire
-        )
-
-    if (
-        preferences.set_armature_display_to_show_in_front
-        != import_op.set_armature_display_to_show_in_front
-    ):
-        preferences.set_armature_display_to_show_in_front = (
-            import_op.set_armature_display_to_show_in_front
-        )
+    if import_op.use_addon_preferences:
+        copy_import_preferences(source=import_op, destination=get_preferences(context))
 
 
 class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
@@ -94,6 +67,10 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         options={"HIDDEN"},
     )
 
+    use_addon_preferences: BoolProperty(  # type: ignore[valid-type]
+        name="Import using add-on preferences",
+        description="Import using add-on preferences instead of operator arguments",
+    )
     extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]
         name="Extract texture images into the folder",
         default=False,
@@ -128,6 +105,9 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         if not filepath.is_file():
             return {"CANCELLED"}
 
+        if self.use_addon_preferences:
+            copy_import_preferences(source=get_preferences(context), destination=self)
+
         license_error = None
         try:
             return create_blend_model(
@@ -156,33 +136,55 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         )
 
     def invoke(self, context: Context, event: Event) -> set[str]:
-        preferences = get_preferences(context)
-        (
-            self.set_shading_type_to_material_on_import,
-            self.set_view_transform_to_standard_on_import,
-            self.set_armature_display_to_wire,
-            self.set_armature_display_to_show_in_front,
-        ) = (
-            preferences.set_shading_type_to_material_on_import,
-            preferences.set_view_transform_to_standard_on_import,
-            preferences.set_armature_display_to_wire,
-            preferences.set_armature_display_to_show_in_front,
-        )
+        self.use_addon_preferences = True
+        copy_import_preferences(source=get_preferences(context), destination=self)
 
         if "gltf" not in dir(bpy.ops.import_scene):
             return bpy.ops.wm.vrm_gltf2_addon_disabled_warning("INVOKE_DEFAULT")
         return ImportHelper.invoke(self, context, event)
 
+    def draw(self, _context: Context) -> None:
+        pass  # Is needed to get panels available
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         filter_glob: str  # type: ignore[no-redef]
+        use_addon_preferences: bool  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]
         set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
         set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]
         set_armature_display_to_wire: bool  # type: ignore[no-redef]
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
+
+
+class VRM_PT_import_file_browser_tool_props(Panel):
+    bl_idname = "VRM_PT_import_file_browser_tool_props"
+    bl_space_type = "FILE_BROWSER"
+    bl_region_type = "TOOL_PROPS"
+    bl_parent_id = "FILE_PT_operator"
+    bl_label = ""
+    bl_options: Set[str] = {"HIDE_HEADER"}
+
+    @classmethod
+    def poll(cls, context: Context) -> bool:
+        space_data = context.space_data
+        if not isinstance(space_data, SpaceFileBrowser):
+            return False
+        return space_data.active_operator.bl_idname == "IMPORT_SCENE_OT_vrm"
+
+    def draw(self, context: Context) -> None:
+        space_data = context.space_data
+        if not isinstance(space_data, SpaceFileBrowser):
+            return
+
+        operator = space_data.active_operator
+        if not isinstance(operator, IMPORT_SCENE_OT_vrm):
+            return
+
+        layout = self.layout
+        draw_import_preferences_layout(operator, layout)
 
 
 class VRM_PT_import_unsupported_blender_version_warning(Panel):
@@ -312,7 +314,11 @@ def create_blend_model(
 def menu_import(
     menu_op: Operator, _context: Context
 ) -> None:  # Same as test/blender_io.py for now
-    menu_op.layout.operator(IMPORT_SCENE_OT_vrm.bl_idname, text="VRM (.vrm)")
+    vrm_import_op = layout_operator(
+        menu_op.layout, IMPORT_SCENE_OT_vrm, text="VRM (.vrm)"
+    )
+    vrm_import_op.use_addon_preferences = True
+
     vrma_import_op = layout_operator(
         menu_op.layout, IMPORT_SCENE_OT_vrma, text="VRM Animation DRAFT (.vrma)"
     )
