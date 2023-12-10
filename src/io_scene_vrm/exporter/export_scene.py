@@ -196,7 +196,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             context,
             self.export_invisibles,
             self.export_only_selections,
-            bool(self.export_lights),
+            self.export_lights,
             self.armature_object_name,
         )
 
@@ -439,7 +439,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         preferences = get_preferences(context)
         export_invisibles = preferences.export_invisibles
         export_only_selections = preferences.export_only_selections
-        export_lights = bool(preferences.export_lights)
+        export_lights = preferences.export_lights
         export_objects = search.export_objects(
             context,
             export_invisibles,
@@ -488,7 +488,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         preferences = get_preferences(context)
         export_invisibles = preferences.export_invisibles
         export_only_selections = preferences.export_only_selections
-        export_lights = bool(preferences.export_lights)
+        export_lights = preferences.export_lights
 
         armatures = [
             obj

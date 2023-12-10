@@ -200,7 +200,7 @@ class WM_OT_vrm_validator(Operator):
         preferences = get_preferences(context)
         export_invisibles = preferences.export_invisibles
         export_only_selections = preferences.export_only_selections
-        export_lights = bool(preferences.export_lights)
+        export_lights = preferences.export_lights
         if preferences.enable_advanced_preferences:
             export_fb_ngon_encoding = preferences.export_fb_ngon_encoding
         else:
