@@ -22,15 +22,16 @@ class ImportPreferencesProtocol(Protocol):
 def copy_import_preferences(
     *, source: ImportPreferencesProtocol, destination: ImportPreferencesProtocol
 ) -> None:
-    destination.set_shading_type_to_material_on_import = (
-        source.set_shading_type_to_material_on_import
-    )
-    destination.set_view_transform_to_standard_on_import = (
-        source.set_view_transform_to_standard_on_import
-    )
-    destination.set_armature_display_to_wire = source.set_armature_display_to_wire
-    destination.set_armature_display_to_show_in_front = (
-        source.set_armature_display_to_show_in_front
+    (
+        destination.set_shading_type_to_material_on_import,
+        destination.set_view_transform_to_standard_on_import,
+        destination.set_armature_display_to_wire,
+        destination.set_armature_display_to_show_in_front,
+    ) = (
+        source.set_shading_type_to_material_on_import,
+        source.set_view_transform_to_standard_on_import,
+        source.set_armature_display_to_wire,
+        source.set_armature_display_to_show_in_front,
     )
 
 
@@ -56,10 +57,17 @@ class ExportPreferencesProtocol(Protocol):
 def copy_export_preferences(
     *, source: ExportPreferencesProtocol, destination: ExportPreferencesProtocol
 ) -> None:
-    destination.export_invisibles = source.export_invisibles
-    destination.export_only_selections = source.export_only_selections
-    destination.enable_advanced_preferences = source.enable_advanced_preferences
-    destination.export_fb_ngon_encoding = source.export_fb_ngon_encoding
+    (
+        destination.export_invisibles,
+        destination.export_only_selections,
+        destination.enable_advanced_preferences,
+        destination.export_fb_ngon_encoding,
+    ) = (
+        source.export_invisibles,
+        source.export_only_selections,
+        source.enable_advanced_preferences,
+        source.export_fb_ngon_encoding,
+    )
 
 
 def draw_export_preferences_layout(
