@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, Optional
 import bmesh
 import bpy
 from bmesh.types import BMesh
-from bpy.types import Mesh
+from bpy.props import BoolProperty, FloatProperty, StringProperty
+from bpy.types import Armature, Bone, Context, EditBone, Mesh, Object, Operator
 from mathutils import Matrix, Vector
 
 from ..common.version import addon_version
@@ -21,24 +22,24 @@ MIN_BONE_LENGTH = 0.00001  # 10μm
 AUTO_BONE_CONNECTION_DISTANCE = 0.000001  # 1μm
 
 
-class ICYP_OT_make_armature(bpy.types.Operator):
+class ICYP_OT_make_armature(Operator):
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "Create armature along with a simple setup for VRM export"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    skip_heavy_armature_setup: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    skip_heavy_armature_setup: BoolProperty(  # type: ignore[valid-type]
         default=False,
         options={"HIDDEN"},
     )
 
     #
-    WIP_with_template_mesh: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    WIP_with_template_mesh: BoolProperty(  # type: ignore[valid-type]
         default=False
     )
 
     # 身長 at meter
-    tall: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    tall: FloatProperty(  # type: ignore[valid-type]
         default=1.70,
         min=0.3,
         step=1,
@@ -46,14 +47,14 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     )
 
     # 頭身
-    head_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    head_ratio: FloatProperty(  # type: ignore[valid-type]
         default=8.0,
         min=4,
         step=5,
         description="height per heads",
     )
 
-    head_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    head_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=2 / 3,
         min=0.3,
         max=1.2,
@@ -62,24 +63,24 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     )
 
     # 足-胴比率:0:子供、1:大人 に近くなる(低等身で有効)
-    aging_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    aging_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5, min=0, max=1, step=10
     )
 
     # 目の奥み
-    eye_depth: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_depth: FloatProperty(  # type: ignore[valid-type]
         default=-0.03, min=-0.1, max=0, step=1
     )
 
     # 肩幅
-    shoulder_in_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    shoulder_in_width: FloatProperty(  # type: ignore[valid-type]
         default=0.05,
         min=0.01,
         step=1,
         description="Inner shoulder position",
     )
 
-    shoulder_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    shoulder_width: FloatProperty(  # type: ignore[valid-type]
         default=0.08,
         min=0.01,
         step=1,
@@ -87,16 +88,16 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     )
 
     # 腕長さ率
-    arm_length_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    arm_length_ratio: FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.5, step=1
     )
 
     # 手
-    hand_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    hand_ratio: FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.5, max=2.0, step=5
     )
 
-    finger_1_2_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    finger_1_2_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.75,
         min=0.5,
         max=1,
@@ -104,7 +105,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         description="proximal / intermediate",
     )
 
-    finger_2_3_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    finger_2_3_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.75,
         min=0.5,
         max=1,
@@ -112,13 +113,13 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         description="intermediate / distal",
     )
 
-    nail_bone: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    nail_bone: BoolProperty(  # type: ignore[valid-type]
         default=False,
         description="may need for finger collider",
     )  # 指先の当たり判定として必要
 
     # 足
-    leg_length_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    leg_length_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
         min=0.3,
         max=0.6,
@@ -126,21 +127,21 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         description="upper body/lower body",
     )
 
-    leg_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    leg_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=1, min=0.01, step=1
     )
 
-    leg_size: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    leg_size: FloatProperty(  # type: ignore[valid-type]
         default=0.26, min=0.05, step=1
     )
 
-    custom_property_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    custom_property_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 
     armature_obj = None
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         if (
             context.view_layer.objects.active is not None
             and context.view_layer.objects.active.mode != "OBJECT"
@@ -167,16 +168,14 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     def hand_size(self) -> float:
         return self.head_size() * 0.75 * self.float_prop("hand_ratio")
 
-    def make_armature(
-        self, context: bpy.types.Context
-    ) -> tuple[bpy.types.Object, dict[str, str]]:
+    def make_armature(self, context: Context) -> tuple[Object, dict[str, str]]:
         bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
         armature = context.object
         if not armature:
             message = "armature is not created"
             raise ValueError(message)
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = "armature data is not an Armature"
             raise TypeError(message)
         armature_data.vrm_addon_extension.addon_version = addon_version()
@@ -187,12 +186,12 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             name: str,
             head_pos: Vector,
             tail_pos: Vector,
-            parent_bone: Optional[bpy.types.EditBone] = None,
+            parent_bone: Optional[EditBone] = None,
             radius: float = 0.1,
             roll: float = 0,
-        ) -> bpy.types.EditBone:
+        ) -> EditBone:
             armature_data = armature.data
-            if not isinstance(armature_data, bpy.types.Armature):
+            if not isinstance(armature_data, Armature):
                 message = "armature data is not an Armature"
                 raise TypeError(message)
             added_bone = armature_data.edit_bones.new(name)
@@ -212,10 +211,10 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             base_name: str,
             right_head_pos: Vector,
             right_tail_pos: Vector,
-            parent_bones: tuple[bpy.types.EditBone, bpy.types.EditBone],
+            parent_bones: tuple[EditBone, EditBone],
             radius: float = 0.1,
             bone_type: str = "other",
-        ) -> tuple[bpy.types.EditBone, bpy.types.EditBone]:
+        ) -> tuple[EditBone, EditBone]:
             right_roll = 0
             left_roll = 0
             if bone_type == "arm":
@@ -430,9 +429,9 @@ class ICYP_OT_make_armature(bpy.types.Operator):
             proximal_pos: Vector,
             finger_len_sum: float,
         ) -> tuple[
-            tuple[bpy.types.EditBone, bpy.types.EditBone],
-            tuple[bpy.types.EditBone, bpy.types.EditBone],
-            tuple[bpy.types.EditBone, bpy.types.EditBone],
+            tuple[EditBone, EditBone],
+            tuple[EditBone, EditBone],
+            tuple[EditBone, EditBone],
         ]:
             finger_normalize = 1 / (
                 self.finger_1_2_ratio * self.finger_2_3_ratio
@@ -564,7 +563,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         bone_name_all_dict.update(fingers_dict)
 
         armature_data = armature.data
-        if isinstance(armature_data, bpy.types.Armature):
+        if isinstance(armature_data, Armature):
             connect_parent_tail_and_child_head_if_very_close_position(armature_data)
 
         context.scene.view_layers.update()
@@ -572,15 +571,10 @@ class ICYP_OT_make_armature(bpy.types.Operator):
         context.scene.view_layers.update()
         return armature, bone_name_all_dict
 
-    def setup_as_vrm(
-        self, armature: bpy.types.Object, compare_dict: dict[str, str]
-    ) -> None:
+    def setup_as_vrm(self, armature: Object, compare_dict: dict[str, str]) -> None:
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         armature_data = armature.data
-        if (
-            isinstance(armature_data, bpy.types.Armature)
-            and not self.skip_heavy_armature_setup
-        ):
+        if isinstance(armature_data, Armature) and not self.skip_heavy_armature_setup:
             for vrm_bone_name, bpy_bone_name in compare_dict.items():
                 for (
                     human_bone
@@ -598,11 +592,11 @@ class ICYP_OT_make_armature(bpy.types.Operator):
     @classmethod
     def make_extension_setting_and_metas(
         cls,
-        armature: bpy.types.Object,
+        armature: Object,
         offset_from_head_bone: tuple[float, float, float] = (0, 0, 0),
     ) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         vrm0 = armature_data.vrm_addon_extension.vrm0
         vrm1 = armature_data.vrm_addon_extension.vrm1
@@ -649,7 +643,7 @@ class ICYP_OT_make_armature(bpy.types.Operator):
 
 
 def connect_parent_tail_and_child_head_if_very_close_position(
-    armature: bpy.types.Armature,
+    armature: Armature,
 ) -> None:
     bones = [bone for bone in armature.edit_bones if not bone.parent]
     while bones:
@@ -681,8 +675,8 @@ def connect_parent_tail_and_child_head_if_very_close_position(
 
 class IcypTemplateMeshMaker:
     def make_mesh_obj(
-        self, context: bpy.types.Context, name: str, method: Callable[[Mesh], None]
-    ) -> bpy.types.Object:
+        self, context: Context, name: str, method: Callable[[Mesh], None]
+    ) -> Object:
         mesh = bpy.data.meshes.new(name)
         method(mesh)
         obj = bpy.data.objects.new(name, mesh)
@@ -692,19 +686,19 @@ class IcypTemplateMeshMaker:
         bpy.ops.object.modifier_add(type="MIRROR")
         return obj
 
-    def __init__(self, context: bpy.types.Context, args: ICYP_OT_make_armature) -> None:
+    def __init__(self, context: Context, args: ICYP_OT_make_armature) -> None:
         self.args = args
         self.head_size = args.tall / args.head_ratio
         self.make_mesh_obj(context, "Head", self.make_head)
         self.make_mesh_obj(context, "Body", self.make_humanoid)
 
-    def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
+    def get_humanoid_bone(self, bone: str) -> Bone:
         armature_obj = self.args.armature_obj
         if armature_obj is None:
             message = "armature obj is None"
             raise AssertionError(message)
         armature_data = armature_obj.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not a Armature"
             raise TypeError(message)
 
@@ -725,7 +719,7 @@ class IcypTemplateMeshMaker:
     # にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod
     def head_bone_to_head_matrix(
-        head_bone: bpy.types.Bone, head_tall_size: float, neck_depth_offset: float
+        head_bone: Bone, head_tall_size: float, neck_depth_offset: float
     ) -> Matrix:
         return (
             head_bone.matrix_local
@@ -742,7 +736,7 @@ class IcypTemplateMeshMaker:
             )
         )
 
-    def make_head(self, mesh: bpy.types.Mesh) -> None:
+    def make_head(self, mesh: Mesh) -> None:
         args = self.args
         bm = bmesh.new()
         head_size = self.head_size
@@ -759,14 +753,14 @@ class IcypTemplateMeshMaker:
         bm.to_mesh(mesh)
         bm.free()
 
-    def make_humanoid(self, mesh: bpy.types.Mesh) -> None:
+    def make_humanoid(self, mesh: Mesh) -> None:
         args = self.args
         armature_obj = args.armature_obj
         if armature_obj is None:
             message = "armature obj is None"
             raise AssertionError(message)
         armature_data = armature_obj.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not a Armature"
             raise TypeError(message)
 

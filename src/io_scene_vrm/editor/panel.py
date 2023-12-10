@@ -1,7 +1,7 @@
 from collections.abc import Set
 
-import bpy
 from bpy.app.translations import pgettext
+from bpy.types import Armature, Context, Operator, Panel
 
 from ..common import version
 from ..common.preferences import get_preferences
@@ -15,7 +15,7 @@ from . import (
 from .ops import layout_operator
 
 
-class VRM_PT_vrm_armature_object_property(bpy.types.Panel):
+class VRM_PT_vrm_armature_object_property(Panel):
     bl_idname = "VRM_PT_vrm_armature_object_property"
     bl_label = "VRM"
     bl_space_type = "PROPERTIES"
@@ -23,14 +23,14 @@ class VRM_PT_vrm_armature_object_property(bpy.types.Panel):
     bl_context = "object"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         active_object = context.active_object
         if not active_object:
             return False
         armature_data = active_object.data
-        return isinstance(armature_data, bpy.types.Armature)
+        return isinstance(armature_data, Armature)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         warning_message = version.panel_warning_message()
         if not warning_message:
             return
@@ -45,9 +45,7 @@ class VRM_PT_vrm_armature_object_property(bpy.types.Panel):
             )
 
 
-def add_armature(
-    add_armature_op: bpy.types.Operator, _context: bpy.types.Context
-) -> None:
+def add_armature(add_armature_op: Operator, _context: Context) -> None:
     layout_operator(
         add_armature_op.layout,
         make_armature.ICYP_OT_make_armature,
@@ -56,7 +54,7 @@ def add_armature(
     ).skip_heavy_armature_setup = True
 
 
-def make_mesh(make_mesh_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
+def make_mesh(make_mesh_op: Operator, _context: Context) -> None:
     make_mesh_op.layout.separator()
     make_mesh_op.layout.operator(
         mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes.bl_idname,
@@ -70,7 +68,7 @@ def make_mesh(make_mesh_op: bpy.types.Operator, _context: bpy.types.Context) -> 
     )
 
 
-class VRM_PT_current_selected_armature(bpy.types.Panel):
+class VRM_PT_current_selected_armature(Panel):
     bl_idname = "VRM_PT_current_selected_armature"
     bl_label = "Current selected armature"
     bl_space_type = "VIEW_3D"
@@ -79,10 +77,10 @@ class VRM_PT_current_selected_armature(bpy.types.Panel):
     bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.multiple_armatures_exist(context)
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
@@ -90,17 +88,17 @@ class VRM_PT_current_selected_armature(bpy.types.Panel):
         layout.label(text=armature.name, icon="ARMATURE_DATA", translate=False)
 
 
-class VRM_PT_controller(bpy.types.Panel):
+class VRM_PT_controller(Panel):
     bl_idname = "ICYP_PT_ui_controller"
     bl_label = "Operator"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="TOOL_SETTINGS")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         layout = self.layout
         preferences = get_preferences(context)
 
@@ -125,7 +123,7 @@ class VRM_PT_controller(bpy.types.Panel):
         if armature:
             vrm_validator_op.armature_object_name = armature.name
             armature_data = armature.data
-            if isinstance(armature_data, bpy.types.Armature):
+            if isinstance(armature_data, Armature):
                 layout.prop(
                     armature_data.vrm_addon_extension,
                     "spec_version",
@@ -134,7 +132,7 @@ class VRM_PT_controller(bpy.types.Panel):
                 )
 
 
-class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):
+class VRM_PT_controller_unsupported_blender_version_warning(Panel):
     bl_idname = "VRM_PT_controller_unsupported_blender_version_warning"
     bl_label = "Unsupported Blender Version Warning"
     bl_space_type = "VIEW_3D"
@@ -143,10 +141,10 @@ class VRM_PT_controller_unsupported_blender_version_warning(bpy.types.Panel):
     bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, _context: bpy.types.Context) -> bool:
+    def poll(cls, _context: Context) -> bool:
         return bool(version.panel_warning_message())
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         warning_message = version.panel_warning_message()
         if warning_message is None:
             return

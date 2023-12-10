@@ -2,6 +2,7 @@ import json
 import tempfile
 
 import bpy
+from bpy.types import Armature
 
 
 def test() -> None:
@@ -16,7 +17,7 @@ def test() -> None:
     if not active_object:
         raise AssertionError
     data = active_object.data
-    if not isinstance(data, bpy.types.Armature):
+    if not isinstance(data, Armature):
         raise TypeError
 
     b = next(

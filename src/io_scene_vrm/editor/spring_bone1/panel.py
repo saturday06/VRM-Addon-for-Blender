@@ -2,6 +2,7 @@ from collections.abc import Set
 from typing import Optional
 
 import bpy
+from bpy.types import Armature, Context, Object, Panel, UILayout
 
 from .. import search
 from ..migration import migrate
@@ -16,12 +17,12 @@ from .property_group import (
 
 
 def draw_spring_bone1_collider_layout(
-    armature: bpy.types.Object,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return
     if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
         layout.prop_search(collider.node, "bone_name", armature_data, "bones")
@@ -54,14 +55,14 @@ def draw_spring_bone1_collider_layout(
 
 
 def draw_spring_bone1_spring_bone_layout(
-    armature: bpy.types.Object,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    layout: UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
 
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return
 
     layout.prop(spring_bone, "enable_animation")
@@ -360,7 +361,7 @@ def draw_spring_bone1_spring_bone_layout(
         add_spring_op.armature_name = armature.name
 
 
-class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):
+class VRM_PT_spring_bone1_armature_object_property(Panel):
     bl_idname = "VRM_PT_vrm1_spring_bone_armature_object_property"
     bl_label = "Spring Bone"
     bl_translation_context = "VRM"
@@ -371,18 +372,18 @@ class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return active_object_is_vrm1_armature(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="PHYSICS")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_spring_bone1_spring_bone_layout(
             active_object,
@@ -391,7 +392,7 @@ class VRM_PT_spring_bone1_armature_object_property(bpy.types.Panel):
         )
 
 
-class VRM_PT_spring_bone1_ui(bpy.types.Panel):
+class VRM_PT_spring_bone1_ui(Panel):
     bl_idname = "VRM_PT_vrm1_spring_bone_ui"
     bl_label = "Spring Bone"
     bl_translation_context = "VRM"
@@ -401,18 +402,18 @@ class VRM_PT_spring_bone1_ui(bpy.types.Panel):
     bl_options: Set[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.current_armature_is_vrm1(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="PHYSICS")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_spring_bone1_spring_bone_layout(
             armature,
@@ -421,7 +422,7 @@ class VRM_PT_spring_bone1_ui(bpy.types.Panel):
         )
 
 
-class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):
+class VRM_PT_spring_bone1_collider_property(Panel):
     bl_idname = "VRM_PT_spring_bone1_collider_property"
     bl_label = "VRM Spring Bone Collider"
     bl_space_type = "PROPERTIES"
@@ -430,8 +431,8 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):
 
     @classmethod
     def active_armature_and_collider(
-        cls, context: bpy.types.Context
-    ) -> Optional[tuple[bpy.types.Object, SpringBone1ColliderPropertyGroup]]:
+        cls, context: Context
+    ) -> Optional[tuple[Object, SpringBone1ColliderPropertyGroup]]:
         active_object = context.active_object
         if not active_object:
             return None
@@ -460,7 +461,7 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):
             if obj.type != "ARMATURE":
                 continue
             armature_data = obj.data
-            if not isinstance(armature_data, bpy.types.Armature):
+            if not isinstance(armature_data, Armature):
                 continue
             for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
                 if collider.bpy_object == collider_object:
@@ -468,16 +469,16 @@ class VRM_PT_spring_bone1_collider_property(bpy.types.Panel):
         return None
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return cls.active_armature_and_collider(context) is not None
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature_and_collider = self.active_armature_and_collider(context)
         if armature_and_collider is None:
             return
         armature, collider = armature_and_collider
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         if armature_data.vrm_addon_extension.is_vrm1():
             draw_spring_bone1_collider_layout(armature, self.layout.column(), collider)

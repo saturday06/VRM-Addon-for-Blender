@@ -1,7 +1,6 @@
 from collections.abc import Set
 
-import bpy
-from bpy.types import GizmoGroup
+from bpy.types import Armature, Context, GizmoGroup
 
 
 # https://gist.github.com/FujiSunflower/09fdabc7ca991f8292657abc4ef001b0
@@ -13,18 +12,18 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
     bl_options: Set[str] = {"3D", "PERSISTENT"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         active_object = context.active_object
         if not active_object:
             return False
         return active_object.type == "ARMATURE"
 
-    def setup(self, context: bpy.types.Context) -> None:
+    def setup(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         ext = armature_data.vrm_addon_extension
         first_person = ext.vrm0.first_person
@@ -46,12 +45,12 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
         self.first_person_gizmo = gizmo
         # pylint: enable=attribute-defined-outside-init;
 
-    def refresh(self, context: bpy.types.Context) -> None:
+    def refresh(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         ext = armature_data.vrm_addon_extension
         gizmo = self.first_person_gizmo

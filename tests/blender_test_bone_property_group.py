@@ -1,6 +1,7 @@
 from typing import Optional
 
 import bpy
+from bpy.types import Armature, EditBone, Object
 from mathutils import Vector
 
 from io_scene_vrm.common.vrm0.human_bone import (
@@ -13,20 +14,18 @@ Tree = dict[str, "Tree"]
 
 
 def assert_bone_candidates(
-    armature: bpy.types.Object,
+    armature: Object,
     target_human_bone_specification: HumanBoneSpecification,
     bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     expected: set[str],
     tree: dict[str, Tree],
 ) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
-    if not isinstance(armature.data, bpy.types.Armature):
+    if not isinstance(armature.data, Armature):
         raise TypeError
     for bone in list(armature.data.edit_bones):
         armature.data.edit_bones.remove(bone)
-    parent_and_trees: list[tuple[Optional[bpy.types.EditBone], dict[str, Tree]]] = [
-        (None, tree)
-    ]
+    parent_and_trees: list[tuple[Optional[EditBone], dict[str, Tree]]] = [(None, tree)]
     while parent_and_trees:
         (parent, tree) = parent_and_trees.pop()
         for child_name, child_tree in tree.items():

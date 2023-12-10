@@ -3,6 +3,7 @@ from typing import Optional
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.types import Mesh
 
 from ...common.logging import get_logger
 from .ops import VRM_OT_refresh_mtoon1_outline, delayed_start_for_viewport_matrix
@@ -20,20 +21,18 @@ def update_mtoon1_outline() -> Optional[float]:
     object_material_state = [
         [
             (
-                str(material_slot.material.name),
-                bool(
-                    material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
-                        material_slot.material
-                    )
+                material_slot.material.name,
+                material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
+                    material_slot.material
                 ),
-                bool(obj.data.use_auto_smooth),
+                obj.data.use_auto_smooth,
             )
             if material_slot.material
             else None
             for material_slot in obj.material_slots
         ]
         for obj in bpy.data.objects
-        if isinstance(obj.data, bpy.types.Mesh)
+        if isinstance(obj.data, Mesh)
     ]
     not_changed = object_material_state == previous_object_material_state
 

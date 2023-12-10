@@ -4,6 +4,9 @@ from typing import TYPE_CHECKING
 
 import bmesh
 import bpy
+from bmesh.types import BMVert
+from bpy.props import FloatProperty
+from bpy.types import Armature, Bone, Context, Event, Mesh, Operator
 from mathutils import Matrix, Vector
 
 from ..common.logging import get_logger
@@ -12,16 +15,16 @@ from .make_armature import IcypTemplateMeshMaker
 logger = get_logger(__name__)
 
 
-class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
+class ICYP_OT_detail_mesh_maker(Operator):
     bl_idname = "icyp.make_mesh_detail"
     bl_label = "(Don't work currently)detail mesh"
     l_description = "Create mesh with a simple setup for VRM export"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     # init before execute
-    # https://docs.blender.org/api/2.82/bpy.types.Operator.html#invoke-function
+    # https://docs.blender.org/api/2.82/Operator.html#invoke-function
     # pylint: disable=W0201
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         self.base_armature_name = next(
             o for o in context.selected_objects if o.type == "ARMATURE"
         ).name
@@ -40,7 +43,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
         self.head_depth_size = rfd[1] - rbd[1]
         return self.execute(context)
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         self.base_armature = bpy.data.objects[self.base_armature_name]
         self.face_mesh = bpy.data.objects[self.face_mesh_name]
         head_bone = self.get_humanoid_bone("head")
@@ -69,14 +72,14 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
         context.view_layer.objects.active = self.face_mesh
         return {"FINISHED"}
 
-    def get_humanoid_bone(self, bone: str) -> bpy.types.Bone:
+    def get_humanoid_bone(self, bone: str) -> Bone:
         armature_data = self.base_armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         return armature_data.bones[str(armature_data[bone])]
 
-    face_center_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    face_center_ratio: FloatProperty(  # type: ignore[valid-type]
         default=1,
         min=0.2,
         max=1,
@@ -86,7 +89,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         face_center_ratio: float  # type: ignore[no-redef]
 
-    eye_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=2,
         min=0.5,
         max=4,
@@ -95,7 +98,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         eye_width_ratio: float  # type: ignore[no-redef]
 
-    nose_head_height: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_head_height: FloatProperty(  # type: ignore[valid-type]
         default=1,
         min=0,
         max=1,
@@ -104,7 +107,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         nose_head_height: float  # type: ignore[no-redef]
 
-    nose_top_pos: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_top_pos: FloatProperty(  # type: ignore[valid-type]
         default=0.2,
         min=0,
         max=0.6,
@@ -113,7 +116,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         nose_top_pos: float  # type: ignore[no-redef]
 
-    nose_height: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_height: FloatProperty(  # type: ignore[valid-type]
         default=0.015,
         min=0.01,
         max=0.1,
@@ -123,7 +126,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         nose_height: float  # type: ignore[no-redef]
 
-    nose_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    nose_width: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
         min=0.01,
         max=1,
@@ -132,7 +135,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         nose_width: float  # type: ignore[no-redef]
 
-    eye_depth: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_depth: FloatProperty(  # type: ignore[valid-type]
         default=0.01,
         min=0.01,
         max=0.1,
@@ -141,7 +144,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         eye_depth: float  # type: ignore[no-redef]
 
-    eye_angle: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_angle: FloatProperty(  # type: ignore[valid-type]
         default=radians(15),
         min=0,
         max=0.55,
@@ -150,7 +153,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         eye_angle: float  # type: ignore[no-redef]
 
-    eye_rotate: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    eye_rotate: FloatProperty(  # type: ignore[valid-type]
         default=0.43,
         min=0,
         max=0.86,
@@ -159,7 +162,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         eye_rotate: float  # type: ignore[no-redef]
 
-    cheek_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    cheek_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
         min=0,
         max=1,
@@ -168,7 +171,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         cheek_ratio: float  # type: ignore[no-redef]
 
-    cheek_width: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    cheek_width: FloatProperty(  # type: ignore[valid-type]
         default=0.85,
         min=0.5,
         max=1,
@@ -177,7 +180,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         cheek_width: float  # type: ignore[no-redef]
 
-    mouth_width_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
         min=0.3,
         max=0.9,
@@ -187,7 +190,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
         mouth_width_ratio: float  # type: ignore[no-redef]
 
     # 口角結節
-    mouth_corner_nodule: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_corner_nodule: FloatProperty(  # type: ignore[valid-type]
         default=0.1,
         min=0.01,
         max=1,
@@ -196,7 +199,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         mouth_corner_nodule: float  # type: ignore[no-redef]
 
-    mouth_position_ratio: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_position_ratio: FloatProperty(  # type: ignore[valid-type]
         default=2 / 3,
         min=0.3,
         max=0.7,
@@ -205,7 +208,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         mouth_position_ratio: float  # type: ignore[no-redef]
 
-    mouth_flatten: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    mouth_flatten: FloatProperty(  # type: ignore[valid-type]
         default=0.1,
         min=0.0,
         max=1,
@@ -214,8 +217,8 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
     if TYPE_CHECKING:
         mouth_flatten: float  # type: ignore[no-redef]
 
-    def make_face(self, _context: bpy.types.Context, mesh: bpy.types.Mesh) -> None:
-        def add_point(point: Sequence[float]) -> bmesh.types.BMVert:
+    def make_face(self, _context: Context, mesh: Mesh) -> None:
+        def add_point(point: Sequence[float]) -> BMVert:
             return bm.verts.new(point)
 
         def make_circle(
@@ -239,7 +242,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
             if angle == 0:
                 logger.error("Wrong angle set")
                 angle = 180
-            verts: list[bmesh.types.BMVert] = []
+            verts: list[BMVert] = []
             for i in range(divide + 1):
                 pi2 = 3.14 * 2 * radians(angle) / radians(360)
                 vert = add_point(center)
@@ -495,7 +498,7 @@ class ICYP_OT_detail_mesh_maker(bpy.types.Operator):
         bm.edges.new((otogai_vert, jaw_vert))
         bm.edges.new((jaw_vert, ear_hole_vert))
 
-        def add_mesh(points: list[bmesh.types.BMVert]) -> None:
+        def add_mesh(points: list[BMVert]) -> None:
             bm.faces.new(points)
 
         add_mesh(

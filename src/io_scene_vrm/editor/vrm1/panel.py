@@ -3,6 +3,7 @@ from typing import Optional
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.types import Armature, Context, Mesh, Object, Panel, UILayout
 
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import HumanBoneSpecifications
@@ -39,7 +40,7 @@ logger = get_logger(__name__)
 
 
 def draw_vrm1_bone_prop_search(
-    layout: bpy.types.UILayout,
+    layout: UILayout,
     human_bone: Vrm1HumanBonePropertyGroup,
     icon: str,
 ) -> None:
@@ -56,7 +57,7 @@ def draw_vrm1_bone_prop_search(
 
 def draw_vrm1_humanoid_required_bones_layout(
     human_bones: Vrm1HumanBonesPropertyGroup,
-    layout: bpy.types.UILayout,
+    layout: UILayout,
 ) -> None:
     split_factor = 0.2
 
@@ -111,7 +112,7 @@ def draw_vrm1_humanoid_required_bones_layout(
 
 def draw_vrm1_humanoid_optional_bones_layout(
     human_bones: Vrm1HumanBonesPropertyGroup,
-    layout: bpy.types.UILayout,
+    layout: UILayout,
 ) -> None:
     split_factor = 0.2
 
@@ -217,18 +218,18 @@ def draw_vrm1_humanoid_optional_bones_layout(
 
 
 def draw_vrm1_humanoid_layout(
-    armature: bpy.types.Object,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    layout: UILayout,
     humanoid: Vrm1HumanoidPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
         data = armature.data
-        if not isinstance(data, bpy.types.Armature):
+        if not isinstance(data, Armature):
             return
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(data.name)
 
     data = armature.data
-    if not isinstance(data, bpy.types.Armature):
+    if not isinstance(data, Armature):
         return
     human_bones = humanoid.human_bones
 
@@ -292,7 +293,7 @@ def draw_vrm1_humanoid_layout(
             )
 
 
-class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):
+class VRM_PT_vrm1_humanoid_armature_object_property(Panel):
     bl_idname = "VRM_PT_vrm1_humanoid_armature_object_property"
     bl_label = "Humanoid"
     bl_translation_context = "VRM"
@@ -303,20 +304,20 @@ class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return active_object_is_vrm1_armature(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="ARMATURE_DATA")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         if active_object.type != "ARMATURE":
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_humanoid_layout(
             active_object,
@@ -325,7 +326,7 @@ class VRM_PT_vrm1_humanoid_armature_object_property(bpy.types.Panel):
         )
 
 
-class VRM_PT_vrm1_humanoid_ui(bpy.types.Panel):
+class VRM_PT_vrm1_humanoid_ui(Panel):
     bl_idname = "VRM_PT_vrm1_humanoid_ui"
     bl_label = "Humanoid"
     bl_translation_context = "VRM"
@@ -335,18 +336,18 @@ class VRM_PT_vrm1_humanoid_ui(bpy.types.Panel):
     bl_options: Set[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.current_armature_is_vrm1(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="ARMATURE_DATA")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_humanoid_layout(
             armature, self.layout, armature_data.vrm_addon_extension.vrm1.humanoid
@@ -354,9 +355,9 @@ class VRM_PT_vrm1_humanoid_ui(bpy.types.Panel):
 
 
 def draw_vrm1_first_person_layout(
-    armature: bpy.types.Object,
-    context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    context: Context,
+    layout: UILayout,
     first_person: Vrm1FirstPersonPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
@@ -394,7 +395,7 @@ def draw_vrm1_first_person_layout(
     add_mesh_annotation_op.armature_name = armature.name
 
 
-class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):
+class VRM_PT_vrm1_first_person_armature_object_property(Panel):
     bl_idname = "VRM_PT_vrm1_first_person_armature_object_property"
     bl_label = "First Person"
     bl_translation_context = "VRM"
@@ -405,20 +406,20 @@ class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return active_object_is_vrm1_armature(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="HIDE_OFF")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         if active_object.type != "ARMATURE":
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_first_person_layout(
             active_object,
@@ -428,7 +429,7 @@ class VRM_PT_vrm1_first_person_armature_object_property(bpy.types.Panel):
         )
 
 
-class VRM_PT_vrm1_first_person_ui(bpy.types.Panel):
+class VRM_PT_vrm1_first_person_ui(Panel):
     bl_idname = "VRM_PT_vrm1_first_person_ui"
     bl_label = "First Person"
     bl_translation_context = "VRM"
@@ -438,18 +439,18 @@ class VRM_PT_vrm1_first_person_ui(bpy.types.Panel):
     bl_options: Set[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.current_armature_is_vrm1(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="USER")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_first_person_layout(
             armature,
@@ -460,9 +461,9 @@ class VRM_PT_vrm1_first_person_ui(bpy.types.Panel):
 
 
 def draw_vrm1_look_at_layout(
-    armature: bpy.types.Object,
-    _context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    _context: Context,
+    layout: UILayout,
     look_at: Vrm1LookAtPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
@@ -501,7 +502,7 @@ def draw_vrm1_look_at_layout(
     column.prop(look_at.range_map_vertical_down, "output_scale")
 
 
-class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):
+class VRM_PT_vrm1_look_at_armature_object_property(Panel):
     bl_idname = "VRM_PT_vrm1_look_at_armature_object_property"
     bl_label = "Look At"
     bl_translation_context = "VRM"
@@ -512,20 +513,20 @@ class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return active_object_is_vrm1_armature(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="HIDE_OFF")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         if active_object.type != "ARMATURE":
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_look_at_layout(
             active_object,
@@ -535,7 +536,7 @@ class VRM_PT_vrm1_look_at_armature_object_property(bpy.types.Panel):
         )
 
 
-class VRM_PT_vrm1_look_at_ui(bpy.types.Panel):
+class VRM_PT_vrm1_look_at_ui(Panel):
     bl_idname = "VRM_PT_vrm1_look_at_ui"
     bl_label = "Look At"
     bl_translation_context = "VRM"
@@ -545,18 +546,18 @@ class VRM_PT_vrm1_look_at_ui(bpy.types.Panel):
     bl_options: Set[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.current_armature_is_vrm1(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="HIDE_OFF")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_look_at_layout(
             armature,
@@ -567,9 +568,9 @@ class VRM_PT_vrm1_look_at_ui(bpy.types.Panel):
 
 
 def draw_vrm1_expression_layout(
-    armature: bpy.types.Object,
-    context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    context: Context,
+    layout: UILayout,
     name: str,
     expression: Vrm1ExpressionPropertyGroup,
     custom_expression: Optional[Vrm1CustomExpressionPropertyGroup],
@@ -621,7 +622,7 @@ def draw_vrm1_expression_layout(
             mesh_object = blend_data.objects.get(bind.node.mesh_object_name)
             if mesh_object:
                 mesh_data = mesh_object.data
-                if isinstance(mesh_data, bpy.types.Mesh):
+                if isinstance(mesh_data, Mesh):
                     shape_keys = mesh_data.shape_keys
                     if shape_keys:
                         bind_box.prop_search(
@@ -739,8 +740,8 @@ def draw_vrm1_expression_layout(
 
 
 def draw_vrm1_expressions_morph_target_bind_layout(
-    context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    context: Context,
+    layout: UILayout,
     bind: Vrm1MorphTargetBindPropertyGroup,
 ) -> None:
     VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
@@ -762,7 +763,7 @@ def draw_vrm1_expressions_morph_target_bind_layout(
     if not mesh_object:
         return
     mesh = mesh_object.data
-    if not isinstance(mesh, bpy.types.Mesh):
+    if not isinstance(mesh, Mesh):
         return
     shape_keys = mesh.shape_keys
     if not shape_keys:
@@ -782,8 +783,8 @@ def draw_vrm1_expressions_morph_target_bind_layout(
 
 
 def draw_vrm1_expressions_material_color_bind_layout(
-    context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    context: Context,
+    layout: UILayout,
     bind: Vrm1MaterialColorBindPropertyGroup,
 ) -> None:
     blend_data = context.blend_data
@@ -800,8 +801,8 @@ def draw_vrm1_expressions_material_color_bind_layout(
 
 
 def draw_vrm1_expressions_texture_transform_bind_layout(
-    context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    context: Context,
+    layout: UILayout,
     bind: Vrm1TextureTransformBindPropertyGroup,
 ) -> None:
     blend_data = context.blend_data
@@ -813,9 +814,9 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
 
 
 def draw_vrm1_expressions_layout(
-    armature: bpy.types.Object,
-    context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    context: Context,
+    layout: UILayout,
     expressions: Vrm1ExpressionsPropertyGroup,
 ) -> None:
     if migrate(armature.name, defer=True):
@@ -1115,7 +1116,7 @@ def draw_vrm1_expressions_layout(
         )
 
 
-class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):
+class VRM_PT_vrm1_expressions_armature_object_property(Panel):
     bl_idname = "VRM_PT_vrm1_expressions_armature_object_property"
     bl_label = "Expressions"
     bl_translation_context = "VRM"
@@ -1126,20 +1127,20 @@ class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return active_object_is_vrm1_armature(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="SHAPEKEY_DATA")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         if active_object.type != "ARMATURE":
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_expressions_layout(
             active_object,
@@ -1149,7 +1150,7 @@ class VRM_PT_vrm1_expressions_armature_object_property(bpy.types.Panel):
         )
 
 
-class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):
+class VRM_PT_vrm1_expressions_ui(Panel):
     bl_idname = "VRM_PT_vrm1_expressions_ui"
     bl_label = "Expressions"
     bl_translation_context = "VRM"
@@ -1159,18 +1160,18 @@ class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):
     bl_options: Set[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.current_armature_is_vrm1(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="SHAPEKEY_DATA")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_expressions_layout(
             armature,
@@ -1181,9 +1182,9 @@ class VRM_PT_vrm1_expressions_ui(bpy.types.Panel):
 
 
 def draw_vrm1_meta_layout(
-    armature: bpy.types.Object,
-    _context: bpy.types.Context,
-    layout: bpy.types.UILayout,
+    armature: Object,
+    _context: Context,
+    layout: UILayout,
     meta: Vrm1MetaPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
@@ -1255,7 +1256,7 @@ def draw_vrm1_meta_layout(
     layout.prop(meta, "other_license_url", icon="URL")
 
 
-class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):
+class VRM_PT_vrm1_meta_armature_object_property(Panel):
     bl_idname = "VRM_PT_vrm1_meta_armature_object_property"
     bl_label = "Meta"
     bl_translation_context = "VRM"
@@ -1266,26 +1267,26 @@ class VRM_PT_vrm1_meta_armature_object_property(bpy.types.Panel):
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return active_object_is_vrm1_armature(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="FILE_BLEND")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         if active_object.type != "ARMATURE":
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         ext = armature_data.vrm_addon_extension
         draw_vrm1_meta_layout(active_object, context, self.layout, ext.vrm1.meta)
 
 
-class VRM_PT_vrm1_meta_ui(bpy.types.Panel):
+class VRM_PT_vrm1_meta_ui(Panel):
     bl_idname = "VRM_PT_vrm1_meta_ui"
     bl_label = "Meta"
     bl_translation_context = "VRM"
@@ -1295,18 +1296,18 @@ class VRM_PT_vrm1_meta_ui(bpy.types.Panel):
     bl_options: Set[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.current_armature_is_vrm1(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="FILE_BLEND")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_vrm1_meta_layout(
             armature,
@@ -1316,7 +1317,7 @@ class VRM_PT_vrm1_meta_ui(bpy.types.Panel):
         )
 
 
-class VRM_PT_vrm1_bone_property(bpy.types.Panel):
+class VRM_PT_vrm1_bone_property(Panel):
     bl_idname = "VRM_PT_vrm1_bone_property"
     bl_label = "VRM"
     bl_space_type = "PROPERTIES"
@@ -1324,27 +1325,27 @@ class VRM_PT_vrm1_bone_property(bpy.types.Panel):
     bl_context = "bone"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         active_object = context.active_object
         if not active_object:
             return False
         if active_object.type != "ARMATURE":
             return False
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return False
         if not armature_data.bones.active:
             return False
         return search.current_armature_is_vrm1(context)
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         if active_object.type != "ARMATURE":
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         # context.active_bone is a EditBone
         bone = armature_data.bones.active

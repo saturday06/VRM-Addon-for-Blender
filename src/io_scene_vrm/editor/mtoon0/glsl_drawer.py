@@ -6,6 +6,16 @@ from pathlib import Path
 from typing import ClassVar, Optional
 
 import bpy
+from bpy.types import (
+    Context,
+    Image,
+    Material,
+    Node,
+    Object,
+    Operator,
+    ShaderNodeTexImage,
+    SpaceView3D,
+)
 from mathutils import Matrix, Vector
 
 from ...common.mtoon_unversioned import MtoonUnversioned
@@ -13,13 +23,13 @@ from ...common.preferences import get_preferences
 from .. import search
 
 
-class ICYP_OT_draw_model(bpy.types.Operator):
+class ICYP_OT_draw_model(Operator):
     bl_idname = "vrm.model_draw"
     bl_label = "Preview MToon 0.0"
     bl_description = "Draw selected with MToon of GLSL"
     bl_options: Set[str] = {"REGISTER"}
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         GlslDrawObj()
         preferences = get_preferences(context)
         GlslDrawObj.draw_func_add(
@@ -28,24 +38,24 @@ class ICYP_OT_draw_model(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class ICYP_OT_remove_draw_model(bpy.types.Operator):
+class ICYP_OT_remove_draw_model(Operator):
     bl_idname = "vrm.model_draw_remove"
     bl_label = "Remove MToon preview"
     bl_description = "remove draw function"
     bl_options: Set[str] = {"REGISTER"}
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         GlslDrawObj.draw_func_remove()
         return {"FINISHED"}
 
 
 class MtoonGlsl:
-    main_node: Optional[bpy.types.Node] = None
+    main_node: Optional[Node] = None
     alpha_method = None
 
     float_dict: dict[str, float]
     vector_dict: dict[str, list[float]]
-    texture_dict: dict[str, bpy.types.Image]
+    texture_dict: dict[str, Image]
     cull_mode = "BACK"
 
     def make_small_image(
@@ -53,13 +63,13 @@ class MtoonGlsl:
         name: str,
         color: tuple[float, float, float, float] = (1, 1, 1, 1),
         color_space: str = "sRGB",
-    ) -> bpy.types.Image:
+    ) -> Image:
         image = bpy.data.images.new(name, 1, 1)
         image.colorspace_settings.name = color_space
         image.generated_color = color
         return image
 
-    def __init__(self, material: bpy.types.Material) -> None:
+    def __init__(self, material: Material) -> None:
         shader_black = "shader_black"
         self.black_texture = bpy.data.images.get(shader_black)
         if self.black_texture is None:
@@ -78,9 +88,7 @@ class MtoonGlsl:
         self.name = material.name
         self.update()
 
-    def get_texture(
-        self, tex_name: str, default_color: str = "white"
-    ) -> bpy.types.Image:
+    def get_texture(self, tex_name: str, default_color: str = "white") -> Image:
         if tex_name == "ReceiveShadow_Texture":
             tex_name += "_alpha"
         main_node = self.main_node
@@ -92,7 +100,7 @@ class MtoonGlsl:
             message = "empty links"
             raise ValueError(message)
         from_node = links[0].from_node
-        if not isinstance(from_node, bpy.types.ShaderNodeTexImage):
+        if not isinstance(from_node, ShaderNodeTexImage):
             message = "Not a ShaderNodeTexImage"
             raise TypeError(message)
         if from_node.image is not None:
@@ -223,22 +231,22 @@ class GlslDrawObj:
     executor = None
     toon_shader = None
     depth_shader = None
-    objs: ClassVar[list[bpy.types.Object]] = []
+    objs: ClassVar[list[Object]] = []
     light = None
     offscreen = None
     materials: ClassVar[dict[str, MtoonGlsl]] = {}
     instance: Optional["GlslDrawObj"] = None
-    draw_objs: ClassVar[list[bpy.types.Object]] = []
+    draw_objs: ClassVar[list[Object]] = []
     shadowmap_res = 2048
     draw_x_offset = 0.3
     bounding_center: ClassVar[list[float]] = [0.0, 0.0, 0.0]
     bounding_size: ClassVar[list[float]] = [1.0, 1.0, 1.0]
 
     def __init__(self) -> None:
-        import gpu
+        from gpu.types import GPUOffScreen
 
         GlslDrawObj.instance = self
-        self.offscreen = gpu.types.GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
+        self.offscreen = GPUOffScreen(self.shadowmap_res, self.shadowmap_res)
         GlslDrawObj.materials = {}
         self.main_executor = (  # pylint: disable=R1732
             ThreadPoolExecutor()  # TODO: Fix it!!!
@@ -294,7 +302,7 @@ class GlslDrawObj:
                 i - n for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
             ]
 
-        def build_mesh(obj: bpy.types.Object) -> GlMesh:
+        def build_mesh(obj: Object) -> GlMesh:
             if glsl_draw_obj is None:
                 message = "glsl draw obj is None"
                 raise ValueError(message)
@@ -399,18 +407,18 @@ class GlslDrawObj:
     batches: Optional[list[tuple[MtoonGlsl, object, object]]] = None
 
     def build_batches(self) -> None:
-        import gpu
+        from gpu.types import GPUShader
         from gpu_extras.batch import batch_for_shader
 
         if self.toon_shader is None:
-            self.toon_shader = gpu.types.GPUShader(
+            self.toon_shader = GPUShader(
                 vertexcode=self.toon_vertex_shader,
                 fragcode=self.toon_fragment_shader,
                 geocode=self.toon_geometry_shader,
             )
 
         if self.depth_shader is None:
-            self.depth_shader = gpu.types.GPUShader(
+            self.depth_shader = GPUShader(
                 vertexcode=self.depth_vertex_shader, fragcode=self.depth_fragment_shader
             )
 
@@ -655,7 +663,7 @@ class GlslDrawObj:
 
     @staticmethod
     def draw_func_add(
-        context: bpy.types.Context, invisibles: bool, only_selections: bool
+        context: Context, invisibles: bool, only_selections: bool
     ) -> None:
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [
@@ -670,7 +678,7 @@ class GlslDrawObj:
         GlslDrawObj.build_scene()
         if GlslDrawObj.draw_func is not None:
             GlslDrawObj.draw_func_remove()
-        GlslDrawObj.draw_func = bpy.types.SpaceView3D.draw_handler_add(
+        GlslDrawObj.draw_func = SpaceView3D.draw_handler_add(
             GlslDrawObj.instance.glsl_draw, (), "WINDOW", "POST_PIXEL"
         )
 
@@ -687,7 +695,7 @@ class GlslDrawObj:
     @staticmethod
     def draw_func_remove() -> None:
         if GlslDrawObj.draw_func is not None:
-            bpy.types.SpaceView3D.draw_handler_remove(GlslDrawObj.draw_func, "WINDOW")
+            SpaceView3D.draw_handler_remove(GlslDrawObj.draw_func, "WINDOW")
             GlslDrawObj.draw_func = None
 
         if (

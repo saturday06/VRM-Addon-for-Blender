@@ -1,6 +1,6 @@
 from typing import Optional
 
-import bpy
+from bpy.types import Armature, Object
 
 from ..logging import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification
@@ -16,9 +16,7 @@ from . import (
 logger = get_logger(__name__)
 
 
-def match_count(
-    armature: bpy.types.Armature, mapping: dict[str, HumanBoneSpecification]
-) -> int:
+def match_count(armature: Armature, mapping: dict[str, HumanBoneSpecification]) -> int:
     count = 0
 
     mapping = {
@@ -60,7 +58,7 @@ def match_count(
 def match_counts(
     armature: object, mapping: dict[str, HumanBoneSpecification]
 ) -> tuple[int, int]:
-    if not isinstance(armature, bpy.types.Armature):
+    if not isinstance(armature, Armature):
         message = f"{type(armature)} is not an Armature"
         raise TypeError(message)
     required_mapping = {
@@ -85,7 +83,7 @@ def sorted_required_first(
 
 
 def create_human_bone_mapping(
-    armature: bpy.types.Object,
+    armature: Object,
 ) -> dict[str, HumanBoneSpecification]:
     ((required_count, _all_count), name, mapping) = sorted(
         [

@@ -1,7 +1,15 @@
 from collections.abc import Set
 
-import bpy
 from bpy.app.translations import pgettext
+from bpy.types import (
+    Armature,
+    Context,
+    CopyRotationConstraint,
+    DampedTrackConstraint,
+    Object,
+    Panel,
+    UILayout,
+)
 
 from ...common.preferences import get_preferences
 from .. import search
@@ -11,10 +19,10 @@ from .property_group import NodeConstraint1NodeConstraintPropertyGroup
 
 
 def draw_roll_constraint_layout(
-    layout: bpy.types.UILayout,
+    layout: UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
-    object_constraints: dict[str, bpy.types.CopyRotationConstraint],
-    bone_constraints: dict[str, bpy.types.CopyRotationConstraint],
+    object_constraints: dict[str, CopyRotationConstraint],
+    bone_constraints: dict[str, CopyRotationConstraint],
 ) -> None:
     constraints_box = layout.box()
     constraints_row = constraints_box.row()
@@ -72,10 +80,10 @@ def draw_roll_constraint_layout(
 
 
 def draw_aim_constraint_layout(
-    layout: bpy.types.UILayout,
+    layout: UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
-    object_constraints: dict[str, bpy.types.DampedTrackConstraint],
-    bone_constraints: dict[str, bpy.types.DampedTrackConstraint],
+    object_constraints: dict[str, DampedTrackConstraint],
+    bone_constraints: dict[str, DampedTrackConstraint],
 ) -> None:
     constraints_box = layout.box()
     constraints_row = constraints_box.row()
@@ -129,10 +137,10 @@ def draw_aim_constraint_layout(
 
 
 def draw_rotation_constraint_layout(
-    layout: bpy.types.UILayout,
+    layout: UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
-    object_constraints: dict[str, bpy.types.CopyRotationConstraint],
-    bone_constraints: dict[str, bpy.types.CopyRotationConstraint],
+    object_constraints: dict[str, CopyRotationConstraint],
+    bone_constraints: dict[str, CopyRotationConstraint],
 ) -> None:
     constraints_box = layout.box()
     constraints_row = constraints_box.row()
@@ -190,9 +198,9 @@ def draw_rotation_constraint_layout(
 
 
 def draw_node_constraint1_layout(
-    context: bpy.types.Context,
-    armature: bpy.types.Object,
-    layout: bpy.types.UILayout,
+    context: Context,
+    armature: Object,
+    layout: UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
 ) -> None:
     preferences = get_preferences(context)
@@ -223,7 +231,7 @@ def draw_node_constraint1_layout(
     )
 
 
-class VRM_PT_node_constraint1_armature_object_property(bpy.types.Panel):
+class VRM_PT_node_constraint1_armature_object_property(Panel):
     bl_idname = "VRM_PT_node_constraint1_armature_object_property"
     bl_label = "Node Constraint"
     bl_translation_context = "VRM"
@@ -234,18 +242,18 @@ class VRM_PT_node_constraint1_armature_object_property(bpy.types.Panel):
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return active_object_is_vrm1_armature(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="CONSTRAINT")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         active_object = context.active_object
         if not active_object:
             return
         armature_data = active_object.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_node_constraint1_layout(
             context,
@@ -255,7 +263,7 @@ class VRM_PT_node_constraint1_armature_object_property(bpy.types.Panel):
         )
 
 
-class VRM_PT_node_constraint1_ui(bpy.types.Panel):
+class VRM_PT_node_constraint1_ui(Panel):
     bl_idname = "VRM_PT_node_constraint1_ui"
     bl_label = "Node Constraint"
     bl_translation_context = "VRM"
@@ -265,18 +273,18 @@ class VRM_PT_node_constraint1_ui(bpy.types.Panel):
     bl_options: Set[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         return search.current_armature_is_vrm1(context)
 
-    def draw_header(self, _context: bpy.types.Context) -> None:
+    def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="CONSTRAINT")
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         armature = search.current_armature(context)
         if not armature:
             return
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         draw_node_constraint1_layout(
             context,

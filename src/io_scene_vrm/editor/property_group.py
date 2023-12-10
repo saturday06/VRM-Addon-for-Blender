@@ -3,6 +3,8 @@ from collections.abc import Iterator, ValuesView
 from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, overload
 
 import bpy
+from bpy.props import FloatProperty, PointerProperty, StringProperty
+from bpy.types import Armature, Bone, Object, PropertyGroup
 
 from ..common.logging import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
@@ -17,7 +19,7 @@ HumanBoneSpecification = TypeVar(
 logger = get_logger(__name__)
 
 
-class StringPropertyGroup(bpy.types.PropertyGroup):
+class StringPropertyGroup(PropertyGroup):
     def get_value(self) -> str:
         value = self.get("value")
         if isinstance(value, str):
@@ -28,7 +30,7 @@ class StringPropertyGroup(bpy.types.PropertyGroup):
         self.name = value  # pylint: disable=attribute-defined-outside-init
         self["value"] = value
 
-    value: bpy.props.StringProperty(  # type: ignore[valid-type]
+    value: StringProperty(  # type: ignore[valid-type]
         name="String Value",
         get=get_value,
         set=set_value,
@@ -40,7 +42,7 @@ class StringPropertyGroup(bpy.types.PropertyGroup):
         value: str  # type: ignore[no-redef]
 
 
-class FloatPropertyGroup(bpy.types.PropertyGroup):
+class FloatPropertyGroup(PropertyGroup):
     def get_value(self) -> float:
         value = self.get("value")
         if isinstance(value, (float, int)):
@@ -51,7 +53,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):
         self.name = str(value)  # pylint: disable=attribute-defined-outside-init
         self["value"] = value
 
-    value: bpy.props.FloatProperty(  # type: ignore[valid-type]
+    value: FloatProperty(  # type: ignore[valid-type]
         name="Float Value",
         get=get_value,
         set=set_value,
@@ -63,7 +65,7 @@ class FloatPropertyGroup(bpy.types.PropertyGroup):
         value: float  # type: ignore[no-redef]
 
 
-class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
+class MeshObjectPropertyGroup(PropertyGroup):
     def get_mesh_object_name(self) -> str:
         if (
             not self.bpy_object
@@ -83,7 +85,7 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
             return
         self.bpy_object = bpy.data.objects[value]
 
-    mesh_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    mesh_object_name: StringProperty(  # type: ignore[valid-type]
         get=get_mesh_object_name, set=set_mesh_object_name
     )
 
@@ -102,13 +104,13 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
         self.mesh_object_name = value
 
     # "value" is deprecated. Use "mesh_object_name" instead
-    value: bpy.props.StringProperty(  # type: ignore[valid-type]
+    value: StringProperty(  # type: ignore[valid-type]
         get=get_value,
         set=set_value,
     )
 
-    bpy_object: bpy.props.PointerProperty(  # type: ignore[valid-type]
-        type=bpy.types.Object
+    bpy_object: PointerProperty(  # type: ignore[valid-type]
+        type=Object
     )
 
     if TYPE_CHECKING:
@@ -116,16 +118,16 @@ class MeshObjectPropertyGroup(bpy.types.PropertyGroup):
         # `poetry run python tools/property_typing.py`
         mesh_object_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
-        bpy_object: Optional[bpy.types.Object]  # type: ignore[no-redef]
+        bpy_object: Optional[Object]  # type: ignore[no-redef]
 
 
-class BonePropertyGroup(bpy.types.PropertyGroup):
+class BonePropertyGroup(PropertyGroup):
     @staticmethod
     def get_all_bone_property_groups(
-        armature: bpy.types.Object,
+        armature: Object,
     ) -> Iterator["BonePropertyGroup"]:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
         ext = armature_data.vrm_addon_extension
         yield ext.vrm0.first_person.first_person_bone
@@ -149,13 +151,13 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
 
     @staticmethod
     def find_bone_candidates(
-        armature_data: bpy.types.Armature,
+        armature_data: Armature,
         target: HumanBoneSpecification,
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     ) -> set[str]:
         bones = armature_data.bones
         result: set[str] = set(bones.keys())
-        remove_bones_tree: set[bpy.types.Bone] = set()
+        remove_bones_tree: set[Bone] = set()
 
         for (
             bpy_bone_name,
@@ -234,7 +236,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
         return ""
 
     def set_bone_name(self, value: object) -> None:
-        armature: Optional[bpy.types.Object] = None
+        armature: Optional[Object] = None
 
         # アーマチュアの複製が行われた場合を考えて
         # self.armature_data_nameの振り直しをする
@@ -257,7 +259,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
             return
 
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             self.armature_data_name = ""
             self.bone_uuid = ""
             return
@@ -303,7 +305,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
         }
 
         for human_bone in ext.vrm0.humanoid.human_bones:
-            if not isinstance(armature.data, bpy.types.Armature):
+            if not isinstance(armature.data, Armature):
                 continue
             human_bone.update_node_candidates(
                 armature.data,
@@ -327,7 +329,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
             human_bone_name,
             human_bone,
         ) in human_bone_name_to_human_bone.items():
-            if not isinstance(armature.data, bpy.types.Armature):
+            if not isinstance(armature.data, Armature):
                 continue
             human_bone.update_node_candidates(
                 armature.data,
@@ -335,7 +337,7 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
                 vrm1_bpy_bone_name_to_human_bone_specification,
             )
 
-    bone_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    bone_name: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_bone_name,
         set=set_bone_name,
@@ -356,14 +358,14 @@ class BonePropertyGroup(bpy.types.PropertyGroup):
         self.bone_name = value
 
     # "value" is deprecated. Use "bone_name" instead
-    value: bpy.props.StringProperty(  # type: ignore[valid-type]
+    value: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_value,
         set=set_value,
     )
-    bone_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
-    armature_data_name: bpy.props.StringProperty()  # type: ignore[valid-type]
-    search_one_time_uuid: bpy.props.StringProperty()  # type: ignore[valid-type]
+    bone_uuid: StringProperty()  # type: ignore[valid-type]
+    armature_data_name: StringProperty()  # type: ignore[valid-type]
+    search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`

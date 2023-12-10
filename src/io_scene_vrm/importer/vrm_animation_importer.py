@@ -8,6 +8,7 @@ from typing import Optional, Union
 from urllib.parse import urlparse
 
 import bpy
+from bpy.types import Armature, Context, Object
 from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert
@@ -101,9 +102,7 @@ class NodeRestPoseTree:
 
 class VrmAnimationImporter:
     @staticmethod
-    def execute(
-        context: bpy.types.Context, path: Path, armature: bpy.types.Object
-    ) -> set[str]:
+    def execute(context: Context, path: Path, armature: Object) -> set[str]:
         return work_in_progress(context, path, armature)
 
 
@@ -299,11 +298,9 @@ def read_accessor_as_animation_sampler_rotation_output(
     return [Quaternion((w, x, -z, y)).normalized() for x, y, z, w in unpacked_values]
 
 
-def work_in_progress(
-    context: bpy.types.Context, path: Path, armature: bpy.types.Object
-) -> set[str]:
+def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]:
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
     humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
@@ -365,13 +362,11 @@ def work_in_progress(
         bpy.ops.object.mode_set(mode="OBJECT")
 
 
-def work_in_progress_2(
-    context: bpy.types.Context, path: Path, armature: bpy.types.Object
-) -> set[str]:
+def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[str]:
     if not path.exists():
         return {"CANCELLED"}
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
     humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
@@ -655,7 +650,7 @@ def work_in_progress_2(
 
 
 def assign_expression_keyframe(
-    armature_data: bpy.types.Armature,
+    armature_data: Armature,
     expression_name_to_default_preview_value: dict[str, float],
     expression_name_to_translation_keyframes: dict[
         str, tuple[tuple[float, Vector], ...]
@@ -712,7 +707,7 @@ def assign_expression_keyframe(
 
 
 def assign_humanoid_keyframe(
-    armature: bpy.types.Object,
+    armature: Object,
     node_rest_pose_tree: NodeRestPoseTree,
     node_index_to_human_bone_name: dict[int, HumanBoneName],
     node_index_to_translation_keyframes: dict[int, tuple[tuple[float, Vector], ...]],
@@ -724,7 +719,7 @@ def assign_humanoid_keyframe(
     intermediate_pose_local_matrix: Matrix,
 ) -> None:
     armature_data = armature.data
-    if not isinstance(armature_data, bpy.types.Armature):
+    if not isinstance(armature_data, Armature):
         return
 
     translation_keyframes = node_index_to_translation_keyframes.get(

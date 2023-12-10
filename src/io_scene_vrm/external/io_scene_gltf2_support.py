@@ -1,34 +1,40 @@
+import dataclasses
 import datetime
 import importlib
 from collections.abc import Set
 
 import bpy
+from bpy.types import Context, Event, Image, Operator
+
+from ..common.logging import get_logger
 
 #
 # ここで `import io_scene_gltf2` をするとio_scene_gltf2が無効化されている場合
 # 全体を巻き込んでエラーになる。そのため関数内でインポートするように注意する。
 #
 
+logger = get_logger(__name__)
 
-class WM_OT_vrm_io_scene_gltf2_disabled_warning(bpy.types.Operator):
+
+class WM_OT_vrm_io_scene_gltf2_disabled_warning(Operator):
     bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.vrm_gltf2_addon_disabled_warning"
     bl_options: Set[str] = {"REGISTER"}
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=500)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         self.layout.label(
             text='Official add-on "glTF 2.0 format" is required. Please enable it.'
         )
 
 
 def image_to_image_bytes(
-    image: bpy.types.Image, export_settings: dict[str, object]
+    image: Image, export_settings: dict[str, object]
 ) -> tuple[bytes, str]:
     if bpy.app.version < (3, 6, 0):
         gltf2_blender_image = importlib.import_module(
@@ -109,68 +115,83 @@ def create_export_settings() -> dict[str, object]:
     }
 
 
-def export_scene_gltf(
-    filepath: str,
-    check_existing: bool,
-    export_format: str,
-    export_extras: bool,
-    export_current_frame: bool,
-    use_selection: bool,
-    export_animations: bool,
-    export_rest_position_armature: bool,
-    export_def_bones: bool,
-    export_apply: bool,
-    export_all_influences: bool,
-    export_lights: bool,
-    use_active_scene: bool,
-    export_try_sparse_sk: bool,
-) -> set[str]:
+@dataclasses.dataclass
+class ExportSceneGltfArguments:
+    filepath: str
+    check_existing: bool
+    export_format: str
+    export_extras: bool
+    export_current_frame: bool
+    use_selection: bool
+    export_animations: bool
+    export_rest_position_armature: bool
+    export_def_bones: bool
+    export_apply: bool
+    export_all_influences: bool
+    export_lights: bool
+    use_active_scene: bool
+    export_try_sparse_sk: bool
+
+
+def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
     if bpy.app.version < (3, 6, 0):
         return bpy.ops.export_scene.gltf(
-            filepath=filepath,
-            check_existing=check_existing,
-            export_format=export_format,
-            export_extras=export_extras,
-            export_current_frame=export_current_frame,
-            use_selection=use_selection,
-            export_animations=export_animations,
-            export_def_bones=export_def_bones,  # Don't export control bones not marked as deform
-            export_apply=export_apply,  # Enable non-destructive export
-            export_all_influences=export_all_influences,  # Models may appear incorrectly in many viewers
-            export_lights=export_lights,  # TODO: Expose UI Option, Unity allows light export
-            use_active_scene=use_active_scene,  # Reduce File Size
+            filepath=arguments.filepath,
+            check_existing=arguments.check_existing,
+            export_format=arguments.export_format,
+            export_extras=arguments.export_extras,
+            export_current_frame=arguments.export_current_frame,
+            use_selection=arguments.use_selection,
+            export_animations=arguments.export_animations,
+            export_def_bones=arguments.export_def_bones,  # Don't export control bones not marked as deform
+            export_apply=arguments.export_apply,  # Enable non-destructive export
+            export_all_influences=arguments.export_all_influences,  # Models may appear incorrectly in many viewers
+            export_lights=arguments.export_lights,  # TODO: Expose UI Option, Unity allows light export
+            use_active_scene=arguments.use_active_scene,  # Reduce File Size
         )
 
     if bpy.app.version < (4,):
         return bpy.ops.export_scene.gltf(
-            filepath=filepath,
-            check_existing=check_existing,
-            export_format=export_format,
-            export_extras=export_extras,
-            export_current_frame=export_current_frame,
-            use_selection=use_selection,
-            export_animations=export_animations,
-            export_rest_position_armature=export_rest_position_armature,
-            export_def_bones=export_def_bones,  # Don't export control bones not marked as deform
-            export_apply=export_apply,  # Enable non-destructive export
-            export_all_influences=export_all_influences,  # Models may appear incorrectly in many viewers
-            export_lights=export_lights,  # TODO: Expose UI Option, Unity allows light export
-            use_active_scene=use_active_scene,  # Reduce File Size
+            filepath=arguments.filepath,
+            check_existing=arguments.check_existing,
+            export_format=arguments.export_format,
+            export_extras=arguments.export_extras,
+            export_current_frame=arguments.export_current_frame,
+            use_selection=arguments.use_selection,
+            export_animations=arguments.export_animations,
+            export_rest_position_armature=arguments.export_rest_position_armature,
+            export_def_bones=arguments.export_def_bones,  # Don't export control bones not marked as deform
+            export_apply=arguments.export_apply,  # Enable non-destructive export
+            export_all_influences=arguments.export_all_influences,  # Models may appear incorrectly in many viewers
+            export_lights=arguments.export_lights,  # TODO: Expose UI Option, Unity allows light export
+            use_active_scene=arguments.use_active_scene,  # Reduce File Size
         )
 
     return bpy.ops.export_scene.gltf(
-        filepath=filepath,
-        check_existing=check_existing,
-        export_format=export_format,
-        export_extras=export_extras,
-        export_current_frame=export_current_frame,
-        use_selection=use_selection,
-        export_animations=export_animations,
-        export_rest_position_armature=export_rest_position_armature,
-        export_def_bones=export_def_bones,  # Don't export control bones not marked as deform
-        export_apply=export_apply,  # Enable non-destructive export
-        export_all_influences=export_all_influences,  # Models may appear incorrectly in many viewers
-        export_lights=export_lights,  # TODO: Expose UI Option, Unity allows light export
-        use_active_scene=use_active_scene,  # Reduce File Size
-        export_try_sparse_sk=export_try_sparse_sk,
+        filepath=arguments.filepath,
+        check_existing=arguments.check_existing,
+        export_format=arguments.export_format,
+        export_extras=arguments.export_extras,
+        export_current_frame=arguments.export_current_frame,
+        use_selection=arguments.use_selection,
+        export_animations=arguments.export_animations,
+        export_rest_position_armature=arguments.export_rest_position_armature,
+        export_def_bones=arguments.export_def_bones,  # Don't export control bones not marked as deform
+        export_apply=arguments.export_apply,  # Enable non-destructive export
+        export_all_influences=arguments.export_all_influences,  # Models may appear incorrectly in many viewers
+        export_lights=arguments.export_lights,  # TODO: Expose UI Option, Unity allows light export
+        use_active_scene=arguments.use_active_scene,  # Reduce File Size
+        export_try_sparse_sk=arguments.export_try_sparse_sk,
     )
+
+
+def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
+    try:
+        return __invoke_export_scene_gltf(arguments)
+    except RuntimeError:
+        if not arguments.export_animations:
+            raise
+        logger.exception("Failed to export VRM with animations")
+        # TODO: check traceback
+        arguments.export_animations = False
+        return __invoke_export_scene_gltf(arguments)

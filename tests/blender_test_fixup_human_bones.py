@@ -1,4 +1,5 @@
 import bpy
+from bpy.types import Armature
 
 from io_scene_vrm.common.vrm0.human_bone import HumanBoneName
 from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
@@ -9,7 +10,7 @@ def test() -> None:
     armatures = [obj for obj in bpy.data.objects if obj.type == "ARMATURE"]
     assert len(armatures) == 1
     armature = armatures[0]
-    if not isinstance(armature.data, bpy.types.Armature):
+    if not isinstance(armature.data, Armature):
         raise TypeError
 
     human_bones = armature.data.vrm_addon_extension.vrm0.humanoid.human_bones

@@ -1,9 +1,20 @@
 from collections.abc import Set
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import bpy
 from bpy.app.translations import pgettext
+from bpy.props import BoolProperty, CollectionProperty, StringProperty
+from bpy.types import (
+    Armature,
+    Context,
+    Event,
+    Object,
+    Operator,
+    Panel,
+    SpaceFileBrowser,
+    UILayout,
+)
 from bpy_extras.io_utils import ExportHelper
 
 from ..common import version
@@ -34,19 +45,17 @@ logger = get_logger(__name__)
 
 
 def export_vrm_update_addon_preferences(
-    export_op: "EXPORT_SCENE_OT_vrm", context: bpy.types.Context
+    export_op: "EXPORT_SCENE_OT_vrm", context: Context
 ) -> None:
     preferences = get_preferences(context)
 
     changed = False
 
-    if bool(preferences.export_invisibles) != bool(export_op.export_invisibles):
+    if preferences.export_invisibles != export_op.export_invisibles:
         preferences.export_invisibles = export_op.export_invisibles
         changed = True
 
-    if bool(preferences.export_only_selections) != bool(
-        export_op.export_only_selections
-    ):
+    if preferences.export_only_selections != export_op.export_only_selections:
         preferences.export_only_selections = export_op.export_only_selections
         changed = True
 
@@ -62,15 +71,11 @@ def export_vrm_update_addon_preferences(
         preferences.export_apply_modifiers = export_op.export_apply_modifiers
         changed = True
 
-    if bool(preferences.enable_advanced_preferences) != bool(
-        export_op.enable_advanced_preferences
-    ):
+    if preferences.enable_advanced_preferences != export_op.enable_advanced_preferences:
         preferences.enable_advanced_preferences = export_op.enable_advanced_preferences
         changed = True
 
-    if bool(preferences.export_fb_ngon_encoding) != bool(
-        export_op.export_fb_ngon_encoding
-    ):
+    if preferences.export_fb_ngon_encoding != export_op.export_fb_ngon_encoding:
         preferences.export_fb_ngon_encoding = export_op.export_fb_ngon_encoding
         changed = True
 
@@ -94,68 +99,68 @@ def export_vrm_update_addon_preferences(
         )
 
 
-class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
+class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
     bl_label = "Export VRM"
     bl_description = "Export VRM"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.vrm",
         options={"HIDDEN"},
     )
 
-    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
         update=export_vrm_update_addon_preferences,
     )
-    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_only_selections: BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",
         update=export_vrm_update_addon_preferences,
     )
-    export_only_deform_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_only_deform_bones: BoolProperty(  # type: ignore[valid-type]
         name="Export Only Deform Bones",
         update=export_vrm_update_addon_preferences,
         default=True,
     )
-    export_apply_modifiers: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_apply_modifiers: BoolProperty(  # type: ignore[valid-type]
         name="Apply Modifiers",
         update=export_vrm_update_addon_preferences,
         default=True,
     )
-    enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    enable_advanced_preferences: BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",
         update=export_vrm_update_addon_preferences,
     )
-    export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_fb_ngon_encoding: BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development"
         + " (Exported meshes can be corrupted)",
         update=export_vrm_update_addon_preferences,
     )
-    export_all_influences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
         description="Don't limit to 4, most viewers truncate to 4,"
         + " so bone movement may cause jagged meshes",
         update=export_vrm_update_addon_preferences,
         default=True,
     )
-    export_lights: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",
     )
-    use_active_scene: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    use_active_scene: BoolProperty(  # type: ignore[valid-type]
         name="Only Export the Active Scene",
         default=True,
     )
-    errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    errors: CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    ignore_warning: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    ignore_warning: BoolProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         if not self.filepath:
             return {"CANCELLED"}
 
@@ -167,11 +172,11 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
             return {"CANCELLED"}
 
         preferences = get_preferences(context)
-        export_invisibles = bool(preferences.export_invisibles)
-        export_only_selections = bool(preferences.export_only_selections)
+        export_invisibles = preferences.export_invisibles
+        export_only_selections = preferences.export_only_selections
         export_lights = bool(preferences.export_lights)
         if preferences.enable_advanced_preferences:
-            export_fb_ngon_encoding = bool(preferences.export_fb_ngon_encoding)
+            export_fb_ngon_encoding = preferences.export_fb_ngon_encoding
             export_all_influences = bool(preferences.export_all_influences)
             export_lights = bool(preferences.export_lights)
             use_active_scene = bool(preferences.use_active_scene)
@@ -190,7 +195,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         )
         is_vrm1 = any(
             obj.type == "ARMATURE"
-            and isinstance(obj.data, bpy.types.Armature)
+            and isinstance(obj.data, Armature)
             and obj.data.vrm_addon_extension.is_vrm1()
             for obj in export_objects
         )
@@ -212,7 +217,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         Path(self.filepath).write_bytes(vrm_bin)
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, event: Event) -> set[str]:
         preferences = get_preferences(context)
         (
             self.export_invisibles,
@@ -225,12 +230,12 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
             self.export_lights,
             self.use_active_scene,
         ) = (
-            bool(preferences.export_invisibles),
-            bool(preferences.export_only_selections),
+            preferences.export_invisibles,
+            preferences.export_only_selections,
             bool(preferences.export_only_deform_bones),
             bool(preferences.export_apply_modifiers),
-            bool(preferences.enable_advanced_preferences),
-            bool(preferences.export_fb_ngon_encoding),
+            preferences.enable_advanced_preferences,
+            preferences.export_fb_ngon_encoding,
             bool(preferences.export_all_influences),
             bool(preferences.export_lights),
             bool(preferences.use_active_scene),
@@ -242,8 +247,8 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
 
         export_objects = search.export_objects(
             context,
-            bool(self.export_invisibles),
-            bool(self.export_only_selections),
+            self.export_invisibles,
+            self.export_only_selections,
             bool(self.export_lights),
             self.armature_object_name,
         )
@@ -254,7 +259,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         if len(armatures) == 1:
             armature = armatures[0]
             armature_data = armature.data
-            if not isinstance(armature_data, bpy.types.Armature):
+            if not isinstance(armature_data, Armature):
                 pass
             elif armature_data.vrm_addon_extension.is_vrm0():
                 Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
@@ -323,7 +328,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
 
         return ExportHelper.invoke(self, context, event)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         pass  # Is needed to get panels available
 
     if TYPE_CHECKING:
@@ -344,7 +349,7 @@ class EXPORT_SCENE_OT_vrm(bpy.types.Operator, ExportHelper):
         ignore_warning: bool  # type: ignore[no-redef]
 
 
-class VRM_PT_export_error_messages(bpy.types.Panel):
+class VRM_PT_export_error_messages(Panel):
     bl_idname = "VRM_IMPORTER_PT_export_error_messages"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -353,15 +358,19 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
     bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         space_data = context.space_data
-        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+        if not isinstance(space_data, SpaceFileBrowser):
             return False
         return space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrm"
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         space_data = context.space_data
-        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+        if not isinstance(space_data, SpaceFileBrowser):
+            return
+
+        operator = space_data.active_operator
+        if not isinstance(operator, EXPORT_SCENE_OT_vrm):
             return
 
         layout = self.layout
@@ -377,7 +386,6 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
                     icon="NONE" if index else "ERROR",
                 )
 
-        operator = cast(EXPORT_SCENE_OT_vrm, space_data.active_operator)
         layout.prop(operator, "export_invisibles")
         layout.prop(operator, "export_only_selections")
         layout.prop(operator, "export_only_deform_bones")
@@ -392,7 +400,7 @@ class VRM_PT_export_error_messages(bpy.types.Panel):
         validation.WM_OT_vrm_validator.draw_errors(operator.errors, False, layout.box())
 
 
-class VRM_PT_export_vrma_help(bpy.types.Panel):
+class VRM_PT_export_vrma_help(Panel):
     bl_idname = "VRM_PT_export_vrma_help"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
@@ -401,17 +409,17 @@ class VRM_PT_export_vrma_help(bpy.types.Panel):
     bl_options: Set[str] = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: Context) -> bool:
         space_data = context.space_data
-        if not isinstance(space_data, bpy.types.SpaceFileBrowser):
+        if not isinstance(space_data, SpaceFileBrowser):
             return False
         return space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrma"
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         draw_help_message(self.layout)
 
 
-def menu_export(menu_op: bpy.types.Operator, _context: bpy.types.Context) -> None:
+def menu_export(menu_op: Operator, _context: Context) -> None:
     vrm_export_op = layout_operator(
         menu_op.layout, EXPORT_SCENE_OT_vrm, text="VRM (.vrm)"
     )
@@ -424,23 +432,23 @@ def menu_export(menu_op: bpy.types.Operator, _context: bpy.types.Context) -> Non
     vrma_export_op.armature_object_name = ""
 
 
-class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
+class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
     bl_idname = "export_scene.vrma"
     bl_label = "Export VRM Animation"
     bl_description = "Export VRM Animation"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrma"
-    filter_glob: bpy.props.StringProperty(  # type: ignore[valid-type]
+    filter_glob: StringProperty(  # type: ignore[valid-type]
         default="*.vrma",
         options={"HIDDEN"},
     )
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
@@ -455,7 +463,7 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
             return {"CANCELLED"}
         return VrmAnimationExporter.execute(context, Path(self.filepath), armature)
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
@@ -465,7 +473,7 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
             )
         return ExportHelper.invoke(self, context, event)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         pass  # Is needed to get panels available
 
     if TYPE_CHECKING:
@@ -475,19 +483,19 @@ class EXPORT_SCENE_OT_vrma(bpy.types.Operator, ExportHelper):
         armature_object_name: str  # type: ignore[no-redef]
 
 
-class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
+class WM_OT_vrm_export_human_bones_assignment(Operator):
     bl_label = "VRM Required Bones Assignment"
     bl_idname = "wm.vrm_export_human_bones_assignment"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         preferences = get_preferences(context)
-        export_invisibles = bool(preferences.export_invisibles)
-        export_only_selections = bool(preferences.export_only_selections)
+        export_invisibles = preferences.export_invisibles
+        export_only_selections = preferences.export_only_selections
         export_lights = bool(preferences.export_lights)
         export_objects = search.export_objects(
             context,
@@ -501,7 +509,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
             return {"CANCELLED"}
         armature = armatures[0]
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         if armature_data.vrm_addon_extension.is_vrm0():
             Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
@@ -530,13 +538,13 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=800)
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         preferences = get_preferences(context)
-        export_invisibles = bool(preferences.export_invisibles)
-        export_only_selections = bool(preferences.export_only_selections)
+        export_invisibles = preferences.export_invisibles
+        export_only_selections = preferences.export_only_selections
         export_lights = bool(preferences.export_lights)
 
         armatures = [
@@ -554,7 +562,7 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
             return
         armature = armatures[0]
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
 
         if armature_data.vrm_addon_extension.is_vrm0():
@@ -563,9 +571,9 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
             WM_OT_vrm_export_human_bones_assignment.draw_vrm1(self.layout, armature)
 
     @staticmethod
-    def draw_vrm0(layout: bpy.types.UILayout, armature: bpy.types.Object) -> None:
+    def draw_vrm0(layout: UILayout, armature: Object) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
 
         humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
@@ -587,9 +595,9 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
         draw_vrm0_humanoid_optional_bones_layout(armature, row.column())
 
     @staticmethod
-    def draw_vrm1(layout: bpy.types.UILayout, armature: bpy.types.Object) -> None:
+    def draw_vrm1(layout: UILayout, armature: Object) -> None:
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             return
 
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
@@ -632,22 +640,22 @@ class WM_OT_vrm_export_human_bones_assignment(bpy.types.Operator):
         armature_object_name: str  # type: ignore[no-redef]
 
 
-class WM_OT_vrm_export_confirmation(bpy.types.Operator):
+class WM_OT_vrm_export_confirmation(Operator):
     bl_label = "VRM Export Confirmation"
     bl_idname = "wm.vrm_export_confirmation"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    errors: bpy.props.CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
+    errors: CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
-    export_anyway: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_anyway: BoolProperty(  # type: ignore[valid-type]
         name="Export Anyway",
     )
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         if not self.export_anyway:
             return {"CANCELLED"}
         bpy.ops.export_scene.vrm(
@@ -657,7 +665,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
         )
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         validation.WM_OT_vrm_validator.detect_errors(
             context,
             self.errors,
@@ -665,7 +673,7 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
         )
         return context.window_manager.invoke_props_dialog(self, width=800)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         layout = self.layout
         layout.label(
             text="There is a high-impact warning. VRM may not export as intended.",
@@ -693,20 +701,20 @@ class WM_OT_vrm_export_confirmation(bpy.types.Operator):
         export_anyway: bool  # type: ignore[no-redef]
 
 
-class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
+class WM_OT_vrm_export_armature_selection(Operator):
     bl_label = "VRM Export Armature Selection"
     bl_idname = "wm.vrm_export_armature_selection"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    armature_object_name_candidates: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
         options={"HIDDEN"},
     )
 
-    def execute(self, context: bpy.types.Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         if not self.armature_object_name:
             return {"CANCELLED"}
         armature_object = context.blend_data.objects.get(self.armature_object_name)
@@ -718,7 +726,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
 
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         if not self.armature_object_name:
             armature_object = search.current_armature(context)
             if armature_object:
@@ -732,7 +740,7 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
 
         return context.window_manager.invoke_props_dialog(self, width=600)
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         layout = self.layout
         layout.label(
             text="Multiple armatures were found; please select one to export as VRM.",
@@ -756,23 +764,21 @@ class WM_OT_vrm_export_armature_selection(bpy.types.Operator):
         armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
 
 
-class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
+class WM_OT_vrma_export_prerequisite(Operator):
     bl_label = "VRM Animation Export Prerequisite"
     bl_idname = "wm.vrma_export_prerequisite"
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
-    armature_object_name: bpy.props.StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-    armature_object_name_candidates: bpy.props.CollectionProperty(  # type: ignore[valid-type]
+    armature_object_name_candidates: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup,
         options={"HIDDEN"},
     )
 
     @staticmethod
-    def detect_errors(
-        context: bpy.types.Context, armature_object_name: str
-    ) -> list[str]:
+    def detect_errors(context: Context, armature_object_name: str) -> list[str]:
         error_messages = []
 
         if not armature_object_name:
@@ -785,26 +791,26 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
             return error_messages
 
         armature_data = armature.data
-        if not isinstance(armature_data, bpy.types.Armature):
+        if not isinstance(armature_data, Armature):
             error_messages.append(pgettext("Armature not found"))
             return error_messages
 
         ext = armature_data.vrm_addon_extension
         if armature_data.vrm_addon_extension.is_vrm1():
             humanoid = ext.vrm1.humanoid
-            if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+            if not humanoid.human_bones.all_required_bones_are_assigned():
                 error_messages.append(pgettext("Please assign required human bones"))
         else:
             error_messages.append(pgettext("Please set the version of VRM to 1.0"))
 
         return error_messages
 
-    def execute(self, _context: bpy.types.Context) -> set[str]:
+    def execute(self, _context: Context) -> set[str]:
         return bpy.ops.export_scene.vrma(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 
-    def invoke(self, context: bpy.types.Context, _event: bpy.types.Event) -> set[str]:
+    def invoke(self, context: Context, _event: Event) -> set[str]:
         if not self.armature_object_name:
             armature_object = search.current_armature(context)
             if armature_object:
@@ -817,7 +823,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
             candidate.value = obj.name
         return context.window_manager.invoke_props_dialog(self, width=800)
 
-    def draw(self, context: bpy.types.Context) -> None:
+    def draw(self, context: Context) -> None:
         layout = self.layout
 
         layout.label(
@@ -849,11 +855,11 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
             armature = context.blend_data.objects.get(self.armature_object_name)
         if armature:
             armature_data = armature.data
-            if isinstance(armature_data, bpy.types.Armature):
+            if isinstance(armature_data, Armature):
                 ext = armature_data.vrm_addon_extension
                 if armature_data.vrm_addon_extension.is_vrm1():
                     humanoid = ext.vrm1.humanoid
-                    if not bool(humanoid.human_bones.all_required_bones_are_assigned()):
+                    if not humanoid.human_bones.all_required_bones_are_assigned():
                         WM_OT_vrm_export_human_bones_assignment.draw_vrm1(
                             self.layout, armature
                         )
@@ -867,7 +873,7 @@ class WM_OT_vrma_export_prerequisite(bpy.types.Operator):
         armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
 
 
-def draw_help_message(layout: bpy.types.UILayout) -> None:
+def draw_help_message(layout: UILayout) -> None:
     help_message = pgettext(
         "Animations to be exported\n"
         + "- Humanoid bone rotations\n"

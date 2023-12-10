@@ -1,7 +1,8 @@
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-import bpy
+from bpy.props import BoolProperty, IntVectorProperty
+from bpy.types import AddonPreferences, Context
 
 from . import version
 from .logging import get_logger
@@ -11,69 +12,69 @@ logger = get_logger(__name__)
 addon_package_name = ".".join(__name__.split(".")[:-2])
 
 
-class VrmAddonPreferences(bpy.types.AddonPreferences):
+class VrmAddonPreferences(AddonPreferences):
     bl_idname = addon_package_name
 
-    INITIAL_ADDON_VERSION = (0, 0, 0)
+    INITIAL_ADDON_VERSION: tuple[int, int, int] = (0, 0, 0)
 
-    addon_version: bpy.props.IntVectorProperty(  # type: ignore[valid-type]
+    addon_version: IntVectorProperty(  # type: ignore[valid-type]
         size=3,
         default=INITIAL_ADDON_VERSION,
     )
 
-    set_shading_type_to_material_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_shading_type_to_material_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set shading type to "Material"',
         default=True,
     )
-    set_view_transform_to_standard_on_import: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_view_transform_to_standard_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set view transform to "Standard"',
         default=True,
     )
-    set_armature_display_to_wire: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_armature_display_to_wire: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to "Wire"',
         default=True,
     )
-    set_armature_display_to_show_in_front: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    set_armature_display_to_show_in_front: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to show "In-Front"',
         default=True,
     )
 
-    export_invisibles: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
     )
-    export_only_selections: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_only_selections: BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",
     )
-    export_only_deform_bones: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_only_deform_bones: BoolProperty(  # type: ignore[valid-type]
         name="Export Only Deform Bones",
         default=True,
     )
-    export_apply_modifiers: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_apply_modifiers: BoolProperty(  # type: ignore[valid-type]
         name="Apply Modifiers",
         default=True,
     )
-    enable_advanced_preferences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    enable_advanced_preferences: BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",
     )
-    export_fb_ngon_encoding: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_fb_ngon_encoding: BoolProperty(  # type: ignore[valid-type]
         name="Try the FB_ngon_encoding under development"
         + " (Exported meshes can be corrupted)",
     )
-    export_all_influences: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
         description="Don't limit to 4, most viewers truncate to 4,"
         + " so bone movement may cause jagged meshes",
         default=True,
     )
-    export_lights: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",
     )
-    use_active_scene: bpy.props.BoolProperty(  # type: ignore[valid-type]
+    use_active_scene: BoolProperty(  # type: ignore[valid-type]
         name="Use Active Scene",
         default=True,
     )
 
-    def draw(self, _context: bpy.types.Context) -> None:
+    def draw(self, _context: Context) -> None:
         layout = self.layout
 
         warning_message = version.preferences_warning_message()
@@ -127,7 +128,7 @@ class VrmAddonPreferences(bpy.types.AddonPreferences):
         use_active_scene: bool  # type: ignore[no-redef]
 
 
-def get_preferences(context: bpy.types.Context) -> VrmAddonPreferences:
+def get_preferences(context: Context) -> VrmAddonPreferences:
     addon = context.preferences.addons.get(addon_package_name)
     if not addon:
         message = f"No add-on preferences for {addon_package_name}"
