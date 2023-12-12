@@ -274,9 +274,10 @@ def current_armature(context: Context) -> Optional[Object]:
 
 def export_objects(
     context: Context,
+    armature_object_name: Optional[str],
     export_invisibles: bool,
     export_only_selections: bool,
-    armature_object_name: Optional[str],
+    export_lights: bool,
 ) -> list[Object]:
     selected_objects = []
     if export_only_selections:
@@ -306,7 +307,9 @@ def export_objects(
         )
 
     for obj in selected_objects:
-        if obj.type in ["ARMATURE", "LIGHT", "CAMERA"]:
+        if obj.type in ["ARMATURE", "CAMERA"]:
+            continue
+        if obj.type == "LIGHT" and not export_lights:
             continue
         if obj.name not in context.view_layer.objects:
             continue

@@ -198,8 +198,6 @@ class WM_OT_vrm_validator(Operator):
 
         # export object seeking
         preferences = get_preferences(context)
-        export_invisibles = preferences.export_invisibles
-        export_only_selections = preferences.export_only_selections
         if preferences.enable_advanced_preferences:
             export_fb_ngon_encoding = preferences.export_fb_ngon_encoding
         else:
@@ -210,13 +208,17 @@ class WM_OT_vrm_validator(Operator):
             warning_messages.append(version_warning_message)
 
         export_objects = search.export_objects(
-            context, export_invisibles, export_only_selections, armature_object_name
+            context,
+            armature_object_name,
+            preferences.export_invisibles,
+            preferences.export_only_selections,
+            preferences.export_lights,
         )
 
         if not any(
             obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES for obj in export_objects
         ):
-            if export_only_selections:
+            if preferences.export_only_selections:
                 warning_messages.append(
                     pgettext(
                         '"{export_only_selections}" is enabled'

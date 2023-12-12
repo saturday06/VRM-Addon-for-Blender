@@ -669,7 +669,11 @@ class GlslDrawObj:
         GlslDrawObj.draw_objs = [
             obj
             for obj in search.export_objects(
-                context, invisibles, only_selections, armature_object_name=None
+                context,
+                armature_object_name=None,
+                export_invisibles=invisibles,
+                export_only_selections=only_selections,
+                export_lights=False,
             )
             if obj.type == "MESH"
         ]
