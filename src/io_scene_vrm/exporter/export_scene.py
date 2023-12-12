@@ -94,6 +94,11 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         + " (Exported meshes can be corrupted)",
         update=export_vrm_update_addon_preferences,
     )
+    export_all_influences: BoolProperty(  # type: ignore[valid-type]
+        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
+        update=export_vrm_update_addon_preferences,
+        default=True,
+    )
 
     errors: CollectionProperty(  # type: ignore[valid-type]
         type=validation.VrmValidationError,
@@ -140,7 +145,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
 
         if is_vrm1:
             vrm_exporter: AbstractBaseVrmExporter = Gltf2AddonVrmExporter(
-                context, export_objects
+                context,
+                export_objects,
+                self.export_all_influences,
             )
         else:
             vrm_exporter = LegacyVrmExporter(
@@ -258,6 +265,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
         export_fb_ngon_encoding: bool  # type: ignore[no-redef]
+        export_all_influences: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]
         ignore_warning: bool  # type: ignore[no-redef]

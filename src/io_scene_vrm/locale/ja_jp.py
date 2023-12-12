@@ -74,6 +74,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "(エクスポートされるメッシュが壊れることがあります)",
     (
         "*",
+        "Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
+    ): "全てのボーンウェイトをエクスポートする(4つに制限しない。多くのビューアは4つに制限するため、ボーンの動きがメッシュを乱す可能性があります)",
+    (
+        "*",
         "No error. Ready for export VRM",
     ): "エラーはありませんでした。VRMのエクスポートをすることができます",
     (
