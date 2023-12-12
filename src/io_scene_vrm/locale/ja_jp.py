@@ -80,8 +80,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Don't limit to 4, most viewers truncate to 4, "
         + "so bone movement may cause jagged meshes",
-    ): "4つに制限しない。多くのビューアは4つに制限するため、"
-    + "ボーンの動きがメッシュを乱す可能性があります",
+    ): "4つに制限しません。ほとんどのビューアでは4つに制限するため、"
+    + "ボーンを動かした際に予期しないメッシュの変形が発生する可能性があります。",
     (
         "*",
         "No error. Ready for export VRM",
