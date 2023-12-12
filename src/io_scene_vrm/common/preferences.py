@@ -129,7 +129,9 @@ class VrmAddonPreferences(AddonPreferences):
         + " (Exported meshes can be corrupted)",
     )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
-        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
+        name="Export All Bone Influences",
+        description="Don't limit to 4, most viewers truncate to 4, "
+        + "so bone movement may cause jagged meshes",
         default=True,
     )
 

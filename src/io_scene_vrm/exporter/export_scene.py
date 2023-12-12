@@ -95,7 +95,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         update=export_vrm_update_addon_preferences,
     )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
-        name="Export All Bone Influences (Don't limit to 4, most viewers truncate to 4, so bone movement may cause jagged meshes)",
+        name="Export All Bone Influences",
+        description="Don't limit to 4, most viewers truncate to 4, "
+        + "so bone movement may cause jagged meshes",
         update=export_vrm_update_addon_preferences,
         default=True,
     )
