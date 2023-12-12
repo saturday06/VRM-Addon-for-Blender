@@ -2044,7 +2044,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         export_animations=True,
                         export_rest_position_armature=False,
-                        export_all_influences=self.export_all_influences,  # Models may appear incorrectly in many viewers
+                        # Models may appear incorrectly in many viewers
+                        export_all_influences=self.export_all_influences,
                         # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
                         # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
                         export_try_sparse_sk=False,
