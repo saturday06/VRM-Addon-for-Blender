@@ -132,7 +132,9 @@ class VrmAddonPreferences(AddonPreferences):
         name="Export All Bone Influences",
         description="Don't limit to 4, most viewers truncate to 4, "
         + "so bone movement may cause jagged meshes",
-        default=True,
+        # The upstream says that Models may appear incorrectly in many viewers.
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/356b3dda976303d3ecce8b3bd1591245e576db38/addons/io_scene_gltf2/__init__.py#L760
+        default=False,
     )
 
     def draw(self, _context: Context) -> None:
