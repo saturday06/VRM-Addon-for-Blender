@@ -52,6 +52,7 @@ class ExportPreferencesProtocol(Protocol):
     export_only_selections: bool
     enable_advanced_preferences: bool
     export_fb_ngon_encoding: bool
+    export_all_influences: bool
 
 
 def copy_export_preferences(
@@ -62,11 +63,13 @@ def copy_export_preferences(
         destination.export_only_selections,
         destination.enable_advanced_preferences,
         destination.export_fb_ngon_encoding,
+        destination.export_all_influences,
     ) = (
         source.export_invisibles,
         source.export_only_selections,
         source.enable_advanced_preferences,
         source.export_fb_ngon_encoding,
+        source.export_all_influences,
     )
 
 
@@ -139,9 +142,11 @@ class VrmAddonPreferences(AddonPreferences):
     )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
-        description="Don't limit to 4, most viewers truncate to 4,"
-        + " so bone movement may cause jagged meshes",
-        default=True,
+        description="Don't limit to 4, most viewers truncate to 4, "
+        + "so bone movement may cause jagged meshes",
+        # The upstream says that Models may appear incorrectly in many viewers.
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/356b3dda976303d3ecce8b3bd1591245e576db38/addons/io_scene_gltf2/__init__.py#L760
+        default=False,
     )
     export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",
