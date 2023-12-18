@@ -156,10 +156,10 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
 
         export_objects = search.export_objects(
             context,
+            self.armature_object_name,
             self.export_invisibles,
             self.export_only_selections,
             self.export_lights,
-            self.armature_object_name,
         )
         is_vrm1 = any(
             obj.type == "ARMATURE"
@@ -173,6 +173,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 context,
                 export_objects,
                 self.export_all_influences,
+                self.export_lights,
             )
         else:
             vrm_exporter = LegacyVrmExporter(
@@ -198,10 +199,10 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
 
         export_objects = search.export_objects(
             context,
+            self.armature_object_name,
             self.export_invisibles,
             self.export_only_selections,
             self.export_lights,
-            self.armature_object_name,
         )
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
@@ -441,15 +442,14 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 
     def execute(self, context: Context) -> set[str]:
         preferences = get_preferences(context)
-        export_invisibles = preferences.export_invisibles
-        export_only_selections = preferences.export_only_selections
         export_lights = preferences.export_lights
         export_objects = search.export_objects(
             context,
-            export_invisibles,
-            export_only_selections,
             export_lights,
             self.armature_object_name,
+            preferences.export_invisibles,
+            preferences.export_only_selections,
+            preferences.export_lights,
         )
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) != 1:
@@ -490,18 +490,14 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 
     def draw(self, context: Context) -> None:
         preferences = get_preferences(context)
-        export_invisibles = preferences.export_invisibles
-        export_only_selections = preferences.export_only_selections
-        export_lights = preferences.export_lights
-
         armatures = [
             obj
             for obj in search.export_objects(
                 context,
-                export_invisibles,
-                export_only_selections,
-                export_lights,
                 self.armature_object_name,
+                preferences.export_invisibles,
+                preferences.export_only_selections,
+                preferences.export_lights,
             )
             if obj.type == "ARMATURE"
         ]

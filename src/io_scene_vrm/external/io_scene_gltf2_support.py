@@ -146,7 +146,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             export_def_bones=arguments.export_def_bones,  # Don't export control bones not marked as deform
             export_apply=arguments.export_apply,  # Enable non-destructive export
             export_all_influences=arguments.export_all_influences,
-            export_lights=arguments.export_lights,  # TODO: Expose UI Option, Unity allows light export
+            export_lights=arguments.export_lights,
             use_active_scene=arguments.use_active_scene,  # Reduce File Size
         )
 
@@ -163,7 +163,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             export_def_bones=arguments.export_def_bones,  # Don't export control bones not marked as deform
             export_apply=arguments.export_apply,  # Enable non-destructive export
             export_all_influences=arguments.export_all_influences,
-            export_lights=arguments.export_lights,  # TODO: Expose UI Option, Unity allows light export
+            export_lights=arguments.export_lights,
             use_active_scene=arguments.use_active_scene,  # Reduce File Size
         )
 
@@ -179,7 +179,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
         export_def_bones=arguments.export_def_bones,  # Don't export control bones not marked as deform
         export_apply=arguments.export_apply,  # Enable non-destructive export
         export_all_influences=arguments.export_all_influences,
-        export_lights=arguments.export_lights,  # TODO: Expose UI Option, Unity allows light export
+        export_lights=arguments.export_lights,
         use_active_scene=arguments.use_active_scene,  # Reduce File Size
         export_try_sparse_sk=arguments.export_try_sparse_sk,
     )

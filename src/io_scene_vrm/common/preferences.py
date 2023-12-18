@@ -53,6 +53,7 @@ class ExportPreferencesProtocol(Protocol):
     enable_advanced_preferences: bool
     export_fb_ngon_encoding: bool
     export_all_influences: bool
+    export_lights: bool
 
 
 def copy_export_preferences(
@@ -64,12 +65,14 @@ def copy_export_preferences(
         destination.enable_advanced_preferences,
         destination.export_fb_ngon_encoding,
         destination.export_all_influences,
+        destination.export_lights,
     ) = (
         source.export_invisibles,
         source.export_only_selections,
         source.enable_advanced_preferences,
         source.export_fb_ngon_encoding,
         source.export_all_influences,
+        destination.export_lights,
     )
 
 

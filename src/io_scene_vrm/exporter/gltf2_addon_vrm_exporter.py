@@ -1,4 +1,4 @@
-import math
+﻿import math
 import tempfile
 from copy import deepcopy
 from os import environ
@@ -60,10 +60,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         context: Context,
         export_objects: list[Object],
         export_all_influences: bool,
+        export_lights: bool,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
         self.export_all_influences = export_all_influences
+        self.export_lights = export_lights
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if not armatures:
@@ -2048,6 +2050,8 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         export_apply=True,  # Enable non-destructive export
                         # Models may appear incorrectly in many viewers
                         export_all_influences=self.export_all_influences,
+                        # TODO: Expose UI Option, Unity allows light export
+                        export_lights=self.export_lights,
                         export_lights=True,  # TODO: Expose UI Option, Unity allows light export
                         use_active_scene=True,  # Reduce File Size
                         # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
