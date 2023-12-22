@@ -1308,10 +1308,14 @@ class AbstractBaseVrmImporter(ABC):
 
     def viewport_setup(self) -> None:
         preferences = get_preferences(self.context)
-        if self.armature and preferences.set_armature_display_to_wire:
-            self.armature.display_type = "WIRE"
-        if self.armature and preferences.set_armature_display_to_show_in_front:
-            self.armature.show_in_front = True
+        if self.armature:
+            if preferences.set_armature_display_to_wire:
+                self.armature.display_type = "WIRE"
+            if preferences.set_armature_display_to_show_in_front:
+                self.armature.show_in_front = True
+            if preferences.set_armature_bone_shape_to_default:
+                for bone in self.armature.pose.bones:
+                    bone.custom_shape = None
 
         if preferences.set_view_transform_to_standard_on_import:
             # https://github.com/saturday06/VRM-Addon-for-Blender/issues/336#issuecomment-1760729404

@@ -17,6 +17,7 @@ class ImportPreferencesProtocol(Protocol):
     set_view_transform_to_standard_on_import: bool
     set_armature_display_to_wire: bool
     set_armature_display_to_show_in_front: bool
+    set_armature_bone_shape_to_default: bool
 
 
 def copy_import_preferences(
@@ -27,11 +28,13 @@ def copy_import_preferences(
         destination.set_view_transform_to_standard_on_import,
         destination.set_armature_display_to_wire,
         destination.set_armature_display_to_show_in_front,
+        destination.set_armature_bone_shape_to_default,
     ) = (
         source.set_shading_type_to_material_on_import,
         source.set_view_transform_to_standard_on_import,
         source.set_armature_display_to_wire,
         source.set_armature_display_to_show_in_front,
+        source.set_armature_bone_shape_to_default,
     )
 
 
@@ -45,6 +48,7 @@ def draw_import_preferences_layout(
     layout.prop(preferences, "set_view_transform_to_standard_on_import")
     layout.prop(preferences, "set_armature_display_to_wire")
     layout.prop(preferences, "set_armature_display_to_show_in_front")
+    layout.prop(preferences, "set_armature_bone_shape_to_default")
 
 
 class ExportPreferencesProtocol(Protocol):
@@ -118,6 +122,10 @@ class VrmAddonPreferences(AddonPreferences):
         name='Set an imported armature display to show "In-Front"',
         default=True,
     )
+    set_armature_bone_shape_to_default: BoolProperty(  # type: ignore[valid-type]
+        name="Set an imported bone shape to default",
+        default=True,
+    )
 
     export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
@@ -174,6 +182,7 @@ class VrmAddonPreferences(AddonPreferences):
         set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]
         set_armature_display_to_wire: bool  # type: ignore[no-redef]
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
+        set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]

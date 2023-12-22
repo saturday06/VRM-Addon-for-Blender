@@ -99,6 +99,11 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         update=import_vrm_update_addon_preferences,
         default=True,
     )
+    set_armature_bone_shape_to_default: BoolProperty(  # type: ignore[valid-type]
+        name="Set an imported bone shape to default",
+        update=import_vrm_update_addon_preferences,
+        default=True,
+    )
 
     def execute(self, context: Context) -> set[str]:
         filepath = Path(self.filepath)
@@ -157,6 +162,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]
         set_armature_display_to_wire: bool  # type: ignore[no-redef]
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
+        set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
 
 
 class VRM_PT_import_file_browser_tool_props(Panel):

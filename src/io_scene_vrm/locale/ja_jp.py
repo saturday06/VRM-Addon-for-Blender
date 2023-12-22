@@ -63,6 +63,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Set an imported armature display to show "In-Front"',
     ): "アーマチュアを最前面に表示",
+    (
+        "*",
+        "Set an imported bone shape to default",
+    ): "ボーンの形状表示をデフォルトのものにする",
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
     ("*", "Enable Advanced Options"): "高度なオプションを有効にする",
