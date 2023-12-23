@@ -1,7 +1,7 @@
 from collections.abc import Set
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import bpy
 from bpy.app.translations import pgettext
@@ -20,7 +20,9 @@ from bpy_extras.io_utils import ImportHelper
 from ..common import version
 from ..common.logging import get_logger
 from ..common.preferences import (
+    ImportPreferencesProtocol,
     copy_import_preferences,
+    create_import_preferences_dict,
     draw_import_preferences_layout,
     get_preferences,
 )
@@ -116,6 +118,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         license_error = None
         try:
             return create_blend_model(
+                filepath,
                 self,
                 context,
                 license_validation=True,
@@ -136,8 +139,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
             import_anyway=import_anyway,
             license_confirmations=license_error.license_confirmations(),
             filepath=str(filepath),
-            extract_textures_into_folder=self.extract_textures_into_folder,
-            make_new_texture_folder=self.make_new_texture_folder,
+            **create_import_preferences_dict(self),
         )
 
     def invoke(self, context: Context, event: Event) -> set[str]:
@@ -239,6 +241,11 @@ class WM_OT_vrm_license_confirmation(Operator):
 
     extract_textures_into_folder: BoolProperty()  # type: ignore[valid-type]
     make_new_texture_folder: BoolProperty()  # type: ignore[valid-type]
+    set_shading_type_to_material_on_import: BoolProperty()  # type: ignore[valid-type]
+    set_view_transform_to_standard_on_import: BoolProperty()  # type: ignore[valid-type]
+    set_armature_display_to_wire: BoolProperty()  # type: ignore[valid-type]
+    set_armature_display_to_show_in_front: BoolProperty()  # type: ignore[valid-type]
+    set_armature_bone_shape_to_default: BoolProperty()  # type: ignore[valid-type]
 
     def execute(self, context: Context) -> set[str]:
         filepath = Path(self.filepath)
@@ -247,6 +254,7 @@ class WM_OT_vrm_license_confirmation(Operator):
         if not self.import_anyway:
             return {"CANCELLED"}
         return create_blend_model(
+            filepath,
             self,
             context,
             license_validation=False,
@@ -294,25 +302,30 @@ class WM_OT_vrm_license_confirmation(Operator):
         import_anyway: bool  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]
+        set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
+        set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]
+        set_armature_display_to_wire: bool  # type: ignore[no-redef]
+        set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
+        set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
 
 
 def create_blend_model(
-    addon: Union[IMPORT_SCENE_OT_vrm, WM_OT_vrm_license_confirmation],
+    filepath: Path,
+    preferences: ImportPreferencesProtocol,
     context: Context,
     license_validation: bool,
 ) -> set[str]:
     parse_result = VrmParser(
-        Path(addon.filepath),
-        addon.extract_textures_into_folder,
-        addon.make_new_texture_folder,
+        filepath,
+        preferences.extract_textures_into_folder,
+        preferences.make_new_texture_folder,
         license_validation=license_validation,
     ).parse()
 
     Gltf2AddonVrmImporter(
         context,
         parse_result,
-        addon.extract_textures_into_folder,
-        addon.make_new_texture_folder,
+        preferences,
     ).import_vrm()
     return {"FINISHED"}
 
@@ -352,7 +365,8 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
             context, self.armature_object_name
         ):
             return {"CANCELLED"}
-        if not self.filepath:
+        filepath = Path(self.filepath)
+        if not filepath.is_file():
             return {"CANCELLED"}
         if not self.armature_object_name:
             armature = search.current_armature(context)
@@ -360,7 +374,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
             armature = context.blend_data.objects.get(self.armature_object_name)
         if not armature:
             return {"CANCELLED"}
-        return VrmAnimationImporter.execute(context, Path(self.filepath), armature)
+        return VrmAnimationImporter.execute(context, filepath, armature)
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_import_prerequisite.detect_errors(

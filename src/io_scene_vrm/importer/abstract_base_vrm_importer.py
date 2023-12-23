@@ -25,7 +25,7 @@ from mathutils import Matrix, Vector
 from ..common import convert, deep, shader
 from ..common.deep import Json
 from ..common.logging import get_logger
-from ..common.preferences import get_preferences
+from ..common.preferences import ImportPreferencesProtocol
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
@@ -58,13 +58,11 @@ class AbstractBaseVrmImporter(ABC):
         self,
         context: Context,
         parse_result: ParseResult,
-        extract_textures_into_folder: bool,
-        make_new_texture_folder: bool,
+        preferences: ImportPreferencesProtocol,
     ) -> None:
         self.context = context
         self.parse_result = parse_result
-        self.extract_textures_into_folder = extract_textures_into_folder
-        self.make_new_texture_folder = make_new_texture_folder
+        self.preferences = preferences
 
         self.meshes: dict[int, Object] = {}
         self.images: dict[int, Image] = {}
@@ -1307,17 +1305,16 @@ class AbstractBaseVrmImporter(ABC):
             bone_group.refresh(armature)
 
     def viewport_setup(self) -> None:
-        preferences = get_preferences(self.context)
         if self.armature:
-            if preferences.set_armature_display_to_wire:
+            if self.preferences.set_armature_display_to_wire:
                 self.armature.display_type = "WIRE"
-            if preferences.set_armature_display_to_show_in_front:
+            if self.preferences.set_armature_display_to_show_in_front:
                 self.armature.show_in_front = True
-            if preferences.set_armature_bone_shape_to_default:
+            if self.preferences.set_armature_bone_shape_to_default:
                 for bone in self.armature.pose.bones:
                     bone.custom_shape = None
 
-        if preferences.set_view_transform_to_standard_on_import:
+        if self.preferences.set_view_transform_to_standard_on_import:
             # https://github.com/saturday06/VRM-Addon-for-Blender/issues/336#issuecomment-1760729404
             view_settings = self.context.scene.view_settings
             try:
@@ -1328,7 +1325,7 @@ class AbstractBaseVrmImporter(ABC):
                     + ' doesn\'t support "Standard".'
                 )
 
-        if preferences.set_shading_type_to_material_on_import:
+        if self.preferences.set_shading_type_to_material_on_import:
             screen = self.context.screen
             for area in screen.areas:
                 for space in area.spaces:

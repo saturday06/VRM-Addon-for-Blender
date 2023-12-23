@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, TypedDict
 
 from bpy.props import BoolProperty, IntVectorProperty
 from bpy.types import AddonPreferences, Context, Operator, UILayout
@@ -13,6 +13,8 @@ addon_package_name = ".".join(__name__.split(".")[:-2])
 
 
 class ImportPreferencesProtocol(Protocol):
+    extract_textures_into_folder: bool
+    make_new_texture_folder: bool
     set_shading_type_to_material_on_import: bool
     set_view_transform_to_standard_on_import: bool
     set_armature_display_to_wire: bool
@@ -20,16 +22,50 @@ class ImportPreferencesProtocol(Protocol):
     set_armature_bone_shape_to_default: bool
 
 
+class ImportPreferencesDict(TypedDict):
+    extract_textures_into_folder: bool
+    make_new_texture_folder: bool
+    set_shading_type_to_material_on_import: bool
+    set_view_transform_to_standard_on_import: bool
+    set_armature_display_to_wire: bool
+    set_armature_display_to_show_in_front: bool
+    set_armature_bone_shape_to_default: bool
+
+
+def create_import_preferences_dict(
+    source: ImportPreferencesProtocol,
+) -> ImportPreferencesDict:
+    return {
+        "extract_textures_into_folder": source.extract_textures_into_folder,
+        "make_new_texture_folder": source.make_new_texture_folder,
+        "set_shading_type_to_material_on_import": (
+            source.set_shading_type_to_material_on_import
+        ),
+        "set_view_transform_to_standard_on_import": (
+            source.set_view_transform_to_standard_on_import
+        ),
+        "set_armature_display_to_wire": (source.set_armature_display_to_wire),
+        "set_armature_display_to_show_in_front": (
+            source.set_armature_display_to_show_in_front
+        ),
+        "set_armature_bone_shape_to_default": source.set_armature_bone_shape_to_default,
+    }
+
+
 def copy_import_preferences(
     *, source: ImportPreferencesProtocol, destination: ImportPreferencesProtocol
 ) -> None:
     (
+        destination.extract_textures_into_folder,
+        destination.make_new_texture_folder,
         destination.set_shading_type_to_material_on_import,
         destination.set_view_transform_to_standard_on_import,
         destination.set_armature_display_to_wire,
         destination.set_armature_display_to_show_in_front,
         destination.set_armature_bone_shape_to_default,
     ) = (
+        source.extract_textures_into_folder,
+        source.make_new_texture_folder,
         source.set_shading_type_to_material_on_import,
         source.set_view_transform_to_standard_on_import,
         source.set_armature_display_to_wire,
@@ -44,6 +80,8 @@ def draw_import_preferences_layout(
     if not isinstance(preferences, (AddonPreferences, Operator)):
         return
 
+    layout.prop(preferences, "extract_textures_into_folder")
+    layout.prop(preferences, "make_new_texture_folder")
     layout.prop(preferences, "set_shading_type_to_material_on_import")
     layout.prop(preferences, "set_view_transform_to_standard_on_import")
     layout.prop(preferences, "set_armature_display_to_wire")
@@ -106,6 +144,14 @@ class VrmAddonPreferences(AddonPreferences):
         default=INITIAL_ADDON_VERSION,
     )
 
+    extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]
+        name="Extract texture images into the folder",
+        default=False,
+    )
+    make_new_texture_folder: BoolProperty(  # type: ignore[valid-type]
+        name="Don't overwrite existing texture folder",
+        default=True,
+    )
     set_shading_type_to_material_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set shading type to "Material"',
         default=True,
@@ -178,6 +224,8 @@ class VrmAddonPreferences(AddonPreferences):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         addon_version: Sequence[int]  # type: ignore[no-redef]
+        extract_textures_into_folder: bool  # type: ignore[no-redef]
+        make_new_texture_folder: bool  # type: ignore[no-redef]
         set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
         set_view_transform_to_standard_on_import: bool  # type: ignore[no-redef]
         set_armature_display_to_wire: bool  # type: ignore[no-redef]
