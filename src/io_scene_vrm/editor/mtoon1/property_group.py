@@ -1615,11 +1615,8 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
             self.transparent_with_z_write,
         )
 
-        # call update_mtoon0_render_queue()
-        material = self.find_material()
-        material.vrm_addon_extension.mtoon1.mtoon0_render_queue = (
-            material.vrm_addon_extension.mtoon1.mtoon0_render_queue
-        )
+        mtoon1 = self.find_material().vrm_addon_extension.mtoon1
+        mtoon1.set_mtoon0_render_queue_and_clamp(mtoon1.mtoon0_render_queue)
 
     transparent_with_z_write: BoolProperty(  # type: ignore[valid-type]
         name="Transparent With ZWrite Mode",
@@ -2036,6 +2033,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         raise ValueError(message)
 
     def set_alpha_mode(self, value: int) -> None:
+        changed = self.get_alpha_mode() != value
+
         material = self.find_material()
         if material.blend_method == "HASHED":
             self.alpha_mode_blend_method_hashed = True
@@ -2056,8 +2055,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             material.blend_method = "OPAQUE"
             shadow_method = "OPAQUE"
 
-        # call self.update_mtoon0_render_queue()
-        self.mtoon0_render_queue = self.mtoon0_render_queue
+        if changed:
+            self.set_mtoon0_render_queue_and_clamp(self.mtoon0_render_queue)
 
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             material.shadow_method = "NONE"
@@ -2311,23 +2310,38 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         max=1,
     )
 
-    def update_mtoon0_render_queue(self, _context: Context) -> None:
+    def get_mtoon0_render_queue_and_clamp(self) -> int:
+        return int(self.mtoon0_render_queue)
+
+    def set_mtoon0_render_queue_and_clamp(self, value: int) -> None:
         # https://github.com/Santarh/MToon/blob/42b03163459ac8e6b7aee08070d0f4f912035069/MToon/Scripts/Utils.cs#L74-L113
         if self.alpha_mode == self.ALPHA_MODE_OPAQUE:
             mtoon0_render_queue = 2000
         elif self.alpha_mode == self.ALPHA_MODE_MASK:
             mtoon0_render_queue = 2450
         elif not self.extensions.vrmc_materials_mtoon.transparent_with_z_write:
-            mtoon0_render_queue = max(2951, min(3000, self.mtoon0_render_queue))
+            mtoon0_render_queue = max(2951, min(3000, value))
         else:
-            mtoon0_render_queue = max(2501, min(2550, self.mtoon0_render_queue))
+            mtoon0_render_queue = max(2501, min(2550, value))
+
         if self.mtoon0_render_queue != mtoon0_render_queue:
             self.mtoon0_render_queue = mtoon0_render_queue
 
+    # MToon0用のRender Queueの値を設定する。値代入時にクランプを行う。
+    # UniVRMはUIからの値設定時や、Alpha Modeなどの変更時にクランプを行うため、
+    # それと挙動を合わせる際はこちらを使う。
+    mtoon0_render_queue_and_clamp: IntProperty(  # type: ignore[valid-type]
+        name="Render Queue",
+        get=get_mtoon0_render_queue_and_clamp,
+        set=set_mtoon0_render_queue_and_clamp,
+    )
+
+    # MToon0用のRender Queueの値を設定する。値代入時にクランプを行わない。
+    # UniVRMはVRM0のインポート時やエクスポート時はクランプを行わないため、
+    # それと挙動を合わせるためインポート時やエクスポート時はこちらを使う。
     mtoon0_render_queue: IntProperty(  # type: ignore[valid-type]
         name="Render Queue",
         default=2000,
-        update=update_mtoon0_render_queue,
     )
 
     if TYPE_CHECKING:
@@ -2364,6 +2378,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         )
         mtoon0_shading_grade_rate: float  # type: ignore[no-redef]
         mtoon0_rim_lighting_mix: float  # type: ignore[no-redef]
+        mtoon0_render_queue_and_clamp: int  # type: ignore[no-redef]
         mtoon0_render_queue: int  # type: ignore[no-redef]
 
 

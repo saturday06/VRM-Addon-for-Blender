@@ -1542,9 +1542,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     set_mtoon_outline_keywords(keyword_map, False, True, False, True)
 
             float_properties["_Cutoff"] = 0.5
-            gltf.mtoon0_render_queue = (
-                gltf.mtoon0_render_queue
-            )  # call "mtoon0_render_queue()"
             if gltf.alpha_mode == gltf.ALPHA_MODE_OPAQUE:
                 blend_mode = 0
                 src_blend = 1

@@ -363,7 +363,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         mtoon0_box.prop(gltf, "mtoon0_light_color_attenuation", slider=True)
         mtoon0_box.prop(gltf, "mtoon0_rim_lighting_mix", slider=True)
         mtoon0_box.prop(gltf, "mtoon0_outline_scaled_max_distance", slider=True)
-        mtoon0_box.prop(gltf, "mtoon0_render_queue", slider=True)
+        mtoon0_box.prop(gltf, "mtoon0_render_queue_and_clamp", slider=True)
 
     reset_op = layout_operator(layout, VRM_OT_reset_mtoon1_material_shader_node_tree)
     reset_op.material_name = material.name
