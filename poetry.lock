@@ -506,7 +506,7 @@ bpy = "3.6.*"
 type = "git"
 url = "https://github.com/saturday06/starry-bpy-type-stubs.git"
 reference = "HEAD"
-resolved_reference = "f6fd4692f74fa3c83b10ce63fe69fb42c4571d33"
+resolved_reference = "6cd55bfa862b34b1b5c91ab1b27135aa34d89050"
 
 [[package]]
 name = "tomli"
