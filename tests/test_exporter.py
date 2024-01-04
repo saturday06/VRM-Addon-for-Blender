@@ -18,10 +18,8 @@ class TestExporter(TestCase):
         ]:
             with self.subTest(arg):
                 actual = legacy_vrm_exporter.normalize_weights_compatible_with_gl_float(
-                    cast(Sequence[float], arg),
+                    cast(Sequence[float], arg)
                 )
                 self.assertEqual(
-                    expected,
-                    actual,
-                    f"Expected: {expected}, Actual: {actual}",
+                    expected, actual, f"Expected: {expected}, Actual: {actual}"
                 )

@@ -17,7 +17,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: Context) -> set[str]:
@@ -43,7 +43,7 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -79,7 +79,7 @@ class VRM_OT_add_vrm0_material_value_bind(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -115,7 +115,7 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -161,7 +161,7 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -207,7 +207,7 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -261,7 +261,7 @@ class VRM_OT_add_vrm0_blend_shape_bind(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -297,7 +297,7 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -341,14 +341,14 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
     bone_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, context: Context) -> set[str]:
@@ -365,8 +365,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
             return {"CANCELLED"}
         collider = collider_groups[self.collider_group_index].colliders.add()
         obj = bpy.data.objects.new(
-            name=f"{self.armature_name}_{self.bone_name}_collider",
-            object_data=None,
+            name=f"{self.armature_name}_{self.bone_name}_collider", object_data=None
         )
         collider.bpy_object = obj
         obj.parent = armature
@@ -395,7 +394,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -443,7 +442,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -479,7 +478,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -523,7 +522,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -559,7 +558,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -603,10 +602,10 @@ class VRM_OT_add_vrm0_blend_shape_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: Context) -> set[str]:
@@ -635,7 +634,7 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -671,7 +670,7 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -702,7 +701,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -738,7 +737,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: Context) -> set[str]:
@@ -767,7 +766,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -808,7 +807,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: Context) -> set[str]:

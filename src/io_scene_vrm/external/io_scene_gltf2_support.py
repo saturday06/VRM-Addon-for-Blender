@@ -29,21 +29,20 @@ class WM_OT_vrm_io_scene_gltf2_disabled_warning(Operator):
 
     def draw(self, _context: Context) -> None:
         self.layout.label(
-            text='Official add-on "glTF 2.0 format" is required. Please enable it.',
+            text='Official add-on "glTF 2.0 format" is required. Please enable it.'
         )
 
 
 def image_to_image_bytes(
-    image: Image,
-    export_settings: dict[str, object],
+    image: Image, export_settings: dict[str, object]
 ) -> tuple[bytes, str]:
     if bpy.app.version < (3, 6, 0):
         gltf2_blender_image = importlib.import_module(
-            "io_scene_gltf2.blender.exp.gltf2_blender_image",
+            "io_scene_gltf2.blender.exp.gltf2_blender_image"
         )
     else:
         gltf2_blender_image = importlib.import_module(
-            "io_scene_gltf2.blender.exp.material.extensions.gltf2_blender_image",
+            "io_scene_gltf2.blender.exp.material.extensions.gltf2_blender_image"
         )
     export_image = gltf2_blender_image.ExportImage.from_blender_image(image)
 
@@ -60,8 +59,7 @@ def image_to_image_bytes(
 
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/e662c281fc830d7ad3ea918d38c6a1881ee143c5/addons/io_scene_gltf2/blender/exp/gltf2_blender_image.py#L139
     image_bytes, _specular_color_factor = export_image.encode(
-        mime_type,
-        export_settings,
+        mime_type, export_settings
     )
     return image_bytes, mime_type
 
@@ -70,7 +68,7 @@ def init_extras_export() -> None:
     try:
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/com/gltf2_blender_extras.py#L20-L21
         gltf2_blender_extras = importlib.import_module(
-            "io_scene_gltf2.blender.com.gltf2_blender_extras",
+            "io_scene_gltf2.blender.com.gltf2_blender_extras"
         )
     except ModuleNotFoundError:
         return

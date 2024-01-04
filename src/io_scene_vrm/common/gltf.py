@@ -71,8 +71,7 @@ def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
 
 
 def pack_glb(
-    json_dict: dict[str, Json],
-    binary_chunk: Union[bytes, bytearray],
+    json_dict: dict[str, Json], binary_chunk: Union[bytes, bytearray]
 ) -> bytes:
     magic = b"glTF" + struct.pack("<I", 2)
     json_str = json.dumps(
@@ -87,8 +86,7 @@ def pack_glb(
         binary_chunk += b"\x00" * (4 - len(binary_chunk) % 4)
     bin_size = struct.pack("<I", len(binary_chunk))
     total_size = struct.pack(
-        "<I",
-        len(json_str) + len(binary_chunk) + 28,
+        "<I", len(json_str) + len(binary_chunk) + 28
     )  # include header size
     return (
         magic

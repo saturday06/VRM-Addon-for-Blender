@@ -68,8 +68,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
 
     @classmethod
     def find_outline_property_group(
-        cls,
-        material: Material,
+        cls, material: Material
     ) -> Optional["MaterialTraceablePropertyGroup"]:
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return None
@@ -78,7 +77,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             return None
         if material.name == outline_material.name:
             logger.error(
-                "Base material and outline material are same. name={material.name}",
+                "Base material and outline material are same. name={material.name}"
             )
             return None
         chain = cls.get_material_property_chain()
@@ -131,7 +130,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             socket.default_value = int(value)
         else:
             logger.warning(
-                f'No "{group_label}" in shader node group "{node_group_name}"',
+                f'No "{group_label}" in shader node group "{node_group_name}"'
             )
 
     def set_bool(
@@ -189,7 +188,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         socket = node.inputs.get(group_label)
         if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
             logger.warning(
-                f'No "{group_label}" in shader node group "{node_group_name}"',
+                f'No "{group_label}" in shader node group "{node_group_name}"'
             )
             return
 
@@ -237,7 +236,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         socket = node.inputs.get(group_label)
         if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
             logger.warning(
-                f'No "{group_label}" in shader node group "{node_group_name}"',
+                f'No "{group_label}" in shader node group "{node_group_name}"'
             )
             return
 
@@ -545,7 +544,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
 
 
 class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "pbr_metallic_roughness",
@@ -556,7 +555,7 @@ class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "extensions",
@@ -568,7 +567,7 @@ class Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1NormalKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "normal_texture",
@@ -578,7 +577,7 @@ class Mtoon1NormalKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1ShadingShiftKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "extensions",
@@ -590,7 +589,7 @@ class Mtoon1ShadingShiftKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1EmissiveKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "emissive_texture",
@@ -600,7 +599,7 @@ class Mtoon1EmissiveKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1RimMultiplyKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "extensions",
@@ -612,7 +611,7 @@ class Mtoon1RimMultiplyKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1MatcapKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "extensions",
@@ -624,7 +623,7 @@ class Mtoon1MatcapKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "extensions",
@@ -670,7 +669,7 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup,
+    Mtoon1KhrTextureTransformPropertyGroup
 ):
     material_property_chain = (
         "extensions",
@@ -686,10 +685,10 @@ class Mtoon1TextureInfoExtensionsPropertyGroup(PropertyGroup):
 
 
 class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorKhrTextureTransformPropertyGroup,
+        type=Mtoon1BaseColorKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -701,10 +700,10 @@ class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup,
+        type=Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -716,10 +715,10 @@ class Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1NormalTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalKhrTextureTransformPropertyGroup,
+        type=Mtoon1NormalKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -731,10 +730,10 @@ class Mtoon1NormalTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftKhrTextureTransformPropertyGroup,
+        type=Mtoon1ShadingShiftKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -746,10 +745,10 @@ class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveKhrTextureTransformPropertyGroup,
+        type=Mtoon1EmissiveKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -761,10 +760,10 @@ class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyKhrTextureTransformPropertyGroup,
+        type=Mtoon1RimMultiplyKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -776,10 +775,10 @@ class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapKhrTextureTransformPropertyGroup,
+        type=Mtoon1MatcapKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -791,10 +790,10 @@ class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup,
+        type=Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -806,10 +805,10 @@ class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
-    Mtoon1TextureInfoExtensionsPropertyGroup,
+    Mtoon1TextureInfoExtensionsPropertyGroup
 ):
     khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup,
+        type=Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1031,7 +1030,7 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
     )
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1SamplerPropertyGroup,
+        type=Mtoon1SamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1053,7 +1052,7 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorSamplerPropertyGroup,
+        type=Mtoon1BaseColorSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1075,7 +1074,7 @@ class Mtoon1ShadeMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplySamplerPropertyGroup,
+        type=Mtoon1ShadeMultiplySamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1095,7 +1094,7 @@ class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "Non-Color"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalSamplerPropertyGroup,
+        type=Mtoon1NormalSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1117,7 +1116,7 @@ class Mtoon1ShadingShiftTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "Non-Color"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftSamplerPropertyGroup,
+        type=Mtoon1ShadingShiftSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1137,7 +1136,7 @@ class Mtoon1EmissiveTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveSamplerPropertyGroup,
+        type=Mtoon1EmissiveSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1159,7 +1158,7 @@ class Mtoon1RimMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplySamplerPropertyGroup,
+        type=Mtoon1RimMultiplySamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1181,7 +1180,7 @@ class Mtoon1MatcapTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "sRGB"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapSamplerPropertyGroup,
+        type=Mtoon1MatcapSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1209,7 +1208,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
         super().update_source(context)
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplySamplerPropertyGroup,
+        type=Mtoon1OutlineWidthMultiplySamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1233,7 +1232,7 @@ class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     colorspace = "Non-Color"
 
     sampler: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskSamplerPropertyGroup,
+        type=Mtoon1UvAnimationMaskSamplerPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1247,11 +1246,11 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
     node_group_name: str = shader.OUTPUT_GROUP_NAME
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1TexturePropertyGroup,
+        type=Mtoon1TexturePropertyGroup
     )
 
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1TextureInfoExtensionsPropertyGroup,
+        type=Mtoon1TextureInfoExtensionsPropertyGroup
     )
 
     @dataclass(frozen=True)
@@ -1300,10 +1299,10 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "Lit Color Texture"
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorTexturePropertyGroup,
+        type=Mtoon1BaseColorTexturePropertyGroup
     )
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1BaseColorTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1319,10 +1318,10 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
     group_label_base_name = "Shade Color Texture"
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyTexturePropertyGroup,
+        type=Mtoon1ShadeMultiplyTexturePropertyGroup
     )
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1341,7 +1340,7 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     node_group_name: str = shader.NORMAL_GROUP_NAME
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalTexturePropertyGroup,
+        type=Mtoon1NormalTexturePropertyGroup
     )
 
     def update_scale(self, _context: Context) -> None:
@@ -1354,7 +1353,7 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     )
 
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1NormalTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1377,14 +1376,12 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
     group_label_base_name = "Shading Shift Texture"
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftTexturePropertyGroup,
+        type=Mtoon1ShadingShiftTexturePropertyGroup
     )
 
     def update_scale(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME,
-            "Shading Shift Texture Scale",
-            self.scale,
+            shader.OUTPUT_GROUP_NAME, "Shading Shift Texture Scale", self.scale
         )
 
     scale: FloatProperty(  # type: ignore[valid-type]
@@ -1394,7 +1391,7 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
     )
 
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1412,10 +1409,10 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "Emissive Texture"
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveTexturePropertyGroup,
+        type=Mtoon1EmissiveTexturePropertyGroup
     )
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1EmissiveTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1431,10 +1428,10 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "Rim Color Texture"
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyTexturePropertyGroup,
+        type=Mtoon1RimMultiplyTexturePropertyGroup
     )
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1450,10 +1447,10 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     group_label_base_name = "MatCap Texture"
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapTexturePropertyGroup,
+        type=Mtoon1MatcapTexturePropertyGroup
     )
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1MatcapTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1466,15 +1463,15 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
-    Mtoon1TextureInfoPropertyGroup,
+    Mtoon1TextureInfoPropertyGroup
 ):
     group_label_base_name = "Outline Width Texture"
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyTexturePropertyGroup,
+        type=Mtoon1OutlineWidthMultiplyTexturePropertyGroup
     )
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1491,10 +1488,10 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
     node_group_name: str = shader.UV_ANIMATION_GROUP_NAME
 
     index: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskTexturePropertyGroup,
+        type=Mtoon1UvAnimationMaskTexturePropertyGroup
     )
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup,
+        type=Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1578,9 +1575,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     def update_base_color_factor(self, _context: Context) -> None:
         self.set_rgba(shader.OUTPUT_GROUP_NAME, "Lit Color", self.base_color_factor)
         self.set_value(
-            shader.OUTPUT_GROUP_NAME,
-            "Lit Color Alpha",
-            self.base_color_factor[3],
+            shader.OUTPUT_GROUP_NAME, "Lit Color Alpha", self.base_color_factor[3]
         )
 
     base_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
@@ -1593,7 +1588,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     base_color_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1BaseColorTextureInfoPropertyGroup,
+        type=Mtoon1BaseColorTextureInfoPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -1639,7 +1634,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     shade_multiply_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadeMultiplyTextureInfoPropertyGroup,
+        type=Mtoon1ShadeMultiplyTextureInfoPropertyGroup
     )
 
     def update_shade_color_factor(self, _context: Context) -> None:
@@ -1655,14 +1650,12 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     shading_shift_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1ShadingShiftTextureInfoPropertyGroup,
+        type=Mtoon1ShadingShiftTextureInfoPropertyGroup
     )
 
     def update_shading_shift_factor(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME,
-            "Shading Shift",
-            self.shading_shift_factor,
+            shader.OUTPUT_GROUP_NAME, "Shading Shift", self.shading_shift_factor
         )
 
     shading_shift_factor: FloatProperty(  # type: ignore[valid-type]
@@ -1675,9 +1668,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_shading_toony_factor(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME,
-            "Shading Toony",
-            self.shading_toony_factor,
+            shader.OUTPUT_GROUP_NAME, "Shading Toony", self.shading_toony_factor
         )
 
     shading_toony_factor: FloatProperty(  # type: ignore[valid-type]
@@ -1716,7 +1707,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     matcap_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MatcapTextureInfoPropertyGroup,
+        type=Mtoon1MatcapTextureInfoPropertyGroup
     )
 
     def update_parametric_rim_color_factor(self, _context: Context) -> None:
@@ -1737,14 +1728,12 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     rim_multiply_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1RimMultiplyTextureInfoPropertyGroup,
+        type=Mtoon1RimMultiplyTextureInfoPropertyGroup
     )
 
     def update_rim_lighting_mix_factor(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME,
-            "Rim LightingMix",
-            self.rim_lighting_mix_factor,
+            shader.OUTPUT_GROUP_NAME, "Rim LightingMix", self.rim_lighting_mix_factor
         )
 
     rim_lighting_mix_factor: FloatProperty(  # type: ignore[valid-type]
@@ -1802,8 +1791,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
         bpy.ops.vrm.refresh_mtoon1_outline(
-            material_name=material.name,
-            create_modifier=True,
+            material_name=material.name, create_modifier=True
         )
 
     outline_width_mode: EnumProperty(  # type: ignore[valid-type]
@@ -1814,9 +1802,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_outline_width_factor(self, context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME,
-            "Outline Width",
-            self.outline_width_factor,
+            shader.OUTPUT_GROUP_NAME, "Outline Width", self.outline_width_factor
         )
         self.update_outline_geometry(context)
 
@@ -1828,14 +1814,12 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     outline_width_multiply_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup,
+        type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup
     )
 
     def update_outline_color_factor(self, context: Context) -> None:
         self.set_rgb(
-            shader.OUTPUT_GROUP_NAME,
-            "Outline Color",
-            self.outline_color_factor,
+            shader.OUTPUT_GROUP_NAME, "Outline Color", self.outline_color_factor
         )
         self.update_outline_geometry(context)
 
@@ -1866,7 +1850,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     uv_animation_mask_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup,
+        type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup
     )
 
     def update_uv_animation_scroll_x_speed_factor(self, _context: Context) -> None:
@@ -1953,9 +1937,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
 
     def update_emissive_strength(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME,
-            "Emissive Strength",
-            self.emissive_strength,
+            shader.OUTPUT_GROUP_NAME, "Emissive Strength", self.emissive_strength
         )
 
     emissive_strength: FloatProperty(  # type: ignore[valid-type]
@@ -1973,10 +1955,10 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
 
 class Mtoon1MaterialExtensionsPropertyGroup(PropertyGroup):
     vrmc_materials_mtoon: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1VrmcMaterialsMtoonPropertyGroup,
+        type=Mtoon1VrmcMaterialsMtoonPropertyGroup
     )
     khr_materials_emissive_strength: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup,
+        type=Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup
     )
 
     if TYPE_CHECKING:
@@ -2002,7 +1984,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     pbr_metallic_roughness: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1PbrMetallicRoughnessPropertyGroup,
+        type=Mtoon1PbrMetallicRoughnessPropertyGroup
     )
 
     ALPHA_MODE_OPAQUE = "OPAQUE"
@@ -2119,11 +2101,11 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     normal_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1NormalTextureInfoPropertyGroup,
+        type=Mtoon1NormalTextureInfoPropertyGroup
     )
 
     emissive_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1EmissiveTextureInfoPropertyGroup,
+        type=Mtoon1EmissiveTextureInfoPropertyGroup
     )
 
     def update_emissive_factor(self, _context: Context) -> None:
@@ -2139,7 +2121,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     extensions: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MaterialExtensionsPropertyGroup,
+        type=Mtoon1MaterialExtensionsPropertyGroup
     )
 
     def get_enabled_in_material(self, material: Material) -> bool:
@@ -2169,7 +2151,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if not value:
             if self.get("enabled") and material.use_nodes:
                 bpy.ops.vrm.convert_mtoon1_to_bsdf_principled(
-                    material_name=material.name,
+                    material_name=material.name
                 )
             self["enabled"] = False
             return
@@ -2227,8 +2209,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         ]
 
     def all_textures(
-        self,
-        downgrade_to_mtoon0: bool,
+        self, downgrade_to_mtoon0: bool
     ) -> list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]]:
         # TODO: remove code duplication
         result: list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]] = []
@@ -2237,19 +2218,19 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                 self.pbr_metallic_roughness.base_color_texture.index,
                 self.extensions.vrmc_materials_mtoon.shade_multiply_texture.index,
                 self.normal_texture.index,
-            ],
+            ]
         )
         if downgrade_to_mtoon0:
             result.extend(
                 [
                     self.mtoon0_receive_shadow_texture,
                     self.mtoon0_shading_grade_texture,
-                ],
+                ]
             )
         result.append(self.emissive_texture.index)
         if not downgrade_to_mtoon0:
             result.append(
-                self.extensions.vrmc_materials_mtoon.shading_shift_texture.index,
+                self.extensions.vrmc_materials_mtoon.shading_shift_texture.index
             )
         result.extend(
             [
@@ -2257,7 +2238,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                 self.extensions.vrmc_materials_mtoon.rim_multiply_texture.index,
                 self.extensions.vrmc_materials_mtoon.outline_width_multiply_texture.index,
                 self.extensions.vrmc_materials_mtoon.uv_animation_mask_texture.index,
-            ],
+            ]
         )
         return result
 
@@ -2284,7 +2265,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     mtoon0_receive_shadow_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon0ReceiveShadowTexturePropertyGroup,
+        type=Mtoon0ReceiveShadowTexturePropertyGroup
     )
 
     mtoon0_receive_shadow_rate: FloatProperty(  # type: ignore[valid-type]
@@ -2294,7 +2275,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     mtoon0_shading_grade_texture: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon0ShadingGradeTexturePropertyGroup,
+        type=Mtoon0ShadingGradeTexturePropertyGroup
     )
 
     mtoon0_shading_grade_rate: FloatProperty(  # type: ignore[valid-type]

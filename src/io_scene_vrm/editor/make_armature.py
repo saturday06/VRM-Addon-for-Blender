@@ -35,7 +35,7 @@ class ICYP_OT_make_armature(Operator):
 
     #
     WIP_with_template_mesh: BoolProperty(  # type: ignore[valid-type]
-        default=False,
+        default=False
     )
 
     # 身長 at meter
@@ -64,18 +64,12 @@ class ICYP_OT_make_armature(Operator):
 
     # 足-胴比率:0:子供、1:大人 に近くなる(低等身で有効)
     aging_ratio: FloatProperty(  # type: ignore[valid-type]
-        default=0.5,
-        min=0,
-        max=1,
-        step=10,
+        default=0.5, min=0, max=1, step=10
     )
 
     # 目の奥み
     eye_depth: FloatProperty(  # type: ignore[valid-type]
-        default=-0.03,
-        min=-0.1,
-        max=0,
-        step=1,
+        default=-0.03, min=-0.1, max=0, step=1
     )
 
     # 肩幅
@@ -95,17 +89,12 @@ class ICYP_OT_make_armature(Operator):
 
     # 腕長さ率
     arm_length_ratio: FloatProperty(  # type: ignore[valid-type]
-        default=1,
-        min=0.5,
-        step=1,
+        default=1, min=0.5, step=1
     )
 
     # 手
     hand_ratio: FloatProperty(  # type: ignore[valid-type]
-        default=1,
-        min=0.5,
-        max=2.0,
-        step=5,
+        default=1, min=0.5, max=2.0, step=5
     )
 
     finger_1_2_ratio: FloatProperty(  # type: ignore[valid-type]
@@ -139,19 +128,15 @@ class ICYP_OT_make_armature(Operator):
     )
 
     leg_width_ratio: FloatProperty(  # type: ignore[valid-type]
-        default=1,
-        min=0.01,
-        step=1,
+        default=1, min=0.01, step=1
     )
 
     leg_size: FloatProperty(  # type: ignore[valid-type]
-        default=0.26,
-        min=0.05,
-        step=1,
+        default=0.26, min=0.05, step=1
     )
 
     custom_property_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     armature_obj = None
@@ -308,19 +293,11 @@ class ICYP_OT_make_armature(Operator):
         )
         # 骨盤基部->胸郭基部
         spine = bone_add(
-            "spine",
-            hips.tail,
-            z_add(hips.tail, spine_len),
-            hips,
-            roll=-90,
+            "spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=-90
         )
         # 胸郭基部->首元
         chest = bone_add(
-            "chest",
-            spine.tail,
-            z_add(hips.tail, backbone_len),
-            spine,
-            roll=-90,
+            "chest", spine.tail, z_add(hips.tail, backbone_len), spine, roll=-90
         )
         neck = bone_add(
             "neck",
@@ -343,14 +320,14 @@ class ICYP_OT_make_armature(Operator):
         eyes = x_mirror_bones_add(
             "eye",
             Vector(
-                (head_size * self.head_width_ratio / 5, 0, self.tall - head_size / 2),
+                (head_size * self.head_width_ratio / 5, 0, self.tall - head_size / 2)
             ),
             Vector(
                 (
                     head_size * self.head_width_ratio / 5,
                     eye_depth,
                     self.tall - head_size / 2,
-                ),
+                )
             ),
             (head, head),
         )
@@ -367,7 +344,7 @@ class ICYP_OT_make_armature(Operator):
                     z_add(
                         Vector((0, 0, body_separate + head_size * 3 / 8)),
                         -leg_bone_length,
-                    ),
+                    )
                 ),
                 leg_width,
             ),
@@ -530,9 +507,7 @@ class ICYP_OT_make_armature(Operator):
             (self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3,
         )
         middle_fingers = fingers(
-            "middle",
-            y_add(hands[0].tail, finger_y_offset),
-            self.hand_size() / 2,
+            "middle", y_add(hands[0].tail, finger_y_offset), self.hand_size() / 2
         )
         ring_fingers = fingers(
             "ring",
@@ -700,10 +675,7 @@ def connect_parent_tail_and_child_head_if_very_close_position(
 
 class IcypTemplateMeshMaker:
     def make_mesh_obj(
-        self,
-        context: Context,
-        name: str,
-        method: Callable[[Mesh], None],
+        self, context: Context, name: str, method: Callable[[Mesh], None]
     ) -> Object:
         mesh = bpy.data.meshes.new(name)
         method(mesh)
@@ -733,7 +705,7 @@ class IcypTemplateMeshMaker:
         tmp_dict = {
             v.bone: i
             for i, v in enumerate(
-                armature_data.vrm_addon_extension.vrm0.humanoid.human_bones,
+                armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
             )
         }
 
@@ -747,9 +719,7 @@ class IcypTemplateMeshMaker:
     # にする変換(matrixはYupだけど、bone座標系はZup)
     @staticmethod
     def head_bone_to_head_matrix(
-        head_bone: Bone,
-        head_tall_size: float,
-        neck_depth_offset: float,
+        head_bone: Bone, head_tall_size: float, neck_depth_offset: float
     ) -> Matrix:
         return (
             head_bone.matrix_local
@@ -759,10 +729,10 @@ class IcypTemplateMeshMaker:
                     [0, 1, 0, -head_bone.head_local[2]],
                     [0, 0, 1, 0],
                     [0, 0, 0, 1],
-                ],
+                ]
             )
             @ Matrix.Translation(
-                Vector([head_tall_size / 16, neck_depth_offset - head_tall_size, 0]),
+                Vector([head_tall_size / 16, neck_depth_offset - head_tall_size, 0])
             )
         )
 
@@ -801,9 +771,7 @@ class IcypTemplateMeshMaker:
         # make neck
         neck_bone = self.get_humanoid_bone("neck")
         self.make_half_cube(
-            bm,
-            [head_size / 2, head_size / 2, neck_bone.length],
-            neck_bone.head_local,
+            bm, [head_size / 2, head_size / 2, neck_bone.length], neck_bone.head_local
         )
         # make chest - upper and lower (肋骨の幅の最大値で分割)
         chest_bone = self.get_humanoid_bone("chest")
@@ -833,9 +801,7 @@ class IcypTemplateMeshMaker:
         hips_bone = self.get_humanoid_bone("hips")
         hips_size = left_upper_arm_bone.head_local[0] * 2 * 1.2
         self.make_half_cube(
-            bm,
-            [hips_size, head_size * 3 / 4, hips_bone.length],
-            hips_bone.head_local,
+            bm, [hips_size, head_size * 3 / 4, hips_bone.length], hips_bone.head_local
         )
 
         # arm
@@ -855,12 +821,7 @@ class IcypTemplateMeshMaker:
                 b.tail_radius,
             ]
             self.make_trapezoid(
-                bm,
-                base_xz,
-                top_xz,
-                b.length,
-                [0, 0, 0],
-                b.matrix_local,
+                bm, base_xz, top_xz, b.length, [0, 0, 0], b.matrix_local
             )
         # TODO: Thumb rotation
 
@@ -929,10 +890,7 @@ class IcypTemplateMeshMaker:
             bm.faces.new([verts[i] for i in poly])
 
     def make_half_cube(
-        self,
-        bm: BMesh,
-        xyz: Sequence[float],
-        translation: Sequence[float],
+        self, bm: BMesh, xyz: Sequence[float], translation: Sequence[float]
     ) -> None:
         points = self.half_cubic_points(xyz, translation)
         verts = [bm.verts.new(p) for p in points]
@@ -978,9 +936,7 @@ class IcypTemplateMeshMaker:
     )
 
     def half_cubic_points(
-        self,
-        xyz: Sequence[float],
-        translation: Sequence[float],
+        self, xyz: Sequence[float], translation: Sequence[float]
     ) -> tuple[
         tuple[float, float, float],
         tuple[float, float, float],
@@ -1073,11 +1029,7 @@ class IcypTemplateMeshMaker:
         rot_matrix: Optional[Matrix] = None,
     ) -> None:
         points = self.trapezoid_points(
-            head_xz,
-            tail_xz,
-            height,
-            translation,
-            rot_matrix,
+            head_xz, tail_xz, height, translation, rot_matrix
         )
         verts = [bm.verts.new(p) for p in points]
         for poly in self.trapezoid_poly_indices:

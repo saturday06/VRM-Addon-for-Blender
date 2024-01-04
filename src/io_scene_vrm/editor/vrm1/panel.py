@@ -243,12 +243,7 @@ def draw_vrm1_humanoid_layout(
     else:
         column.label(text="Pose Asset")
     column.prop_search(
-        humanoid,
-        "pose_library",
-        bpy.data,
-        "actions",
-        text="",
-        translate=False,
+        humanoid, "pose_library", bpy.data, "actions", text="", translate=False
     )
     if humanoid.pose_library and humanoid.pose_library.pose_markers:
         column.label(text="Pose")
@@ -288,7 +283,7 @@ def draw_vrm1_humanoid_layout(
         text = pgettext(
             "VRMs exported as Non-Humanoid\n"
             + "Rigs can not have animations applied\n"
-            + "for humanoid avatars.",
+            + "for humanoid avatars."
         )
         for index, message in enumerate(pgettext(text).splitlines()):
             non_humanoid_warnings_column.label(
@@ -355,9 +350,7 @@ class VRM_PT_vrm1_humanoid_ui(Panel):
         if not isinstance(armature_data, Armature):
             return
         draw_vrm1_humanoid_layout(
-            armature,
-            self.layout,
-            armature_data.vrm_addon_extension.vrm1.humanoid,
+            armature, self.layout, armature_data.vrm_addon_extension.vrm1.humanoid
         )
 
 
@@ -369,13 +362,13 @@ def draw_vrm1_first_person_layout(
 ) -> None:
     if migrate(armature.name, defer=True):
         VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-            context.scene.name,
+            context.scene.name
         )
     box = layout.box()
     column = box.column()
     column.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
     for mesh_annotation_index, mesh_annotation in enumerate(
-        first_person.mesh_annotations,
+        first_person.mesh_annotations
     ):
         row = column.row(align=True)
         row.prop_search(
@@ -397,8 +390,7 @@ def draw_vrm1_first_person_layout(
         remove_mesh_annotation_op.armature_name = armature.name
         remove_mesh_annotation_op.mesh_annotation_index = mesh_annotation_index
     add_mesh_annotation_op = layout_operator(
-        column,
-        vrm1_ops.VRM_OT_add_vrm1_first_person_mesh_annotation,
+        column, vrm1_ops.VRM_OT_add_vrm1_first_person_mesh_annotation
     )
     add_mesh_annotation_op.armature_name = armature.name
 
@@ -489,11 +481,7 @@ def draw_vrm1_look_at_layout(
     offset_from_head_bone_column = layout.column()
     offset_from_head_bone_column.label(text="Offset from Head Bone:")
     offset_from_head_bone_column.row().prop(
-        look_at,
-        "offset_from_head_bone",
-        icon="BONE_DATA",
-        text="",
-        translate=False,
+        look_at, "offset_from_head_bone", icon="BONE_DATA", text="", translate=False
     )
 
     column = layout.box().column(align=True)
@@ -619,7 +607,7 @@ def draw_vrm1_expression_layout(
     )
     if expression.show_expanded_morph_target_binds:
         VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-            context.scene.name,
+            context.scene.name
         )
         for bind_index, bind in enumerate(expression.morph_target_binds):
             bind_box = box.box().column()
@@ -684,10 +672,7 @@ def draw_vrm1_expression_layout(
                 target_value_split.prop(bind, "target_value", text="", translate=False)
             else:
                 target_value_split.prop(
-                    bind,
-                    "target_value_as_rgb",
-                    text="",
-                    translate=False,
+                    bind, "target_value_as_rgb", text="", translate=False
                 )
 
             remove_material_color_bind_op = layout_operator(
@@ -760,7 +745,7 @@ def draw_vrm1_expressions_morph_target_bind_layout(
     bind: Vrm1MorphTargetBindPropertyGroup,
 ) -> None:
     VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-        context.scene.name,
+        context.scene.name
     )
 
     blend_data = context.blend_data
@@ -836,7 +821,7 @@ def draw_vrm1_expressions_layout(
 ) -> None:
     if migrate(armature.name, defer=True):
         VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-            context.scene.name,
+            context.scene.name
         )
 
     row = layout.row()
@@ -905,7 +890,7 @@ def draw_vrm1_expressions_layout(
         box.prop(expression, "custom_name")
     else:
         preset_icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(
-            expression.name,
+            expression.name
         )
         if not preset_icon:
             logger.error(f"Unknown preset expression: {expression.name}")
@@ -1228,8 +1213,7 @@ def draw_vrm1_meta_layout(
             remove_author_op.author_index = author_index
 
     add_author_op = layout_operator(
-        authors_column,
-        vrm1_ops.VRM_OT_add_vrm1_meta_author,
+        authors_column, vrm1_ops.VRM_OT_add_vrm1_meta_author
     )
     add_author_op.armature_name = armature.name
 
@@ -1243,11 +1227,7 @@ def draw_vrm1_meta_layout(
         for reference_index, reference in enumerate(meta.references):
             reference_row = references_column.split(align=True, factor=0.7)
             reference_row.prop(
-                reference,
-                "value",
-                text="",
-                translate=False,
-                icon="USER",
+                reference, "value", text="", translate=False, icon="USER"
             )
             remove_reference_op = layout_operator(
                 reference_row,
@@ -1258,8 +1238,7 @@ def draw_vrm1_meta_layout(
             remove_reference_op.armature_name = armature.name
             remove_reference_op.reference_index = reference_index
     add_reference_op = layout_operator(
-        references_column,
-        vrm1_ops.VRM_OT_add_vrm1_meta_reference,
+        references_column, vrm1_ops.VRM_OT_add_vrm1_meta_reference
     )
     add_reference_op.armature_name = armature.name
 

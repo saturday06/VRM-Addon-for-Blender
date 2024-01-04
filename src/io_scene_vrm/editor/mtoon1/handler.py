@@ -23,7 +23,7 @@ def update_mtoon1_outline() -> Optional[float]:
             (
                 material_slot.material.name,
                 material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
-                    material_slot.material,
+                    material_slot.material
                 ),
                 obj.data.use_auto_smooth,
             )
@@ -40,7 +40,7 @@ def update_mtoon1_outline() -> Optional[float]:
 
     logger.debug(
         "The duration to determine material updates is "
-        + f"{compare_end_time - compare_start_time:.9f} seconds",
+        + f"{compare_end_time - compare_start_time:.9f} seconds"
     )
 
     if not_changed:

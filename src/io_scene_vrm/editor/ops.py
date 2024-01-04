@@ -31,13 +31,13 @@ class VRM_OT_simplify_vroid_bones(Operator):
     full__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?")
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     @staticmethod
     def vroid_bones_exist(armature: Armature) -> bool:
         return any(
-            map(VRM_OT_simplify_vroid_bones.full__pattern.match, armature.bones.keys()),
+            map(VRM_OT_simplify_vroid_bones.full__pattern.match, armature.bones.keys())
         )
 
     def execute(self, context: Context) -> set[str]:
@@ -195,7 +195,7 @@ class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
         Path(self.filepath).write_bytes(
             json.dumps(mappings, sort_keys=True, indent=4)
             .replace("\r\n", "\n")
-            .encode(),
+            .encode()
         )
         return {"FINISHED"}
 
@@ -291,7 +291,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(Operator):
         recipe = json.loads(
             Path(__file__)
             .with_name("vroid2vrc_lipsync_recipe.json")
-            .read_text(encoding="UTF-8"),
+            .read_text(encoding="UTF-8")
         )
 
         obj = context.active_object
@@ -310,8 +310,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(Operator):
                 # if M_F00_000+_00
                 if based_shapekey_name not in shape_keys.key_blocks:
                     vroid_shapekey_name = based_shapekey_name.replace(
-                        "M_F00_000",
-                        "M_F00_000_00",
+                        "M_F00_000", "M_F00_000_00"
                     )  # Vroid064から命名が変わった
                 else:
                     vroid_shapekey_name = based_shapekey_name
@@ -330,7 +329,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     url: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     @staticmethod
@@ -391,6 +390,6 @@ def layout_operator(
     if type(operator).__qualname__ != name:
         raise AssertionError(
             f"{type(operator)} is not compatible with {operator_type}."
-            + f"the expected name is {name}",
+            + f"the expected name is {name}"
         )
     return cast(__Operator, operator)

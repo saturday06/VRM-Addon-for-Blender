@@ -204,7 +204,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
             return {"CANCELLED"}
         expressions = armature_data.vrm_addon_extension.vrm1.expressions
         for custom_index, custom_expression in enumerate(
-            list(expressions.custom.values()),
+            list(expressions.custom.values())
         ):
             if custom_expression.custom_name == self.custom_expression_name:
                 expressions.custom.remove(custom_index)
@@ -565,7 +565,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
             return {"CANCELLED"}
         ext = armature_data.vrm_addon_extension
         expression = ext.vrm1.expressions.all_name_to_expression_dict().get(
-            self.expression_name,
+            self.expression_name
         )
         if expression is None:
             return {"CANCELLED"}
@@ -613,8 +613,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
             return {"CANCELLED"}
         expression.material_color_binds.remove(self.bind_index)
         expression.active_material_color_bind_index = max(
-            0,
-            len(expression.material_color_binds) - 1,
+            0, len(expression.material_color_binds) - 1
         )
         return {"FINISHED"}
 
@@ -780,8 +779,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
             return {"CANCELLED"}
         expression.texture_transform_binds.remove(self.bind_index)
         expression.active_texture_transform_bind_index = max(
-            0,
-            len(expression.texture_transform_binds) - 1,
+            0, len(expression.texture_transform_binds) - 1
         )
         return {"FINISHED"}
 
@@ -904,8 +902,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
             return {"CANCELLED"}
         Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            armature_data.name,
-            defer=False,
+            armature_data.name, defer=False
         )
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
@@ -913,8 +910,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            armature_data.name,
-            defer=False,
+            armature_data.name, defer=False
         )
         vrm0_humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
         if vrm0_humanoid.all_required_bones_are_assigned():

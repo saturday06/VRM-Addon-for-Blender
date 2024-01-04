@@ -111,8 +111,7 @@ def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: Object) -> None:
 
 
 def migrate_vrm0_humanoid(
-    humanoid: Vrm0HumanoidPropertyGroup,
-    humanoid_dict: Json,
+    humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
 ) -> None:
     if not isinstance(humanoid_dict, dict):
         return
@@ -162,7 +161,7 @@ def migrate_vrm0_first_person(
         first_person.first_person_bone.bone_name = first_person_bone
 
     first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
-        first_person_dict.get("firstPersonBoneOffset"),
+        first_person_dict.get("firstPersonBoneOffset")
     )
     if first_person_bone_offset is not None:
         # Axis confusing
@@ -348,7 +347,7 @@ def migrate_vrm0_secondary_animation(
         if collider_object.parent_bone not in bone_name_to_collider_objects:
             bone_name_to_collider_objects[collider_object.parent_bone] = []
         bone_name_to_collider_objects[collider_object.parent_bone].append(
-            collider_object,
+            collider_object
         )
 
     for bone_name, collider_objects in bone_name_to_collider_objects.items():
@@ -384,7 +383,7 @@ def migrate_vrm0_secondary_animation(
             bone_group.gravity_power = gravity_power
 
         gravity_dir = convert.vrm_json_vector3_to_tuple(
-            bone_group_dict.get("gravityDir"),
+            bone_group_dict.get("gravityDir")
         )
         if gravity_dir is not None:
             # Axis confusing
@@ -440,12 +439,10 @@ def migrate_legacy_custom_properties(armature: Object, armature_data: Armature) 
         read_textblock_json(armature, "blendshape_group"),
     )
     migrate_vrm0_first_person(
-        ext.vrm0.first_person,
-        read_textblock_json(armature, "firstPerson_params"),
+        ext.vrm0.first_person, read_textblock_json(armature, "firstPerson_params")
     )
     migrate_vrm0_humanoid(
-        ext.vrm0.humanoid,
-        read_textblock_json(armature, "humanoid_params"),
+        ext.vrm0.humanoid, read_textblock_json(armature, "humanoid_params")
     )
     migrate_vrm0_secondary_animation(
         ext.vrm0.secondary_animation,
@@ -651,5 +648,5 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: Object) -> None:
         vrm0.humanoid.initial_automatic_bone_assignment = False
         if all(not b.node.bone_name for b in vrm0.humanoid.human_bones):
             bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
-                armature_name=armature.name,
+                armature_name=armature.name
             )

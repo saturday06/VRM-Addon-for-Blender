@@ -68,7 +68,7 @@ def draw_texture_info(
             box.box().label(
                 text=pgettext(
                     'It is recommended to set "{colorspace}"'
-                    + ' to "{input_colorspace}" for "{texture_label}"',
+                    + ' to "{input_colorspace}" for "{texture_label}"'
                 ).format(
                     texture_label=texture_info.index.label,
                     colorspace=pgettext(texture_info.index.colorspace),
@@ -86,8 +86,7 @@ def draw_texture_info(
     if is_vrm0:
         if ext.extensions.vrmc_materials_mtoon.matcap_texture == texture_info:
             box.box().label(
-                text="Offset and Scale are ignored in VRM 0.0",
-                icon="ERROR",
+                text="Offset and Scale are ignored in VRM 0.0", icon="ERROR"
             )
         elif ext.pbr_metallic_roughness.base_color_texture != texture_info:
             box.box().label(
@@ -143,7 +142,7 @@ def draw_mtoon0_texture(
             box.box().label(
                 text=pgettext(
                     'It is recommended to set "{colorspace}"'
-                    + ' to "{input_colorspace}" for "{texture_label}"',
+                    + ' to "{input_colorspace}" for "{texture_label}"'
                 ).format(
                     texture_label=texture.label,
                     colorspace=pgettext(texture.colorspace),
@@ -235,8 +234,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         and mtoon.shading_toony_factor - mtoon.shading_shift_factor < 1.0 - 0.001
     ):
         lighting_box.box().label(
-            text="The lit area includes non-lit area.",
-            icon="ERROR",
+            text="The lit area includes non-lit area.", icon="ERROR"
         )
 
     layout.label(text="Global Illumination", translate=False)
@@ -257,8 +255,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     emissive_texture_layout.separator(factor=0.5 / 0.71)
     emissive_texture_layout.prop(gltf, "emissive_factor", text="")
     emissive_texture_layout.prop(
-        gltf.extensions.khr_materials_emissive_strength,
-        "emissive_strength",
+        gltf.extensions.khr_materials_emissive_strength, "emissive_strength"
     )
 
     layout.label(text="Rim Lighting", translate=False)
@@ -295,11 +292,11 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     ):
         outline_warning_message = pgettext(
             'The "Screen Coordinates" display is not yet implemented.\n'
-            + 'It is displayed in the same way as "World Coordinates".',
+            + 'It is displayed in the same way as "World Coordinates".'
         )
         outline_warning_column = outline_box.box().column(align=True)
         for index, outline_warning_line in enumerate(
-            outline_warning_message.splitlines(),
+            outline_warning_message.splitlines()
         ):
             outline_warning_column.label(
                 text=outline_warning_line,
@@ -320,10 +317,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         )
         outline_width_multiply_texture_layout.separator(factor=0.5)
         outline_width_multiply_texture_layout.prop(
-            mtoon,
-            "outline_width_factor",
-            slider=True,
-            text="",
+            mtoon, "outline_width_factor", slider=True, text=""
         )
         outline_box.row().prop(mtoon, "outline_color_factor")
         outline_box.prop(mtoon, "outline_lighting_mix_factor", slider=True)
@@ -397,13 +391,11 @@ def draw_material(context: Context, layout: UILayout) -> None:
         + ' - Connect the "Surface" to a "Principled BSDF"\n'
         + ' - Connect the "Surface" to a "MToon_unversioned"\n'
         + ' - Connect the "Surface" to a "TRANSPARENT_ZWRITE"\n'
-        + " - Others that are compatible with the glTF 2.0 add-on export\n",
+        + " - Others that are compatible with the glTF 2.0 add-on export\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         help_column.label(
-            text=help_line,
-            translate=False,
-            icon="HELP" if index == 0 else "NONE",
+            text=help_line, translate=False, icon="HELP" if index == 0 else "NONE"
         )
     url = "https://docs.blender.org/manual/en/2.93/addons/import_export/scene_gltf2.html#exported-materials"
     link_row = help_column.split(factor=0.8)

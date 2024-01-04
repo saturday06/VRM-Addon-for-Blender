@@ -33,9 +33,7 @@ class SphereWorldCollider:
     radius: float
 
     def calculate_collision(
-        self,
-        target: Vector,
-        target_radius: float,
+        self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
         diff = target - self.offset
         diff_length = diff.length
@@ -53,9 +51,7 @@ class CapsuleWorldCollider:
     offset_to_tail_diff_length_squared: float
 
     def calculate_collision(
-        self,
-        target: Vector,
-        target_radius: float,
+        self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
         fallback_result = (Vector((0, 0, -1)), -0.01)
 
@@ -74,8 +70,7 @@ class CapsuleWorldCollider:
 
         # offsetからtailまでの線分の始点が0で終点が1なので、範囲外は切り取る
         offset_to_tail_ratio_for_nearest = max(
-            0,
-            min(1, offset_to_tail_ratio_for_nearest),
+            0, min(1, offset_to_tail_ratio_for_nearest)
         )
 
         # targetまでの最短の点を計算し、衝突判定
@@ -105,7 +100,7 @@ def update_pose_bone_rotations(delta_time: float) -> None:
 
         # pose_bone.rotation_quaternionの代入は負荷が高いのでできるだけ実行しない
         angle_diff = pose_bone_rotation.rotation_difference(
-            pose_bone.rotation_quaternion,
+            pose_bone.rotation_quaternion
         ).angle
         if abs(angle_diff) < float_info.epsilon:
             continue
@@ -130,8 +125,7 @@ def calculate_object_pose_bone_rotations(
         return
 
     collider_uuid_to_world_collider: dict[
-        str,
-        Union[SphereWorldCollider, CapsuleWorldCollider],
+        str, Union[SphereWorldCollider, CapsuleWorldCollider]
     ] = {}
     for collider in spring_bone1.colliders:
         pose_bone = obj.pose.bones.get(collider.node.bone_name)
@@ -160,18 +154,17 @@ def calculate_object_pose_bone_rotations(
             )
 
     collider_group_uuid_to_world_colliders: dict[
-        str,
-        list[Union[SphereWorldCollider, CapsuleWorldCollider]],
+        str, list[Union[SphereWorldCollider, CapsuleWorldCollider]]
     ] = {}
     for collider_group in spring_bone1.collider_groups:
         for collider_reference in collider_group.colliders:
             world_collider = collider_uuid_to_world_collider.get(
-                collider_reference.collider_uuid,
+                collider_reference.collider_uuid
             )
             if world_collider is None:
                 continue
             world_colliders = collider_group_uuid_to_world_colliders.get(
-                collider_group.uuid,
+                collider_group.uuid
             )
             if world_colliders is None:
                 world_colliders = []
@@ -207,7 +200,7 @@ def calculate_object_pose_bone_rotations(
                 obj.matrix_world @ center_pose_bone.matrix
             ).to_translation()
             previous_center_world_translation = Vector(
-                spring.animation_state.previous_center_world_translation,
+                spring.animation_state.previous_center_world_translation
             )
             previous_to_current_center_world_translation = (
                 current_center_world_translation - previous_center_world_translation
@@ -243,8 +236,7 @@ def calculate_spring_pose_bone_rotations(
     spring: SpringBone1SpringPropertyGroup,
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
     collider_group_uuid_to_world_colliders: dict[
-        str,
-        list[Union[SphereWorldCollider, CapsuleWorldCollider]],
+        str, list[Union[SphereWorldCollider, CapsuleWorldCollider]]
     ],
     previous_to_current_center_world_translation: Vector,
 ) -> None:
@@ -272,8 +264,7 @@ def calculate_spring_pose_bone_rotations(
         if not pose_bone:
             continue
         rest_object_matrix = pose_bone.bone.convert_local_to_pose(
-            Matrix(),
-            pose_bone.bone.matrix_local,
+            Matrix(), pose_bone.bone.matrix_local
         )
         joints.append((joint, pose_bone, rest_object_matrix))
 
@@ -300,13 +291,13 @@ def calculate_spring_pose_bone_rotations(
                 tail_joint,
                 tail_pose_bone,
                 tail_rest_object_matrix,
-            ),
+            )
         )
 
     world_colliders: list[Union[SphereWorldCollider, CapsuleWorldCollider]] = []
     for collider_group_reference in spring.collider_groups:
         collider_group_world_colliders = collider_group_uuid_to_world_colliders.get(
-            collider_group_reference.collider_group_uuid,
+            collider_group_reference.collider_group_uuid
         )
         if not collider_group_world_colliders:
             continue
@@ -361,8 +352,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
             current_head_parent_matrix = head_pose_bone.parent.matrix
             current_head_parent_rest_object_matrix = (
                 head_pose_bone.parent.bone.convert_local_to_pose(
-                    Matrix(),
-                    head_pose_bone.parent.bone.matrix_local,
+                    Matrix(), head_pose_bone.parent.bone.matrix_local
                 )
             )
         else:
@@ -383,10 +373,10 @@ def calculate_joint_pair_head_pose_bone_rotations(
         ).to_translation()
         tail_joint.animation_state.initialized_as_tail = True
         tail_joint.animation_state.previous_world_translation = list(
-            initial_tail_world_translation,
+            initial_tail_world_translation
         )
         tail_joint.animation_state.current_world_translation = list(
-            initial_tail_world_translation,
+            initial_tail_world_translation
         )
 
     previous_tail_world_translation = (
@@ -456,11 +446,10 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
     next_head_pose_bone_rotation = Quaternion(
         next_head_rotation_start_target_local_translation.cross(
-            next_head_rotation_end_target_local_translation,
+            next_head_rotation_end_target_local_translation
         ),
         next_head_rotation_start_target_local_translation.angle(
-            next_head_rotation_end_target_local_translation,
-            0,
+            next_head_rotation_end_target_local_translation, 0
         ),
     )
 
@@ -485,10 +474,10 @@ def calculate_joint_pair_head_pose_bone_rotations(
     )
 
     tail_joint.animation_state.previous_world_translation = list(
-        current_tail_world_translation,
+        current_tail_world_translation
     )
     tail_joint.animation_state.current_world_translation = list(
-        next_tail_world_translation,
+        next_tail_world_translation
     )
 
     return (

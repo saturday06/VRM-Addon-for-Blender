@@ -12,7 +12,7 @@ import tkinter.filedialog
 from pathlib import Path
 
 read_path = tkinter.filedialog.askopenfilename(
-    filetypes=[("glb,vrm,json", "*.glb;*.vrm;*.json")],
+    filetypes=[("glb,vrm,json", "*.glb;*.vrm;*.json")]
 )
 loaded_json = {}
 with Path(read_path).open("rb") as vrm_file:

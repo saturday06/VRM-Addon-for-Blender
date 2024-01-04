@@ -101,8 +101,7 @@ def mtoon_gi_equalization_to_intensity(gi_equalization: float) -> float:
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L10-L19
 def mtoon_shading_toony_0_to_1(
-    shading_toony_0x: float,
-    shading_shift_0x: float,
+    shading_toony_0x: float, shading_shift_0x: float
 ) -> float:
     (range_min, range_max) = get_shading_range_0x(shading_toony_0x, shading_shift_0x)
     return max(0, min(1, (2 - (range_max - range_min)) * 0.5))
@@ -110,8 +109,7 @@ def mtoon_shading_toony_0_to_1(
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L21-L30
 def mtoon_shading_shift_0_to_1(
-    shading_toony_0x: float,
-    shading_shift_0x: float,
+    shading_toony_0x: float, shading_shift_0x: float
 ) -> float:
     (range_min, range_max) = get_shading_range_0x(shading_toony_0x, shading_shift_0x)
     return max(-1, min(1, ((range_max + range_min) * 0.5 * -1)))
@@ -124,8 +122,7 @@ def mtoon_intensity_to_gi_equalization(gi_intensity_0x: float) -> float:
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L40-L46
 def get_shading_range_0x(
-    shading_toony_0x: float,
-    shading_shift_0x: float,
+    shading_toony_0x: float, shading_shift_0x: float
 ) -> tuple[float, float]:
     range_min = shading_shift_0x
     range_max = (1 - shading_toony_0x) + shading_toony_0x * shading_shift_0x
@@ -169,8 +166,7 @@ def float4_or_none(v: object) -> Optional[tuple[float, float, float, float]]:
 
 
 def float4_or(
-    v: object,
-    default: tuple[float, float, float, float],
+    v: object, default: tuple[float, float, float, float]
 ) -> tuple[float, float, float, float]:
     return float4_or_none(v) or default
 
@@ -196,8 +192,7 @@ def float3_or_none(v: object) -> Optional[tuple[float, float, float]]:
 
 
 def float3_or(
-    v: object,
-    default: tuple[float, float, float],
+    v: object, default: tuple[float, float, float]
 ) -> tuple[float, float, float]:
     return float3_or_none(v) or default
 

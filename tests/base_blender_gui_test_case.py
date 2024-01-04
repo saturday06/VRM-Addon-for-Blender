@@ -60,7 +60,7 @@ class BaseBlenderGuiTestCase(TestCase):
         if completed_process.returncode:
             raise AssertionError(
                 f"{server_start_bat_path}\n"
-                + BaseBlenderGuiTestCase.format_process_output(completed_process),
+                + BaseBlenderGuiTestCase.format_process_output(completed_process)
             )
 
     def do_not_skip(self) -> bool:
@@ -100,7 +100,7 @@ class BaseBlenderGuiTestCase(TestCase):
         )
 
         output = f"Test: {sikuli_test_path}\n" + self.format_process_output(
-            completed_process,
+            completed_process
         )
         if completed_process.returncode == 0:
             return
@@ -122,7 +122,7 @@ class BaseBlenderGuiTestCase(TestCase):
         )
 
         collect_artifact_output = "Collect artifact\n" + self.format_process_output(
-            collect_artifact_completed_process,
+            collect_artifact_completed_process
         )
 
         if collect_artifact_completed_process.returncode != 0:

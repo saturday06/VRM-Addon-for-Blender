@@ -31,7 +31,7 @@ class VRM_UL_vrm1_expression(UIList):
         if not isinstance(expressions, Vrm1ExpressionsPropertyGroup):
             return
         preset_expression_items = list(
-            expressions.preset.name_to_expression_dict().items(),
+            expressions.preset.name_to_expression_dict().items()
         )
         if index < len(preset_expression_items):
             name, expression = preset_expression_items[index]
@@ -162,8 +162,7 @@ class VRM_UL_vrm1_texture_transform_bind(UIList):
     ) -> None:
         texture_transform_bind = item
         if not isinstance(
-            texture_transform_bind,
-            Vrm1TextureTransformBindPropertyGroup,
+            texture_transform_bind, Vrm1TextureTransformBindPropertyGroup
         ):
             return
 

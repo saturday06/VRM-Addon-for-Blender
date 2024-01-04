@@ -52,7 +52,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, context: Context) -> set[str]:
@@ -83,13 +83,13 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         texture_info.index.source = image
 
         mag_filter = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
-            filter_number,
+            filter_number
         )
         if mag_filter:
             texture_info.index.sampler.mag_filter = mag_filter
 
         min_filter = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
-            filter_number,
+            filter_number
         )
         if min_filter:
             texture_info.index.sampler.min_filter = min_filter
@@ -131,8 +131,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         else:
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
             transparent_with_z_write_float = shader.get_float_value(
-                node,
-                "TransparentWithZWrite",
+                node, "TransparentWithZWrite"
             )
             transparent_with_z_write = (
                 transparent_with_z_write_float is not None
@@ -171,8 +170,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             if isinstance(mapping_node, ShaderNodeMapping):
                 location_socket = mapping_node.inputs.get("Location")
                 if location_socket and isinstance(
-                    location_socket,
-                    shader.VECTOR_SOCKET_CLASSES,
+                    location_socket, shader.VECTOR_SOCKET_CLASSES
                 ):
                     uv_offset = (
                         float(location_socket.default_value[0]),
@@ -181,8 +179,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
                 scale_socket = mapping_node.inputs.get("Scale")
                 if scale_socket and isinstance(
-                    scale_socket,
-                    shader.VECTOR_SOCKET_CLASSES,
+                    scale_socket, shader.VECTOR_SOCKET_CLASSES
                 ):
                     uv_scale = (
                         float(scale_socket.default_value[0]),
@@ -218,20 +215,18 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             shading_toony_0x = 0.0
 
         shading_shift_factor = convert.mtoon_shading_shift_0_to_1(
-            shading_toony_0x,
-            shading_shift_0x,
+            shading_toony_0x, shading_shift_0x
         )
 
         shading_toony_factor = convert.mtoon_shading_toony_0_to_1(
-            shading_toony_0x,
-            shading_shift_0x,
+            shading_toony_0x, shading_shift_0x
         )
 
         gi_equalization_0x = shader.get_float_value(node, "IndirectLightIntensity")
         gi_equalization_factor = None
         if gi_equalization_0x is not None:
             gi_equalization_factor = convert.mtoon_intensity_to_gi_equalization(
-                gi_equalization_0x,
+                gi_equalization_0x
             )
 
         emissive_factor = shader.get_rgb_value(node, "EmissionColor", 0.0, 1.0) or (
@@ -250,10 +245,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
         parametric_rim_color_factor = shader.get_rgb_value(node, "RimColor", 0.0, 1.0)
         parametric_rim_fresnel_power_factor = shader.get_float_value(
-            node,
-            "RimFresnelPower",
-            0.0,
-            float_info.max,
+            node, "RimFresnelPower", 0.0, float_info.max
         )
         parametric_rim_lift_factor = shader.get_float_value(node, "RimLift")
 
@@ -297,8 +289,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             "UV_Animation_Mask_Texture",
         )
         uv_animation_rotation_speed_factor = shader.get_float_value(
-            node,
-            "UV_Scroll_Rotation",
+            node, "UV_Scroll_Rotation"
         )
         uv_animation_scroll_x_speed_factor = shader.get_float_value(node, "UV_Scroll_X")
         uv_animation_scroll_y_speed_factor = shader.get_float_value(node, "UV_Scroll_Y")
@@ -437,7 +428,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, _context: Context) -> set[str]:
@@ -457,8 +448,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
         shader_node = material.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
         output_node = material.node_tree.nodes.new("ShaderNodeOutputMaterial")
         material.node_tree.links.new(
-            output_node.inputs["Surface"],
-            shader_node.outputs["BSDF"],
+            output_node.inputs["Surface"], shader_node.outputs["BSDF"]
         )
 
     if TYPE_CHECKING:
@@ -474,7 +464,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
     bl_options: Set[str] = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     def execute(self, context: Context) -> set[str]:
@@ -665,10 +655,10 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
     bl_options: Set[str] = {"UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     create_modifier: BoolProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
 
     @staticmethod
@@ -680,7 +670,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
     ) -> None:
         shader.load_mtoon1_outline_geometry_node_group(context, overwrite=False)
         node_group = context.blend_data.node_groups.get(
-            shader.OUTLINE_GEOMETRY_GROUP_NAME,
+            shader.OUTLINE_GEOMETRY_GROUP_NAME
         )
         if not node_group:
             return
@@ -749,7 +739,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         reset_outline_material = not outline_material
         if reset_outline_material:
             outline_material = context.blend_data.materials.new(
-                name=outline_material_name,
+                name=outline_material_name
             )
             if not outline_material.use_nodes:
                 outline_material.use_nodes = True
@@ -890,10 +880,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
 
         if reset_outline_material:
             reset_shader_node_group(
-                context,
-                material,
-                reset_node_tree=False,
-                overwrite=False,
+                context, material, reset_node_tree=False, overwrite=False
             )
 
     @staticmethod
@@ -912,10 +899,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 continue
 
             VRM_OT_refresh_mtoon1_outline.assign(
-                context,
-                material,
-                obj,
-                create_modifier=False,
+                context, material, obj, create_modifier=False
             )
 
     @staticmethod
@@ -947,10 +931,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                     continue
 
                 VRM_OT_refresh_mtoon1_outline.assign(
-                    context,
-                    material,
-                    obj,
-                    create_modifier,
+                    context, material, obj, create_modifier
                 )
                 outline_material_names.append(material.name)
             if material_name is not None:

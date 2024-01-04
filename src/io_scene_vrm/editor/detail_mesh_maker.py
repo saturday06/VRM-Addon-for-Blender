@@ -48,9 +48,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
         self.face_mesh = bpy.data.objects[self.face_mesh_name]
         head_bone = self.get_humanoid_bone("head")
         head_matrix = IcypTemplateMeshMaker.head_bone_to_head_matrix(
-            head_bone,
-            self.head_tall_size,
-            self.neck_depth_offset,
+            head_bone, self.head_tall_size, self.neck_depth_offset
         )
 
         self.neck_tail_y = self.head_tall_size - (
@@ -273,7 +271,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 -self.eye_depth - self.head_depth_size / 2,
                 face_tall / 2,
                 self.head_width_size / 5,
-            ],
+            ]
         )
 
         eye_iris_size = eye_point[2] * self.eye_width_ratio * 0.25 / 2
@@ -282,30 +280,26 @@ class ICYP_OT_detail_mesh_maker(Operator):
         eye_height = eye_iris_size * 0.9
         eye_axis = -self.eye_angle
         eye_quad_lu_point = eye_point + Matrix.Rotation(eye_axis, 4, "Y") @ Vector(
-            [0, eye_height, -eye_iris_size],
+            [0, eye_height, -eye_iris_size]
         )
         eye_quad_ld_point = eye_point + Matrix.Rotation(eye_axis, 4, "Y") @ Vector(
-            [0, -eye_height, -eye_iris_size],
+            [0, -eye_height, -eye_iris_size]
         )
         eye_quad_rd_point = eye_point + Matrix.Rotation(eye_axis, 4, "Y") @ Vector(
-            [0, -eye_height, eye_iris_size],
+            [0, -eye_height, eye_iris_size]
         )
         eye_quad_ru_point = eye_point + Matrix.Rotation(eye_axis, 4, "Y") @ Vector(
-            [0, eye_height, eye_iris_size],
+            [0, eye_height, eye_iris_size]
         )
         eye_inner_point = eye_point + Matrix.Rotation(
-            -eye_axis,
-            4,
-            "Y",
+            -eye_axis, 4, "Y"
         ) @ Matrix.Rotation(self.eye_rotate, 4, "X") @ Vector(
-            [0, -eye_height, -eye_width],
+            [0, -eye_height, -eye_width]
         )
         eye_outer_point = eye_point + Matrix.Rotation(
-            eye_axis,
-            4,
-            "Y",
+            eye_axis, 4, "Y"
         ) @ Matrix.Rotation(self.eye_rotate, 4, "X") @ Vector(
-            [0, eye_height, eye_width],
+            [0, eye_height, eye_width]
         )
         if eye_inner_point[2] < self.head_width_size / 12:
             eye_inner_point[2] = self.head_width_size / 12
@@ -347,7 +341,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
 
         arcus_superciliaris_under_vert = add_point(arcus_superciliaris_under_point)
         arcus_superciliaris_outer_under_vert = add_point(
-            arcus_superciliaris_outer_under_point,
+            arcus_superciliaris_outer_under_point
         )
 
         # eye_brow_inner_point = width_add(eye_brow_point,eye_point[2] - eye_width*1.1)
@@ -398,7 +392,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 -self.head_depth_size / 2 + self.nose_height * 2 / 3,
                 self.mouth_position_ratio * nose_top_point[1],
                 0,
-            ],
+            ]
         )
         mouth_rotate_radian = atan2(self.nose_height, nose_top_point[1])
         rotated_height_up = Vector(
@@ -408,8 +402,8 @@ class ICYP_OT_detail_mesh_maker(Operator):
                     self.mouth_width_ratio * -0.01 * self.mouth_flatten,
                     self.mouth_width_ratio * 0.01,
                     0,
-                ],
-            ),
+                ]
+            )
         )
         rotated_height_down = Vector(
             Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
@@ -418,16 +412,16 @@ class ICYP_OT_detail_mesh_maker(Operator):
                     self.mouth_width_ratio * 0.01 * self.mouth_flatten,
                     self.mouth_width_ratio * 0.01 * 1.3,
                     0,
-                ],
-            ),
+                ]
+            )
         )
         rotated_height_mid_up = Vector(
             Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
-            @ Vector([0, self.mouth_width_ratio * 0.005 * self.mouth_flatten, 0]),
+            @ Vector([0, self.mouth_width_ratio * 0.005 * self.mouth_flatten, 0])
         )
         rotated_height_mid_down = Vector(
             Matrix.Rotation(-mouth_rotate_radian, 4, "Z")
-            @ Vector([0, self.mouth_width_ratio * 0.005 * 1.3 * self.mouth_flatten, 0]),
+            @ Vector([0, self.mouth_width_ratio * 0.005 * 1.3 * self.mouth_flatten, 0])
         )
 
         mouth_point_up_vert = add_point(mouth_point + rotated_height_up)
@@ -465,10 +459,10 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 -self.head_depth_size / 2,
                 0,
                 eye_inner_point[2] + (eye_quad_lu_point[2] - eye_inner_point[2]) / 2,
-            ],
+            ]
         )
         cheek_point[1] = min(
-            [eye_quad_ld_point[1], (nose_top_point[1] + nose_start_point[1]) / 2],
+            [eye_quad_ld_point[1], (nose_top_point[1] + nose_start_point[1]) / 2]
         )
         cheek_point[1] = (
             cheek_point[1] - (cheek_point[1] - nose_top_point[1]) * self.cheek_ratio
@@ -480,7 +474,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 (eye_outer_point[2] - eye_inner_point[2] * 2 / 3)
                 * cos(eye_axis)
                 * self.cheek_width,
-            ],
+            ]
         )
         cheek_top_outer_vert = add_point(tmp_cheek + cheek_point)
         cheek_top_inner_vert = add_point(cheek_point)
@@ -489,7 +483,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 -self.head_depth_size / 2,
                 nose_top_point[1],
                 eye_inner_point[2] + (eye_quad_lu_point[2] - eye_inner_point[2]) / 2,
-            ],
+            ]
         )
         cheek_under_outer_point = cheek_under_inner_point + tmp_cheek
         cheek_under_inner_vert = add_point(cheek_under_inner_point)
@@ -497,7 +491,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
 
         # 目尻の端っこからちょっといったとこ
         orbit_end = eye_outer_point + Matrix.Rotation(eye_axis, 4, "Y") @ Vector(
-            [0, 0, eye_iris_size],
+            [0, 0, eye_iris_size]
         ) * cos(eye_axis)
         orbit_vert = add_point(orbit_end)
 
@@ -513,7 +507,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 cheek_top_inner_vert,
                 cheek_top_outer_vert,
                 eye_quad_rd_vert,
-            ],
+            ]
         )
         add_mesh(
             [
@@ -521,7 +515,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 cheek_top_inner_vert,
                 cheek_top_outer_vert,
                 cheek_under_outer_vert,
-            ],
+            ]
         )
         # eye ring
         add_mesh(
@@ -530,7 +524,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 arcus_superciliaris_outer_under_vert,
                 eye_quad_ru_vert,
                 eye_quad_lu_vert,
-            ],
+            ]
         )
         add_mesh(
             [
@@ -538,7 +532,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 eye_quad_lu_vert,
                 eye_inner_vert,
                 nose_start_vert,
-            ],
+            ]
         )
         add_mesh([nose_start_vert, eye_inner_vert, cheek_top_inner_vert])
         add_mesh([eye_inner_vert, eye_quad_ld_vert, cheek_top_inner_vert])
@@ -550,7 +544,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 cheek_top_inner_vert,
                 cheek_under_inner_vert,
                 nose_end_side_vert,
-            ],
+            ]
         )
         add_mesh(
             [
@@ -558,10 +552,10 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 cheek_under_inner_vert,
                 mouth_corner_nodule_vert,
                 mouth_outer_point_vert,
-            ],
+            ]
         )
         add_mesh(
-            [cheek_under_inner_vert, cheek_under_outer_vert, mouth_corner_nodule_vert],
+            [cheek_under_inner_vert, cheek_under_outer_vert, mouth_corner_nodule_vert]
         )
 
         add_mesh([cheek_under_outer_vert, jaw_vert, mouth_corner_nodule_vert])
@@ -574,14 +568,14 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 nose_end_side_vert,
                 mouth_outer_point_vert,
                 mouth_point_up_vert,
-            ],
+            ]
         )
 
         add_mesh([mouth_point_up_vert, mouth_point_mid_up_vert, mouth_outer_point_vert])
         add_mesh([mouth_point_mid_up_vert, mouth_center_vert, mouth_outer_point_vert])
         add_mesh([mouth_center_vert, mouth_point_mid_down_vert, mouth_outer_point_vert])
         add_mesh(
-            [mouth_point_mid_down_vert, mouth_point_down_vert, mouth_outer_point_vert],
+            [mouth_point_mid_down_vert, mouth_point_down_vert, mouth_outer_point_vert]
         )
 
         add_mesh(
@@ -590,10 +584,10 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 orbit_vert,
                 arcus_superciliaris_outer_under_vert,
                 eye_quad_ru_vert,
-            ],
+            ]
         )
         add_mesh(
-            [cheek_top_outer_vert, cheek_under_outer_vert, jaw_vert, ear_hole_vert],
+            [cheek_top_outer_vert, cheek_under_outer_vert, jaw_vert, ear_hole_vert]
         )
         add_mesh([otogai_vert, jaw_vert, mouth_corner_nodule_vert])
         add_mesh(
@@ -602,7 +596,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 mouth_corner_nodule_vert,
                 mouth_outer_point_vert,
                 mouth_point_down_vert,
-            ],
+            ]
         )
         add_mesh([orbit_vert, ear_hole_vert, cheek_top_outer_vert])
         add_mesh(
@@ -611,7 +605,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 max_width_vert,
                 ear_hole_vert,
                 orbit_vert,
-            ],
+            ]
         )
 
         # head

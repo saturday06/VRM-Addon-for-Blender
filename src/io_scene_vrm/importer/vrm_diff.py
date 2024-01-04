@@ -107,8 +107,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
         vrm0_human_bone_dicts = vrm0_humanoid_dict.get("humanBones")
         if isinstance(vrm0_human_bone_dicts, list):
             vrm0_humanoid_dict["humanBones"] = sorted(
-                vrm0_human_bone_dicts,
-                key=human_bone_sort_key,
+                vrm0_human_bone_dicts, key=human_bone_sort_key
             )
 
             vrm0_first_person_bone = vrm0_first_person_dict.get("firstPersonBone")
@@ -140,7 +139,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
     vrm0_blend_shape_master_dict = vrm0_extension.get("blendShapeMaster")
     if isinstance(vrm0_blend_shape_master_dict, dict):
         vrm0_blend_shape_group_dicts = vrm0_blend_shape_master_dict.get(
-            "blendShapeGroups",
+            "blendShapeGroups"
         )
         if isinstance(vrm0_blend_shape_group_dicts, list):
             for vrm0_blend_shape_group_dict in vrm0_blend_shape_group_dicts:
@@ -180,7 +179,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
             original_index_to_sorted_index = {
                 original_index: sorted_index
                 for (sorted_index, (original_index, _)) in enumerate(
-                    sorted_collider_groups_with_original_index,
+                    sorted_collider_groups_with_original_index
                 )
             }
 
@@ -262,7 +261,5 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
 
 def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> list[str]:
     return deep.diff(
-        create_vrm_json_dict(before),
-        create_vrm_json_dict(after),
-        float_tolerance,
+        create_vrm_json_dict(before), create_vrm_json_dict(after), float_tolerance
     )

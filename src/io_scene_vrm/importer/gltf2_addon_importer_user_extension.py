@@ -27,10 +27,7 @@ class Gltf2AddonImporterUserExtension:
 
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L51
     def gather_import_image_after_hook(
-        self,
-        image: object,
-        bpy_image: object,
-        gltf_importer: object,
+        self, image: object, bpy_image: object, gltf_importer: object
     ) -> None:
         if self.current_import_id is None:
             return
@@ -38,7 +35,7 @@ class Gltf2AddonImporterUserExtension:
         if not isinstance(bpy_image, Image):
             logger.warning(
                 "gather_import_image_after_hook: "
-                + "bpy_image is not a Image but {type(bpy_image)}",
+                + "bpy_image is not a Image but {type(bpy_image)}"
             )
             return
 
@@ -46,7 +43,7 @@ class Gltf2AddonImporterUserExtension:
         if not isinstance(images, Sequence):
             logger.warning(
                 "gather_import_image_after_hook: "
-                + f"gltf_importer is unexpected structure: {gltf_importer}",
+                + f"gltf_importer is unexpected structure: {gltf_importer}"
             )
             return
 

@@ -71,7 +71,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if not armatures:
             raise NotImplementedError(
                 "Export without armature is not yet supported.\n"
-                + "アーマチュア無しエクスポートはまだ未対応。",
+                + "アーマチュア無しエクスポートはまだ未対応。"
             )
         self.armature = armatures[0]
         armature_data = self.armature.data
@@ -174,14 +174,14 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     (index / 16.0, 0, 0),
                     ((index + 1) / 16.0, 0, 1 / 16.0),
                     ((index + 1) / 16.0, 0, 0),
-                ],
+                ]
             )
             edges.extend(
                 [
                     (index * 3 + 0, index * 3 + 1),
                     (index * 3 + 1, index * 3 + 2),
                     (index * 3 + 2, index * 3 + 0),
-                ],
+                ]
             )
             faces.append((index * 3, index * 3 + 1, index * 3 + 2))
 
@@ -218,7 +218,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         dummy_skinned_mesh_object.modifiers.clear()
         dummy_skinned_mesh_object.vertex_groups.clear()
         self.context.scene.collection.objects.unlink(  # TODO: remove completely
-            dummy_skinned_mesh_object,
+            dummy_skinned_mesh_object
         )
 
     @classmethod
@@ -306,7 +306,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not mesh_annotation.node or not mesh_annotation.node.mesh_object_name:
                 continue
             node_index = mesh_object_name_to_node_index_dict.get(
-                mesh_annotation.node.mesh_object_name,
+                mesh_annotation.node.mesh_object_name
             )
             if not isinstance(node_index, int):
                 continue
@@ -314,7 +314,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 {
                     "node": node_index,
                     "type": mesh_annotation.type,
-                },
+                }
             )
         if not mesh_annotation_dicts:
             return {}
@@ -368,12 +368,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ):
                 continue
             node_index = mesh_object_name_to_node_index_dict.get(
-                morph_target_bind.node.mesh_object_name,
+                morph_target_bind.node.mesh_object_name
             )
             if not isinstance(node_index, int):
                 continue
             morph_targets = mesh_object_name_to_morph_target_names_dict.get(
-                morph_target_bind.node.mesh_object_name,
+                morph_target_bind.node.mesh_object_name
             )
             if not isinstance(morph_targets, list):
                 continue
@@ -384,7 +384,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "node": node_index,
                     "index": morph_targets.index(morph_target_bind.index),
                     "weight": morph_target_bind.weight,
-                },
+                }
             )
         if morph_target_bind_dicts:
             expression_dict["morphTargetBinds"] = morph_target_bind_dicts
@@ -397,7 +397,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ):
                 continue
             material_index = material_name_to_index_dict.get(
-                material_color_bind.material.name,
+                material_color_bind.material.name
             )
             if not isinstance(material_index, int):
                 continue
@@ -411,7 +411,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "material": material_index,
                     "type": material_color_bind.type,
                     "targetValue": target_value,
-                },
+                }
             )
         if material_color_bind_dicts:
             expression_dict["materialColorBinds"] = material_color_bind_dicts
@@ -424,7 +424,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ):
                 continue
             material_index = material_name_to_index_dict.get(
-                texture_transform_bind.material.name,
+                texture_transform_bind.material.name
             )
             if not isinstance(material_index, int):
                 continue
@@ -433,7 +433,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "material": material_index,
                     "scale": list(texture_transform_bind.scale),
                     "offset": list(texture_transform_bind.offset),
-                },
+                }
             )
         if texture_transform_binds:
             expression_dict["textureTransformBinds"] = texture_transform_binds
@@ -492,7 +492,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "sphere": {
                         "offset": list(collider.shape.sphere.offset),
                         "radius": collider.shape.sphere.radius,
-                    },
+                    }
                 }
             elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
                 shape_dict = {
@@ -500,7 +500,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         "offset": list(collider.shape.capsule.offset),
                         "radius": collider.shape.capsule.radius,
                         "tail": list(collider.shape.capsule.tail),
-                    },
+                    }
                 }
             else:
                 continue
@@ -524,7 +524,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             collider_indices: list[Json] = []
             for collider_reference in collider_group.colliders:
                 collider_index = collider_uuid_to_index_dict.get(
-                    collider_reference.collider_uuid,
+                    collider_reference.collider_uuid
                 )
                 if isinstance(collider_index, int):
                     collider_indices.append(collider_index)
@@ -536,7 +536,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 continue
 
             collider_group_uuid_to_index_dict[collider_group.uuid] = len(
-                collider_group_dicts,
+                collider_group_dicts
             )
             collider_group_dicts.append(collider_group_dict)
 
@@ -581,7 +581,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                             -joint.gravity_dir[1],
                         ],
                         "dragForce": joint.drag_force,
-                    },
+                    }
                 )
 
             if joint_dicts:
@@ -604,7 +604,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             collider_group_indices: list[Json] = []
             for collider_group_reference in spring.collider_groups:
                 collider_group_index = collider_group_uuid_to_index_dict.get(
-                    collider_group_reference.collider_group_uuid,
+                    collider_group_reference.collider_group_uuid
                 )
                 if isinstance(collider_group_index, int):
                     collider_group_indices.append(collider_group_index)
@@ -691,9 +691,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
     @classmethod
     def create_mtoon0_khr_texture_transform(
-        cls,
-        node: Node,
-        texture_input_name: str,
+        cls, node: Node, texture_input_name: str
     ) -> dict[str, Json]:
         default: dict[str, Json] = {
             "offset": [0, 0],
@@ -766,7 +764,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 "buffer": 0,
                 "byteOffset": len(body_binary),
                 "byteLength": len(image_bytes),
-            },
+            }
         )
 
         image_index = image_name_to_index_dict.get(image.name)
@@ -784,7 +782,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     "name": image.name,
                     "bufferView": image_buffer_view_index,
                     "mimeType": mime,
-                },
+                }
             )
             image_name_to_index_dict[image.name] = image_index
 
@@ -889,8 +887,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         gltf2_addon_export_settings: dict[str, object],
     ) -> Optional[dict[str, Json]]:
         image_name_and_sampler_type = shader.get_image_name_and_sampler_type(
-            node,
-            texture_input_name,
+            node, texture_input_name
         )
         if image_name_and_sampler_type is None:
             return None
@@ -946,8 +943,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         json_dict["extensionsUsed"] = extensions_used
 
         khr_texture_transform_dict = cls.create_mtoon0_khr_texture_transform(
-            node,
-            texture_input_name,
+            node, texture_input_name
         )
 
         return {
@@ -1008,7 +1004,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             material_dict["alphaCutoff"] = gltf.alpha_cutoff
         material_dict["doubleSided"] = gltf.double_sided
         pbr_metallic_roughness_dict["baseColorFactor"] = list(
-            gltf.pbr_metallic_roughness.base_color_factor,
+            gltf.pbr_metallic_roughness.base_color_factor
         )
         assign_dict(
             pbr_metallic_roughness_dict,
@@ -1171,10 +1167,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         else:
             material_dict["alphaMode"] = "BLEND"
         assign_dict(
-            material_dict,
-            "doubleSided",
-            not material.use_backface_culling,
-            False,
+            material_dict, "doubleSided", not material.use_backface_culling, False
         )
         assign_dict(
             pbr_metallic_roughness_dict,
@@ -1190,9 +1183,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             gltf2_addon_export_settings,
         )
         assign_dict(
-            pbr_metallic_roughness_dict,
-            "baseColorTexture",
-            base_color_texture_dict,
+            pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
         )
 
         assign_dict(
@@ -1319,10 +1310,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         mtoon_dict["transparentWithZWrite"] = True
         mtoon_dict["renderQueueOffsetNumber"] = 0
         assign_dict(
-            material_dict,
-            "doubleSided",
-            not material.use_backface_culling,
-            False,
+            material_dict, "doubleSided", not material.use_backface_culling, False
         )
         base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
             json_dict,
@@ -1333,9 +1321,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             gltf2_addon_export_settings,
         )
         assign_dict(
-            pbr_metallic_roughness_dict,
-            "baseColorTexture",
-            base_color_texture_dict,
+            pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
         )
         if base_color_texture_dict is not None:
             mtoon_dict["shadeMultiplyTexture"] = base_color_texture_dict
@@ -1397,8 +1383,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         else:
             material_dict["alphaMode"] = "BLEND"
             transparent_with_z_write = shader.get_float_value(
-                node,
-                "TransparentWithZWrite",
+                node, "TransparentWithZWrite"
             )
             if (
                 transparent_with_z_write is None
@@ -1409,10 +1394,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 mtoon_dict["transparentWithZWrite"] = True
         mtoon_dict["renderQueueOffsetNumber"] = 0
         assign_dict(
-            material_dict,
-            "doubleSided",
-            not material.use_backface_culling,
-            False,
+            material_dict, "doubleSided", not material.use_backface_culling, False
         )
         assign_dict(
             pbr_metallic_roughness_dict,
@@ -1428,9 +1410,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             gltf2_addon_export_settings,
         )
         assign_dict(
-            pbr_metallic_roughness_dict,
-            "baseColorTexture",
-            base_color_texture_dict,
+            pbr_metallic_roughness_dict, "baseColorTexture", base_color_texture_dict
         )
         assign_dict(
             mtoon_dict,
@@ -1468,14 +1448,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 gltf2_addon_export_settings,
             )
         if assign_dict(
-            material_dict,
-            "normalTexture",
-            normal_texture_dict,
+            material_dict, "normalTexture", normal_texture_dict
         ) and isinstance(normal_texture_dict, dict):
             assign_dict(
-                normal_texture_dict,
-                "scale",
-                shader.get_float_value(node, "BumpScale"),
+                normal_texture_dict, "scale", shader.get_float_value(node, "BumpScale")
             )
 
         shading_shift_0x = shader.get_float_value(node, "ShadeShift")
@@ -1487,13 +1463,11 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             shading_toony_0x = 0.0
 
         mtoon_dict["shadingShiftFactor"] = convert.mtoon_shading_shift_0_to_1(
-            shading_toony_0x,
-            shading_shift_0x,
+            shading_toony_0x, shading_shift_0x
         )
 
         mtoon_dict["shadingToonyFactor"] = convert.mtoon_shading_toony_0_to_1(
-            shading_toony_0x,
-            shading_shift_0x,
+            shading_toony_0x, shading_shift_0x
         )
 
         gi_equalization_0x = shader.get_float_value(node, "IndirectLightIntensity")
@@ -1580,14 +1554,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         if outline_width_mode == 1:
             mtoon_dict["outlineWidthMode"] = "worldCoordinates"
             mtoon_dict["outlineWidthFactor"] = max(
-                0.0,
-                outline_width * centimeter_to_meter,
+                0.0, outline_width * centimeter_to_meter
             )
         elif outline_width_mode == 2:
             mtoon_dict["outlineWidthMode"] = "screenCoordinates"
             mtoon_dict["outlineWidthFactor"] = max(
-                0.0,
-                outline_width * one_hundredth * 0.5,
+                0.0, outline_width * one_hundredth * 0.5
             )
         else:
             mtoon_dict["outlineWidthMode"] = "none"
@@ -1838,7 +1810,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             hips_bone_name = deepcopy(hips_bone.name)
 
             right_upper_leg_bone = armature_data.edit_bones.new(
-                HumanBoneName.RIGHT_UPPER_LEG.value,
+                HumanBoneName.RIGHT_UPPER_LEG.value
             )
             right_upper_leg_bone.head = Vector((-0.125, 0, 0.5))
             right_upper_leg_bone.tail = Vector((-0.125, 1, 0.5))
@@ -1846,7 +1818,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             right_upper_leg_bone_name = deepcopy(right_upper_leg_bone.name)
 
             right_lower_leg_bone = armature_data.edit_bones.new(
-                HumanBoneName.RIGHT_LOWER_LEG.value,
+                HumanBoneName.RIGHT_LOWER_LEG.value
             )
             right_lower_leg_bone.head = Vector((-0.125, 0, 0.25))
             right_lower_leg_bone.tail = Vector((-0.125, 1, 0.25))
@@ -1854,7 +1826,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             right_lower_leg_bone_name = deepcopy(right_lower_leg_bone.name)
 
             right_foot_bone = armature_data.edit_bones.new(
-                HumanBoneName.RIGHT_FOOT.value,
+                HumanBoneName.RIGHT_FOOT.value
             )
             right_foot_bone.head = Vector((-0.125, 0, 0))
             right_foot_bone.tail = Vector((-0.125, 1, 0))
@@ -1862,7 +1834,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             right_foot_bone_name = deepcopy(right_foot_bone.name)
 
             left_upper_leg_bone = armature_data.edit_bones.new(
-                HumanBoneName.LEFT_UPPER_LEG.value,
+                HumanBoneName.LEFT_UPPER_LEG.value
             )
             left_upper_leg_bone.head = Vector((0.125, 0, 0.5))
             left_upper_leg_bone.tail = Vector((0.125, 1, 0.5))
@@ -1870,7 +1842,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             left_upper_leg_bone_name = deepcopy(left_upper_leg_bone.name)
 
             left_lower_leg_bone = armature_data.edit_bones.new(
-                HumanBoneName.LEFT_LOWER_LEG.value,
+                HumanBoneName.LEFT_LOWER_LEG.value
             )
             left_lower_leg_bone.head = Vector((0.125, 0, 0.25))
             left_lower_leg_bone.tail = Vector((0.125, 1, 0.25))
@@ -1890,7 +1862,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             spine_bone_name = deepcopy(spine_bone.name)
 
             right_upper_arm_bone = armature_data.edit_bones.new(
-                HumanBoneName.RIGHT_UPPER_ARM.value,
+                HumanBoneName.RIGHT_UPPER_ARM.value
             )
             right_upper_arm_bone.head = Vector((-0.125, 0, 0.75))
             right_upper_arm_bone.tail = Vector((-0.125, 1, 0.75))
@@ -1898,7 +1870,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             right_upper_arm_bone_name = deepcopy(right_upper_arm_bone.name)
 
             right_lower_arm_bone = armature_data.edit_bones.new(
-                HumanBoneName.RIGHT_LOWER_ARM.value,
+                HumanBoneName.RIGHT_LOWER_ARM.value
             )
             right_lower_arm_bone.head = Vector((-0.25, 0, 0.75))
             right_lower_arm_bone.tail = Vector((-0.25, 1, 0.75))
@@ -1906,7 +1878,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             right_lower_arm_bone_name = deepcopy(right_lower_arm_bone.name)
 
             right_hand_bone = armature_data.edit_bones.new(
-                HumanBoneName.RIGHT_HAND.value,
+                HumanBoneName.RIGHT_HAND.value
             )
             right_hand_bone.head = Vector((-0.375, 0, 0.75))
             right_hand_bone.tail = Vector((-0.375, 1, 0.75))
@@ -1914,7 +1886,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             right_hand_bone_name = deepcopy(right_hand_bone.name)
 
             left_upper_arm_bone = armature_data.edit_bones.new(
-                HumanBoneName.LEFT_UPPER_ARM.value,
+                HumanBoneName.LEFT_UPPER_ARM.value
             )
             left_upper_arm_bone.head = Vector((0.125, 0, 0.75))
             left_upper_arm_bone.tail = Vector((0.125, 1, 0.75))
@@ -1922,7 +1894,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             left_upper_arm_bone_name = deepcopy(left_upper_arm_bone.name)
 
             left_lower_arm_bone = armature_data.edit_bones.new(
-                HumanBoneName.LEFT_LOWER_ARM.value,
+                HumanBoneName.LEFT_LOWER_ARM.value
             )
             left_lower_arm_bone.head = Vector((0.25, 0, 0.75))
             left_lower_arm_bone.tail = Vector((0.25, 1, 0.75))
@@ -1949,8 +1921,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             context.view_layer.objects.active = previous_active
 
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            armature_data.name,
-            defer=False,
+            armature_data.name, defer=False
         )
 
         human_bones.head.node.bone_name = head_bone_name
@@ -1992,7 +1963,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 human_bone.node.bone_name
                 for human_bone in human_bone_name_to_human_bone.values()
                 if human_bone.node.bone_name
-            ],
+            ]
         )
 
         for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
@@ -2029,9 +2000,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         vrm = armature_data.vrm_addon_extension.vrm1
         backup_human_bone_name_to_bone_name = self.setup_dummy_human_bones(
-            self.context,
-            self.armature,
-            armature_data,
+            self.context, self.armature, armature_data
         )
         # dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes()
@@ -2084,7 +2053,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
                         # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
                         export_try_sparse_sk=False,
-                    ),
+                    )
                 )
                 if export_scene_gltf_result == {"CANCELLED"}:
                     return None
@@ -2254,8 +2223,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             ):
                 mesh_object_name_to_node_index_dict[object_name] = node_index
                 target_names = deep.get(
-                    mesh_dicts,
-                    [mesh_index, "extras", "targetNames"],
+                    mesh_dicts, [mesh_index, "extras", "targetNames"]
                 )
                 if isinstance(target_names, list):
                     mesh_object_name_to_morph_target_names_dict[object_name] = [
@@ -2286,8 +2254,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         node_constraint_spec_version = "1.0"
         use_node_constraint = False
         object_constraints, bone_constraints, _ = search.export_constraints(
-            self.export_objects,
-            self.armature,
+            self.export_objects, self.armature
         )
 
         for object_name, node_index in object_name_to_index_dict.items():
@@ -2364,8 +2331,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             self.gltf2_addon_export_settings,
         )
         self.unassign_normal_from_mtoon_primitive_morph_target(
-            json_dict,
-            material_name_to_index_dict,
+            json_dict, material_name_to_index_dict
         )
 
         extensions_used = json_dict.get("extensionsUsed")
@@ -2391,12 +2357,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 self.gltf2_addon_export_settings,
             ),
             "humanoid": self.create_humanoid_dict(
-                vrm.humanoid,
-                bone_name_to_index_dict,
+                vrm.humanoid, bone_name_to_index_dict
             ),
             "firstPerson": self.create_first_person_dict(
-                vrm.first_person,
-                mesh_object_name_to_node_index_dict,
+                vrm.first_person, mesh_object_name_to_node_index_dict
             ),
             "lookAt": self.create_look_at_dict(vrm.look_at),
             "expressions": self.create_expressions_dict(
@@ -2421,8 +2385,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             spring_bone_collider_group_dicts,
             collider_group_uuid_to_index_dict,
         ) = self.create_spring_bone_collider_group_dicts(
-            spring_bone,
-            collider_uuid_to_index_dict,
+            spring_bone, collider_uuid_to_index_dict
         )
         if spring_bone_collider_group_dicts:
             spring_bone_dict["colliderGroups"] = spring_bone_collider_group_dicts
@@ -2534,9 +2497,7 @@ def find_node_world_matrix(
         if not isinstance(child_node_index, int):
             continue
         child_node_matrix = find_node_world_matrix(
-            node_dicts,
-            target_node_index,
-            child_node_index,
+            node_dicts, target_node_index, child_node_index
         )
         if child_node_matrix is not None:
             return parent_node_matrix @ child_node_matrix

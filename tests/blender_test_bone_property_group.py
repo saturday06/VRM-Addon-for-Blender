@@ -61,16 +61,12 @@ def test() -> None:
 
     for props in BonePropertyGroup.get_all_bone_property_groups(armature):
         assert (props.__class__.__module__ + "." + props.__class__.__name__).endswith(
-            ".editor.property_group.BonePropertyGroup",
+            ".editor.property_group.BonePropertyGroup"
         )
 
     assert_bone_candidates(armature, HumanBoneSpecifications.HIPS, {}, set(), {})
     assert_bone_candidates(
-        armature,
-        HumanBoneSpecifications.HIPS,
-        {},
-        {"hips"},
-        {"hips": {}},
+        armature, HumanBoneSpecifications.HIPS, {}, {"hips"}, {"hips": {}}
     )
     assert_bone_candidates(
         armature,

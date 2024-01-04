@@ -71,13 +71,11 @@ def draw_roll_constraint_layout(
         + " - Owner is Local Space\n"
         + " - No circular dependencies\n"
         + " - The one at the top of the list of\n"
-        + "   those that meet all the conditions\n",
+        + "   those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
-            text=help_line,
-            translate=False,
-            icon="HELP" if index == 0 else "NONE",
+            text=help_line, translate=False, icon="HELP" if index == 0 else "NONE"
         )
 
 
@@ -130,13 +128,11 @@ def draw_aim_constraint_layout(
         + " - No Follow Target Bone B-Bone\n"
         + " - No circular dependencies\n"
         + " - The one at the top of the list of\n"
-        + "   those that meet all the conditions\n",
+        + "   those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
-            text=help_line,
-            translate=False,
-            icon="HELP" if index == 0 else "NONE",
+            text=help_line, translate=False, icon="HELP" if index == 0 else "NONE"
         )
 
 
@@ -193,13 +189,11 @@ def draw_rotation_constraint_layout(
         + " - Owner is Local Space\n"
         + " - No circular dependencies\n"
         + " - The one at the top of the list of\n"
-        + "   those that meet all the conditions\n",
+        + "   those that meet all the conditions\n"
     )
     for index, help_line in enumerate(help_message.splitlines()):
         constraints_help_column.label(
-            text=help_line,
-            translate=False,
-            icon="HELP" if index == 0 else "NONE",
+            text=help_line, translate=False, icon="HELP" if index == 0 else "NONE"
         )
 
 

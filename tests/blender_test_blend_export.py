@@ -12,7 +12,7 @@ resources_dir = Path(
     environ.get(
         "BLENDER_VRM_TEST_RESOURCES_PATH",
         str(repository_root_dir / "tests" / "resources"),
-    ),
+    )
 )
 vrm_dir = resources_dir / "vrm"
 blend_dir = resources_dir / "blend"

@@ -108,7 +108,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             environ.get(
                 "BLENDER_VRM_TEST_RESOURCES_PATH",
                 str(Path(test_src_dir, "resources")),
-            ),
+            )
         )
         if not (resources_dir / d).exists():
             return render_missing_required_directory_test("./tests/resources/{d}/")
@@ -122,12 +122,12 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
         )
         if spec is None:
             return render_generation_failed_test(
-                AssertionError("Failed to create module spec"),
+                AssertionError("Failed to create module spec")
             )
         mod = module_from_spec(spec)
         if spec.loader is None:
             return render_generation_failed_test(
-                AssertionError("Failed to create module spec loader"),
+                AssertionError("Failed to create module spec loader")
             )
         spec.loader.exec_module(mod)
 
@@ -176,9 +176,7 @@ def generate_dynamic_test(test_src_dir: Path, path: str) -> None:
         for word in re.sub("blender_test_", "", path_without_ext).split("_")
     )
     content = render_test_header(class_name) + render_body(
-        test_src_dir,
-        path,
-        path_without_ext,
+        test_src_dir, path, path_without_ext
     )
     content_bytes = content.replace("\r\n", "\n").encode()
     if out_path.exists() and content_bytes == out_path.read_bytes():

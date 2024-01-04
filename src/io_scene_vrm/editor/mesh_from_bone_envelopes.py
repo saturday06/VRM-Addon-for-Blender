@@ -34,11 +34,10 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
 
     resolution: IntProperty(default=5, min=2)  # type: ignore[valid-type]
     max_distance_between_mataballs: FloatProperty(  # type: ignore[valid-type]
-        default=0.1,
-        min=0.001,
+        default=0.1, min=0.001
     )
     use_selected_bones: BoolProperty(  # type: ignore[valid-type]
-        default=False,
+        default=False
     )
     may_vrm_humanoid: BoolProperty(default=True)  # type: ignore[valid-type]
     with_auto_weight: BoolProperty(default=False)  # type: ignore[valid-type]
@@ -51,8 +50,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
             raise ValueError(message)
         for node in material.node_tree.nodes:
             if node.bl_idname == "ShaderNodeOutputMaterial" and isinstance(
-                node,
-                ShaderNodeOutputMaterial,
+                node, ShaderNodeOutputMaterial
             ):
                 return node
         message = f'No "ShaderNodeOutputMaterial" node in {material}'
@@ -95,7 +93,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
             ):
                 self.resolution = ceil(
                     Vector(Vector(tpos) - Vector(hpos)).length
-                    / self.max_distance_between_mataballs,
+                    / self.max_distance_between_mataballs
                 )
                 self.resolution = max(2, self.resolution)
             for i in range(self.resolution):
@@ -148,8 +146,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
                     mat.node_tree.nodes.remove(node)
 
         def node_group_create(
-            material: Material,
-            shader_node_group_name: str,
+            material: Material, shader_node_group_name: str
         ) -> ShaderNodeGroup:
             if not material.node_tree:
                 message = "No node tree"

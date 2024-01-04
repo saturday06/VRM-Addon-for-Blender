@@ -110,11 +110,11 @@ def preferences_warning_message() -> Optional[str]:
     if blender_restart_required():
         return pgettext(
             "The VRM add-on has been updated."
-            + " Please restart Blender to apply the changes.",
+            + " Please restart Blender to apply the changes."
         )
     if not stable_release():
         return pgettext(
-            "VRM add-on is not compatible with Blender {blender_version_cycle}.",
+            "VRM add-on is not compatible with Blender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
     if not supported():
         return pgettext(
@@ -129,19 +129,19 @@ def panel_warning_message() -> Optional[str]:
         return pgettext(
             "The VRM add-on has been\n"
             + "updated. Please restart Blender\n"
-            + "to apply the changes.",
+            + "to apply the changes."
         )
     if not stable_release():
         return pgettext(
             "VRM add-on is\n"
             + "not compatible with\n"
-            + "Blender {blender_version_cycle}.",
+            + "Blender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
     if not supported():
         return pgettext(
             "The installed VRM add-\n"
             + "on is not compatible with\n"
-            + "Blender {blender_version}. Please update.",
+            + "Blender {blender_version}. Please update."
         ).format(blender_version=".".join(map(str, bpy.app.version[:2])))
     return None
 
@@ -150,7 +150,7 @@ def validation_warning_message() -> Optional[str]:
     if blender_restart_required():
         return pgettext(
             "The VRM add-on has been updated."
-            + " Please restart Blender to apply the changes.",
+            + " Please restart Blender to apply the changes."
         )
     if not stable_release():
         return pgettext(
@@ -160,6 +160,6 @@ def validation_warning_message() -> Optional[str]:
     if not supported():
         return pgettext(
             "The installed VRM add-on is not compatible with Blender {blender_version}."
-            + " The VRM may not be exported correctly.",
+            + " The VRM may not be exported correctly."
         ).format(blender_version=".".join(map(str, bpy.app.version)))
     return None

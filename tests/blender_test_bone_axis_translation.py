@@ -13,8 +13,7 @@ def assert_axis_translation(
     in_vec = Vector(in_point)
     in_mat = Matrix()
     actual_out_mat = VrmAddonBoneExtensionPropertyGroup.translate_axis(
-        in_mat,
-        axis_translation,
+        in_mat, axis_translation
     )
     actual_out_vec = in_vec @ actual_out_mat
     expected_out_vec = Vector(out_point)
@@ -33,7 +32,7 @@ def assert_axis_translation(
         + f"    actual_out_vec={actual_out_vec[:]}\n"
         + f"  axis_translation={axis_translation}\n"
         + f"            in_mat=\n{in_mat}\n"
-        + f"    actual_out_mat=\n{actual_out_mat}\n",
+        + f"    actual_out_mat=\n{actual_out_mat}\n"
     )
 
 

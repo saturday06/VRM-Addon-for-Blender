@@ -53,9 +53,7 @@ def create_import_preferences_dict(
 
 
 def copy_import_preferences(
-    *,
-    source: ImportPreferencesProtocol,
-    destination: ImportPreferencesProtocol,
+    *, source: ImportPreferencesProtocol, destination: ImportPreferencesProtocol
 ) -> None:
     (
         destination.extract_textures_into_folder,
@@ -77,8 +75,7 @@ def copy_import_preferences(
 
 
 def draw_import_preferences_layout(
-    preferences: ImportPreferencesProtocol,
-    layout: UILayout,
+    preferences: ImportPreferencesProtocol, layout: UILayout
 ) -> None:
     if not isinstance(preferences, (AddonPreferences, Operator)):
         return
@@ -102,9 +99,7 @@ class ExportPreferencesProtocol(Protocol):
 
 
 def copy_export_preferences(
-    *,
-    source: ExportPreferencesProtocol,
-    destination: ExportPreferencesProtocol,
+    *, source: ExportPreferencesProtocol, destination: ExportPreferencesProtocol
 ) -> None:
     (
         destination.export_invisibles,
@@ -124,8 +119,7 @@ def copy_export_preferences(
 
 
 def draw_export_preferences_layout(
-    preferences: ExportPreferencesProtocol,
-    layout: UILayout,
+    preferences: ExportPreferencesProtocol, layout: UILayout
 ) -> None:
     if not isinstance(preferences, (AddonPreferences, Operator)):
         return
@@ -255,7 +249,7 @@ def get_preferences(context: Context) -> VrmAddonPreferences:
     if not isinstance(preferences, VrmAddonPreferences):
         raise TypeError(
             f"Add-on preferences for {addon_package_name} is not a VrmAddonPreferences"
-            + f" but {type(preferences)}",
+            + f" but {type(preferences)}"
         )
 
     return preferences

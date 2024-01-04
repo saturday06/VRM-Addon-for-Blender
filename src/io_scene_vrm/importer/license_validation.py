@@ -49,9 +49,7 @@ class LicenseConfirmationRequiredError(Exception):
 
 
 def validate_license_url(
-    url_str: str,
-    json_key: str,
-    props: list[LicenseConfirmationRequiredProp],
+    url_str: str, json_key: str, props: list[LicenseConfirmationRequiredProp]
 ) -> None:
     if not url_str:
         return
@@ -61,10 +59,7 @@ def validate_license_url(
     if url:
         query_dict = dict(parse_qsl(url.query))
         if validate_vroid_hub_license_url(
-            url,
-            query_dict,
-            json_key,
-            props,
+            url, query_dict, json_key, props
         ) or validate_uni_virtual_license_url(url, query_dict, json_key, props):
             return
     props.append(
@@ -72,9 +67,9 @@ def validate_license_url(
             url_str,
             json_key,
             pgettext(
-                'Is this VRM allowed to edited? Please check its "{json_key}" value.',
+                'Is this VRM allowed to edited? Please check its "{json_key}" value.'
             ).format(json_key=json_key),
-        ),
+        )
     )
 
 
@@ -93,9 +88,9 @@ def validate_vroid_hub_license_url(
                 url.geturl(),
                 json_key,
                 pgettext(
-                    'This VRM is licensed by VRoid Hub License "Alterations: No".',
+                    'This VRM is licensed by VRoid Hub License "Alterations: No".'
                 ),
-            ),
+            )
         )
     return True
 
@@ -115,7 +110,7 @@ def validate_uni_virtual_license_url(
                 url.geturl(),
                 json_key,
                 pgettext('This VRM is licensed by UV License with "Remarks".'),
-            ),
+            )
         )
     return True
 
@@ -126,7 +121,7 @@ def validate_license(json_dict: dict[str, Json]) -> None:
     # 既知の改変不可ライセンスを撥ねる
     # CC_NDなど
     license_name = str(
-        deep.get(json_dict, ["extensions", "VRM", "meta", "licenseName"], ""),
+        deep.get(json_dict, ["extensions", "VRM", "meta", "licenseName"], "")
     )
     if re.match("CC(.*)ND(.*)", license_name):  # codespell-ignore
         confirmations.append(
@@ -135,18 +130,14 @@ def validate_license(json_dict: dict[str, Json]) -> None:
                 None,
                 pgettext(
                     'The VRM is licensed by "{license_name}".'
-                    + " No derivative works are allowed.",
+                    + " No derivative works are allowed."
                 ).format(license_name=license_name),
-            ),
+            )
         )
 
     validate_license_url(
         str(
-            deep.get(
-                json_dict,
-                ["extensions", "VRM", "meta", "otherPermissionUrl"],
-                "",
-            ),
+            deep.get(json_dict, ["extensions", "VRM", "meta", "otherPermissionUrl"], "")
         ),
         "otherPermissionUrl",
         confirmations,
@@ -154,7 +145,7 @@ def validate_license(json_dict: dict[str, Json]) -> None:
 
     if license_name == "Other":
         other_license_url_str = str(
-            deep.get(json_dict, ["extensions", "VRM", "meta", "otherLicenseUrl"], ""),
+            deep.get(json_dict, ["extensions", "VRM", "meta", "otherLicenseUrl"], "")
         )
         if not other_license_url_str:
             confirmations.append(
@@ -162,15 +153,13 @@ def validate_license(json_dict: dict[str, Json]) -> None:
                     None,
                     None,
                     pgettext(
-                        'The VRM selects "Other" license but no license url is found.',
+                        'The VRM selects "Other" license but no license url is found.'
                     ),
-                ),
+                )
             )
         else:
             validate_license_url(
-                other_license_url_str,
-                "otherLicenseUrl",
-                confirmations,
+                other_license_url_str, "otherLicenseUrl", confirmations
             )
 
     if confirmations:

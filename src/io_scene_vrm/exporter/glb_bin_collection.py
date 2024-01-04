@@ -40,7 +40,7 @@ class GlbBinCollection:
                     "buffer": 0,
                     "byteOffset": byte_offset,
                     "byteLength": vab.bin_length,
-                },
+                }
             )
             byte_offset += vab.bin_length
 
@@ -54,14 +54,14 @@ class GlbBinCollection:
                         "name": img.name,
                         "bufferView": self.get_new_buffer_view_id(),
                         "mimeType": img.image_type,
-                    },
+                    }
                 )
                 buffer_view_dicts.append(
                     {
                         "buffer": 0,
                         "byteOffset": byte_offset,
                         "byteLength": img.bin_length,
-                    },
+                    }
                 )
                 byte_offset += img.bin_length
 

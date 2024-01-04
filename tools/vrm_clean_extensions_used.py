@@ -28,13 +28,12 @@ def clean(path: Path) -> None:
             continue
         base_extensions_dicts.append(material_dict)
         base_extensions_dicts.append(
-            deep.get(material_dict, ["pbrMetallicRoughness", "baseColorTexture"]),
+            deep.get(material_dict, ["pbrMetallicRoughness", "baseColorTexture"])
         )
         base_extensions_dicts.append(
             deep.get(
-                material_dict,
-                ["pbrMetallicRoughness", "metallicRoughnessTexture"],
-            ),
+                material_dict, ["pbrMetallicRoughness", "metallicRoughnessTexture"]
+            )
         )
         base_extensions_dicts.append(material_dict.get("normalTexture"))
         base_extensions_dicts.append(material_dict.get("emissiveTexture"))

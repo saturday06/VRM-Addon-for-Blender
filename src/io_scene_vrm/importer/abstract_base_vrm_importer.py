@@ -123,8 +123,7 @@ class AbstractBaseVrmImporter(ABC):
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            self.armature_data.name,
-            defer=False,
+            self.armature_data.name, defer=False
         )
 
         human_bones = addon_extension.vrm0.humanoid.human_bones
@@ -188,7 +187,7 @@ class AbstractBaseVrmImporter(ABC):
                     if not parent:
                         break
                     parent_human_bone_name = bone_name_to_human_bone_name.get(
-                        parent.name,
+                        parent.name
                     )
 
                     if parent_human_bone_name in [
@@ -270,7 +269,7 @@ class AbstractBaseVrmImporter(ABC):
                 ).to_translation()
 
             connect_parent_tail_and_child_head_if_very_close_position(
-                self.armature_data,
+                self.armature_data
             )
             bpy.ops.object.mode_set(mode="OBJECT")
         finally:
@@ -311,8 +310,7 @@ class AbstractBaseVrmImporter(ABC):
         # のインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
         json_texture_index = deep.get(
-            self.parse_result.vrm0_extension,
-            ["meta", "texture"],
+            self.parse_result.vrm0_extension, ["meta", "texture"]
         )
         if not isinstance(json_texture_index, int):
             return
@@ -370,7 +368,7 @@ class AbstractBaseVrmImporter(ABC):
         }
 
         for index, material_property in enumerate(
-            self.parse_result.vrm0_material_properties,
+            self.parse_result.vrm0_material_properties
         ):
             build_method = shader_to_build_method.get(material_property.shader)
             if not build_method:
@@ -421,7 +419,7 @@ class AbstractBaseVrmImporter(ABC):
         mag_filter = sampler_dict.get("magFilter")
         if isinstance(mag_filter, int):
             mag_filter_id = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
-                mag_filter,
+                mag_filter
             )
             if isinstance(mag_filter_id, str):
                 texture.sampler.mag_filter = mag_filter_id
@@ -429,7 +427,7 @@ class AbstractBaseVrmImporter(ABC):
         min_filter = sampler_dict.get("minFilter")
         if isinstance(min_filter, int):
             min_filter_id = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
-                min_filter,
+                min_filter
             )
             if isinstance(min_filter_id, str):
                 texture.sampler.min_filter = min_filter_id
@@ -467,9 +465,7 @@ class AbstractBaseVrmImporter(ABC):
         )
 
     def build_material_from_mtoon0(
-        self,
-        material: Material,
-        vrm0_material_property: Vrm0MaterialProperty,
+        self, material: Material, vrm0_material_property: Vrm0MaterialProperty
     ) -> None:
         # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
         material.use_backface_culling = True
@@ -504,7 +500,7 @@ class AbstractBaseVrmImporter(ABC):
                 gltf.double_sided = False
 
         base_color_factor = shader.rgba_or_none(
-            vrm0_material_property.vector_properties.get("_Color"),
+            vrm0_material_property.vector_properties.get("_Color")
         )
         if base_color_factor:
             gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
@@ -527,7 +523,7 @@ class AbstractBaseVrmImporter(ABC):
         )
 
         shade_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_ShadeColor"),
+            vrm0_material_property.vector_properties.get("_ShadeColor")
         )
         if shade_color_factor:
             mtoon.shade_color_factor = shade_color_factor
@@ -556,32 +552,30 @@ class AbstractBaseVrmImporter(ABC):
             shading_toony_0x = 0
 
         mtoon.shading_shift_factor = convert.mtoon_shading_shift_0_to_1(
-            shading_toony_0x,
-            shading_shift_0x,
+            shading_toony_0x, shading_shift_0x
         )
 
         mtoon.shading_toony_factor = convert.mtoon_shading_toony_0_to_1(
-            shading_toony_0x,
-            shading_shift_0x,
+            shading_toony_0x, shading_shift_0x
         )
 
         indirect_light_intensity = vrm0_material_property.float_properties.get(
-            "_IndirectLightIntensity",
+            "_IndirectLightIntensity"
         )
         if indirect_light_intensity is not None:
             mtoon.gi_equalization_factor = convert.mtoon_intensity_to_gi_equalization(
-                indirect_light_intensity,
+                indirect_light_intensity
             )
         else:
             mtoon.gi_equalization_factor = 0.5
 
         raw_emissive_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_EmissionColor"),
+            vrm0_material_property.vector_properties.get("_EmissionColor")
         ) or (0, 0, 0)
         max_color_component_value = max(raw_emissive_factor)
         if max_color_component_value > 1:
             gltf.emissive_factor = list(
-                Vector(raw_emissive_factor) / max_color_component_value,
+                Vector(raw_emissive_factor) / max_color_component_value
             )
             gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
                 max_color_component_value
@@ -602,7 +596,7 @@ class AbstractBaseVrmImporter(ABC):
         )
 
         parametric_rim_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_RimColor"),
+            vrm0_material_property.vector_properties.get("_RimColor")
         )
         if parametric_rim_color_factor:
             mtoon.parametric_rim_color_factor = parametric_rim_color_factor
@@ -616,8 +610,7 @@ class AbstractBaseVrmImporter(ABC):
             )
 
         mtoon.parametric_rim_lift_factor = vrm0_material_property.float_properties.get(
-            "_RimLift",
-            0,
+            "_RimLift", 0
         )
 
         self.assign_mtoon0_texture_info(
@@ -629,7 +622,7 @@ class AbstractBaseVrmImporter(ABC):
         # https://github.com/vrm-c/UniVRM/blob/7c9919ef47a25c04100a2dcbe6a75dff49ef4857/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L287-L290
         mtoon.rim_lighting_mix_factor = 1.0
         rim_lighting_mix = vrm0_material_property.float_properties.get(
-            "_RimLightingMix",
+            "_RimLightingMix"
         )
         if rim_lighting_mix is not None:
             gltf.mtoon0_rim_lighting_mix = rim_lighting_mix
@@ -638,7 +631,7 @@ class AbstractBaseVrmImporter(ABC):
         one_hundredth = 0.01
 
         outline_width_mode = int(
-            round(vrm0_material_property.float_properties.get("_OutlineWidthMode", 0)),
+            round(vrm0_material_property.float_properties.get("_OutlineWidthMode", 0))
         )
 
         outline_width = vrm0_material_property.float_properties.get("_OutlineWidth")
@@ -654,7 +647,7 @@ class AbstractBaseVrmImporter(ABC):
             mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
             mtoon.outline_width_factor = max(0.0, outline_width * one_hundredth * 0.5)
             outline_scaled_max_distance = vrm0_material_property.float_properties.get(
-                "_OutlineScaledMaxDistance",
+                "_OutlineScaledMaxDistance"
             )
             if outline_scaled_max_distance is not None:
                 gltf.mtoon0_outline_scaled_max_distance = outline_scaled_max_distance
@@ -666,13 +659,13 @@ class AbstractBaseVrmImporter(ABC):
         )
 
         outline_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_OutlineColor"),
+            vrm0_material_property.vector_properties.get("_OutlineColor")
         )
         if outline_color_factor:
             mtoon.outline_color_factor = outline_color_factor
 
         outline_color_mode = vrm0_material_property.float_properties.get(
-            "_OutlineColorMode",
+            "_OutlineColorMode"
         )
         if (
             outline_color_mode is not None
@@ -715,7 +708,7 @@ class AbstractBaseVrmImporter(ABC):
             )
 
         light_color_attenuation = vrm0_material_property.float_properties.get(
-            "_LightColorAttenuation",
+            "_LightColorAttenuation"
         )
         if light_color_attenuation is not None:
             gltf.mtoon0_light_color_attenuation = light_color_attenuation
@@ -726,8 +719,7 @@ class AbstractBaseVrmImporter(ABC):
         )
 
         gltf.mtoon0_receive_shadow_rate = vrm0_material_property.float_properties.get(
-            "_ReceiveShadowRate",
-            0.5,
+            "_ReceiveShadowRate", 0.5
         )
 
         self.assign_mtoon0_texture(
@@ -736,8 +728,7 @@ class AbstractBaseVrmImporter(ABC):
         )
 
         gltf.mtoon0_shading_grade_rate = vrm0_material_property.float_properties.get(
-            "_ShadingGradeRate",
-            0.5,
+            "_ShadingGradeRate", 0.5
         )
 
         if vrm0_material_property.render_queue is not None:
@@ -757,7 +748,7 @@ class AbstractBaseVrmImporter(ABC):
         if isinstance(main_texture_index, int):
             texture_dicts = self.parse_result.json_dict.get("textures")
             if isinstance(texture_dicts, list) and 0 <= main_texture_index < len(
-                texture_dicts,
+                texture_dicts
             ):
                 texture_dict = texture_dicts[main_texture_index]
                 if isinstance(texture_dict, dict):
@@ -807,16 +798,13 @@ class AbstractBaseVrmImporter(ABC):
         self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
         self.setup_vrm0_humanoid_bones()
         self.load_vrm0_first_person(
-            vrm0.first_person,
-            vrm0_extension.get("firstPerson"),
+            vrm0.first_person, vrm0_extension.get("firstPerson")
         )
         self.load_vrm0_blend_shape_master(
-            vrm0.blend_shape_master,
-            vrm0_extension.get("blendShapeMaster"),
+            vrm0.blend_shape_master, vrm0_extension.get("blendShapeMaster")
         )
         self.load_vrm0_secondary_animation(
-            vrm0.secondary_animation,
-            vrm0_extension.get("secondaryAnimation"),
+            vrm0.secondary_animation, vrm0_extension.get("secondaryAnimation")
         )
         migration.migrate(armature.name, defer=False)
 
@@ -904,9 +892,7 @@ class AbstractBaseVrmImporter(ABC):
                     meta.texture = self.images[image_index]
 
     def load_vrm0_humanoid(
-        self,
-        humanoid: Vrm0HumanoidPropertyGroup,
-        humanoid_dict: Json,
+        self, humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -952,7 +938,7 @@ class AbstractBaseVrmImporter(ABC):
                     human_bone.max = max_
 
                 center = convert.vrm_json_vector3_to_tuple(
-                    human_bone_dict.get("center"),
+                    human_bone_dict.get("center")
                 )
                 if center is not None:
                     human_bone.center = center
@@ -1008,7 +994,7 @@ class AbstractBaseVrmImporter(ABC):
             ]
 
         first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
-            first_person_dict.get("firstPersonBoneOffset"),
+            first_person_dict.get("firstPersonBoneOffset")
         )
         if first_person_bone_offset is not None:
             # Axis confusing
@@ -1236,7 +1222,7 @@ class AbstractBaseVrmImporter(ABC):
                         ].matrix_local.to_translation()[i]
                         + fixed_offset[i]
                         for i in range(3)
-                    ],
+                    ]
                 )
 
                 obj.empty_display_size = radius
@@ -1275,7 +1261,7 @@ class AbstractBaseVrmImporter(ABC):
                 bone_group.gravity_power = gravity_power
 
             gravity_dir = convert.vrm_json_vector3_to_tuple(
-                bone_group_dict.get("gravityDir"),
+                bone_group_dict.get("gravityDir")
             )
             if gravity_dir is not None:
                 # Axis confusing
@@ -1336,7 +1322,7 @@ class AbstractBaseVrmImporter(ABC):
             except TypeError:
                 logger.exception(
                     "scene.view_settings.view_transform"
-                    + ' doesn\'t support "Standard".',
+                    + ' doesn\'t support "Standard".'
                 )
 
         if self.preferences.set_shading_type_to_material_on_import:

@@ -59,8 +59,7 @@ class VRM_UL_vrm0_secondary_animation_collider_group(UIList):
     ) -> None:
         collider_group = item
         if not isinstance(
-            collider_group,
-            Vrm0SecondaryAnimationColliderGroupPropertyGroup,
+            collider_group, Vrm0SecondaryAnimationColliderGroupPropertyGroup
         ):
             return
 

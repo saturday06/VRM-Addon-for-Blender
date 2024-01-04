@@ -100,7 +100,7 @@ HUMAN_BONE_STRUCTURE: HumanBoneStructure = {
                             HumanBoneName.LEFT_EYE: {},
                             HumanBoneName.RIGHT_EYE: {},
                             HumanBoneName.JAW: {},
-                        },
+                        }
                     },
                     HumanBoneName.LEFT_SHOULDER: {
                         HumanBoneName.LEFT_UPPER_ARM: {
@@ -108,32 +108,32 @@ HUMAN_BONE_STRUCTURE: HumanBoneStructure = {
                                 HumanBoneName.LEFT_HAND: {
                                     HumanBoneName.LEFT_THUMB_METACARPAL: {
                                         HumanBoneName.LEFT_THUMB_PROXIMAL: {
-                                            HumanBoneName.LEFT_THUMB_DISTAL: {},
-                                        },
+                                            HumanBoneName.LEFT_THUMB_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.LEFT_INDEX_PROXIMAL: {
                                         HumanBoneName.LEFT_INDEX_INTERMEDIATE: {
-                                            HumanBoneName.LEFT_INDEX_DISTAL: {},
-                                        },
+                                            HumanBoneName.LEFT_INDEX_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.LEFT_MIDDLE_PROXIMAL: {
                                         HumanBoneName.LEFT_MIDDLE_INTERMEDIATE: {
-                                            HumanBoneName.LEFT_MIDDLE_DISTAL: {},
-                                        },
+                                            HumanBoneName.LEFT_MIDDLE_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.LEFT_RING_PROXIMAL: {
                                         HumanBoneName.LEFT_RING_INTERMEDIATE: {
-                                            HumanBoneName.LEFT_RING_DISTAL: {},
-                                        },
+                                            HumanBoneName.LEFT_RING_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.LEFT_LITTLE_PROXIMAL: {
                                         HumanBoneName.LEFT_LITTLE_INTERMEDIATE: {
-                                            HumanBoneName.LEFT_LITTLE_DISTAL: {},
-                                        },
+                                            HumanBoneName.LEFT_LITTLE_DISTAL: {}
+                                        }
                                     },
-                                },
-                            },
-                        },
+                                }
+                            }
+                        }
                     },
                     HumanBoneName.RIGHT_SHOULDER: {
                         HumanBoneName.RIGHT_UPPER_ARM: {
@@ -141,47 +141,47 @@ HUMAN_BONE_STRUCTURE: HumanBoneStructure = {
                                 HumanBoneName.RIGHT_HAND: {
                                     HumanBoneName.RIGHT_THUMB_METACARPAL: {
                                         HumanBoneName.RIGHT_THUMB_PROXIMAL: {
-                                            HumanBoneName.RIGHT_THUMB_DISTAL: {},
-                                        },
+                                            HumanBoneName.RIGHT_THUMB_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.RIGHT_INDEX_PROXIMAL: {
                                         HumanBoneName.RIGHT_INDEX_INTERMEDIATE: {
-                                            HumanBoneName.RIGHT_INDEX_DISTAL: {},
-                                        },
+                                            HumanBoneName.RIGHT_INDEX_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.RIGHT_MIDDLE_PROXIMAL: {
                                         HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE: {
-                                            HumanBoneName.RIGHT_MIDDLE_DISTAL: {},
-                                        },
+                                            HumanBoneName.RIGHT_MIDDLE_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.RIGHT_RING_PROXIMAL: {
                                         HumanBoneName.RIGHT_RING_INTERMEDIATE: {
-                                            HumanBoneName.RIGHT_RING_DISTAL: {},
-                                        },
+                                            HumanBoneName.RIGHT_RING_DISTAL: {}
+                                        }
                                     },
                                     HumanBoneName.RIGHT_LITTLE_PROXIMAL: {
                                         HumanBoneName.RIGHT_LITTLE_INTERMEDIATE: {
-                                            HumanBoneName.RIGHT_LITTLE_DISTAL: {},
-                                        },
+                                            HumanBoneName.RIGHT_LITTLE_DISTAL: {}
+                                        }
                                     },
-                                },
-                            },
-                        },
+                                }
+                            }
+                        }
                     },
-                },
-            },
+                }
+            }
         },
         HumanBoneName.LEFT_UPPER_LEG: {
             HumanBoneName.LEFT_LOWER_LEG: {
-                HumanBoneName.LEFT_FOOT: {HumanBoneName.LEFT_TOES: {}},
-            },
+                HumanBoneName.LEFT_FOOT: {HumanBoneName.LEFT_TOES: {}}
+            }
         },
         HumanBoneName.RIGHT_UPPER_LEG: {
             HumanBoneName.RIGHT_LOWER_LEG: {
-                HumanBoneName.RIGHT_FOOT: {HumanBoneName.RIGHT_TOES: {}},
-            },
+                HumanBoneName.RIGHT_FOOT: {HumanBoneName.RIGHT_TOES: {}}
+            }
         },
-    },
+    }
 }
 
 
@@ -233,13 +233,10 @@ class HumanBoneSpecification:
             requirement=requirement,
             parent_requirement=parent_requirement,
             parent_name=HumanBoneSpecification.find_parent_human_bone_name(
-                human_bone_name,
-                None,
-                HUMAN_BONE_STRUCTURE,
+                human_bone_name, None, HUMAN_BONE_STRUCTURE
             ),
             children_names=HumanBoneSpecification.find_children_human_bone_names(
-                human_bone_name,
-                HUMAN_BONE_STRUCTURE,
+                human_bone_name, HUMAN_BONE_STRUCTURE
             ),
             vrm0_name=vrm0_human_bone_specification.name,
         )
@@ -258,9 +255,7 @@ class HumanBoneSpecification:
                 return parent_human_bone_name
 
             name = HumanBoneSpecification.find_parent_human_bone_name(
-                child_human_bone_name,
-                next_human_bone_name,
-                next_human_bone_structure,
+                child_human_bone_name, next_human_bone_name, next_human_bone_structure
             )
             if name:
                 return name
@@ -280,8 +275,7 @@ class HumanBoneSpecification:
                 return list(next_human_bone_structure.keys())
 
             children = HumanBoneSpecification.find_children_human_bone_names(
-                human_bone_name,
-                next_human_bone_structure,
+                human_bone_name, next_human_bone_structure
             )
             if children:
                 return children
@@ -289,8 +283,7 @@ class HumanBoneSpecification:
         return []
 
     def is_ancestor_of(
-        self,
-        human_bone_specification: "HumanBoneSpecification",
+        self, human_bone_specification: "HumanBoneSpecification"
     ) -> bool:
         parent = human_bone_specification.parent()
         while parent:

@@ -33,9 +33,7 @@ class ICYP_OT_draw_model(Operator):
         GlslDrawObj()
         preferences = get_preferences(context)
         GlslDrawObj.draw_func_add(
-            context,
-            preferences.export_invisibles,
-            preferences.export_only_selections,
+            context, preferences.export_invisibles, preferences.export_only_selections
         )
         return {"FINISHED"}
 
@@ -84,9 +82,7 @@ class MtoonGlsl:
         self.normal_texture = bpy.data.images.get(shader_normal)
         if self.normal_texture is None:
             self.normal_texture = self.make_small_image(
-                shader_normal,
-                (0.5, 0.5, 1, 1),
-                "Linear",
+                shader_normal, (0.5, 0.5, 1, 1), "Linear"
             )
         self.material = material
         self.name = material.name
@@ -148,7 +144,7 @@ class MtoonGlsl:
                     main_node.inputs[val_name].links[0].from_node.outputs[0],
                     "default_value",
                     0.0,
-                ),
+                )
             )
         return float(getattr(main_node.inputs[val_name], "default_value", 0.0))
 
@@ -165,7 +161,7 @@ class MtoonGlsl:
                     main_node.inputs[vec_name].links[0].from_node.outputs[0],
                     "default_value",
                     [],
-                ),
+                )
             )
         return list(getattr(main_node.inputs[vec_name], "default_value", []))
 
@@ -211,7 +207,7 @@ class GlMesh:
     uvs: dict[object, object] = field(default_factory=dict)
     tangents: dict[object, object] = field(default_factory=dict)
     index_per_mat: dict[MtoonGlsl, object] = field(
-        default_factory=dict,
+        default_factory=dict
     )  # material : vert index
     mat_list: list[MtoonGlsl] = field(default_factory=list)
 
@@ -283,7 +279,7 @@ class GlslDrawObj:
                     continue
                 if mat_slot.material.name not in glsl_draw_obj.materials:
                     glsl_draw_obj.materials[mat_slot.material.name] = MtoonGlsl(
-                        mat_slot.material,
+                        mat_slot.material
                     )
         # if bpy.context.mode != 'POSE' or self.scene_meshes == None:
         #     need skin mesh modifier implementation
@@ -324,7 +320,7 @@ class GlslDrawObj:
                 if ms.material
             ]
             count_list = Counter(
-                [tri.material_index for tri in tmp_mesh.loop_triangles],
+                [tri.material_index for tri in tmp_mesh.loop_triangles]
             )
             scene_mesh.index_per_mat = {
                 scene_mesh.mat_list[i]: [
@@ -423,8 +419,7 @@ class GlslDrawObj:
 
         if self.depth_shader is None:
             self.depth_shader = GPUShader(
-                vertexcode=self.depth_vertex_shader,
-                fragcode=self.depth_fragment_shader,
+                vertexcode=self.depth_vertex_shader, fragcode=self.depth_fragment_shader
             )
 
         batches = self.batches = []
@@ -507,19 +502,14 @@ class GlslDrawObj:
                 glsl_draw_obj.bounding_center[i]
                 + tar[i] * (tmp_bound_len + camera_bias)
                 for i in range(3)
-            ],
+            ]
         )
 
         loc = model_offset @ loc
         v_matrix = lookat_cross(loc, tar, up)
         const_proj = 2 * max(glsl_draw_obj.bounding_size) / 2
         p_matrix = ortho_proj_mat(
-            -const_proj,
-            const_proj,
-            -const_proj,
-            const_proj,
-            -const_proj,
-            const_proj,
+            -const_proj, const_proj, -const_proj, const_proj, -const_proj, const_proj
         )
         depth_matrix = v_matrix @ p_matrix  # reuse in main shader
         depth_matrix.transpose()
@@ -553,8 +543,7 @@ class GlslDrawObj:
                 bgl.glCullFace(bgl.GL_BACK)
 
                 depth_shader.uniform_float(
-                    "obj_matrix",
-                    model_offset,
+                    "obj_matrix", model_offset
                 )  # obj.matrix_world)
                 depth_shader.uniform_float("depthMVP", depth_matrix)
 
@@ -598,16 +587,14 @@ class GlslDrawObj:
                     bgl.glCullFace(bgl.GL_BACK)
 
                 toon_shader.uniform_float(
-                    "obj_matrix",
-                    model_offset,
+                    "obj_matrix", model_offset
                 )  # obj.matrix_world)
                 toon_shader.uniform_float("projectionMatrix", projection_mat)
                 toon_shader.uniform_float("viewProjectionMatrix", vp_mat)
                 toon_shader.uniform_float("viewDirection", view_dir)
                 toon_shader.uniform_float("viewUpDirection", view_up)
                 toon_shader.uniform_float(
-                    "normalWorldToViewMatrix",
-                    normal_world_to_view_matrix,
+                    "normalWorldToViewMatrix", normal_world_to_view_matrix
                 )
                 toon_shader.uniform_float("depthMVP", depth_matrix)
                 toon_shader.uniform_float("lightpos", light_pos)
@@ -616,8 +603,7 @@ class GlslDrawObj:
                 toon_shader.uniform_float("isDebug", 0.0)
 
                 toon_shader.uniform_float(
-                    "is_cutout",
-                    1.0 if mat.alpha_method == "CLIP" else 0.0,
+                    "is_cutout", 1.0 if mat.alpha_method == "CLIP" else 0.0
                 )
 
                 float_keys = [
@@ -651,14 +637,10 @@ class GlslDrawObj:
                 bgl.glActiveTexture(bgl.GL_TEXTURE0)
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, offscreen.color_texture)
                 bgl.glTexParameteri(
-                    bgl.GL_TEXTURE_2D,
-                    bgl.GL_TEXTURE_WRAP_S,
-                    bgl.GL_CLAMP_TO_EDGE,
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
                 )  # TODO: ?
                 bgl.glTexParameteri(
-                    bgl.GL_TEXTURE_2D,
-                    bgl.GL_TEXTURE_WRAP_T,
-                    bgl.GL_CLAMP_TO_EDGE,
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
                 )
                 toon_shader.uniform_int("depth_image", 0)
 
@@ -667,14 +649,10 @@ class GlslDrawObj:
                     texture = mat.texture_dict[k]
                     bgl.glBindTexture(bgl.GL_TEXTURE_2D, texture.bindcode)
                     bgl.glTexParameteri(
-                        bgl.GL_TEXTURE_2D,
-                        bgl.GL_TEXTURE_WRAP_S,
-                        bgl.GL_CLAMP_TO_EDGE,
+                        bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_S, bgl.GL_CLAMP_TO_EDGE
                     )  # TODO: ?
                     bgl.glTexParameteri(
-                        bgl.GL_TEXTURE_2D,
-                        bgl.GL_TEXTURE_WRAP_T,
-                        bgl.GL_CLAMP_TO_EDGE,
+                        bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_WRAP_T, bgl.GL_CLAMP_TO_EDGE
                     )
                     toon_shader.uniform_int(k, 1 + i)
 
@@ -685,9 +663,7 @@ class GlslDrawObj:
 
     @staticmethod
     def draw_func_add(
-        context: Context,
-        invisibles: bool,
-        only_selections: bool,
+        context: Context, invisibles: bool, only_selections: bool
     ) -> None:
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [
@@ -707,10 +683,7 @@ class GlslDrawObj:
         if GlslDrawObj.draw_func is not None:
             GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_func = SpaceView3D.draw_handler_add(
-            GlslDrawObj.instance.glsl_draw,
-            (),
-            "WINDOW",
-            "POST_PIXEL",
+            GlslDrawObj.instance.glsl_draw, (), "WINDOW", "POST_PIXEL"
         )
 
         if (
@@ -740,12 +713,7 @@ class GlslDrawObj:
 
 
 def ortho_proj_mat(
-    left: float,
-    right: float,
-    bottom: float,
-    top: float,
-    near: float,
-    far: float,
+    left: float, right: float, bottom: float, top: float, near: float, far: float
 ) -> Matrix:
     mat4 = Matrix.Identity(4)
     mat4[0][0] = 2 / (right - left)
@@ -763,9 +731,7 @@ def ortho_proj_mat(
 
 
 def lookat_cross(
-    loc: Sequence[float],
-    tar: Sequence[float],
-    up: Sequence[float],
+    loc: Sequence[float], tar: Sequence[float], up: Sequence[float]
 ) -> Matrix:
     lv = Vector(loc)
     tv = Vector(tar)

@@ -85,8 +85,8 @@ class NodeRestPoseTree:
                         NodeRestPoseTree.build(node_dicts, child_index)
                         for child_index in child_indices
                         if isinstance(child_index, int)
-                    ),
-                ),
+                    )
+                )
             )
         else:
             children = ()
@@ -96,7 +96,7 @@ class NodeRestPoseTree:
                 node_index=node_index,
                 local_matrix=local_matrix,
                 children=children,
-            ),
+            )
         ]
 
 
@@ -107,9 +107,7 @@ class VrmAnimationImporter:
 
 
 def find_root_node_index(
-    node_dicts: list[Json],
-    node_index: int,
-    skip_node_indices: set[int],
+    node_dicts: list[Json], node_index: int, skip_node_indices: set[int]
 ) -> int:
     for parent_node_index, node_dict in enumerate(node_dicts):
         if parent_node_index in skip_node_indices:
@@ -126,9 +124,7 @@ def find_root_node_index(
                 continue
             skip_node_indices.add(node_index)
             return find_root_node_index(
-                node_dicts,
-                parent_node_index,
-                skip_node_indices,
+                node_dicts, parent_node_index, skip_node_indices
             )
     return node_index
 
@@ -200,10 +196,7 @@ def read_accessor_as_animation_sampler_input(
     if accessor_dict.get("componentType") != GL_FLOAT:
         return None
     buffer_bytes = read_accessor_as_bytes(
-        accessor_dict,
-        buffer_view_dicts,
-        buffer_dicts,
-        buffer0_bytes,
+        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
     )
     if buffer_bytes is None:
         return None
@@ -219,9 +212,7 @@ def read_accessor_as_animation_sampler_input(
 
 
 def unpack_component(
-    component_type: int,
-    unpack_count: int,
-    buffer_bytes: bytes,
+    component_type: int, unpack_count: int, buffer_bytes: bytes
 ) -> Optional[Union[tuple[int, ...], tuple[float, ...]]]:
     for search_component_type, component_count, unpack_symbol in [
         (GL_BYTE, 1, "b"),
@@ -243,8 +234,7 @@ def unpack_component(
 
 
 def unpack_vector_accessor(
-    accessor_dict: dict[str, Json],
-    buffer_bytes: bytes,
+    accessor_dict: dict[str, Json], buffer_bytes: bytes
 ) -> Union[tuple[tuple[int, ...], ...], tuple[tuple[float, ...], ...], None]:
     if accessor_dict.get("type") == "VEC2":
         vector_dimension = 2
@@ -279,10 +269,7 @@ def read_accessor_as_animation_sampler_translation_output(
     if accessor_dict.get("type") != "VEC3":
         return None
     buffer_bytes = read_accessor_as_bytes(
-        accessor_dict,
-        buffer_view_dicts,
-        buffer_dicts,
-        buffer0_bytes,
+        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
     )
     if buffer_bytes is None:
         return None
@@ -301,10 +288,7 @@ def read_accessor_as_animation_sampler_rotation_output(
     if accessor_dict.get("type") != "VEC4":
         return None
     buffer_bytes = read_accessor_as_bytes(
-        accessor_dict,
-        buffer_view_dicts,
-        buffer_dicts,
-        buffer0_bytes,
+        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
     )
     if buffer_bytes is None:
         return None
@@ -350,8 +334,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
 
         if t_pose_action:
             armature.pose.apply_pose_from_action(
-                t_pose_action,
-                evaluation_time=pose_marker_frame,
+                t_pose_action, evaluation_time=pose_marker_frame
             )
         else:
             for bone in armature.pose.bones:
@@ -504,12 +487,10 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
     armature_data.animation_data.action = expression_action
 
     node_index_to_translation_keyframes: dict[
-        int,
-        tuple[tuple[float, Vector], ...],
+        int, tuple[tuple[float, Vector], ...]
     ] = {}
     node_index_to_rotation_keyframes: dict[
-        int,
-        tuple[tuple[float, Quaternion], ...],
+        int, tuple[tuple[float, Quaternion], ...]
     ] = {}
 
     for animation_channel_dict in animation_channel_dicts:
@@ -553,18 +534,12 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
 
         if animation_path == "translation":
             timestamps = read_accessor_as_animation_sampler_input(
-                input_accessor_dict,
-                buffer_view_dicts,
-                buffer_dicts,
-                buffer0_bytes,
+                input_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
             if timestamps is None:
                 continue
             translations = read_accessor_as_animation_sampler_translation_output(
-                output_accessor_dict,
-                buffer_view_dicts,
-                buffer_dicts,
-                buffer0_bytes,
+                output_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
             if translations is None:
                 continue
@@ -572,18 +547,12 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
             node_index_to_translation_keyframes[node_index] = translation_keyframes
         elif animation_path == "rotation":
             timestamps = read_accessor_as_animation_sampler_input(
-                input_accessor_dict,
-                buffer_view_dicts,
-                buffer_dicts,
-                buffer0_bytes,
+                input_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
             if timestamps is None:
                 continue
             rotations = read_accessor_as_animation_sampler_rotation_output(
-                output_accessor_dict,
-                buffer_view_dicts,
-                buffer_dicts,
-                buffer0_bytes,
+                output_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
             if rotations is None:
                 continue
@@ -592,8 +561,7 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
 
     expression_name_to_default_preview_value: dict[str, float] = {}
     expression_name_to_translation_keyframes: dict[
-        str,
-        tuple[tuple[float, Vector], ...],
+        str, tuple[tuple[float, Vector], ...]
     ] = {}
     for expression_name, node_index in expression_name_to_node_index.items():
         if not 0 <= node_index < len(node_dicts):
@@ -614,7 +582,7 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
         ] = default_preview_value
 
         expression_translation_keyframes = node_index_to_translation_keyframes.get(
-            node_index,
+            node_index
         )
         if expression_translation_keyframes is None:
             continue
@@ -640,17 +608,16 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
     logger.debug(f"{first_timestamp=} ... {last_timestamp=}")
 
     first_zero_origin_frame_count: int = math.floor(
-        first_timestamp * context.scene.render.fps / context.scene.render.fps_base,
+        first_timestamp * context.scene.render.fps / context.scene.render.fps_base
     )
     if abs(last_timestamp - first_timestamp) > 0:
         last_zero_origin_frame_count: int = math.ceil(
-            last_timestamp * context.scene.render.fps / context.scene.render.fps_base,
+            last_timestamp * context.scene.render.fps / context.scene.render.fps_base
         )
     else:
         last_zero_origin_frame_count = first_zero_origin_frame_count
     for zero_origin_frame_count in range(
-        first_zero_origin_frame_count,
-        last_zero_origin_frame_count + 1,
+        first_zero_origin_frame_count, last_zero_origin_frame_count + 1
     ):
         timestamp = (
             zero_origin_frame_count
@@ -686,8 +653,7 @@ def assign_expression_keyframe(
     armature_data: Armature,
     expression_name_to_default_preview_value: dict[str, float],
     expression_name_to_translation_keyframes: dict[
-        str,
-        tuple[tuple[float, Vector], ...],
+        str, tuple[tuple[float, Vector], ...]
     ],
     frame_count: int,
     timestamp: float,
@@ -757,7 +723,7 @@ def assign_humanoid_keyframe(
         return
 
     translation_keyframes = node_index_to_translation_keyframes.get(
-        node_rest_pose_tree.node_index,
+        node_rest_pose_tree.node_index
     )
 
     if translation_keyframes:
@@ -782,7 +748,7 @@ def assign_humanoid_keyframe(
         pose_local_translation = node_rest_pose_tree.local_matrix.to_translation()
 
     rotation_keyframes = node_index_to_rotation_keyframes.get(
-        node_rest_pose_tree.node_index,
+        node_rest_pose_tree.node_index
     )
     if rotation_keyframes:
         pose_local_rotation = None
@@ -792,8 +758,7 @@ def assign_humanoid_keyframe(
                 timestamp_duration = end_timestamp - begin_timestamp
                 if timestamp_duration > 0:
                     pose_local_rotation = begin_rotation.slerp(
-                        end_rotation,
-                        (timestamp - begin_timestamp) / timestamp_duration,
+                        end_rotation, (timestamp - begin_timestamp) / timestamp_duration
                     )
                 else:
                     pose_local_rotation = begin_rotation
@@ -840,8 +805,7 @@ def assign_humanoid_keyframe(
                 target_axis.rotate(bone.matrix.to_quaternion().inverted())
 
                 rest_to_pose_target_local_rotation = Quaternion(
-                    target_axis,
-                    target_angle,
+                    target_axis, target_angle
                 ).copy()
 
                 if bone.rotation_mode != "QUATERNION":
@@ -849,10 +813,10 @@ def assign_humanoid_keyframe(
 
                 if rotation_keyframes:
                     logger.debug(
-                        f"================= {human_bone_name.value} =================",
+                        f"================= {human_bone_name.value} ================="
                     )
                     logger.debug(
-                        f"humanoid world matrix = {dump(humanoid_rest_world_matrix)}",
+                        f"humanoid world matrix = {dump(humanoid_rest_world_matrix)}"
                     )
                     logger.debug(f"rest_local_matrix     = {dump(rest_local_matrix)}")
                     logger.debug(f"pose_local_matrix     = {dump(pose_local_matrix)}")
@@ -861,17 +825,17 @@ def assign_humanoid_keyframe(
                     logger.debug(f"rest_to_pose_matrix  = {dump(rest_to_pose_matrix)}")
                     logger.debug(
                         "rest_to_pose_world_rotation = "
-                        + dump(rest_to_pose_world_rotation),
+                        + dump(rest_to_pose_world_rotation)
                     )
                     logger.debug(
                         "rest_to_pose_target_local_rotation = "
-                        + dump(rest_to_pose_target_local_rotation),
+                        + dump(rest_to_pose_target_local_rotation)
                     )
 
                     # logger.debug(f"parent bone matrix  = {dump(parent_matrix)}")
                     logger.debug(f"       bone matrix  = {dump(bone.matrix)}")
                     logger.debug(
-                        f"current bone rotation = {dump(bone.rotation_quaternion)}",
+                        f"current bone rotation = {dump(bone.rotation_quaternion)}"
                     )
 
                     backup_rotation_quaternion = bone.rotation_quaternion.copy()
@@ -879,8 +843,7 @@ def assign_humanoid_keyframe(
                         bone.rotation_quaternion @ rest_to_pose_target_local_rotation
                     )
                     bone.keyframe_insert(
-                        data_path="rotation_quaternion",
-                        frame=frame_count,
+                        data_path="rotation_quaternion", frame=frame_count
                     )
                     bone.rotation_quaternion = backup_rotation_quaternion
 

@@ -13,8 +13,5 @@ def migrate(context: Context) -> None:
 
         if tuple(material.vrm_addon_extension.mtoon1.addon_version) < (2, 20, 8):
             reset_shader_node_group(
-                context,
-                material,
-                reset_node_tree=True,
-                overwrite=True,
+                context, material, reset_node_tree=True, overwrite=True
             )
