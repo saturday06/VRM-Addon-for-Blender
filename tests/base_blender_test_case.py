@@ -94,11 +94,14 @@ class BaseBlenderTestCase(TestCase):
                 return env_blender_path
         if sys.platform == "win32":
             completed_process = subprocess.run(
-                "where blender", shell=True, capture_output=True, check=False
+                "where blender",
+                shell=True,
+                capture_output=True,
+                check=False,
             )
             if completed_process.returncode == 0:
                 where_str = self.process_output_to_str(
-                    completed_process.stdout
+                    completed_process.stdout,
                 ).splitlines()[0]
                 if where_str:
                     where_path = Path(where_str)
@@ -106,11 +109,14 @@ class BaseBlenderTestCase(TestCase):
                         return where_path
         if os.name == "posix":
             completed_process = subprocess.run(
-                "which blender", shell=True, capture_output=True, check=False
+                "which blender",
+                shell=True,
+                capture_output=True,
+                check=False,
             )
             if completed_process.returncode == 0:
                 which_str = self.process_output_to_str(
-                    completed_process.stdout
+                    completed_process.stdout,
                 ).splitlines()[0]
                 if which_str:
                     which_path = Path(which_str)
@@ -123,7 +129,7 @@ class BaseBlenderTestCase(TestCase):
         raise RuntimeError(
             "Failed to discover blender executable. "
             + "Please set blender executable location to "
-            + 'environment variable "BLENDER_VRM_TEST_BLENDER_PATH"'
+            + 'environment variable "BLENDER_VRM_TEST_BLENDER_PATH"',
         )
 
     def run_script(self, script: str, *args: str) -> None:
@@ -151,7 +157,7 @@ class BaseBlenderTestCase(TestCase):
             "import bpy; bpy.ops.preferences.addon_enable(module='io_scene_vrm')",
             "--python",
             str(
-                self.repository_root_dir / "tests" / urlsafe_b64decode(script).decode()
+                self.repository_root_dir / "tests" / urlsafe_b64decode(script).decode(),
             ),
             "--",
             *[urlsafe_b64decode(arg).decode() for arg in args],

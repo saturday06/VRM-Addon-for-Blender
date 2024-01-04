@@ -45,8 +45,9 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     if defer:
         bpy.app.timers.register(
             functools.partial(
-                migrate_no_defer_discarding_return_value, armature_object_name
-            )
+                migrate_no_defer_discarding_return_value,
+                armature_object_name,
+            ),
         )
         return False
 
@@ -62,7 +63,7 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     updated_addon_version = addon_version()
     logger.info(
         f"Upgrade armature {armature_object_name}"
-        + f" {tuple(ext.addon_version)} to {updated_addon_version}"
+        + f" {tuple(ext.addon_version)} to {updated_addon_version}",
     )
     ext.addon_version = updated_addon_version
 
@@ -86,7 +87,7 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
 
     context = bpy.context
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
-        context.scene.name
+        context.scene.name,
     )
     mtoon1_migration.migrate(context)
 
@@ -95,7 +96,7 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
     updated_addon_version = addon_version()
     logger.info(
         "Upgrade preferences"
-        + f" {tuple(preferences.addon_version)} to {updated_addon_version}"
+        + f" {tuple(preferences.addon_version)} to {updated_addon_version}",
     )
     preferences.addon_version = updated_addon_version
 
@@ -152,7 +153,8 @@ def on_change_bpy_bone_name() -> None:
             continue
 
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            armature.name, defer=False
+            armature.name,
+            defer=False,
         )
 
 

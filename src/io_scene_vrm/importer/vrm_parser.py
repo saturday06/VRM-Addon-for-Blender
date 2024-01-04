@@ -137,7 +137,8 @@ class ParseResult:
     hips_node_index: Optional[int] = None
     image_properties: list[ImageProperties] = field(init=False, default_factory=list)
     vrm0_material_properties: list[Vrm0MaterialProperty] = field(
-        init=False, default_factory=list
+        init=False,
+        default_factory=list,
     )
     skins_joints_list: list[list[int]] = field(init=False, default_factory=list)
     skins_root_node_list: list[int] = field(init=False, default_factory=list)
@@ -197,7 +198,8 @@ def remove_unsafe_path_chars(filename: str) -> str:
 
 #  "accessorの順に" データを読み込んでリストにしたものを返す
 def decode_bin(
-    json_dict: dict[str, Json], binary: bytes
+    json_dict: dict[str, Json],
+    binary: bytes,
 ) -> list[list[Union[int, float, list[int], list[float]]]]:
     br = BinaryReader(binary)
     # This list indexed by accessor index
@@ -223,7 +225,7 @@ def decode_bin(
         if not isinstance(buffer_view_index, int):
             logger.warning(
                 f"accessors[{accessor_index}] doesn't have bufferView "
-                + "that is not implemented yet"
+                + "that is not implemented yet",
             )
             decoded_binary.append([])
             continue
@@ -263,7 +265,8 @@ class VrmParser:
     make_new_texture_folder: bool
     license_validation: bool
     decoded_binary: list[list[Union[int, float, list[int], list[float]]]] = field(
-        init=False, default_factory=list
+        init=False,
+        default_factory=list,
     )
     json_dict: dict[str, Json] = field(init=False, default_factory=dict)
 
@@ -292,7 +295,9 @@ class VrmParser:
             self.vrm0_extension_read(parse_result, vrm0_dict)
 
     def vrm0_extension_read(
-        self, parse_result: ParseResult, vrm0_dict: dict[str, Json]
+        self,
+        parse_result: ParseResult,
+        vrm0_dict: dict[str, Json],
     ) -> None:
         spec_version = vrm0_dict.get("specVersion")
         if isinstance(spec_version, str):
@@ -318,14 +323,17 @@ class VrmParser:
         parse_result.hips_node_index = hips_node_index
 
     def vrm1_extension_read(
-        self, parse_result: ParseResult, vrm1_dict: dict[str, Json]
+        self,
+        parse_result: ParseResult,
+        vrm1_dict: dict[str, Json],
     ) -> None:
         parse_result.vrm1_extension = vrm1_dict
         parse_result.spec_version_number = (1, 0)
         parse_result.spec_version_is_stable = False
 
         hips_node_index = deep.get(
-            vrm1_dict, ["humanoid", "humanBones", "hips", "node"]
+            vrm1_dict,
+            ["humanoid", "humanBones", "hips", "node"],
         )
         if not isinstance(hips_node_index, int):
             logger.warning("No hips bone index found")
@@ -343,8 +351,8 @@ class VrmParser:
                     deep.get(
                         self.json_dict,
                         ["extensions", "VRM", "materialProperties", index],
-                    )
-                )
+                    ),
+                ),
             )
 
 

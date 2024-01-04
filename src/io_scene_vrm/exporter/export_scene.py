@@ -49,7 +49,8 @@ logger = get_logger(__name__)
 
 
 def export_vrm_update_addon_preferences(
-    export_op: "EXPORT_SCENE_OT_vrm", context: Context
+    export_op: "EXPORT_SCENE_OT_vrm",
+    context: Context,
 ) -> None:
     if export_op.use_addon_preferences:
         copy_export_preferences(source=export_op, destination=get_preferences(context))
@@ -208,7 +209,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     for b in humanoid.human_bones
                 ):
                     bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
-                        armature_name=armature.name
+                        armature_name=armature.name,
                     )
                 if not humanoid.all_required_bones_are_assigned():
                     return bpy.ops.wm.vrm_export_human_bones_assignment(
@@ -231,7 +232,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     )
                 ):
                     bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
-                        armature_name=armature.name
+                        armature_name=armature.name,
                     )
                 if (
                     not human_bones.all_required_bones_are_assigned()
@@ -258,7 +259,8 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             error.severity <= 1 for error in self.errors
         ):
             return bpy.ops.wm.vrm_export_confirmation(
-                "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+                "INVOKE_DEFAULT",
+                armature_object_name=self.armature_object_name,
             )
 
         return ExportHelper.invoke(self, context, event)
@@ -323,7 +325,9 @@ class VRM_PT_export_file_browser_tool_props(Panel):
 
         if operator.errors:
             validation.WM_OT_vrm_validator.draw_errors(
-                operator.errors, False, layout.box()
+                operator.errors,
+                False,
+                layout.box(),
             )
 
 
@@ -348,14 +352,18 @@ class VRM_PT_export_vrma_help(Panel):
 
 def menu_export(menu_op: Operator, _context: Context) -> None:
     vrm_export_op = layout_operator(
-        menu_op.layout, EXPORT_SCENE_OT_vrm, text="VRM (.vrm)"
+        menu_op.layout,
+        EXPORT_SCENE_OT_vrm,
+        text="VRM (.vrm)",
     )
     vrm_export_op.use_addon_preferences = True
     vrm_export_op.armature_object_name = ""
     vrm_export_op.ignore_warning = False
 
     vrma_export_op = layout_operator(
-        menu_op.layout, EXPORT_SCENE_OT_vrma, text="VRM Animation DRAFT (.vrma)"
+        menu_op.layout,
+        EXPORT_SCENE_OT_vrma,
+        text="VRM Animation DRAFT (.vrma)",
     )
     vrma_export_op.armature_object_name = ""
 
@@ -378,7 +386,8 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
 
     def execute(self, context: Context) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
-            context, self.armature_object_name
+            context,
+            self.armature_object_name,
         ):
             return {"CANCELLED"}
         if not self.filepath:
@@ -393,7 +402,8 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
-            context, self.armature_object_name
+            context,
+            self.armature_object_name,
         ):
             return bpy.ops.wm.vrma_export_prerequisite(
                 "INVOKE_DEFAULT",
@@ -460,7 +470,8 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         else:
             return {"CANCELLED"}
         return bpy.ops.export_scene.vrm(
-            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            "INVOKE_DEFAULT",
+            armature_object_name=self.armature_object_name,
         )
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
@@ -501,7 +512,8 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         if humanoid.all_required_bones_are_assigned():
             alert_box = layout.box()
             alert_box.label(
-                text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
+                text="All VRM Required Bones have been assigned.",
+                icon="CHECKMARK",
             )
         else:
             alert_box = layout.box()
@@ -525,7 +537,8 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         if human_bones.all_required_bones_are_assigned():
             alert_box = layout.box()
             alert_box.label(
-                text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
+                text="All VRM Required Bones have been assigned.",
+                icon="CHECKMARK",
             )
         elif human_bones.allow_non_humanoid_rig:
             alert_box = layout.box()
@@ -642,7 +655,8 @@ class WM_OT_vrm_export_armature_selection(Operator):
         if not armature_object or armature_object.type != "ARMATURE":
             return {"CANCELLED"}
         bpy.ops.export_scene.vrm(
-            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            "INVOKE_DEFAULT",
+            armature_object_name=self.armature_object_name,
         )
 
         return {"FINISHED"}
@@ -728,7 +742,8 @@ class WM_OT_vrma_export_prerequisite(Operator):
 
     def execute(self, _context: Context) -> set[str]:
         return bpy.ops.export_scene.vrma(
-            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            "INVOKE_DEFAULT",
+            armature_object_name=self.armature_object_name,
         )
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
@@ -753,7 +768,8 @@ class WM_OT_vrma_export_prerequisite(Operator):
         )
 
         error_messages = WM_OT_vrma_export_prerequisite.detect_errors(
-            context, self.armature_object_name
+            context,
+            self.armature_object_name,
         )
 
         layout.prop_search(
@@ -782,7 +798,8 @@ class WM_OT_vrma_export_prerequisite(Operator):
                     humanoid = ext.vrm1.humanoid
                     if not humanoid.human_bones.all_required_bones_are_assigned():
                         WM_OT_vrm_export_human_bones_assignment.draw_vrm1(
-                            self.layout, armature
+                            self.layout,
+                            armature,
                         )
 
         draw_help_message(layout)
@@ -800,7 +817,7 @@ def draw_help_message(layout: UILayout) -> None:
         + "- Humanoid bone rotations\n"
         + "- Humanoid hips bone translations\n"
         + "- Expression preview value\n"
-        + '- "Look At" value currently not supported\n'
+        + '- "Look At" value currently not supported\n',
     )
     help_box = layout.box()
     help_column = help_box.column(align=True)

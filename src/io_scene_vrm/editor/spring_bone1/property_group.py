@@ -278,10 +278,10 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json
 class SpringBone1ColliderShapePropertyGroup(PropertyGroup):
     sphere: PointerProperty(  # type: ignore[valid-type]
-        type=SpringBone1ColliderShapeSpherePropertyGroup
+        type=SpringBone1ColliderShapeSpherePropertyGroup,
     )
     capsule: PointerProperty(  # type: ignore[valid-type]
-        type=SpringBone1ColliderShapeCapsulePropertyGroup
+        type=SpringBone1ColliderShapeCapsulePropertyGroup,
     )
 
     if TYPE_CHECKING:
@@ -351,7 +351,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
     # for View3D
     bpy_object: PointerProperty(  # type: ignore[valid-type]
-        type=Object
+        type=Object,
     )
 
     # for references
@@ -368,7 +368,8 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
         if not self.bpy_object or not self.bpy_object.name:
             obj = bpy.data.objects.new(
-                name=f"{collider_prefix} Collider", object_data=None
+                name=f"{collider_prefix} Collider",
+                object_data=None,
             )
             obj.empty_display_size = 0.125
             context.scene.collection.objects.link(obj)
@@ -395,7 +396,8 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
                 end_object = self.bpy_object.children[0]
             else:
                 end_object = bpy.data.objects.new(
-                    name=f"{self.bpy_object.name} End", object_data=None
+                    name=f"{self.bpy_object.name} End",
+                    object_data=None,
                 )
                 end_object.empty_display_size = self.bpy_object.empty_display_size
                 context.scene.collection.objects.link(end_object)
@@ -458,7 +460,8 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
                     return
 
     collider_name: StringProperty(  # type: ignore[valid-type]
-        get=get_collider_name, set=set_collider_name
+        get=get_collider_name,
+        set=set_collider_name,
     )
     collider_uuid: StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
@@ -649,7 +652,8 @@ class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
                     return
 
     collider_group_name: StringProperty(  # type: ignore[valid-type]
-        get=get_collider_group_name, set=set_collider_group_name
+        get=get_collider_group_name,
+        set=set_collider_group_name,
     )
     collider_group_uuid: StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
@@ -677,10 +681,10 @@ class SpringBone1SpringAnimationStatePropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.spring.schema.json
 class SpringBone1SpringPropertyGroup(PropertyGroup):
     vrm_name: StringProperty(  # type: ignore[valid-type]
-        name="Name"
+        name="Name",
     )
     joints: CollectionProperty(  # type: ignore[valid-type]
-        type=SpringBone1JointPropertyGroup
+        type=SpringBone1JointPropertyGroup,
     )
     collider_groups: CollectionProperty(  # type: ignore[valid-type]
         type=SpringBone1ColliderGroupReferencePropertyGroup,
@@ -692,14 +696,14 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
     show_expanded_bones: BoolProperty(  # type: ignore[valid-type]
-        name="Bones"
+        name="Bones",
     )
     show_expanded_collider_groups: BoolProperty(  # type: ignore[valid-type]
-        name="Collider Groups"
+        name="Collider Groups",
     )
 
     animation_state: PointerProperty(  # type: ignore[valid-type]
-        type=SpringBone1SpringAnimationStatePropertyGroup
+        type=SpringBone1SpringAnimationStatePropertyGroup,
     )
 
     if TYPE_CHECKING:
@@ -743,13 +747,13 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
 
     # for UI
     show_expanded_colliders: BoolProperty(  # type: ignore[valid-type]
-        name="Spring Bone Colliders"
+        name="Spring Bone Colliders",
     )
     show_expanded_collider_groups: BoolProperty(  # type: ignore[valid-type]
-        name="Spring Bone Collider Groups"
+        name="Spring Bone Collider Groups",
     )
     show_expanded_springs: BoolProperty(  # type: ignore[valid-type]
-        name="Spring Bone Springs"
+        name="Spring Bone Springs",
     )
     if TYPE_CHECKING:
         # This code is auto generated.

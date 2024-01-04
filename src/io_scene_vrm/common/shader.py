@@ -165,11 +165,11 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
         return
 
     old_template_outline_group = bpy.data.node_groups.get(
-        template_name(OUTLINE_GEOMETRY_GROUP_NAME)
+        template_name(OUTLINE_GEOMETRY_GROUP_NAME),
     )
     if old_template_outline_group:
         logger.error(
-            f'Node Group "{template_name(OUTLINE_GEOMETRY_GROUP_NAME)}" already exists'
+            f'Node Group "{template_name(OUTLINE_GEOMETRY_GROUP_NAME)}" already exists',
         )
         old_template_outline_group.name += ".old"
 
@@ -202,10 +202,10 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
         if outline_node_tree_append_result != {"FINISHED"}:
             raise RuntimeError(
                 "Failed to append MToon 1.0 outline template material: "
-                + f"{outline_node_tree_append_result}"
+                + f"{outline_node_tree_append_result}",
             )
         template_outline_group = bpy.data.node_groups.get(
-            template_name(OUTLINE_GEOMETRY_GROUP_NAME)
+            template_name(OUTLINE_GEOMETRY_GROUP_NAME),
         )
         if not template_outline_group:
             raise ValueError("No " + template_name(OUTLINE_GEOMETRY_GROUP_NAME))
@@ -213,7 +213,8 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
         outline_group = bpy.data.node_groups.get(OUTLINE_GEOMETRY_GROUP_NAME)
         if not outline_group:
             outline_group = bpy.data.node_groups.new(
-                OUTLINE_GEOMETRY_GROUP_NAME, "GeometryNodeTree"
+                OUTLINE_GEOMETRY_GROUP_NAME,
+                "GeometryNodeTree",
             )
             clear_node_tree(outline_group, clear_inputs_outputs=True)
             copy_node_tree(template_outline_group, outline_group)
@@ -273,7 +274,7 @@ def load_mtoon1_shader(
         if material_append_result != {"FINISHED"}:
             raise RuntimeError(
                 "Failed to append MToon 1.0 template material: "
-                + f"{material_append_result}"
+                + f"{material_append_result}",
             )
 
         template_material = bpy.data.materials.get(material_name)
@@ -289,7 +290,8 @@ def load_mtoon1_shader(
             group = bpy.data.node_groups.get(shader_node_group_name)
             if not group:
                 group = bpy.data.node_groups.new(
-                    shader_node_group_name, "ShaderNodeTree"
+                    shader_node_group_name,
+                    "ShaderNodeTree",
                 )
                 clear_node_tree(group, clear_inputs_outputs=True)
                 copy_node_tree(template_group, group)
@@ -385,7 +387,8 @@ def copy_socket_interface(
         to_socket.min_value = from_socket.min_value
         to_socket.max_value = from_socket.max_value
     elif isinstance(from_socket, color_classes) and isinstance(
-        to_socket, color_classes
+        to_socket,
+        color_classes,
     ):
         to_socket.default_value = deepcopy(
             (
@@ -393,17 +396,18 @@ def copy_socket_interface(
                 from_socket.default_value[1],
                 from_socket.default_value[2],
                 from_socket.default_value[3],
-            )
+            ),
         )
     elif isinstance(from_socket, vector_classes) and isinstance(
-        to_socket, vector_classes
+        to_socket,
+        vector_classes,
     ):
         to_socket.default_value = deepcopy(
             (
                 from_socket.default_value[0],
                 from_socket.default_value[1],
                 from_socket.default_value[2],
-            )
+            ),
         )
         to_socket.min_value = from_socket.min_value
         to_socket.max_value = from_socket.max_value
@@ -421,17 +425,19 @@ def copy_socket_default_value(
         elif isinstance(to_socket, INT_SOCKET_CLASSES):
             to_socket.default_value = int(from_socket.default_value)
     elif isinstance(from_socket, VECTOR_SOCKET_CLASSES) and isinstance(
-        to_socket, VECTOR_SOCKET_CLASSES
+        to_socket,
+        VECTOR_SOCKET_CLASSES,
     ):
         to_socket.default_value = deepcopy(
             (
                 from_socket.default_value[0],
                 from_socket.default_value[1],
                 from_socket.default_value[2],
-            )
+            ),
         )
     elif isinstance(from_socket, COLOR_SOCKET_CLASSES) and isinstance(
-        to_socket, COLOR_SOCKET_CLASSES
+        to_socket,
+        COLOR_SOCKET_CLASSES,
     ):
         to_socket.default_value = deepcopy(
             (
@@ -439,10 +445,11 @@ def copy_socket_default_value(
                 from_socket.default_value[1],
                 from_socket.default_value[2],
                 from_socket.default_value[3],
-            )
+            ),
         )
     elif isinstance(from_socket, STRING_SOCKET_CLASSES) and isinstance(
-        to_socket, STRING_SOCKET_CLASSES
+        to_socket,
+        STRING_SOCKET_CLASSES,
     ):
         to_socket.default_value = deepcopy(from_socket.default_value)
 
@@ -480,7 +487,7 @@ def copy_shader_node_group(
 
     logger.error(
         "Importing ShaderNodeGroup doesn't be supported yet: "
-        + f"{from_node.node_tree.name}"
+        + f"{from_node.node_tree.name}",
     )
 
 
@@ -494,7 +501,7 @@ def copy_node(
             from_node.color[0],
             from_node.color[1],
             from_node.color[2],
-        )
+        ),
     )
     to_node.height = from_node.height
     to_node.hide = from_node.hide
@@ -507,7 +514,7 @@ def copy_node(
         (
             from_node.location[0],
             from_node.location[1],
-        )
+        ),
     )
     to_node.mute = from_node.mute
     to_node.name = from_node.name
@@ -533,45 +540,54 @@ def copy_node(
     if isinstance(from_node, NodeGroupOutput) and isinstance(to_node, NodeGroupOutput):
         to_node.is_active_output = from_node.is_active_output
     if isinstance(from_node, ShaderNodeWireframe) and isinstance(
-        to_node, ShaderNodeWireframe
+        to_node,
+        ShaderNodeWireframe,
     ):
         to_node.use_pixel_size = from_node.use_pixel_size
     if isinstance(from_node, ShaderNodeVertexColor) and isinstance(
-        to_node, ShaderNodeVertexColor
+        to_node,
+        ShaderNodeVertexColor,
     ):
         to_node.layer_name = from_node.layer_name
     if isinstance(from_node, ShaderNodeVectorTransform) and isinstance(
-        to_node, ShaderNodeVectorTransform
+        to_node,
+        ShaderNodeVectorTransform,
     ):
         to_node.convert_from = from_node.convert_from
         to_node.convert_to = from_node.convert_to
         to_node.vector_type = from_node.vector_type
     if isinstance(from_node, ShaderNodeVectorRotate) and isinstance(
-        to_node, ShaderNodeVectorRotate
+        to_node,
+        ShaderNodeVectorRotate,
     ):
         to_node.invert = from_node.invert
         to_node.rotation_type = from_node.rotation_type
     if isinstance(from_node, ShaderNodeVectorMath) and isinstance(
-        to_node, ShaderNodeVectorMath
+        to_node,
+        ShaderNodeVectorMath,
     ):
         to_node.operation = from_node.operation
     if isinstance(from_node, ShaderNodeVectorDisplacement) and isinstance(
-        to_node, ShaderNodeVectorDisplacement
+        to_node,
+        ShaderNodeVectorDisplacement,
     ):
         to_node.space = from_node.space
     if isinstance(from_node, ShaderNodeUVMap) and isinstance(to_node, ShaderNodeUVMap):
         to_node.from_instancer = from_node.from_instancer
         to_node.uv_map = from_node.uv_map
     if isinstance(from_node, ShaderNodeUVAlongStroke) and isinstance(
-        to_node, ShaderNodeUVAlongStroke
+        to_node,
+        ShaderNodeUVAlongStroke,
     ):
         to_node.use_tips = from_node.use_tips
     if isinstance(from_node, ShaderNodeTexWhiteNoise) and isinstance(
-        to_node, ShaderNodeTexWhiteNoise
+        to_node,
+        ShaderNodeTexWhiteNoise,
     ):
         to_node.noise_dimensions = from_node.noise_dimensions
     if isinstance(from_node, ShaderNodeTexWave) and isinstance(
-        to_node, ShaderNodeTexWave
+        to_node,
+        ShaderNodeTexWave,
     ):
         # incomplete
         to_node.bands_direction = from_node.bands_direction
@@ -580,7 +596,7 @@ def copy_node(
                 from_node.color_mapping.blend_color[0],
                 from_node.color_mapping.blend_color[1],
                 from_node.color_mapping.blend_color[2],
-            )
+            ),
         )
         to_node.color_mapping.blend_type = from_node.color_mapping.blend_type
         to_node.color_mapping.brightness = from_node.color_mapping.brightness
@@ -594,20 +610,23 @@ def copy_node(
         to_node.wave_profile = from_node.wave_profile
         to_node.wave_type = from_node.wave_type
     if isinstance(from_node, ShaderNodeTexVoronoi) and isinstance(
-        to_node, ShaderNodeTexVoronoi
+        to_node,
+        ShaderNodeTexVoronoi,
     ):
         to_node.distance = from_node.distance
         to_node.feature = from_node.feature
         to_node.voronoi_dimensions = from_node.voronoi_dimensions
     if isinstance(from_node, ShaderNodeTexSky) and isinstance(
-        to_node, ShaderNodeTexSky
+        to_node,
+        ShaderNodeTexSky,
     ):
         to_node.ground_albedo = from_node.ground_albedo
         to_node.sky_type = from_node.sky_type
         to_node.sun_direction = from_node.sun_direction[:]
         to_node.turbidity = from_node.turbidity
     if isinstance(from_node, ShaderNodeTexPointDensity) and isinstance(
-        to_node, ShaderNodeTexPointDensity
+        to_node,
+        ShaderNodeTexPointDensity,
     ):
         to_node.interpolation = from_node.interpolation
         to_node.object = from_node.object
@@ -619,20 +638,24 @@ def copy_node(
         to_node.vertex_attribute_name = from_node.vertex_attribute_name
         to_node.vertex_color_source = from_node.vertex_color_source
     if isinstance(from_node, ShaderNodeTexNoise) and isinstance(
-        to_node, ShaderNodeTexNoise
+        to_node,
+        ShaderNodeTexNoise,
     ):
         to_node.noise_dimensions = from_node.noise_dimensions
     if isinstance(from_node, ShaderNodeTexMusgrave) and isinstance(
-        to_node, ShaderNodeTexMusgrave
+        to_node,
+        ShaderNodeTexMusgrave,
     ):
         to_node.musgrave_dimensions = from_node.musgrave_dimensions
         to_node.musgrave_type = from_node.musgrave_type
     if isinstance(from_node, ShaderNodeTexMagic) and isinstance(
-        to_node, ShaderNodeTexMagic
+        to_node,
+        ShaderNodeTexMagic,
     ):
         to_node.turbulence_depth = from_node.turbulence_depth
     if isinstance(from_node, ShaderNodeTexImage) and isinstance(
-        to_node, ShaderNodeTexImage
+        to_node,
+        ShaderNodeTexImage,
     ):
         to_node.extension = from_node.extension
         # to_node.image = from_node.image
@@ -640,45 +663,53 @@ def copy_node(
         to_node.projection = from_node.projection
         to_node.projection_blend = from_node.projection_blend
     if isinstance(from_node, ShaderNodeTexIES) and isinstance(
-        to_node, ShaderNodeTexIES
+        to_node,
+        ShaderNodeTexIES,
     ):
         to_node.filepath = from_node.filepath
         to_node.ies = from_node.ies
         to_node.mode = from_node.mode
     if isinstance(from_node, ShaderNodeTexGradient) and isinstance(
-        to_node, ShaderNodeTexGradient
+        to_node,
+        ShaderNodeTexGradient,
     ):
         to_node.gradient_type = from_node.gradient_type
     if isinstance(from_node, ShaderNodeTexEnvironment) and isinstance(
-        to_node, ShaderNodeTexEnvironment
+        to_node,
+        ShaderNodeTexEnvironment,
     ):
         to_node.image = from_node.image
         to_node.interpolation = from_node.interpolation
         to_node.projection = from_node.projection
     if isinstance(from_node, ShaderNodeTexCoord) and isinstance(
-        to_node, ShaderNodeTexCoord
+        to_node,
+        ShaderNodeTexCoord,
     ):
         to_node.from_instancer = from_node.from_instancer
         to_node.object = from_node.object
     if isinstance(from_node, ShaderNodeTexBrick) and isinstance(
-        to_node, ShaderNodeTexBrick
+        to_node,
+        ShaderNodeTexBrick,
     ):
         to_node.offset = from_node.offset
         to_node.offset_frequency = from_node.offset_frequency
         to_node.squash = from_node.squash
         to_node.squash_frequency = from_node.squash_frequency
     if isinstance(from_node, ShaderNodeTangent) and isinstance(
-        to_node, ShaderNodeTangent
+        to_node,
+        ShaderNodeTangent,
     ):
         to_node.axis = from_node.axis
         to_node.direction_type = from_node.direction_type
         to_node.uv_map = from_node.uv_map
     if isinstance(from_node, ShaderNodeSubsurfaceScattering) and isinstance(
-        to_node, ShaderNodeSubsurfaceScattering
+        to_node,
+        ShaderNodeSubsurfaceScattering,
     ):
         to_node.falloff = from_node.falloff
     if isinstance(from_node, ShaderNodeScript) and isinstance(
-        to_node, ShaderNodeScript
+        to_node,
+        ShaderNodeScript,
     ):
         to_node.bytecode = from_node.bytecode
         to_node.bytecode_hash = from_node.bytecode_hash
@@ -687,17 +718,20 @@ def copy_node(
         to_node.script = from_node.script
         to_node.use_auto_update = from_node.use_auto_update
     if isinstance(from_node, ShaderNodeOutputWorld) and isinstance(
-        to_node, ShaderNodeOutputWorld
+        to_node,
+        ShaderNodeOutputWorld,
     ):
         to_node.is_active_output = from_node.is_active_output
         to_node.target = from_node.target
     if isinstance(from_node, ShaderNodeOutputMaterial) and isinstance(
-        to_node, ShaderNodeOutputMaterial
+        to_node,
+        ShaderNodeOutputMaterial,
     ):
         to_node.is_active_output = from_node.is_active_output
         to_node.target = from_node.target
     if isinstance(from_node, ShaderNodeOutputLineStyle) and isinstance(
-        to_node, ShaderNodeOutputLineStyle
+        to_node,
+        ShaderNodeOutputLineStyle,
     ):
         to_node.blend_type = from_node.blend_type
         to_node.is_active_output = from_node.is_active_output
@@ -705,21 +739,25 @@ def copy_node(
         to_node.use_alpha = from_node.use_alpha
         to_node.use_clamp = from_node.use_clamp
     if isinstance(from_node, ShaderNodeOutputLight) and isinstance(
-        to_node, ShaderNodeOutputLight
+        to_node,
+        ShaderNodeOutputLight,
     ):
         to_node.is_active_output = from_node.is_active_output
         to_node.target = from_node.target
     if isinstance(from_node, ShaderNodeOutputAOV) and isinstance(
-        to_node, ShaderNodeOutputAOV
+        to_node,
+        ShaderNodeOutputAOV,
     ):
         to_node.name = from_node.name
     if isinstance(from_node, ShaderNodeNormalMap) and isinstance(
-        to_node, ShaderNodeNormalMap
+        to_node,
+        ShaderNodeNormalMap,
     ):
         to_node.space = from_node.space
         to_node.uv_map = from_node.uv_map
     if isinstance(from_node, ShaderNodeMixRGB) and isinstance(
-        to_node, ShaderNodeMixRGB
+        to_node,
+        ShaderNodeMixRGB,
     ):
         to_node.blend_type = from_node.blend_type
         to_node.use_alpha = from_node.use_alpha
@@ -728,22 +766,26 @@ def copy_node(
         to_node.operation = from_node.operation
         to_node.use_clamp = from_node.use_clamp
     if isinstance(from_node, ShaderNodeMapping) and isinstance(
-        to_node, ShaderNodeMapping
+        to_node,
+        ShaderNodeMapping,
     ):
         to_node.vector_type = from_node.vector_type
     if isinstance(from_node, ShaderNodeMapRange) and isinstance(
-        to_node, ShaderNodeMapRange
+        to_node,
+        ShaderNodeMapRange,
     ):
         to_node.clamp = from_node.clamp
         to_node.interpolation_type = from_node.interpolation_type
     if isinstance(from_node, ShaderNodeGroup) and isinstance(to_node, ShaderNodeGroup):
         copy_shader_node_group(from_node, to_node)
     if isinstance(from_node, ShaderNodeDisplacement) and isinstance(
-        to_node, ShaderNodeDisplacement
+        to_node,
+        ShaderNodeDisplacement,
     ):
         to_node.space = from_node.space
     if isinstance(from_node, ShaderNodeCustomGroup) and isinstance(
-        to_node, ShaderNodeCustomGroup
+        to_node,
+        ShaderNodeCustomGroup,
     ):
         # to_node.node_tree = from_node.node_tree
         logger.error("Importing ShaderNodeCustomGroup doesn't be supported yet")
@@ -752,42 +794,51 @@ def copy_node(
     if isinstance(from_node, ShaderNodeBump) and isinstance(to_node, ShaderNodeBump):
         to_node.invert = from_node.invert
     if isinstance(from_node, ShaderNodeBsdfToon) and isinstance(
-        to_node, ShaderNodeBsdfToon
+        to_node,
+        ShaderNodeBsdfToon,
     ):
         to_node.component = from_node.component
     if isinstance(from_node, ShaderNodeBsdfRefraction) and isinstance(
-        to_node, ShaderNodeBsdfRefraction
+        to_node,
+        ShaderNodeBsdfRefraction,
     ):
         to_node.distribution = from_node.distribution
     if isinstance(from_node, ShaderNodeBsdfPrincipled) and isinstance(
-        to_node, ShaderNodeBsdfPrincipled
+        to_node,
+        ShaderNodeBsdfPrincipled,
     ):
         to_node.distribution = from_node.distribution
         to_node.subsurface_method = from_node.subsurface_method
     if isinstance(from_node, ShaderNodeBsdfHairPrincipled) and isinstance(
-        to_node, ShaderNodeBsdfHairPrincipled
+        to_node,
+        ShaderNodeBsdfHairPrincipled,
     ):
         to_node.parametrization = from_node.parametrization
     if isinstance(from_node, ShaderNodeBsdfHair) and isinstance(
-        to_node, ShaderNodeBsdfHair
+        to_node,
+        ShaderNodeBsdfHair,
     ):
         to_node.component = from_node.component
     if isinstance(from_node, ShaderNodeBsdfGlass) and isinstance(
-        to_node, ShaderNodeBsdfGlass
+        to_node,
+        ShaderNodeBsdfGlass,
     ):
         to_node.distribution = from_node.distribution
     if isinstance(from_node, ShaderNodeBsdfAnisotropic) and isinstance(
-        to_node, ShaderNodeBsdfAnisotropic
+        to_node,
+        ShaderNodeBsdfAnisotropic,
     ):
         to_node.distribution = from_node.distribution
     if isinstance(from_node, ShaderNodeBevel) and isinstance(to_node, ShaderNodeBevel):
         to_node.samples = from_node.samples
     if isinstance(from_node, ShaderNodeAttribute) and isinstance(
-        to_node, ShaderNodeAttribute
+        to_node,
+        ShaderNodeAttribute,
     ):
         to_node.attribute_name = from_node.attribute_name
     if isinstance(from_node, ShaderNodeAmbientOcclusion) and isinstance(
-        to_node, ShaderNodeAmbientOcclusion
+        to_node,
+        ShaderNodeAmbientOcclusion,
     ):
         to_node.inside = from_node.inside
         to_node.only_local = from_node.only_local
@@ -804,29 +855,35 @@ def copy_node(
         )
 
         if isinstance(from_node, ShaderNodeCombineColor) and isinstance(
-            to_node, ShaderNodeCombineColor
+            to_node,
+            ShaderNodeCombineColor,
         ):
             to_node.mode = from_node.mode
         if isinstance(from_node, ShaderNodeSeparateColor) and isinstance(
-            to_node, ShaderNodeSeparateColor
+            to_node,
+            ShaderNodeSeparateColor,
         ):
             to_node.mode = from_node.mode
 
         if isinstance(from_node, GeometryNodeSwitch) and isinstance(
-            to_node, GeometryNodeSwitch
+            to_node,
+            GeometryNodeSwitch,
         ):
             to_node.input_type = from_node.input_type
         if isinstance(from_node, GeometryNodeExtrudeMesh) and isinstance(
-            to_node, GeometryNodeExtrudeMesh
+            to_node,
+            GeometryNodeExtrudeMesh,
         ):
             to_node.mode = from_node.mode
         if isinstance(from_node, GeometryNodeDeleteGeometry) and isinstance(
-            to_node, GeometryNodeDeleteGeometry
+            to_node,
+            GeometryNodeDeleteGeometry,
         ):
             to_node.domain = from_node.domain
             to_node.mode = from_node.mode
         if isinstance(from_node, GeometryNodeSeparateGeometry) and isinstance(
-            to_node, GeometryNodeSeparateGeometry
+            to_node,
+            GeometryNodeSeparateGeometry,
         ):
             to_node.domain = from_node.domain
 
@@ -845,13 +902,15 @@ def copy_node(
 
         to_node.width_hidden = from_node.width_hidden
         if isinstance(from_node, ShaderNodeBsdfGlossy) and isinstance(
-            to_node, ShaderNodeBsdfGlossy
+            to_node,
+            ShaderNodeBsdfGlossy,
         ):
             to_node.distribution = from_node.distribution
 
 
 def clear_node_tree(
-    node_tree: Optional[NodeTree], clear_inputs_outputs: bool = False
+    node_tree: Optional[NodeTree],
+    clear_inputs_outputs: bool = False,
 ) -> None:
     if node_tree is None:
         return
@@ -882,7 +941,8 @@ def clear_node_tree(
 
 
 def copy_node_tree_inputs_outputs(
-    from_node_tree: NodeTree, to_node_tree: NodeTree
+    from_node_tree: NodeTree,
+    to_node_tree: NodeTree,
 ) -> None:
     # bpy.app.version < (4,)
     from bpy.types import NodeSocketInterfaceStandard
@@ -892,7 +952,7 @@ def copy_node_tree_inputs_outputs(
     for index, from_input in enumerate(from_node_tree.inputs):
         to_input = None
         if isinstance(from_input, NodeSocketInterfaceStandard) and 0 <= index < len(
-            to_node_tree.inputs
+            to_node_tree.inputs,
         ):
             to_input = to_node_tree.inputs[index]
             if (
@@ -904,7 +964,8 @@ def copy_node_tree_inputs_outputs(
                     to_node_tree.inputs.remove(to_node_tree.inputs[-1])
         if not to_input:
             to_input = to_node_tree.inputs.new(
-                from_input.bl_socket_idname, from_input.name
+                from_input.bl_socket_idname,
+                from_input.name,
             )
         copy_socket_interface(from_input, to_input)
 
@@ -913,7 +974,7 @@ def copy_node_tree_inputs_outputs(
     for index, from_output in enumerate(from_node_tree.outputs):
         to_output = None
         if isinstance(from_output, NodeSocketInterfaceStandard) and 0 <= index < len(
-            to_node_tree.outputs
+            to_node_tree.outputs,
         ):
             to_output = to_node_tree.outputs[index]
             if (
@@ -925,7 +986,8 @@ def copy_node_tree_inputs_outputs(
                     to_node_tree.outputs.remove(to_node_tree.outputs[-1])
         if not to_output:
             to_output = to_node_tree.outputs.new(
-                from_output.bl_socket_idname, from_output.name
+                from_output.bl_socket_idname,
+                from_output.name,
             )
         copy_socket_interface(from_output, to_output)
 
@@ -982,11 +1044,13 @@ def copy_node_tree_interface_socket(
         to_socket.min_value = from_socket.min_value
         to_socket.max_value = from_socket.max_value
     elif isinstance(from_socket, color_classes) and isinstance(
-        to_socket, color_classes
+        to_socket,
+        color_classes,
     ):
         to_socket.default_value = deepcopy(from_socket.default_value[0:4])
     elif isinstance(from_socket, vector_classes) and isinstance(
-        to_socket, vector_classes
+        to_socket,
+        vector_classes,
     ):
         to_socket.min_value = from_socket.min_value
         to_socket.max_value = from_socket.max_value
@@ -999,14 +1063,15 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
 
     for from_item in from_node_tree.interface.items_tree:
         if from_item.item_type != "SOCKET" or not isinstance(
-            from_item, NodeTreeInterfaceSocket
+            from_item,
+            NodeTreeInterfaceSocket,
         ):
             continue
         from_socket_type = from_item.socket_type
         if not from_socket_type:
             logger.error(
                 f"{from_item.name} has empty socket_type."
-                + f" type={type(from_item).__name__}"
+                + f" type={type(from_item).__name__}",
             )
             if isinstance(from_item, NodeTreeInterfaceSocketFloatFactor):
                 from_socket_type = "NodeSocketFloat"
@@ -1044,7 +1109,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
 
     while len(to_node_tree.interface.items_tree) > to_items_index:
         to_node_tree.interface.remove(
-            list(to_node_tree.interface.items_tree.values())[-1]
+            list(to_node_tree.interface.items_tree.values())[-1],
         )
 
 
@@ -1085,7 +1150,7 @@ def copy_node_tree(from_node_tree: NodeTree, to_node_tree: NodeTree) -> None:
         if not 0 <= input_socket_index < len(input_node.inputs):
             logger.error(
                 "Input socket out of range: "
-                + f"{input_socket_index} < {len(input_node.inputs)}"
+                + f"{input_socket_index} < {len(input_node.inputs)}",
             )
             continue
         input_socket = input_node.inputs[input_socket_index]
@@ -1109,7 +1174,7 @@ def copy_node_tree(from_node_tree: NodeTree, to_node_tree: NodeTree) -> None:
         if not 0 <= output_socket_index < len(output_node.outputs):
             logger.error(
                 "Output socket out of range: "
-                + f"{output_socket_index} < {len(output_node.outputs)}"
+                + f"{output_socket_index} < {len(output_node.outputs)}",
             )
             continue
         output_socket = output_node.outputs[output_socket_index]
@@ -1129,7 +1194,7 @@ def copy_node_tree(from_node_tree: NodeTree, to_node_tree: NodeTree) -> None:
             (
                 from_node.location[0],
                 from_node.location[1],
-            )
+            ),
         )
 
 
@@ -1146,7 +1211,8 @@ def shader_node_group_import(shader_node_group_name: str) -> None:
 
 
 def get_image_name_and_sampler_type(
-    shader_node: Node, input_socket_name: str
+    shader_node: Node,
+    input_socket_name: str,
 ) -> Optional[tuple[str, int, int]]:
     if (
         input_socket_name == "NormalmapTexture"
@@ -1190,7 +1256,9 @@ def get_image_name_and_sampler_type(
 
 
 def float_or_none(
-    v: object, min_value: float = -float_info.max, max_value: float = float_info.max
+    v: object,
+    min_value: float = -float_info.max,
+    max_value: float = float_info.max,
 ) -> Optional[float]:
     if isinstance(v, float) and math.isnan(v):
         return None
@@ -1210,7 +1278,9 @@ def get_float_value(
         return None
 
     default_value = float_or_none(
-        getattr(socket, "default_value", None), min_value, max_value
+        getattr(socket, "default_value", None),
+        min_value,
+        max_value,
     )
 
     links = socket.links
@@ -1226,12 +1296,16 @@ def get_float_value(
         return default_value
 
     return float_or_none(
-        getattr(outputs[0], "default_value", None), min_value, max_value
+        getattr(outputs[0], "default_value", None),
+        min_value,
+        max_value,
     )
 
 
 def rgba_or_none(
-    vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
+    vs: object,
+    min_value: float = -float_info.max,
+    max_value: float = float_info.max,
 ) -> Optional[tuple[float, float, float, float]]:
     default_alpha_value = max(min_value, min(1.0, max_value))
     if isinstance(vs, Color):
@@ -1274,7 +1348,9 @@ def get_rgba_value(
         return None
 
     default_value = rgba_or_none(
-        getattr(socket, "default_value", None), min_value, max_value
+        getattr(socket, "default_value", None),
+        min_value,
+        max_value,
     )
 
     links = socket.links
@@ -1290,12 +1366,16 @@ def get_rgba_value(
         return default_value
 
     return rgba_or_none(
-        getattr(outputs[0], "default_value", None), min_value, max_value
+        getattr(outputs[0], "default_value", None),
+        min_value,
+        max_value,
     )
 
 
 def rgb_or_none(
-    vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
+    vs: object,
+    min_value: float = -float_info.max,
+    max_value: float = float_info.max,
 ) -> Optional[tuple[float, float, float]]:
     if isinstance(vs, Color):
         return (
@@ -1336,7 +1416,9 @@ def get_rgb_value(
         return None
 
     default_value = rgb_or_none(
-        getattr(socket, "default_value", None), min_value, max_value
+        getattr(socket, "default_value", None),
+        min_value,
+        max_value,
     )
 
     links = socket.links

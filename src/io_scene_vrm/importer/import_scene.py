@@ -51,7 +51,8 @@ class LicenseConfirmation(PropertyGroup):
 
 
 def import_vrm_update_addon_preferences(
-    import_op: "IMPORT_SCENE_OT_vrm", context: Context
+    import_op: "IMPORT_SCENE_OT_vrm",
+    context: Context,
 ) -> None:
     if import_op.use_addon_preferences:
         copy_import_preferences(source=import_op, destination=get_preferences(context))
@@ -272,7 +273,7 @@ class WM_OT_vrm_license_confirmation(Operator):
                 box.label(text=line, translate=False, icon="INFO")
             if license_confirmation.json_key:
                 box.label(
-                    text=pgettext("For more information please check following URL.")
+                    text=pgettext("For more information please check following URL."),
                 )
                 if VRM_OT_open_url_in_web_browser.supported(license_confirmation.url):
                     split = box.split(factor=0.85, align=True)
@@ -331,15 +332,20 @@ def create_blend_model(
 
 
 def menu_import(
-    menu_op: Operator, _context: Context
+    menu_op: Operator,
+    _context: Context,
 ) -> None:  # Same as test/blender_io.py for now
     vrm_import_op = layout_operator(
-        menu_op.layout, IMPORT_SCENE_OT_vrm, text="VRM (.vrm)"
+        menu_op.layout,
+        IMPORT_SCENE_OT_vrm,
+        text="VRM (.vrm)",
     )
     vrm_import_op.use_addon_preferences = True
 
     vrma_import_op = layout_operator(
-        menu_op.layout, IMPORT_SCENE_OT_vrma, text="VRM Animation DRAFT (.vrma)"
+        menu_op.layout,
+        IMPORT_SCENE_OT_vrma,
+        text="VRM Animation DRAFT (.vrma)",
     )
     vrma_import_op.armature_object_name = ""
 
@@ -362,7 +368,8 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
 
     def execute(self, context: Context) -> set[str]:
         if WM_OT_vrma_import_prerequisite.detect_errors(
-            context, self.armature_object_name
+            context,
+            self.armature_object_name,
         ):
             return {"CANCELLED"}
         filepath = Path(self.filepath)
@@ -378,7 +385,8 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_import_prerequisite.detect_errors(
-            context, self.armature_object_name
+            context,
+            self.armature_object_name,
         ):
             return bpy.ops.wm.vrma_import_prerequisite(
                 "INVOKE_DEFAULT",
@@ -436,7 +444,8 @@ class WM_OT_vrma_import_prerequisite(Operator):
 
     def execute(self, _context: Context) -> set[str]:
         return bpy.ops.import_scene.vrma(
-            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            "INVOKE_DEFAULT",
+            armature_object_name=self.armature_object_name,
         )
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
@@ -461,7 +470,8 @@ class WM_OT_vrma_import_prerequisite(Operator):
         )
 
         error_messages = WM_OT_vrma_import_prerequisite.detect_errors(
-            context, self.armature_object_name
+            context,
+            self.armature_object_name,
         )
 
         layout.prop_search(

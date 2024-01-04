@@ -8,13 +8,13 @@ from bpy.types import PropertyGroup
 class NodeConstraint1NodeConstraintPropertyGroup(PropertyGroup):
     # for UI
     show_expanded_roll_constraints: BoolProperty(  # type: ignore[valid-type]
-        name="Roll Constraint"
+        name="Roll Constraint",
     )
     show_expanded_aim_constraints: BoolProperty(  # type: ignore[valid-type]
-        name="Aim Constraint"
+        name="Aim Constraint",
     )
     show_expanded_rotation_constraints: BoolProperty(  # type: ignore[valid-type]
-        name="Rotation Constraint"
+        name="Rotation Constraint",
     )
     if TYPE_CHECKING:
         # This code is auto generated.

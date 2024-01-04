@@ -56,7 +56,7 @@ def update_look_at_preview() -> Optional[float]:
 
     logger.debug(
         "The duration to determine look at preview updates is "
-        + f"{compare_end_time - compare_start_time:.9f} seconds"
+        + f"{compare_end_time - compare_start_time:.9f} seconds",
     )
 
     if not changed:

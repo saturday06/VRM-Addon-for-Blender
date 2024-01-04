@@ -92,7 +92,7 @@ def diff(
             return [f"{path}: left is list but right is {type(right)}"]
         if len(left) != len(right):
             result = [
-                f"{path}: left length is {len(left)} but right length is {len(right)}"
+                f"{path}: left length is {len(left)} but right length is {len(right)}",
             ]
             left_json_str = json_dumps(left, indent=4)
             right_json_str = json_dumps(right, indent=4)
@@ -125,7 +125,7 @@ def diff(
                 diffs.append(f'{path}: {key} not in right, left["{key}"]={left[key]}')
                 continue
             diffs.extend(
-                diff(left[key], right[key], float_tolerance, f'{path}["{key}"]')
+                diff(left[key], right[key], float_tolerance, f'{path}["{key}"]'),
             )
         return diffs
 
@@ -156,7 +156,7 @@ def diff(
         if error > float_tolerance:
             return [
                 f"{path}: left is {float(left):20.17f}"
-                + " but right is {float(right):20.17f}, error={error:19.17f}"
+                + " but right is {float(right):20.17f}, error={error:19.17f}",
             ]
         return []
 

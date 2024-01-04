@@ -56,7 +56,8 @@ def match_count(armature: Armature, mapping: dict[str, HumanBoneSpecification]) 
 
 
 def match_counts(
-    armature: object, mapping: dict[str, HumanBoneSpecification]
+    armature: object,
+    mapping: dict[str, HumanBoneSpecification],
 ) -> tuple[int, int]:
     if not isinstance(armature, Armature):
         message = f"{type(armature)} is not an Armature"
@@ -98,7 +99,7 @@ def create_human_bone_mapping(
                 vrm_addon_mapping.config_vrm1,
                 vrm_addon_mapping.config_vrm0,
             ]
-        ]
+        ],
     )[-1]
     if required_count:
         logger.warning(f'Treat as "{name}" bone mappings')

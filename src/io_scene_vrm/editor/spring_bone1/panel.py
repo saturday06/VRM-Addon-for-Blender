@@ -29,7 +29,10 @@ def draw_spring_bone1_collider_layout(
         layout.prop(collider, "shape_type")
         if collider.bpy_object:
             layout.prop(
-                collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Offset"
+                collider.bpy_object,
+                "name",
+                icon="MESH_UVSPHERE",
+                text="Offset",
             )
         layout.prop(collider.shape.sphere, "offset", text="")
         layout.separator(factor=0.5)
@@ -129,7 +132,7 @@ def draw_spring_bone1_spring_bone_layout(
         if spring_bone.collider_groups:
             collider_groups_expanded_box = collider_groups_box.box().column()
             for collider_group_index, collider_group in enumerate(
-                spring_bone.collider_groups
+                spring_bone.collider_groups,
             ):
                 collider_group_row = collider_groups_expanded_box.row()
                 collider_group_row.alignment = "LEFT"
@@ -154,7 +157,7 @@ def draw_spring_bone1_spring_bone_layout(
                 collider_group_colliders_box = collider_group_column.box()
                 if collider_group.colliders:
                     collider_group_colliders_row = collider_group_colliders_box.split(
-                        factor=0.8
+                        factor=0.8,
                     )
                     collider_group_colliders_names_column = (
                         collider_group_colliders_row.column()
@@ -303,7 +306,7 @@ def draw_spring_bone1_spring_bone_layout(
                 spring_collider_groups_box = spring_column.box()
                 if spring.collider_groups:
                     spring_collider_groups_row = spring_collider_groups_box.split(
-                        factor=0.8
+                        factor=0.8,
                     )
                     spring_collider_groups_names_column = (
                         spring_collider_groups_row.column()
@@ -431,7 +434,8 @@ class VRM_PT_spring_bone1_collider_property(Panel):
 
     @classmethod
     def active_armature_and_collider(
-        cls, context: Context
+        cls,
+        context: Context,
     ) -> Optional[tuple[Object, SpringBone1ColliderPropertyGroup]]:
         active_object = context.active_object
         if not active_object:

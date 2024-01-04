@@ -50,7 +50,7 @@ logger = get_logger(__name__)
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L70-L164
 class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
     bone: StringProperty(  # type: ignore[valid-type]
-        name="VRM Humanoid Bone Name"
+        name="VRM Humanoid Bone Name",
     )
     node: PointerProperty(  # type: ignore[valid-type]
         name="Bone Name",
@@ -73,12 +73,12 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
         name="Unity's HumanLimit.center",
     )
     axis_length: FloatProperty(  # type: ignore[valid-type]
-        name="Unity's HumanLimit.axisLength"
+        name="Unity's HumanLimit.axisLength",
     )
 
     # for UI
     node_candidates: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
 
     def update_node_candidates(
@@ -180,10 +180,10 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
 
     # for UI
     last_bone_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
     initial_automatic_bone_assignment: BoolProperty(  # type: ignore[valid-type]
-        default=True
+        default=True,
     )
 
     def all_required_bones_are_assigned(self) -> bool:
@@ -220,7 +220,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
                     Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update,
                     armature_data_name,
                     False,
-                )
+                ),
             )
             return
 
@@ -231,7 +231,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
 
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
             human_bone.node.bone_name: HumanBoneSpecifications.get(
-                HumanBoneName(human_bone.bone)
+                HumanBoneName(human_bone.bone),
             )
             for human_bone in humanoid.human_bones
             if human_bone.node.bone_name
@@ -463,7 +463,7 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
         type=MeshObjectPropertyGroup,
     )
     index: StringProperty(  # type: ignore[valid-type]
-        name="Index"
+        name="Index",
     )
     weight: FloatProperty(  # type: ignore[valid-type]
         name="Weight",
@@ -488,7 +488,7 @@ class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
         type=Material,
     )
     property_name: StringProperty(  # type: ignore[valid-type]
-        name="Property Name"
+        name="Property Name",
     )
     target_value: CollectionProperty(  # type: ignore[valid-type]
         name="Target Value",
@@ -652,7 +652,7 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18
 class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
     bpy_object: PointerProperty(  # type: ignore[valid-type]
-        type=Object
+        type=Object,
     )
 
     def refresh(self, armature: Object, bone_name: str) -> None:
@@ -800,10 +800,10 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
     show_expanded_bones: BoolProperty(  # type: ignore[valid-type]
-        name="Bones"
+        name="Bones",
     )
     show_expanded_collider_groups: BoolProperty(  # type: ignore[valid-type]
-        name="Collider Groups"
+        name="Collider Groups",
     )
 
     def refresh(self, armature: Object) -> None:

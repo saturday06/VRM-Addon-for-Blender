@@ -11,7 +11,9 @@ if __name__ == "__main__":
     if len(sys.argv) == 4:
         float_tolerance = float(sys.argv[3])
     diffs = vrm_diff(
-        Path(sys.argv[1]).read_bytes(), Path(sys.argv[2]).read_bytes(), float_tolerance
+        Path(sys.argv[1]).read_bytes(),
+        Path(sys.argv[2]).read_bytes(),
+        float_tolerance,
     )
     for diff in diffs:
         print(diff)

@@ -75,7 +75,7 @@ def load_post(_dummy: object) -> None:
         in bpy.app.handlers.depsgraph_update_pre
     ):
         bpy.app.handlers.depsgraph_update_pre.remove(
-            depsgraph_update_pre_once_if_load_post_is_unavailable
+            depsgraph_update_pre_once_if_load_post_is_unavailable,
         )
 
     shader.add_shaders()
@@ -95,7 +95,7 @@ def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> Non
         return
 
     bpy.app.handlers.depsgraph_update_pre.remove(
-        depsgraph_update_pre_once_if_load_post_is_unavailable
+        depsgraph_update_pre_once_if_load_post_is_unavailable,
     )
 
     shader.add_shaders()
@@ -401,23 +401,23 @@ def register(name: object, init_addon_version: object) -> None:
         bpy.utils.register_class(cls)
 
     Material.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
-        type=extension.VrmAddonMaterialExtensionPropertyGroup
+        type=extension.VrmAddonMaterialExtensionPropertyGroup,
     )
 
     Scene.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
-        type=extension.VrmAddonSceneExtensionPropertyGroup
+        type=extension.VrmAddonSceneExtensionPropertyGroup,
     )
 
     Bone.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
-        type=extension.VrmAddonBoneExtensionPropertyGroup
+        type=extension.VrmAddonBoneExtensionPropertyGroup,
     )
 
     Armature.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
-        type=extension.VrmAddonArmatureExtensionPropertyGroup
+        type=extension.VrmAddonArmatureExtensionPropertyGroup,
     )
 
     Object.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
-        type=extension.VrmAddonObjectExtensionPropertyGroup
+        type=extension.VrmAddonObjectExtensionPropertyGroup,
     )
 
     TOPBAR_MT_file_import.append(import_scene.menu_import)
@@ -427,7 +427,7 @@ def register(name: object, init_addon_version: object) -> None:
 
     bpy.app.handlers.load_post.append(load_post)
     bpy.app.handlers.depsgraph_update_pre.append(
-        depsgraph_update_pre_once_if_load_post_is_unavailable
+        depsgraph_update_pre_once_if_load_post_is_unavailable,
     )
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(vrm1_handler.depsgraph_update_pre)
@@ -441,7 +441,7 @@ def register(name: object, init_addon_version: object) -> None:
     bpy.app.handlers.frame_change_pre.append(vrm1_handler.frame_change_pre)
     bpy.app.handlers.frame_change_post.append(vrm1_handler.frame_change_post)
     bpy.app.handlers.depsgraph_update_pre.append(
-        spring_bone1_handler.depsgraph_update_pre
+        spring_bone1_handler.depsgraph_update_pre,
     )
 
     io_scene_gltf2_support.init_extras_export()
@@ -454,7 +454,7 @@ def unregister() -> None:
     migration.teardown_subscription()
 
     bpy.app.handlers.depsgraph_update_pre.remove(
-        spring_bone1_handler.depsgraph_update_pre
+        spring_bone1_handler.depsgraph_update_pre,
     )
     bpy.app.handlers.frame_change_post.remove(vrm1_handler.frame_change_post)
     bpy.app.handlers.frame_change_pre.remove(vrm1_handler.frame_change_pre)
@@ -472,7 +472,7 @@ def unregister() -> None:
         in bpy.app.handlers.depsgraph_update_pre
     ):
         bpy.app.handlers.depsgraph_update_pre.remove(
-            depsgraph_update_pre_once_if_load_post_is_unavailable
+            depsgraph_update_pre_once_if_load_post_is_unavailable,
         )
     bpy.app.handlers.load_post.remove(load_post)
 

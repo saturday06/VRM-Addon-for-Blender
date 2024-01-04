@@ -92,7 +92,8 @@ class AbstractBaseVrmExporter(ABC):
                         pose_marker_frame = search_pose_marker.frame
                         break
             armature.pose.apply_pose_from_action(
-                action, evaluation_time=pose_marker_frame
+                action,
+                evaluation_time=pose_marker_frame,
             )
 
         bpy.context.view_layer.update()
@@ -143,11 +144,14 @@ class AbstractBaseVrmExporter(ABC):
         return saved_previews
 
     def restore_blend_shape_proxy_previews(
-        self, armature_data: Armature, previews: list[float]
+        self,
+        armature_data: Armature,
+        previews: list[float],
     ) -> None:
         ext = armature_data.vrm_addon_extension
         for blend_shape_group, blend_shape_preview in zip(
-            ext.vrm0.blend_shape_master.blend_shape_groups, previews
+            ext.vrm0.blend_shape_master.blend_shape_groups,
+            previews,
         ):
             blend_shape_group.preview = blend_shape_preview
 

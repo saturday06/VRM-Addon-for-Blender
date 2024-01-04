@@ -51,7 +51,7 @@ def export_materials(objects: list[Object]) -> list[Material]:
                     result.append(material)
         else:
             logger.error(
-                f"Unexpected mesh convertible object type: {type(mesh_convertible)}"
+                f"Unexpected mesh convertible object type: {type(mesh_convertible)}",
             )
 
         for material_slot in obj.material_slots:
@@ -251,7 +251,7 @@ def current_armature(context: Context) -> Optional[Object]:
         return objects[0]
 
     collection_child_to_parent: dict[Collection, Optional[Collection]] = {
-        context.scene.collection: None
+        context.scene.collection: None,
     }
 
     collections = [context.scene.collection]
@@ -450,7 +450,9 @@ def export_object_constraints(
                 aim_constraints[obj.name] = aim_constraint
                 break
             rotation_constraint = rotation_constraint_or_none(
-                constraint, objs, armature
+                constraint,
+                objs,
+                armature,
             )
             if rotation_constraint:
                 rotation_constraints[obj.name] = rotation_constraint
@@ -482,7 +484,9 @@ def export_bone_constraints(
                 aim_constraints[bone.name] = aim_constraint
                 break
             rotation_constraint = rotation_constraint_or_none(
-                constraint, objs, armature
+                constraint,
+                objs,
+                armature,
             )
             if rotation_constraint:
                 rotation_constraints[bone.name] = rotation_constraint
@@ -504,10 +508,10 @@ def export_constraints(
     bone_constraints = export_bone_constraints(objs, armature)
 
     all_roll_constraints: list[CopyRotationConstraint] = list(
-        object_constraints.roll_constraints.values()
+        object_constraints.roll_constraints.values(),
     ) + list(bone_constraints.roll_constraints.values())
     all_rotation_constraints: list[CopyRotationConstraint] = list(
-        object_constraints.rotation_constraints.values()
+        object_constraints.rotation_constraints.values(),
     ) + list(bone_constraints.rotation_constraints.values())
 
     # TODO: Aim Constraint's circular dependency detection
@@ -535,7 +539,7 @@ def export_constraints(
                     search_constraint.use_y,
                     search_constraint.use_z,
                 ),
-            )
+            ),
         ]
         iterated_constraints: set[Constraint] = set()
         while current_constraints:
@@ -555,7 +559,8 @@ def export_constraints(
                 bone = target.pose.bones[current_constraint.subtarget]
                 owner_name = bone.name
                 target_constraints: Union[
-                    ObjectConstraints, PoseBoneConstraints
+                    ObjectConstraints,
+                    PoseBoneConstraints,
                 ] = bone.constraints
             else:
                 owner_name = target.name
@@ -583,11 +588,11 @@ def export_constraints(
                 messages.append(
                     pgettext(
                         'Node Constraint "{owner_name} / {constraint_name}" has'
-                        + " a circular dependency"
+                        + " a circular dependency",
                     ).format(
                         owner_name=owner_name,
                         constraint_name=search_constraint.name,
-                    )
+                    ),
                 )
                 found = True
                 break

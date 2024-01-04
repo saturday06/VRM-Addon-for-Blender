@@ -51,12 +51,12 @@ logger = get_logger(__name__)
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
 class Vrm1HumanBonePropertyGroup(PropertyGroup):
     node: PointerProperty(  # type: ignore[valid-type]
-        type=BonePropertyGroup
+        type=BonePropertyGroup,
     )
 
     # for UI
     node_candidates: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
 
     def update_node_candidates(
@@ -91,177 +91,177 @@ class Vrm1HumanBonePropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
 class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     hips: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     spine: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     chest: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     upper_chest: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     neck: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     head: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_eye: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_eye: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     jaw: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_upper_leg: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_lower_leg: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_foot: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_toes: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_upper_leg: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_lower_leg: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_foot: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_toes: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_shoulder: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_upper_arm: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_lower_arm: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_hand: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_shoulder: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_upper_arm: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_lower_arm: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_hand: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_thumb_metacarpal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_thumb_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_thumb_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_index_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_index_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_index_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_middle_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_middle_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_middle_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_ring_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_ring_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_ring_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_little_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_little_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     left_little_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_thumb_metacarpal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_thumb_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_thumb_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_index_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_index_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_index_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_middle_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_middle_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_middle_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_ring_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_ring_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_ring_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_little_proximal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_little_intermediate: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
     right_little_distal: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanBonePropertyGroup
+        type=Vrm1HumanBonePropertyGroup,
     )
 
     # for UI
     last_bone_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
     initial_automatic_bone_assignment: BoolProperty(  # type: ignore[valid-type]
-        default=True
+        default=True,
     )
 
     allow_non_humanoid_rig: BoolProperty(  # type: ignore[valid-type]
@@ -339,8 +339,8 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                 if specification.requirement:
                     messages.append(
                         pgettext('Please assign Required VRM Bone "{name}".').format(
-                            name=specification.title
-                        )
+                            name=specification.title,
+                        ),
                     )
                 continue
             if not specification.parent_requirement:
@@ -360,11 +360,11 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                 messages.append(
                     pgettext(
                         'Please assign "{parent_name}"'
-                        + ' because "{name}" requires it as its child bone.'
+                        + ' because "{name}" requires it as its child bone.',
                     ).format(
                         name=specification.title,
                         parent_name=parent_specification.title,
-                    )
+                    ),
                 )
 
         return messages
@@ -423,7 +423,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                     Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update,
                     armature_data_name,
                     False,
-                )
+                ),
             )
             return
 
@@ -689,7 +689,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             math.atan2(
                 up_length,
                 math.sqrt(math.pow(right_length, 2) + math.pow(forward_length, 2)),
-            )
+            ),
         )
         if vrm1.look_at.type == vrm1.look_at.TYPE_VALUE_BONE:
             self.apply_eye_bone_preview(
@@ -722,13 +722,13 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             range_map_horizontal_right = vrm1.look_at.range_map_horizontal_outer
             range_map_horizontal_left = vrm1.look_at.range_map_horizontal_inner
             pose_bone = armature_object.pose.bones.get(
-                vrm1.humanoid.human_bones.right_eye.node.bone_name
+                vrm1.humanoid.human_bones.right_eye.node.bone_name,
             )
         elif human_bone_name == HumanBoneName.LEFT_EYE:
             range_map_horizontal_right = vrm1.look_at.range_map_horizontal_inner
             range_map_horizontal_left = vrm1.look_at.range_map_horizontal_outer
             pose_bone = armature_object.pose.bones.get(
-                vrm1.humanoid.human_bones.left_eye.node.bone_name
+                vrm1.humanoid.human_bones.left_eye.node.bone_name,
             )
         else:
             return
@@ -791,7 +791,8 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         # logger.warning(f"up={dump(up_vector)}")
 
         rotation = Quaternion(
-            forward_vector.cross(right_vector), math.radians(yaw_degrees)
+            forward_vector.cross(right_vector),
+            math.radians(yaw_degrees),
         ) @ Quaternion(forward_vector.cross(up_vector), math.radians(pitch_degrees))
         # logger.warning(f"rotation={dump(rotation)}")
 
@@ -879,7 +880,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json
 class Vrm1MeshAnnotationPropertyGroup(PropertyGroup):
     node: PointerProperty(  # type: ignore[valid-type]
-        type=MeshObjectPropertyGroup
+        type=MeshObjectPropertyGroup,
     )
     type_items = (
         ("auto", "Auto", "", 0),
@@ -915,7 +916,7 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
 class Vrm1MorphTargetBindPropertyGroup(PropertyGroup):
     node: PointerProperty(  # type: ignore[valid-type]
-        type=MeshObjectPropertyGroup
+        type=MeshObjectPropertyGroup,
     )
     index: StringProperty(  # type: ignore[valid-type]
     )
@@ -1020,16 +1021,16 @@ class Vrm1TextureTransformBindPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.schema.json
 class Vrm1ExpressionPropertyGroup(PropertyGroup):
     morph_target_binds: CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1MorphTargetBindPropertyGroup
+        type=Vrm1MorphTargetBindPropertyGroup,
     )
     material_color_binds: CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1MaterialColorBindPropertyGroup
+        type=Vrm1MaterialColorBindPropertyGroup,
     )
     texture_transform_binds: CollectionProperty(  # type: ignore[valid-type]
-        type=Vrm1TextureTransformBindPropertyGroup
+        type=Vrm1TextureTransformBindPropertyGroup,
     )
     is_binary: BoolProperty(  # type: ignore[valid-type]
-        name="Is Binary"
+        name="Is Binary",
     )
 
     expression_override_type_items = (
@@ -1058,13 +1059,13 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
     show_expanded_morph_target_binds: BoolProperty(  # type: ignore[valid-type]
-        name="Morph Target Binds"
+        name="Morph Target Binds",
     )
     show_expanded_material_color_binds: BoolProperty(  # type: ignore[valid-type]
-        name="Material Color Binds"
+        name="Material Color Binds",
     )
     show_expanded_texture_transform_binds: BoolProperty(  # type: ignore[valid-type]
-        name="Texture Transform Binds"
+        name="Texture Transform Binds",
     )
 
     # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の
@@ -1093,7 +1094,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         blend_data = bpy.data
         for morph_target_bind in self.morph_target_binds:
             mesh_object = blend_data.objects.get(
-                morph_target_bind.node.mesh_object_name
+                morph_target_bind.node.mesh_object_name,
             )
             if not mesh_object or mesh_object.type != "MESH":
                 continue
@@ -1303,7 +1304,8 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
 
     def all_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
         result: dict[
-            str, Vrm1ExpressionPropertyGroup
+            str,
+            Vrm1ExpressionPropertyGroup,
         ] = self.preset.name_to_expression_dict()
         for custom_expression in self.custom:
             result[custom_expression.custom_name] = custom_expression
@@ -1311,7 +1313,7 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
 
     # expressionのUIList表示のため、expressionの数だけ空の要素を持つ
     expression_ui_list_elements: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
     active_expression_ui_list_element_index: IntProperty()  # type: ignore[valid-type]
 
@@ -1362,25 +1364,25 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
     )
 
     vrm_name: StringProperty(  # type: ignore[valid-type]
-        name="Name"
+        name="Name",
     )
     version: StringProperty(  # type: ignore[valid-type]
-        name="Version"
+        name="Version",
     )
     authors: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
     copyright_information: StringProperty(  # type: ignore[valid-type]
-        name="Copyright Information"
+        name="Copyright Information",
     )
     contact_information: StringProperty(  # type: ignore[valid-type]
-        name="Contact Information"
+        name="Contact Information",
     )
     references: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
     third_party_licenses: StringProperty(  # type: ignore[valid-type]
-        name="Third Party Licenses"
+        name="Third Party Licenses",
     )
     thumbnail_image: PointerProperty(  # type: ignore[valid-type]
         name="Thumbnail Image",
@@ -1394,34 +1396,34 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
         items=avatar_permission_items,
     )
     allow_excessively_violent_usage: BoolProperty(  # type: ignore[valid-type]
-        name="Allow Excessively Violent Usage"
+        name="Allow Excessively Violent Usage",
     )
     allow_excessively_sexual_usage: BoolProperty(  # type: ignore[valid-type]
-        name="Allow Excessively Sexual Usage"
+        name="Allow Excessively Sexual Usage",
     )
     commercial_usage: EnumProperty(  # type: ignore[valid-type]
         name="Commercial Usage",
         items=commercial_usage_items,
     )
     allow_political_or_religious_usage: BoolProperty(  # type: ignore[valid-type]
-        name="Allow Political or Religious Usage"
+        name="Allow Political or Religious Usage",
     )
     allow_antisocial_or_hate_usage: BoolProperty(  # type: ignore[valid-type]
-        name="Allow Antisocial or Hate Usage"
+        name="Allow Antisocial or Hate Usage",
     )
     credit_notation: EnumProperty(  # type: ignore[valid-type]
         name="Credit Notation",
         items=credit_notation_items,
     )
     allow_redistribution: BoolProperty(  # type: ignore[valid-type]
-        name="Allow Redistribution"
+        name="Allow Redistribution",
     )
     modification: EnumProperty(  # type: ignore[valid-type]
         name="Modification",
         items=modification_items,
     )
     other_license_url: StringProperty(  # type: ignore[valid-type]
-        name="Other License URL"
+        name="Other License URL",
     )
 
     if TYPE_CHECKING:
@@ -1450,19 +1452,19 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.schema.json
 class Vrm1PropertyGroup(PropertyGroup):
     meta: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1MetaPropertyGroup
+        type=Vrm1MetaPropertyGroup,
     )
     humanoid: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1HumanoidPropertyGroup
+        type=Vrm1HumanoidPropertyGroup,
     )
     first_person: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1FirstPersonPropertyGroup
+        type=Vrm1FirstPersonPropertyGroup,
     )
     look_at: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1LookAtPropertyGroup
+        type=Vrm1LookAtPropertyGroup,
     )
     expressions: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1ExpressionsPropertyGroup
+        type=Vrm1ExpressionsPropertyGroup,
     )
     if TYPE_CHECKING:
         # This code is auto generated.

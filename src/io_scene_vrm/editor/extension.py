@@ -31,7 +31,7 @@ logger = get_logger(__name__)
 
 class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     mesh_object_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
 
     @staticmethod
@@ -57,7 +57,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
                     VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update,
                     scene_name,
                     False,
-                )
+                ),
             )
             return
 
@@ -67,11 +67,11 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
             n.value = mesh_object_name
 
     vrm0_material_gltf_property_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
 
     vrm0_material_mtoon0_property_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
+        type=StringPropertyGroup,
     )
 
     @staticmethod
@@ -209,7 +209,9 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
 
     @classmethod
     def node_constraint_roll_axis_translation(
-        cls, axis_translation: str, roll_axis: Optional[str]
+        cls,
+        axis_translation: str,
+        roll_axis: Optional[str],
     ) -> Optional[str]:
         if roll_axis is None:
             return None
@@ -229,7 +231,9 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
 
     @classmethod
     def node_constraint_aim_axis_translation(
-        cls, axis_translation: str, aim_axis: Optional[str]
+        cls,
+        axis_translation: str,
+        aim_axis: Optional[str],
     ) -> Optional[str]:
         if aim_axis is None:
             return None
@@ -357,19 +361,19 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
     )
 
     vrm0: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm0PropertyGroup
+        type=Vrm0PropertyGroup,
     )
 
     vrm1: PointerProperty(  # type: ignore[valid-type]
-        type=Vrm1PropertyGroup
+        type=Vrm1PropertyGroup,
     )
 
     spring_bone1: PointerProperty(  # type: ignore[valid-type]
-        type=SpringBone1SpringBonePropertyGroup
+        type=SpringBone1SpringBonePropertyGroup,
     )
 
     node_constraint1: PointerProperty(  # type: ignore[valid-type]
-        type=NodeConstraint1NodeConstraintPropertyGroup
+        type=NodeConstraint1NodeConstraintPropertyGroup,
     )
 
     armature_data_name: StringProperty()  # type: ignore[valid-type]
@@ -444,19 +448,21 @@ def update_internal_cache(context: Context) -> None:
     )
     for armature in bpy.data.armatures:
         Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
-            armature.name, defer=False
+            armature.name,
+            defer=False,
         )
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            armature.name, defer=False
+            armature.name,
+            defer=False,
         )
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
-        context.scene.name
+        context.scene.name,
     )
 
 
 class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
     mtoon1: PointerProperty(  # type: ignore[valid-type]
-        type=Mtoon1MaterialPropertyGroup
+        type=Mtoon1MaterialPropertyGroup,
     )
     if TYPE_CHECKING:
         # This code is auto generated.

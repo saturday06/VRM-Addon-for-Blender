@@ -133,7 +133,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 except TypeError:
                     logger.exception(
                         "image.colorspace_settings.name doesn't support"
-                        + f" {texture.colorspace}."
+                        + f" {texture.colorspace}.",
                     )
                     if texture.colorspace == "Non-Color":
                         with contextlib.suppress(TypeError):
@@ -153,7 +153,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         mag_filter = sampler_dict.get("magFilter")
         if isinstance(mag_filter, int):
             mag_filter_id = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
-                mag_filter
+                mag_filter,
             )
             if isinstance(mag_filter_id, str):
                 texture.sampler.mag_filter = mag_filter_id
@@ -161,7 +161,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         min_filter = sampler_dict.get("minFilter")
         if isinstance(min_filter, int):
             min_filter_id = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
-                min_filter
+                min_filter,
             )
             if isinstance(min_filter_id, str):
                 texture.sampler.min_filter = min_filter_id
@@ -205,7 +205,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     self.assign_texture(texture_info.index, texture_dict)
 
         khr_texture_transform_dict = deep.get(
-            texture_info_dict, ["extensions", "KHR_texture_transform"]
+            texture_info_dict,
+            ["extensions", "KHR_texture_transform"],
         )
         if isinstance(khr_texture_transform_dict, dict):
             self.assign_khr_texture_transform(
@@ -214,7 +215,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
 
     def make_mtoon1_material(
-        self, material_index: int, gltf_dict: dict[str, Json]
+        self,
+        material_index: int,
+        gltf_dict: dict[str, Json],
     ) -> None:
         mtoon_dict = deep.get(gltf_dict, ["extensions", "VRMC_materials_mtoon"])
         if not isinstance(mtoon_dict, dict):
@@ -236,13 +239,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         pbr_metallic_roughness_dict = gltf_dict.get("pbrMetallicRoughness")
         if isinstance(pbr_metallic_roughness_dict, dict):
             base_color_factor = shader.rgba_or_none(
-                pbr_metallic_roughness_dict.get("baseColorFactor")
+                pbr_metallic_roughness_dict.get("baseColorFactor"),
             )
             if base_color_factor:
                 gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
 
             base_color_texture_dict = pbr_metallic_roughness_dict.get(
-                "baseColorTexture"
+                "baseColorTexture",
             )
             if isinstance(base_color_texture_dict, dict):
                 self.assign_texture_info(
@@ -301,7 +304,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         render_queue_offset_number = mtoon_dict.get("renderQueueOffsetNumber")
         if isinstance(render_queue_offset_number, (float, int)):
             mtoon.render_queue_offset_number = max(
-                -9, min(9, int(render_queue_offset_number))
+                -9,
+                min(9, int(render_queue_offset_number)),
             )
 
         shading_shift_factor = mtoon_dict.get("shadingShiftFactor")
@@ -338,17 +342,17 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
 
         parametric_rim_color_factor = shader.rgb_or_none(
-            mtoon_dict.get("parametricRimColorFactor")
+            mtoon_dict.get("parametricRimColorFactor"),
         )
         if parametric_rim_color_factor:
             mtoon.parametric_rim_color_factor = parametric_rim_color_factor
 
         parametric_rim_fresnel_power_factor = mtoon_dict.get(
-            "parametricRimFresnelPowerFactor"
+            "parametricRimFresnelPowerFactor",
         )
         if isinstance(parametric_rim_fresnel_power_factor, (float, int)):
             mtoon.parametric_rim_fresnel_power_factor = float(
-                parametric_rim_fresnel_power_factor
+                parametric_rim_fresnel_power_factor,
             )
 
         parametric_rim_lift_factor = mtoon_dict.get("parametricRimLiftFactor")
@@ -375,7 +379,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             mtoon.outline_width_factor = float(outline_width_factor)
 
         outline_width_multiply_texture_dict = mtoon_dict.get(
-            "outlineWidthMultiplyTexture"
+            "outlineWidthMultiplyTexture",
         )
         if isinstance(outline_width_multiply_texture_dict, dict):
             self.assign_texture_info(
@@ -399,27 +403,27 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             )
 
         uv_animation_rotation_speed_factor = mtoon_dict.get(
-            "uvAnimationRotationSpeedFactor"
+            "uvAnimationRotationSpeedFactor",
         )
         if isinstance(uv_animation_rotation_speed_factor, (float, int)):
             mtoon.uv_animation_rotation_speed_factor = float(
-                uv_animation_rotation_speed_factor
+                uv_animation_rotation_speed_factor,
             )
 
         uv_animation_scroll_x_speed_factor = mtoon_dict.get(
-            "uvAnimationScrollXSpeedFactor"
+            "uvAnimationScrollXSpeedFactor",
         )
         if isinstance(uv_animation_scroll_x_speed_factor, (float, int)):
             mtoon.uv_animation_scroll_x_speed_factor = float(
-                uv_animation_scroll_x_speed_factor
+                uv_animation_scroll_x_speed_factor,
             )
 
         uv_animation_scroll_y_speed_factor = mtoon_dict.get(
-            "uvAnimationScrollYSpeedFactor"
+            "uvAnimationScrollYSpeedFactor",
         )
         if isinstance(uv_animation_scroll_y_speed_factor, (float, int)):
             mtoon.uv_animation_scroll_y_speed_factor = float(
-                uv_animation_scroll_y_speed_factor
+                uv_animation_scroll_y_speed_factor,
             )
 
     def make_mtoon1_materials(self) -> None:
@@ -435,7 +439,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         vrm0_dict = self.parse_result.vrm0_extension
 
         first_person_bone_index = deep.get(
-            vrm0_dict, ["firstPerson", "firstPersonBone"]
+            vrm0_dict,
+            ["firstPerson", "firstPersonBone"],
         )
         if isinstance(first_person_bone_index, int):
             result.append(first_person_bone_index)
@@ -450,7 +455,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     result.append(node_index)
 
         collider_group_dicts = deep.get(
-            vrm0_dict, ["secondaryAnimation", "colliderGroups"]
+            vrm0_dict,
+            ["secondaryAnimation", "colliderGroups"],
         )
         if isinstance(collider_group_dicts, list):
             for collider_group_dict in collider_group_dicts:
@@ -539,8 +545,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             dict.fromkeys(  # Remove duplicates
                 self.find_vrm0_bone_node_indices()
                 + self.find_vrm1_bone_node_indices()
-                + self.find_spring_bone1_bone_node_indices()
-            )
+                + self.find_spring_bone1_bone_node_indices(),
+            ),
         )
 
     # VRM再インポートを繰り返すことでボーンが増殖しないように注意。
@@ -655,12 +661,15 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             sum(
                 [
                     self.find_middle_bone_indices(
-                        node_dicts, bone_node_indices, bone_node_index, []
+                        node_dicts,
+                        bone_node_indices,
+                        bone_node_index,
+                        [],
                     )
                     for bone_node_index in bone_node_indices
                 ],
                 [],
-            )
+            ),
         )
 
         return list(dict.fromkeys(bone_node_indices))  # Distinct
@@ -694,7 +703,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     bone_node_indices,
                     child_index,
                     [*middle_bone_node_indices, bone_node_index],
-                )
+                ),
             )
         return result
 
@@ -742,7 +751,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                             "minFilter": GL_LINEAR,
                             "wrapS": GL_REPEAT,
                             "wrapT": GL_REPEAT,
-                        }
+                        },
                     )
 
                     if not isinstance(texture_dicts, list):
@@ -752,7 +761,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         {
                             "sampler": sampler_index,
                             "source": image_index,
-                        }
+                        },
                     )
 
                 if bpy.app.version < (3, 1):
@@ -804,14 +813,23 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     json_dict["buffers"] = buffer_dicts
                 position_buffer_index = len(buffer_dicts)
                 position_buffer_bytes = struct.pack(
-                    "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
+                    "<9f",
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
                 )
                 buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(position_buffer_bytes).decode("ascii"),
                         "byteLength": len(position_buffer_bytes),
-                    }
+                    },
                 )
                 texcoord_buffer_index = len(buffer_dicts)
                 texcoord_buffer_bytes = struct.pack("<6f", 0.0, 0.0, 1.0, 0.0, 0.0, 1.0)
@@ -820,7 +838,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(texcoord_buffer_bytes).decode("ascii"),
                         "byteLength": len(texcoord_buffer_bytes),
-                    }
+                    },
                 )
 
                 buffer_view_dicts = json_dict.get("bufferViews")
@@ -832,14 +850,14 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     {
                         "buffer": position_buffer_index,
                         "byteLength": len(position_buffer_bytes),
-                    }
+                    },
                 )
                 texcoord_buffer_view_index = len(buffer_view_dicts)
                 buffer_view_dicts.append(
                     {
                         "buffer": texcoord_buffer_index,
                         "byteLength": len(texcoord_buffer_bytes),
-                    }
+                    },
                 )
 
                 accessor_dicts = json_dict.get("accessors")
@@ -855,7 +873,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "count": 3,
                         "min": [0, 0, 0],
                         "max": [1, 1, 0],
-                    }
+                    },
                 )
                 texcoord_accessors_index = len(accessor_dicts)
                 accessor_dicts.append(
@@ -864,7 +882,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "type": "VEC2",
                         "componentType": GL_FLOAT,
                         "count": 3,
-                    }
+                    },
                 )
 
                 material_dicts = json_dict.get("materials")
@@ -876,7 +894,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     {
                         "name": self.temp_object_name(),
                         "emissiveTexture": {"index": texture_index},
-                    }
+                    },
                 )
                 primitive_dicts.append(
                     {
@@ -885,7 +903,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                             "TEXCOORD_0": texcoord_accessors_index,
                         },
                         "material": tex_material_index,
-                    }
+                    },
                 )
 
             mesh_dicts = json_dict.get("meshes")
@@ -894,7 +912,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 json_dict["meshes"] = mesh_dicts
             tex_mesh_index = len(mesh_dicts)
             mesh_dicts.append(
-                {"name": self.temp_object_name(), "primitives": primitive_dicts}
+                {"name": self.temp_object_name(), "primitives": primitive_dicts},
             )
 
             node_dicts = json_dict.get("nodes")
@@ -909,7 +927,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 scene_dicts = []
                 json_dict["scenes"] = scene_dicts
             scene_dicts.append(
-                {"name": self.temp_object_name(), "nodes": [tex_node_index]}
+                {"name": self.temp_object_name(), "nodes": [tex_node_index]},
             )
 
         scene_dicts = json_dict.get("scenes")
@@ -928,36 +946,69 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     json_dict["buffers"] = buffer_dicts
                 position_buffer_index = len(buffer_dicts)
                 position_buffer_bytes = struct.pack(
-                    "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
+                    "<9f",
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
                 )
                 buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(position_buffer_bytes).decode("ascii"),
                         "byteLength": len(position_buffer_bytes),
-                    }
+                    },
                 )
                 joints_buffer_index = len(buffer_dicts)
                 joints_buffer_bytes = struct.pack(
-                    "<12H", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                    "<12H",
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
                 )
                 buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(joints_buffer_bytes).decode("ascii"),
                         "byteLength": len(joints_buffer_bytes),
-                    }
+                    },
                 )
                 weights_buffer_index = len(buffer_dicts)
                 weights_buffer_bytes = struct.pack(
-                    "<12f", 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0
+                    "<12f",
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
                 )
                 buffer_dicts.append(
                     {
                         "uri": "data:application/gltf-buffer;base64,"
                         + base64.b64encode(weights_buffer_bytes).decode("ascii"),
                         "byteLength": len(weights_buffer_bytes),
-                    }
+                    },
                 )
 
                 buffer_view_dicts = json_dict.get("bufferViews")
@@ -969,21 +1020,21 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     {
                         "buffer": position_buffer_index,
                         "byteLength": len(position_buffer_bytes),
-                    }
+                    },
                 )
                 joints_buffer_view_index = len(buffer_view_dicts)
                 buffer_view_dicts.append(
                     {
                         "buffer": joints_buffer_index,
                         "byteLength": len(joints_buffer_bytes),
-                    }
+                    },
                 )
                 weights_buffer_view_index = len(buffer_view_dicts)
                 buffer_view_dicts.append(
                     {
                         "buffer": weights_buffer_index,
                         "byteLength": len(weights_buffer_bytes),
-                    }
+                    },
                 )
 
                 accessor_dicts = json_dict.get("accessors")
@@ -999,7 +1050,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "count": 3,
                         "min": [0, 0, 0],
                         "max": [1, 1, 0],
-                    }
+                    },
                 )
                 joints_accessors_index = len(accessor_dicts)
                 accessor_dicts.append(
@@ -1008,7 +1059,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "type": "VEC4",
                         "componentType": GL_UNSIGNED_SHORT,
                         "count": 3,
-                    }
+                    },
                 )
                 weights_accessors_index = len(accessor_dicts)
                 accessor_dicts.append(
@@ -1017,7 +1068,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "type": "VEC4",
                         "componentType": GL_FLOAT,
                         "count": 3,
-                    }
+                    },
                 )
 
                 primitive_dicts = [
@@ -1026,8 +1077,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                             "POSITION": position_accessors_index,
                             "JOINTS_0": joints_accessors_index,
                             "WEIGHTS_0": weights_accessors_index,
-                        }
-                    }
+                        },
+                    },
                 ]
 
                 mesh_dicts = json_dict.get("meshes")
@@ -1037,8 +1088,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 skin_mesh_index = len(mesh_dicts)
                 mesh_dicts.append(
                     make_json(
-                        {"name": self.temp_object_name(), "primitives": primitive_dicts}
-                    )
+                        {
+                            "name": self.temp_object_name(),
+                            "primitives": primitive_dicts,
+                        },
+                    ),
                 )
 
                 skin_dicts = json_dict.get("skins")
@@ -1058,7 +1112,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         "name": self.temp_object_name(),
                         "mesh": skin_mesh_index,
                         "skin": skin_index,
-                    }
+                    },
                 )
 
                 scene_nodes = scene_dict.get("nodes")
@@ -1094,7 +1148,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(max_values, list):
                     for i, max_value in enumerate(list(max_values)):
                         if not isinstance(max_value, (float, int)) or math.isnan(
-                            max_value
+                            max_value,
                         ):
                             max_values[i] = FLOAT_POSITIVE_MAX
                         elif math.isinf(max_value):
@@ -1108,7 +1162,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(min_values, list):
                     for i, min_value in enumerate(list(min_values)):
                         if not isinstance(min_value, (float, int)) or math.isnan(
-                            min_value
+                            min_value,
                         ):
                             min_values[i] = FLOAT_NEGATIVE_MAX
                         elif math.isinf(min_value):
@@ -1138,7 +1192,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 logger.exception(
                     f'Failed to import "{indexed_vrm_filepath}"'
                     + f' generated from "{self.parse_result.filepath}"'
-                    + " using glTF 2.0 Add-on"
+                    + " using glTF 2.0 Add-on",
                 )
                 self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
@@ -1160,7 +1214,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     logger.exception(
                         f'Failed to import "{indexed_vrm_filepath}"'
                         + f' generated from "{self.parse_result.filepath}"'
-                        + " using glTF 2.0 Add-on without animations key"
+                        + " using glTF 2.0 Add-on without animations key",
                     )
                     self.cleanup_gltf2_with_indices()
                     raise
@@ -1231,7 +1285,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 bpy.ops.object.mode_set(mode="OBJECT")
 
                 bpy.ops.object.transform_apply(
-                    location=False, rotation=True, scale=False, properties=False
+                    location=False,
+                    rotation=True,
+                    scale=False,
+                    properties=False,
                 )
 
                 self.save_bone_child_object_world_matrices(obj)
@@ -1280,10 +1337,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         for image in list(bpy.data.images):
             custom_image_index = image.get(self.import_id)
             if not isinstance(custom_image_index, int) and image.name.startswith(
-                legacy_image_name_prefix
+                legacy_image_name_prefix,
             ):
                 custom_image_index_str = "".join(
-                    image.name.split(legacy_image_name_prefix)[1:]
+                    image.name.split(legacy_image_name_prefix)[1:],
                 ).split("_", maxsplit=1)[0]
                 with contextlib.suppress(ValueError):
                     custom_image_index = int(custom_image_index_str)
@@ -1291,7 +1348,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 continue
             image_dicts = json_dict.get("images")
             if isinstance(image_dicts, list) and 0 <= custom_image_index < len(
-                image_dicts
+                image_dicts,
             ):
                 # image.nameはインポート時に勝手に縮められてしまうことがあるので、
                 # jsonの値から復元する
@@ -1453,7 +1510,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if len(image_name) >= 100:
                 new_image_name = "texture_too_long_name_" + str(image_index)
                 logger.warning(
-                    f"too long name image: {image_name} is named {new_image_name}"
+                    f"too long name image: {image_name} is named {new_image_name}",
                 )
                 image_name = new_image_name
 
@@ -1498,7 +1555,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         addon_extension = self.armature_data.vrm_addon_extension
 
         Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            self.armature_data.name, defer=False
+            self.armature_data.name,
+            defer=False,
         )
 
         human_bones = addon_extension.vrm1.humanoid.human_bones
@@ -1559,7 +1617,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     if not parent:
                         break
                     parent_human_bone_name = bone_name_to_human_bone_name.get(
-                        parent.name
+                        parent.name,
                     )
 
                     if parent_human_bone_name in [
@@ -1632,7 +1690,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     continue
 
                 constraint_dict = deep.get(
-                    node_dict, ["extensions", "VRMC_node_constraint", "constraint"]
+                    node_dict,
+                    ["extensions", "VRMC_node_constraint", "constraint"],
                 )
                 if not isinstance(constraint_dict, dict):
                     continue
@@ -1688,7 +1747,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             for bone in human_bone_tree_bones + non_human_bone_tree_bones:
                 bone_index = next(
-                    (i for i, n in self.bone_names.items() if n == bone.name), None
+                    (i for i, n in self.bone_names.items() if n == bone.name),
+                    None,
                 )
                 if isinstance(bone_index, int):
                     group_axis_translation: Optional[str] = None
@@ -1697,11 +1757,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         set(),
                     ):
                         object_or_bone = self.get_object_or_bone_by_node_index(
-                            node_index
+                            node_index,
                         )
                         if isinstance(object_or_bone, PoseBone):
                             group_axis_translation = bone_name_to_axis_translation.get(
-                                object_or_bone.name
+                                object_or_bone.name,
                             )
                             if group_axis_translation is not None:
                                 break
@@ -1712,7 +1772,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                         )
                         if bone.parent and not bone.children:
                             bone.length = max(
-                                bone.parent.length / 2, make_armature.MIN_BONE_LENGTH
+                                bone.parent.length / 2,
+                                make_armature.MIN_BONE_LENGTH,
                             )
                         bone_name_to_axis_translation[
                             bone.name
@@ -1809,7 +1870,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     ),
                 ]
                 bone_length, axis_translation = sorted(
-                    bone_length_and_axis_translations, reverse=True, key=lambda x: x[0]
+                    bone_length_and_axis_translations,
+                    reverse=True,
+                    key=lambda x: x[0],
                 )[0]
                 bone.matrix = BoneExtension.translate_axis(
                     bone.matrix,
@@ -1819,12 +1882,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     bone.length = max(bone_length, make_armature.MIN_BONE_LENGTH)
                 elif bone.parent:
                     bone.length = max(
-                        bone.parent.length / 2, make_armature.MIN_BONE_LENGTH
+                        bone.parent.length / 2,
+                        make_armature.MIN_BONE_LENGTH,
                     )
                 bone_name_to_axis_translation[bone.name] = axis_translation
 
             connect_parent_tail_and_child_head_if_very_close_position(
-                self.armature_data
+                self.armature_data,
             )
 
             bpy.ops.object.mode_set(mode="OBJECT")
@@ -1837,22 +1901,23 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 )
 
             for node_index in set(constraint_node_index_to_source_index.keys()) | set(
-                constraint_node_index_to_source_index.values()
+                constraint_node_index_to_source_index.values(),
             ):
                 object_or_bone = self.get_object_or_bone_by_node_index(node_index)
                 if not isinstance(object_or_bone, Object):
                     continue
                 for group_node_index in next(
-                    (g for g in constraint_node_index_groups if node_index in g), set()
+                    (g for g in constraint_node_index_groups if node_index in g),
+                    set(),
                 ):
                     group_object_or_bone = self.get_object_or_bone_by_node_index(
-                        group_node_index
+                        group_node_index,
                     )
                     if isinstance(group_object_or_bone, PoseBone):
                         self.translate_object_axis(
                             object_or_bone,
                             BoneExtension.reverse_axis_translation(
-                                group_object_or_bone.bone.vrm_addon_extension.axis_translation
+                                group_object_or_bone.bone.vrm_addon_extension.axis_translation,
                             ),
                         )
                         break
@@ -1901,11 +1966,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         self.load_vrm1_humanoid(vrm1.humanoid, vrm1_extension_dict.get("humanoid"))
         self.setup_vrm1_humanoid_bones()
         self.load_vrm1_first_person(
-            vrm1.first_person, vrm1_extension_dict.get("firstPerson")
+            vrm1.first_person,
+            vrm1_extension_dict.get("firstPerson"),
         )
         self.load_vrm1_look_at(vrm1.look_at, vrm1_extension_dict.get("lookAt"))
         self.load_vrm1_expressions(
-            vrm1.expressions, vrm1_extension_dict.get("expressions")
+            vrm1.expressions,
+            vrm1_extension_dict.get("expressions"),
         )
         self.load_spring_bone1(
             addon_extension.spring_bone1,
@@ -1964,11 +2031,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             meta.avatar_permission = avatar_permission
 
         meta.allow_excessively_violent_usage = bool(
-            meta_dict.get("allowExcessivelyViolentUsage")
+            meta_dict.get("allowExcessivelyViolentUsage"),
         )
 
         meta.allow_excessively_sexual_usage = bool(
-            meta_dict.get("allowExcessivelySexualUsage")
+            meta_dict.get("allowExcessivelySexualUsage"),
         )
 
         commercial_usage = meta_dict.get("commercialUsage")
@@ -1979,11 +2046,11 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             meta.commercial_usage = commercial_usage
 
         meta.allow_political_or_religious_usage = bool(
-            meta_dict.get("allowPoliticalOrReligiousUsage")
+            meta_dict.get("allowPoliticalOrReligiousUsage"),
         )
 
         meta.allow_antisocial_or_hate_usage = bool(
-            meta_dict.get("allowAntisocialOrHateUsage")
+            meta_dict.get("allowAntisocialOrHateUsage"),
         )
 
         credit_notation = meta_dict.get("creditNotation")
@@ -2007,7 +2074,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             meta.other_license_url = str(other_license_url)
 
     def load_vrm1_humanoid(
-        self, humanoid: Vrm1HumanoidPropertyGroup, humanoid_dict: Json
+        self,
+        humanoid: Vrm1HumanoidPropertyGroup,
+        humanoid_dict: Json,
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -2076,8 +2145,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
         offset_from_head_bone = Vector(
             convert.vrm_json_array_to_float_vector(
-                look_at_dict.get("offsetFromHeadBone"), [0, 0, 0]
-            )
+                look_at_dict.get("offsetFromHeadBone"),
+                [0, 0, 0],
+            ),
         )
 
         humanoid = self.armature_data.vrm_addon_extension.vrm1.humanoid
@@ -2089,7 +2159,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 @ BoneExtension.translate_axis(
                     Matrix(),
                     BoneExtension.reverse_axis_translation(
-                        head_bone.vrm_addon_extension.axis_translation
+                        head_bone.vrm_addon_extension.axis_translation,
                     ),
                 )
             )
@@ -2233,11 +2303,13 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     texture_transform_bind.material = material
 
             texture_transform_bind.scale = convert.vrm_json_array_to_float_vector(
-                texture_transform_bind_dict.get("scale"), [1, 1]
+                texture_transform_bind_dict.get("scale"),
+                [1, 1],
             )
 
             texture_transform_bind.offset = convert.vrm_json_array_to_float_vector(
-                texture_transform_bind_dict.get("offset"), [0, 0]
+                texture_transform_bind_dict.get("offset"),
+                [0, 0],
             )
 
         is_binary = expression_dict.get("isBinary")
@@ -2303,7 +2375,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         for collider_dict in collider_dicts:
             if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
-                "FINISHED"
+                "FINISHED",
             }:
                 message = f'Failed to add spring bone 1.0 collider to "{armature.name}"'
                 raise ValueError(message)
@@ -2334,8 +2406,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 collider.shape_type = collider.SHAPE_TYPE_SPHERE
                 offset = Vector(
                     convert.vrm_json_array_to_float_vector(
-                        sphere_dict.get("offset"), [0, 0, 0]
-                    )
+                        sphere_dict.get("offset"),
+                        [0, 0, 0],
+                    ),
                 )
                 if bone:
                     axis_translation = bone.vrm_addon_extension.axis_translation
@@ -2357,8 +2430,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             offset = Vector(
                 convert.vrm_json_array_to_float_vector(
-                    capsule_dict.get("offset"), [0, 0, 0]
-                )
+                    capsule_dict.get("offset"),
+                    [0, 0, 0],
+                ),
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
@@ -2374,8 +2448,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
             tail = Vector(
                 convert.vrm_json_array_to_float_vector(
-                    capsule_dict.get("tail"), [0, 0, 0]
-                )
+                    capsule_dict.get("tail"),
+                    [0, 0, 0],
+                ),
             )
             if bone:
                 axis_translation = bone.vrm_addon_extension.axis_translation
@@ -2413,10 +2488,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             collider_group_dicts = []
 
         for collider_group_index, collider_group_dict in enumerate(
-            collider_group_dicts
+            collider_group_dicts,
         ):
             if bpy.ops.vrm.add_spring_bone1_collider_group(
-                armature_name=armature_name
+                armature_name=armature_name,
             ) != {"FINISHED"}:
                 message = (
                     f"Failed to add spring bone 1.0 collider group to {armature_name}"
@@ -2443,7 +2518,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 ) != {"FINISHED"}:
                     raise ValueError(
                         "Failed to assign spring bone 1.0 collider to collider group "
-                        + f"{collider_group_index} in {armature_name}"
+                        + f"{collider_group_index} in {armature_name}",
                     )
                 if not isinstance(collider_index, int):
                     continue
@@ -2467,7 +2542,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
         for spring_dict in spring_dicts:
             if bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature_name) != {
-                "FINISHED"
+                "FINISHED",
             } or not isinstance(spring_dict, dict):
                 continue
 
@@ -2575,7 +2650,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         )
 
     def get_object_or_bone_by_node_index(
-        self, node_index: int
+        self,
+        node_index: int,
     ) -> Union[Object, PoseBone, None]:
         object_name = self.object_names.get(node_index)
         bone_name = self.bone_names.get(node_index)
@@ -2600,7 +2676,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 continue
 
             constraint_dict = deep.get(
-                node_dict, ["extensions", "VRMC_node_constraint", "constraint"]
+                node_dict,
+                ["extensions", "VRMC_node_constraint", "constraint"],
             )
             if not isinstance(constraint_dict, dict):
                 continue
@@ -2616,7 +2693,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             axis_translation = BoneExtension.reverse_axis_translation(
                 object_or_bone.bone.vrm_addon_extension.axis_translation
                 if isinstance(object_or_bone, PoseBone)
-                else object_or_bone.vrm_addon_extension.axis_translation
+                else object_or_bone.vrm_addon_extension.axis_translation,
             )
 
             if isinstance(roll_dict, dict):

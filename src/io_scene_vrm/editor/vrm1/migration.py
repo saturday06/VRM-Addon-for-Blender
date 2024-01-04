@@ -14,13 +14,14 @@ from .property_group import (
 
 
 def migrate_old_expression_layout(
-    old_expression: object, expression: Vrm1ExpressionPropertyGroup
+    old_expression: object,
+    expression: Vrm1ExpressionPropertyGroup,
 ) -> None:
     if not isinstance(old_expression, IDPropertyGroup):
         return
 
     old_morph_target_binds = convert.iterator_or_none(
-        old_expression.get("morph_target_binds")
+        old_expression.get("morph_target_binds"),
     )
     if old_morph_target_binds is not None:
         for old_morph_target_bind in old_morph_target_binds:
@@ -46,7 +47,7 @@ def migrate_old_expression_layout(
             old_morph_target_bind.clear()
 
     old_material_color_binds = convert.iterator_or_none(
-        old_expression.get("material_color_binds")
+        old_expression.get("material_color_binds"),
     )
     if old_material_color_binds is not None:
         for old_material_color_bind in old_material_color_binds:
@@ -75,7 +76,9 @@ def migrate_old_expression_layout(
                 material_color_bind.type = old_type
 
             old_target_value = shader.rgba_or_none(
-                old_material_color_bind.get("target_value"), 0.0, 1.0
+                old_material_color_bind.get("target_value"),
+                0.0,
+                1.0,
             )
             if old_target_value:
                 material_color_bind.target_value = old_target_value
@@ -83,7 +86,7 @@ def migrate_old_expression_layout(
             old_material_color_bind.clear()
 
     old_texture_transform_binds = convert.iterator_or_none(
-        old_expression.get("texture_transform_binds")
+        old_expression.get("texture_transform_binds"),
     )
     if old_texture_transform_binds is not None:
         for old_texture_transform_bind in old_texture_transform_binds:
@@ -100,7 +103,7 @@ def migrate_old_expression_layout(
                 texture_transform_bind.scale = old_scale
 
             old_offset = convert.float2_or_none(
-                old_texture_transform_bind.get("offset")
+                old_texture_transform_bind.get("offset"),
             )
             if old_offset:
                 texture_transform_bind.offset = old_offset
@@ -198,7 +201,7 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: Object) -> None:
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         if all(not b.node.bone_name for b in human_bone_name_to_human_bone.values()):
             bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
-                armature_name=armature.name
+                armature_name=armature.name,
             )
 
     if tuple(armature_data.vrm_addon_extension.addon_version) <= (2, 14, 10):
@@ -230,7 +233,7 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: Object) -> None:
 
     if tuple(armature_data.vrm_addon_extension.addon_version) < (2, 18, 0):
         migrate_old_expressions_layout(
-            armature_data.vrm_addon_extension.vrm1.expressions
+            armature_data.vrm_addon_extension.vrm1.expressions,
         )
 
     if tuple(armature_data.vrm_addon_extension.addon_version) < (2, 20, 0):

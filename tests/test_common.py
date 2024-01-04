@@ -148,7 +148,7 @@ class TestVrm0HumanBone(TestCase):
 
         structure_human_bone_names = []
         children: list[vrm0_human_bone.HumanBoneStructure] = [
-            vrm0_human_bone.HUMAN_BONE_STRUCTURE
+            vrm0_human_bone.HUMAN_BONE_STRUCTURE,
         ]
         while children:
             current = children.pop()
@@ -208,10 +208,12 @@ class TestVrm0HumanBone(TestCase):
         )
 
         self.assertEqual(
-            vrm0_human_bone.HumanBoneSpecifications.RIGHT_TOES.children_names, []
+            vrm0_human_bone.HumanBoneSpecifications.RIGHT_TOES.children_names,
+            [],
         )
         self.assertEqual(
-            vrm0_human_bone.HumanBoneSpecifications.RIGHT_TOES.children(), []
+            vrm0_human_bone.HumanBoneSpecifications.RIGHT_TOES.children(),
+            [],
         )
 
         self.assertEqual(
@@ -258,7 +260,7 @@ class TestVrm1HumanBone(TestCase):
 
         structure_human_bone_names = []
         children: list[vrm1_human_bone.HumanBoneStructure] = [
-            vrm1_human_bone.HUMAN_BONE_STRUCTURE
+            vrm1_human_bone.HUMAN_BONE_STRUCTURE,
         ]
         while children:
             current = children.pop()
@@ -318,10 +320,12 @@ class TestVrm1HumanBone(TestCase):
         )
 
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.children_names, []
+            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.children_names,
+            [],
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.children(), []
+            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.children(),
+            [],
         )
 
         self.assertEqual(

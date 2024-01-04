@@ -73,7 +73,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
 
     data_path_to_bone_and_property_name: dict[str, tuple[PoseBone, str]] = {}
     frame_to_timestamp_factor = context.scene.render.fps_base / float(
-        context.scene.render.fps
+        context.scene.render.fps,
     )
 
     for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
@@ -100,7 +100,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             )
         else:
             logger.error(
-                f"Unexpected rotation mode for bone {bone.name}: {bone.rotation_mode}"
+                f"Unexpected rotation mode for bone {bone.name}: {bone.rotation_mode}",
             )
 
         if human_bone_name == HumanBoneName.HIPS:
@@ -121,7 +121,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 break
             parent_human_bone_specification = parent_human_bone_specification_or_none
             parent_human_bone = human_bone_name_to_human_bone.get(
-                parent_human_bone_specification.name
+                parent_human_bone_specification.name,
             )
             if not parent_human_bone:
                 continue
@@ -201,7 +201,8 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             ] = expression.name
 
         expression_name_to_expression_values: dict[
-            str, list[tuple[float, float, float]]
+            str,
+            list[tuple[float, float, float]],
         ] = {}
 
         action = expression_animation_data.action
@@ -216,7 +217,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 continue
             for frame in range(frame_start, frame_end + 1):
                 expression_values = expression_name_to_expression_values.get(
-                    expression_name
+                    expression_name,
                 )
                 if not expression_values:
                     expression_values = []
@@ -228,7 +229,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                         max(0, min(fcurve.evaluate(frame), 1)),
                         0,
                         expression_export_index / 8.0,
-                    )
+                    ),
                 )
             expression_export_index += 1
 
@@ -240,7 +241,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             node_dicts.append(
                 {
                     "name": expression_name,
-                }
+                },
             )
 
             if expression_name in vrm1.expressions.preset.name_to_expression_dict():
@@ -275,7 +276,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
 
             output_byte_offset = len(buffer0_bytearray)
             expression_translation_floats: list[float] = list(
-                itertools.chain(*expression_translations)
+                itertools.chain(*expression_translations),
             )
             translation_bytes = struct.pack(
                 "<" + "f" * len(expression_translation_floats),
@@ -304,7 +305,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                     "type": "SCALAR",
                     "min": [min(input_floats)],
                     "max": [max(input_floats)],
-                }
+                },
             )
 
             output_accessor_index = len(accessor_dicts)
@@ -334,7 +335,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                             for i in range(3)
                         ]
                     ],
-                }
+                },
             )
 
             animation_sampler_index = len(animation_sampler_dicts)
@@ -342,13 +343,13 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 {
                     "input": input_accessor_index,
                     "output": output_accessor_index,
-                }
+                },
             )
             animation_channel_dicts.append(
                 {
                     "sampler": animation_sampler_index,
                     "target": {"node": node_index, "path": "translation"},
-                }
+                },
             )
 
     if armature.animation_data and armature.animation_data.action:
@@ -364,7 +365,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 continue
 
             bone_and_property_name = data_path_to_bone_and_property_name.get(
-                fcurve.data_path
+                fcurve.data_path,
             )
             if not bone_and_property_name:
                 continue
@@ -515,7 +516,8 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             ]
             quaternion_floats: list[float] = list(itertools.chain(*gltf_quaternions))
             quaternion_bytes = struct.pack(
-                "<" + "f" * len(quaternion_floats), *quaternion_floats
+                "<" + "f" * len(quaternion_floats),
+                *quaternion_floats,
             )
             buffer0_bytearray.extend(quaternion_bytes)
             while (
@@ -540,7 +542,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                     "type": "SCALAR",
                     "min": [min(input_floats)],
                     "max": [max(input_floats)],
-                }
+                },
             )
 
             output_accessor_index = len(accessor_dicts)
@@ -564,7 +566,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                             for i in range(4)
                         ]
                     ],
-                }
+                },
             )
 
             animation_sampler_index = len(animation_sampler_dicts)
@@ -572,13 +574,13 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 {
                     "input": input_accessor_index,
                     "output": output_accessor_index,
-                }
+                },
             )
             animation_channel_dicts.append(
                 {
                     "sampler": animation_sampler_index,
                     "target": {"node": human_bone_node_index, "path": "rotation"},
-                }
+                },
             )
 
         # hipsの平行移動のエクスポート
@@ -616,7 +618,8 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             ]
             translation_floats: list[float] = list(itertools.chain(*gltf_translations))
             translation_bytes = struct.pack(
-                "<" + "f" * len(translation_floats), *translation_floats
+                "<" + "f" * len(translation_floats),
+                *translation_floats,
             )
             buffer0_bytearray.extend(translation_bytes)
             while (
@@ -641,7 +644,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                     "type": "SCALAR",
                     "min": [min(input_floats)],
                     "max": [max(input_floats)],
-                }
+                },
             )
 
             output_accessor_index = len(accessor_dicts)
@@ -671,7 +674,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                             for i in range(3)
                         ]
                     ],
-                }
+                },
             )
 
             animation_sampler_index = len(animation_sampler_dicts)
@@ -679,13 +682,13 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 {
                     "input": input_accessor_index,
                     "output": output_accessor_index,
-                }
+                },
             )
             animation_channel_dicts.append(
                 {
                     "sampler": animation_sampler_index,
                     "target": {"node": human_bone_node_index, "path": "translation"},
-                }
+                },
             )
 
     buffer_dicts: list[dict[str, Json]] = [{"byteLength": len(buffer0_bytearray)}]
@@ -710,7 +713,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 {
                     "channels": animation_channel_dicts,
                     "samplers": animation_sampler_dicts,
-                }
+                },
             ],
             "extensionsUsed": ["VRMC_vrm_animation"],
             "extensions": {
@@ -724,7 +727,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                     },
                 },
             },
-        }
+        },
     )
 
     if not isinstance(vrma_dict, dict):
