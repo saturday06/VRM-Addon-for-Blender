@@ -156,7 +156,7 @@ def diff(
         if error > float_tolerance:
             return [
                 f"{path}: left is {float(left):20.17f}"
-                + " but right is {float(right):20.17f}, error={error:19.17f}"
+                + f" but right is {float(right):20.17f}, error={error:19.17f}"
             ]
         return []
 
