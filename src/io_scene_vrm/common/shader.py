@@ -984,7 +984,14 @@ def copy_node_tree_interface_socket(
     elif isinstance(from_socket, color_classes) and isinstance(
         to_socket, color_classes
     ):
-        to_socket.default_value = deepcopy(from_socket.default_value[0:4])
+        to_socket.default_value = deepcopy(
+            (
+                from_socket.default_value[0],
+                from_socket.default_value[1],
+                from_socket.default_value[2],
+                from_socket.default_value[3],
+            )
+        )
     elif isinstance(from_socket, vector_classes) and isinstance(
         to_socket, vector_classes
     ):
