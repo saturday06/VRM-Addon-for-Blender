@@ -575,7 +575,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             1,
         ),
     )
-    type: EnumProperty(  # type: ignore[valid-type]  # noqa: A003
+    type: EnumProperty(  # type: ignore[valid-type]
         name="Type",
         items=type_items,
     )
@@ -858,7 +858,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         offset_from_head_bone: Sequence[float]  # type: ignore[no-redef]
-        type: str  # type: ignore[no-redef]  # noqa: A003
+        type: str  # type: ignore[no-redef]
         range_map_horizontal_inner: (  # type: ignore[no-redef]
             Vrm1LookAtRangeMapPropertyGroup
         )
@@ -887,7 +887,7 @@ class Vrm1MeshAnnotationPropertyGroup(PropertyGroup):
         ("thirdPersonOnly", "Third-Person Only", "", 2),
         ("firstPersonOnly", "First-Person Only", "", 3),
     )
-    type: EnumProperty(  # type: ignore[valid-type]  # noqa: A003
+    type: EnumProperty(  # type: ignore[valid-type]
         items=type_items,
         name="First Person Type",
     )
@@ -896,7 +896,7 @@ class Vrm1MeshAnnotationPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         node: MeshObjectPropertyGroup  # type: ignore[no-redef]
-        type: str  # type: ignore[no-redef]  # noqa: A003
+        type: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.schema.json
@@ -948,7 +948,7 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
         ("rimColor", "Rim Color", "", 3),
         ("outlineColor", "Outline Color", "", 4),
     )
-    type: EnumProperty(  # type: ignore[valid-type]  # noqa: A003
+    type: EnumProperty(  # type: ignore[valid-type]
         name="Type",
         items=type_items,
     )
@@ -989,7 +989,7 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         material: Optional[Material]  # type: ignore[no-redef]
-        type: str  # type: ignore[no-redef]  # noqa: A003
+        type: str  # type: ignore[no-redef]
         target_value: Sequence[float]  # type: ignore[no-redef]
         target_value_as_rgb: Sequence[float]  # type: ignore[no-redef]
 
