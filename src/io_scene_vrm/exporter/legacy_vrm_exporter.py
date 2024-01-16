@@ -137,7 +137,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
-        wm.progress_begin(0, 11)
+        wm.progress_begin(0, 10)
         blend_shape_previews = self.clear_blend_shape_proxy_previews(self.armature_data)
         object_name_and_modifier_names = self.hide_mtoon1_outline_geometry_nodes()
         try:
@@ -165,8 +165,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             wm.progress_update(8)
             self.vrm_meta_to_dict()  # colliderとかmetaとか....
             wm.progress_update(9)
-            self.fill_empty_material()
-            wm.progress_update(10)
             self.pack()
         finally:
             try:
@@ -1852,6 +1850,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if not swapped:
                 break
 
+        missing_material_index: Optional[int] = None
         skin_count = 0
         for mesh in meshes:
             is_skin_mesh = self.is_skin_mesh(mesh)
@@ -1981,9 +1980,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 if isinstance(material_dict, dict)
             }
             material_slot_index_to_material_name_dict = {
-                i: slot.material.name
-                for i, slot in enumerate(mesh.material_slots)
-                if slot.material
+                i: material_slot.material.name
+                for i, material_slot in enumerate(mesh.material_slots)
+                if material_slot.material
             }
             node_name_to_index_dict: dict[str, int] = {
                 str(node_dict.get("name")): i
@@ -2001,38 +2000,30 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 i: uvlayer.name for i, uvlayer in enumerate(mesh_data.uv_layers)
             }
 
-            primitive_index_bin_dict: dict[Optional[int], bytearray] = {
-                material_name_to_index_dict[mat.name]: bytearray()
-                for mat in mesh.material_slots
-                if mat.name
-            }
-            primitive_index_vertex_count: dict[Optional[int], int] = {
-                material_name_to_index_dict[mat.name]: 0
-                for mat in mesh.material_slots
-                if mat.name
-            }
+            material_index_to_bin_dict: dict[int, bytearray] = {}
+            material_index_to_vertex_len_dict: dict[int, int] = {}
 
-            shape_pos_bin_dict: dict[str, bytearray] = {}
-            shape_normal_bin_dict: dict[str, bytearray] = {}
-            shape_min_max_dict: dict[str, list[list[float]]] = {}
-            morph_normal_diff_dict: dict[str, list[list[float]]] = {}
+            shape_name_to_pos_bin_dict: dict[str, bytearray] = {}
+            shape_name_to_normal_bin_dict: dict[str, bytearray] = {}
+            shape_name_to_min_max_dict: dict[str, list[list[float]]] = {}
+            shape_name_to_morph_normal_diff_dict: dict[str, list[list[float]]] = {}
             if mesh_data.shape_keys is not None:
                 # 0番目Basisは省く
-                shape_pos_bin_dict = {
+                shape_name_to_pos_bin_dict = {
                     shape.name: bytearray()
                     for shape in mesh_data.shape_keys.key_blocks[1:]
                 }
-                shape_normal_bin_dict = {
+                shape_name_to_normal_bin_dict = {
                     shape.name: bytearray()
                     for shape in mesh_data.shape_keys.key_blocks[1:]
                 }
-                shape_min_max_dict = {
+                shape_name_to_min_max_dict = {
                     shape.name: [[fmax, fmax, fmax], [fmin, fmin, fmin]]
                     for shape in mesh_data.shape_keys.key_blocks[1:]
                 }
                 # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
-                morph_normal_diff_dict = self.fetch_morph_vertex_normal_difference(
-                    mesh_data
+                shape_name_to_morph_normal_diff_dict = (
+                    self.fetch_morph_vertex_normal_difference(mesh_data)
                 )
             position_bin = bytearray()
             position_min_max = [[fmax, fmax, fmax], [fmin, fmin, fmin]]
@@ -2046,9 +2037,56 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             unsigned_int_scalar_packer = struct.Struct("<I").pack
             unsigned_short_vec4_packer = struct.Struct("<HHHH").pack
 
-            for material_index, loops in self.tessface_fan(
+            for material_slot_index, loops in self.tessface_fan(
                 bm, self.export_fb_ngon_encoding
             ):
+                material_name = material_slot_index_to_material_name_dict.get(
+                    material_slot_index
+                )
+                material_index = None
+                if isinstance(material_name, str):
+                    material_index = material_name_to_index_dict.get(material_name)
+                if material_index is None:
+                    if missing_material_index is None:
+                        # clusterではマテリアル無しのプリミティブが許可されないため、
+                        # 空のマテリアルを付与する。
+                        missing_material_name = "glTF_2_0_default_material"
+                        missing_material_index = len(material_dicts)
+                        material_dicts.append({"name": missing_material_name})
+
+                        extensions_dict = self.json_dict.get("extensions")
+                        if not isinstance(extensions_dict, dict):
+                            extensions_dict = {}
+                            self.json_dict["extensions"] = extensions_dict
+
+                        vrm_dict = extensions_dict.get("VRM")
+                        if not isinstance(vrm_dict, dict):
+                            vrm_dict = {}
+                            extensions_dict["VRM"] = vrm_dict
+
+                        material_property_dicts = vrm_dict.get("materialProperties")
+                        if not isinstance(material_property_dicts, list):
+                            material_property_dicts = []
+                            vrm_dict["materialProperties"] = material_property_dicts
+
+                        material_property_dicts.append(
+                            {
+                                "name": missing_material_name,
+                                "shader": "VRM_USE_GLTFSHADER",
+                                "keywordMap": {},
+                                "tagMap": {},
+                                "floatProperties": {},
+                                "vectorProperties": {},
+                                "textureProperties": {},
+                            }
+                        )
+
+                    material_index = missing_material_index
+                if material_index not in material_index_to_bin_dict:
+                    material_index_to_bin_dict[material_index] = bytearray()
+                if material_index not in material_index_to_vertex_len_dict:
+                    material_index_to_vertex_len_dict[material_index] = 0
+
                 for loop in loops:
                     uv_list = []
                     for uvlayer_name in uvlayers_dict.values():
@@ -2064,20 +2102,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         vertex_key
                     )  # keyがなければNoneを返す
                     if cached_vert_id is not None:
-                        primitive_index = None
-                        material_slot_name = (
-                            material_slot_index_to_material_name_dict.get(
-                                material_index
-                            )
-                        )
-                        if isinstance(material_slot_name, str):
-                            primitive_index = material_name_to_index_dict[
-                                material_slot_name
-                            ]
-                        primitive_index_bin_dict[primitive_index].extend(
+                        material_index_to_bin_dict[material_index].extend(
                             unsigned_int_scalar_packer(cached_vert_id)
                         )
-                        primitive_index_vertex_count[primitive_index] += 1
+                        material_index_to_vertex_len_dict[material_index] += 1
                         continue
                     unique_vertex_dict[vertex_key] = unique_vertex_id
                     for uvlayer_id, uvlayer_name in uvlayers_dict.items():
@@ -2086,7 +2114,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         texcoord_bins[uvlayer_id].extend(
                             float_pair_packer(uv[0], 1 - uv[1])
                         )  # blenderとglbのuvは上下逆
-                    for shape_name in shape_pos_bin_dict:
+                    for shape_name in shape_name_to_pos_bin_dict:
                         shape_layer = bm.verts.layers.shape[shape_name]
                         morph_pos = self.axis_blender_to_glb(
                             [
@@ -2094,17 +2122,19 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                                 for i in range(3)
                             ]
                         )
-                        shape_pos_bin_dict[shape_name].extend(
+                        shape_name_to_pos_bin_dict[shape_name].extend(
                             float_vec3_packer(*morph_pos)
                         )
-                        shape_normal_bin_dict[shape_name].extend(
+                        shape_name_to_normal_bin_dict[shape_name].extend(
                             float_vec3_packer(
                                 *self.axis_blender_to_glb(
-                                    morph_normal_diff_dict[shape_name][loop.vert.index]
+                                    shape_name_to_morph_normal_diff_dict[shape_name][
+                                        loop.vert.index
+                                    ]
                                 )
                             )
                         )
-                        self.min_max(shape_min_max_dict[shape_name], morph_pos)
+                        self.min_max(shape_name_to_min_max_dict[shape_name], morph_pos)
                     if is_skin_mesh:
                         weight_and_joint_list: list[tuple[float, int]] = []
                         for v_group in mesh_data.vertices[loop.vert.index].groups:
@@ -2196,40 +2226,28 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     normal_bin.extend(
                         float_vec3_packer(*self.axis_blender_to_glb(vert_normal))
                     )
-                    primitive_index = None
-                    material_slot_name = material_slot_index_to_material_name_dict.get(
-                        material_index
-                    )
-                    if isinstance(material_slot_name, str):
-                        primitive_index = material_name_to_index_dict[
-                            material_slot_name
-                        ]
-                    if primitive_index not in primitive_index_bin_dict:
-                        primitive_index_bin_dict[primitive_index] = bytearray()
-                    if primitive_index not in primitive_index_vertex_count:
-                        primitive_index_vertex_count[primitive_index] = 0
-                    primitive_index_bin_dict[primitive_index].extend(
+                    material_index_to_bin_dict[material_index].extend(
                         unsigned_int_scalar_packer(unique_vertex_id)
                     )
-                    primitive_index_vertex_count[primitive_index] += 1
+                    material_index_to_vertex_len_dict[material_index] += 1
                     unique_vertex_id += 1
 
             # DONE :index position, uv, normal, position morph,JOINT WEIGHT
             # TODO: morph_normal, v_color...?
-            primitive_glbs_dict = {
-                mat_id: GlbBin(
+            material_index_to_glb_dict = {
+                material_index: GlbBin(
                     index_bin,
                     "SCALAR",
                     GL_UNSIGNED_INT,
-                    primitive_index_vertex_count[mat_id],
+                    material_index_to_vertex_len_dict[material_index],
                     None,
                     self.glb_bin_collector,
                 )
-                for mat_id, index_bin in primitive_index_bin_dict.items()
+                for material_index, index_bin in material_index_to_bin_dict.items()
                 if index_bin
             }
 
-            if not primitive_glbs_dict:
+            if not material_index_to_glb_dict:
                 bm.free()
                 continue
 
@@ -2300,7 +2318,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             morph_pos_glbs = None
             morph_normal_glbs = None
-            if shape_pos_bin_dict:
+            if shape_name_to_pos_bin_dict:
                 morph_pos_glbs = [
                     GlbBin(
                         morph_pos_bin,
@@ -2311,7 +2329,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         self.glb_bin_collector,
                     )
                     for morph_pos_bin, morph_minmax in zip(
-                        shape_pos_bin_dict.values(), shape_min_max_dict.values()
+                        shape_name_to_pos_bin_dict.values(),
+                        shape_name_to_min_max_dict.values(),
                     )
                 ]
                 morph_normal_glbs = [
@@ -2323,14 +2342,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         None,
                         self.glb_bin_collector,
                     )
-                    for morph_normal_bin in shape_normal_bin_dict.values()
+                    for morph_normal_bin in shape_name_to_normal_bin_dict.values()
                 ]
 
             primitive_list: list[Json] = []
-            for primitive_id, index_glb in primitive_glbs_dict.items():
+            for material_index, index_glb in material_index_to_glb_dict.items():
                 primitive: dict[str, Json] = {"mode": 4}
-                if primitive_id is not None:
-                    primitive["material"] = primitive_id
+                primitive["material"] = material_index
                 primitive["indices"] = index_glb.accessor_id
                 attributes_dict: dict[str, Json] = {
                     "POSITION": pos_glb.accessor_id,
@@ -2356,7 +2374,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         for i, uv_glb in enumerate(uv_glbs)
                     }
                 )
-                if shape_pos_bin_dict:
+                if shape_name_to_pos_bin_dict:
                     if morph_pos_glbs and morph_normal_glbs:
                         primitive["targets"] = [
                             {
@@ -2368,7 +2386,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             )
                         ]
                     primitive["extras"] = {
-                        "targetNames": list(shape_pos_bin_dict.keys())
+                        "targetNames": list(shape_name_to_pos_bin_dict.keys())
                     }
                 primitive_list.append(primitive)
             self.mesh_name_to_index[mesh.name] = mesh_index
@@ -2856,69 +2874,6 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
         if isinstance(first_scene_nodes, list):
             first_scene_nodes.append(len(node_dicts) - 1)
-
-    def fill_empty_material(self) -> None:
-        # clusterではマテリアル無しのプリミティブが許可されないため、
-        # 空のマテリアルを付与する。
-        material_dicts = self.json_dict.get("materials")
-        if not isinstance(material_dicts, list):
-            material_dicts = []
-            self.json_dict["materials"] = material_dicts
-
-        mesh_dicts = self.json_dict.get("meshes")
-        if not isinstance(mesh_dicts, list):
-            mesh_dicts = []
-            self.json_dict["meshes"] = mesh_dicts
-
-        empty_material_index = len(material_dicts)
-        create_empty_material = False
-        for mesh_dict in mesh_dicts:
-            if not isinstance(mesh_dict, dict):
-                continue
-            primitive_dicts = mesh_dict.get("primitives")
-            if not isinstance(primitive_dicts, list):
-                continue
-            for primitive_dict in primitive_dicts:
-                if not isinstance(primitive_dict, dict):
-                    continue
-                material_index = primitive_dict.get("material")
-                if isinstance(material_index, int):
-                    continue
-                primitive_dict["material"] = empty_material_index
-                create_empty_material = True
-
-        if not create_empty_material:
-            return
-
-        name = "glTF_2_0_default_material"
-        material_dicts.append({"name": name})
-
-        extensions_dict = self.json_dict.get("extensions")
-        if not isinstance(extensions_dict, dict):
-            extensions_dict = {}
-            self.json_dict["extensions"] = extensions_dict
-
-        vrm_dict = extensions_dict.get("VRM")
-        if not isinstance(vrm_dict, dict):
-            vrm_dict = {}
-            extensions_dict["VRM"] = vrm_dict
-
-        material_property_dicts = vrm_dict.get("materialProperties")
-        if not isinstance(material_property_dicts, list):
-            material_property_dicts = []
-            vrm_dict["materialProperties"] = material_property_dicts
-
-        material_property_dicts.append(
-            {
-                "name": name,
-                "shader": "VRM_USE_GLTFSHADER",
-                "keywordMap": {},
-                "tagMap": {},
-                "floatProperties": {},
-                "vectorProperties": {},
-                "textureProperties": {},
-            }
-        )
 
     def pack(self) -> None:
         bin_json, bin_chunk = self.glb_bin_collector.pack_all()
