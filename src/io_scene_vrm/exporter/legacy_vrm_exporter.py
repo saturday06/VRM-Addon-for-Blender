@@ -1875,12 +1875,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
             node_dicts.append(node_dict)
 
-            mesh_node_id = len(node_dicts) - 1
+            node_index = len(node_dicts) - 1
 
             if is_skin_mesh:
                 first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
                 if isinstance(first_scene_nodes, list):
-                    first_scene_nodes.append(mesh_node_id)
+                    first_scene_nodes.append(node_index)
             else:
                 if mesh.parent_type == "BONE":
                     parent_node = (
@@ -1910,7 +1910,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     if not isinstance(children, list):
                         children = []
                         parent_node["children"] = children
-                    children.append(mesh_node_id)
+                    children.append(node_index)
                     if mesh.parent_type == "BONE":
                         base_pos = (
                             self.armature.matrix_world
@@ -1923,12 +1923,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 else:
                     first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
                     if isinstance(first_scene_nodes, list):
-                        first_scene_nodes.append(mesh_node_id)
+                        first_scene_nodes.append(node_index)
                 mesh_pos = mesh.matrix_world.to_translation()
                 relate_pos = [mesh_pos[i] - base_pos[i] for i in range(3)]
 
-                if 0 <= mesh_node_id < len(node_dicts):
-                    mesh_node_dict = node_dicts[mesh_node_id]
+                if 0 <= node_index < len(node_dicts):
+                    mesh_node_dict = node_dicts[node_index]
                     if isinstance(mesh_node_dict, dict):
                         mesh_node_dict["translation"] = make_json(
                             self.axis_blender_to_glb(relate_pos)
