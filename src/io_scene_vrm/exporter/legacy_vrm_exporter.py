@@ -1985,7 +1985,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for i, slot in enumerate(mesh.material_slots)
                 if slot.material
             }
-            node_id_dict: dict[str, int] = {
+            node_name_to_index_dict: dict[str, int] = {
                 str(node_dict.get("name")): i
                 for i, node_dict in enumerate(node_dicts)
                 if isinstance(node_dict, dict)
@@ -2112,7 +2112,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             if v_group_name is None:
                                 continue
                             joint_id = self.joint_id_from_node_name_solver(
-                                v_group_name, node_id_dict
+                                v_group_name, node_name_to_index_dict
                             )
                             # 存在しないボーンを指してる場合は-1を返されてるので、
                             # その場合は飛ばす
