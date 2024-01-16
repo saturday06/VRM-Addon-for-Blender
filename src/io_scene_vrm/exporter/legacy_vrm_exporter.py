@@ -1980,7 +1980,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 for i, material_dict in enumerate(material_dicts)
                 if isinstance(material_dict, dict)
             }
-            material_slot_dict = {
+            material_slot_index_to_material_name_dict = {
                 i: slot.material.name
                 for i, slot in enumerate(mesh.material_slots)
                 if slot.material
@@ -2065,7 +2065,11 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     )  # keyがなければNoneを返す
                     if cached_vert_id is not None:
                         primitive_index = None
-                        material_slot_name = material_slot_dict.get(material_index)
+                        material_slot_name = (
+                            material_slot_index_to_material_name_dict.get(
+                                material_index
+                            )
+                        )
                         if isinstance(material_slot_name, str):
                             primitive_index = material_name_to_index_dict[
                                 material_slot_name
@@ -2193,7 +2197,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         float_vec3_packer(*self.axis_blender_to_glb(vert_normal))
                     )
                     primitive_index = None
-                    material_slot_name = material_slot_dict.get(material_index)
+                    material_slot_name = material_slot_index_to_material_name_dict.get(
+                        material_index
+                    )
                     if isinstance(material_slot_name, str):
                         primitive_index = material_name_to_index_dict[
                             material_slot_name
