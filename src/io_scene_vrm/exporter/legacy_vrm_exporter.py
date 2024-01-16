@@ -1975,7 +1975,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                 material_dicts = []
                 self.json_dict["materials"] = material_dicts
 
-            mat_id_dict = {
+            material_name_to_index_dict = {
                 str(material_dict.get("name")): i
                 for i, material_dict in enumerate(material_dicts)
                 if isinstance(material_dict, dict)
@@ -2002,12 +2002,14 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             }
 
             primitive_index_bin_dict: dict[Optional[int], bytearray] = {
-                mat_id_dict[mat.name]: bytearray()
+                material_name_to_index_dict[mat.name]: bytearray()
                 for mat in mesh.material_slots
                 if mat.name
             }
             primitive_index_vertex_count: dict[Optional[int], int] = {
-                mat_id_dict[mat.name]: 0 for mat in mesh.material_slots if mat.name
+                material_name_to_index_dict[mat.name]: 0
+                for mat in mesh.material_slots
+                if mat.name
             }
 
             shape_pos_bin_dict: dict[str, bytearray] = {}
@@ -2065,7 +2067,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         primitive_index = None
                         material_slot_name = material_slot_dict.get(material_index)
                         if isinstance(material_slot_name, str):
-                            primitive_index = mat_id_dict[material_slot_name]
+                            primitive_index = material_name_to_index_dict[
+                                material_slot_name
+                            ]
                         primitive_index_bin_dict[primitive_index].extend(
                             unsigned_int_scalar_packer(cached_vert_id)
                         )
@@ -2191,7 +2195,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                     primitive_index = None
                     material_slot_name = material_slot_dict.get(material_index)
                     if isinstance(material_slot_name, str):
-                        primitive_index = mat_id_dict[material_slot_name]
+                        primitive_index = material_name_to_index_dict[
+                            material_slot_name
+                        ]
                     if primitive_index not in primitive_index_bin_dict:
                         primitive_index_bin_dict[primitive_index] = bytearray()
                     if primitive_index not in primitive_index_vertex_count:
