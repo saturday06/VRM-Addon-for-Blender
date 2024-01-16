@@ -1651,6 +1651,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
     ) -> dict[str, list[list[float]]]:
         exclusion_vertex_indices: set[int] = set()
         for polygon in mesh_data.polygons:
+            if len(mesh_data.materials) <= polygon.material_index:
+                continue
             material = mesh_data.materials[polygon.material_index]
             if material is None:
                 continue
