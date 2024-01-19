@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2018 iCyP
 # ruff: noqa: T201
-
-# Copyright (c) 2018 iCyP
-# Released under the MIT license
-# https://opensource.org/licenses/mit-license.php
 
 import json
 import struct

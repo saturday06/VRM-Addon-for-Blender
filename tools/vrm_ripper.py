@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-
-# Copyright (c) 2018 iCyP
-# Released under the MIT license
-# https://opensource.org/licenses/mit-license.php
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2018 iCyP
 
 import json
 from pathlib import Path
