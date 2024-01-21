@@ -819,6 +819,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         if uv_layer_name is None:
             uv_layer_name = "UVMap"
 
+        has_auto_smooth = tuple(bpy.app.version) < (4, 1)
         for k, v in [
             (input_key.material_key, material),
             (input_key.outline_material_key, outline_material),
@@ -858,7 +859,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 (
                     obj.type == "MESH"
                     and isinstance(obj.data, Mesh)
-                    and not obj.data.use_auto_smooth
+                    and not (has_auto_smooth and obj.data.use_auto_smooth)
                     and not any(polygon.use_smooth for polygon in obj.data.polygons)
                 ),
             ),

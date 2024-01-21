@@ -18,6 +18,7 @@ def update_mtoon1_outline() -> Optional[float]:
     compare_start_time = time.perf_counter()
 
     # ここは最適化の必要がある
+    has_auto_smooth = tuple(bpy.app.version) < (4, 1)
     object_material_state = [
         [
             (
@@ -25,7 +26,7 @@ def update_mtoon1_outline() -> Optional[float]:
                 material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
                     material_slot.material
                 ),
-                obj.data.use_auto_smooth,
+                has_auto_smooth and obj.data.use_auto_smooth,
             )
             if material_slot.material
             else None
