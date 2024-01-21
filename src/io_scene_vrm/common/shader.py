@@ -69,7 +69,6 @@ from bpy.types import (
     ShaderNodeTexIES,
     ShaderNodeTexImage,
     ShaderNodeTexMagic,
-    ShaderNodeTexMusgrave,
     ShaderNodeTexNoise,
     ShaderNodeTexPointDensity,
     ShaderNodeTexSky,
@@ -622,11 +621,6 @@ def copy_node(
         to_node, ShaderNodeTexNoise
     ):
         to_node.noise_dimensions = from_node.noise_dimensions
-    if isinstance(from_node, ShaderNodeTexMusgrave) and isinstance(
-        to_node, ShaderNodeTexMusgrave
-    ):
-        to_node.musgrave_dimensions = from_node.musgrave_dimensions
-        to_node.musgrave_type = from_node.musgrave_type
     if isinstance(from_node, ShaderNodeTexMagic) and isinstance(
         to_node, ShaderNodeTexMagic
     ):
@@ -848,6 +842,15 @@ def copy_node(
             to_node, ShaderNodeBsdfGlossy
         ):
             to_node.distribution = from_node.distribution
+
+    if bpy.app.version < (4, 1):
+        from bpy.types import ShaderNodeTexMusgrave
+
+        if isinstance(from_node, ShaderNodeTexMusgrave) and isinstance(
+            to_node, ShaderNodeTexMusgrave
+        ):
+            to_node.musgrave_dimensions = from_node.musgrave_dimensions
+            to_node.musgrave_type = from_node.musgrave_type
 
 
 def clear_node_tree(
