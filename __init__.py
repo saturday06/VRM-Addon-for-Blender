@@ -1,6 +1,5 @@
-# Copyright (c) 2018 iCyP
-# Released under the MIT license
-# https://opensource.org/licenses/mit-license.php
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2018 iCyP
 
 #
 #
@@ -14,7 +13,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 25),
+    "version": (2, 20, 27),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -27,10 +26,12 @@ bl_info = {
 }
 
 
-# To support reload properly, try to access a package var, if it's there,
-# reload everything
 def cleanse_modules() -> None:
-    """Search for your plugin modules in blender python sys.modules and remove them."""
+    """Search for your plugin modules in blender python sys.modules and remove them.
+
+    To support reload properly, try to access a package var, if it's there,
+    reload everything
+    """
     import sys
 
     all_modules = sys.modules
