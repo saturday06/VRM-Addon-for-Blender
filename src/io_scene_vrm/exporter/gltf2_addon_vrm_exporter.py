@@ -2046,6 +2046,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         export_animations=True,
                         export_rest_position_armature=False,
+                        export_apply=True,
                         # Models may appear incorrectly in many viewers
                         export_all_influences=self.export_all_influences,
                         # TODO: Expose UI Option, Unity allows light export

@@ -128,6 +128,7 @@ class ExportSceneGltfArguments:
     export_all_influences: bool
     export_lights: bool
     export_try_sparse_sk: bool
+    export_apply: bool
 
 
 def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
@@ -142,6 +143,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             export_animations=arguments.export_animations,
             export_all_influences=arguments.export_all_influences,
             export_lights=arguments.export_lights,
+            export_apply=arguments.export_apply,
         )
 
     if bpy.app.version < (4,):
@@ -156,6 +158,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             export_rest_position_armature=arguments.export_rest_position_armature,
             export_all_influences=arguments.export_all_influences,
             export_lights=arguments.export_lights,
+            export_apply=arguments.export_apply,
         )
 
     return bpy.ops.export_scene.gltf(
@@ -170,6 +173,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
         export_try_sparse_sk=arguments.export_try_sparse_sk,
         export_all_influences=arguments.export_all_influences,
         export_lights=arguments.export_lights,
+        export_apply=arguments.export_apply,
     )
 
 
