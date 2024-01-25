@@ -1962,7 +1962,8 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             mesh_data_transform @= mesh.matrix_world
             mesh_data.transform(mesh_data_transform, shape_keys=True)
             mesh_data.calc_loop_triangles()
-            mesh_data.calc_normals_split()
+            if bpy.app.version < (4, 1):
+                mesh_data.calc_normals_split()
 
             bm = bmesh.new()
             bm.from_mesh(mesh_data)
