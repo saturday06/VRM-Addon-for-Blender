@@ -1269,6 +1269,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             obj.pop(extras_mesh_index_key, None)
             data.pop(extras_mesh_index_key, None)
 
+            # ここでupdateしないとエクスポート時にCustom Propertyが復活することがある
+            data.update()
+
         extras_material_index_key = self.import_id + "Materials"
         for material in bpy.data.materials:
             if self.is_temp_object_name(material.name):
