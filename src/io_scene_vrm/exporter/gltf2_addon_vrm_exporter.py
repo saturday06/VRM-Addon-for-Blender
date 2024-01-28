@@ -2042,6 +2042,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                         check_existing=False,
                         export_format="GLB",
                         export_extras=True,
+                        export_def_bones=True,
                         export_current_frame=True,
                         use_selection=True,
                         export_animations=True,

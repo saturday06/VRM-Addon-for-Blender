@@ -129,6 +129,7 @@ class ExportSceneGltfArguments:
     check_existing: bool
     export_format: str
     export_extras: bool
+    export_def_bones: bool
     export_current_frame: bool
     use_selection: bool
     export_animations: bool
@@ -146,6 +147,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             check_existing=arguments.check_existing,
             export_format=arguments.export_format,
             export_extras=arguments.export_extras,
+            export_def_bones=(bpy.app.version >= (3, 3)) and arguments.export_def_bones,
             export_current_frame=arguments.export_current_frame,
             use_selection=arguments.use_selection,
             export_animations=arguments.export_animations,
@@ -160,6 +162,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             check_existing=arguments.check_existing,
             export_format=arguments.export_format,
             export_extras=arguments.export_extras,
+            export_def_bones=arguments.export_def_bones,
             export_current_frame=arguments.export_current_frame,
             use_selection=arguments.use_selection,
             export_animations=arguments.export_animations,
@@ -174,6 +177,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
         check_existing=arguments.check_existing,
         export_format=arguments.export_format,
         export_extras=arguments.export_extras,
+        export_def_bones=arguments.export_def_bones,
         export_current_frame=arguments.export_current_frame,
         use_selection=arguments.use_selection,
         export_animations=arguments.export_animations,
