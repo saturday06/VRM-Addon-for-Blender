@@ -1,4 +1,4 @@
 self-hosted-runner:
   labels:
     # https://github.com/rhysd/actionlint/pull/299
-    - macos-13
+    - macos-14
