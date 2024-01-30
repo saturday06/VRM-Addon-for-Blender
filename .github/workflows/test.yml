@@ -58,7 +58,7 @@ jobs:
           path: tests/resources/vrm/*/temp
 
   test-macos:
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       matrix:
         archive_url:
