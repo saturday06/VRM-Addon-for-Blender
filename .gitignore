@@ -51,4 +51,4 @@ __pycache__/
 /docs/website/.hugo_build.lock
 /docs/website/public/
 /docs/website/resources/_gen/
-/tests/test_GENERATED_*
+/tests/test_generated_*

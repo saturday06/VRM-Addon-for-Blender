@@ -166,7 +166,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
 def generate_dynamic_test(test_src_dir: Path, path: str) -> None:
     if not path.startswith("blender_test_") or not path.endswith(".py"):
         return
-    out_path = test_src_dir / re.sub("^blender_test_", "test_GENERATED_", path)
+    out_path = test_src_dir / re.sub("^blender_test_", "test_generated_", path)
     path_without_ext = re.sub("\\.py$", "", path)
     if not re.match("^[A-Za-z0-9_]+$", path_without_ext):
         message = f"Invalid file name: {path}"
@@ -211,7 +211,7 @@ def generate_dynamic_gui_tests() -> None:
         content += render_missing_required_directory_test("./resources/gui/test.sikuli")
 
     content_bytes = content.replace("\r\n", "\n").encode()
-    out_path = test_src_dir / "test_GENERATED_gui.py"
+    out_path = test_src_dir / "test_generated_gui.py"
     if out_path.exists() and content_bytes == out_path.read_bytes():
         return
 
