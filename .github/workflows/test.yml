@@ -36,7 +36,7 @@ jobs:
           $retry = 10
           for (; $true; $retry--) {
             try {
-              Invoke-WebRequest -MaximumRetryCount 5 -Uri "${{ matrix.archive_url }}" -OutFile blender.zip
+              Start-BitsTransfer blender.zip -Source "${{ matrix.archive_url }}"
               break
             } catch {
               if ($retry -le 0) {
