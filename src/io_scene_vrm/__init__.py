@@ -146,6 +146,7 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     )
 
     with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
+        # Will be replaced with tar_xz.extractall(..., filter="data")
         for member in tar_xz.getmembers():
             if ".." in member.path or not (member.isfile() or member.isdir()):
                 continue
