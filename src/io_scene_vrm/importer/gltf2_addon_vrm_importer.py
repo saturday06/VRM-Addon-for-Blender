@@ -1,7 +1,9 @@
 import base64
 import contextlib
+import functools
 import json
 import math
+import operator
 import re
 import secrets
 import shutil
@@ -652,7 +654,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         # メッシュノードの子供にボーンノードが存在する場合は、
         # そのメッシュノードもボーン扱いする
         bone_node_indices.extend(
-            sum(
+            functools.reduce(
+                operator.iconcat,
                 [
                     self.find_middle_bone_indices(
                         node_dicts, bone_node_indices, bone_node_index, []
