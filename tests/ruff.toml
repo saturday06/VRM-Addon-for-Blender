@@ -1,4 +1,6 @@
 extend = "../pyproject.toml"
+
+[lint]
 extend-ignore = [
     # ----- fixing -----
 
