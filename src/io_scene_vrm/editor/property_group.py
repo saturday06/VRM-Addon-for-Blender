@@ -156,6 +156,7 @@ class BonePropertyGroup(PropertyGroup):
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
     ) -> set[str]:
         bones = armature_data.bones
+        root_bones = [bone for bone in bones.values() if not bone.parent]
         result: set[str] = set(bones.keys())
         remove_bones_tree: set[Bone] = set()
 
@@ -189,9 +190,7 @@ class BonePropertyGroup(PropertyGroup):
                 if not grand_parent:
                     if remove_ancestor_branches:
                         remove_bones_tree.update(
-                            bone
-                            for bone in bones.values()
-                            if not bone.parent and bone != parent
+                            root_bone for root_bone in root_bones if root_bone != parent
                         )
                     break
 
