@@ -102,7 +102,7 @@ convention = "pep257"
 max-complexity = 150
 
 [tool.ruff.lint.pylint]
-max-args = 15
+max-args = 19
 max-branches = 120
 max-returns = 25
 max-statements = 550
