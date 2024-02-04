@@ -7,6 +7,7 @@
 #   support unzipping the partial add-on archive for users who have acquired the add-on
 #   from "Code" -> "Download ZIP" on GitHub.
 # - Please write this script to work with Blender 2.79.
+#   ruff: noqa: UP032
 #
 #
 

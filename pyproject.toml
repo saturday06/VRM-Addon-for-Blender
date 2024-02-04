@@ -82,12 +82,6 @@ ignore = [
     "TID252", # Relative imports from parent modules are banned
 ]
 
-[tool.ruff.lint.per-file-ignores]
-"src/io_scene_vrm/__init__.py" = [
-    # It should work with Blender 2.79.
-    "UP", # pyupgrade
-]
-
 [tool.ruff.lint.pep8-naming]
 extend-ignore-names = [
     "glTF2ExportUserExtension",
