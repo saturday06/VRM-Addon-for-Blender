@@ -198,10 +198,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 pass
             elif armature_data.vrm_addon_extension.is_vrm0():
                 Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-                Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-                    armature_data.name,
-                    defer=False,
-                )
+                Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature_data.name)
                 humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
                 if all(
                     b.node.bone_name not in b.node_candidates
@@ -218,8 +215,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             elif armature_data.vrm_addon_extension.is_vrm1():
                 Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
                 Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-                    armature_data.name,
-                    defer=False,
+                    armature_data.name
                 )
                 human_bones = (
                     armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
@@ -438,19 +434,13 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             return {"CANCELLED"}
         if armature_data.vrm_addon_extension.is_vrm0():
             Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-            Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-                armature_data.name,
-                defer=False,
-            )
+            Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature_data.name)
             humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
             if not humanoid.all_required_bones_are_assigned():
                 return {"CANCELLED"}
         elif armature_data.vrm_addon_extension.is_vrm1():
             Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-            Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-                armature_data.name,
-                defer=False,
-            )
+            Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature_data.name)
             human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
             if (
                 not human_bones.all_required_bones_are_assigned()

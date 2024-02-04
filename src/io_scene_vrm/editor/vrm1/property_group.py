@@ -402,7 +402,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     @staticmethod
     def update_all_node_candidates(
         armature_data_name: str,
-        defer: bool,
+        defer: bool = False,
         force: bool = False,
     ) -> None:
         armature_data = bpy.data.armatures.get(armature_data_name)
@@ -427,6 +427,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                     Vrm1HumanBonesPropertyGroup.update_all_node_candidates,
                     armature_data_name,
                     False,
+                    force,
                 )
             )
             return
@@ -436,7 +437,6 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             last_bone_name = human_bones.last_bone_names.add()
             last_bone_name.value = bone_name
 
-        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
             human_bone.node.bone_name: HumanBoneSpecifications.get(human_bone_name)

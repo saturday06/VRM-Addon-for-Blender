@@ -517,7 +517,6 @@ def migrate_link_to_bone_object(armature: Object, armature_data: Armature) -> No
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         armature_data.name,
-        defer=False,
         force=True,
     )
 
@@ -640,7 +639,6 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: Object) -> None:
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         armature_data.name,
-        defer=False,
         force=True,
     )
 

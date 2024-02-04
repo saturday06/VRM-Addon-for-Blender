@@ -841,7 +841,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
                 break
 
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-            armature_data.name, defer=False, force=True
+            armature_data.name, force=True
         )
         return {"FINISHED"}
 

@@ -1920,9 +1920,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 bpy.ops.object.mode_set(mode="OBJECT")
             context.view_layer.objects.active = previous_active
 
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            armature_data.name, defer=False
-        )
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature_data.name)
 
         human_bones.head.node.bone_name = head_bone_name
         human_bones.spine.node.bone_name = spine_bone_name
@@ -1972,9 +1970,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 human_bone.node.set_bone_name(bone_name)
             else:
                 human_bone.node.set_bone_name(None)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            armature_data.name, defer=False
-        )
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature_data.name)
 
         previous_active = context.view_layer.objects.active
         try:

@@ -443,10 +443,8 @@ def update_internal_cache(context: Context) -> None:
         defer=False,
     )
     for armature in bpy.data.armatures:
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature.name, defer=False)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            armature.name, defer=False
-        )
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature.name)
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature.name)
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
         context.scene.name
     )

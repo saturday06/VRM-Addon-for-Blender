@@ -198,7 +198,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
     @staticmethod
     def update_all_node_candidates(
         armature_data_name: str,
-        defer: bool,
+        defer: bool = False,
         force: bool = False,
     ) -> None:
         armature_data = bpy.data.armatures.get(armature_data_name)
