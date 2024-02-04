@@ -101,6 +101,6 @@ def create_human_bone_mapping(
         ]
     )[-1]
     if required_count:
-        logger.warning(f'Treat as "{name}" bone mappings')
+        logger.debug(f'Treat as "{name}" bone mappings')
         return sorted_required_first(mapping)
     return {}
