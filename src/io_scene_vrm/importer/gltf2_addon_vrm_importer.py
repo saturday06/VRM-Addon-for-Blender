@@ -1503,8 +1503,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             return
         addon_extension = self.armature_data.vrm_addon_extension
 
-        Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
-            self.armature_data.name, defer=False
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+            self.armature_data.name, defer=False, force=True
         )
 
         human_bones = addon_extension.vrm1.humanoid.human_bones
@@ -2040,7 +2040,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             bone_name = self.bone_names.get(node_index)
             if not isinstance(bone_name, str) or bone_name in assigned_bone_names:
                 continue
-            human_bone_name_to_human_bone[human_bone_name].node.bone_name = bone_name
+            human_bone_name_to_human_bone[human_bone_name].node.set_bone_name(bone_name)
             assigned_bone_names.append(bone_name)
 
     def load_vrm1_first_person(
@@ -2324,7 +2324,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(node_index, int):
                 bone_name = self.bone_names.get(node_index)
                 if isinstance(bone_name, str):
-                    collider.node.bone_name = bone_name
+                    collider.node.set_bone_name(bone_name)
                     if collider.bpy_object:
                         collider.bpy_object.name = f"{bone_name} Collider"
                     bone = self.armature_data.bones.get(collider.node.bone_name)
@@ -2487,7 +2487,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if isinstance(center_index, int):
                 bone_name = self.bone_names.get(center_index)
                 if bone_name:
-                    spring.center.bone_name = bone_name
+                    spring.center.set_bone_name(bone_name)
 
             joint_dicts = spring_dict.get("joints")
             if not isinstance(joint_dicts, list):
@@ -2507,7 +2507,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 if isinstance(node_index, int):
                     bone_name = self.bone_names.get(node_index)
                     if bone_name:
-                        joint.node.bone_name = bone_name
+                        joint.node.set_bone_name(bone_name)
 
                 hit_radius = joint_dict.get("hitRadius")
                 if isinstance(hit_radius, (int, float)):

@@ -429,7 +429,7 @@ class VRM_OT_add_spring_bone1_spring_joint(Operator):
         parent_joint, joint = joints[-2:]
         parent_bone = armature_data.bones.get(parent_joint.node.bone_name)
         if parent_bone and parent_bone.children:
-            joint.node.bone_name = parent_bone.children[0].name
+            joint.node.set_bone_name(parent_bone.children[0].name)
         joint.hit_radius = parent_joint.hit_radius
         joint.stiffness = parent_joint.stiffness
         joint.gravity_power = parent_joint.gravity_power

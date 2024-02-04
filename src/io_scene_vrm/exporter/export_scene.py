@@ -198,7 +198,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 pass
             elif armature_data.vrm_addon_extension.is_vrm0():
                 Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-                Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+                Vrm0HumanoidPropertyGroup.update_all_node_candidates(
                     armature_data.name,
                     defer=False,
                 )
@@ -217,7 +217,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     )
             elif armature_data.vrm_addon_extension.is_vrm1():
                 Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-                Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+                Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
                     armature_data.name,
                     defer=False,
                 )
@@ -438,7 +438,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             return {"CANCELLED"}
         if armature_data.vrm_addon_extension.is_vrm0():
             Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-            Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+            Vrm0HumanoidPropertyGroup.update_all_node_candidates(
                 armature_data.name,
                 defer=False,
             )
@@ -447,7 +447,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
                 return {"CANCELLED"}
         elif armature_data.vrm_addon_extension.is_vrm1():
             Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-            Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+            Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
                 armature_data.name,
                 defer=False,
             )

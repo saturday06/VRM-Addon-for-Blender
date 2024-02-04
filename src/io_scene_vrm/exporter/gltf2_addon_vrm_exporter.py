@@ -1797,7 +1797,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             if not human_bone.node.bone_name:
                 continue
             human_bone_name_to_bone_name[human_bone_name] = human_bone.node.bone_name
-            human_bone.node.bone_name = ""
+            human_bone.node.set_bone_name(None)
 
         previous_active = context.view_layer.objects.active
         try:
@@ -1920,7 +1920,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 bpy.ops.object.mode_set(mode="OBJECT")
             context.view_layer.objects.active = previous_active
 
-        Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
             armature_data.name, defer=False
         )
 
@@ -1969,9 +1969,12 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
         for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
             bone_name = human_bone_name_to_bone_name.get(human_bone_name)
             if bone_name:
-                human_bone.node.bone_name = bone_name
+                human_bone.node.set_bone_name(bone_name)
             else:
-                human_bone.node.bone_name = ""
+                human_bone.node.set_bone_name(None)
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+            armature_data.name, defer=False
+        )
 
         previous_active = context.view_layer.objects.active
         try:

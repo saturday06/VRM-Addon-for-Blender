@@ -171,30 +171,23 @@ class BonePropertyGroup(PropertyGroup):
                 continue
 
             if human_bone_specification.is_ancestor_of(target):
-                # logger.debug(f"Ancestor of target: {parent.name}")
                 remove_ancestors = True
                 remove_ancestor_branches = True
             elif target.is_ancestor_of(human_bone_specification):
-                # logger.debug(f"Target is ancestor of: {parent.name}")
                 remove_bones_tree.add(parent)
                 remove_ancestors = False
                 remove_ancestor_branches = True
             else:
-                # logger.debug(f"Unrelated/Descendant: {parent.name}")
                 remove_bones_tree.add(parent)
                 remove_ancestors = True
                 remove_ancestor_branches = False
 
             while True:
-                # if remove_ancestors: logger.debug(f"Removing ancestor: {parent.name}")
                 if remove_ancestors and parent.name in result:
                     result.remove(parent.name)
                 grand_parent = parent.parent
                 if not grand_parent:
                     if remove_ancestor_branches:
-                        # logger.debug(
-                        #     f"Removing ancestor branches, except: {parent.name}"
-                        # )
                         remove_bones_tree.update(
                             bone
                             for bone in bones.values()
@@ -203,7 +196,6 @@ class BonePropertyGroup(PropertyGroup):
                     break
 
                 if remove_ancestor_branches:
-                    # logger.debug(f"Removing branches of: {grand_parent.name}")
                     for grand_parent_child in grand_parent.children:
                         if grand_parent_child != parent:
                             remove_bones_tree.add(grand_parent_child)
@@ -213,7 +205,6 @@ class BonePropertyGroup(PropertyGroup):
         while remove_bones_tree:
             child = remove_bones_tree.pop()
             if child.name in result:
-                # logger.debug(f"Removing child: {child.name}")
                 result.remove(child.name)
             remove_bones_tree.update(child.children)
 
@@ -235,7 +226,14 @@ class BonePropertyGroup(PropertyGroup):
 
         return ""
 
-    def set_bone_name(self, value: object) -> None:
+    def set_bone_name_and_refresh_node_candidates(self, value: object) -> None:
+        self.set_bone_name(
+            None if value is None else str(value), refresh_node_candidates=True
+        )
+
+    def set_bone_name(
+        self, value: Optional[str], refresh_node_candidates: bool = False
+    ) -> None:
         armature: Optional[Object] = None
 
         # アーマチュアの複製が行われた場合を考えて
@@ -274,24 +272,25 @@ class BonePropertyGroup(PropertyGroup):
                 bone.vrm_addon_extension.uuid = uuid.uuid4().hex
             found_uuids.add(bone.vrm_addon_extension.uuid)
 
-        value_str = str(value)
-        if not value_str or value_str not in armature_data.bones:
+        if not value or value not in armature_data.bones:
             if not self.bone_uuid:
                 return
             self.bone_uuid = ""
         elif (
             self.bone_uuid
-            and self.bone_uuid
-            == armature_data.bones[value_str].vrm_addon_extension.uuid
+            and self.bone_uuid == armature_data.bones[value].vrm_addon_extension.uuid
         ):
             return
         else:
-            bone = armature_data.bones[value_str]
+            bone = armature_data.bones[value]
             self.bone_uuid = bone.vrm_addon_extension.uuid
 
         ext = armature_data.vrm_addon_extension
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(armature)
+
+        if not refresh_node_candidates:
+            return
 
         vrm0_bpy_bone_name_to_human_bone_specification: dict[
             str, vrm0_human_bone.HumanBoneSpecification
@@ -336,7 +335,7 @@ class BonePropertyGroup(PropertyGroup):
     bone_name: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_bone_name,
-        set=set_bone_name,
+        set=set_bone_name_and_refresh_node_candidates,
     )
 
     def get_value(self) -> str:

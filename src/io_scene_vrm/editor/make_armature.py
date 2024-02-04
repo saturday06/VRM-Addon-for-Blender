@@ -580,7 +580,7 @@ class ICYP_OT_make_armature(Operator):
                     human_bone
                 ) in armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
                     if human_bone.bone == vrm_bone_name:
-                        human_bone.node.bone_name = bpy_bone_name
+                        human_bone.node.set_bone_name(bpy_bone_name)
                         break
         self.make_extension_setting_and_metas(
             armature,
@@ -600,7 +600,7 @@ class ICYP_OT_make_armature(Operator):
             return
         vrm0 = armature_data.vrm_addon_extension.vrm0
         vrm1 = armature_data.vrm_addon_extension.vrm1
-        vrm0.first_person.first_person_bone.bone_name = "head"
+        vrm0.first_person.first_person_bone.set_bone_name("head")
         vrm0.first_person.first_person_bone_offset = (0, 0, 0.06)
         vrm1.look_at.offset_from_head_bone = offset_from_head_bone
         vrm0.first_person.look_at_horizontal_inner.y_range = 8

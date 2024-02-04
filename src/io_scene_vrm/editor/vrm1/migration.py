@@ -188,7 +188,7 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: Object) -> None:
     human_bones = vrm1.humanoid.human_bones
     human_bones.last_bone_names.clear()
     Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-    Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update(
+    Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
         armature_data.name,
         defer=False,
     )
@@ -249,4 +249,9 @@ def migrate(vrm1: Vrm1PropertyGroup, armature: Object) -> None:
         if preset_expression.name != preset_name:
             preset_expression.name = preset_name
 
+    Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        armature_data.name,
+        defer=False,
+        force=True,
+    )
     bpy.ops.vrm.update_vrm1_expression_ui_list_elements()

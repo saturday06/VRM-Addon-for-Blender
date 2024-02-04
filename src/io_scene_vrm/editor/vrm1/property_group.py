@@ -395,14 +395,15 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                 if human_bone.node.bone_name not in found_node_bone_names:
                     found_node_bone_names.append(human_bone.node.bone_name)
                     continue
-                human_bone.node.bone_name = ""
+                human_bone.node.set_bone_name(None)
                 fixup = True
                 break
 
     @staticmethod
-    def check_last_bone_names_and_update(
+    def update_all_node_candidates(
         armature_data_name: str,
-        defer: bool = True,
+        defer: bool,
+        force: bool = False,
     ) -> None:
         armature_data = bpy.data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
@@ -412,15 +413,18 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
             bone_names.append(bone.name)
             bone_names.append(bone.parent.name if bone.parent else "")
-        up_to_date = bone_names == [str(n.value) for n in human_bones.last_bone_names]
 
-        if up_to_date:
-            return
+        if not force:
+            up_to_date = bone_names == [
+                str(n.value) for n in human_bones.last_bone_names
+            ]
+            if up_to_date:
+                return
 
         if defer:
             bpy.app.timers.register(
                 functools.partial(
-                    Vrm1HumanBonesPropertyGroup.check_last_bone_names_and_update,
+                    Vrm1HumanBonesPropertyGroup.update_all_node_candidates,
                     armature_data_name,
                     False,
                 )
@@ -431,6 +435,8 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         for bone_name in bone_names:
             last_bone_name = human_bones.last_bone_names.add()
             last_bone_name.value = bone_name
+
+        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
             human_bone.node.bone_name: HumanBoneSpecifications.get(human_bone_name)

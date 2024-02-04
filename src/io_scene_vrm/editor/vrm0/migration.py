@@ -158,7 +158,7 @@ def migrate_vrm0_first_person(
 
     first_person_bone = first_person_dict.get("firstPersonBone")
     if isinstance(first_person_bone, str):
-        first_person.first_person_bone.bone_name = first_person_bone
+        first_person.first_person_bone.set_bone_name(first_person_bone)
 
     first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
         first_person_dict.get("firstPersonBoneOffset")
@@ -353,7 +353,7 @@ def migrate_vrm0_secondary_animation(
     for bone_name, collider_objects in bone_name_to_collider_objects.items():
         collider_group = secondary_animation.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
-        collider_group.node.bone_name = bone_name
+        collider_group.node.set_bone_name(bone_name)
         for collider_object in collider_objects:
             collider_prop = collider_group.colliders.add()
             collider_prop.bpy_object = collider_object
@@ -396,7 +396,7 @@ def migrate_vrm0_secondary_animation(
 
         center = bone_group_dict.get("center")
         if isinstance(center, str):
-            bone_group.center.bone_name = center
+            bone_group.center.set_bone_name(center)
 
         hit_radius = bone_group_dict.get("hitRadius")
         if isinstance(hit_radius, (int, float)):
@@ -408,7 +408,7 @@ def migrate_vrm0_secondary_animation(
                 bone_prop = bone_group.bones.add()
                 if not isinstance(bone, str):
                     continue
-                bone_prop.bone_name = bone
+                bone_prop.set_bone_name(bone)
 
         collider_group_node_names = bone_group_dict.get("colliderGroups")
         if not isinstance(collider_group_node_names, list):
@@ -464,7 +464,7 @@ def migrate_legacy_custom_properties(armature: Object, armature_data: Armature) 
 
         for human_bone in ext.vrm0.humanoid.human_bones:
             if human_bone.bone == human_bone_name:
-                human_bone.node.bone_name = bpy_bone_name
+                human_bone.node.set_bone_name(bpy_bone_name)
                 break
 
 
@@ -515,10 +515,10 @@ def migrate_link_to_bone_object(armature: Object, armature_data: Armature) -> No
         if link_to_bone.parent is not None:
             link_to_bone.parent = None
 
-    armature_data.vrm_addon_extension.vrm0.humanoid.last_bone_names.clear()
-    Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+    Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         armature_data.name,
         defer=False,
+        force=True,
     )
 
 
@@ -627,7 +627,7 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: Object) -> None:
     if not vrm0.first_person.first_person_bone.bone_name:
         for human_bone in vrm0.humanoid.human_bones:
             if human_bone.bone == "head":
-                vrm0.first_person.first_person_bone.bone_name = (
+                vrm0.first_person.first_person_bone.set_bone_name(
                     human_bone.node.bone_name
                 )
                 break
@@ -638,10 +638,10 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: Object) -> None:
     fixup_gravity_dir(armature_data)
     fixup_humanoid_feet_spacing(armature_data)
 
-    vrm0.humanoid.last_bone_names.clear()
-    Vrm0HumanoidPropertyGroup.check_last_bone_names_and_update(
+    Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         armature_data.name,
         defer=False,
+        force=True,
     )
 
     if vrm0.humanoid.initial_automatic_bone_assignment:
