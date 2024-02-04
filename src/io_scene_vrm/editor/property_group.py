@@ -222,7 +222,7 @@ class BonePropertyGroup(PropertyGroup):
         # TODO: Optimization
         for bone in armature_data.bones:
             if bone.vrm_addon_extension.uuid == self.bone_uuid:
-                return str(bone.name)
+                return bone.name
 
         return ""
 
