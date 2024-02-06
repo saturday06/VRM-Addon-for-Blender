@@ -66,6 +66,7 @@ class AbstractBaseVrmExporter(ABC):
         ext = armature_data.vrm_addon_extension
         self.saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
         if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
+            # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
             ext.vrm1.look_at.enable_preview = False
             if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_VALUE_BONE:
                 human_bones = ext.vrm1.humanoid.human_bones
