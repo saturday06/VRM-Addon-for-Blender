@@ -2425,7 +2425,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         asset_dict["generator"] = generator
 
-        if len(body_binary):
+        if body_binary:
             buffer_dicts = json_dict.get("buffers")
             if not isinstance(buffer_dicts, list) or not buffer_dicts:
                 buffer_dicts = []
