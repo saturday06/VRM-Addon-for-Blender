@@ -562,13 +562,12 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         normal_texture_scale: Optional[float] = None,
         occlusion_texture: Optional[tuple[str, int, int]] = None,
         emissive_texture: Optional[tuple[str, int, int]] = None,
-        transparent_method: str = "OPAQUE",
+        transparent_method: str = "OPAQUE",  # "OPAQUE","MASK","BLEND"
         transparency_cutoff: Optional[float] = 0.5,
         unlit: Optional[bool] = None,
         double_sided: bool = False,
         texture_transform: Optional["LegacyVrmExporter.KhrTextureTransform"] = None,
     ) -> dict[str, Json]:
-        """transparent_method = {"OPAQUE","MASK","BLEND"}."""
         if base_color is None:
             base_color = [1.0, 1.0, 1.0, 1.0]
         base_color = [max(0.0, min(1.0, v)) for v in base_color]
@@ -719,9 +718,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
         texture_tuple_to_index_dict: dict[tuple[int, int], int],
     ) -> tuple[dict[str, Json], dict[str, Json]]:
-        mtoon_dict: dict[str, Json] = {}
-        mtoon_dict["name"] = material.name
-        mtoon_dict["shader"] = "VRM/MToon"
+        mtoon_dict: dict[str, Json] = {
+            "name": material.name,
+            "shader": "VRM/MToon",
+        }
 
         keyword_map: dict[str, bool] = {}
         tag_map: dict[str, str] = {}
@@ -1002,15 +1002,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
         texture_tuple_to_index_dict: dict[tuple[int, int], int],
     ) -> tuple[dict[str, Json], dict[str, Json]]:
-        gltf_dict: dict[str, Json] = {}
-        gltf_dict["name"] = material.name
-        gltf_dict["shader"] = "VRM_USE_GLTFSHADER"
-        gltf_dict["keywordMap"] = {}
-        gltf_dict["tagMap"] = {}
-        gltf_dict["floatProperties"] = {}
-        gltf_dict["vectorProperties"] = {}
-        gltf_dict["textureProperties"] = {}
-        gltf_dict["extras"] = {"VRM_Addon_for_Blender_legacy_gltf_material": {}}
+        gltf_dict: dict[str, Json] = {
+            "name": material.name,
+            "shader": "VRM_USE_GLTFSHADER",
+            "keywordMap": {},
+            "tagMap": {},
+            "floatProperties": {},
+            "vectorProperties": {},
+            "textureProperties": {},
+            "extras": {"VRM_Addon_for_Blender_legacy_gltf_material": {}},
+        }
 
         if material.blend_method == "OPAQUE":
             transparent_method = "OPAQUE"
@@ -1089,15 +1090,16 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
         texture_tuple_to_index_dict: dict[tuple[int, int], int],
     ) -> tuple[dict[str, Json], dict[str, Json]]:
-        zw_dict: dict[str, Json] = {}
-        zw_dict["name"] = material.name
-        zw_dict["shader"] = "VRM/UnlitTransparentZWrite"
-        zw_dict["renderQueue"] = 2600
-        zw_dict["keywordMap"] = {}
-        zw_dict["tagMap"] = {"RenderType": "Transparent"}
-        zw_dict["floatProperties"] = {}
-        zw_dict["vectorProperties"] = {}
-        zw_dict["textureProperties"] = {}
+        zw_dict: dict[str, Json] = {
+            "name": material.name,
+            "shader": "VRM/UnlitTransparentZWrite",
+            "renderQueue": 2600,
+            "keywordMap": {},
+            "tagMap": {"RenderType": "Transparent"},
+            "floatProperties": {},
+            "vectorProperties": {},
+            "textureProperties": {},
+        }
         color_tex = shader.get_image_name_and_sampler_type(
             transzw_shader_node, "Main_Texture"
         )
@@ -1265,8 +1267,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             {"name": material.name},
         )
 
-        pbr_dict: dict[str, Json] = {}
-        pbr_dict["name"] = material.name
+        pbr_dict: dict[str, Json] = {
+            "name": material.name,
+        }
 
         if bpy.app.version < (3, 6):
             module_name = "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials"
