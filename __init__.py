@@ -7,13 +7,14 @@
 #   support unzipping the partial add-on archive for users who have acquired the add-on
 #   from "Code" -> "Download ZIP" on GitHub.
 # - Please write this script to work with Blender 2.79.
+#   ruff: noqa: UP032
 #
 #
 
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 28),
+    "version": (2, 20, 29),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -146,6 +147,7 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     )
 
     with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
+        # Will be replaced with tar_xz.extractall(..., filter="data")
         for member in tar_xz.getmembers():
             if ".." in member.path or not (member.isfile() or member.isdir()):
                 continue
