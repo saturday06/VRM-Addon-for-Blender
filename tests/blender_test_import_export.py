@@ -73,6 +73,9 @@ def test(vrm: str, extract_textures_str: str) -> None:
 
     expected_path = out_vrm_dir / vrm
     if not expected_path.exists():
+        if not update_failed_vrm:
+            message = f"No expected result file: {expected_path}"
+            raise FileNotFoundError(message)
         shutil.copy(actual_path, expected_path)
 
     diffs = vrm_diff(
