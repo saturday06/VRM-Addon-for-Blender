@@ -120,6 +120,9 @@ def create_export_settings() -> dict[str, object]:
         "additional_texture_export": [],
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/2debd75ace303f3a3b00a43e9d7a9507af32f194/addons/io_scene_gltf2/__init__.py#L944
         "additional_texture_export_current_idx": 0,
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/2debd75ace303f3a3b00a43e9d7a9507af32f194/addons/io_scene_gltf2/__init__.py#L985-L986
+        "gltf_unused_textures": False,
+        "gltf_unused_images": False,
     }
 
 
