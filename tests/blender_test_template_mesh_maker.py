@@ -18,6 +18,9 @@ def test() -> None:
     major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
     vrm = "template_mesh.vrm"
     expected_path = vrm_dir / major_minor / "out" / vrm
+    if not expected_path.exists():
+        message = f"No expected result file: {expected_path}"
+        raise FileNotFoundError(message)
     temp_dir_path = vrm_dir / major_minor / "temp"
     temp_dir_path.mkdir(parents=True, exist_ok=True)
 
