@@ -34,9 +34,15 @@ def test(blend_path_str: str) -> None:
     major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
 
     blend = Path(blend_path_str)
-    in_path = blend_dir / blend
-    if not in_path.exists():
-        in_path = blend_dir / major_minor / blend
+    in_path_default = blend_dir / blend
+    in_path_versioned = blend_dir / major_minor / blend
+    if in_path_default.exists():
+        in_path = in_path_default
+    elif in_path_versioned.exists():
+        in_path = in_path_versioned
+    else:
+        message = f"No input file:\n{in_path_default}\n{in_path_versioned}\n"
+        raise FileNotFoundError(message)
 
     if blend.name.endswith(".merge.blend"):
         blend = blend.with_suffix("").with_suffix(".blend")
