@@ -12,3 +12,8 @@ extend-ignore = [
 
     "S101", # Use of `assert` detected
 ]
+
+[lint.extend-per-file-ignores]
+"test_generated_*" = [
+    "E501", # Line too long (x > 88)
+]
