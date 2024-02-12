@@ -1,7 +1,7 @@
 import dataclasses
 import datetime
 import importlib
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 
 import bpy
 from bpy.types import Context, Event, Image, Operator
@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 class WM_OT_vrm_io_scene_gltf2_disabled_warning(Operator):
     bl_label = "glTF 2.0 add-on is disabled"
     bl_idname = "wm.vrm_gltf2_addon_disabled_warning"
-    bl_options: Set[str] = {"REGISTER"}
+    bl_options: AbstractSet[str] = {"REGISTER"}
 
     def execute(self, _context: Context) -> set[str]:
         return {"FINISHED"}

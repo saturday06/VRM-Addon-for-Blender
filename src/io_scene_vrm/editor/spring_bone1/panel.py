@@ -1,4 +1,4 @@
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 from typing import Optional
 
 import bpy
@@ -368,7 +368,7 @@ class VRM_PT_spring_bone1_armature_object_property(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_options: Set[str] = {"DEFAULT_CLOSED"}
+    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
@@ -399,7 +399,7 @@ class VRM_PT_spring_bone1_ui(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: Set[str] = {"DEFAULT_CLOSED"}
+    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:

@@ -1,4 +1,4 @@
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 from math import ceil
 from typing import TYPE_CHECKING
 
@@ -23,7 +23,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
     bl_idname = "icyp.make_mesh_from_envelopes"
     bl_label = "(WIP)basic mesh for vrm"
     bl_description = "Create mesh along with a simple setup for VRM export"
-    bl_options: Set[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     @classmethod
     def poll(cls, _context: Context) -> bool:

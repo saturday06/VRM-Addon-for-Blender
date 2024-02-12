@@ -68,7 +68,6 @@ ignore = [
     "ISC003", # Explicitly concatenated string should be implicitly concatenated
     "PERF203", # `try`-`except` within a loop incurs performance overhead
     "PLR2004", # Magic value used in comparison, consider replacing 3 with a constant variable
-    "PYI025", # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
     "RET504", # Unnecessary assignment to `x` before `return` statement
 
     # SIM118 does not handle `bpy_prop_collection` correctly.

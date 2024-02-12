@@ -1,5 +1,5 @@
 import math
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass
 from pathlib import Path
 from sys import float_info
@@ -49,7 +49,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
     bl_idname = "vrm.convert_material_to_mtoon1"
     bl_label = "Convert Material to MToon 1.0"
     bl_description = "Convert Material to MToon 1.0"
-    bl_options: Set[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -425,7 +425,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
     bl_idname = "vrm.convert_mtoon1_to_bsdf_principled"
     bl_label = "Convert MToon 1.0 to Principled BSDF"
     bl_description = "Convert MToon 1.0 to Principled BSDF"
-    bl_options: Set[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -461,7 +461,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
     bl_idname = "vrm.reset_mtoon1_material_shader_node_group"
     bl_label = "Reset Shader Nodes"
     bl_description = "Reset MToon 1.0 Material Shader Node Tree"
-    bl_options: Set[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -484,7 +484,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
     bl_idname = "vrm.import_mtoon1_texture_image_file"
     bl_label = "Open"
     bl_description = "Import Texture Image File"
-    bl_options: Set[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     filepath: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -652,7 +652,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
     bl_idname = "vrm.refresh_mtoon1_outline"
     bl_label = "Refresh MToon 1.0 Outline Width Mode"
     bl_description = "Import Texture Image File"
-    bl_options: Set[str] = {"UNDO"}
+    bl_options: AbstractSet[str] = {"UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}

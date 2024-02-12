@@ -1,4 +1,5 @@
-from collections.abc import Sequence, Set
+from collections.abc import Sequence
+from collections.abc import Set as AbstractSet
 from math import atan2, cos, radians, sin
 from typing import TYPE_CHECKING
 
@@ -19,7 +20,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
     bl_idname = "icyp.make_mesh_detail"
     bl_label = "(Don't work currently)detail mesh"
     l_description = "Create mesh with a simple setup for VRM export"
-    bl_options: Set[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     # init before execute
     # https://docs.blender.org/api/2.82/Operator.html#invoke-function

@@ -1,4 +1,4 @@
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 
 from bpy.app.translations import pgettext
 from bpy.types import Armature, Context, Operator, Panel
@@ -74,7 +74,7 @@ class VRM_PT_current_selected_armature(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: Set[str] = {"HIDE_HEADER"}
+    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -138,7 +138,7 @@ class VRM_PT_controller_unsupported_blender_version_warning(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: Set[str] = {"HIDE_HEADER"}
+    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, _context: Context) -> bool:

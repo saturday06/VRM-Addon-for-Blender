@@ -1,4 +1,5 @@
-from collections.abc import Callable, Sequence, Set
+from collections.abc import Callable, Sequence
+from collections.abc import Set as AbstractSet
 from math import radians
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
@@ -26,7 +27,7 @@ class ICYP_OT_make_armature(Operator):
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "Create armature along with a simple setup for VRM export"
-    bl_options: Set[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     skip_heavy_armature_setup: BoolProperty(  # type: ignore[valid-type]
         default=False,

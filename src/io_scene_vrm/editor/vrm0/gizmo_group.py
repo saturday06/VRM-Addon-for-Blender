@@ -1,4 +1,4 @@
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 
 from bpy.types import Armature, Context, GizmoGroup
 
@@ -9,7 +9,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
     bl_label = "First Person Bone Offset Gizmo"
     bl_space_type = "VIEW_3D"
     bl_region_type = "WINDOW"
-    bl_options: Set[str] = {"3D", "PERSISTENT"}
+    bl_options: AbstractSet[str] = {"3D", "PERSISTENT"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
