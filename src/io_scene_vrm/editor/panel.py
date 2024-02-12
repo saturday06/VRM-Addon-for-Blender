@@ -8,7 +8,7 @@ from ..common.preferences import get_preferences
 from . import (
     detail_mesh_maker,
     make_armature,
-    mesh_from_bone_envelopes,
+    make_mesh_from_bone_envelopes,
     search,
     validation,
 )
@@ -57,7 +57,7 @@ def add_armature(add_armature_op: Operator, _context: Context) -> None:
 def make_mesh(make_mesh_op: Operator, _context: Context) -> None:
     make_mesh_op.layout.separator()
     make_mesh_op.layout.operator(
-        mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes.bl_idname,
+        make_mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes.bl_idname,
         text="Mesh from selected armature",
         icon="PLUGIN",
     )

@@ -1,5 +1,6 @@
 from collections.abc import Set
 from math import ceil
+from typing import TYPE_CHECKING
 
 import bpy
 from bpy.props import BoolProperty, FloatProperty, IntProperty
@@ -55,6 +56,29 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
                 return node
         message = f'No "ShaderNodeOutputMaterial" node in {material}'
         raise ValueError(message)
+
+    @staticmethod
+    def material_init(mat: Material) -> None:
+        mat.use_nodes = True
+        if not mat.node_tree:
+            return
+        for node in mat.node_tree.nodes:
+            if node.bl_idname != "ShaderNodeOutputMaterial":
+                mat.node_tree.nodes.remove(node)
+
+    @staticmethod
+    def node_group_create(
+        material: Material, shader_node_group_name: str
+    ) -> ShaderNodeGroup:
+        if not material.node_tree:
+            message = "No node tree"
+            raise ValueError(message)
+        node_group = material.node_tree.nodes.new("ShaderNodeGroup")
+        if not isinstance(node_group, ShaderNodeGroup):
+            message = f"{type(node_group)} is not a ShaderNodeGroup"
+            raise TypeError(message)
+        node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
+        return node_group
 
     def build_mesh(self, context: Context) -> None:
         armature = context.active_object
@@ -137,32 +161,11 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
         bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
         bpy.ops.uv.smart_project()
 
-        def material_init(mat: Material) -> None:
-            mat.use_nodes = True
-            if not mat.node_tree:
-                return
-            for node in mat.node_tree.nodes:
-                if node.bl_idname != "ShaderNodeOutputMaterial":
-                    mat.node_tree.nodes.remove(node)
-
-        def node_group_create(
-            material: Material, shader_node_group_name: str
-        ) -> ShaderNodeGroup:
-            if not material.node_tree:
-                message = "No node tree"
-                raise ValueError(message)
-            node_group = material.node_tree.nodes.new("ShaderNodeGroup")
-            if not isinstance(node_group, ShaderNodeGroup):
-                message = f"{type(node_group)} is not a ShaderNodeGroup"
-                raise TypeError(message)
-            node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
-            return node_group
-
         shader_node_group_name = "MToon_unversioned"
         shader_node_group_import(shader_node_group_name)
         b_mat = bpy.data.materials.new(f"{armature.name}_mesh_mat")
-        material_init(b_mat)
-        sg = node_group_create(b_mat, shader_node_group_name)
+        self.material_init(b_mat)
+        sg = self.node_group_create(b_mat, shader_node_group_name)
         if b_mat.node_tree:
             b_mat.node_tree.links.new(
                 self.find_material_output_node(b_mat).inputs["Surface"],
@@ -175,3 +178,13 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
 
         bpy.ops.object.mode_set(mode="OBJECT")
         armature.select_set(True)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        resolution: int  # type: ignore[no-redef]
+        max_distance_between_mataballs: float  # type: ignore[no-redef]
+        use_selected_bones: bool  # type: ignore[no-redef]
+        may_vrm_humanoid: bool  # type: ignore[no-redef]
+        with_auto_weight: bool  # type: ignore[no-redef]
+        not_to_mesh: bool  # type: ignore[no-redef]

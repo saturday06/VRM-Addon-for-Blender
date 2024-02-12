@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import bmesh
 import bpy
-from bmesh.types import BMVert
+from bmesh.types import BMesh, BMVert
 from bpy.props import FloatProperty
 from bpy.types import Armature, Bone, Context, Event, Mesh, Operator
 from mathutils import Matrix, Vector
@@ -86,8 +86,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         soft_min=0.6,
         name="Face center ratio",
     )
-    if TYPE_CHECKING:
-        face_center_ratio: float  # type: ignore[no-redef]
 
     eye_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=2,
@@ -95,8 +93,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=4,
         name="Eye width ratio",
     )
-    if TYPE_CHECKING:
-        eye_width_ratio: float  # type: ignore[no-redef]
 
     nose_head_height: FloatProperty(  # type: ignore[valid-type]
         default=1,
@@ -104,8 +100,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=1,
         name="nose head",
     )
-    if TYPE_CHECKING:
-        nose_head_height: float  # type: ignore[no-redef]
 
     nose_top_pos: FloatProperty(  # type: ignore[valid-type]
         default=0.2,
@@ -113,8 +107,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=0.6,
         name="nose top position",
     )
-    if TYPE_CHECKING:
-        nose_top_pos: float  # type: ignore[no-redef]
 
     nose_height: FloatProperty(  # type: ignore[valid-type]
         default=0.015,
@@ -123,8 +115,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         step=1,
         name="nose height",
     )
-    if TYPE_CHECKING:
-        nose_height: float  # type: ignore[no-redef]
 
     nose_width: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
@@ -132,8 +122,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=1,
         name="nose width",
     )
-    if TYPE_CHECKING:
-        nose_width: float  # type: ignore[no-redef]
 
     eye_depth: FloatProperty(  # type: ignore[valid-type]
         default=0.01,
@@ -141,8 +129,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=0.1,
         name="Eye depth",
     )
-    if TYPE_CHECKING:
-        eye_depth: float  # type: ignore[no-redef]
 
     eye_angle: FloatProperty(  # type: ignore[valid-type]
         default=radians(15),
@@ -150,8 +136,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=0.55,
         name="Eye angle",
     )
-    if TYPE_CHECKING:
-        eye_angle: float  # type: ignore[no-redef]
 
     eye_rotate: FloatProperty(  # type: ignore[valid-type]
         default=0.43,
@@ -159,8 +143,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=0.86,
         name="Eye rotation",
     )
-    if TYPE_CHECKING:
-        eye_rotate: float  # type: ignore[no-redef]
 
     cheek_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
@@ -168,8 +150,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=1,
         name="cheek position",
     )
-    if TYPE_CHECKING:
-        cheek_ratio: float  # type: ignore[no-redef]
 
     cheek_width: FloatProperty(  # type: ignore[valid-type]
         default=0.85,
@@ -177,8 +157,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=1,
         name="cheek width ratio",
     )
-    if TYPE_CHECKING:
-        cheek_width: float  # type: ignore[no-redef]
 
     mouth_width_ratio: FloatProperty(  # type: ignore[valid-type]
         default=0.5,
@@ -186,8 +164,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=0.9,
         name="Mouth width",
     )
-    if TYPE_CHECKING:
-        mouth_width_ratio: float  # type: ignore[no-redef]
 
     # 口角結節
     mouth_corner_nodule: FloatProperty(  # type: ignore[valid-type]
@@ -196,8 +172,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=1,
         name="oris width",
     )
-    if TYPE_CHECKING:
-        mouth_corner_nodule: float  # type: ignore[no-redef]
 
     mouth_position_ratio: FloatProperty(  # type: ignore[valid-type]
         default=2 / 3,
@@ -205,8 +179,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=0.7,
         name="Mouth position",
     )
-    if TYPE_CHECKING:
-        mouth_position_ratio: float  # type: ignore[no-redef]
 
     mouth_flatten: FloatProperty(  # type: ignore[valid-type]
         default=0.1,
@@ -214,57 +186,64 @@ class ICYP_OT_detail_mesh_maker(Operator):
         max=1,
         name="Mouth flat",
     )
-    if TYPE_CHECKING:
-        mouth_flatten: float  # type: ignore[no-redef]
+
+    @staticmethod
+    def add_point(bm: BMesh, point: Sequence[float]) -> BMVert:
+        return bm.verts.new(point)
+
+    @staticmethod
+    def make_circle(
+        bm: BMesh,
+        center: Sequence[float],
+        radius: float,
+        axis: str,
+        divide: int,
+        angle: int = 360,
+        x_ratio: float = 1,
+        y_ratio: float = 1,
+    ) -> None:
+        if axis == "X":
+            axis_n = (0, 1)
+        elif axis == "Y":
+            axis_n = (1, 2)
+        else:
+            axis_n = (2, 0)
+        if divide < 3:
+            logger.error("Wrong divide set")
+            divide = 3
+        if angle == 0:
+            logger.error("Wrong angle set")
+            angle = 180
+        verts: list[BMVert] = []
+        for i in range(divide + 1):
+            pi2 = 3.14 * 2 * radians(angle) / radians(360)
+            vert = ICYP_OT_detail_mesh_maker.add_point(bm, center)
+            xy = (sin(pi2 * i / divide) * y_ratio, cos(pi2 * i / divide) * x_ratio)
+            for n, j in zip(axis_n, xy):
+                vert.co[n] = vert.co[n] + j * radius
+            verts.append(vert)
+
+        bm.faces.new(verts)
+
+    @staticmethod
+    def width_add(point: Sequence[float], add_loc: float) -> Vector:
+        return Vector([p + a for p, a in zip(point, [0, 0, add_loc])])
+
+    @staticmethod
+    def depth_add(point: Vector, add_loc: float) -> Vector:
+        return Vector([p + a for p, a in zip(point, [add_loc, 0, 0])])
+        # X depth Y up Z width
+
+    @staticmethod
+    def add_mesh(bm: BMesh, points: list[BMVert]) -> None:
+        bm.faces.new(points)
 
     def make_face(self, _context: Context, mesh: Mesh) -> None:
-        def add_point(point: Sequence[float]) -> BMVert:
-            return bm.verts.new(point)
-
-        def make_circle(
-            center: Sequence[float],
-            radius: float,
-            axis: str,
-            divide: int,
-            angle: int = 360,
-            x_ratio: float = 1,
-            y_ratio: float = 1,
-        ) -> None:
-            if axis == "X":
-                axis_n = (0, 1)
-            elif axis == "Y":
-                axis_n = (1, 2)
-            else:
-                axis_n = (2, 0)
-            if divide < 3:
-                logger.error("Wrong divide set")
-                divide = 3
-            if angle == 0:
-                logger.error("Wrong angle set")
-                angle = 180
-            verts: list[BMVert] = []
-            for i in range(divide + 1):
-                pi2 = 3.14 * 2 * radians(angle) / radians(360)
-                vert = add_point(center)
-                xy = (sin(pi2 * i / divide) * y_ratio, cos(pi2 * i / divide) * x_ratio)
-                for n, j in zip(axis_n, xy):
-                    vert.co[n] = vert.co[n] + j * radius
-                verts.append(vert)
-
-            bm.faces.new(verts)
-
-        def width_add(point: Sequence[float], add_loc: float) -> Vector:
-            return Vector([p + a for p, a in zip(point, [0, 0, add_loc])])
-
-        def depth_add(point: Vector, add_loc: float) -> Vector:
-            return Vector([p + a for p, a in zip(point, [add_loc, 0, 0])])
-            # X depth Y up Z width
-
         bm = bmesh.new()
 
         face_tall = self.head_tall_size * self.face_center_ratio
 
-        add_point([-self.head_depth_size / 2, 0, 0])
+        self.add_point(bm, [-self.head_depth_size / 2, 0, 0])
 
         eye_point = Vector(
             [
@@ -303,12 +282,12 @@ class ICYP_OT_detail_mesh_maker(Operator):
         )
         if eye_inner_point[2] < self.head_width_size / 12:
             eye_inner_point[2] = self.head_width_size / 12
-        eye_quad_lu_vert = add_point(eye_quad_lu_point)
-        eye_quad_ld_vert = add_point(eye_quad_ld_point)
-        eye_quad_rd_vert = add_point(eye_quad_rd_point)
-        eye_quad_ru_vert = add_point(eye_quad_ru_point)
-        eye_inner_vert = add_point(eye_inner_point)
-        eye_outer_vert = add_point(eye_outer_point)
+        eye_quad_lu_vert = self.add_point(bm, eye_quad_lu_point)
+        eye_quad_ld_vert = self.add_point(bm, eye_quad_ld_point)
+        eye_quad_rd_vert = self.add_point(bm, eye_quad_rd_point)
+        eye_quad_ru_vert = self.add_point(bm, eye_quad_ru_point)
+        eye_inner_vert = self.add_point(bm, eye_inner_point)
+        eye_outer_vert = self.add_point(bm, eye_outer_point)
 
         bm.edges.new((eye_inner_vert, eye_quad_lu_vert))
         bm.edges.new((eye_quad_lu_vert, eye_quad_ru_vert))
@@ -317,8 +296,9 @@ class ICYP_OT_detail_mesh_maker(Operator):
         bm.edges.new((eye_quad_rd_vert, eye_quad_ld_vert))
         bm.edges.new((eye_quad_ld_vert, eye_inner_vert))
 
-        make_circle(
-            depth_add(eye_point, eye_quad_ru_point[0] - eye_point[0]),
+        self.make_circle(
+            bm,
+            self.depth_add(eye_point, eye_quad_ru_point[0] - eye_point[0]),
             eye_iris_size,
             "Y",
             12,
@@ -339,16 +319,22 @@ class ICYP_OT_detail_mesh_maker(Operator):
             eye_outer_point[2],
         ]
 
-        arcus_superciliaris_under_vert = add_point(arcus_superciliaris_under_point)
-        arcus_superciliaris_outer_under_vert = add_point(
-            arcus_superciliaris_outer_under_point
+        arcus_superciliaris_under_vert = self.add_point(
+            bm, arcus_superciliaris_under_point
+        )
+        arcus_superciliaris_outer_under_vert = self.add_point(
+            bm, arcus_superciliaris_outer_under_point
         )
 
-        # eye_brow_inner_point = width_add(eye_brow_point,eye_point[2] - eye_width*1.1)
-        # eye_brow_outer_point = width_add(eye_brow_point,eye_point[2] + eye_width*1.1)
-        # eye_brow_inner_vert = add_point(eye_brow_inner_point)
-        # eye_brow_outer_vert = add_point(eye_brow_outer_point)
-        # bm.edges.new([eye_brow_inner_vert,eye_brow_outer_vert])
+        # eye_brow_inner_point = self.width_add(
+        #     eye_brow_point, eye_point[2] - eye_width * 1.1
+        # )
+        # eye_brow_outer_point = self.width_add(
+        #     eye_brow_point, eye_point[2] + eye_width * 1.1
+        # )
+        # eye_brow_inner_vert = self.add_point(bm, eye_brow_inner_point)
+        # eye_brow_outer_vert = self.add_point(bm, eye_brow_outer_point)
+        # bm.edges.new([eye_brow_inner_vert, eye_brow_outer_vert])
 
         nose_head_height = (
             self.nose_head_height * eye_point[1]
@@ -359,28 +345,28 @@ class ICYP_OT_detail_mesh_maker(Operator):
             nose_head_height,
             0,
         ]
-        nose_start_vert = add_point(nose_start_point)
+        nose_start_vert = self.add_point(bm, nose_start_point)
         nose_end_point = [self.nose_height - self.head_depth_size / 2, face_tall / 3, 0]
         nose_top_point = [
             self.nose_height - self.head_depth_size / 2,
             face_tall / 3 + self.nose_top_pos * (eye_point[1] - nose_end_point[1]),
             0,
         ]
-        nose_top_vert = add_point(nose_top_point)
+        nose_top_vert = self.add_point(bm, nose_top_point)
 
-        nose_end_side_point = depth_add(
-            width_add(
+        nose_end_side_point = self.depth_add(
+            self.width_add(
                 nose_end_point,
                 max([eye_inner_point[2], self.head_width_size / 6]) * self.nose_width,
             ),
             -self.nose_height,
         )
-        nose_end_side_vert = add_point(nose_end_side_point)
+        nose_end_side_vert = self.add_point(bm, nose_end_side_point)
 
         otogai_point = [-self.head_depth_size / 2, 0, 0]
-        otogai_vert = add_point(otogai_point)
+        otogai_vert = self.add_point(bm, otogai_point)
         ear_hole_point = [0, eye_point[1], self.head_width_size / 2]
-        ear_hole_vert = add_point(ear_hole_point)
+        ear_hole_vert = self.add_point(bm, ear_hole_point)
 
         # mouth_point = Vector([
         #     -self.head_depth_size / 2 + self.nose_height * 2 / 3,
@@ -424,17 +410,23 @@ class ICYP_OT_detail_mesh_maker(Operator):
             @ Vector([0, self.mouth_width_ratio * 0.005 * 1.3 * self.mouth_flatten, 0])
         )
 
-        mouth_point_up_vert = add_point(mouth_point + rotated_height_up)
-        mouth_point_mid_up_vert = add_point(mouth_point + rotated_height_mid_up)
-        mouth_point_mid_down_vert = add_point(mouth_point - rotated_height_mid_down)
-        mouth_point_down_vert = add_point(mouth_point - rotated_height_down)
-        mouth_outer_point = depth_add(
-            width_add(mouth_point, self.mouth_width_ratio * self.head_width_size / 5),
+        mouth_point_up_vert = self.add_point(bm, mouth_point + rotated_height_up)
+        mouth_point_mid_up_vert = self.add_point(
+            bm, mouth_point + rotated_height_mid_up
+        )
+        mouth_point_mid_down_vert = self.add_point(
+            bm, mouth_point - rotated_height_mid_down
+        )
+        mouth_point_down_vert = self.add_point(bm, mouth_point - rotated_height_down)
+        mouth_outer_point = self.depth_add(
+            self.width_add(
+                mouth_point, self.mouth_width_ratio * self.head_width_size / 5
+            ),
             (eye_point[0] - mouth_point[0]) * self.mouth_width_ratio,
         )
-        mouth_outer_point_vert = add_point(mouth_outer_point)
-        mouth_center_point = depth_add(mouth_point, rotated_height_up[0] / 2)
-        mouth_center_vert = add_point(mouth_center_point)
+        mouth_outer_point_vert = self.add_point(bm, mouth_outer_point)
+        mouth_center_point = self.depth_add(mouth_point, rotated_height_up[0] / 2)
+        mouth_center_vert = self.add_point(bm, mouth_center_point)
 
         mouth_corner_nodule_point = (
             mouth_outer_point
@@ -442,17 +434,17 @@ class ICYP_OT_detail_mesh_maker(Operator):
             * 0.2
             * self.mouth_corner_nodule
         )
-        mouth_corner_nodule_vert = add_point(mouth_corner_nodule_point)
+        mouth_corner_nodule_vert = self.add_point(bm, mouth_corner_nodule_point)
 
         jaw_point = [0, mouth_point[1], self.head_width_size * 3 / 8]
-        jaw_vert = add_point(jaw_point)
+        jaw_vert = self.add_point(bm, jaw_point)
 
         max_width_point = [
             0,
             arcus_superciliaris_under_point[1],
             self.head_width_size / 2,
         ]
-        max_width_vert = add_point(max_width_point)
+        max_width_vert = self.add_point(bm, max_width_point)
 
         cheek_point = Vector(
             [
@@ -476,8 +468,8 @@ class ICYP_OT_detail_mesh_maker(Operator):
                 * self.cheek_width,
             ]
         )
-        cheek_top_outer_vert = add_point(tmp_cheek + cheek_point)
-        cheek_top_inner_vert = add_point(cheek_point)
+        cheek_top_outer_vert = self.add_point(bm, tmp_cheek + cheek_point)
+        cheek_top_inner_vert = self.add_point(bm, cheek_point)
         cheek_under_inner_point = Vector(
             [
                 -self.head_depth_size / 2,
@@ -486,130 +478,148 @@ class ICYP_OT_detail_mesh_maker(Operator):
             ]
         )
         cheek_under_outer_point = cheek_under_inner_point + tmp_cheek
-        cheek_under_inner_vert = add_point(cheek_under_inner_point)
-        cheek_under_outer_vert = add_point(cheek_under_outer_point)
+        cheek_under_inner_vert = self.add_point(bm, cheek_under_inner_point)
+        cheek_under_outer_vert = self.add_point(bm, cheek_under_outer_point)
 
         # 目尻の端っこからちょっといったとこ
         orbit_end = eye_outer_point + Matrix.Rotation(eye_axis, 4, "Y") @ Vector(
             [0, 0, eye_iris_size]
         ) * cos(eye_axis)
-        orbit_vert = add_point(orbit_end)
+        orbit_vert = self.add_point(bm, orbit_end)
 
         bm.edges.new((otogai_vert, jaw_vert))
         bm.edges.new((jaw_vert, ear_hole_vert))
 
-        def add_mesh(points: list[BMVert]) -> None:
-            bm.faces.new(points)
-
-        add_mesh(
+        self.add_mesh(
+            bm,
             [
                 eye_quad_ld_vert,
                 cheek_top_inner_vert,
                 cheek_top_outer_vert,
                 eye_quad_rd_vert,
-            ]
+            ],
         )
-        add_mesh(
+        self.add_mesh(
+            bm,
             [
                 cheek_under_inner_vert,
                 cheek_top_inner_vert,
                 cheek_top_outer_vert,
                 cheek_under_outer_vert,
-            ]
+            ],
         )
         # eye ring
-        add_mesh(
+        self.add_mesh(
+            bm,
             [
                 arcus_superciliaris_under_vert,
                 arcus_superciliaris_outer_under_vert,
                 eye_quad_ru_vert,
                 eye_quad_lu_vert,
-            ]
+            ],
         )
-        add_mesh(
+        self.add_mesh(
+            bm,
             [
                 arcus_superciliaris_under_vert,
                 eye_quad_lu_vert,
                 eye_inner_vert,
                 nose_start_vert,
-            ]
+            ],
         )
-        add_mesh([nose_start_vert, eye_inner_vert, cheek_top_inner_vert])
-        add_mesh([eye_inner_vert, eye_quad_ld_vert, cheek_top_inner_vert])
-        add_mesh([eye_outer_vert, orbit_vert, cheek_top_outer_vert, eye_quad_rd_vert])
+        self.add_mesh(bm, [nose_start_vert, eye_inner_vert, cheek_top_inner_vert])
+        self.add_mesh(bm, [eye_inner_vert, eye_quad_ld_vert, cheek_top_inner_vert])
+        self.add_mesh(
+            bm, [eye_outer_vert, orbit_vert, cheek_top_outer_vert, eye_quad_rd_vert]
+        )
 
-        add_mesh(
+        self.add_mesh(
+            bm,
             [
                 nose_start_vert,
                 cheek_top_inner_vert,
                 cheek_under_inner_vert,
                 nose_end_side_vert,
-            ]
+            ],
         )
-        add_mesh(
+        self.add_mesh(
+            bm,
             [
                 nose_end_side_vert,
                 cheek_under_inner_vert,
                 mouth_corner_nodule_vert,
                 mouth_outer_point_vert,
-            ]
+            ],
         )
-        add_mesh(
-            [cheek_under_inner_vert, cheek_under_outer_vert, mouth_corner_nodule_vert]
+        self.add_mesh(
+            bm,
+            [cheek_under_inner_vert, cheek_under_outer_vert, mouth_corner_nodule_vert],
         )
 
-        add_mesh([cheek_under_outer_vert, jaw_vert, mouth_corner_nodule_vert])
+        self.add_mesh(bm, [cheek_under_outer_vert, jaw_vert, mouth_corner_nodule_vert])
 
-        add_mesh([nose_start_vert, nose_top_vert, nose_end_side_vert])
-        # add_mesh([nose_end_under_vert,nose_top_vert,nose_end_side_vert])
-        add_mesh(
+        self.add_mesh(bm, [nose_start_vert, nose_top_vert, nose_end_side_vert])
+        # self.add_mesh([nose_end_under_vert,nose_top_vert,nose_end_side_vert])
+        self.add_mesh(
+            bm,
             [
                 nose_top_vert,
                 nose_end_side_vert,
                 mouth_outer_point_vert,
                 mouth_point_up_vert,
-            ]
+            ],
         )
 
-        add_mesh([mouth_point_up_vert, mouth_point_mid_up_vert, mouth_outer_point_vert])
-        add_mesh([mouth_point_mid_up_vert, mouth_center_vert, mouth_outer_point_vert])
-        add_mesh([mouth_center_vert, mouth_point_mid_down_vert, mouth_outer_point_vert])
-        add_mesh(
-            [mouth_point_mid_down_vert, mouth_point_down_vert, mouth_outer_point_vert]
+        self.add_mesh(
+            bm, [mouth_point_up_vert, mouth_point_mid_up_vert, mouth_outer_point_vert]
+        )
+        self.add_mesh(
+            bm, [mouth_point_mid_up_vert, mouth_center_vert, mouth_outer_point_vert]
+        )
+        self.add_mesh(
+            bm, [mouth_center_vert, mouth_point_mid_down_vert, mouth_outer_point_vert]
+        )
+        self.add_mesh(
+            bm,
+            [mouth_point_mid_down_vert, mouth_point_down_vert, mouth_outer_point_vert],
         )
 
-        add_mesh(
+        self.add_mesh(
+            bm,
             [
                 eye_outer_vert,
                 orbit_vert,
                 arcus_superciliaris_outer_under_vert,
                 eye_quad_ru_vert,
-            ]
+            ],
         )
-        add_mesh(
-            [cheek_top_outer_vert, cheek_under_outer_vert, jaw_vert, ear_hole_vert]
+        self.add_mesh(
+            bm, [cheek_top_outer_vert, cheek_under_outer_vert, jaw_vert, ear_hole_vert]
         )
-        add_mesh([otogai_vert, jaw_vert, mouth_corner_nodule_vert])
-        add_mesh(
+        self.add_mesh(bm, [otogai_vert, jaw_vert, mouth_corner_nodule_vert])
+        self.add_mesh(
+            bm,
             [
                 otogai_vert,
                 mouth_corner_nodule_vert,
                 mouth_outer_point_vert,
                 mouth_point_down_vert,
-            ]
+            ],
         )
-        add_mesh([orbit_vert, ear_hole_vert, cheek_top_outer_vert])
-        add_mesh(
+        self.add_mesh(bm, [orbit_vert, ear_hole_vert, cheek_top_outer_vert])
+        self.add_mesh(
+            bm,
             [
                 arcus_superciliaris_outer_under_vert,
                 max_width_vert,
                 ear_hole_vert,
                 orbit_vert,
-            ]
+            ],
         )
 
         # head
-        make_circle(
+        self.make_circle(
+            bm,
             [0, max_width_point[1], 0],
             max_width_point[2],
             "Y",
@@ -618,7 +628,8 @@ class ICYP_OT_detail_mesh_maker(Operator):
             1,
             (self.head_tall_size - max_width_point[1]) / max_width_point[2],
         )
-        make_circle(
+        self.make_circle(
+            bm,
             [0, arcus_superciliaris_under_point[1], 0],
             self.head_tall_size - arcus_superciliaris_outer_under_point[1],
             "X",
@@ -632,3 +643,22 @@ class ICYP_OT_detail_mesh_maker(Operator):
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         bm.to_mesh(mesh)
         bm.free()
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        face_center_ratio: float  # type: ignore[no-redef]
+        eye_width_ratio: float  # type: ignore[no-redef]
+        nose_head_height: float  # type: ignore[no-redef]
+        nose_top_pos: float  # type: ignore[no-redef]
+        nose_height: float  # type: ignore[no-redef]
+        nose_width: float  # type: ignore[no-redef]
+        eye_depth: float  # type: ignore[no-redef]
+        eye_angle: float  # type: ignore[no-redef]
+        eye_rotate: float  # type: ignore[no-redef]
+        cheek_ratio: float  # type: ignore[no-redef]
+        cheek_width: float  # type: ignore[no-redef]
+        mouth_width_ratio: float  # type: ignore[no-redef]
+        mouth_corner_nodule: float  # type: ignore[no-redef]
+        mouth_position_ratio: float  # type: ignore[no-redef]
+        mouth_flatten: float  # type: ignore[no-redef]
