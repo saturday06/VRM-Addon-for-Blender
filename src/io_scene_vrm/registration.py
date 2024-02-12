@@ -30,8 +30,10 @@ from .common import preferences, shader
 from .common.logging import get_logger
 from .common.version import addon_version, trigger_clear_addon_version_cache
 from .editor import (
+    detail_mesh_maker,
     extension,
     make_armature,
+    make_mesh_from_bone_envelopes,
     migration,
     ops,
     panel,
@@ -340,11 +342,11 @@ classes: list[
     mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_tree,
     mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
-    # editor.detail_mesh_maker.ICYP_OT_detail_mesh_maker,
+    detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,
     make_armature.ICYP_OT_make_armature,
-    # editor.mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
+    make_mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
     ops.VRM_OT_add_human_bone_custom_property,
     ops.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
     ops.VRM_OT_add_extensions_to_armature,
@@ -371,7 +373,6 @@ classes: list[
     import_scene.IMPORT_SCENE_OT_vrm,
     import_scene.IMPORT_SCENE_OT_vrma,
     import_scene.VRM_PT_import_unsupported_blender_version_warning,
-    # importer.blend_model.ICYP_OT_select_helper,
     preferences.VrmAddonPreferences,
     extension.VrmAddonArmatureExtensionPropertyGroup,
     extension.VrmAddonBoneExtensionPropertyGroup,
