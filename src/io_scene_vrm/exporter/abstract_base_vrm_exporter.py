@@ -4,11 +4,13 @@ from abc import ABC, abstractmethod
 from typing import Optional, Union
 
 import bpy
-from bpy.types import Action, Armature, Context, NodesModifier, Object
+from bpy.types import Armature, Context, NodesModifier, Object
 from mathutils import Matrix, Quaternion
 
 from ..common import shader
 from ..common.deep import Json, make_json
+from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
+from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
 
 
@@ -37,9 +39,11 @@ class AbstractBaseVrmExporter(ABC):
         self,
         armature: Object,
         armature_data: Armature,
-        action: Optional[Action],
-        pose_marker_name: str,
+        humanoid: Union[Vrm0HumanoidPropertyGroup, Vrm1HumanoidPropertyGroup],
     ) -> None:
+        action = humanoid.pose_library
+        pose_marker_name = humanoid.pose_marker_name
+
         if (
             not action or action.name not in bpy.data.actions
         ) and armature_data.pose_position == "REST":

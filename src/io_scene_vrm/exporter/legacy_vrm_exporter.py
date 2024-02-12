@@ -143,8 +143,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             self.setup_pose(
                 self.armature,
                 self.armature_data,
-                self.armature_data.vrm_addon_extension.vrm0.humanoid.pose_library,
-                self.armature_data.vrm_addon_extension.vrm0.humanoid.pose_marker_name,
+                self.armature_data.vrm_addon_extension.vrm0.humanoid,
             )
             wm.progress_update(1)
             self.image_to_bin()
