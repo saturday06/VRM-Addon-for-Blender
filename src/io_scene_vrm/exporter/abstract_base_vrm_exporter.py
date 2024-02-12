@@ -41,12 +41,26 @@ class AbstractBaseVrmExporter(ABC):
         armature_data: Armature,
         humanoid: Union[Vrm0HumanoidPropertyGroup, Vrm1HumanoidPropertyGroup],
     ) -> None:
+        pose = humanoid.pose
         action = humanoid.pose_library
         pose_marker_name = humanoid.pose_marker_name
 
+        if pose != Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE:
+            action = None
+            pose_marker_name = ""
+
         if (
-            not action or action.name not in bpy.data.actions
-        ) and armature_data.pose_position == "REST":
+            pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CURRENT_POSE
+            and armature_data.pose_position == "REST"
+        ):
+            return
+
+        if pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE or (
+            pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE
+            and not (action and action.name in bpy.data.actions)
+        ):
+            self.saved_pose_position = armature_data.pose_position
+            armature_data.pose_position = "REST"
             return
 
         if self.context.view_layer.objects.active is not None:
