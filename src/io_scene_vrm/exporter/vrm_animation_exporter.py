@@ -715,6 +715,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             "extensionsUsed": ["VRMC_vrm_animation"],
             "extensions": {
                 "VRMC_vrm_animation": {
+                    "specVersion": "1.0",
                     "humanoid": {
                         "humanBones": human_bones_dict,
                     },
