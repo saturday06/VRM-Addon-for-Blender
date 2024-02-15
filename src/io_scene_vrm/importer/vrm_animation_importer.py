@@ -4,6 +4,7 @@ import math
 import struct
 from dataclasses import dataclass
 from pathlib import Path
+from sys import float_info
 from typing import Optional, Union
 from urllib.parse import urlparse
 
@@ -64,7 +65,7 @@ class NodeRestPoseTree:
         scale_float3 = convert.float3_or_none(node_dict.get("scale"))
         if scale_float3:
             x, y, z = scale_float3
-            scale = Vector((x, -z, y))
+            scale = Vector((x, z, y))
         else:
             scale = Vector((1, 1, 1))
 
@@ -637,6 +638,7 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
             humanoid_parent_rest_world_matrix=Matrix(),
             intermediate_rest_local_matrix=Matrix(),
             intermediate_pose_local_matrix=Matrix(),
+            parent_node_rest_pose_world_matrix=Matrix(),
         )
         assign_expression_keyframe(
             armature_data,
@@ -717,6 +719,7 @@ def assign_humanoid_keyframe(
     humanoid_parent_rest_world_matrix: Matrix,
     intermediate_rest_local_matrix: Matrix,
     intermediate_pose_local_matrix: Matrix,
+    parent_node_rest_pose_world_matrix: Matrix,
 ) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
@@ -744,6 +747,23 @@ def assign_humanoid_keyframe(
             begin_translation = end_translation
         if pose_local_translation is None:
             pose_local_translation = begin_translation
+
+        parent_world_scale = parent_node_rest_pose_world_matrix.to_scale()
+        if parent_world_scale.length_squared >= float_info.epsilon:
+            # これはもっと便利な方法がありそう
+            node_rest_pose_local_translation = (
+                node_rest_pose_tree.local_matrix.to_translation()
+            )
+            pose_local_translation = Vector(
+                (
+                    (pose_local_translation.x - node_rest_pose_local_translation.x)
+                    / parent_world_scale.x,
+                    (pose_local_translation.y - node_rest_pose_local_translation.y)
+                    / parent_world_scale.y,
+                    (pose_local_translation.z - node_rest_pose_local_translation.z)
+                    / parent_world_scale.z,
+                )
+            )
     else:
         pose_local_translation = node_rest_pose_tree.local_matrix.to_translation()
 
@@ -880,4 +900,5 @@ def assign_humanoid_keyframe(
             humanoid_rest_world_matrix,
             rest_local_matrix,
             pose_local_matrix,
+            parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix,
         )
