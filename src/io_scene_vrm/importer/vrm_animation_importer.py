@@ -786,9 +786,12 @@ def assign_humanoid_keyframe(
             begin_timestamp = end_timestamp
             begin_rotation = end_rotation
         if pose_local_rotation is None:
-            pose_local_rotation = begin_rotation
+            pose_local_rotation = (
+                node_rest_pose_tree.local_matrix.to_quaternion().inverted()
+                @ begin_rotation
+            )
     else:
-        pose_local_rotation = node_rest_pose_tree.local_matrix.to_quaternion()
+        pose_local_rotation = Quaternion()
 
     humanoid_rest_world_matrix = humanoid_parent_rest_world_matrix
     rest_local_matrix = (
