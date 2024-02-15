@@ -36,11 +36,13 @@ class NodeRestPoseTree:
     node_index: int
     local_matrix: Matrix
     children: tuple["NodeRestPoseTree", ...]
+    is_root: bool
 
     @staticmethod
     def build(
         node_dicts: list[Json],
         node_index: int,
+        is_root: bool,
     ) -> list["NodeRestPoseTree"]:
         if not 0 <= node_index < len(node_dicts):
             return []
@@ -83,7 +85,7 @@ class NodeRestPoseTree:
             children = tuple(
                 itertools.chain(
                     *(
-                        NodeRestPoseTree.build(node_dicts, child_index)
+                        NodeRestPoseTree.build(node_dicts, child_index, is_root=False)
                         for child_index in child_indices
                         if isinstance(child_index, int)
                     )
@@ -97,6 +99,7 @@ class NodeRestPoseTree:
                 node_index=node_index,
                 local_matrix=local_matrix,
                 children=children,
+                is_root=is_root,
             )
         ]
 
@@ -456,7 +459,9 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
         node_index_to_human_bone_name[node_index] = human_bone_name
 
     root_node_index = find_root_node_index(node_dicts, hips_node_index, set())
-    node_rest_pose_trees = NodeRestPoseTree.build(node_dicts, root_node_index)
+    node_rest_pose_trees = NodeRestPoseTree.build(
+        node_dicts, root_node_index, is_root=True
+    )
     if len(node_rest_pose_trees) != 1:
         return {"CANCELLED"}
     node_rest_pose_tree = node_rest_pose_trees[0]
@@ -750,10 +755,13 @@ def assign_humanoid_keyframe(
 
         parent_world_scale = parent_node_rest_pose_world_matrix.to_scale()
         if parent_world_scale.length_squared >= float_info.epsilon:
+            if node_rest_pose_tree.is_root:
+                node_rest_pose_local_translation = Vector((0, 0, 0))
+            else:
+                node_rest_pose_local_translation = (
+                    node_rest_pose_tree.local_matrix.to_translation()
+                )
             # これはもっと便利な方法がありそう
-            node_rest_pose_local_translation = (
-                node_rest_pose_tree.local_matrix.to_translation()
-            )
             pose_local_translation = Vector(
                 (
                     (pose_local_translation.x - node_rest_pose_local_translation.x)
