@@ -339,7 +339,7 @@ def menu_import(
     vrm_import_op.use_addon_preferences = True
 
     vrma_import_op = layout_operator(
-        menu_op.layout, IMPORT_SCENE_OT_vrma, text="VRM Animation DRAFT (.vrma)"
+        menu_op.layout, IMPORT_SCENE_OT_vrma, text="VRM Animation (.vrma)"
     )
     vrma_import_op.armature_object_name = ""
 

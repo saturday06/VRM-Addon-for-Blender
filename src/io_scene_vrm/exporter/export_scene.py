@@ -351,7 +351,7 @@ def menu_export(menu_op: Operator, _context: Context) -> None:
     vrm_export_op.ignore_warning = False
 
     vrma_export_op = layout_operator(
-        menu_op.layout, EXPORT_SCENE_OT_vrma, text="VRM Animation DRAFT (.vrma)"
+        menu_op.layout, EXPORT_SCENE_OT_vrma, text="VRM Animation (.vrma)"
     )
     vrma_export_op.armature_object_name = ""
 
