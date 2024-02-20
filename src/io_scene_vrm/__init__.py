@@ -121,6 +121,8 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
     https://code.blender.org/2022/10/blender-extensions-platform/
     """
+    import io
+    import shutil
     import tarfile
     from logging import getLogger
     from pathlib import Path
@@ -148,13 +150,25 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
 
     with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
         # Will be replaced with tar_xz.extractall(..., filter="data")
+        base_path = Path(__file__).parent
         for member in tar_xz.getmembers():
-            if ".." in member.path or not (member.isfile() or member.isdir()):
+            if ".." in member.path or not member.isfile():
                 continue
-            path = Path(member.path)
-            if path.is_absolute():
+
+            member_path = Path(member.path)
+            if member_path.is_absolute():
                 continue
-            tar_xz.extract(member=member, path=Path(__file__).parent, set_attrs=False)
+
+            file = tar_xz.extractfile(member)
+            if not file:
+                continue
+
+            output = io.BytesIO()
+            shutil.copyfileobj(file, output)
+
+            output_path = base_path / member_path
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_bytes(output.getvalue())
 
     try:
         github_private_partial_code_archive_path.unlink()
