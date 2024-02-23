@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 class ICYP_OT_detail_mesh_maker(Operator):
     bl_idname = "icyp.make_mesh_detail"
     bl_label = "(Don't work currently)detail mesh"
-    l_description = "Create mesh with a simple setup for VRM export"
+    bl_description = "Create mesh with a simple setup for VRM export"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     # init before execute
