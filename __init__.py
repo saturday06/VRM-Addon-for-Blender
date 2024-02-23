@@ -14,7 +14,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 31),
+    "version": (2, 20, 32),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -121,7 +121,9 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
     https://code.blender.org/2022/10/blender-extensions-platform/
     """
+    import shutil
     import tarfile
+    from io import BytesIO
     from logging import getLogger
     from pathlib import Path
 
@@ -148,13 +150,25 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
 
     with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
         # Will be replaced with tar_xz.extractall(..., filter="data")
+        base_path = Path(__file__).parent
         for member in tar_xz.getmembers():
-            if ".." in member.path or not (member.isfile() or member.isdir()):
+            if ".." in member.path or not member.isfile():
                 continue
-            path = Path(member.path)
-            if path.is_absolute():
+
+            member_path = Path(member.path)
+            if member_path.is_absolute():
                 continue
-            tar_xz.extract(member=member, path=Path(__file__).parent, set_attrs=False)
+
+            file = tar_xz.extractfile(member)
+            if not file:
+                continue
+            with file, BytesIO() as output:
+                shutil.copyfileobj(file, output)
+                output_bytes = output.getvalue()
+
+            output_path = base_path / member_path
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_bytes(output_bytes)
 
     try:
         github_private_partial_code_archive_path.unlink()
