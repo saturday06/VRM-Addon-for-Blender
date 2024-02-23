@@ -162,13 +162,13 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
             file = tar_xz.extractfile(member)
             if not file:
                 continue
-
-            output = io.BytesIO()
-            shutil.copyfileobj(file, output)
+            with file, io.BytesIO() as output:
+                shutil.copyfileobj(file, output)
+                output_bytes = output.getvalue()
 
             output_path = base_path / member_path
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(output.getvalue())
+            output_path.write_bytes(output_bytes)
 
     try:
         github_private_partial_code_archive_path.unlink()
