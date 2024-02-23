@@ -121,9 +121,9 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
     https://code.blender.org/2022/10/blender-extensions-platform/
     """
-    import io
     import shutil
     import tarfile
+    from io import BytesIO
     from logging import getLogger
     from pathlib import Path
 
@@ -162,7 +162,7 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
             file = tar_xz.extractfile(member)
             if not file:
                 continue
-            with file, io.BytesIO() as output:
+            with file, BytesIO() as output:
                 shutil.copyfileobj(file, output)
                 output_bytes = output.getvalue()
 
