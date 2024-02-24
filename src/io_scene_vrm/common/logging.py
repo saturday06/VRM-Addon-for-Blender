@@ -4,7 +4,7 @@ from os import environ
 
 class Logger:
     def log_prefix(self, severity: str) -> str:
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_5_0/io_scene_vrm/__init__.py#L45-L46
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_32/src/io_scene_vrm/__init__.py#L132-L133
         return f"[VRM Add-on:{severity}] "
 
     def __init__(self, logger: standard_logging.Logger) -> None:
