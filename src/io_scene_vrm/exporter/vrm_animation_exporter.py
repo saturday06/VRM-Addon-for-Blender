@@ -645,6 +645,9 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             )
 
             output_accessor_index = len(accessor_dicts)
+            gltf_translation_x_values = [t[0] for t in gltf_translations]
+            gltf_translation_y_values = [t[1] for t in gltf_translations]
+            gltf_translation_z_values = [t[2] for t in gltf_translations]
             accessor_dicts.append(
                 {
                     "bufferView": output_buffer_view_index,
@@ -652,24 +655,14 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                     "count": len(hips_translations),
                     "type": "VEC3",
                     "min": [
-                        min(values)
-                        for values in [
-                            [
-                                gltf_translation[i]
-                                for gltf_translation in gltf_translations
-                            ]
-                            for i in range(3)
-                        ]
+                        min(gltf_translation_x_values),
+                        min(gltf_translation_y_values),
+                        min(gltf_translation_z_values),
                     ],
                     "max": [
-                        max(values)
-                        for values in [
-                            [
-                                gltf_translation[i]
-                                for gltf_translation in gltf_translations
-                            ]
-                            for i in range(3)
-                        ]
+                        max(gltf_translation_x_values),
+                        max(gltf_translation_y_values),
+                        max(gltf_translation_z_values),
                     ],
                 }
             )
