@@ -7,7 +7,7 @@ echo ### poetry check ###
 poetry check
 for /f "tokens=* usebackq" %%f in (`git ls-files "*.py"`) do ( set py_files=!py_files! %%f )
 echo ### ruff ###
-call poetry run ruff %py_files%
+call poetry run ruff check %py_files%
 echo ### codespell ###
 call poetry run codespell %py_files%
 echo ### mypy ###
