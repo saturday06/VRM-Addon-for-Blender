@@ -554,9 +554,9 @@ def export_constraints(
             if target.type == "ARMATURE":
                 bone = target.pose.bones[current_constraint.subtarget]
                 owner_name = bone.name
-                target_constraints: Union[
-                    ObjectConstraints, PoseBoneConstraints
-                ] = bone.constraints
+                target_constraints: Union[ObjectConstraints, PoseBoneConstraints] = (
+                    bone.constraints
+                )
             else:
                 owner_name = target.name
                 target_constraints = target.constraints

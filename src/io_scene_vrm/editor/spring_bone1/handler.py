@@ -168,9 +168,9 @@ def calculate_object_pose_bone_rotations(
             )
             if world_colliders is None:
                 world_colliders = []
-                collider_group_uuid_to_world_colliders[
-                    collider_group.uuid
-                ] = world_colliders
+                collider_group_uuid_to_world_colliders[collider_group.uuid] = (
+                    world_colliders
+                )
             world_colliders.append(world_collider)
 
     for spring in spring_bone1.springs:

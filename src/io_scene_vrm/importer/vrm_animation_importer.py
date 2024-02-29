@@ -583,18 +583,18 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
                 default_preview_value = 0.0
         else:
             default_preview_value = 0.0
-        expression_name_to_default_preview_value[
-            expression_name
-        ] = default_preview_value
+        expression_name_to_default_preview_value[expression_name] = (
+            default_preview_value
+        )
 
         expression_translation_keyframes = node_index_to_translation_keyframes.get(
             node_index
         )
         if expression_translation_keyframes is None:
             continue
-        expression_name_to_translation_keyframes[
-            expression_name
-        ] = expression_translation_keyframes
+        expression_name_to_translation_keyframes[expression_name] = (
+            expression_translation_keyframes
+        )
 
     timestamps = [
         timestamp

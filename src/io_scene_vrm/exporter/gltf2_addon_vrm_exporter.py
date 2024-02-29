@@ -1086,9 +1086,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
             mtoon_dict["matcapFactor"] = list(mtoon.matcap_factor)
 
         mtoon_dict["parametricRimColorFactor"] = list(mtoon.parametric_rim_color_factor)
-        mtoon_dict[
-            "parametricRimFresnelPowerFactor"
-        ] = mtoon.parametric_rim_fresnel_power_factor
+        mtoon_dict["parametricRimFresnelPowerFactor"] = (
+            mtoon.parametric_rim_fresnel_power_factor
+        )
         mtoon_dict["parametricRimLiftFactor"] = mtoon.parametric_rim_lift_factor
         assign_dict(
             mtoon_dict,
@@ -1128,15 +1128,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 gltf2_addon_export_settings,
             ),
         )
-        mtoon_dict[
-            "uvAnimationRotationSpeedFactor"
-        ] = mtoon.uv_animation_rotation_speed_factor
-        mtoon_dict[
-            "uvAnimationScrollXSpeedFactor"
-        ] = mtoon.uv_animation_scroll_x_speed_factor
-        mtoon_dict[
-            "uvAnimationScrollYSpeedFactor"
-        ] = mtoon.uv_animation_scroll_y_speed_factor
+        mtoon_dict["uvAnimationRotationSpeedFactor"] = (
+            mtoon.uv_animation_rotation_speed_factor
+        )
+        mtoon_dict["uvAnimationScrollXSpeedFactor"] = (
+            mtoon.uv_animation_scroll_x_speed_factor
+        )
+        mtoon_dict["uvAnimationScrollYSpeedFactor"] = (
+            mtoon.uv_animation_scroll_y_speed_factor
+        )
 
         if pbr_metallic_roughness_dict:
             material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
@@ -1472,9 +1472,9 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
 
         gi_equalization_0x = shader.get_float_value(node, "IndirectLightIntensity")
         if gi_equalization_0x is not None:
-            mtoon_dict[
-                "giEqualizationFactor"
-            ] = convert.mtoon_intensity_to_gi_equalization(gi_equalization_0x)
+            mtoon_dict["giEqualizationFactor"] = (
+                convert.mtoon_intensity_to_gi_equalization(gi_equalization_0x)
+            )
 
         assign_dict(
             material_dict,
@@ -1689,15 +1689,15 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     gltf2_addon_export_settings,
                 )
             elif shader_name == "TRANSPARENT_ZWRITE":
-                material_dicts[
-                    index
-                ] = cls.create_legacy_transparent_zwrite_material_dict(
-                    json_dict,
-                    body_binary,
-                    material,
-                    node,
-                    image_name_to_index_dict,
-                    gltf2_addon_export_settings,
+                material_dicts[index] = (
+                    cls.create_legacy_transparent_zwrite_material_dict(
+                        json_dict,
+                        body_binary,
+                        material,
+                        node,
+                        image_name_to_index_dict,
+                        gltf2_addon_export_settings,
+                    )
                 )
 
         if material_dicts:

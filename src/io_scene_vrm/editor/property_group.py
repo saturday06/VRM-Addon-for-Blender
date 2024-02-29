@@ -375,34 +375,24 @@ T_co = TypeVar("T_co", covariant=True)
 
 # 本物は型引数を取らない
 class CollectionPropertyProtocol(Protocol[T_co]):
-    def add(self) -> T_co:
-        ...  # TODO: undocumented
+    def add(self) -> T_co: ...  # TODO: undocumented
 
-    def __len__(self) -> int:
-        ...  # TODO: undocumented
+    def __len__(self) -> int: ...  # TODO: undocumented
 
-    def __iter__(self) -> Iterator[T_co]:
-        ...  # TODO: undocumented
+    def __iter__(self) -> Iterator[T_co]: ...  # TODO: undocumented
 
-    def clear(self) -> None:
-        ...  # TODO: undocumented
+    def clear(self) -> None: ...  # TODO: undocumented
 
     @overload
-    def __getitem__(self, index: slice) -> tuple[T_co, ...]:
-        ...  # TODO: undocumented
+    def __getitem__(self, index: slice) -> tuple[T_co, ...]: ...  # TODO: undocumented
 
     @overload
-    def __getitem__(self, index: int) -> T_co:
-        ...  # TODO: undocumented
+    def __getitem__(self, index: int) -> T_co: ...  # TODO: undocumented
 
-    def remove(self, index: int) -> None:
-        ...  # TODO: undocumented
+    def remove(self, index: int) -> None: ...  # TODO: undocumented
 
-    def values(self) -> ValuesView[T_co]:
-        ...  # TODO: undocumented
+    def values(self) -> ValuesView[T_co]: ...  # TODO: undocumented
 
-    def __contains__(self, value: str) -> bool:
-        ...  # TODO: undocumented
+    def __contains__(self, value: str) -> bool: ...  # TODO: undocumented
 
-    def move(self, from_index: int, to_index: int) -> None:
-        ...  # TODO: undocumented
+    def move(self, from_index: int, to_index: int) -> None: ...  # TODO: undocumented

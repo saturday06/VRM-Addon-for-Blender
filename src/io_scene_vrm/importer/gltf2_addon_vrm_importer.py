@@ -1533,9 +1533,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             ) in human_bones.human_bone_name_to_human_bone().items():
                 if not human_bone.node.bone_name:
                     continue
-                bone_name_to_human_bone_name[
-                    human_bone.node.bone_name
-                ] = human_bone_name
+                bone_name_to_human_bone_name[human_bone.node.bone_name] = (
+                    human_bone_name
+                )
 
             bpy.ops.object.mode_set(mode="EDIT")
 
@@ -1720,9 +1720,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                             bone.length = max(
                                 bone.parent.length / 2, make_armature.MIN_BONE_LENGTH
                             )
-                        bone_name_to_axis_translation[
-                            bone.name
-                        ] = group_axis_translation
+                        bone_name_to_axis_translation[bone.name] = (
+                            group_axis_translation
+                        )
                         continue
 
                 main_child_bone_name = bone_name_to_main_child_bone_name.get(bone.name)
@@ -1753,9 +1753,9 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     ).to_translation()
                     target_vector = target_translation - base_translation
                 elif not bone.parent:
-                    bone_name_to_axis_translation[
-                        bone.name
-                    ] = BoneExtension.AXIS_TRANSLATION_NONE_ID
+                    bone_name_to_axis_translation[bone.name] = (
+                        BoneExtension.AXIS_TRANSLATION_NONE_ID
+                    )
                     continue
                 elif bone_name_to_human_bone_name.get(bone.name) in [
                     HumanBoneName.RIGHT_EYE,

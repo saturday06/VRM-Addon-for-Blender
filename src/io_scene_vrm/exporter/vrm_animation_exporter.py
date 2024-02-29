@@ -129,9 +129,9 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             if parent_bone:
                 break
         if parent_bone:
-            bone_name_to_parent_bone_name_without_non_human_bone[
-                parent_bone.name
-            ] = bone.name
+            bone_name_to_parent_bone_name_without_non_human_bone[parent_bone.name] = (
+                bone.name
+            )
             matrix = parent_bone.matrix.inverted_safe() @ bone.matrix
         else:
             matrix = bone.matrix
@@ -196,9 +196,9 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 "lookRight",
             ]:
                 continue
-            data_path_to_expression_name[
-                expression.path_from_id("preview")
-            ] = expression.name
+            data_path_to_expression_name[expression.path_from_id("preview")] = (
+                expression.name
+            )
 
         expression_name_to_expression_values: dict[
             str, list[tuple[float, float, float]]
@@ -220,9 +220,9 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 )
                 if not expression_values:
                     expression_values = []
-                    expression_name_to_expression_values[
-                        expression_name
-                    ] = expression_values
+                    expression_name_to_expression_values[expression_name] = (
+                        expression_values
+                    )
                 expression_values.append(
                     (
                         max(0, min(fcurve.evaluate(frame), 1)),

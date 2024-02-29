@@ -1308,9 +1308,9 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
     )
 
     def all_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
-        result: dict[
-            str, Vrm1ExpressionPropertyGroup
-        ] = self.preset.name_to_expression_dict()
+        result: dict[str, Vrm1ExpressionPropertyGroup] = (
+            self.preset.name_to_expression_dict()
+        )
         for custom_expression in self.custom:
             result[custom_expression.custom_name] = custom_expression
         return result

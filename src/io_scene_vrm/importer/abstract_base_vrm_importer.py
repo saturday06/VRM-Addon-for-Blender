@@ -98,9 +98,9 @@ class AbstractBaseVrmImporter(ABC):
                 and obj.parent == armature
                 and obj.parent_bone in self.armature_data.bones
             ):
-                self.bone_child_object_world_matrices[
-                    obj.name
-                ] = obj.matrix_world.copy()
+                self.bone_child_object_world_matrices[obj.name] = (
+                    obj.matrix_world.copy()
+                )
 
     def load_bone_child_object_world_matrices(self, armature: Object) -> None:
         for obj in bpy.data.objects:

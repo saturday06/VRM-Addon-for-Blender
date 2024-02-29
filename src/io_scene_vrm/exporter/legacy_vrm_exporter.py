@@ -917,12 +917,13 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         keyword_map.update({"_ALPHAPREMULTIPLY_ON": False})
 
         mtoon_float_dict["_MToonVersion"] = MtoonUnversioned.version
-        mtoon_float_dict["_CullMode"] = (
-            2 if material.use_backface_culling else 0
-        )  # no cull or bf cull
-        mtoon_float_dict[
-            "_OutlineCullMode"
-        ] = 1  # front face cull (for invert normal outline)
+
+        # no cull or back face cull
+        mtoon_float_dict["_CullMode"] = 2 if material.use_backface_culling else 0
+
+        # front face cull (for invert normal outline)
+        mtoon_float_dict["_OutlineCullMode"] = 1
+
         mtoon_float_dict["_DebugMode"] = 0
         keyword_map.update({"MTOON_DEBUG_NORMAL": False})
         keyword_map.update({"MTOON_DEBUG_LITSHADERATE": False})
@@ -1618,9 +1619,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         float_properties["_ShadeToony"] = convert.mtoon_shading_toony_1_to_0(
             mtoon.shading_toony_factor, mtoon.shading_shift_factor
         )
-        float_properties[
-            "_IndirectLightIntensity"
-        ] = convert.mtoon_gi_equalization_to_intensity(mtoon.gi_equalization_factor)
+        float_properties["_IndirectLightIntensity"] = (
+            convert.mtoon_gi_equalization_to_intensity(mtoon.gi_equalization_factor)
+        )
         float_properties["_RimLightingMix"] = gltf.mtoon0_rim_lighting_mix
         float_properties["_RimFresnelPower"] = mtoon.parametric_rim_fresnel_power_factor
         float_properties["_RimLift"] = mtoon.parametric_rim_lift_factor
@@ -1794,9 +1795,9 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         float_properties["_OutlineCullMode"] = 1
         float_properties["_DebugMode"] = 0
         float_properties["_LightColorAttenuation"] = gltf.mtoon0_light_color_attenuation
-        float_properties[
-            "_OutlineScaledMaxDistance"
-        ] = gltf.mtoon0_outline_scaled_max_distance
+        float_properties["_OutlineScaledMaxDistance"] = (
+            gltf.mtoon0_outline_scaled_max_distance
+        )
 
         keyword_map["MTOON_DEBUG_NORMAL"] = False
         keyword_map["MTOON_DEBUG_LITSHADERATE"] = False
