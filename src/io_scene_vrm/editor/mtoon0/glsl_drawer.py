@@ -260,13 +260,13 @@ class GlslDrawObj:
 
     @staticmethod
     def build_scene(_dummy: object = None) -> None:
-        glsl_draw_obj: Optional[GlslDrawObj] = None
-        if GlslDrawObj.instance is None and GlslDrawObj.draw_func is None:
-            glsl_draw_obj = GlslDrawObj()
+        if GlslDrawObj.instance is None:
+            if GlslDrawObj.draw_func is None:
+                glsl_draw_obj = GlslDrawObj()
+            else:
+                return
         else:
             glsl_draw_obj = GlslDrawObj.instance
-        if glsl_draw_obj is None:
-            return
         GlslDrawObj.objs = list(glsl_draw_obj.draw_objs)
         lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
         if not lights:
@@ -304,10 +304,6 @@ class GlslDrawObj:
             ]
 
         def build_mesh(obj: Object) -> GlMesh:
-            if glsl_draw_obj is None:
-                message = "glsl draw obj is None"
-                raise ValueError(message)
-
             scene_mesh = GlMesh()
             ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
