@@ -4,7 +4,7 @@ from collections.abc import Set as AbstractSet
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from bpy.types import (
@@ -22,6 +22,10 @@ from mathutils import Matrix, Vector
 from ...common.mtoon_unversioned import MtoonUnversioned
 from ...common.preferences import get_preferences
 from .. import search
+
+if TYPE_CHECKING:
+    from gpu.types import GPUOffScreen as TypeCheckingGPUOffScreen
+    from gpu.types import GPUShader as TypeCheckingGPUShader
 
 
 class ICYP_OT_draw_model(Operator):
@@ -52,7 +56,7 @@ class ICYP_OT_remove_draw_model(Operator):
 
 class MtoonGlsl:
     main_node: Optional[Node] = None
-    alpha_method = None
+    alpha_method: Optional[str] = None
 
     float_dict: dict[str, float]
     vector_dict: dict[str, list[float]]
@@ -229,12 +233,11 @@ class GlslDrawObj:
     depth_fragment_shader = (
         Path(__file__).with_name("depth.frag.glsl").read_text(encoding="UTF-8")
     )
-    executor = None
-    toon_shader = None
-    depth_shader = None
+    toon_shader: Optional["TypeCheckingGPUShader"] = None
+    depth_shader: Optional["TypeCheckingGPUShader"] = None
     objs: ClassVar[list[Object]] = []
-    light = None
-    offscreen = None
+    light: Optional[Object] = None
+    offscreen: Optional["TypeCheckingGPUOffScreen"] = None
     materials: ClassVar[dict[str, MtoonGlsl]] = {}
     instance: Optional["GlslDrawObj"] = None
     draw_objs: ClassVar[list[Object]] = []

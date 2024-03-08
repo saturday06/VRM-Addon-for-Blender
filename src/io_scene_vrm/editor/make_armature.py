@@ -140,7 +140,7 @@ class ICYP_OT_make_armature(Operator):
         options={"HIDDEN"}
     )
 
-    armature_obj = None
+    armature_obj: Optional[Object] = None
 
     def execute(self, context: Context) -> set[str]:
         if (
