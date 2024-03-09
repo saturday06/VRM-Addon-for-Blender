@@ -1,4 +1,6 @@
 import math
+import random
+import string
 from copy import deepcopy
 from pathlib import Path
 from sys import float_info
@@ -148,6 +150,18 @@ def template_name(name: str) -> str:
     return INTERNAL_NAME_PREFIX + name + " Template"
 
 
+def backup_name(name: str, backup_suffix: str) -> str:
+    return name.removesuffix(" Template") + backup_suffix
+
+
+def generate_backup_suffix() -> str:
+    # 極々稀に重複する可能性があるが、長すぎる名前が使えないので悩ましい。
+    return " " + "".join(
+        random.SystemRandom().choice(string.ascii_letters + string.digits)
+        for _ in range(8)
+    )
+
+
 def add_shaders() -> None:
     for file_name in file_names:
         path = Path(__file__).with_name(file_name)
@@ -163,14 +177,15 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
     if not overwrite and OUTLINE_GEOMETRY_GROUP_NAME in bpy.data.node_groups:
         return
 
-    old_template_outline_group = bpy.data.node_groups.get(
-        template_name(OUTLINE_GEOMETRY_GROUP_NAME)
-    )
+    backup_suffix = generate_backup_suffix()
+
+    template_outline_group_name = template_name(OUTLINE_GEOMETRY_GROUP_NAME)
+    old_template_outline_group = bpy.data.node_groups.get(template_outline_group_name)
     if old_template_outline_group:
-        logger.error(
-            f'Node Group "{template_name(OUTLINE_GEOMETRY_GROUP_NAME)}" already exists'
+        logger.error(f'Node Group "{template_outline_group_name}" already exists')
+        old_template_outline_group.name = backup_name(
+            old_template_outline_group.name, backup_suffix
         )
-        old_template_outline_group.name += ".old"
 
     outline_node_tree_path = (
         str(Path(__file__).with_name("mtoon1_outline.blend")) + "/NodeTree"
@@ -185,12 +200,8 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
         edit_mode = False
     try:
         outline_node_tree_append_result = bpy.ops.wm.append(
-            filepath=(
-                outline_node_tree_path
-                + "/"
-                + template_name(OUTLINE_GEOMETRY_GROUP_NAME)
-            ),
-            filename=template_name(OUTLINE_GEOMETRY_GROUP_NAME),
+            filepath=(outline_node_tree_path + "/" + template_outline_group_name),
+            filename=template_outline_group_name,
             directory=outline_node_tree_path,
         )
 
@@ -203,11 +214,9 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
                 "Failed to append MToon 1.0 outline template material: "
                 + f"{outline_node_tree_append_result}"
             )
-        template_outline_group = bpy.data.node_groups.get(
-            template_name(OUTLINE_GEOMETRY_GROUP_NAME)
-        )
+        template_outline_group = bpy.data.node_groups.get(template_outline_group_name)
         if not template_outline_group:
-            raise ValueError("No " + template_name(OUTLINE_GEOMETRY_GROUP_NAME))
+            raise ValueError("No " + template_outline_group_name)
 
         outline_group = bpy.data.node_groups.get(OUTLINE_GEOMETRY_GROUP_NAME)
         if not outline_group:
@@ -224,6 +233,12 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
         if edit_mode:
             bpy.ops.object.mode_set(mode="EDIT")
 
+        old_template_outline_group = bpy.data.node_groups.get(
+            backup_name(template_outline_group_name, backup_suffix)
+        )
+        if old_template_outline_group:
+            old_template_outline_group.name = template_outline_group_name
+
 
 def load_mtoon1_shader(
     context: Context,
@@ -235,18 +250,22 @@ def load_mtoon1_shader(
 
     load_mtoon1_outline_geometry_node_group(context, overwrite)
 
-    material_name = INTERNAL_NAME_PREFIX + "VRM Add-on MToon 1.0 Template"
-    old_material = bpy.data.materials.get(material_name)
+    backup_suffix = generate_backup_suffix()
+
+    template_material_name = template_name("VRM Add-on MToon 1.0")
+    old_material = bpy.data.materials.get(template_material_name)
     if old_material:
-        logger.error(f'Material "{material_name}" already exists')
-        old_material.name += ".old"
+        logger.error(f'Material "{template_material_name}" already exists')
+        old_material.name = backup_name(old_material.name, backup_suffix)
 
     for shader_node_group_name in shader_node_group_names:
         name = template_name(shader_node_group_name)
         old_template_group = bpy.data.node_groups.get(name)
         if old_template_group:
             logger.error(f'Node Group "{name}" already exists')
-            old_template_group.name += ".old"
+            old_template_group.name = backup_name(
+                old_template_group.name, backup_suffix
+            )
 
     material_path = str(Path(__file__).with_name("mtoon1.blend")) + "/Material"
 
@@ -260,8 +279,8 @@ def load_mtoon1_shader(
         edit_mode = False
     try:
         material_append_result = bpy.ops.wm.append(
-            filepath=material_path + "/" + material_name,
-            filename=material_name,
+            filepath=material_path + "/" + template_material_name,
+            filename=template_material_name,
             directory=material_path,
         )
 
@@ -275,9 +294,9 @@ def load_mtoon1_shader(
                 + f"{material_append_result}"
             )
 
-        template_material = bpy.data.materials.get(material_name)
+        template_material = bpy.data.materials.get(template_material_name)
         if not template_material:
-            raise ValueError("No " + material_name)
+            raise ValueError("No " + template_material_name)
 
         for shader_node_group_name in shader_node_group_names:
             shader_node_group_template_name = template_name(shader_node_group_name)
@@ -316,6 +335,20 @@ def load_mtoon1_shader(
 
         if edit_mode:
             bpy.ops.object.mode_set(mode="EDIT")
+
+        old_material = bpy.data.materials.get(
+            backup_name(template_material_name, backup_suffix)
+        )
+        if old_material:
+            old_material.name = template_material_name
+
+        for shader_node_group_name in shader_node_group_names:
+            name = template_name(shader_node_group_name)
+            old_template_group = bpy.data.node_groups.get(
+                backup_name(name, backup_suffix)
+            )
+            if old_template_group:
+                old_template_group.name = name
 
 
 def copy_socket(from_socket: NodeSocket, to_socket: NodeSocket) -> None:
