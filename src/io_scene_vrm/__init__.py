@@ -129,9 +129,9 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
 
     logger = getLogger(__name__)
 
-    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_32/src/io_scene_vrm/common/logging.py#L14-L27
-    log_warning_prefix = "[VRM Add-on:Warning]"
-    log_exception_prefix = "[VRM Add-on:Exception]"
+    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_33/src/io_scene_vrm/common/logging.py#L35-L38
+    log_warning_prefix = "[VRM Add-on:WARNING]"
+    log_exception_prefix = "[VRM Add-on:EXCEPTION]"
 
     github_private_partial_code_archive_path = (
         Path(__file__).parent
