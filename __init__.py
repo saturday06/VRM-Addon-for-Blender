@@ -14,7 +14,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 32),
+    "version": (2, 20, 33),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -129,8 +129,9 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
 
     logger = getLogger(__name__)
 
-    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_5_0/io_scene_vrm/common/logging.py#L5-L7
+    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_32/src/io_scene_vrm/common/logging.py#L14-L27
     log_warning_prefix = "[VRM Add-on:Warning]"
+    log_exception_prefix = "[VRM Add-on:Exception]"
 
     github_private_partial_code_archive_path = (
         Path(__file__).parent
@@ -175,7 +176,7 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     except OSError:
         logger.exception(
             "%s Failed to remove the partial add-on archive: %s",
-            log_warning_prefix,
+            log_exception_prefix,
             github_private_partial_code_archive_path,
         )
 
