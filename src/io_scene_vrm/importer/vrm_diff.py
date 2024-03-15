@@ -17,7 +17,7 @@ def human_bone_sort_key(human_bone_dict: Json) -> int:
 
 asset_generator_pattern = (
     r"\AVRM Add-on for Blender v999\.999\.999"
-    + r" with Khronos glTF Blender I/O v[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*\Z"
+    + r" with Khronos glTF Blender I/O v[0-9]+\.[0-9]+\.[0-9]+\Z"
 )
 
 fixed_asset_generator_value = (
