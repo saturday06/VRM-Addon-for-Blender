@@ -46,7 +46,7 @@ class VrmAddonLoggerAdapter(LoggerAdapter):
 
 
 # https://docs.python.org/3.7/library/logging.html#logging.getLogger
-def get_logger(name: str) -> VrmAddonLoggerAdapter:
+def get_logger(name: str) -> LoggerAdapter:
     logger = standard_logging.getLogger(name)
     if environ.get("BLENDER_VRM_LOGGING_LEVEL_DEBUG") == "yes":
         logger.setLevel(standard_logging.DEBUG)
