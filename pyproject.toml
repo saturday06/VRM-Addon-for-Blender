@@ -117,6 +117,12 @@ disallow_any_unimported = true
 disallow_any_decorated = true
 disallow_any_explicit = true
 
+[tool.black]
+extend-exclude = ".*" # Please use Ruff instead.
+
+[tool.isort]
+extend_skip_glob = ["*"] # Please use Ruff instead.
+
 [tool.pylint.main]
 ignore-paths = "." # Please use Ruff instead.
 
