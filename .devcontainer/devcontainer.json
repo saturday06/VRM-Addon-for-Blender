@@ -1,0 +1,29 @@
+{
+  "build": { "dockerfile": "Dockerfile" },
+  "postCreateCommand": "./tools/devcontainer_post_create_command.sh",
+  "postStartCommand": "./tools/devcontainer_post_start_command.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.testing.unittestArgs": [
+          "-v",
+          "-s",
+          ".",
+          "-p",
+          "test_*.py"
+        ],
+        "python.defaultInterpreterPath": "./.venv-devcontainer/bin/python",
+        "python.testing.pytestEnabled": false,
+        "python.testing.unittestEnabled": true
+      },
+      "extensions": [
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "ms-python.mypy-type-checker",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-vscode.powershell"
+      ]
+    }
+  }
+}

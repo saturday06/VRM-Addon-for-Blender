@@ -11,6 +11,7 @@
 !*.rb
 
 !/.clang-format
+!/.devcontainer/**
 !/.editorconfig
 !/.flake8
 !/.gitattributes
