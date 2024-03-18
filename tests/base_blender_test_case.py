@@ -106,7 +106,7 @@ class BaseBlenderTestCase(TestCase):
                         return where_path
         if os.name == "posix":
             completed_process = subprocess.run(
-                "which blender", shell=True, capture_output=True, check=False
+                "command -v blender", shell=True, capture_output=True, check=False
             )
             if completed_process.returncode == 0:
                 which_str = self.process_output_to_str(
