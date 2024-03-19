@@ -17,6 +17,8 @@
         "python.testing.unittestEnabled": true
       },
       "extensions": [
+        "EditorConfig.EditorConfig",
+        "GitHub.vscode-github-actions",
         "charliermarsh.ruff",
         "ms-azuretools.vscode-docker",
         "ms-python.mypy-type-checker",
