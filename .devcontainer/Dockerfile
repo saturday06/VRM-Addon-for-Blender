@@ -21,6 +21,7 @@ RUN apt-get update \
     libxrender1=* \
     libxxf86vm1=* \
     locales=* \
+    openssh-client=* \
     python3.10=* \
     python-is-python3=* \
     shellcheck=* \
