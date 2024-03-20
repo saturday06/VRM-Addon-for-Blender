@@ -6,7 +6,7 @@ from typing import Optional
 
 import bpy
 from bpy.types import Armature, Context, Object, PoseBone
-from mathutils import Euler, Quaternion, Vector
+from mathutils import Euler, Matrix, Quaternion, Vector
 
 from ..common import version
 from ..common.deep import Json, make_json
@@ -681,11 +681,179 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 }
             )
 
+    look_at_target_node_index: Optional[int] = None
+    look_at_target_object = vrm1.look_at.preview_target_bpy_object
+    if (
+        look_at_target_object
+        and look_at_target_object.animation_data
+        and look_at_target_object.animation_data.action
+    ):
+        look_at_translation_offsets: list[Vector] = []
+        action = look_at_target_object.animation_data.action
+        data_path = look_at_target_object.path_from_id("location")
+        for fcurve in action.fcurves:
+            if fcurve.mute:
+                continue
+            if not fcurve.is_valid:
+                continue
+            if fcurve.data_path != data_path:
+                continue
+            for frame in range(frame_start, frame_end + 1):
+                offset = frame - frame_start
+                value = float(fcurve.evaluate(frame))
+                if offset < len(look_at_translation_offsets):
+                    translation_offset = look_at_translation_offsets[offset]
+                else:
+                    translation_offset = Vector((0.0, 0.0, 0.0))
+                    look_at_translation_offsets.append(translation_offset)
+                translation_offset[fcurve.array_index] = value
+
+        look_at_default_node_translation, look_at_rotation, look_at_scale = (
+            look_at_target_object.matrix_world.decompose()
+        )
+        look_at_rotation_and_scale_matrix = (
+            look_at_rotation.to_matrix().to_4x4()
+            @ Matrix.Diagonal(look_at_scale).to_4x4()
+        )
+        look_at_translations = [
+            look_at_translation_offset @ look_at_rotation_and_scale_matrix
+            for look_at_translation_offset in look_at_translation_offsets
+        ]
+        if look_at_translations:
+            look_at_target_node_index = len(node_dicts)
+            node_dicts.append(
+                {
+                    "name": look_at_target_object.name,
+                    "translation": [
+                        look_at_default_node_translation.x,
+                        look_at_default_node_translation.z,
+                        -look_at_default_node_translation.y,
+                    ],
+                }
+            )
+
+            input_byte_offset = len(buffer0_bytearray)
+            input_floats = [
+                frame * frame_to_timestamp_factor
+                for frame, _ in enumerate(look_at_translations)
+            ]
+            input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
+            buffer0_bytearray.extend(input_bytes)
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
+                buffer0_bytearray.append(0)
+            input_buffer_view_index = len(buffer_view_dicts)
+            input_buffer_view_dict = {
+                "buffer": 0,
+                "byteLength": len(input_bytes),
+            }
+            if input_byte_offset > 0:
+                input_buffer_view_dict["byteOffset"] = input_byte_offset
+            buffer_view_dicts.append(input_buffer_view_dict)
+
+            output_byte_offset = len(buffer0_bytearray)
+            gltf_translations = [
+                (
+                    translation.x,
+                    translation.z,
+                    -translation.y,
+                )
+                for translation in look_at_translations
+            ]
+            translation_floats = list(itertools.chain(*gltf_translations))
+            translation_bytes = struct.pack(
+                "<" + "f" * len(translation_floats), *translation_floats
+            )
+            buffer0_bytearray.extend(translation_bytes)
+            while (
+                len(buffer0_bytearray) % 32 != 0
+            ):  # TODO: 正しいアラインメントを調べる
+                buffer0_bytearray.append(0)
+            output_buffer_view_index = len(buffer_view_dicts)
+            output_buffer_view_dict = {
+                "buffer": 0,
+                "byteLength": len(translation_bytes),
+            }
+            if output_byte_offset > 0:
+                output_buffer_view_dict["byteOffset"] = output_byte_offset
+            buffer_view_dicts.append(output_buffer_view_dict)
+
+            input_accessor_index = len(accessor_dicts)
+            accessor_dicts.append(
+                {
+                    "bufferView": input_buffer_view_index,
+                    "componentType": GL_FLOAT,
+                    "count": len(input_floats),
+                    "type": "SCALAR",
+                    "min": [min(input_floats)],
+                    "max": [max(input_floats)],
+                }
+            )
+
+            output_accessor_index = len(accessor_dicts)
+            gltf_translation_x_values = [t[0] for t in gltf_translations]
+            gltf_translation_y_values = [t[1] for t in gltf_translations]
+            gltf_translation_z_values = [t[2] for t in gltf_translations]
+            accessor_dicts.append(
+                {
+                    "bufferView": output_buffer_view_index,
+                    "componentType": GL_FLOAT,
+                    "count": len(look_at_translations),
+                    "type": "VEC3",
+                    "min": [
+                        min(gltf_translation_x_values),
+                        min(gltf_translation_y_values),
+                        min(gltf_translation_z_values),
+                    ],
+                    "max": [
+                        max(gltf_translation_x_values),
+                        max(gltf_translation_y_values),
+                        max(gltf_translation_z_values),
+                    ],
+                }
+            )
+
+            animation_sampler_index = len(animation_sampler_dicts)
+            animation_sampler_dicts.append(
+                {
+                    "input": input_accessor_index,
+                    "output": output_accessor_index,
+                }
+            )
+            animation_channel_dicts.append(
+                {
+                    "sampler": animation_sampler_index,
+                    "target": {
+                        "node": look_at_target_node_index,
+                        "path": "translation",
+                    },
+                }
+            )
+
     buffer_dicts: list[dict[str, Json]] = [{"byteLength": len(buffer0_bytearray)}]
 
     addon_version = version.addon_version()
     if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
         addon_version = (999, 999, 999)
+
+    vrmc_vrm_animation_dict: dict[str, Json] = {
+        "specVersion": "1.0",
+        "humanoid": {
+            "humanBones": human_bones_dict,
+        },
+        "expressions": make_json(
+            {
+                "preset": preset_expression_dict,
+                "custom": custom_expression_dict,
+            }
+        ),
+    }
+    if look_at_target_node_index is not None:
+        vrmc_vrm_animation_dict["lookAt"] = {
+            "node": look_at_target_node_index,
+            "offsetFromHeadBone": list(vrm1.look_at.offset_from_head_bone),
+        }
 
     vrma_dict = make_json(
         {
@@ -707,16 +875,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             ],
             "extensionsUsed": ["VRMC_vrm_animation"],
             "extensions": {
-                "VRMC_vrm_animation": {
-                    "specVersion": "1.0",
-                    "humanoid": {
-                        "humanBones": human_bones_dict,
-                    },
-                    "expressions": {
-                        "preset": preset_expression_dict,
-                        "custom": custom_expression_dict,
-                    },
-                },
+                "VRMC_vrm_animation": vrmc_vrm_animation_dict,
             },
         }
     )

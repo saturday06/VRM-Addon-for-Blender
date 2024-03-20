@@ -519,14 +519,14 @@ translation_dictionary: dict[tuple[str, str], str] = {
             + "- Humanoid bone rotations\n"
             + "- Humanoid hips bone translations\n"
             + "- Expression preview value\n"
-            + '- "Look At" value currently not supported\n'
+            + "- Look At preview target translation\n"
         ),
     ): (
         "エクスポートされるアニメーション\n"
         + "- Humanoidボーンの回転値\n"
         + "- Humanoid Hipsボーンの移動値\n"
         + "- Expressionのプレビュー値\n"
-        + "- Look At値のエクスポートは現在未対応\n"
+        + "- Look Atプレビューターゲットの移動値\n"
     ),
     ("*", "Armature to be animated"): "アニメーション適用対象のアーマチュア",
     (

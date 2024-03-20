@@ -790,7 +790,7 @@ def draw_help_message(layout: UILayout) -> None:
         + "- Humanoid bone rotations\n"
         + "- Humanoid hips bone translations\n"
         + "- Expression preview value\n"
-        + '- "Look At" value currently not supported\n'
+        + "- Look At preview target translation\n"
     )
     help_box = layout.box()
     help_column = help_box.column(align=True)

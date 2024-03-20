@@ -375,6 +375,7 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
     humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
         return {"CANCELLED"}
+    look_at = armature_data.vrm_addon_extension.vrm1.look_at
 
     vrma_dict, buffer0_bytes = parse_glb(path.read_bytes())
 
@@ -613,6 +614,38 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
 
     logger.debug(f"{first_timestamp=} ... {last_timestamp=}")
 
+    look_at_target_object = None
+    look_at_translation_keyframes = None
+    look_at_dict = vrmc_vrm_animation_dict.get("lookAt")
+    if isinstance(look_at_dict, dict):
+        look_at_target_node_index = look_at_dict.get("node")
+        if isinstance(
+            look_at_target_node_index, int
+        ) and 0 <= look_at_target_node_index < len(node_dicts):
+            look_at_translation_keyframes = node_index_to_translation_keyframes.get(
+                look_at_target_node_index
+            )
+            look_at_target_node_dict = node_dicts[look_at_target_node_index]
+            if look_at_translation_keyframes and isinstance(
+                look_at_target_node_dict, dict
+            ):
+                look_at_target_translation = convert.float3_or_none(
+                    look_at_target_node_dict.get("translation")
+                )
+                look_at_target_name = look_at_target_node_dict.get("name")
+                if not isinstance(look_at_target_name, str) or not look_at_target_name:
+                    look_at_target_name = "LookAtTarget"
+                if look_at_target_translation is not None:
+                    look_at_target_object = bpy.data.objects.new(
+                        name=look_at_target_name, object_data=None
+                    )
+                    look_at_target_object.empty_display_size = 0.125
+                    x, y, z = look_at_target_translation
+                    look_at_target_object.location = Vector((x, -z, y))
+                    context.scene.collection.objects.link(look_at_target_object)
+                    look_at.enable_preview = True
+                    look_at.preview_target_bpy_object = look_at_target_object
+
     first_zero_origin_frame_count: int = math.floor(
         first_timestamp * context.scene.render.fps / context.scene.render.fps_base
     )
@@ -652,8 +685,50 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
             frame_count,
             timestamp,
         )
+        if look_at_target_object and look_at_translation_keyframes:
+            assign_look_at_keyframe(
+                look_at_target_object,
+                look_at_translation_keyframes,
+                frame_count,
+                timestamp,
+            )
 
     return {"FINISHED"}
+
+
+def assign_look_at_keyframe(
+    look_at_target_object: Object,
+    translation_keyframes: tuple[tuple[float, Vector], ...],
+    frame_count: int,
+    timestamp: float,
+) -> None:
+    if not translation_keyframes:
+        return
+
+    animation_translation = None
+    begin_timestamp, begin_translation = translation_keyframes[0]
+    for end_timestamp, end_translation in translation_keyframes:
+        if end_timestamp >= timestamp:
+            timestamp_duration = end_timestamp - begin_timestamp
+            if timestamp_duration > 0:
+                animation_translation = (
+                    begin_translation
+                    + (end_translation - begin_translation)
+                    * (timestamp - begin_timestamp)
+                    / timestamp_duration
+                )
+            else:
+                animation_translation = begin_translation
+            break
+        begin_timestamp = end_timestamp
+        begin_translation = end_translation
+    if animation_translation is None:
+        animation_translation = begin_translation
+
+    current_location = look_at_target_object.location.copy()
+    look_at_target_object.location = animation_translation
+    look_at_target_object.keyframe_insert(data_path="location", frame=frame_count)
+    look_at_target_object.location = current_location
 
 
 def assign_expression_keyframe(
