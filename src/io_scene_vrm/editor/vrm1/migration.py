@@ -182,7 +182,7 @@ def migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) ->
 
 def migrate_pose(armature_data: Armature) -> None:
     ext = armature_data.vrm_addon_extension
-    if not (2, 1, 0) <= tuple(ext.addon_version) < (2, 20, 34):
+    if tuple(ext.addon_version) >= (2, 20, 34):
         return
 
     humanoid = ext.vrm1.humanoid

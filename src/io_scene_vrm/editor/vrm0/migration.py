@@ -600,7 +600,7 @@ def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
 
 def migrate_pose(armature_data: bpy.types.Armature) -> None:
     ext = armature_data.vrm_addon_extension
-    if not (2, 1, 0) <= tuple(ext.addon_version) < (2, 20, 34):
+    if tuple(ext.addon_version) >= (2, 20, 34):
         return
 
     humanoid = ext.vrm0.humanoid
