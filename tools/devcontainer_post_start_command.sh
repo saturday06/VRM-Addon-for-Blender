@@ -2,6 +2,8 @@
 
 set -eux -o pipefail
 
+poetry run python --version # 稀にvenvが壊れていることがある。このコマンドで復元する。
+
 ln -fsv "$(poetry env info --path)" .venv-devcontainer
 
 # 発生条件は不明だが、稀にファイルの所有者がすべてroot:rootになることがある
