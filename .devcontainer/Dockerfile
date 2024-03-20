@@ -1,3 +1,5 @@
+# pypiパッケージの "bpy 3.6.0" がamd64にしか対応していないので、--platform=linux/amd64の決め打ちが必要
+# https://pypi.org/project/bpy/3.6.0/
 # hadolint ignore=DL3029
 FROM --platform=linux/amd64 ubuntu:22.04
 SHELL ["/bin/bash", "-o", "pipefail", "-l", "-c"]
