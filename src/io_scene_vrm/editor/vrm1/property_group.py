@@ -525,6 +525,35 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
     def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
+    POSE_ITEM_VALUE_REST_POSITION_POSE = "restPositionPose"
+    POSE_ITEM_VALUE_CURRENT_POSE = "currentPose"
+    POSE_ITEM_VALUE_CUSTOM_POSE = "customPose"
+
+    pose_items = (
+        (
+            POSE_ITEM_VALUE_REST_POSITION_POSE,
+            "Rest Position",
+            "Rest Position Pose",
+            "ARMATURE_DATA",
+            0,
+        ),
+        (
+            POSE_ITEM_VALUE_CURRENT_POSE,
+            "Current Pose",
+            "Current Pose",
+            "ARMATURE_DATA",
+            1,
+        ),
+        (POSE_ITEM_VALUE_CUSTOM_POSE, "Custom Pose", "Custom Pose", "ARMATURE_DATA", 2),
+    )
+
+    pose: EnumProperty(  # type: ignore[valid-type]
+        items=pose_items,
+        name="T-Pose",
+        description="T-Pose",
+        default=POSE_ITEM_VALUE_CURRENT_POSE,
+    )
+
     pose_library: PointerProperty(  # type: ignore[valid-type]
         type=Action,
         update=update_pose_library,
@@ -535,6 +564,7 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         human_bones: Vrm1HumanBonesPropertyGroup  # type: ignore[no-redef]
+        pose: str  # type: ignore[no-redef]
         pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
 
