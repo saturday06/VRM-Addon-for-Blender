@@ -39,7 +39,6 @@ from ..property_group import (
     MeshObjectPropertyGroup,
     StringPropertyGroup,
 )
-from ..vrm1.property_group import Vrm1HumanoidPropertyGroup
 
 if TYPE_CHECKING:
     from ..property_group import CollectionPropertyProtocol
@@ -165,21 +164,6 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
     has_translation_dof: BoolProperty(  # type: ignore[valid-type]
         name="Has Translation DoF",
         default=False,
-    )
-
-    POSE_ITEM_VALUE_REST_POSITION_POSE = (
-        Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE
-    )
-    POSE_ITEM_VALUE_CURRENT_POSE = (
-        Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CURRENT_POSE
-    )
-    POSE_ITEM_VALUE_CUSTOM_POSE = Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE
-
-    pose: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Vrm1HumanoidPropertyGroup.pose_items,
-        name="T-Pose",
-        description="T-Pose",
-        default=POSE_ITEM_VALUE_CURRENT_POSE,
     )
 
     # for T-Pose
@@ -337,7 +321,6 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         lower_leg_twist: float  # type: ignore[no-redef]
         feet_spacing: float  # type: ignore[no-redef]
         has_translation_dof: bool  # type: ignore[no-redef]
-        pose: str  # type: ignore[no-redef]
         pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
         last_bone_names: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
