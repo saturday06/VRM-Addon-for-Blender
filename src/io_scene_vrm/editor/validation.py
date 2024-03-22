@@ -903,7 +903,9 @@ class WM_OT_vrm_validator(Operator):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         show_successful_message: bool  # type: ignore[no-redef]
-        errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
+        errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            VrmValidationError
+        ]
         armature_object_name: str  # type: ignore[no-redef]
 
 

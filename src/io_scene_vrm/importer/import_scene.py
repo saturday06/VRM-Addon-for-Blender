@@ -298,7 +298,9 @@ class WM_OT_vrm_license_confirmation(Operator):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         filepath: str  # type: ignore[no-redef]
-        license_confirmations: CollectionPropertyProtocol[LicenseConfirmation]  # type: ignore[no-redef]
+        license_confirmations: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            LicenseConfirmation
+        ]
         import_anyway: bool  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]
@@ -490,4 +492,6 @@ class WM_OT_vrma_import_prerequisite(Operator):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         armature_object_name: str  # type: ignore[no-redef]
-        armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]

@@ -85,7 +85,9 @@ class Vrm1HumanBonePropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
-        node_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        node_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
@@ -512,7 +514,9 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         right_little_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
-        last_bone_names: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        last_bone_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
         allow_non_humanoid_rig: bool  # type: ignore[no-redef]
 
@@ -945,7 +949,9 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        mesh_annotations: CollectionPropertyProtocol[Vrm1MeshAnnotationPropertyGroup]  # type: ignore[no-redef]
+        mesh_annotations: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1MeshAnnotationPropertyGroup
+        ]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
@@ -1175,7 +1181,9 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        morph_target_binds: CollectionPropertyProtocol[Vrm1MorphTargetBindPropertyGroup]  # type: ignore[no-redef]
+        morph_target_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1MorphTargetBindPropertyGroup
+        ]
         material_color_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1MaterialColorBindPropertyGroup
         ]
@@ -1355,8 +1363,12 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         preset: Vrm1ExpressionsPresetPropertyGroup  # type: ignore[no-redef]
-        custom: CollectionPropertyProtocol[Vrm1CustomExpressionPropertyGroup]  # type: ignore[no-redef]
-        expression_ui_list_elements: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        custom: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            Vrm1CustomExpressionPropertyGroup
+        ]
+        expression_ui_list_elements: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
         active_expression_ui_list_element_index: int  # type: ignore[no-redef]
 
 
@@ -1465,10 +1477,14 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
         # `poetry run python tools/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
         version: str  # type: ignore[no-redef]
-        authors: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        authors: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
         copyright_information: str  # type: ignore[no-redef]
         contact_information: str  # type: ignore[no-redef]
-        references: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        references: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
         third_party_licenses: str  # type: ignore[no-redef]
         thumbnail_image: Optional[Image]  # type: ignore[no-redef]
         avatar_permission: str  # type: ignore[no-redef]

@@ -526,7 +526,9 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
-        colliders: CollectionPropertyProtocol[SpringBone1ColliderReferencePropertyGroup]  # type: ignore[no-redef]
+        colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1ColliderReferencePropertyGroup
+        ]
         show_expanded: bool  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
@@ -706,7 +708,9 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
-        joints: CollectionPropertyProtocol[SpringBone1JointPropertyGroup]  # type: ignore[no-redef]
+        joints: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1JointPropertyGroup
+        ]
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1ColliderGroupReferencePropertyGroup
         ]
@@ -754,11 +758,15 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        colliders: CollectionPropertyProtocol[SpringBone1ColliderPropertyGroup]  # type: ignore[no-redef]
+        colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1ColliderPropertyGroup
+        ]
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1ColliderGroupPropertyGroup
         ]
-        springs: CollectionPropertyProtocol[SpringBone1SpringPropertyGroup]  # type: ignore[no-redef]
+        springs: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            SpringBone1SpringPropertyGroup
+        ]
         enable_animation: bool  # type: ignore[no-redef]
         show_expanded_colliders: bool  # type: ignore[no-redef]
         show_expanded_collider_groups: bool  # type: ignore[no-redef]

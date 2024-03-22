@@ -273,7 +273,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         export_fb_ngon_encoding: bool  # type: ignore[no-redef]
         export_all_influences: bool  # type: ignore[no-redef]
         export_lights: bool  # type: ignore[no-redef]
-        errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
+        errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            VrmValidationError
+        ]
         armature_object_name: str  # type: ignore[no-redef]
         ignore_warning: bool  # type: ignore[no-redef]
 
@@ -607,7 +609,9 @@ class WM_OT_vrm_export_confirmation(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        errors: CollectionPropertyProtocol[VrmValidationError]  # type: ignore[no-redef]
+        errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            VrmValidationError
+        ]
         armature_object_name: str  # type: ignore[no-redef]
         export_anyway: bool  # type: ignore[no-redef]
 
@@ -672,7 +676,9 @@ class WM_OT_vrm_export_armature_selection(Operator):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         armature_object_name: str  # type: ignore[no-redef]
-        armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 class WM_OT_vrma_export_prerequisite(Operator):
@@ -781,7 +787,9 @@ class WM_OT_vrma_export_prerequisite(Operator):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         armature_object_name: str  # type: ignore[no-redef]
-        armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
+        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            StringPropertyGroup
+        ]
 
 
 def draw_help_message(layout: UILayout) -> None:
