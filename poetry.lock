@@ -507,13 +507,13 @@ files = []
 develop = false
 
 [package.dependencies]
-bpy = "3.6.*"
+bpy = {version = "==3.6.*", markers = "platform_system == \"Darwin\" and (platform_machine == \"x86_64\" or platform_machine == \"arm64\") or (platform_system == \"Darwin\" or platform_system == \"Linux\" or platform_system == \"Windows\") and platform_machine == \"x86_64\""}
 
 [package.source]
 type = "git"
 url = "https://github.com/saturday06/starry-bpy-type-stubs.git"
 reference = "HEAD"
-resolved_reference = "03169cff6bf1fedb569cafde586f6656fc058337"
+resolved_reference = "048df27dfee3b596fbfc28743df8bf209de79c22"
 
 [[package]]
 name = "tomli"
@@ -618,4 +618,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "3.10.*"
-content-hash = "587e90b168f7c0dd1aa03de2a9e53b35db958cba36af03cddccedcf584555ef3"
+content-hash = "127410389d5bf8ad06bfcf9b917f658966ca878e4e90461a0a034835078267fa"

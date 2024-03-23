@@ -10,7 +10,14 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
-bpy = "3.6.*"
+
+# https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_35/poetry.lock#L10-L13
+bpy = [
+    {version = "3.6.*", markers = "platform_system == 'Darwin' and platform_machine == 'x86_64'"},
+    {version = "3.6.*", markers = "platform_system == 'Darwin' and platform_machine == 'arm64'"},
+    {version = "3.6.*", markers = "platform_system == 'Linux' and platform_machine == 'x86_64'"},
+    {version = "3.6.*", markers = "platform_system == 'Windows' and platform_machine == 'x86_64'"},
+]
 
 [tool.poetry.group.dev.dependencies]
 codespell = "*"
