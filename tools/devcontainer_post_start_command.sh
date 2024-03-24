@@ -18,7 +18,7 @@ fi
 # またmacOSでは.gitフォルダ内のファイルの所有者が変更できないエラーが発生するので `|| true` を付与している。
 # 失敗した場合結局「Unsafeなパーミッションのレポジトリを操作している」が警告が
 # 発生するはずだが、なぜか出なかった。誤って警告を抑制したのかもしれないが要調査
-(sudo chown -R blender-vrm:blender-vrm . 2>&1 | head) || true
+(sudo chown -R blender-vrm:blender-vrm . 2>&1 | sponge | head) || true
 
 # 発生条件は不明だが、稀にファイルのパーミッションがすべて777になり、
 # かつgit diffでパーミッションの変更が検知されないという状況になる。

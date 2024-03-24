@@ -24,6 +24,7 @@ RUN apt-get update \
         libssl-dev=* \
         libxml2-dev=* \
         libxmlsec1-dev=* \
+        moreutils=* \
         nkf=* \
         openssh-client=* \
         python3-numpy=* \
