@@ -39,7 +39,7 @@ def cleanse_modules() -> None:
     all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
 
     for k in all_modules:
-        if k.startswith(__name__):
+        if k == __name__ or k.startswith(__name__ + "."):
             del sys.modules[k]
 
 
