@@ -1,38 +1,40 @@
-FROM quay.io/centos/centos:stream9
+FROM ubuntu:noble
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV PATH="/opt/local/poetry/bin:/opt/local/blender:$PATH"
+ENV PATH="/opt/local/poetry/bin:$PATH"
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
+ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 
-# DL3041はいきなり導入は厳しいので運用がこなれてくるまではignoreする
-# hadolint ignore=DL3041
-RUN dnf install --assumeyes 'dnf-command(config-manager)' \
-    && dnf config-manager --set-enabled crb \
-    && dnf install --assumeyes epel-release \
-    && dnf install --assumeyes \
-        ShellCheck \
-        git \
-        sudo \
-        xz \
-    &&  if [ "$(uname -m)" == "aarch64" ]; then \
-            dnf install --assumeyes blender; \
-            echo 'export BLENDER_VRM_DEVCONTAINER_TEST_GENERATION_USING_SUBPROCESS="yes"' >> /etc/profile.d/50-blender-vrm.sh; \
-            curl --fail --show-error --location https://github.com/mvdan/sh/releases/download/v3.8.0/shfmt_v3.8.0_linux_arm64 > /usr/local/bin/shfmt; \
-        else \
-            dnf install --assumeyes \
-                libSM \
-                libXi \
-                libxkbcommon \
-            ; \
-            mkdir -p /opt/local/blender; \
-            curl --fail --show-error --location https://mirrors.ocf.berkeley.edu/blender/release/Blender2.93/blender-2.93.18-linux-x64.tar.xz \
-                | tar Jxf - -C /opt/local/blender --strip-components 1; \
-            curl --fail --show-error --location https://github.com/mvdan/sh/releases/download/v3.8.0/shfmt_v3.8.0_linux_amd64 > /usr/local/bin/shfmt; \
-        fi \
-    && chmod 755 /usr/local/bin/shfmt \
-    && dnf builddep --assumeyes python3 \
-    && dnf clean all \
-    && rm -rf /var/cache/yum
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        blender=* \
+        build-essential=* \
+        ca-certificates=* \
+        curl=* \
+        file=* \
+        git=* \
+        less=* \
+        libbz2-dev=* \
+        libffi-dev=* \
+        liblzma-dev=* \
+        libncurses-dev=* \
+        libreadline-dev=* \
+        libsm6=* \
+        libsqlite3-dev=* \
+        libssl-dev=* \
+        libxml2-dev=* \
+        libxmlsec1-dev=* \
+        nkf=* \
+        openssh-client=* \
+        python3-numpy=* \
+        shellcheck=* \
+        shfmt=* \
+        sudo=* \
+        tk-dev=* \
+        xz-utils=* \
+        zlib1g-dev=* \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # cdを使うと警告が出るため、pushdを使うことで回避する
 # https://github.com/hadolint/hadolint/issues/422
@@ -49,5 +51,5 @@ RUN mkdir -p PythonSource \
 RUN curl --fail --show-error --location https://install.python-poetry.org \
     | POETRY_HOME=/opt/local/poetry python3 -
 
-RUN useradd --create-home --user-group blender-vrm --groups wheel \
+RUN useradd --create-home --user-group --shell /bin/bash blender-vrm  \
     && echo "blender-vrm ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/blender-vrm

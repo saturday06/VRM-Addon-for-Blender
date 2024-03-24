@@ -1,3 +1,4 @@
+import os
 import sys
 from os import environ
 from pathlib import Path
@@ -21,6 +22,13 @@ def get_test_command_args() -> list[list[str]]:
 
 
 def test(vrm: str) -> None:
+    if (
+        vrm == "draco.vrm"
+        and os.getenv("BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS") == "yes"
+    ):
+        # Ubuntu 24.04はdracoを読もうとすると例外が発生する
+        return
+
     in_path = vrm_dir / vrm
     assert bpy.ops.import_scene.vrm(filepath=str(in_path)) == {"FINISHED"}
 

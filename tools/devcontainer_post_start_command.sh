@@ -2,10 +2,16 @@
 
 set -eu -o pipefail
 
+# .venvがdevcontainer外のものと混ざるのを防ぐため、
+# .devcontainer内に固有の.venvを作り
+# あとで標準のものと別名でリンクを貼る
+poetry config virtualenvs.in-project false
 poetry env info
 poetry run python --version # 稀にvenvが壊れていることがある。このコマンドで復元する。
-
-ln -fsv "$(poetry env info --path)" .venv-devcontainer
+if ! ln -fsv "$(poetry env info --path)" .venv-devcontainer; then
+  sudo rm -f .venv-devcontainer
+  ln -fsv "$(poetry env info --path)" .venv-devcontainer
+fi
 
 # 発生条件は不明だが、稀にファイルの所有者がすべてroot:rootになることがある
 # 「Unsafeなパーミッションのレポジトリを操作している」という警告が出るので所有権を自分に設定する。

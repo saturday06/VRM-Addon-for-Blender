@@ -1,10 +1,15 @@
 def io_scene_vrm_tests_generate_dynamic_tests() -> None:
     import importlib.util
     import os
+    import platform
     import subprocess
     from pathlib import Path
 
-    if os.getenv("BLENDER_VRM_DEVCONTAINER_TEST_GENERATION_USING_SUBPROCESS") == "yes":
+    if (
+        platform.machine() == "aarch64"
+        and os.getenv("BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS") == "yes"
+    ):
+        # aarch64のLinuxは単体のbpyが無いので、Blenderを直接起動する。
         subprocess.run(
             [
                 "/usr/bin/blender",
