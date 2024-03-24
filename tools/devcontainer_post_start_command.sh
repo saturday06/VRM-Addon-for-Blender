@@ -23,8 +23,8 @@ fi
 # 発生条件は不明だが、稀にファイルのパーミッションがすべて777になり、
 # かつgit diffでパーミッションの変更が検知されないという状況になる。
 # git ls-filesの値は正常のため、それに従ってパーミッションを再設定する。
-git ls-files | while read -r f; do
-  case "$(git ls-files --format='%(objectmode)' "$f")" in
+git ls-files --recurse-submodules | while read -r f; do
+  case "$(git ls-files --recurse-submodules --format='%(objectmode)' "$f")" in
   "100755")
     [ "$(stat -c %a "$f")" == "755" ] || chmod -v 755 "$f"
     ;;
