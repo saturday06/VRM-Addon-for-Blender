@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu -o pipefail
+set -eux -o pipefail
 
 # .venvがdevcontainer外のものと混ざるのを防ぐため、
 # .devcontainer内に固有の.venvを作り
@@ -23,13 +23,27 @@ fi
 # 発生条件は不明だが、稀にファイルのパーミッションがすべて777になり、
 # かつgit diffでパーミッションの変更が検知されないという状況になる。
 # git ls-filesの値は正常のため、それに従ってパーミッションを再設定する。
+set +x # ここから出力が多いので抑制
 git ls-files --recurse-submodules | while read -r f; do
   case "$(git ls-files --recurse-submodules --format='%(objectmode)' "$f")" in
   "100755")
-    [ "$(stat -c %a "$f")" == "755" ] || chmod -v 755 "$f"
+    base_permission="7"
     ;;
   "100644")
-    [ "$(stat -c %a "$f")" == "644" ] || chmod -v 644 "$f"
+    base_permission="6"
+    ;;
+  *)
+    continue
     ;;
   esac
+
+  current_permission=$(stat -c %a "$f")
+
+  # グループと他人のパーミッションはマスク
+  group_other_permission=$(perl -e 'printf("%02o", oct($ARGV[0]) & oct($ARGV[1]));' "${current_permission:1:2}" "${base_permission}${base_permission}")
+  # 自分のパーミッションは固定し、調整後のパーミッションを作成
+  new_permission="${base_permission}${group_other_permission}"
+  if [ "$current_permission" != "$new_permission" ]; then
+    chmod -v "$new_permission" "$f"
+  fi
 done
