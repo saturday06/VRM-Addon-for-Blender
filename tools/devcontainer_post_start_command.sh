@@ -42,8 +42,8 @@ git ls-files --recurse-submodules | while read -r f; do
   # グループと他人のパーミッションはマスク
   group_other_permission=$(perl -e 'printf("%02o", oct($ARGV[0]) & oct($ARGV[1]));' "${current_permission:1:2}" "${base_permission}${base_permission}")
   # 自分のパーミッションは固定し、調整後のパーミッションを作成
-  new_permission="${base_permission}${group_other_permission}"
-  if [ "$current_permission" != "$new_permission" ]; then
-    chmod -v "$new_permission" "$f"
+  valid_permission="${base_permission}${group_other_permission}"
+  if [ "$current_permission" != "$valid_permission" ]; then
+    chmod -v "$valid_permission" "$f"
   fi
 done
