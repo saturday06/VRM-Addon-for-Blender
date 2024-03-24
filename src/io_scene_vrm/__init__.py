@@ -1,15 +1,7 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2018 iCyP
 
-#
-#
-# - Please don't import anything in the global scope to minimize initialization and
-#   support unzipping the partial add-on archive for users who have acquired the add-on
-#   from "Code" -> "Download ZIP" on GitHub.
-# - Please write this script to work with Blender 2.79.
-#   ruff: noqa: UP032
-#
-#
+from . import registration
 
 bl_info = {
     "name": "VRM format",
@@ -44,143 +36,12 @@ def cleanse_modules() -> None:
 
 
 def register() -> None:
-    raise_error_if_unsupported()
-    extract_github_private_partial_code_archive_if_necessary()
-
-    # Lazy import to minimize initialization before blender version checking and
-    # support unzipping the partial add-on archive.
-    from . import registration
-
     registration.register(bl_info["name"], bl_info["version"])
 
 
 def unregister() -> None:
-    # Lazy import to minimize initialization before blender version checking.
-    from . import registration
-
     registration.unregister()
     cleanse_modules()
-
-
-def raise_error_if_unsupported() -> None:
-    import bpy
-
-    minimum_version = bl_info["blender"]
-    if not isinstance(minimum_version, tuple) or len(minimum_version) != 3:
-        # use 'format()' method to support legacy Blender versions
-        message = "Invalid version value: {}".format(minimum_version)
-        raise AssertionError(message)
-
-    if bpy.app.version >= minimum_version:
-        return
-
-    default_message = (
-        "This add-on doesn't support Blender version less than {minimum_version}"
-        + " but the current version is {current_version}"
-    )
-    translated_messages = {
-        "ja_JP": (
-            "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
-            + "お使いのBlenderのバージョンは{current_version}です。"
-        ),
-    }
-
-    if (
-        bpy.app.version >= (2, 80)
-        and bpy.context.preferences.view.use_translate_interface
-    ):
-        message = translated_messages.get(bpy.app.translations.locale, default_message)
-    else:
-        message = default_message
-
-    # use 'format()' method to support legacy Blender versions
-    highlighted_message = """
-
-            ===========================================================
-            {}
-            ===========================================================
-        """.format(
-        message.format(
-            minimum_version=".".join(map(str, minimum_version)),
-            current_version=".".join(map(str, bpy.app.version)),
-        )
-    )
-
-    raise NotImplementedError(highlighted_message)
-
-
-def extract_github_private_partial_code_archive_if_necessary() -> None:
-    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、ソースを展開する.
-
-    このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用
-    していた。しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
-    ソースコード配置から離れてしまい、開発ツールのサポートが弱くなってしまうのでそのダウンロード方式は廃止した。
-    しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがるため
-    どうにかソースコード配置を変えずに、その方式でも動作するように頑張った結果がこれである。
-
-    この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
-    https://code.blender.org/2022/10/blender-extensions-platform/
-    """
-    import shutil
-    import tarfile
-    from io import BytesIO
-    from logging import getLogger
-    from pathlib import Path
-
-    logger = getLogger(__name__)
-
-    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_33/src/io_scene_vrm/common/logging.py#L35-L38
-    log_warning_prefix = "[VRM Add-on:WARNING]"
-    log_exception_prefix = "[VRM Add-on:EXCEPTION]"
-
-    github_private_partial_code_archive_path = (
-        Path(__file__).parent
-        / ".github"
-        / "vrm_addon_for_blender_private"
-        / ("_".join(map(str, bl_info["version"])) + ".tar.xz")
-    )
-    if not github_private_partial_code_archive_path.exists():
-        return
-
-    logger.warning(
-        "%s Extracting the partial add-on archive for "
-        + "users who have acquired the add-on "
-        + 'from "Code" -> "Download ZIP" on GitHub ...',
-        log_warning_prefix,
-    )
-
-    with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
-        # Will be replaced with tar_xz.extractall(..., filter="data")
-        base_path = Path(__file__).parent
-        for member in tar_xz.getmembers():
-            if ".." in member.path or not member.isfile():
-                continue
-
-            member_path = Path(member.path)
-            if member_path.is_absolute():
-                continue
-
-            file = tar_xz.extractfile(member)
-            if not file:
-                continue
-            with file, BytesIO() as output:
-                shutil.copyfileobj(file, output)
-                output_bytes = output.getvalue()
-
-            output_path = base_path / member_path
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(output_bytes)
-
-    try:
-        github_private_partial_code_archive_path.unlink()
-    except OSError:
-        logger.exception(
-            "%s Failed to remove the partial add-on archive: %s",
-            log_exception_prefix,
-            github_private_partial_code_archive_path,
-        )
-
-    logger.warning("%s ...OK", log_warning_prefix)
 
 
 class glTF2ImportUserExtension:
