@@ -24,6 +24,7 @@ RUN apt-get update \
         libssl-dev=* \
         libxml2-dev=* \
         libxmlsec1-dev=* \
+        locales=* \
         moreutils=* \
         nkf=* \
         openssh-client=* \
@@ -36,6 +37,9 @@ RUN apt-get update \
         zlib1g-dev=* \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# https://askubuntu.com/a/227513
+RUN locale-gen en_US.UTF-8
 
 # cdを使うと警告が出るため、pushdを使うことで回避する
 # https://github.com/hadolint/hadolint/issues/422
