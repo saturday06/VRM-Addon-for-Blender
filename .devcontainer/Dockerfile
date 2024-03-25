@@ -58,3 +58,8 @@ RUN curl --fail --show-error --location https://install.python-poetry.org \
 
 RUN useradd --create-home --user-group --shell /bin/bash blender-vrm  \
     && echo "blender-vrm ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/blender-vrm
+
+USER blender-vrm
+# JetBrainsのIDEは自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
+# poetryなどがエラーになるため、あらかじめ作っておく。
+RUN mkdir -p ~/.cache
