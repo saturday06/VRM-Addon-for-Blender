@@ -27,10 +27,10 @@ set +x # ここから出力が多いので抑制
 git ls-files --recurse-submodules | while read -r f; do
   case "$(git ls-files --recurse-submodules --format='%(objectmode)' "$f")" in
   "100755")
-    base_permission="7"
+    valid_single_permission="7"
     ;;
   "100644")
-    base_permission="6"
+    valid_single_permission="6"
     ;;
   *)
     continue
@@ -40,9 +40,15 @@ git ls-files --recurse-submodules | while read -r f; do
   current_permission=$(stat -c %a "$f")
 
   # グループと他人のパーミッションはマスク
-  group_other_permission=$(perl -e 'printf("%02o", oct($ARGV[0]) & oct($ARGV[1]));' "${current_permission:1:2}" "${base_permission}${base_permission}")
+  valid_group_other_permission=$(
+    perl \
+      -e \
+      'printf("%02o", oct($ARGV[0]) & oct($ARGV[1]));' \
+      "${current_permission:1:2}" \
+      "${valid_single_permission}${valid_single_permission}"
+  )
   # 自分のパーミッションは固定し、調整後のパーミッションを作成
-  valid_permission="${base_permission}${group_other_permission}"
+  valid_permission="${valid_single_permission}${valid_group_other_permission}"
   if [ "$current_permission" != "$valid_permission" ]; then
     chmod -v "$valid_permission" "$f"
   fi
