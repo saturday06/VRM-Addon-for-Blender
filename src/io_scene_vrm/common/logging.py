@@ -32,6 +32,7 @@ class VrmAddonLoggerAdapter(LoggerAdapter):
         extra: Optional[Mapping[str, object]] = None,
         **kwargs: object,
     ) -> None:
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_36/src/io_scene_vrm/__init__.py#L132-L134
         level_name = standard_logging.getLevelName(level)
         super().log(
             level,
