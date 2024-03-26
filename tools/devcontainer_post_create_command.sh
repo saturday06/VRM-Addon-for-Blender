@@ -7,4 +7,10 @@ set -eux -o pipefail
 # あとで標準のものと別名でリンクを貼る
 poetry config virtualenvs.in-project false
 poetry env info
-poetry install
+
+# 環境によってはpoetry installは5%くらいの頻度で失敗するのでリトライする
+for _ in $(seq 5); do
+  if poetry install; then
+    break
+  fi
+done
