@@ -53,6 +53,20 @@ RUN mkdir -p PythonSource \
     && popd \
     && rm -fr PythonSource
 
+RUN mkdir -p /usr/local/bin \
+    && case "$(uname -m)" in \
+        "x86_64") \
+            curl --fail --show-error --location -o /usr/local/bin/hadolint \
+                https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 \
+            && chmod 755 /usr/local/bin/hadolint \
+            ;; \
+        "aarch64") \
+            curl --fail --show-error --location -o /usr/local/bin/hadolint \
+                https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-arm64 \
+            && chmod 755 /usr/local/bin/hadolint \
+            ;; \
+        esac
+
 RUN curl --fail --show-error --location https://install.python-poetry.org \
     | POETRY_HOME=/opt/local/poetry python3 -
 
