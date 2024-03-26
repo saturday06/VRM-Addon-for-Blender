@@ -14,7 +14,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 35),
+    "version": (2, 20, 36),
     "blender": (2, 93, 0),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
@@ -39,7 +39,7 @@ def cleanse_modules() -> None:
     all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
 
     for k in all_modules:
-        if k.startswith(__name__):
+        if k == __name__ or k.startswith(__name__ + "."):
             del sys.modules[k]
 
 
