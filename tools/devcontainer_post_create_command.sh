@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux -o pipefail
+set -eu -o pipefail
 
 # .venvがdevcontainer外のものと混ざるのを防ぐため、
 # .devcontainer内に固有の.venvを作り
