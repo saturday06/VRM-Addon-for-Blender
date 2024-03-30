@@ -157,7 +157,12 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Install poetry dependencies
-        run: poetry install
+        run: |
+          for _ in $(seq 5); do
+            if poetry install; then
+              break
+            fi
+          done
       - name: Check source code formatting
         run: |
           ./tools/format.sh
