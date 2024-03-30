@@ -17,47 +17,60 @@ from dulwich.repo import Repo
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
-
-
-def print_path_walk_error(os_error: OSError) -> None:
-    logger.error("Failed to walk directories: %s", os_error)
-
-
-progress = tqdm()
-
+warning_messages: list[str] = []
 uid = pwd.getpwnam("blender-vrm").pw_uid
 gid = grp.getgrnam("blender-vrm").gr_gid
 umask = 0o022
-
+progress = tqdm()
 file_process_count = 0
+
+
+def print_path_walk_error(os_error: OSError) -> None:
+    warning_messages.append(f"Failed to walk directories: {os_error}")
+
+
+def fixup_directory_owner_and_permission(directory: Path) -> None:
+    try:
+        st = directory.lstat()
+        st_mode = st.st_mode
+    except OSError:
+        warning_messages.append(f"Failed to lstat: {directory}")
+        return
+
+    if st.st_uid != uid or st.st_gid != gid:
+        try:
+            os.lchown(directory, uid, gid)
+        except OSError:
+            warning_messages.append(f"Failed to change owner: {directory}")
+            return
+
+    st_valid_mode = (st_mode | stat.S_IRWXU) & ~umask
+    if st_mode != st_valid_mode:
+        try:
+            directory.lchmod(st_valid_mode)
+        except OSError:
+            warning_messages.append(f"Failed to change permission: {directory}")
+
 
 # 発生条件は不明だが、稀にファイルの所有者がすべてroot:rootになることがある
 # 「Unsafeなパーミッションのレポジトリを操作している」という警告が出るので
 # 所有権を自分に設定する。また、再帰的に処理ができるようにパーミッションも再設定する。
 # macOSでは.gitフォルダ内のファイルの所有者が変更できないエラーが発生する
-workspace_dir = Path(__file__).parent.parent
-os.lchown(workspace_dir, uid, gid)
-workspace_dir.lchmod(0o755)
+workspace_path = Path(__file__).parent.parent
+fixup_directory_owner_and_permission(workspace_path)
 all_file_paths: list[Path] = []
-for root, directory_names, file_names in workspace_dir.walk(
+for root, directory_names, file_names in workspace_path.walk(
     on_error=print_path_walk_error
 ):
-    for directory_name in directory_names:
-        directory = root / directory_name
-        st = directory.lstat()
-        st_mode = st.st_mode
-        st_valid_mode = (st_mode | stat.S_IRWXU) & ~umask
-        if st.st_uid != uid or st.st_gid != gid:
-            os.lchown(directory, uid, gid)
-        if st_mode != st_valid_mode:
-            directory.lchmod(st_valid_mode)
-    file_process_count += len(file_names)
     progress.update()
+    for directory_name in directory_names:
+        fixup_directory_owner_and_permission(root / directory_name)
+    file_process_count += len(file_names)
     all_file_paths.extend([root / file_name for file_name in file_names])
 
 # gitレポジトリから、パスとそのパーミッションの対応表を得る
 git_index_path_and_modes: list[(Path, int)] = []
-repo = Repo(workspace_dir)
+repo = Repo(workspace_path)
 repo_index = repo.open_index()
 for path_bytes, _sha, mode in repo_index.iterobjects():
     progress.update()
@@ -77,17 +90,25 @@ path_and_st_modes: dict[Path, int] = {}
 for file_path in all_file_paths:
     progress.update()
 
-    st = file_path.lstat()
+    try:
+        st = file_path.lstat()
+    except OSError:
+        warning_messages.append(f"Failed to lstat: {file_path}")
+        continue
+
     st_mode = st.st_mode
     if st.st_uid != uid or st.st_gid != gid:
-        os.lchown(file_path, uid, gid)
+        try:
+            os.lchown(file_path, uid, gid)
+        except OSError:
+            warning_messages.append(f"Failed to change owner: {file_path}")
+            continue
 
     path_and_st_modes[file_path.absolute()] = st_mode
 
 # 発生条件は不明だが、稀にファイルのパーミッションがすべて777になり、
 # かつgit diffでパーミッションの変更が検知されないという状況になる。
 # gitのパーミッションに合わせる
-changed_messages: list[str] = []
 for path, git_mode in sorted(git_index_path_and_modes):
     progress.update()
 
@@ -117,10 +138,14 @@ for path, git_mode in sorted(git_index_path_and_modes):
         continue
 
     valid_full_permission = (st_mode & ~0o777) | valid_permission
-    path.lchmod(valid_full_permission)
-    changed_messages.append(f"{path}: {oct(st_mode)} => {oct(valid_full_permission)}")
+    try:
+        path.lchmod(valid_full_permission)
+    except OSError:
+        warning_messages.append(f"Failed to change permission: {path}")
+        continue
+    warning_messages.append(f"{path}: {oct(st_mode)} => {oct(valid_full_permission)}")
 
 progress.close()
 
-for changed_message in changed_messages:
-    logger.warning(changed_message)
+for warning_message in warning_messages:
+    logger.warning(warning_message)
