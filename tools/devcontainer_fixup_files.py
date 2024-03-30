@@ -1,36 +1,35 @@
 #!/usr/bin/python3
-# mypy: ignore-errors
-# pyright: reportArgumentType=false
-# pyright: reportAttributeAccessIssue=false
-# pyright: reportGeneralTypeIssues=false
-# pyright: reportInvalidTypeArguments=false
-# pyright: reportMissingImports=false
 
+import functools
 import grp
 import logging
 import os
 import pwd
 import stat
 from pathlib import Path
+from typing import TYPE_CHECKING, NoReturn
 
+import tqdm as type_checking_tqdm
 from dulwich.repo import Repo
-from tqdm import tqdm
+from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    tqdm: TypeAlias = type_checking_tqdm.tqdm[NoReturn]  # noqa: PYI042
+else:
+    tqdm: TypeAlias = type_checking_tqdm.tqdm  # noqa: PYI042
 
 logger = logging.getLogger(__name__)
-warning_messages: list[str] = []
-uid = pwd.getpwnam("blender-vrm").pw_uid
-gid = grp.getgrnam("blender-vrm").gr_gid
-umask = 0o022
 
 
-def print_path_walk_error(os_error: OSError) -> None:
+def print_path_walk_error(warning_messages: list[str], os_error: OSError) -> None:
     warning_messages.append(f"Failed to walk directories: {os_error}")
 
 
-def fixup_directory_owner_and_permission(directory: Path) -> None:
+def fixup_directory_owner_and_permission(
+    directory: Path, warning_messages: list[str], uid: int, gid: int, umask: int
+) -> None:
     try:
         st = directory.lstat()
-        st_mode = st.st_mode
     except OSError:
         warning_messages.append(f"Failed to lstat: {directory}")
         return
@@ -42,15 +41,18 @@ def fixup_directory_owner_and_permission(directory: Path) -> None:
             warning_messages.append(f"Failed to change owner: {directory}")
             return
 
-    st_valid_mode = (st_mode | stat.S_IRWXU) & ~umask
-    if st_mode != st_valid_mode:
+    st_valid_mode = (st.st_mode | stat.S_IRWXU) & ~umask
+    if st.st_mode != st_valid_mode:
         try:
             directory.lchmod(st_valid_mode)
         except OSError:
             warning_messages.append(f"Failed to change permission: {directory}")
 
 
-with tqdm(unit="files") as progress:
+def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
+    uid = pwd.getpwnam("blender-vrm").pw_uid
+    gid = grp.getgrnam("blender-vrm").gr_gid
+    umask = 0o022
     total_progress_count = 0
 
     # 発生条件は不明だが、稀にファイルの所有者がすべてroot:rootになることがある
@@ -58,23 +60,29 @@ with tqdm(unit="files") as progress:
     # 所有権を自分に設定する。また、再帰的に処理ができるようにパーミッションも再設定する
     # macOSでは.gitフォルダ内のファイルの所有者が変更できないエラーが発生する
     workspace_path = Path(__file__).parent.parent
-    fixup_directory_owner_and_permission(workspace_path)
+    fixup_directory_owner_and_permission(
+        workspace_path, warning_messages, uid, gid, umask
+    )
     all_file_paths: list[Path] = []
-    for root, directory_names, file_names in workspace_path.walk(
-        on_error=print_path_walk_error
+    for root, directory_names, file_names in os.walk(
+        workspace_path,
+        onerror=functools.partial(print_path_walk_error, warning_messages),
     ):
+        root_path = Path(root)
         progress.update()
         for directory_name in directory_names:
-            fixup_directory_owner_and_permission(root / directory_name)
+            fixup_directory_owner_and_permission(
+                root_path / directory_name, warning_messages, uid, gid, umask
+            )
 
         file_count = len(file_names)
         progress.update(file_count)
         total_progress_count += file_count
-        all_file_paths.extend([root / file_name for file_name in file_names])
+        all_file_paths.extend([root_path / file_name for file_name in file_names])
 
     # gitレポジトリから、パスとそのパーミッションの対応表を得る
-    git_index_path_and_modes: list[(Path, int)] = []
-    repo = Repo(workspace_path)
+    git_index_path_and_modes: list[tuple[Path, int]] = []
+    repo = Repo(str(workspace_path))
     repo_index = repo.open_index()
     for path_bytes, _sha, mode in repo_index.iterobjects():
         progress.update()
@@ -100,7 +108,6 @@ with tqdm(unit="files") as progress:
             warning_messages.append(f"Failed to lstat: {file_path}")
             continue
 
-        st_mode = st.st_mode
         if st.st_uid != uid or st.st_gid != gid:
             try:
                 os.lchown(file_path, uid, gid)
@@ -108,7 +115,7 @@ with tqdm(unit="files") as progress:
                 warning_messages.append(f"Failed to change owner: {file_path}")
                 continue
 
-        path_and_st_modes[file_path.absolute()] = st_mode
+        path_and_st_modes[file_path.absolute()] = st.st_mode
 
     # 発生条件は不明だが、稀にファイルのパーミッションがすべて777になり、
     # かつgit diffでパーミッションの変更が検知されないという状況になる。
@@ -151,5 +158,14 @@ with tqdm(unit="files") as progress:
             f"{path}: {oct(st_mode)} => {oct(valid_full_permission)}"
         )
 
-for warning_message in warning_messages:
-    logger.warning(warning_message)
+
+def main() -> None:
+    warning_messages: list[str] = []
+    with tqdm(unit="files") as progress:
+        fixup_files(warning_messages, progress)
+    for warning_message in warning_messages:
+        logger.warning(warning_message)
+
+
+if __name__ == "__main__":
+    main()

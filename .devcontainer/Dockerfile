@@ -31,6 +31,7 @@ RUN apt-get update \
         python3-dulwich=* \
         python3-numpy=* \
         python3-tqdm=* \
+        python3-typing-extensions=* \
         shellcheck=* \
         shfmt=* \
         sudo=* \

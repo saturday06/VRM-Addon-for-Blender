@@ -21,10 +21,13 @@ bpy = [
 
 [tool.poetry.group.dev.dependencies]
 codespell = "*"
+dulwich = "*"
 mypy = "*"
 pyright = "*"
 ruff = "*"
 starry-bpy-type-stubs = { git = "https://github.com/saturday06/starry-bpy-type-stubs.git" }
+tqdm = "*"
+types-tqdm = "*"
 
 [tool.ruff]
 src = ["src"]
