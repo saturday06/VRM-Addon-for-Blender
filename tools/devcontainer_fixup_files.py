@@ -115,7 +115,10 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
             try:
                 os.lchown(file_path, uid, gid)
             except OSError:
-                warning_messages.append(f"Failed to change owner: {file_path}")
+                # macOSでは.git以下のファイルは所有者の変更に失敗することがある
+                dot_git_path = Path(__file__).parent.parent / ".git"
+                if not file_path.is_relative_to(dot_git_path):
+                    warning_messages.append(f"Failed to change owner: {file_path}")
                 continue
 
         if stat.S_ISLNK(st.st_mode):
