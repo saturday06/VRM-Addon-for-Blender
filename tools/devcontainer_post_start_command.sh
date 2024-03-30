@@ -12,4 +12,4 @@ if ! ln -fs "$(poetry env info --path)" .venv-devcontainer; then
   ln -fs "$(poetry env info --path)" .venv-devcontainer
 fi
 
-sudo ./tools/devcontainer_fixup_files.py
+sudo env PYTHONDONTWRITEBYTECODE=1 ./tools/devcontainer_fixup_files.py
