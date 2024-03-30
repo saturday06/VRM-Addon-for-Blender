@@ -41,10 +41,13 @@ def fixup_directory_owner_and_permission(
             warning_messages.append(f"Failed to change owner: {directory}")
             return
 
+    if stat.S_ISLNK(st.st_mode):
+        return
+
     st_valid_mode = (st.st_mode | stat.S_IRWXU) & ~umask
     if st.st_mode != st_valid_mode:
         try:
-            directory.lchmod(st_valid_mode)
+            directory.chmod(st_valid_mode)
         except OSError:
             warning_messages.append(f"Failed to change permission: {directory}")
 
@@ -115,6 +118,9 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
                 warning_messages.append(f"Failed to change owner: {file_path}")
                 continue
 
+        if stat.S_ISLNK(st.st_mode):
+            continue
+
         path_and_st_modes[file_path.absolute()] = st.st_mode
 
     # 発生条件は不明だが、稀にファイルのパーミッションがすべて777になり、
@@ -150,7 +156,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
 
         valid_full_permission = (st_mode & ~0o777) | valid_permission
         try:
-            path.lchmod(valid_full_permission)
+            path.chmod(valid_full_permission)
         except OSError:
             warning_messages.append(f"Failed to change permission: {path}")
             continue
