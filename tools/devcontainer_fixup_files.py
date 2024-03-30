@@ -19,8 +19,8 @@ from tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 
-def print_path_walk_error(_os_error: OSError) -> None:
-    logger.exception("Failed to walk directories")
+def print_path_walk_error(os_error: OSError) -> None:
+    logger.error("Failed to walk directories: %s", os_error)
 
 
 progress = tqdm()
