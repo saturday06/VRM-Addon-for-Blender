@@ -28,7 +28,9 @@ RUN apt-get update \
         moreutils=* \
         nkf=* \
         openssh-client=* \
+        python3-dulwich=* \
         python3-numpy=* \
+        python3-tqdm=* \
         shellcheck=* \
         shfmt=* \
         sudo=* \
