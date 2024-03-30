@@ -12,4 +12,5 @@ if ! ln -fs "$(poetry env info --path)" .venv-devcontainer; then
   ln -fs "$(poetry env info --path)" .venv-devcontainer
 fi
 
+# sudoが強力すぎるため、poetryは経由せずOSのパッケージのみを用いて実行する。
 sudo env PYTHONDONTWRITEBYTECODE=1 ./tools/devcontainer_fixup_files.py
