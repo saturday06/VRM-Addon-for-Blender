@@ -6,7 +6,6 @@ set -eu -o pipefail
 # .devcontainer内に固有の.venvを作り
 # あとで標準のものと別名でリンクを貼る
 poetry config virtualenvs.in-project false
-poetry env info
 
 # 環境によってはpoetry installは5%くらいの頻度で失敗するのでリトライする
 for _ in $(seq 5); do
