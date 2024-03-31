@@ -61,7 +61,6 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
     # 発生条件は不明だが、稀にファイルの所有者がすべてroot:rootになることがある
     # 「Unsafeなパーミッションのレポジトリを操作している」という警告が出るので
     # 所有権を自分に設定する。また、再帰的に処理ができるようにパーミッションも再設定する
-    # macOSでは.gitフォルダ内のファイルの所有者が変更できないエラーが発生する
     workspace_path = Path(__file__).parent.parent
     fixup_directory_owner_and_permission(
         workspace_path, warning_messages, uid=uid, gid=gid, umask=umask
@@ -104,7 +103,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
 
     progress.reset(total=total_progress_count)
 
-    # ファイルの所有者を書き換える
+    # ファイルの所有者を自分に設定
     path_and_st_modes: dict[Path, int] = {}
     for file_path in all_file_paths:
         progress.update()
@@ -119,7 +118,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
             try:
                 os.lchown(file_path, uid, gid)
             except OSError:
-                # macOSでは.git以下のファイルは所有者の変更に失敗することがある
+                # macOSでは.gitフォルダ以下のファイルは所有者の変更に失敗することがある
                 dot_git_path = Path(__file__).parent.parent / ".git"
                 if not file_path.is_relative_to(dot_git_path):
                     warning_messages.append(f"Failed to change owner: {file_path}")
@@ -130,9 +129,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
 
         path_and_st_modes[file_path.absolute()] = st.st_mode
 
-    # 発生条件は不明だが、稀にファイルのパーミッションがすべて777になり、
-    # かつgit diffでパーミッションの変更が検知されないという状況になる。
-    # gitのパーミッションに合わせる
+    # git管理対象ファイルは、gitに保存されているパーミッションを反映する
     for path, git_mode in sorted(git_index_path_and_modes):
         progress.update()
 
