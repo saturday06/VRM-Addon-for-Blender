@@ -173,7 +173,10 @@ def main() -> None:
     warning_messages: list[str] = []
     with tqdm(unit="files") as progress:
         fixup_files(warning_messages, progress)
-    for warning_message in warning_messages:
+    for index, warning_message in enumerate(warning_messages):
+        if index > 5:
+            logger.warning("...")
+            break
         logger.warning(warning_message)
 
 
