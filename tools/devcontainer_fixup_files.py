@@ -26,7 +26,7 @@ def print_path_walk_error(warning_messages: list[str], os_error: OSError) -> Non
 
 
 def fixup_directory_owner_and_permission(
-    directory: Path, warning_messages: list[str], uid: int, gid: int, umask: int
+    directory: Path, warning_messages: list[str], *, uid: int, gid: int, umask: int
 ) -> None:
     try:
         st = directory.lstat()
@@ -64,7 +64,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
     # macOSでは.gitフォルダ内のファイルの所有者が変更できないエラーが発生する
     workspace_path = Path(__file__).parent.parent
     fixup_directory_owner_and_permission(
-        workspace_path, warning_messages, uid, gid, umask
+        workspace_path, warning_messages, uid=uid, gid=gid, umask=umask
     )
     all_file_paths: list[Path] = []
     for root, directory_names, file_names in os.walk(
@@ -75,7 +75,11 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         progress.update()
         for directory_name in directory_names:
             fixup_directory_owner_and_permission(
-                root_path / directory_name, warning_messages, uid, gid, umask
+                root_path / directory_name,
+                warning_messages,
+                uid=uid,
+                gid=gid,
+                umask=umask,
             )
 
         file_count = len(file_names)
