@@ -1,4 +1,4 @@
-FROM ubuntu:noble
+FROM ubuntu:mantic
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV PATH="/opt/local/poetry/bin:$PATH"
