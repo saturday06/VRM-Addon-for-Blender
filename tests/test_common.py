@@ -2,13 +2,22 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
-from io_scene_vrm.common import deep
+from io_scene_vrm import bl_info
+from io_scene_vrm.common import deep, version
 from io_scene_vrm.common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
 from io_scene_vrm.common.vrm0 import human_bone as vrm0_human_bone
 from io_scene_vrm.common.vrm1 import human_bone as vrm1_human_bone
+
+
+class TestVersion(TestCase):
+    def test_version(self) -> None:
+        self.assertEqual(
+            version.addon_version(),
+            bl_info.get("version"),
+        )
 
 
 class TestDeep(TestCase):
