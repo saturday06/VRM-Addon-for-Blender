@@ -84,10 +84,12 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         file_count = len(file_names)
         progress.update(file_count)
         total_progress_count += file_count
-        all_file_paths.extend([root_path / file_name for file_name in file_names])
+        all_file_paths.extend(
+            [(root_path / file_name).absolute() for file_name in file_names]
+        )
 
     # gitレポジトリから、パスとそのパーミッションの対応表を得る
-    git_index_path_and_modes: list[tuple[Path, int]] = []
+    git_index_path_to_mode: dict[Path, int] = {}
     repo = Repo(str(workspace_path))
     repo_index = repo.open_index()
     for path_bytes, _sha, mode in repo_index.iterobjects():
@@ -98,13 +100,12 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         path = Path(path_str)
         if path.is_absolute():
             continue
-        git_index_path_and_modes.append((path.absolute(), mode))
+        git_index_path_to_mode[path.absolute()] = mode
         total_progress_count += 1
 
     progress.reset(total=total_progress_count)
 
     # ファイルの所有者を自分に設定
-    path_to_st_mode: dict[Path, int] = {}
     for file_path in all_file_paths:
         progress.update()
 
@@ -127,15 +128,13 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         if stat.S_ISLNK(st.st_mode):
             continue
 
-        path_to_st_mode[file_path.absolute()] = st.st_mode
+        # git管理対象ファイルは、gitに保存されているパーミッションを反映する
+        git_mode = git_index_path_to_mode.get(file_path.absolute())
+        if git_mode is None:
+            continue
 
-    # git管理対象ファイルは、gitに保存されているパーミッションを反映する
-    for path, git_mode in sorted(git_index_path_and_modes):
         progress.update()
 
-        st_mode = path_to_st_mode.get(path)
-        if st_mode is None:
-            continue
         if git_mode == 0o100644:
             valid_single_permission = 0o6
         elif git_mode == 0o10755:
@@ -148,21 +147,21 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         max_group_other_permission = (
             (valid_single_permission << 3) | valid_single_permission
         ) & ~umask
-        current_group_other_permission = st_mode & 0o077
+        current_group_other_permission = st.st_mode & 0o077
         valid_group_other_permission = (
             current_group_other_permission & max_group_other_permission
         )
         valid_permission = (
             (valid_single_permission << 6) | valid_group_other_permission
         ) & ~umask
-        if (st_mode & 0o777) == valid_permission:
+        if (st.st_mode & 0o777) == valid_permission:
             continue
 
-        valid_full_permission = (st_mode & ~0o777) | valid_permission
+        valid_full_permission = (st.st_mode & ~0o777) | valid_permission
         try:
-            path.chmod(valid_full_permission)
+            file_path.chmod(valid_full_permission)
         except OSError:
-            warning_messages.append(f"Failed to change permission: {path}")
+            warning_messages.append(f"Failed to change permission: {file_path}")
             continue
 
 
