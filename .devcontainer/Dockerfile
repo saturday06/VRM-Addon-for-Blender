@@ -1,4 +1,4 @@
-FROM ubuntu:mantic
+FROM buildpack-deps:mantic-curl
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV PATH="/opt/local/poetry/bin:$PATH"
