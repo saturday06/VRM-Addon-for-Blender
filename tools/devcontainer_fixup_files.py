@@ -104,7 +104,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
     progress.reset(total=total_progress_count)
 
     # ファイルの所有者を自分に設定
-    path_and_st_modes: dict[Path, int] = {}
+    path_to_st_mode: dict[Path, int] = {}
     for file_path in all_file_paths:
         progress.update()
 
@@ -127,13 +127,13 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         if stat.S_ISLNK(st.st_mode):
             continue
 
-        path_and_st_modes[file_path.absolute()] = st.st_mode
+        path_to_st_mode[file_path.absolute()] = st.st_mode
 
     # git管理対象ファイルは、gitに保存されているパーミッションを反映する
     for path, git_mode in sorted(git_index_path_and_modes):
         progress.update()
 
-        st_mode = path_and_st_modes.get(path)
+        st_mode = path_to_st_mode.get(path)
         if st_mode is None:
             continue
         if git_mode == 0o100644:
