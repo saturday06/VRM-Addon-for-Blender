@@ -8,8 +8,10 @@ set -eu -o pipefail
 poetry config virtualenvs.in-project false
 poetry run python -c "" # 稀にvenvが壊れていることがある。このコマンドで復元する。
 if ! ln -fs "$(poetry env info --path)" .venv-devcontainer; then
+  sudo chown -v developer:developer .
+  sudo chmod -v u+rwx .
   sudo rm -f .venv-devcontainer
-  ln -fs "$(poetry env info --path)" .venv-devcontainer
+  ln -fsv "$(poetry env info --path)" .venv-devcontainer
 fi
 
 # sudoが強力すぎるため、poetryは経由せずOSのパッケージのみを用いて実行する。
