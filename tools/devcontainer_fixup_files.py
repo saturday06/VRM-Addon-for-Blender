@@ -129,7 +129,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
             continue
 
         # git管理対象ファイルは、gitに保存されているパーミッションを反映する
-        git_mode = git_index_path_to_mode.get(file_path.absolute())
+        git_mode = git_index_path_to_mode.pop(file_path.absolute(), None)
         if git_mode is None:
             continue
 
@@ -163,6 +163,8 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         except OSError:
             warning_messages.append(f"Failed to change permission: {file_path}")
             continue
+
+    progress.update(len(git_index_path_to_mode))
 
 
 def main() -> None:
