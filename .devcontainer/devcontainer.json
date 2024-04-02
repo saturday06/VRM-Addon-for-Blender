@@ -22,7 +22,6 @@
       },
       "extensions": [
         "EditorConfig.EditorConfig",
-        "GitHub.vscode-github-actions",
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
         "ms-azuretools.vscode-docker",
