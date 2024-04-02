@@ -53,8 +53,8 @@ def fixup_directory_owner_and_permission(
 
 
 def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
-    uid = pwd.getpwnam("blender-vrm").pw_uid
-    gid = grp.getgrnam("blender-vrm").gr_gid
+    uid = pwd.getpwnam("developer").pw_uid
+    gid = grp.getgrnam("developer").gr_gid
     umask = 0o022
     total_progress_count = 0
 
