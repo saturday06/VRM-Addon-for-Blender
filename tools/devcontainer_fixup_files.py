@@ -164,9 +164,6 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         except OSError:
             warning_messages.append(f"Failed to change permission: {path}")
             continue
-        warning_messages.append(
-            f"{path}: {oct(st_mode)} => {oct(valid_full_permission)}"
-        )
 
 
 def main() -> None:
