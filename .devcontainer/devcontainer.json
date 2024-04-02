@@ -3,6 +3,11 @@
   "containerUser": "developer",
   "postCreateCommand": "./tools/devcontainer_post_create_command.sh",
   "postStartCommand": "./tools/devcontainer_post_start_command.sh",
+  "features": {
+    // https://github.com/devcontainers/features/tree/feature_common-utils_2.4.1
+    // https://github.com/devcontainers/features/pkgs/container/features%2Fcommon-utils
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
   "customizations": {
     "vscode": {
       "settings": {
