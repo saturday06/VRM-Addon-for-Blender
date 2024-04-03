@@ -2,7 +2,10 @@
 
 set -eu -o pipefail
 
-# いちおうサブモジュールを取得するが、ワーキングコピーの状態が悪いと失敗するので `|| true` を付与
+# 作業フォルダの所有者やパーミッションを設定する。
+# sudoが強力すぎるため、poetryは経由せずOSのパッケージのみを用いて実行する。
+sudo env PYTHONDONTWRITEBYTECODE=1 ./tools/devcontainer_fixup_files.py
+
 git submodule update --init --recursive || true
 
 # .venvがdevcontainer外のものと混ざるのを防ぐため、
