@@ -6,7 +6,6 @@ import logging
 import os
 import pwd
 import stat
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
@@ -53,9 +52,7 @@ def fixup_directory_owner_and_permission(
             warning_messages.append(f"Failed to change permission: {directory}")
 
 
-def fixup_files(
-    warning_messages: list[str], progress: tqdm, enable_progress_bar: bool
-) -> None:
+def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
     uid = pwd.getpwnam("developer").pw_uid
     gid = grp.getgrnam("developer").gr_gid
     umask = 0o022
@@ -106,8 +103,7 @@ def fixup_files(
         git_index_path_to_mode[path.absolute()] = mode
         total_progress_count += 1
 
-    if enable_progress_bar:
-        progress.reset(total=total_progress_count)
+    progress.reset(total=total_progress_count)
 
     # ファイルの所有者を自分に設定
     for file_path in all_file_paths:
@@ -172,10 +168,9 @@ def fixup_files(
 
 
 def main() -> None:
-    enable_progress_bar = "--no-progress-bar" not in sys.argv[1:]
     warning_messages: list[str] = []
     with tqdm(unit="files", ascii=" =") as progress:
-        fixup_files(warning_messages, progress, enable_progress_bar)
+        fixup_files(warning_messages, progress)
     for index, warning_message in enumerate(warning_messages):
         if index > 5:
             logger.warning("...")
