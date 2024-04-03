@@ -6,6 +6,7 @@ set -eu -o pipefail
 # sudoが強力すぎるため、poetryは経由せずOSのパッケージのみを用いて実行する。
 sudo env PYTHONDONTWRITEBYTECODE=1 ./tools/devcontainer_fixup_files.py
 
+# いちおうサブモジュールを取得するが、作業フォルダの状態次第で失敗するので `|| true` を付与
 git submodule update --init --recursive || true
 
 # .venvがdevcontainer外のものと混ざるのを防ぐため、
