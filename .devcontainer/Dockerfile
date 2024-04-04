@@ -41,7 +41,7 @@ RUN apt-get update \
         tk-dev=* \
         xz-utils=* \
         zlib1g-dev=* \
-        zopflipng=* \
+        zopfli=* \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
