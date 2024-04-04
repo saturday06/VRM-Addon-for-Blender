@@ -12,7 +12,7 @@ case "$(uname -m)" in
   url=https://github.com/gohugoio/hugo/releases/download/v0.111.3/hugo_extended_0.111.3_linux-arm64.tar.gz
   ;;
 *)
-  exit 1
+  exit 0
   ;;
 esac
 

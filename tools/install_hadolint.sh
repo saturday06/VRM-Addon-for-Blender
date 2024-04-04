@@ -12,7 +12,7 @@ case "$(uname -m)" in
   url=https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-arm64
   ;;
 *)
-  exit 1
+  exit 0
   ;;
 esac
 
