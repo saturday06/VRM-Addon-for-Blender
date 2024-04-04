@@ -37,20 +37,7 @@ jobs:
           HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['published_at']")
           export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE
 
-          hugo_dir=$(mktemp -d)
-
-          pushd "$hugo_dir"
-            curl \
-              --fail \
-              --retry 20 \
-              --retry-all-errors \
-              --show-error \
-              --location \
-              --output hugo_extended.tar.gz \
-              --header "Accept: application/vnd.github.v3+json" \
-              https://github.com/gohugoio/hugo/releases/download/v0.111.3/hugo_extended_0.111.3_Linux-64bit.tar.gz
-            tar xf hugo_extended.tar.gz
-          popd
+          ./tools/install_hugo.sh
 
           git fetch --depth=1 origin gh-pages
           cd docs/website
@@ -60,7 +47,7 @@ jobs:
             git checkout gh-pages
           popd
 
-          "$hugo_dir/hugo" --minify
+          ~/.local/bin/hugo --minify
 
       - name: Deploy
         run: |

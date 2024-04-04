@@ -1,7 +1,7 @@
 FROM buildpack-deps:mantic-curl
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV PATH="/opt/local/poetry/bin:$PATH"
+ENV PATH="/usr/local/poetry/bin:$PATH"
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 
@@ -13,6 +13,7 @@ RUN apt-get update \
         curl=* \
         file=* \
         git=* \
+        golang-go=* \
         less=* \
         libbz2-dev=* \
         libffi-dev=* \
@@ -56,22 +57,8 @@ RUN mkdir -p PythonSource \
     && popd \
     && rm -fr PythonSource
 
-RUN mkdir -p /usr/local/bin \
-    && case "$(uname -m)" in \
-        "x86_64") \
-            curl --fail --show-error --location -o /usr/local/bin/hadolint \
-                https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 \
-            && chmod 755 /usr/local/bin/hadolint \
-            ;; \
-        "aarch64") \
-            curl --fail --show-error --location -o /usr/local/bin/hadolint \
-                https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-arm64 \
-            && chmod 755 /usr/local/bin/hadolint \
-            ;; \
-        esac
-
 RUN curl --fail --show-error --location https://install.python-poetry.org \
-    | POETRY_HOME=/opt/local/poetry python3 -
+    | POETRY_HOME=/usr/local/poetry /usr/local/bin/python3 -
 
 RUN useradd --create-home --user-group --shell /bin/bash developer
 USER developer
