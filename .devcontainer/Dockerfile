@@ -33,12 +33,15 @@ RUN apt-get update \
         python3-numpy=* \
         python3-tqdm=* \
         python3-typing-extensions=* \
+        ruby=* \
+        ruby-rmagick=* \
         shellcheck=* \
         shfmt=* \
         sudo=* \
         tk-dev=* \
         xz-utils=* \
         zlib1g-dev=* \
+        zopflipng=* \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
