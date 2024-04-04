@@ -27,4 +27,4 @@ curl \
 
 tar -C ~/.local/hugo_extended -xf ~/hugo_extended.tar.gz
 
-ln -s ~/.local/hugo_extended/hugo ~/.local/bin/hugo
+ln -fs ~/.local/hugo_extended/hugo ~/.local/bin/hugo
