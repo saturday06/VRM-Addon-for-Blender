@@ -10,7 +10,7 @@ sudo env PYTHONDONTWRITEBYTECODE=1 ./tools/devcontainer_fixup_files.py
 git submodule update --init --recursive || true
 
 ./tools/install_hugo.sh
-./tools/install_hadlint.sh
+./tools/install_hadolint.sh
 
 # .venvがdevcontainer外のものと混ざるのを防ぐため、
 # .devcontainer内に固有の.venvを作り
