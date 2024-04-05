@@ -10,6 +10,9 @@ sudo env PYTHONDONTWRITEBYTECODE=1 ./tools/devcontainer_fixup_files.py
 # .devcontainer内に固有の.venvを作り
 # あとで標準のものと別名でリンクを貼る
 poetry config virtualenvs.in-project false
+# x86_64以外の場合はbpyパッケージが存在しないので、システムのものを使う
+[ "$(uname -m)" = "x86_64" ] || poetry config virtualenvs.options.system-site-packages true
+
 poetry run python -c "" # 稀にvenvが壊れていることがある。このコマンドで復元する。
 if ! ln -fs "$(poetry env info --path)" .venv-devcontainer; then
   sudo rm -f .venv-devcontainer

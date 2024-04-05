@@ -68,3 +68,64 @@ USER developer
 # JetBrainsのIDEは自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
 RUN mkdir -p ~/.cache
+
+#################### ARM64 ####################
+# https://developer.blender.org/docs/handbook/building_blender/python_module/
+USER root
+WORKDIR /root
+RUN [ "$(uname -m)" = "x86_64" ] || sed -i '/deb-src/s/^# //' /etc/apt/sources.list
+RUN [ "$(uname -m)" = "x86_64" ] || (apt-get update \
+                                        && apt-get build-dep --yes --no-install-recommends blender \
+                                        && apt-get install --yes --no-install-recommends \
+                                            alembic=* \
+                                            bison=* \
+                                            libboost-dev=* \
+                                            libembree-dev=* \
+                                            libepoxy-dev=* \
+                                            libjpeg-dev=* \
+                                            libnanovdb-dev=* \
+                                            libopenimageio-dev=* \
+                                            libopenvdb-dev=* \
+                                            libopenxr-dev=* \
+                                            libzstd-dev=* \
+                                            opencollada-dev=* \
+                                            patchelf=* \
+                                            yasm=* \
+                                        && apt-get clean \
+                                        && rm -rf /var/lib/apt/lists/*)
+RUN [ "$(uname -m)" = "x86_64" ] || /usr/local/bin/pip3 install numpy requests zstandard
+
+WORKDIR /root/sse2neon
+RUN [ "$(uname -m)" = "x86_64" ] || curl --fail --show-error --location \
+                                        https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
+                                        | tar zxf - --strip-components=1
+RUN [ "$(uname -m)" = "x86_64" ] || make
+RUN [ "$(uname -m)" = "x86_64" ] || make check
+RUN [ "$(uname -m)" = "x86_64" ] || cp sse2neon.h /usr/local/include/
+
+USER developer
+WORKDIR /home/developer/blender/src
+RUN [ "$(uname -m)" = "x86_64" ] || curl --fail --show-error --location \
+                                        https://download.blender.org/source/blender-3.6.9.tar.xz \
+                                        | tar Jxf - --strip-components=1
+
+USER root
+RUN [ "$(uname -m)" = "x86_64" ] || ./build_files/build_environment/install_linux_packages.py
+
+USER developer
+# ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
+# 発生していたエラーは次のとおり:
+# [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
+# c++: fatal error: Killed signal terminated program cc1plus
+# compilation terminated.
+# make[3]: *** [extern/ceres/CMakeFiles/extern_ceres.dir/build.make:1952: extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o] Error 1
+# make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
+RUN [ "$(uname -m)" = "x86_64" ] || make bpy || make NPROCS=1 bpy
+WORKDIR /home/developer/blender/build_linux_bpy
+RUN [ "$(uname -m)" = "x86_64" ] || make install
+
+USER root
+RUN [ "$(uname -m)" = "x86_64" ] || cp -r bin/bpy /usr/local/lib/python3.10/site-packages/
+
+USER developer
+RUN [ "$(uname -m)" = "x86_64" ] || python3 -c 'import bpy; print(f"OK: {bpy.app.version}")'
