@@ -1,4 +1,4 @@
-FROM buildpack-deps:mantic-curl
+FROM buildpack-deps:noble-curl
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV PATH="/usr/local/poetry/bin:$PATH"
@@ -73,7 +73,7 @@ RUN mkdir -p ~/.cache
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
 USER root
 WORKDIR /root
-RUN [ "$(uname -m)" = "x86_64" ] || sed -i '/deb-src/s/^# //' /etc/apt/sources.list
+RUN [ "$(uname -m)" = "x86_64" ] || sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 RUN [ "$(uname -m)" = "x86_64" ] || (apt-get update \
                                         && apt-get build-dep --yes --no-install-recommends blender \
                                         && apt-get install --yes --no-install-recommends \
