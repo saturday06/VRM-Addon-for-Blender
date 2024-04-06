@@ -172,6 +172,8 @@ jobs:
           poetry run python tools/property_typing.py > property_typing.log
           ./tools/format.sh
           git diff --exit-code
+      - name: Install hadolint
+        run: ./tools/install_hadolint.sh
       - name: Lint
         run: ./tools/lint.sh
       - name: Super-Linter
