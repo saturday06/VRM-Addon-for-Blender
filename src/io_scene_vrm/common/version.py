@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from sys import float_info
-from typing import Optional
+from typing import Final, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -11,7 +11,7 @@ from .logging import get_logger
 
 logger = get_logger(__name__)
 
-MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 1)
+MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION: Final = (4, 1)
 
 
 @dataclass

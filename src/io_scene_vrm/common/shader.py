@@ -4,7 +4,7 @@ import string
 from copy import deepcopy
 from pathlib import Path
 from sys import float_info
-from typing import Optional
+from typing import Final, Optional
 
 import bpy
 from bpy.types import (
@@ -95,8 +95,8 @@ from .logging import get_logger
 
 logger = get_logger(__name__)
 
-BOOL_SOCKET_CLASSES = (NodeSocketBool,)
-FLOAT_SOCKET_CLASSES = (
+BOOL_SOCKET_CLASSES: Final = (NodeSocketBool,)
+FLOAT_SOCKET_CLASSES: Final = (
     NodeSocketFloat,
     NodeSocketFloatAngle,
     NodeSocketFloatFactor,
@@ -104,18 +104,18 @@ FLOAT_SOCKET_CLASSES = (
     NodeSocketFloatTime,
     NodeSocketFloatUnsigned,
 )
-INT_SOCKET_CLASSES = (
+INT_SOCKET_CLASSES: Final = (
     NodeSocketInt,
     NodeSocketIntFactor,
     NodeSocketIntPercentage,
     NodeSocketIntUnsigned,
 )
-SCALAR_SOCKET_CLASSES = (
+SCALAR_SOCKET_CLASSES: Final = (
     *BOOL_SOCKET_CLASSES,
     *FLOAT_SOCKET_CLASSES,
     *INT_SOCKET_CLASSES,
 )
-VECTOR_SOCKET_CLASSES = (
+VECTOR_SOCKET_CLASSES: Final = (
     NodeSocketVector,
     NodeSocketVectorAcceleration,
     NodeSocketVectorDirection,
@@ -124,26 +124,26 @@ VECTOR_SOCKET_CLASSES = (
     NodeSocketVectorVelocity,
     NodeSocketVectorXYZ,
 )
-COLOR_SOCKET_CLASSES = (NodeSocketColor,)
-STRING_SOCKET_CLASSES = (NodeSocketString,)
+COLOR_SOCKET_CLASSES: Final = (NodeSocketColor,)
+STRING_SOCKET_CLASSES: Final = (NodeSocketString,)
 
 file_names = [
     "mtoon0.blend",
 ]
 
-OUTLINE_GEOMETRY_GROUP_NAME = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
+OUTLINE_GEOMETRY_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
 
-UV_GROUP_NAME = "VRM Add-on MToon 1.0 UV Revision 1"
-UV_ANIMATION_GROUP_NAME = "VRM Add-on MToon 1.0 UV Animation Revision 1"
-NORMAL_GROUP_NAME = "VRM Add-on MToon 1.0 Normal Revision 1"
-OUTPUT_GROUP_NAME = "VRM Add-on MToon 1.0 Output Revision 1"
+UV_GROUP_NAME: Final = "VRM Add-on MToon 1.0 UV Revision 1"
+UV_ANIMATION_GROUP_NAME: Final = "VRM Add-on MToon 1.0 UV Animation Revision 1"
+NORMAL_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Normal Revision 1"
+OUTPUT_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Output Revision 1"
 
-shader_node_group_names = [
+SHADER_NODE_GROUP_NAMES: Final = (
     UV_GROUP_NAME,
     UV_ANIMATION_GROUP_NAME,
     NORMAL_GROUP_NAME,
     OUTPUT_GROUP_NAME,
-]
+)
 
 
 def template_name(name: str) -> str:
@@ -258,7 +258,7 @@ def load_mtoon1_shader(
         logger.error(f'Material "{template_material_name}" already exists')
         old_material.name = backup_name(old_material.name, backup_suffix)
 
-    for shader_node_group_name in shader_node_group_names:
+    for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
         name = template_name(shader_node_group_name)
         old_template_group = bpy.data.node_groups.get(name)
         if old_template_group:
@@ -298,7 +298,7 @@ def load_mtoon1_shader(
         if not template_material:
             raise ValueError("No " + template_material_name)
 
-        for shader_node_group_name in shader_node_group_names:
+        for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
             shader_node_group_template_name = template_name(shader_node_group_name)
             template_group = bpy.data.node_groups.get(shader_node_group_template_name)
             if not template_group:
@@ -327,7 +327,7 @@ def load_mtoon1_shader(
             bpy.data.materials.remove(template_material)
 
         # reload and remove template groups
-        for shader_node_group_name in shader_node_group_names:
+        for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
             shader_node_group_template_name = template_name(shader_node_group_name)
             template_group = bpy.data.node_groups.get(shader_node_group_template_name)
             if template_group and template_group.users <= 1:
@@ -342,7 +342,7 @@ def load_mtoon1_shader(
         if old_material:
             old_material.name = template_material_name
 
-        for shader_node_group_name in shader_node_group_names:
+        for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
             name = template_name(shader_node_group_name)
             old_template_group = bpy.data.node_groups.get(
                 backup_name(name, backup_suffix)
@@ -497,7 +497,7 @@ def copy_shader_node_group(
     from_node: ShaderNodeGroup,
     to_node: ShaderNodeGroup,
 ) -> None:
-    for shader_node_group_name in shader_node_group_names:
+    for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
         shader_node_group_template_name = template_name(shader_node_group_name)
         if not from_node.node_tree.name.startswith(shader_node_group_template_name):
             continue
