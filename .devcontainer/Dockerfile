@@ -71,7 +71,7 @@ USER developer
 RUN mkdir -p ~/.cache
 
 ############################## Non x86_64 ##############################
-# x86_64版Linuxのbpyはpypiに上がっていないため、ビルドしてシステムにインストールする。
+# Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
 
 # 開発用に中断・再開が容易になるように、冗長になるが処理ごとに `[ "$(uname -m)" = "x86_64" ] || ` をつける。
