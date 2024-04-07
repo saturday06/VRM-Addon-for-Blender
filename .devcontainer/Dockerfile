@@ -127,7 +127,9 @@ USER developer
 # compilation terminated.
 # make[3]: *** [extern/ceres/CMakeFiles/extern_ceres.dir/build.make:1952: extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o] Error 1
 # make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
-RUN [ "$(uname -m)" = "x86_64" ] || make bpy || make NPROCS=1 bpy
+# 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
+# GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
+RUN [ "$(uname -m)" = "x86_64" ] || make NPROCS=1 bpy
 
 WORKDIR /home/developer/src/blender/build_linux_bpy
 RUN [ "$(uname -m)" = "x86_64" ] || make install
