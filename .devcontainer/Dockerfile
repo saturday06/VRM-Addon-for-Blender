@@ -63,7 +63,8 @@ RUN mkdir -p PythonSource \
 RUN curl --fail --show-error --location https://install.python-poetry.org \
     | POETRY_HOME=/usr/local/poetry /usr/local/bin/python3 -
 
-RUN useradd --create-home --user-group --shell /bin/bash developer
+RUN useradd --create-home --user-group --shell /bin/bash developer \
+    && echo "developer ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/developer
 USER developer
 # JetBrainsのIDEは自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
