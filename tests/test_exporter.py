@@ -1,15 +1,11 @@
 import sys
 from collections.abc import Sequence
-from importlib.util import find_spec
 from typing import cast
 from unittest import TestCase
 
 
 class TestExporter(TestCase):
     def test_normalize_weights_compatible_with_gl_float(self) -> None:
-        if find_spec("bpy") is None:
-            self.skipTest("No 'bpy'")
-            return
         from io_scene_vrm.exporter import legacy_vrm_exporter
 
         for arg, expected in [

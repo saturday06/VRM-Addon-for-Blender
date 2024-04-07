@@ -1,12 +1,8 @@
-from importlib.util import find_spec
 from unittest import TestCase
 
 
 class TestImporter(TestCase):
     def test_validate_license_url(self) -> None:
-        if find_spec("bpy") is None:
-            self.skipTest("No 'bpy'")
-            return
         from io_scene_vrm.importer import license_validation
 
         for url, confirmation_required in [
