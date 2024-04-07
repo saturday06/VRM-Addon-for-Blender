@@ -79,7 +79,8 @@ USER root
 WORKDIR /root
 RUN [ "$(uname -m)" = "x86_64" ] || sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 RUN [ "$(uname -m)" = "x86_64" ] || (apt-get update \
-                                        && apt-get build-dep --yes --no-install-recommends blender \
+                                        && apt-get build-dep --yes --no-install-recommends \
+                                            blender \
                                         && apt-get install --yes --no-install-recommends \
                                             alembic=* \
                                             bison=* \
