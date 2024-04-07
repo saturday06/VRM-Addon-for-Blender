@@ -73,12 +73,15 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         name="Import using add-on preferences",
         description="Import using add-on preferences instead of operator arguments",
     )
+
     extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]
         name="Extract texture images into the folder",
+        update=import_vrm_update_addon_preferences,
         default=False,
     )
     make_new_texture_folder: BoolProperty(  # type: ignore[valid-type]
         name="Don't overwrite existing texture folder",
+        update=import_vrm_update_addon_preferences,
         default=True,
     )
     set_shading_type_to_material_on_import: BoolProperty(  # type: ignore[valid-type]
