@@ -70,8 +70,11 @@ USER developer
 # poetryなどがエラーになるため、あらかじめ作っておく。
 RUN mkdir -p ~/.cache
 
-#################### ARM64 ####################
+############################## Non x86_64 ##############################
+# x86_64版Linuxのbpyはpypiに上がっていないため、ビルドしてシステムにインストールする。
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
+
+# 開発用に中断・再開が容易になるように、冗長になるが処理ごとに `[ "$(uname -m)" = "x86_64" ] || ` をつける。
 USER root
 WORKDIR /root
 RUN [ "$(uname -m)" = "x86_64" ] || sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
