@@ -99,16 +99,19 @@ RUN [ "$(uname -m)" = "x86_64" ] || (apt-get update \
                                         && rm -rf /var/lib/apt/lists/*)
 RUN [ "$(uname -m)" = "x86_64" ] || /usr/local/bin/pip3 install numpy requests zstandard
 
-WORKDIR /root/sse2neon
+USER developer
+WORKDIR /home/developer/src/sse2neon
 RUN [ "$(uname -m)" = "x86_64" ] || curl --fail --show-error --location \
                                         https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
                                         | tar zxf - --strip-components=1
 RUN [ "$(uname -m)" = "x86_64" ] || make
 RUN [ "$(uname -m)" = "x86_64" ] || make check
+
+USER root
 RUN [ "$(uname -m)" = "x86_64" ] || cp sse2neon.h /usr/local/include/
 
 USER developer
-WORKDIR /home/developer/blender/src
+WORKDIR /home/developer/src/blender/blender
 RUN [ "$(uname -m)" = "x86_64" ] || curl --fail --show-error --location \
                                         https://download.blender.org/source/blender-3.6.9.tar.xz \
                                         | tar Jxf - --strip-components=1
@@ -125,7 +128,8 @@ USER developer
 # make[3]: *** [extern/ceres/CMakeFiles/extern_ceres.dir/build.make:1952: extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o] Error 1
 # make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
 RUN [ "$(uname -m)" = "x86_64" ] || make bpy || make NPROCS=1 bpy
-WORKDIR /home/developer/blender/build_linux_bpy
+
+WORKDIR /home/developer/src/blender/build_linux_bpy
 RUN [ "$(uname -m)" = "x86_64" ] || make install
 
 USER root
