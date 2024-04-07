@@ -136,4 +136,4 @@ USER root
 RUN [ "$(uname -m)" = "x86_64" ] || cp -r bin/bpy /usr/local/lib/python3.10/site-packages/
 
 USER developer
-RUN [ "$(uname -m)" = "x86_64" ] || python3 -c 'import bpy; print(f"OK: {bpy.app.version}")'
+RUN [ "$(uname -m)" = "x86_64" ] || python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 9))'
