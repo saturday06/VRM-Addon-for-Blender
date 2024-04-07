@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
-from io_scene_vrm import bl_info
+from io_scene_vrm import MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info
 from io_scene_vrm.common import deep, version
 from io_scene_vrm.common.fs import (
     create_unique_indexed_directory_path,
@@ -17,6 +17,12 @@ class TestVersion(TestCase):
         self.assertEqual(
             version.addon_version(),
             bl_info.get("version"),
+        )
+
+    def test_max_supported_blender_major_minor_version(self) -> None:
+        self.assertEqual(
+            version.MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
+            MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
         )
 
 

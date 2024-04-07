@@ -26,6 +26,9 @@ bl_info = {
     "category": "Import-Export",
 }
 
+# https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_36/src/io_scene_vrm/common/version.py#L14
+MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 1)
+
 
 def cleanse_modules() -> None:
     """Search for your plugin modules in blender python sys.modules and remove them.
@@ -44,14 +47,18 @@ def cleanse_modules() -> None:
 
 
 def register() -> None:
-    raise_error_if_unsupported()
+    raise_error_if_too_old_blender()
     extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
     # support unzipping the partial add-on archive.
-    from . import registration
+    try:
+        from . import registration
 
-    registration.register(bl_info["name"], bl_info["version"])
+        registration.register(bl_info["name"], bl_info["version"])
+    except ImportError as exception:
+        raise_error_if_too_new_blender(exception)
+        raise
 
 
 def unregister() -> None:
@@ -62,7 +69,7 @@ def unregister() -> None:
     cleanse_modules()
 
 
-def raise_error_if_unsupported() -> None:
+def raise_error_if_too_old_blender() -> None:
     import bpy
 
     minimum_version = bl_info["blender"]
@@ -74,15 +81,44 @@ def raise_error_if_unsupported() -> None:
     if bpy.app.version >= minimum_version:
         return
 
-    default_message = (
-        "This add-on doesn't support Blender version less than {minimum_version}"
-        + " but the current version is {current_version}"
-    )
-    translated_messages = {
-        "ja_JP": (
+    raise_not_implemented_error(
+        default_message=(
+            "This add-on doesn't support Blender version less than {minimum_version}"
+            + " but the current version is {current_version}"
+        ),
+        ja_jp_message=(
             "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
             + "お使いのBlenderのバージョンは{current_version}です。"
         ),
+    )
+
+
+def raise_error_if_too_new_blender(exception: object) -> None:
+    import bpy
+
+    if bpy.app.version[:2] <= MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION:
+        return
+
+    raise_not_implemented_error(
+        exception=exception,
+        default_message=(
+            "This add-on doesn't support Blender version greater than {maximum_version}"
+            + " but the current version is {current_version}"
+        ),
+        ja_jp_message=(
+            "このアドオンはBlenderのバージョン{maximum_version}以降には未対応です。"
+            + "お使いのBlenderのバージョンは{current_version}です。"
+        ),
+    )
+
+
+def raise_not_implemented_error(
+    *, exception: object = None, default_message: str, ja_jp_message: str
+) -> None:
+    import bpy
+
+    translated_messages = {
+        "ja_JP": ja_jp_message,
     }
 
     if (
@@ -97,15 +133,25 @@ def raise_error_if_unsupported() -> None:
     highlighted_message = """
 
             ===========================================================
-            {}
+            {message}
             ===========================================================
         """.format(
-        message.format(
-            minimum_version=".".join(map(str, minimum_version)),
+        message=message.format(
+            minimum_version=".".join(map(str, bl_info["blender"])),
             current_version=".".join(map(str, bpy.app.version)),
-        )
+            maximum_version=".".join(
+                map(str, MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION)
+            ),
+        ),
     )
-
+    if exception is not None:
+        highlighted_message = (
+            "            Original Exception={exception_name}: {exception}".format(
+                exception=exception,
+                exception_name=type(exception).__name__,
+            )
+            + highlighted_message
+        )
     raise NotImplementedError(highlighted_message)
 
 
