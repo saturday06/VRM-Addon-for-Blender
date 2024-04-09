@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+"""devcontainerの作業フォルダの所有者とパーミッションを正しい値に戻す.
+
+このスクリプトはrootで実行する。rootの権限は強力すぎるため、
+poetryは経由せずOSのパッケージのみを用いて実行する。
+"""
 
 import functools
 import grp
