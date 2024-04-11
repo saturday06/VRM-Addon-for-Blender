@@ -4,6 +4,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 
+# https://www.jetbrains.com/help/idea/prerequisites-for-dev-containers.html#remote_container
 RUN sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get build-dep --yes --no-install-recommends \
@@ -28,6 +29,7 @@ RUN apt-get update \
         libembree-dev=* \
         libepoxy-dev=* \
         libffi-dev=* \
+        libfreetype6=* \
         libgl-dev=* \
         libjpeg-dev=* \
         liblzma-dev=* \
@@ -43,12 +45,15 @@ RUN apt-get update \
         libwayland-dev=* \
         libx11-dev=* \
         libxcursor-dev=* \
+        libxext6=* \
         libxi-dev=* \
         libxinerama-dev=* \
         libxkbcommon-dev=* \
         libxml2-dev=* \
         libxmlsec1-dev=* \
         libxrandr-dev=* \
+        libxrender1=* \
+        libxtst6=* \
         libxxf86vm-dev=* \
         libzstd-dev=* \
         locales=* \
@@ -59,6 +64,7 @@ RUN apt-get update \
         openssh-client=* \
         patch=* \
         patchelf=* \
+        procps=* \
         python3-dulwich=* \
         python3-numpy=* \
         python3-tqdm=* \
@@ -70,6 +76,7 @@ RUN apt-get update \
         subversion=* \
         sudo=* \
         tk-dev=* \
+        unzip=* \
         wayland-protocols=* \
         xz-utils=* \
         yasm=* \
