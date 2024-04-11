@@ -1,7 +1,6 @@
 FROM buildpack-deps:noble-curl
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV PATH="/usr/local/poetry/bin:$PATH"
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 
@@ -109,9 +108,6 @@ RUN mkdir -p python \
 
 RUN /usr/local/bin/pip3 install numpy requests zstandard
 
-RUN curl --fail --show-error --location https://install.python-poetry.org \
-        | POETRY_HOME=/usr/local/poetry /usr/local/bin/python3 -
-
 # Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
@@ -147,6 +143,9 @@ WORKDIR /home/developer
 # JetBrainsのIDEは自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
 RUN mkdir -p .cache
+
+RUN curl --fail --show-error --location https://install.python-poetry.org \
+        | /usr/local/bin/python3 -
 
 COPY install_hugo.sh .
 RUN ./install_hugo.sh
