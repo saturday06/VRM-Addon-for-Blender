@@ -142,6 +142,14 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then ( \
 RUN useradd --create-home --user-group --shell /bin/bash developer \
     && echo "developer ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/developer
 USER developer
+WORKDIR /home/developer
+
 # JetBrainsのIDEは自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
-RUN mkdir -p ~/.cache
+RUN mkdir -p .cache
+
+COPY install_hugo.sh .
+RUN ./install_hugo.sh
+
+COPY install_hadolint.sh .
+RUN ./install_hadolint.sh
