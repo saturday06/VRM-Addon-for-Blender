@@ -156,8 +156,8 @@ RUN mkdir -p .cache
 RUN curl --fail --show-error --location https://install.python-poetry.org \
         | /usr/local/bin/python3 -
 
-COPY install_hugo.sh .
+COPY --chmod=700 install_hugo.sh .
 RUN ./install_hugo.sh
 
-COPY install_hadolint.sh .
+COPY --chmod=700 install_hadolint.sh .
 RUN ./install_hadolint.sh
