@@ -95,6 +95,8 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then ( \
         && rm -fr sse2neon \
     ); fi
 
+# poetryを経由して開発に利用するPythonを/usr/localにビルドしてインストールする。
+# Python3.10系を使いたいがUbuntu 24.04のパッケージには存在しないので、自前でビルドする必要がある。
 RUN mkdir -p python \
     && pushd python \
     && curl --fail --show-error --location https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz \
