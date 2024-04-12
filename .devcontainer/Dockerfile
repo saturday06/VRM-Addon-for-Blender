@@ -1,8 +1,6 @@
 FROM buildpack-deps:noble-curl
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
-ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 
 # https://www.jetbrains.com/help/idea/prerequisites-for-dev-containers.html#remote_container
 RUN sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
@@ -148,6 +146,12 @@ RUN useradd --create-home --user-group --shell /bin/bash developer \
     && echo "developer ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/developer
 USER developer
 WORKDIR /home/developer
+
+# "postCreateCommand" や "postStartCommand" でも使える環境変数を設定する。
+# できれば "remoteEnv" で設定したいが、現在のJetBrains IDEだと反映されないのでここで設定
+ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
+ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
+ENV PATH=/home/developer/.local/bin:$PATH
 
 # JetBrainsのIDEは自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
