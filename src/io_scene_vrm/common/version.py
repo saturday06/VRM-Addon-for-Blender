@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from sys import float_info
-from typing import Final, Optional
+from types import ModuleType
+from typing import Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -10,8 +12,6 @@ from bpy.app.translations import pgettext
 from .logging import get_logger
 
 logger = get_logger(__name__)
-
-MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION: Final = (4, 1)
 
 
 @dataclass
@@ -39,9 +39,32 @@ def trigger_clear_addon_version_cache() -> None:
     bpy.app.timers.register(clear_addon_version_cache, first_interval=0.5)
 
 
+def import_root_module() -> ModuleType:
+    # To avoid circular reference put the line in the function local scope.
+    return import_module(".".join(__name__.split(".")[:-2]))
+
+
+def max_supported_blender_major_minor_version() -> tuple[int, int]:
+    root_module = import_root_module()
+    v = getattr(root_module, "MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION", None)
+    if (
+        not isinstance(v, tuple)
+        or len(v) != 2
+        or not isinstance(v[0], int)
+        or not isinstance(v[1], int)
+    ):
+        message = f"{v} is not valid type but {type(v)}"
+        raise TypeError(message)
+    return (v[0], v[1])
+
+
 def addon_version() -> tuple[int, int, int]:
-    # To avoid circular reference call __import__() in the function local scope.
-    v = __import__(".".join(__name__.split(".")[:-2])).bl_info.get("version")
+    root_module = import_root_module()
+    bl_info = getattr(root_module, "bl_info", None)
+    if not isinstance(bl_info, dict):
+        message = f"{bl_info} is not valid type but {type(bl_info)}"
+        raise TypeError(message)
+    v = root_module.bl_info.get("version")
     if (
         not isinstance(v, tuple)
         or len(v) != 3
@@ -50,7 +73,7 @@ def addon_version() -> tuple[int, int, int]:
         or not isinstance(v[2], int)
     ):
         message = f"{v} is not valid type but {type(v)}"
-        raise AssertionError(message)
+        raise TypeError(message)
     return (v[0], v[1], v[2])
 
 
@@ -103,7 +126,7 @@ def stable_release() -> bool:
 
 
 def supported() -> bool:
-    return bpy.app.version[:2] <= MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION
+    return bpy.app.version[:2] <= max_supported_blender_major_minor_version()
 
 
 def preferences_warning_message() -> Optional[str]:

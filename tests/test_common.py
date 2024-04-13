@@ -21,7 +21,7 @@ class TestVersion(TestCase):
 
     def test_max_supported_blender_major_minor_version(self) -> None:
         self.assertEqual(
-            version.MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
+            version.max_supported_blender_major_minor_version(),
             MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
         )
 
