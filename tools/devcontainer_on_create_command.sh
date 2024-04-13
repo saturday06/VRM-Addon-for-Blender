@@ -8,6 +8,8 @@ sudo apt-get dist-upgrade --yes
 
 ./tools/devcontainer_fixup_workspace.sh
 
+poetry completions bash >>~/.bash_completion
+
 # いちおうサブモジュールを取得するが、作業フォルダの状態次第で失敗するので `|| true` を付与
 git submodule update --init --recursive || true
 
