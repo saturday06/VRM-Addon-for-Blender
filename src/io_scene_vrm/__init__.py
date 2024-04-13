@@ -55,7 +55,7 @@ def register() -> None:
     try:
         from . import registration
 
-        registration.register(bl_info["name"], bl_info["version"])
+        registration.register()
     except ImportError as exception:
         raise_error_if_too_new_blender(exception)
         raise

@@ -28,7 +28,7 @@ from bpy.types import (
 
 from .common import preferences, shader
 from .common.logging import get_logger
-from .common.version import addon_version, trigger_clear_addon_version_cache
+from .common.version import trigger_clear_addon_version_cache
 from .editor import (
     detail_mesh_maker,
     extension,
@@ -382,15 +382,9 @@ classes: list[
 ]
 
 
-def register(name: object, init_addon_version: object) -> None:
+def register() -> None:
+    name = ".".join(__name__.split(".")[:-1])
     logger.debug(f"Registering: {name}")
-    # Sanity check. Because a addon_version() implementation is very acrobatic
-    # and it can break easily.
-    if init_addon_version != addon_version():
-        message = (
-            f"Sanity error: version mismatch: {init_addon_version} != {addon_version()}"
-        )
-        raise AssertionError(message)
 
     bpy.app.translations.register(
         preferences.addon_package_name,
