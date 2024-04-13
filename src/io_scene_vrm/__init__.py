@@ -26,7 +26,6 @@ bl_info = {
     "category": "Import-Export",
 }
 
-# https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_36/src/io_scene_vrm/common/version.py#L14
 MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 1)
 
 

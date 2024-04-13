@@ -46,6 +46,7 @@ def import_root_module() -> ModuleType:
 
 def max_supported_blender_major_minor_version() -> tuple[int, int]:
     root_module = import_root_module()
+    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_37/src/io_scene_vrm/__init__.py#L30
     v = getattr(root_module, "MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION", None)
     if (
         not isinstance(v, tuple)
