@@ -174,7 +174,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
 
 def main() -> None:
     warning_messages: list[str] = []
-    with tqdm(unit="files", ascii=" =", ncols=10, dynamic_ncols=True) as progress:
+    with tqdm(unit="files", ascii=" =", dynamic_ncols=True) as progress:
         fixup_files(warning_messages, progress)
     for index, warning_message in enumerate(warning_messages):
         if index > 5:
