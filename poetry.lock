@@ -581,13 +581,13 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "69.5.0"
+version = "69.5.1"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-69.5.0-py3-none-any.whl", hash = "sha256:3b2dbd8f63dcc6b7c327d0243c2d7dc8c96cc507c016f09221f3787e6e528719"},
-    {file = "setuptools-69.5.0.tar.gz", hash = "sha256:8d881f842bfc0e29e93bc98a2e650e8845609adff4d2989ba6c748e67b09d5be"},
+    {file = "setuptools-69.5.1-py3-none-any.whl", hash = "sha256:c636ac361bc47580504644275c9ad802c50415c7522212252c033bd15f301f32"},
+    {file = "setuptools-69.5.1.tar.gz", hash = "sha256:6c1fccdac05a97e598fb0ae3bbed5904ccb317337a51139dcd51453611bbb987"},
 ]
 
 [package.extras]
