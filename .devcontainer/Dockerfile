@@ -136,8 +136,8 @@ RUN /usr/local/bin/pip3 install numpy requests zstandard
 # 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
 # GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
 RUN if [ "$(uname -m)" != "x86_64" ]; then ( \
-        mkdir -p blender \
-        && pushd blender \
+        mkdir -p blender/blender \
+        && pushd blender/blender \
         && curl --fail --show-error --location https://download.blender.org/source/blender-3.6.9.tar.xz \
             | tar Jxf - --strip-components=1 \
         && ./build_files/build_environment/install_linux_packages.py \
