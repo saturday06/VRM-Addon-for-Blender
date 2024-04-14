@@ -1,4 +1,3 @@
-import datetime
 from dataclasses import dataclass
 from sys import float_info
 from typing import Optional, Union
@@ -17,14 +16,23 @@ from .property_group import (
 
 @dataclass
 class State:
-    previous_datetime: Optional[datetime.datetime] = None
+    frame_count: int = 0
+    spring_bone_60_fps_update_count: int = 0
+    last_fps: Optional[int] = None
+    last_fps_base: Optional[float] = None
+
+    def reset(self) -> None:
+        self.frame_count = 0
+        self.spring_bone_60_fps_update_count = 0
+        self.last_fps_base = bpy.context.scene.render.fps_base
+        self.last_fps = bpy.context.scene.render.fps
 
 
 state = State()
 
 
 def reset_state() -> None:
-    state.previous_datetime = None
+    state.reset()
 
 
 @dataclass(frozen=True)
@@ -490,11 +498,31 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
 @persistent
 def depsgraph_update_pre(_dummy: object) -> None:
-    state.previous_datetime = None
+    state.reset()
 
 
 @persistent
 def frame_change_pre(_dummy: object) -> None:
-    state.previous_datetime = datetime.datetime.now(datetime.timezone.utc)
-    delta_time = bpy.context.scene.render.fps_base / float(bpy.context.scene.render.fps)
-    update_pose_bone_rotations(delta_time)
+    fps = bpy.context.scene.render.fps
+    last_fps = state.last_fps
+    fps_base = bpy.context.scene.render.fps_base
+    last_fps_base = state.last_fps_base
+    if (
+        last_fps_base is None
+        or abs(fps_base - last_fps_base) > 0.0001
+        or fps != last_fps
+    ):
+        state.reset()
+
+    state.frame_count += 1
+    frame_time = state.frame_count * fps_base / float(fps)
+    while True:
+        next_update_time = (state.spring_bone_60_fps_update_count + 1) / 60.0
+        if next_update_time > frame_time:
+            break
+
+        current_update_time = state.spring_bone_60_fps_update_count / 60.0
+        delta_time = next_update_time - current_update_time
+        update_pose_bone_rotations(delta_time)
+
+        state.spring_bone_60_fps_update_count += 1
