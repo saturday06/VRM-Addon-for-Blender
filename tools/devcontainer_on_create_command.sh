@@ -17,6 +17,7 @@ poetry run python -c ""
 if [ "$(uname -m)" = "x86_64" ]; then
   /usr/local/bin/python3 -m venv "$(poetry env info --path)" --clear --prompt venv
 else
+  # x86_64以外の場合はbpyパッケージが存在しないので、システムのものを使う
   /usr/local/bin/python3 -m venv "$(poetry env info --path)" --clear --prompt venv --system-site-packages
 fi
 
