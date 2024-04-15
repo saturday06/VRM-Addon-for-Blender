@@ -99,7 +99,7 @@ RUN locale-gen en_US.UTF-8
 
 WORKDIR /root/src
 
-RUN if [ "$(uname -m)" = "aarch64" ]; then ( \
+RUN if [ "$(uname -m)" = "aarch64" ]; then \
         mkdir -p sse2neon \
         && pushd sse2neon \
         && curl --fail --show-error --location https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
@@ -109,7 +109,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then ( \
         && cp sse2neon.h /usr/local/include/ \
         && popd \
         && rm -fr sse2neon \
-    ); fi
+    ; fi
 
 # poetryを経由して開発に利用するPythonを/usr/localにビルドしてインストールする。
 # Python3.10系を使いたいがUbuntu 24.04のパッケージには存在しないので、自前でビルドする必要がある。
@@ -137,7 +137,7 @@ RUN /usr/local/bin/pip3 install numpy requests zstandard
 # make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
 # 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
 # GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
-RUN if [ "$(uname -m)" != "x86_64" ]; then ( \
+RUN if [ "$(uname -m)" != "x86_64" ]; then \
         mkdir -p blender/blender \
         && pushd blender/blender \
         && curl --fail --show-error --location https://download.blender.org/source/blender-3.6.9.tar.xz \
@@ -151,7 +151,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then ( \
         && popd \
         && rm -fr blender \
         && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 9))' \
-    ); fi
+    ; fi
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
     && echo "developer ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/developer
