@@ -5,13 +5,15 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # https://www.jetbrains.com/help/idea/prerequisites-for-dev-containers.html#remote_container
 RUN sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 
-# devcontainerのcommon-utilsはlibssl3をインストールしようとするが、
-# aarch64版ではlibssl3t64と競合してエラーになる。libssl3を無視する設定をしエラーを防ぐ
+# devcontainerのcommon-utilsはlibssl3とlibttng-ust1をインストールしようとするが、
+# aarch64版では現在使われないパッケージのためエラーになる。それらを無視をすることで対応。
 # https://askubuntu.com/a/76075
-RUN if [ "$(uname -m)" = "aarch64" ]; then ( \
-        echo -e "Package: libssl3\nPin: release *\nPin-Priority: -1\n" > \
-            /etc/apt/preferences.d/50-aarch64-devcontainer-common-utils-libssl3 \
-    ); fi
+RUN if [ "$(uname -m)" = "aarch64" ]; then \
+        echo -e "Package: libssl3\nPin: release *\nPin-Priority: -1" > \
+            /etc/apt/preferences.d/50-devcontainer-common-utils-aarch64-libssl3 \
+        && echo -e "Package: liblttng-ust1\nPin: release *\nPin-Priority: -1" > \
+            /etc/apt/preferences.d/51-devcontainer-common-utils-aarch64-liblttng-ust1 \
+    ; fi
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get build-dep --yes --no-install-recommends \
