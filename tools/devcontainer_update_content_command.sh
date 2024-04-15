@@ -9,3 +9,7 @@ if ! ln -fs "$(poetry env info --path)" .venv-devcontainer; then
   sudo rm -f .venv-devcontainer
   ln -fsv "$(poetry env info --path)" .venv-devcontainer
 fi
+
+# Refreshing repository
+# https://git-scm.com/docs/git-status#_background_refresh
+git status
