@@ -142,7 +142,7 @@ RUN /usr/local/bin/pip3 install numpy requests zstandard
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
         mkdir -p blender/blender \
         && pushd blender/blender \
-        && curl --fail --show-error --location https://download.blender.org/source/blender-3.6.9.tar.xz \
+        && curl --fail --show-error --location https://download.blender.org/source/blender-3.6.11.tar.xz \
             | tar Jxf - --strip-components=1 \
         && ./build_files/build_environment/install_linux_packages.py \
         && make NPROCS=1 bpy \
