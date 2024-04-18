@@ -1,8 +1,9 @@
 FROM buildpack-deps:noble-curl
 
+# https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# https://www.jetbrains.com/help/idea/prerequisites-for-dev-containers.html#remote_container
+# https://discourse.ubuntu.com/t/spec-apt-deb822-sources-by-default/29333#rationale-2
 RUN sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 
 # devcontainerのcommon-utilsはlibssl3とlibttng-ust1をインストールしようとするが、
@@ -15,6 +16,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
             /etc/apt/preferences.d/51-devcontainer-common-utils-aarch64-liblttng-ust1 \
     ; fi
 
+# https://www.jetbrains.com/help/idea/prerequisites-for-dev-containers.html#remote_container
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get build-dep --yes --no-install-recommends \
         blender \
@@ -159,12 +161,12 @@ USER developer
 WORKDIR /home/developer
 
 # "postCreateCommand" や "postStartCommand" でも使える環境変数を設定する。
-# できれば "remoteEnv" で設定したいが、現在のJetBrains IDEだと反映されないのでここで設定
+# できれば "remoteEnv" で設定したいが、現在のJetBrains製品だと反映されないのでここで設定
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 ENV PATH=/home/developer/.local/bin:$PATH
 
-# JetBrainsのIDEは自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
+# JetBrains製品は自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
 RUN mkdir -p .cache
 
