@@ -152,7 +152,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && popd \
         && popd \
         && rm -fr blender \
-        && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 9))' \
+        && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 11))' \
     ; fi
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
