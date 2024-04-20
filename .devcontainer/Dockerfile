@@ -6,16 +6,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # https://discourse.ubuntu.com/t/spec-apt-deb822-sources-by-default/29333#rationale-2
 RUN sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 
-# devcontainerのcommon-utilsはlibssl3とlibttng-ust1をインストールしようとするが、
-# aarch64版では現在使われないパッケージのためエラーになる。それらを無視をすることで対応。
-# https://askubuntu.com/a/76075
-RUN if [ "$(uname -m)" = "aarch64" ]; then \
-        echo -e "Package: libssl3\nPin: release *\nPin-Priority: -1" > \
-            /etc/apt/preferences.d/50-devcontainer-common-utils-aarch64-libssl3 \
-        && echo -e "Package: liblttng-ust1\nPin: release *\nPin-Priority: -1" > \
-            /etc/apt/preferences.d/51-devcontainer-common-utils-aarch64-liblttng-ust1 \
-    ; fi
-
 # https://www.jetbrains.com/help/idea/prerequisites-for-dev-containers.html#remote_container
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get build-dep --yes --no-install-recommends \
