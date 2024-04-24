@@ -5,7 +5,7 @@ images: ["images/installation.gif"]
 
 Download latest add-on file from **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**
 
-The downloaded add-on file is a zip file, but <u>please do not unzip it</u>, as the unzipped data will not function as an add-on.
+The downloaded add-on file is a ZIP file, but <u>please do not unzip it</u>, as the unzipped data will not function as an add-on.
 
 Start Blender and select menu `Edit` → `Preferences`.
 
@@ -33,7 +33,7 @@ There is a search box in the upper right corner if there are too many items to f
 
 If you cannot find it, please make sure that all of the following conditions are met
 
-- The add-on file you downloaded is a zip file, but <u>you did not unzip it</u>.
+- The add-on file you downloaded is a ZIP file, but <u>you did not unzip it</u>.
 - The selected add-on filename ends with `.zip`.
 - `Community` at the top of the window is enabled.
 
