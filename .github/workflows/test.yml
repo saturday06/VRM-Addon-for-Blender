@@ -107,6 +107,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0 # for super-linter
       - name: Disable git config core.quotepath
         run: git config core.quotepath off
       - name: Check file permissions
@@ -179,12 +180,14 @@ jobs:
       - name: Lint
         run: ./tools/lint.sh
       - name: Super-Linter
-        uses: github/super-linter@v5
+        uses: github/super-linter@v6
         env:
           LINTER_RULES_PATH: /
           LOG_LEVEL: NOTICE
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           GITHUB_ACTIONS_CONFIG_FILE: .github/actionlint.yaml
+          VALIDATE_GO: false
+          VALIDATE_GO_MODULES: false
           VALIDATE_HTML: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_BLACK: false
