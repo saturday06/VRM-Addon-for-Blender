@@ -177,7 +177,7 @@ jobs:
       - name: Lint
         run: ./tools/lint.sh
       - name: Super-Linter
-        uses: github/super-linter@v5
+        uses: github/super-linter@v6
         env:
           LINTER_RULES_PATH: /
           LOG_LEVEL: NOTICE
