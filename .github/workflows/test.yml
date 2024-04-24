@@ -1,5 +1,7 @@
 name: test
 
+permissions: {}
+
 on:
   push:
     branches:

@@ -1,5 +1,7 @@
 name: readme-update
 
+permissions: {}
+
 on:
   push:
   pull_request:

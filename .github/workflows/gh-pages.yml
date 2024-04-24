@@ -1,5 +1,8 @@
 name: pages-update
 
+permissions:
+  pages: write
+
 on:
   push:
   pull_request:
