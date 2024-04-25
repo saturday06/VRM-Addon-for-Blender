@@ -62,15 +62,15 @@ if [ "$CI" = "true" ]; then
     --name "$container_name" \
     "$tag_name"
   timeout 30 sh -c "until docker exec '$container_name' glxinfo > /dev/null; do sleep 0.5; done"
-  docker cp tests/resources/gui/. "$container_name:/root/tests"
-  docker cp src/io_scene_vrm/. "$container_name:/root/io_scene_vrm"
+  docker cp tests/resources/gui/. "$container_name:/home/developer/tests"
+  docker cp src/io_scene_vrm/. "$container_name:/home/developer/src/io_scene_vrm"
 else
   docker run \
     --detach \
     --publish "$publish" \
-    --volume "$PWD/tests/resources/gui:/root/tests" \
-    --volume "$PWD/var:/root/var" \
-    --volume "$PWD/src/io_scene_vrm:/root/io_scene_vrm" \
+    --volume "$PWD/tests/resources/gui:/home/developer/tests" \
+    --volume "$PWD/var:/home/developer/var" \
+    --volume "$PWD/src/io_scene_vrm:/home/developer/src/io_scene_vrm" \
     --rm \
     --name "$container_name" \
     "$tag_name"

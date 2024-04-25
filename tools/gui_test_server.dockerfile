@@ -3,7 +3,6 @@ ARG CI
 ENV CI=$CI
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-WORKDIR /root
 ENV DEBIAN_FRONTEND noninteractive
 ENV DISPLAY :0
 
@@ -33,6 +32,10 @@ RUN apt-get update -qq \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN useradd --create-home --user-group --shell /bin/bash developer
+USER developer
+WORKDIR /home/developer
+
 RUN curl -LSf --retry 5 https://launchpad.net/sikuli/sikulix/2.0.5/+download/sikulixide-2.0.5-lux.jar -o sikulixide.jar \
     && test "$(sha256sum < sikulixide.jar)" = "5e6948710561b1ca8ed29f09c2066a6176c610da053975b1d265d92747f12da0  -"
 
@@ -43,6 +46,6 @@ RUN mkdir noVNC \
 RUN mkdir noVNC/utils/websockify \
     && curl -LSf --retry 5 https://github.com/novnc/websockify/archive/33910d758d2c495dd1d380729c31bacbf8229ed0.tar.gz | tar -C noVNC/utils/websockify --strip-component=1 -zxf -
 
-COPY tools/gui_test_server_entrypoint.sh /root/
-RUN mkdir -p /root/var/log /root/var/tmp /root/tests /root/io_scene_vrm
-ENTRYPOINT ["/bin/sh", "-c", "dbus-run-session /root/gui_test_server_entrypoint.sh 2>&1 | tee var/log/entrypoint.log"]
+COPY tools/gui_test_server_entrypoint.sh /home/developer/
+RUN mkdir -p /home/developer/var/log /home/developer/var/tmp /home/developer/tests /home/developer/src/io_scene_vrm
+ENTRYPOINT ["/bin/sh", "-c", "dbus-run-session /home/developer/gui_test_server_entrypoint.sh 2>&1 | tee var/log/entrypoint.log"]

@@ -26,9 +26,9 @@ if %errorlevel% neq 0 goto error
 call docker run ^
   --detach ^
   --publish 127.0.0.1:6080:6080/tcp ^
-  --volume "%cd%\var":/root/var ^
-  --volume "%cd%\tests\resources\gui":/root/tests ^
-  --volume "%cd%\src\io_scene_vrm":/root/io_scene_vrm ^
+  --volume "%cd%\var":/home/developer/var ^
+  --volume "%cd%\tests\resources\gui":/home/developer/tests ^
+  --volume "%cd%\src\io_scene_vrm":/home/developer/src/io_scene_vrm ^
   --rm ^
   --name %container_name% ^
   %tag_name%
