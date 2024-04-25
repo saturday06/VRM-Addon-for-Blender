@@ -49,3 +49,5 @@ RUN mkdir noVNC/utils/websockify \
 COPY tools/gui_test_server_entrypoint.sh /home/developer/
 RUN mkdir -p /home/developer/var/log /home/developer/var/tmp /home/developer/tests /home/developer/src/io_scene_vrm
 ENTRYPOINT ["/bin/sh", "-c", "dbus-run-session /home/developer/gui_test_server_entrypoint.sh 2>&1 | tee var/log/entrypoint.log"]
+
+HEALTHCHECK CMD nc -z 127.0.0.1 5900 && curl --fail http://127.0.0.1:6000
