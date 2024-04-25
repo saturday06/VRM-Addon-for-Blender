@@ -1,6 +1,7 @@
 name: readme-update
 
-permissions: {}
+permissions:
+  contents: write
 
 on:
   push:
