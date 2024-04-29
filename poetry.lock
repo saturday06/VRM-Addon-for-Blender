@@ -578,18 +578,15 @@ name = "starry-bpy-type-stubs"
 version = "1.0.0"
 description = ""
 optional = false
-python-versions = "3.10.*"
+python-versions = ">=3.9"
 files = []
 develop = false
-
-[package.dependencies]
-bpy = {version = "==3.6.*", markers = "platform_system == \"Darwin\" and (platform_machine == \"x86_64\" or platform_machine == \"arm64\") or (platform_system == \"Darwin\" or platform_system == \"Linux\" or platform_system == \"Windows\") and platform_machine == \"x86_64\""}
 
 [package.source]
 type = "git"
 url = "https://github.com/saturday06/starry-bpy-type-stubs.git"
 reference = "HEAD"
-resolved_reference = "ea1b2e57ceb6dc28ea9333397005a30e2bad24e9"
+resolved_reference = "97387a766c6e7cf53d941042866011b860100dc3"
 
 [[package]]
 name = "tomli"
