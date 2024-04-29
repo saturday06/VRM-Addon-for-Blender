@@ -16,7 +16,7 @@ bpy = [
     {version = "3.6.*", markers = "platform_system == 'Darwin' and platform_machine == 'x86_64'"},
     {version = "3.6.*", markers = "platform_system == 'Darwin' and platform_machine == 'arm64'"},
     {version = "3.6.*", markers = "platform_system == 'Linux' and platform_machine == 'x86_64'"},
-    {version = "3.6.*", markers = "platform_system == 'Windows' and platform_machine == 'x86_64'"},
+    {version = "3.6.*", markers = "platform_system == 'Windows' and platform_machine == 'AMD64'"},
 ]
 
 [tool.poetry.group.dev.dependencies]
