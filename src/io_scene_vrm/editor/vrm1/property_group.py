@@ -1174,9 +1174,9 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         set=set_preview,
     )
 
-    active_morph_target_bind_index: IntProperty()  # type: ignore[valid-type]
-    active_material_color_bind_index: IntProperty()  # type: ignore[valid-type]
-    active_texture_transform_bind_index: IntProperty()  # type: ignore[valid-type]
+    active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_material_color_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_texture_transform_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -1357,7 +1357,7 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
     expression_ui_list_elements: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
-    active_expression_ui_list_element_index: IntProperty()  # type: ignore[valid-type]
+    active_expression_ui_list_element_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
