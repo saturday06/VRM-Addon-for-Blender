@@ -98,7 +98,11 @@ class VRM_OT_add_vrm0_material_value_bind(Operator):
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
-        blend_shape_groups[self.blend_shape_group_index].material_values.add()
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        blend_shape_group.material_values.add()
+        blend_shape_group.active_material_value_index = (
+            len(blend_shape_group.material_values) - 1
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -138,12 +142,14 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
-        material_values = blend_shape_groups[
-            self.blend_shape_group_index
-        ].material_values
-        if len(material_values) <= self.material_value_index:
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        if len(blend_shape_group.material_values) <= self.material_value_index:
             return {"CANCELLED"}
-        material_values.remove(self.material_value_index)
+        blend_shape_group.material_values.remove(self.material_value_index)
+        blend_shape_group.active_material_value_index = min(
+            blend_shape_group.active_material_value_index,
+            max(0, len(blend_shape_group.material_values) - 1),
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -280,7 +286,9 @@ class VRM_OT_add_vrm0_blend_shape_bind(Operator):
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
-        blend_shape_groups[self.blend_shape_group_index].binds.add()
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        blend_shape_group.binds.add()
+        blend_shape_group.active_bind_index = len(blend_shape_group.binds) - 1
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -320,10 +328,14 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
         )
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
-        binds = blend_shape_groups[self.blend_shape_group_index].binds
-        if len(binds) <= self.bind_index:
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        if len(blend_shape_group.binds) <= self.bind_index:
             return {"CANCELLED"}
-        binds.remove(self.bind_index)
+        blend_shape_group.binds.remove(self.bind_index)
+        blend_shape_group.active_bind_index = min(
+            blend_shape_group.active_bind_index,
+            max(0, len(blend_shape_group.binds) - 1),
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -615,9 +627,12 @@ class VRM_OT_add_vrm0_blend_shape_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        ext = armature_data.vrm_addon_extension
-        blend_shape_group = ext.vrm0.blend_shape_master.blend_shape_groups.add()
+        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        blend_shape_group = blend_shape_master.blend_shape_groups.add()
         blend_shape_group.name = self.name
+        blend_shape_master.active_blend_shape_group_index = (
+            len(blend_shape_master.blend_shape_groups) - 1
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -648,12 +663,14 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
-        if len(blend_shape_groups) <= self.blend_shape_group_index:
+        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        if len(blend_shape_master.blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
-        blend_shape_groups.remove(self.blend_shape_group_index)
+        blend_shape_master.blend_shape_groups.remove(self.blend_shape_group_index)
+        blend_shape_master.active_blend_shape_group_index = min(
+            blend_shape_master.active_blend_shape_group_index,
+            max(0, len(blend_shape_master.blend_shape_groups) - 1),
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:

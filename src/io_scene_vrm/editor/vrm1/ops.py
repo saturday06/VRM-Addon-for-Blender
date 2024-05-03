@@ -157,22 +157,11 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
             return {"CANCELLED"}
         expressions = armature_data.vrm_addon_extension.vrm1.expressions
         new_last_custom_index = len(expressions.custom)
-        new_active_custom_index = min(
-            max(
-                0,
-                expressions.active_expression_ui_list_element_index
-                - len(expressions.preset.name_to_expression_dict())
-                + 1,
-            ),
-            new_last_custom_index,
-        )
         custom_expression = expressions.custom.add()
         custom_expression.custom_name = self.custom_expression_name
         expressions.active_expression_ui_list_element_index = (
-            len(expressions.preset.name_to_expression_dict()) + new_active_custom_index
+            len(expressions.preset.name_to_expression_dict()) + new_last_custom_index
         )
-        if new_last_custom_index != new_active_custom_index:
-            expressions.custom.move(new_last_custom_index, new_active_custom_index)
         return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
 
     if TYPE_CHECKING:
@@ -399,9 +388,8 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
         if expression is None:
             return {"CANCELLED"}
         expression.morph_target_binds.add()
-        expression.active_morph_target_bind_index = min(
-            max(0, expression.active_morph_target_bind_index + 1),
-            len(expression.morph_target_binds) - 1,
+        expression.active_morph_target_bind_index = (
+            len(expression.morph_target_binds) - 1
         )
         return {"FINISHED"}
 
@@ -445,7 +433,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
         expression.morph_target_binds.remove(self.bind_index)
         expression.active_morph_target_bind_index = min(
             expression.active_morph_target_bind_index,
-            len(expression.morph_target_binds) - 1,
+            max(0, len(expression.morph_target_binds) - 1),
         )
         return {"FINISHED"}
 
@@ -569,9 +557,10 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
         )
         if expression is None:
             return {"CANCELLED"}
-        new_active_index = len(expression.material_color_binds)
         expression.material_color_binds.add()
-        expression.active_material_color_bind_index = new_active_index
+        expression.active_material_color_bind_index = (
+            len(expression.material_color_binds) - 1
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -612,8 +601,9 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
         if len(expression.material_color_binds) <= self.bind_index:
             return {"CANCELLED"}
         expression.material_color_binds.remove(self.bind_index)
-        expression.active_material_color_bind_index = max(
-            0, len(expression.material_color_binds) - 1
+        expression.active_material_color_bind_index = min(
+            expression.active_material_color_bind_index,
+            max(0, len(expression.material_color_binds) - 1),
         )
         return {"FINISHED"}
 
@@ -735,9 +725,10 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
-        active_index = len(expression.texture_transform_binds)
         expression.texture_transform_binds.add()
-        expression.active_texture_transform_bind_index = active_index
+        expression.active_texture_transform_bind_index = (
+            len(expression.texture_transform_binds) - 1
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -778,8 +769,9 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
         if len(expression.texture_transform_binds) <= self.bind_index:
             return {"CANCELLED"}
         expression.texture_transform_binds.remove(self.bind_index)
-        expression.active_texture_transform_bind_index = max(
-            0, len(expression.texture_transform_binds) - 1
+        expression.active_texture_transform_bind_index = min(
+            expression.active_texture_transform_bind_index,
+            max(0, len(expression.texture_transform_binds) - 1),
         )
         return {"FINISHED"}
 
