@@ -11,6 +11,7 @@ import logging
 import os
 import pwd
 import stat
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
@@ -24,6 +25,10 @@ else:
     tqdm: TypeAlias = type_checking_tqdm.tqdm  # noqa: PYI042
 
 logger = logging.getLogger(__name__)
+
+
+if sys.platform == "win32":
+    raise NotImplementedError
 
 
 def print_path_walk_error(warning_messages: list[str], os_error: OSError) -> None:
