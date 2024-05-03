@@ -713,9 +713,8 @@ def draw_vrm1_expressions_layout(
     else:
         return
 
-    box = layout.box()
     if custom:
-        box.prop(expression, "custom_name")
+        layout.prop(expression, "custom_name")
     else:
         preset_icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(
             expression.name
@@ -723,8 +722,8 @@ def draw_vrm1_expressions_layout(
         if not preset_icon:
             logger.error(f"Unknown preset expression: {expression.name}")
             preset_icon = "SHAPEKEY_DATA"
-        box.label(text=expression.name, translate=False, icon=preset_icon)
-    column = box.column()
+        layout.label(text=expression.name, translate=False, icon=preset_icon)
+    column = layout.column()
     column.prop(expression, "preview", icon="PLAY", text="Preview")
     column.prop(expression, "is_binary", icon="IPO_CONSTANT")
     column.prop(expression, "override_blink")

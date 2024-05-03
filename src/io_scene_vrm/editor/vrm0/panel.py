@@ -595,8 +595,7 @@ def draw_vrm0_blend_shape_master_layout(
         blend_shape_group = blend_shape_master.blend_shape_groups[
             blend_shape_group_index
         ]
-        box = layout.box()
-        column = box.column()
+        column = layout.column()
         column.prop(blend_shape_group, "name")
         column.prop(blend_shape_group, "preset_name")
         column.prop(blend_shape_group, "is_binary", icon="IPO_CONSTANT")
