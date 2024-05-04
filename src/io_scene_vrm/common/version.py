@@ -1,5 +1,6 @@
 import platform
 from dataclasses import dataclass
+from importlib import import_module
 from sys import float_info
 from typing import Optional
 
@@ -49,6 +50,10 @@ def addon_version() -> tuple[int, int, int]:
 
 
 def blender_restart_required() -> bool:
+    if not legacy_addon():
+        # Blender Extensions Platform correctly reloads extensions
+        return False
+
     if cache.use:
         return cache.last_blender_restart_required
 
@@ -78,7 +83,18 @@ def blender_restart_required() -> bool:
     return True
 
 
+def legacy_addon() -> bool:
+    root_module = import_module(".".join(__name__.split(".")[:-2]))
+    bl_info = getattr(root_module, "bl_info", None)
+    if not isinstance(bl_info, dict):
+        return False
+    return bl_info.get("name") == "VRM format"
+
+
 def stable_release() -> bool:
+    # for Blender Extensions Platform
+    if not legacy_addon() and bpy.app.version == (4, 2, 0):
+        return True
     if bpy.app.version_cycle == "release":
         return True
     if platform.system() == "Windows" and bpy.app.version_cycle == "rc":
