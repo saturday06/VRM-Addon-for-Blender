@@ -1,3 +1,4 @@
+import platform
 from dataclasses import dataclass
 from sys import float_info
 from typing import Optional
@@ -78,10 +79,13 @@ def blender_restart_required() -> bool:
 
 
 def stable_release() -> bool:
-    return bpy.app.version_cycle in [
-        "release",
-        "rc",  # Windowsストアは3.3.11や3.6.3をRC版のままリリースしている
-    ]
+    if bpy.app.version_cycle == "release":
+        return True
+    if platform.system() == "Windows" and bpy.app.version_cycle == "rc":
+        # Microsoft Store distributes RC versions of 3.3.11 and 3.6.3 as
+        # release versions.
+        return True
+    return False
 
 
 def supported() -> bool:
