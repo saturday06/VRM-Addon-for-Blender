@@ -123,6 +123,8 @@ def create_export_settings() -> dict[str, object]:
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/2debd75ace303f3a3b00a43e9d7a9507af32f194/addons/io_scene_gltf2/__init__.py#L985-L986
         "gltf_unused_textures": False,
         "gltf_unused_images": False,
+        # for https://github.com/KhronosGroup/glTF-Blender-IO/blob/06f0f908e883add2767fde828f52a013086a17c3/addons/io_scene_gltf2/blender/exp/material/extensions/gltf2_blender_gather_materials_emission.py#L72
+        "current_paths": {},
     }
 
 
