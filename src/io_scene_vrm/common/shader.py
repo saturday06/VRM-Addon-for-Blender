@@ -155,10 +155,11 @@ def backup_name(name: str, backup_suffix: str) -> str:
 
 
 def generate_backup_suffix() -> str:
-    # 極々稀に重複する可能性があるが、長すぎる名前が使えないので悩ましい。
+    # There is a possibility of duplicates in very rare cases. To be exact, duplicates
+    # must be regenerated if any are found.
     return " " + "".join(
         random.SystemRandom().choice(string.ascii_letters + string.digits)
-        for _ in range(8)
+        for _ in range(8)  # Be careful not to exceed a total of 64 characters
     )
 
 

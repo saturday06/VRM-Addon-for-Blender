@@ -539,7 +539,9 @@ class GlslDrawObj:
                     bgl.glCullFace(bgl.GL_BACK)
                 else:
                     bgl.glDisable(bgl.GL_CULL_FACE)
-                bgl.glEnable(bgl.GL_CULL_FACE)  # そも輪郭線がの影は落ちる?
+
+                # Does the shadow of the contour line fall?
+                bgl.glEnable(bgl.GL_CULL_FACE)
                 bgl.glCullFace(bgl.GL_BACK)
 
                 depth_shader.uniform_float(
@@ -737,7 +739,7 @@ def lookat_cross(
     tv = Vector(tar)
     uv = Vector(up)
     # z = l-t
-    z = -tv  # 注視点ではなく、注視方角だからこう
+    z = -tv  # Gazing direction, not gazing point
     z.normalize()
     x = uv.cross(z)
     x.normalize()

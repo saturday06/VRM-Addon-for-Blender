@@ -33,7 +33,6 @@ class BinaryReader:
         return result
 
     def read_unsigned_int(self) -> int:
-        # unpackは内容の個数に関わらずタプルで返すので[0]が必要
         result = struct.unpack("<I", self.data[slice(self.pos, self.pos + 4)])[0]
         if not isinstance(result, int):
             raise TypeError
