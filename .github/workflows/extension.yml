@@ -1,0 +1,39 @@
+name: extension
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  extension:
+    runs-on: ubuntu-22.04
+    env:
+      BLENDER_ARCHIVE_URL: https://builder.blender.org/download/daily/blender-4.2.0-alpha+main.ff4fc03023b0-linux.x86_64-release.tar.xz
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@v4
+        with:
+          path: blender.tar.xz
+          key: ${{ env.BLENDER_ARCHIVE_URL }}-archive-1
+      - name: Download archive
+        if: steps.cache-archive.outputs.cache-hit != 'true'
+        run: curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
+      - name: Build Extension
+        run: |
+          mkdir -p ~/.local/blender
+          tar xf blender.tar.xz -C ~/.local/blender --strip-components=1
+          export PATH="$HOME/.local/blender:$PATH"
+          hash -r
+          ./tools/build_extension.sh || true
+      - name: Save Extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: Extension
+          path: extension_output
