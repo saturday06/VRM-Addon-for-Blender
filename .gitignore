@@ -24,6 +24,7 @@
 !/LICENSE
 !/LICENSE.*
 !/Notice.txt
+!/extension.patch
 !/dictionary.txt
 !/docs/*.jpg
 !/docs/*.png

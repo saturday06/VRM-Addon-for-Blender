@@ -14,6 +14,7 @@
 *.yaml text eol=lf
 *.yml text eol=lf
 .* text eol=lf
+/extension.patch text eol=lf
 go.mod text eol=lf
 go.sum text eol=lf
 poetry.lock text eol=lf
