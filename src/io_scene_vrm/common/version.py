@@ -1,15 +1,11 @@
-import re
 from dataclasses import dataclass
-from importlib import import_module
-from importlib.util import module_from_spec, spec_from_file_location
-from pathlib import Path
 from sys import float_info
-from types import ModuleType
 from typing import Optional
 
 import bpy
 from bpy.app.translations import pgettext
 
+from .blender_manifest import BlenderManifest
 from .logging import get_logger
 
 logger = get_logger(__name__)
@@ -19,13 +15,15 @@ logger = get_logger(__name__)
 class Cache:
     use: bool
     last_blender_restart_required: bool
-    last_root_init_py_modification_time: float
+    last_blender_manifest_modification_time: float
+    initial_blender_manifest_content: bytes
 
 
 cache = Cache(
     use=False,
     last_blender_restart_required=False,
-    last_root_init_py_modification_time=0.0,
+    last_blender_manifest_modification_time=0.0,
+    initial_blender_manifest_content=BlenderManifest.default_blender_manifest_path().read_bytes(),
 )
 
 
@@ -40,45 +38,13 @@ def trigger_clear_addon_version_cache() -> None:
     bpy.app.timers.register(clear_addon_version_cache, first_interval=0.5)
 
 
-def import_root_module() -> ModuleType:
-    # To avoid circular reference put the line in the function local scope.
-    return import_module(".".join(__name__.split(".")[:-2]))
-
-
 def max_supported_blender_major_minor_version() -> tuple[int, int]:
-    # When the version of Python used by the minimum supported version of Blender
-    # exceeds 3.11, it is rewritten in the tomli library.
-    blender_manifest_path = Path(__file__).parent.parent / "blender_manifest.toml"
-    blender_manifest = blender_manifest_path.read_text()
-
-    pattern = r'blender_version_max = "(\d+)\.(\d+)\.(\d+)"'
-    for line in map(str.strip, blender_manifest.splitlines()):
-        match = re.fullmatch(pattern, line)
-        if not match:
-            continue
-        return (int(match[1]), int(match[2]))
-
-    message = f"'{pattern=}' does not found in {blender_manifest_path}"
-    raise ValueError(message)
+    blender_version_max = BlenderManifest.read().blender_version_max
+    return (blender_version_max[0], blender_version_max[1])
 
 
 def addon_version() -> tuple[int, int, int]:
-    root_module = import_root_module()
-    bl_info = getattr(root_module, "bl_info", None)
-    if not isinstance(bl_info, dict):
-        message = f"{bl_info} is not valid type but {type(bl_info)}"
-        raise TypeError(message)
-    v = root_module.bl_info.get("version")
-    if (
-        not isinstance(v, tuple)
-        or len(v) != 3
-        or not isinstance(v[0], int)
-        or not isinstance(v[1], int)
-        or not isinstance(v[2], int)
-    ):
-        message = f"{v} is not valid type but {type(v)}"
-        raise TypeError(message)
-    return (v[0], v[1], v[2])
+    return BlenderManifest.read().version
 
 
 def blender_restart_required() -> bool:
@@ -90,32 +56,21 @@ def blender_restart_required() -> bool:
     if cache.last_blender_restart_required:
         return True
 
-    root_init_py_path = Path(__file__).parent.parent / "__init__.py"
-    root_init_py_modification_time = Path(root_init_py_path).stat().st_mtime
+    blender_manifest_path = BlenderManifest.default_blender_manifest_path()
+    blender_manifest_modification_time = blender_manifest_path.stat().st_mtime
     if (
-        abs(cache.last_root_init_py_modification_time - root_init_py_modification_time)
+        abs(
+            cache.last_blender_manifest_modification_time
+            - blender_manifest_modification_time
+        )
         < float_info.epsilon
     ):
         return False
 
-    cache.last_root_init_py_modification_time = root_init_py_modification_time
+    cache.last_blender_manifest_modification_time = blender_manifest_modification_time
 
-    spec = spec_from_file_location(
-        "blender_vrm_addon_root_init_py_version_checking",
-        root_init_py_path,
-    )
-    if spec is None:
-        return False
-    mod = module_from_spec(spec)
-    if spec.loader is None:
-        return False
-    spec.loader.exec_module(mod)
-
-    bl_info = getattr(mod, "bl_info", None)
-    if not isinstance(bl_info, dict):
-        return False
-    bl_info_version = bl_info.get("version")
-    if bl_info_version == addon_version():
+    blender_manifest_content = blender_manifest_path.read_bytes()
+    if blender_manifest_content == cache.initial_blender_manifest_content:
         return False
 
     cache.last_blender_restart_required = True

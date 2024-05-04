@@ -1,10 +1,10 @@
-import re
 import tempfile
 from pathlib import Path
 from unittest import TestCase
 
 from io_scene_vrm import MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info
 from io_scene_vrm.common import deep, version
+from io_scene_vrm.common.blender_manifest import BlenderManifest
 from io_scene_vrm.common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
@@ -27,32 +27,22 @@ class TestVersion(TestCase):
         )
 
     def test_min_supported_blender_version(self) -> None:
-        # When the version of Python used by the minimum supported version of Blender
-        # exceeds 3.11, it is rewritten in the tomli library.
-        blender_manifest_path = (
-            Path(__file__).parent.parent
-            / "src"
-            / "io_scene_vrm"
-            / "blender_manifest.toml"
-        )
-        blender_manifest = blender_manifest_path.read_text()
-
-        blender_version_min = None
-        pattern = r'blender_version_min = "(\d+)\.(\d+)\.(\d+)"'
-        for line in map(str.strip, blender_manifest.splitlines()):
-            match = re.fullmatch(pattern, line)
-            if not match:
-                continue
-            blender_version_min = (int(match[1]), int(match[2]), int(match[3]))
-
-        if blender_version_min is None:
-            message = f"'{pattern=}' does not found in {blender_manifest_path}"
-            raise ValueError(message)
-
         self.assertEqual(
             bl_info.get("blender"),
-            blender_version_min,
+            BlenderManifest.read().blender_version_min,
         )
+
+    def test_blender_manifest(self) -> None:
+        text = (
+            "foo = bar\n"
+            + 'version = "1.23.456"\n'
+            + 'blender_version_min = "9.8.7"\n'
+            + 'blender_version_max = "12.34.56"\n'
+        )
+        blender_manifest = BlenderManifest.read(text)
+        self.assertEqual(blender_manifest.version, (1, 23, 456))
+        self.assertEqual(blender_manifest.blender_version_min, (9, 8, 7))
+        self.assertEqual(blender_manifest.blender_version_max, (12, 34, 56))
 
 
 class TestDeep(TestCase):
