@@ -31,7 +31,9 @@ jobs:
           tar xf blender.tar.xz -C ~/.local/blender --strip-components=1
           export PATH="$HOME/.local/blender:$PATH"
           hash -r
-          ./tools/build_extension.sh || true
+          mkdir -p "$HOME/.config/blender/4.2/config"
+          cp extension_userpref.blend "$HOME/.config/blender/4.2/config/userpref.blend"
+          ./tools/build_extension.sh
       - name: Save Extension
         uses: actions/upload-artifact@v4
         with:
