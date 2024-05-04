@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
@@ -45,18 +46,20 @@ def import_root_module() -> ModuleType:
 
 
 def max_supported_blender_major_minor_version() -> tuple[int, int]:
-    root_module = import_root_module()
-    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_37/src/io_scene_vrm/__init__.py#L30
-    v = getattr(root_module, "MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION", None)
-    if (
-        not isinstance(v, tuple)
-        or len(v) != 2
-        or not isinstance(v[0], int)
-        or not isinstance(v[1], int)
-    ):
-        message = f"{v} is not valid type but {type(v)}"
-        raise TypeError(message)
-    return (v[0], v[1])
+    # When the version of Python used by the minimum supported version of Blender
+    # exceeds 3.11, it is rewritten in the tomli library.
+    blender_manifest_path = Path(__file__).parent.parent / "blender_manifest.toml"
+    blender_manifest = blender_manifest_path.read_text()
+
+    pattern = r'blender_version_max = "(\d+)\.(\d+)\.(\d+)"'
+    for line in map(str.strip, blender_manifest.splitlines()):
+        match = re.fullmatch(pattern, line)
+        if not match:
+            continue
+        return (int(match[1]), int(match[2]))
+
+    message = f"'{pattern=}' does not found in {blender_manifest_path}"
+    raise ValueError(message)
 
 
 def addon_version() -> tuple[int, int, int]:
