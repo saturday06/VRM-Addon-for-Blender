@@ -29,6 +29,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
+from ...common.char import DISABLE_TRANSLATION
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import (
     HumanBoneName,
@@ -608,8 +609,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         (TYPE_VALUE_BONE, "Bone", "Bone", "BONE_DATA", 0),
         (
             TYPE_VALUE_EXPRESSION,
-            # Use \N{ZERO WIDTH SPACE} to disable translation
-            "Expression\N{ZERO WIDTH SPACE}",
+            "Expression" + DISABLE_TRANSLATION,
             "Expression",
             "SHAPEKEY_DATA",
             1,

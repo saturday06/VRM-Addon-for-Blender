@@ -6,3 +6,5 @@ The letter to be prefixed when naming internal invisible objects. It was chosen 
 the sort order would be backward and also so that it would be easy to identify the
 object as internal.
 """
+
+DISABLE_TRANSLATION: Final = "\N{ZERO WIDTH SPACE}"
