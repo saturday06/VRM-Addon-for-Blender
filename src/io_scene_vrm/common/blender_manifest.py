@@ -35,7 +35,9 @@ class BlenderManifest:
     @classmethod
     def read(cls, blender_manifest: Optional[str] = None) -> "BlenderManifest":
         if blender_manifest is None:
-            blender_manifest = cls.default_blender_manifest_path().read_text()
+            blender_manifest = cls.default_blender_manifest_path().read_text(
+                encoding="UTF-8"
+            )
         return BlenderManifest(
             version=cls.read_3_tuple_version(blender_manifest, "version"),
             blender_version_min=cls.read_3_tuple_version(

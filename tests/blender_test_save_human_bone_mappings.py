@@ -14,7 +14,7 @@ def test() -> None:
     with tempfile.NamedTemporaryFile() as file:
         file.close()
         bpy.ops.vrm.save_human_bone_mappings(filepath=file.name)
-        loaded_json = json.loads(Path(file.name).read_text())
+        loaded_json = json.loads(Path(file.name).read_text(encoding="UTF-8"))
 
     diffs = deep.diff(
         loaded_json,

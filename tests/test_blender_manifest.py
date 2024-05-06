@@ -13,7 +13,7 @@ class TestBlenderManifest(TestCase):
             / "io_scene_vrm"
             / "blender_manifest.toml"
         )
-        text = path.read_text()
+        text = path.read_text(encoding="UTF-8")
         match = re.search(r'^version = "(.+)"$', text, re.MULTILINE)
         if match is None:
             message = "No version match"
