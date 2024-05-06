@@ -2408,6 +2408,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     if child.name in self.context.scene.collection.objects:
                         self.context.scene.collection.objects.unlink(child)
 
+        spring_bone.active_collider_index = 0
+
     def load_spring_bone1_collider_groups(
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
@@ -2460,6 +2462,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     continue
                 collider_reference = collider_group.colliders[-1]
                 collider_reference.collider_name = collider.name
+            collider_group.active_collider_index = 0
+        spring_bone.active_collider_group_index = 0
 
     def load_spring_bone1_springs(
         self,
@@ -2534,6 +2538,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 drag_force = joint_dict.get("dragForce")
                 if isinstance(drag_force, (int, float)):
                     joint.drag_force = drag_force
+            spring.active_joint_index = 0
 
             collider_group_indices = spring_dict.get("colliderGroups")
             if not isinstance(collider_group_indices, list):
@@ -2553,6 +2558,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                     continue
                 collider_group_reference = spring.collider_groups[-1]
                 collider_group_reference.collider_group_name = collider_group.name
+            spring.active_collider_group_index = 0
+        spring_bone.active_spring_index = 0
 
     def load_spring_bone1(
         self,

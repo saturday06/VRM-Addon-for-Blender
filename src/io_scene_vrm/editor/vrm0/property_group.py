@@ -469,6 +469,9 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
         name="lookAt Vertical Up",
     )
 
+    # for UI
+    active_mesh_annotation_index: IntProperty(min=0)  # type: ignore[valid-type]
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
@@ -482,6 +485,7 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
         look_at_horizontal_outer: Vrm0DegreeMapPropertyGroup  # type: ignore[no-redef]
         look_at_vertical_down: Vrm0DegreeMapPropertyGroup  # type: ignore[no-redef]
         look_at_vertical_up: Vrm0DegreeMapPropertyGroup  # type: ignore[no-redef]
+        active_mesh_annotation_index: int  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
@@ -596,14 +600,8 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     )
 
     # for UI
-    active_bind_index: IntProperty(  # type: ignore[valid-type]
-        name="Active Bind Index",
-        default=0,
-    )
-    active_material_value_index: IntProperty(  # type: ignore[valid-type]
-        name="Active Material Value Index",
-        default=0,
-    )
+    active_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_material_value_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     # アニメーション再生中はframe_change_pre/frame_change_postでしか
     # シェイプキーの値の変更ができないので、変更された値をここに保存しておく
@@ -745,6 +743,8 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
 
+    active_collider_index: IntProperty(min=0)  # type: ignore[valid-type]
+
     # for reference from Vrm0SecondaryAnimationGroupPropertyGroup
     name: StringProperty()  # type: ignore[valid-type]
     uuid: StringProperty()  # type: ignore[valid-type]
@@ -757,6 +757,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
             Vrm0SecondaryAnimationColliderPropertyGroup
         ]
         show_expanded: bool  # type: ignore[no-redef]
+        active_collider_index: int  # type: ignore[no-redef]
         name: str  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
 
@@ -840,6 +841,9 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         name="Collider Groups"
     )
 
+    active_bone_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
+
     def refresh(self, armature: Object) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
@@ -881,6 +885,8 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         show_expanded: bool  # type: ignore[no-redef]
         show_expanded_bones: bool  # type: ignore[no-redef]
         show_expanded_collider_groups: bool  # type: ignore[no-redef]
+        active_bone_index: int  # type: ignore[no-redef]
+        active_collider_group_index: int  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
@@ -1022,10 +1028,7 @@ class Vrm0BlendShapeMasterPropertyGroup(PropertyGroup):
     )
 
     # for UI
-    active_blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
-        name="Active Blend Shape Group Index",
-        default=0,
-    )
+    active_blend_shape_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -1048,14 +1051,15 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
     )
 
     # for UI
-    active_bone_group_index: IntProperty(  # type: ignore[valid-type]
-        name="Active Bone Group Index",
-        default=0,
+    show_expanded_bone_groups: BoolProperty(  # type: ignore[valid-type]
+        name="Spring Bone Groups",
     )
-    active_collider_group_index: IntProperty(  # type: ignore[valid-type]
-        name="Active Collider Group Index",
-        default=0,
+    show_expanded_collider_groups: BoolProperty(  # type: ignore[valid-type]
+        name="Collider Groups",
     )
+
+    active_bone_group_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -1066,6 +1070,8 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm0SecondaryAnimationColliderGroupPropertyGroup
         ]
+        show_expanded_bone_groups: bool  # type: ignore[no-redef]
+        show_expanded_collider_groups: bool  # type: ignore[no-redef]
         active_bone_group_index: int  # type: ignore[no-redef]
         active_collider_group_index: int  # type: ignore[no-redef]
 

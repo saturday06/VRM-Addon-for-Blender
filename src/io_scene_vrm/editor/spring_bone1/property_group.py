@@ -11,6 +11,7 @@ from bpy.props import (
     EnumProperty,
     FloatProperty,
     FloatVectorProperty,
+    IntProperty,
     PointerProperty,
     StringProperty,
 )
@@ -515,6 +516,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
 
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
+    active_collider_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     # for reference
     # オブジェクトをコピーした場合同じuuidをもつオブジェクトが複数ある可能性がある
@@ -530,6 +532,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
             SpringBone1ColliderReferencePropertyGroup
         ]
         show_expanded: bool  # type: ignore[no-redef]
+        active_collider_index: int  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
 
@@ -700,6 +703,9 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
         name="Collider Groups"
     )
 
+    active_joint_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
+
     animation_state: PointerProperty(  # type: ignore[valid-type]
         type=SpringBone1SpringAnimationStatePropertyGroup
     )
@@ -718,6 +724,8 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
         show_expanded: bool  # type: ignore[no-redef]
         show_expanded_bones: bool  # type: ignore[no-redef]
         show_expanded_collider_groups: bool  # type: ignore[no-redef]
+        active_joint_index: int  # type: ignore[no-redef]
+        active_collider_group_index: int  # type: ignore[no-redef]
         animation_state: (  # type: ignore[no-redef]
             SpringBone1SpringAnimationStatePropertyGroup
         )
@@ -755,6 +763,11 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
     show_expanded_springs: BoolProperty(  # type: ignore[valid-type]
         name="Spring Bone Springs"
     )
+
+    active_collider_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_spring_index: IntProperty(min=0)  # type: ignore[valid-type]
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
@@ -771,3 +784,6 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         show_expanded_colliders: bool  # type: ignore[no-redef]
         show_expanded_collider_groups: bool  # type: ignore[no-redef]
         show_expanded_springs: bool  # type: ignore[no-redef]
+        active_collider_index: int  # type: ignore[no-redef]
+        active_collider_group_index: int  # type: ignore[no-redef]
+        active_spring_index: int  # type: ignore[no-redef]

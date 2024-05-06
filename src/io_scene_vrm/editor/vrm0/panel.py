@@ -2,27 +2,45 @@ from collections.abc import Set as AbstractSet
 
 import bpy
 from bpy.app.translations import pgettext
-from bpy.types import Armature, Context, Mesh, Object, Panel, UILayout
+from bpy.types import (
+    Armature,
+    Context,
+    Mesh,
+    Object,
+    Panel,
+    UILayout,
+)
 
 from ...common.vrm0.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 from .. import ops, search
 from ..extension import VrmAddonSceneExtensionPropertyGroup
 from ..migration import migrate
 from ..ops import layout_operator
-from ..panel import VRM_PT_vrm_armature_object_property
+from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm0_armature
 from . import ops as vrm0_ops
 from .property_group import (
+    Vrm0BlendShapeBindPropertyGroup,
+    Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
     Vrm0HumanoidPropertyGroup,
+    Vrm0MaterialValueBindPropertyGroup,
     Vrm0MetaPropertyGroup,
+    Vrm0SecondaryAnimationColliderGroupPropertyGroup,
+    Vrm0SecondaryAnimationGroupPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
 from .ui_list import (
     VRM_UL_vrm0_blend_shape_bind,
     VRM_UL_vrm0_blend_shape_group,
+    VRM_UL_vrm0_first_person_mesh_annotation,
     VRM_UL_vrm0_material_value_bind,
+    VRM_UL_vrm0_secondary_animation_collider_group,
+    VRM_UL_vrm0_secondary_animation_collider_group_collider,
+    VRM_UL_vrm0_secondary_animation_group,
+    VRM_UL_vrm0_secondary_animation_group_bone,
+    VRM_UL_vrm0_secondary_animation_group_collider_group,
 )
 
 
@@ -439,32 +457,32 @@ def draw_vrm0_first_person_layout(
     )
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
-    box = layout.box()
-    box.label(text="Mesh Annotations", icon="RESTRICT_RENDER_OFF")
-    for mesh_annotation_index, mesh_annotation in enumerate(
-        first_person.mesh_annotations
-    ):
-        row = box.row()
-        row.prop_search(
-            mesh_annotation.mesh,
-            "mesh_object_name",
-            context.scene.vrm_addon_extension,
-            "mesh_object_names",
-            icon="OUTLINER_OB_MESH",
-        )
-        row.prop(mesh_annotation, "first_person_flag")
-        remove_mesh_annotation_op = layout_operator(
-            row,
-            vrm0_ops.VRM_OT_remove_vrm0_first_person_mesh_annotation,
-            text="Remove",
-            icon="REMOVE",
-        )
-        remove_mesh_annotation_op.armature_name = armature.name
-        remove_mesh_annotation_op.mesh_annotation_index = mesh_annotation_index
-    add_mesh_annotation_op = layout_operator(
-        box, vrm0_ops.VRM_OT_add_vrm0_first_person_mesh_annotation, icon="ADD"
+    layout.label(text="Mesh Annotations", icon="RESTRICT_RENDER_OFF")
+
+    (
+        mesh_annotation_collection_ops,
+        mesh_annotation_collection_item_ops,
+        mesh_annotation_index,
+        _,
+        _,
+    ) = draw_template_list(
+        layout,
+        VRM_UL_vrm0_first_person_mesh_annotation.bl_idname,
+        first_person,
+        "mesh_annotations",
+        "active_mesh_annotation_index",
+        vrm0_ops.VRM_OT_add_vrm0_first_person_mesh_annotation,
+        vrm0_ops.VRM_OT_remove_vrm0_first_person_mesh_annotation,
+        vrm0_ops.VRM_OT_move_up_vrm0_first_person_mesh_annotation,
+        vrm0_ops.VRM_OT_move_down_vrm0_first_person_mesh_annotation,
     )
-    add_mesh_annotation_op.armature_name = armature.name
+
+    for mesh_annotation_collection_op in mesh_annotation_collection_ops:
+        mesh_annotation_collection_op.armature_name = armature.name
+
+    for mesh_annotation_collection_item_op in mesh_annotation_collection_item_ops:
+        mesh_annotation_collection_item_op.mesh_annotation_index = mesh_annotation_index
+
     layout.separator()
     box = layout.box()
     box.label(text="Look At Horizontal Inner", icon="FULLSCREEN_EXIT")
@@ -562,39 +580,35 @@ def draw_vrm0_blend_shape_master_layout(
         )
     blend_data = context.blend_data
 
-    row = layout.row()
-    row.template_list(
+    (
+        blend_shape_group_collection_ops,
+        blend_shape_group_collection_item_ops,
+        blend_shape_group_index,
+        blend_shape_group,
+        (add_blend_shape_group_op, _, _, _),
+    ) = draw_template_list(
+        layout,
         VRM_UL_vrm0_blend_shape_group.bl_idname,
-        "",
         blend_shape_master,
         "blend_shape_groups",
-        blend_shape_master,
         "active_blend_shape_group_index",
-    )
-    blend_shape_group_index = blend_shape_master.active_blend_shape_group_index
-
-    list_side_column = row.column(align=True)
-    add_blend_shape_group_op = layout_operator(
-        list_side_column,
         vrm0_ops.VRM_OT_add_vrm0_blend_shape_group,
-        icon="ADD",
-        text="",
-    )
-    add_blend_shape_group_op.name = "New"
-    add_blend_shape_group_op.armature_name = armature.name
-    remove_blend_shape_group_op = layout_operator(
-        list_side_column,
         vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group,
-        icon="REMOVE",
-        text="",
+        vrm0_ops.VRM_OT_move_up_vrm0_blend_shape_group,
+        vrm0_ops.VRM_OT_move_down_vrm0_blend_shape_group,
     )
-    remove_blend_shape_group_op.armature_name = armature.name
-    remove_blend_shape_group_op.blend_shape_group_index = blend_shape_group_index
 
-    if 0 <= blend_shape_group_index < len(blend_shape_master.blend_shape_groups):
-        blend_shape_group = blend_shape_master.blend_shape_groups[
+    for blend_shape_group_collection_op in blend_shape_group_collection_ops:
+        blend_shape_group_collection_op.armature_name = armature.name
+
+    for blend_shape_group_collection_item_op in blend_shape_group_collection_item_ops:
+        blend_shape_group_collection_item_op.blend_shape_group_index = (
             blend_shape_group_index
-        ]
+        )
+
+    add_blend_shape_group_op.name = "New"
+
+    if isinstance(blend_shape_group, Vrm0BlendShapeGroupPropertyGroup):
         column = layout.column()
         column.prop(blend_shape_group, "name")
         column.prop(blend_shape_group, "preset_name")
@@ -604,38 +618,33 @@ def draw_vrm0_blend_shape_master_layout(
 
         binds_box = column.box()
         binds_box.label(text="Binds", icon="MESH_DATA")
-        binds_row = binds_box.row()
-        binds_row.template_list(
+
+        (
+            bind_collection_ops,
+            bind_collection_item_ops,
+            bind_index,
+            bind,
+            _,
+        ) = draw_template_list(
+            binds_box,
             VRM_UL_vrm0_blend_shape_bind.bl_idname,
-            "",
             blend_shape_group,
             "binds",
-            blend_shape_group,
             "active_bind_index",
-        )
-
-        bind_index = blend_shape_group.active_bind_index
-        binds_side_column = binds_row.column(align=True)
-        add_blend_shape_bind_op = layout_operator(
-            binds_side_column,
             vrm0_ops.VRM_OT_add_vrm0_blend_shape_bind,
-            icon="ADD",
-            text="",
-        )
-        add_blend_shape_bind_op.armature_name = armature.name
-        add_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
-        remove_blend_shape_bind_op = layout_operator(
-            binds_side_column,
             vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind,
-            icon="REMOVE",
-            text="",
+            vrm0_ops.VRM_OT_move_up_vrm0_blend_shape_bind,
+            vrm0_ops.VRM_OT_move_down_vrm0_blend_shape_bind,
         )
-        remove_blend_shape_bind_op.armature_name = armature.name
-        remove_blend_shape_bind_op.blend_shape_group_index = blend_shape_group_index
-        remove_blend_shape_bind_op.bind_index = bind_index
 
-        if 0 <= bind_index < len(blend_shape_group.binds):
-            bind = blend_shape_group.binds[bind_index]
+        for bind_collection_op in bind_collection_ops:
+            bind_collection_op.armature_name = armature.name
+            bind_collection_op.blend_shape_group_index = blend_shape_group_index
+
+        for bind_collection_item_op in bind_collection_item_ops:
+            bind_collection_item_op.bind_index = bind_index
+
+        if isinstance(bind, Vrm0BlendShapeBindPropertyGroup):
             bind_column = binds_box.column()
             bind_column.prop_search(
                 bind.mesh,
@@ -664,37 +673,39 @@ def draw_vrm0_blend_shape_master_layout(
         column.separator(factor=0.2)
         material_value_binds_box = column.box()
         material_value_binds_box.label(text="Material Values", icon="MATERIAL")
-        material_value_binds_row = material_value_binds_box.row()
-        material_value_binds_row.template_list(
+
+        (
+            material_value_collection_ops,
+            material_value_collection_item_ops,
+            material_value_index,
+            material_value,
+            _,
+        ) = draw_template_list(
+            material_value_binds_box,
             VRM_UL_vrm0_material_value_bind.bl_idname,
-            "",
             blend_shape_group,
             "material_values",
-            blend_shape_group,
             "active_material_value_index",
-        )
-        material_value_index = blend_shape_group.active_material_value_index
-        material_value_binds_side_column = material_value_binds_row.column(align=True)
-        add_material_value_op = layout_operator(
-            material_value_binds_side_column,
             vrm0_ops.VRM_OT_add_vrm0_material_value_bind,
-            icon="ADD",
-            text="",
-        )
-        add_material_value_op.armature_name = armature.name
-        add_material_value_op.blend_shape_group_index = blend_shape_group_index
-        remove_material_value_op = layout_operator(
-            material_value_binds_side_column,
             vrm0_ops.VRM_OT_remove_vrm0_material_value_bind,
-            icon="REMOVE",
-            text="",
+            vrm0_ops.VRM_OT_move_up_vrm0_material_value_bind,
+            vrm0_ops.VRM_OT_move_down_vrm0_material_value_bind,
         )
-        remove_material_value_op.armature_name = armature.name
-        remove_material_value_op.blend_shape_group_index = blend_shape_group_index
-        remove_material_value_op.material_value_index = material_value_index
 
-        if 0 <= material_value_index < len(blend_shape_group.material_values):
-            material_value = blend_shape_group.material_values[material_value_index]
+        for material_value_bind_collection_op in material_value_collection_ops:
+            material_value_bind_collection_op.armature_name = armature.name
+            material_value_bind_collection_op.blend_shape_group_index = (
+                blend_shape_group_index
+            )
+
+        for (
+            material_value_bind_collection_item_op
+        ) in material_value_collection_item_ops:
+            material_value_bind_collection_item_op.material_value_index = (
+                material_value_index
+            )
+
+        if isinstance(material_value, Vrm0MaterialValueBindPropertyGroup):
             material_value_column = material_value_binds_box.column()
             material_value_column.prop_search(
                 material_value, "material", blend_data, "materials"
@@ -839,214 +850,226 @@ def draw_vrm0_secondary_animation_layout(
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
 ) -> None:
     migrate(armature.name, defer=True)
+    draw_vrm0_secondary_animation_bone_groups_layout(
+        armature, layout, secondary_animation
+    )
+    draw_vrm0_secondary_animation_collider_groups_layout(
+        armature, layout, secondary_animation
+    )
+
+
+def draw_vrm0_secondary_animation_bone_groups_layout(
+    armature: Object,
+    layout: UILayout,
+    secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
+) -> None:
     data = armature.data
     if not isinstance(data, Armature):
         return
 
-    bone_groups_box = layout.box()
-    bone_groups_box.label(text="Spring Bone Groups", icon="GROUP_BONE")
-    for bone_group_index, bone_group in enumerate(secondary_animation.bone_groups):
-        row = bone_groups_box.row()
-        row.alignment = "LEFT"
-
-        text = ""
-        if bone_group.bones:
-            text = (
-                "(" + ", ".join(str(bone.bone_name) for bone in bone_group.bones) + ")"
-            )
-
-        if bone_group.center.bone_name:
-            if text:
-                text = " - " + text
-            text = bone_group.center.bone_name + text
-
-        if bone_group.comment:
-            if text:
-                text = " / " + text
-            text = bone_group.comment + text
-
-        if not text:
-            text = "(EMPTY)"
-
-        row.prop(
-            bone_group,
-            "show_expanded",
-            icon="TRIA_DOWN" if bone_group.show_expanded else "TRIA_RIGHT",
-            emboss=False,
-            text=text,
-            translate=False,
-        )
-        if not bone_group.show_expanded:
-            continue
-
-        box = bone_groups_box.box()
-        row = box.row()
-        box.prop(bone_group, "comment", icon="BOOKMARKS")
-        box.prop(bone_group, "stiffiness", icon="RIGID_BODY_CONSTRAINT")
-        box.prop(bone_group, "drag_force", icon="FORCE_DRAG")
-        box.separator()
-        box.prop(bone_group, "gravity_power", icon="OUTLINER_OB_FORCE_FIELD")
-        box.prop(bone_group, "gravity_dir", icon="OUTLINER_OB_FORCE_FIELD")
-        box.separator()
-        box.prop_search(
-            bone_group.center,
-            "bone_name",
-            data,
-            "bones",
-            icon="PIVOT_MEDIAN",
-            text="Center Bone",
-        )
-        box.prop(
-            bone_group,
-            "hit_radius",
-            icon="MOD_PHYSICS",
-        )
-        box.separator()
-        row = box.row()
-        row.alignment = "LEFT"
-        row.prop(
-            bone_group,
-            "show_expanded_bones",
-            icon="TRIA_DOWN" if bone_group.show_expanded_bones else "TRIA_RIGHT",
-            emboss=False,
-        )
-        if bone_group.show_expanded_bones:
-            for bone_index, bone in enumerate(bone_group.bones):
-                bone_row = box.split(align=True, factor=0.7)
-                bone_row.prop_search(bone, "bone_name", data, "bones", text="")
-                remove_bone_op = layout_operator(
-                    bone_row,
-                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_bone,
-                    icon="REMOVE",
-                    text="Remove",
-                )
-                remove_bone_op.armature_name = armature.name
-                remove_bone_op.bone_group_index = bone_group_index
-                remove_bone_op.bone_index = bone_index
-            add_bone_op = layout_operator(
-                box,
-                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_bone,
-                icon="ADD",
-            )
-            add_bone_op.armature_name = armature.name
-            add_bone_op.bone_group_index = bone_group_index
-
-        row = box.row()
-        row.alignment = "LEFT"
-        row.prop(
-            bone_group,
-            "show_expanded_collider_groups",
-            icon="TRIA_DOWN"
-            if bone_group.show_expanded_collider_groups
-            else "TRIA_RIGHT",
-            emboss=False,
-        )
-        if bone_group.show_expanded_collider_groups:
-            for collider_group_index, collider_group in enumerate(
-                bone_group.collider_groups
-            ):
-                collider_group_row = box.split(align=True, factor=0.7)
-                collider_group_row.prop_search(
-                    collider_group,
-                    "value",
-                    secondary_animation,
-                    "collider_groups",
-                    text="",
-                )
-                remove_group_collider_group_op = layout_operator(
-                    collider_group_row,
-                    vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_collider_group,
-                    icon="REMOVE",
-                    text="Remove",
-                )
-                remove_group_collider_group_op.armature_name = armature.name
-                remove_group_collider_group_op.bone_group_index = bone_group_index
-                remove_group_collider_group_op.collider_group_index = (
-                    collider_group_index
-                )
-            add_group_collider_group_op = layout_operator(
-                box,
-                vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_collider_group,
-                icon="ADD",
-            )
-            add_group_collider_group_op.armature_name = armature.name
-            add_group_collider_group_op.bone_group_index = bone_group_index
-
-        remove_bone_group_op = layout_operator(
-            box,
-            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group,
-            icon="REMOVE",
-        )
-        remove_bone_group_op.armature_name = armature.name
-        remove_bone_group_op.bone_group_index = bone_group_index
-    add_bone_group_op = layout_operator(
-        bone_groups_box, vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group, icon="ADD"
+    header_row = layout.row()
+    header_row.alignment = "LEFT"
+    header_row.prop(
+        secondary_animation,
+        "show_expanded_bone_groups",
+        icon="TRIA_DOWN"
+        if secondary_animation.show_expanded_bone_groups
+        else "TRIA_RIGHT",
+        emboss=False,
     )
-    add_bone_group_op.armature_name = armature.name
+    if not secondary_animation.show_expanded_bone_groups:
+        return
 
-    collider_groups_box = layout.box()
-    collider_groups_box.label(text="Collider Groups", icon="SPHERE")
-    for collider_group_index, collider_group in enumerate(
-        secondary_animation.collider_groups
-    ):
-        row = collider_groups_box.row()
-        row.alignment = "LEFT"
-        row.prop(
-            collider_group,
-            "show_expanded",
-            icon="TRIA_DOWN" if collider_group.show_expanded else "TRIA_RIGHT",
-            emboss=False,
-            text=collider_group.name,
-            translate=False,
-        )
-        if not collider_group.show_expanded:
-            continue
+    box = layout.box()
 
-        box = collider_groups_box.box()
-        row = box.row()
-        box.label(text=collider_group.name)
-        box.prop_search(collider_group.node, "bone_name", data, "bones")
+    (
+        bone_group_collection_ops,
+        bone_group_collection_item_ops,
+        bone_group_index,
+        bone_group,
+        _,
+    ) = draw_template_list(
+        box,
+        VRM_UL_vrm0_secondary_animation_group.bl_idname,
+        secondary_animation,
+        "bone_groups",
+        "active_bone_group_index",
+        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group,
+        vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group,
+        vrm0_ops.VRM_OT_move_up_vrm0_secondary_animation_group,
+        vrm0_ops.VRM_OT_move_down_vrm0_secondary_animation_group,
+    )
 
-        box.label(text="Colliders:")
-        for collider_index, collider in enumerate(collider_group.colliders):
-            if not collider.bpy_object:
-                continue
-            collider_row = box.split(align=True, factor=0.5)
-            collider_row.prop(
-                collider.bpy_object, "name", icon="MESH_UVSPHERE", text=""
-            )
-            collider_row.prop(collider.bpy_object, "empty_display_size", text="")
-            remove_collider_op = layout_operator(
-                collider_row,
-                vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider,
-                icon="REMOVE",
-                text="Remove",
-            )
-            remove_collider_op.armature_name = armature.name
-            remove_collider_op.collider_group_index = collider_group_index
-            remove_collider_op.collider_index = collider_index
-        add_collider_op = layout_operator(
-            box,
-            vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group_collider,
-            icon="ADD",
-        )
-        add_collider_op.armature_name = armature.name
-        add_collider_op.collider_group_index = collider_group_index
-        add_collider_op.bone_name = collider_group.node.bone_name
+    for bone_group_collection_op in bone_group_collection_ops:
+        bone_group_collection_op.armature_name = armature.name
 
-        remove_collider_group_op = layout_operator(
-            box,
-            vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group,
-            icon="REMOVE",
-        )
-        remove_collider_group_op.armature_name = armature.name
-        remove_collider_group_op.collider_group_index = collider_group_index
-    add_collider_group_op = layout_operator(
-        collider_groups_box,
+    for bone_group_collection_item_op in bone_group_collection_item_ops:
+        bone_group_collection_item_op.bone_group_index = bone_group_index
+
+    if not isinstance(bone_group, Vrm0SecondaryAnimationGroupPropertyGroup):
+        return
+
+    column = box.column()
+    column.prop(bone_group, "comment", icon="BOOKMARKS")
+    column.prop(bone_group, "stiffiness", icon="RIGID_BODY_CONSTRAINT")
+    column.prop(bone_group, "drag_force", icon="FORCE_DRAG")
+    column.separator()
+    column.prop(bone_group, "gravity_power", icon="OUTLINER_OB_FORCE_FIELD")
+    column.prop(bone_group, "gravity_dir", icon="OUTLINER_OB_FORCE_FIELD")
+    column.separator()
+    column.prop_search(
+        bone_group.center,
+        "bone_name",
+        data,
+        "bones",
+        icon="PIVOT_MEDIAN",
+        text="Center Bone",
+    )
+    column.prop(
+        bone_group,
+        "hit_radius",
+        icon="MOD_PHYSICS",
+    )
+    column.separator()
+
+    column.label(text="Bones:")
+
+    (
+        bone_collection_ops,
+        bone_collection_item_ops,
+        bone_index,
+        _bone,
+        _,
+    ) = draw_template_list(
+        column,
+        VRM_UL_vrm0_secondary_animation_group_bone.bl_idname,
+        bone_group,
+        "bones",
+        "active_bone_index",
+        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_bone,
+        vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_bone,
+        vrm0_ops.VRM_OT_move_up_vrm0_secondary_animation_group_bone,
+        vrm0_ops.VRM_OT_move_down_vrm0_secondary_animation_group_bone,
+    )
+
+    for bone_collection_op in bone_collection_ops:
+        bone_collection_op.armature_name = armature.name
+        bone_collection_op.bone_group_index = bone_group_index
+
+    for bone_collection_item_op in bone_collection_item_ops:
+        bone_collection_item_op.bone_index = bone_index
+
+    column.separator()
+    column.label(text="Collider Groups:")
+
+    (
+        collider_group_collection_ops,
+        collider_group_collection_item_ops,
+        collider_group_index,
+        _collider_group,
+        _,
+    ) = draw_template_list(
+        column,
+        VRM_UL_vrm0_secondary_animation_group_collider_group.bl_idname,
+        bone_group,
+        "collider_groups",
+        "active_collider_group_index",
+        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_group_collider_group,
+        vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_group_collider_group,
+        vrm0_ops.VRM_OT_move_up_vrm0_secondary_animation_group_collider_group,
+        vrm0_ops.VRM_OT_move_down_vrm0_secondary_animation_group_collider_group,
+    )
+
+    for collider_group_collection_op in collider_group_collection_ops:
+        collider_group_collection_op.armature_name = armature.name
+        collider_group_collection_op.bone_group_index = bone_group_index
+
+    for collider_group_collection_item_op in collider_group_collection_item_ops:
+        collider_group_collection_item_op.collider_group_index = collider_group_index
+
+
+def draw_vrm0_secondary_animation_collider_groups_layout(
+    armature: Object,
+    layout: UILayout,
+    secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
+) -> None:
+    data = armature.data
+    if not isinstance(data, Armature):
+        return
+
+    header_row = layout.row()
+    header_row.alignment = "LEFT"
+    header_row.prop(
+        secondary_animation,
+        "show_expanded_collider_groups",
+        icon="TRIA_DOWN"
+        if secondary_animation.show_expanded_collider_groups
+        else "TRIA_RIGHT",
+        emboss=False,
+    )
+    if not secondary_animation.show_expanded_collider_groups:
+        return
+
+    box = layout.box()
+
+    (
+        collider_group_collection_ops,
+        collider_group_collection_item_ops,
+        collider_group_index,
+        collider_group,
+        _,
+    ) = draw_template_list(
+        box,
+        VRM_UL_vrm0_secondary_animation_collider_group.bl_idname,
+        secondary_animation,
+        "collider_groups",
+        "active_collider_group_index",
         vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group,
-        icon="ADD",
+        vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group,
+        vrm0_ops.VRM_OT_move_up_vrm0_secondary_animation_collider_group,
+        vrm0_ops.VRM_OT_move_down_vrm0_secondary_animation_collider_group,
     )
-    add_collider_group_op.armature_name = armature.name
+
+    for collider_group_collection_op in collider_group_collection_ops:
+        collider_group_collection_op.armature_name = armature.name
+
+    for collider_group_collection_item_op in collider_group_collection_item_ops:
+        collider_group_collection_item_op.collider_group_index = collider_group_index
+
+    if not isinstance(collider_group, Vrm0SecondaryAnimationColliderGroupPropertyGroup):
+        return
+
+    column = box.column()
+    column.label(text=collider_group.name)
+    column.prop_search(collider_group.node, "bone_name", data, "bones")
+    column.label(text="Colliders:")
+
+    (
+        collider_collection_ops,
+        collider_collection_item_ops,
+        collider_index,
+        _,
+        _,
+    ) = draw_template_list(
+        column,
+        VRM_UL_vrm0_secondary_animation_collider_group_collider.bl_idname,
+        collider_group,
+        "colliders",
+        "active_collider_index",
+        vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group_collider,
+        vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider,
+        vrm0_ops.VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider,
+        vrm0_ops.VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider,
+    )
+
+    for collider_collection_op in collider_collection_ops:
+        collider_collection_op.armature_name = armature.name
+        collider_collection_op.collider_group_index = collider_group_index
+
+    for collider_collection_item_op in collider_collection_item_ops:
+        collider_collection_item_op.armature_name = armature.name
+        collider_collection_item_op.collider_group_index = collider_group_index
+        collider_collection_item_op.collider_index = collider_index
 
 
 class VRM_PT_vrm0_secondary_animation_armature_object_property(Panel):

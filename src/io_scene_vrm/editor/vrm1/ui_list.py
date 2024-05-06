@@ -1,15 +1,141 @@
 from bpy.types import Context, Mesh, UILayout, UIList
 
 from ...common.logging import get_logger
+from ..property_group import StringPropertyGroup
 from .property_group import (
     Vrm1ExpressionsPresetPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
+    Vrm1FirstPersonPropertyGroup,
     Vrm1MaterialColorBindPropertyGroup,
+    Vrm1MeshAnnotationPropertyGroup,
+    Vrm1MetaPropertyGroup,
     Vrm1MorphTargetBindPropertyGroup,
     Vrm1TextureTransformBindPropertyGroup,
 )
 
 logger = get_logger(__name__)
+
+
+class VRM_UL_vrm1_meta_author(UIList):
+    bl_idname = "VRM_UL_vrm1_meta_author"
+
+    def draw_item(
+        self,
+        _context: Context,
+        layout: UILayout,
+        meta: object,
+        author: object,
+        _icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
+        if not isinstance(meta, Vrm1MetaPropertyGroup):
+            return
+        if not isinstance(author, StringPropertyGroup):
+            return
+
+        icon = "USER"
+
+        if self.layout_type == "GRID":
+            layout.alignment = "CENTER"
+            layout.label(text="", translate=False, icon=icon)
+            return
+
+        if self.layout_type not in {"DEFAULT", "COMPACT"}:
+            return
+
+        if index == meta.active_author_index:
+            layout.prop(author, "value", icon=icon, text="", translate=False)
+        else:
+            layout.label(text=author.value, icon=icon, translate=False)
+
+
+class VRM_UL_vrm1_meta_reference(UIList):
+    bl_idname = "VRM_UL_vrm1_meta_reference"
+
+    def draw_item(
+        self,
+        _context: Context,
+        layout: UILayout,
+        meta: object,
+        reference: object,
+        _icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
+        if not isinstance(meta, Vrm1MetaPropertyGroup):
+            return
+        if not isinstance(reference, StringPropertyGroup):
+            return
+
+        icon = "URL"
+
+        if self.layout_type == "GRID":
+            layout.alignment = "CENTER"
+            layout.label(text="", translate=False, icon=icon)
+            return
+
+        if self.layout_type not in {"DEFAULT", "COMPACT"}:
+            return
+
+        if index == meta.active_reference_index:
+            layout.prop(reference, "value", icon=icon, text="", translate=False)
+        else:
+            layout.label(text=reference.value, icon=icon, translate=False)
+
+
+class VRM_UL_vrm1_first_person_mesh_annotation(UIList):
+    bl_idname = "VRM_UL_vrm1_first_person_mesh_annotation"
+
+    def draw_item(
+        self,
+        context: Context,
+        layout: UILayout,
+        first_person: object,
+        mesh_annotation: object,
+        _icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
+        if not isinstance(first_person, Vrm1FirstPersonPropertyGroup):
+            return
+        if not isinstance(mesh_annotation, Vrm1MeshAnnotationPropertyGroup):
+            return
+
+        icon = "OUTLINER_OB_MESH"
+
+        if self.layout_type == "GRID":
+            layout.alignment = "CENTER"
+            layout.label(text="", translate=False, icon=icon)
+            return
+
+        if self.layout_type not in {"DEFAULT", "COMPACT"}:
+            return
+
+        row = layout.split(factor=0.6, align=True)
+        if index == first_person.active_mesh_annotation_index:
+            row.prop_search(
+                mesh_annotation.node,
+                "mesh_object_name",
+                context.scene.vrm_addon_extension,
+                "mesh_object_names",
+                text="",
+                translate=False,
+                icon=icon,
+            )
+        else:
+            row.label(
+                text=mesh_annotation.node.mesh_object_name,
+                translate=False,
+                icon=icon,
+            )
+        row.prop(mesh_annotation, "type", text="", translate=False)
 
 
 class VRM_UL_vrm1_expression(UIList):
@@ -19,7 +145,7 @@ class VRM_UL_vrm1_expression(UIList):
         self,
         _context: Context,
         layout: UILayout,
-        data: object,
+        expressions: object,
         _item: object,
         _icon: int,
         _active_data: object,
@@ -27,7 +153,6 @@ class VRM_UL_vrm1_expression(UIList):
         index: int,
         _flt_flag: int,
     ) -> None:
-        expressions = data
         if not isinstance(expressions, Vrm1ExpressionsPropertyGroup):
             return
         preset_expression_items = list(
@@ -69,7 +194,7 @@ class VRM_UL_vrm1_morph_target_bind(UIList):
         context: Context,
         layout: UILayout,
         _data: object,
-        item: object,
+        morph_target_bind: object,
         icon: int,
         _active_data: object,
         _active_prop_name: str,
@@ -77,7 +202,6 @@ class VRM_UL_vrm1_morph_target_bind(UIList):
         _flt_flag: int,
     ) -> None:
         blend_data = context.blend_data
-        morph_target_bind = item
         if not isinstance(morph_target_bind, Vrm1MorphTargetBindPropertyGroup):
             return
 
@@ -110,14 +234,13 @@ class VRM_UL_vrm1_material_color_bind(UIList):
         _context: Context,
         layout: UILayout,
         _data: object,
-        item: object,
+        material_color_bind: object,
         icon: int,
         _active_data: object,
         _active_prop_name: str,
         _index: int,
         _flt_flag: int,
     ) -> None:
-        material_color_bind = item
         if not isinstance(material_color_bind, Vrm1MaterialColorBindPropertyGroup):
             return
 
@@ -153,14 +276,13 @@ class VRM_UL_vrm1_texture_transform_bind(UIList):
         _context: Context,
         layout: UILayout,
         _data: object,
-        item: object,
+        texture_transform_bind: object,
         icon: int,
         _active_data: object,
         _active_prop_name: str,
         _index: int,
         _flt_flag: int,
     ) -> None:
-        texture_transform_bind = item
         if not isinstance(
             texture_transform_bind, Vrm1TextureTransformBindPropertyGroup
         ):

@@ -946,12 +946,16 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
         type=Vrm1MeshAnnotationPropertyGroup,
     )
 
+    # for UI
+    active_mesh_annotation_index: IntProperty(min=0)  # type: ignore[valid-type]
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         mesh_annotations: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1MeshAnnotationPropertyGroup
         ]
+        active_mesh_annotation_index: int  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
@@ -1472,6 +1476,10 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
         name="Other License URL"
     )
 
+    # for UI
+    active_author_index: IntProperty(min=0)  # type: ignore[valid-type]
+    active_reference_index: IntProperty(min=0)  # type: ignore[valid-type]
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
@@ -1497,6 +1505,8 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
         allow_redistribution: bool  # type: ignore[no-redef]
         modification: str  # type: ignore[no-redef]
         other_license_url: str  # type: ignore[no-redef]
+        active_author_index: int  # type: ignore[no-redef]
+        active_reference_index: int  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.schema.json

@@ -10,7 +10,7 @@ from .. import ops, search
 from ..extension import VrmAddonSceneExtensionPropertyGroup
 from ..migration import migrate
 from ..ops import layout_operator
-from ..panel import VRM_PT_vrm_armature_object_property
+from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
 from . import ops as vrm1_ops
 from .property_group import (
@@ -28,7 +28,10 @@ from .property_group import (
 )
 from .ui_list import (
     VRM_UL_vrm1_expression,
+    VRM_UL_vrm1_first_person_mesh_annotation,
     VRM_UL_vrm1_material_color_bind,
+    VRM_UL_vrm1_meta_author,
+    VRM_UL_vrm1_meta_reference,
     VRM_UL_vrm1_morph_target_bind,
     VRM_UL_vrm1_texture_transform_bind,
 )
@@ -364,35 +367,32 @@ def draw_vrm1_first_person_layout(
         VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
             context.scene.name
         )
-    box = layout.box()
-    column = box.column()
+    column = layout.column()
     column.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
-    for mesh_annotation_index, mesh_annotation in enumerate(
-        first_person.mesh_annotations
-    ):
-        row = column.row(align=True)
-        row.prop_search(
-            mesh_annotation.node,
-            "mesh_object_name",
-            context.scene.vrm_addon_extension,
-            "mesh_object_names",
-            text="",
-            translate=False,
-            icon="OUTLINER_OB_MESH",
-        )
-        row.prop(mesh_annotation, "type", text="", translate=False)
-        remove_mesh_annotation_op = layout_operator(
-            row,
-            vrm1_ops.VRM_OT_remove_vrm1_first_person_mesh_annotation,
-            text="Remove",
-            icon="REMOVE",
-        )
-        remove_mesh_annotation_op.armature_name = armature.name
-        remove_mesh_annotation_op.mesh_annotation_index = mesh_annotation_index
-    add_mesh_annotation_op = layout_operator(
-        column, vrm1_ops.VRM_OT_add_vrm1_first_person_mesh_annotation
+
+    (
+        mesh_annotation_collection_ops,
+        mesh_annotation_collection_item_ops,
+        mesh_annotation_index,
+        _,
+        _,
+    ) = draw_template_list(
+        column,
+        VRM_UL_vrm1_first_person_mesh_annotation.bl_idname,
+        first_person,
+        "mesh_annotations",
+        "active_mesh_annotation_index",
+        vrm1_ops.VRM_OT_add_vrm1_first_person_mesh_annotation,
+        vrm1_ops.VRM_OT_remove_vrm1_first_person_mesh_annotation,
+        vrm1_ops.VRM_OT_move_up_vrm1_first_person_mesh_annotation,
+        vrm1_ops.VRM_OT_move_down_vrm1_first_person_mesh_annotation,
     )
-    add_mesh_annotation_op.armature_name = armature.name
+
+    for mesh_annotation_collection_op in mesh_annotation_collection_ops:
+        mesh_annotation_collection_op.armature_name = armature.name
+
+    for mesh_annotation_collection_item_op in mesh_annotation_collection_item_ops:
+        mesh_annotation_collection_item_op.mesh_annotation_index = mesh_annotation_index
 
 
 class VRM_PT_vrm1_first_person_armature_object_property(Panel):
@@ -652,70 +652,41 @@ def draw_vrm1_expressions_layout(
             context.scene.name
         )
 
-    row = layout.row()
-    row.template_list(
+    preset_expressions = list(expressions.preset.name_to_expression_dict().values())
+
+    (
+        expression_collection_ops,
+        expression_collection_item_ops,
+        expression_ui_list_element_index,
+        _,
+        _,
+    ) = draw_template_list(
+        layout,
         VRM_UL_vrm1_expression.bl_idname,
-        "",
         expressions,
         "expression_ui_list_elements",
-        expressions,
         "active_expression_ui_list_element_index",
-    )
-    active_index = expressions.active_expression_ui_list_element_index
-
-    list_side_column = row.column(align=True)
-
-    add_custom_expression_op = layout_operator(
-        list_side_column,
         vrm1_ops.VRM_OT_add_vrm1_expressions_custom_expression,
-        icon="ADD",
-        text="",
+        vrm1_ops.VRM_OT_remove_vrm1_expressions_custom_expression,
+        vrm1_ops.VRM_OT_move_up_vrm1_expressions_custom_expression,
+        vrm1_ops.VRM_OT_move_down_vrm1_expressions_custom_expression,
+        can_remove=lambda active_collection_index: (
+            active_collection_index >= len(preset_expressions)
+        ),
+        can_move=lambda active_collection_index: (
+            len(expressions.custom) >= 2
+            and active_collection_index >= len(preset_expressions)
+        ),
     )
-    add_custom_expression_op.armature_name = armature.name
-    add_custom_expression_op.custom_expression_name = "custom"
 
-    preset_expressions = list(expressions.preset.name_to_expression_dict().values())
-    custom_index = active_index - len(preset_expressions)
+    for expression_collection_op in expression_collection_ops:
+        expression_collection_op.armature_name = armature.name
+        expression_collection_op.custom_expression_name = "custom"
 
-    if 0 <= active_index < len(preset_expressions):
-        expression = preset_expressions[active_index]
-        custom = False
-    elif 0 <= custom_index < len(expressions.custom):
-        custom = True
-        expression = expressions.custom[custom_index]
-        remove_custom_expression_op = layout_operator(
-            list_side_column,
-            vrm1_ops.VRM_OT_remove_vrm1_expressions_custom_expression,
-            icon="REMOVE",
-            text="",
-        )
-        remove_custom_expression_op.armature_name = armature.name
-        remove_custom_expression_op.custom_expression_name = expression.custom_name
+    custom_index = expression_ui_list_element_index - len(preset_expressions)
 
-        list_side_column.separator()
-        move_up_custom_expression_op = layout_operator(
-            list_side_column,
-            vrm1_ops.VRM_OT_move_up_vrm1_expressions_custom_expression,
-            icon="TRIA_UP",
-            text="",
-        )
-        move_up_custom_expression_op.armature_name = armature.name
-        move_up_custom_expression_op.custom_expression_name = expression.custom_name
-
-        move_down_custom_expression_op = layout_operator(
-            list_side_column,
-            vrm1_ops.VRM_OT_move_down_vrm1_expressions_custom_expression,
-            icon="TRIA_DOWN",
-            text="",
-        )
-        move_down_custom_expression_op.armature_name = armature.name
-        move_down_custom_expression_op.custom_expression_name = expression.custom_name
-    else:
-        return
-
-    if custom:
-        layout.prop(expression, "custom_name")
-    else:
+    if 0 <= expression_ui_list_element_index < len(preset_expressions):
+        expression = preset_expressions[expression_ui_list_element_index]
         preset_icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(
             expression.name
         )
@@ -723,6 +694,18 @@ def draw_vrm1_expressions_layout(
             logger.error(f"Unknown preset expression: {expression.name}")
             preset_icon = "SHAPEKEY_DATA"
         layout.label(text=expression.name, translate=False, icon=preset_icon)
+    elif 0 <= custom_index < len(expressions.custom):
+        expression = expressions.custom[custom_index]
+
+        for expression_collection_item_op in expression_collection_item_ops:
+            expression_collection_item_op.custom_expression_name = (
+                expression.custom_name
+            )
+
+        layout.prop(expression, "custom_name")
+    else:
+        return
+
     column = layout.column()
     column.prop(expression, "preview", icon="PLAY", text="Preview")
     column.prop(expression, "is_binary", icon="IPO_CONSTANT")
@@ -733,213 +716,116 @@ def draw_vrm1_expressions_layout(
 
     morph_target_binds_box = column.box()
     morph_target_binds_box.label(text="Morph Target Binds", icon="MESH_DATA")
-    morph_target_binds_row = morph_target_binds_box.row()
-    morph_target_binds_row.template_list(
+
+    (
+        morph_target_bind_collection_ops,
+        morph_target_bind_collection_item_ops,
+        morph_target_bind_index,
+        morph_target_bind,
+        _,
+    ) = draw_template_list(
+        morph_target_binds_box,
         VRM_UL_vrm1_morph_target_bind.bl_idname,
-        "",
         expression,
         "morph_target_binds",
-        expression,
         "active_morph_target_bind_index",
-    )
-
-    active_morph_target_bind_index = expression.active_morph_target_bind_index
-    morph_target_binds_side_column = morph_target_binds_row.column(align=True)
-
-    add_morph_target_bind_op = layout_operator(
-        morph_target_binds_side_column,
         vrm1_ops.VRM_OT_add_vrm1_expression_morph_target_bind,
-        icon="ADD",
-        text="",
+        vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind,
+        vrm1_ops.VRM_OT_move_up_vrm1_expression_morph_target_bind,
+        vrm1_ops.VRM_OT_move_down_vrm1_expression_morph_target_bind,
     )
-    add_morph_target_bind_op.armature_name = armature.name
-    add_morph_target_bind_op.expression_name = expression.name
 
-    if expression.morph_target_binds:
-        remove_morph_target_bind_op = layout_operator(
-            morph_target_binds_side_column,
-            vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind,
-            icon="REMOVE",
-            text="",
-        )
-        remove_morph_target_bind_op.armature_name = armature.name
-        remove_morph_target_bind_op.expression_name = expression.name
-        remove_morph_target_bind_op.bind_index = active_morph_target_bind_index
+    for morph_target_bind_collection_op in morph_target_bind_collection_ops:
+        morph_target_bind_collection_op.armature_name = armature.name
+        morph_target_bind_collection_op.expression_name = expression.name
 
-        morph_target_binds_side_column.separator()
+    for morph_target_bind_collection_item_op in morph_target_bind_collection_item_ops:
+        morph_target_bind_collection_item_op.bind_index = morph_target_bind_index
 
-        move_up_morph_target_bind_op = layout_operator(
-            morph_target_binds_side_column,
-            vrm1_ops.VRM_OT_move_up_vrm1_expression_morph_target_bind,
-            icon="TRIA_UP",
-            text="",
-        )
-        move_up_morph_target_bind_op.armature_name = armature.name
-        move_up_morph_target_bind_op.expression_name = expression.name
-        move_up_morph_target_bind_op.bind_index = (
-            expression.active_morph_target_bind_index
-        )
-
-        move_down_morph_target_bind_op = layout_operator(
-            morph_target_binds_side_column,
-            vrm1_ops.VRM_OT_move_down_vrm1_expression_morph_target_bind,
-            icon="TRIA_DOWN",
-            text="",
-        )
-        move_down_morph_target_bind_op.armature_name = armature.name
-        move_down_morph_target_bind_op.expression_name = expression.name
-        move_down_morph_target_bind_op.bind_index = (
-            expression.active_morph_target_bind_index
-        )
-
-    if 0 <= active_morph_target_bind_index < len(expression.morph_target_binds):
+    if isinstance(morph_target_bind, Vrm1MorphTargetBindPropertyGroup):
         draw_vrm1_expressions_morph_target_bind_layout(
             context,
             morph_target_binds_box,
-            expression.morph_target_binds[active_morph_target_bind_index],
+            morph_target_bind,
         )
 
     column.separator(factor=0.2)
 
     material_color_binds_box = column.box()
     material_color_binds_box.label(text="Material Color Binds", icon="MATERIAL")
-    material_color_binds_row = material_color_binds_box.row()
-    material_color_binds_row.template_list(
+
+    (
+        material_color_bind_collection_ops,
+        material_color_bind_collection_item_ops,
+        material_color_bind_index,
+        material_color_bind,
+        _,
+    ) = draw_template_list(
+        material_color_binds_box,
         VRM_UL_vrm1_material_color_bind.bl_idname,
-        "",
         expression,
         "material_color_binds",
-        expression,
         "active_material_color_bind_index",
-    )
-    active_material_color_bind_index = expression.active_material_color_bind_index
-    material_color_binds_side_column = material_color_binds_row.column(align=True)
-
-    add_material_color_bind_op = layout_operator(
-        material_color_binds_side_column,
         vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
-        icon="ADD",
-        text="",
+        vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
+        vrm1_ops.VRM_OT_move_up_vrm1_expression_material_color_bind,
+        vrm1_ops.VRM_OT_move_down_vrm1_expression_material_color_bind,
     )
-    add_material_color_bind_op.armature_name = armature.name
-    add_material_color_bind_op.expression_name = expression.name
 
-    if expression.material_color_binds:
-        remove_material_color_bind_op = layout_operator(
-            material_color_binds_side_column,
-            vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
-            icon="REMOVE",
-            text="",
-        )
-        remove_material_color_bind_op.armature_name = armature.name
-        remove_material_color_bind_op.expression_name = expression.name
-        remove_material_color_bind_op.bind_index = active_material_color_bind_index
+    for material_color_bind_collection_op in material_color_bind_collection_ops:
+        material_color_bind_collection_op.armature_name = armature.name
+        material_color_bind_collection_op.expression_name = expression.name
 
-        material_color_binds_side_column.separator()
+    for (
+        material_color_bind_collection_item_op
+    ) in material_color_bind_collection_item_ops:
+        material_color_bind_collection_item_op.bind_index = material_color_bind_index
 
-        move_up_material_color_bind_op = layout_operator(
-            material_color_binds_side_column,
-            vrm1_ops.VRM_OT_move_up_vrm1_expression_material_color_bind,
-            icon="TRIA_UP",
-            text="",
-        )
-        move_up_material_color_bind_op.armature_name = armature.name
-        move_up_material_color_bind_op.expression_name = expression.name
-        move_up_material_color_bind_op.bind_index = (
-            expression.active_material_color_bind_index
-        )
-
-        move_down_material_color_bind_op = layout_operator(
-            material_color_binds_side_column,
-            vrm1_ops.VRM_OT_move_down_vrm1_expression_material_color_bind,
-            icon="TRIA_DOWN",
-            text="",
-        )
-        move_down_material_color_bind_op.armature_name = armature.name
-        move_down_material_color_bind_op.expression_name = expression.name
-        move_down_material_color_bind_op.bind_index = (
-            expression.active_material_color_bind_index
-        )
-
-    if 0 <= active_material_color_bind_index < len(expression.material_color_binds):
+    if isinstance(material_color_bind, Vrm1MaterialColorBindPropertyGroup):
         draw_vrm1_expressions_material_color_bind_layout(
             context,
             material_color_binds_box,
-            expression.material_color_binds[active_material_color_bind_index],
+            material_color_bind,
         )
     column.separator(factor=0.2)
 
     texture_transform_binds_box = column.box()
     texture_transform_binds_box.label(text="Texture Transform Binds", icon="MATERIAL")
-    texture_transform_binds_row = texture_transform_binds_box.row()
-    texture_transform_binds_row.template_list(
+
+    (
+        texture_transform_bind_collection_ops,
+        texture_transform_bind_collection_item_ops,
+        texture_transform_bind_index,
+        texture_transform_bind,
+        _,
+    ) = draw_template_list(
+        texture_transform_binds_box,
         VRM_UL_vrm1_texture_transform_bind.bl_idname,
-        "",
         expression,
         "texture_transform_binds",
-        expression,
         "active_texture_transform_bind_index",
-    )
-    active_texture_transform_bind_index = expression.active_texture_transform_bind_index
-    texture_transform_binds_side_column = texture_transform_binds_row.column(align=True)
-
-    add_texture_transform_bind_op = layout_operator(
-        texture_transform_binds_side_column,
         vrm1_ops.VRM_OT_add_vrm1_expression_texture_transform_bind,
-        icon="ADD",
-        text="",
+        vrm1_ops.VRM_OT_remove_vrm1_expression_texture_transform_bind,
+        vrm1_ops.VRM_OT_move_up_vrm1_expression_texture_transform_bind,
+        vrm1_ops.VRM_OT_move_down_vrm1_expression_texture_transform_bind,
     )
-    add_texture_transform_bind_op.armature_name = armature.name
-    add_texture_transform_bind_op.expression_name = expression.name
 
-    if expression.texture_transform_binds:
-        remove_texture_transform_bind_op = layout_operator(
-            texture_transform_binds_side_column,
-            vrm1_ops.VRM_OT_remove_vrm1_expression_texture_transform_bind,
-            icon="REMOVE",
-            text="",
-        )
-        remove_texture_transform_bind_op.armature_name = armature.name
-        remove_texture_transform_bind_op.expression_name = expression.name
-        remove_texture_transform_bind_op.bind_index = (
-            active_texture_transform_bind_index
+    for texture_transform_bind_collection_op in texture_transform_bind_collection_ops:
+        texture_transform_bind_collection_op.armature_name = armature.name
+        texture_transform_bind_collection_op.expression_name = expression.name
+
+    for (
+        texture_transform_bind_collection_item_op
+    ) in texture_transform_bind_collection_item_ops:
+        texture_transform_bind_collection_item_op.bind_index = (
+            texture_transform_bind_index
         )
 
-        texture_transform_binds_side_column.separator()
-
-        move_up_texture_transform_bind_op = layout_operator(
-            texture_transform_binds_side_column,
-            vrm1_ops.VRM_OT_move_up_vrm1_expression_texture_transform_bind,
-            icon="TRIA_UP",
-            text="",
-        )
-        move_up_texture_transform_bind_op.armature_name = armature.name
-        move_up_texture_transform_bind_op.expression_name = expression.name
-        move_up_texture_transform_bind_op.bind_index = (
-            expression.active_texture_transform_bind_index
-        )
-
-        move_down_texture_transform_bind_op = layout_operator(
-            texture_transform_binds_side_column,
-            vrm1_ops.VRM_OT_move_down_vrm1_expression_texture_transform_bind,
-            icon="TRIA_DOWN",
-            text="",
-        )
-        move_down_texture_transform_bind_op.armature_name = armature.name
-        move_down_texture_transform_bind_op.expression_name = expression.name
-        move_down_texture_transform_bind_op.bind_index = (
-            expression.active_texture_transform_bind_index
-        )
-
-    if (
-        0
-        <= active_texture_transform_bind_index
-        < len(expression.texture_transform_binds)
-    ):
+    if isinstance(texture_transform_bind, Vrm1TextureTransformBindPropertyGroup):
         draw_vrm1_expressions_texture_transform_bind_layout(
             context,
             texture_transform_binds_box,
-            expression.texture_transform_binds[active_texture_transform_bind_index],
+            texture_transform_bind,
         )
 
 
@@ -1023,51 +909,65 @@ def draw_vrm1_meta_layout(
     layout.prop(meta, "vrm_name", icon="FILE_BLEND")
     layout.prop(meta, "version", icon="LINENUMBERS_ON")
 
-    authors_box = layout.box()
-    authors_column = authors_box.column()
+    authors_column = layout.column()
     authors_column.label(text="Authors:")
-    if meta.authors:
-        for author_index, author in enumerate(meta.authors):
-            author_row = authors_column.split(align=True, factor=0.7)
-            author_row.prop(author, "value", text="", translate=False, icon="USER")
-            remove_author_op = layout_operator(
-                author_row,
-                vrm1_ops.VRM_OT_remove_vrm1_meta_author,
-                text="Remove",
-                icon="REMOVE",
-            )
-            remove_author_op.armature_name = armature.name
-            remove_author_op.author_index = author_index
 
-    add_author_op = layout_operator(
-        authors_column, vrm1_ops.VRM_OT_add_vrm1_meta_author
+    (
+        author_collection_ops,
+        author_collection_item_ops,
+        author_index,
+        _,
+        _,
+    ) = draw_template_list(
+        authors_column,
+        VRM_UL_vrm1_meta_author.bl_idname,
+        meta,
+        "authors",
+        "active_author_index",
+        vrm1_ops.VRM_OT_add_vrm1_meta_author,
+        vrm1_ops.VRM_OT_remove_vrm1_meta_author,
+        vrm1_ops.VRM_OT_move_up_vrm1_meta_author,
+        vrm1_ops.VRM_OT_move_down_vrm1_meta_author,
+        can_remove=lambda _: len(meta.authors) >= 2,
+        compact=True,
     )
-    add_author_op.armature_name = armature.name
+
+    for author_collection_op in author_collection_ops:
+        author_collection_op.armature_name = armature.name
+
+    for author_collection_item_op in author_collection_item_ops:
+        author_collection_item_op.author_index = author_index
 
     layout.prop(meta, "copyright_information")
     layout.prop(meta, "contact_information")
 
-    references_box = layout.box()
-    references_column = references_box.column()
+    references_column = layout.column()
     references_column.label(text="References:")
-    if meta.references:
-        for reference_index, reference in enumerate(meta.references):
-            reference_row = references_column.split(align=True, factor=0.7)
-            reference_row.prop(
-                reference, "value", text="", translate=False, icon="USER"
-            )
-            remove_reference_op = layout_operator(
-                reference_row,
-                vrm1_ops.VRM_OT_remove_vrm1_meta_reference,
-                text="Remove",
-                icon="REMOVE",
-            )
-            remove_reference_op.armature_name = armature.name
-            remove_reference_op.reference_index = reference_index
-    add_reference_op = layout_operator(
-        references_column, vrm1_ops.VRM_OT_add_vrm1_meta_reference
+
+    (
+        reference_collection_ops,
+        reference_collection_item_ops,
+        reference_index,
+        _,
+        _,
+    ) = draw_template_list(
+        references_column,
+        VRM_UL_vrm1_meta_reference.bl_idname,
+        meta,
+        "references",
+        "active_reference_index",
+        vrm1_ops.VRM_OT_add_vrm1_meta_reference,
+        vrm1_ops.VRM_OT_remove_vrm1_meta_reference,
+        vrm1_ops.VRM_OT_move_up_vrm1_meta_reference,
+        vrm1_ops.VRM_OT_move_down_vrm1_meta_reference,
+        compact=True,
     )
-    add_reference_op.armature_name = armature.name
+
+    for reference_collection_op in reference_collection_ops:
+        reference_collection_op.armature_name = armature.name
+
+    for reference_collection_item_op in reference_collection_item_ops:
+        reference_collection_item_op.reference_index = reference_index
 
     layout.prop(meta, "third_party_licenses")
     # layout.prop(meta, "license_url", icon="URL")

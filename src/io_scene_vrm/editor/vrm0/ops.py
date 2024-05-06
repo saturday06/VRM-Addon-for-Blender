@@ -27,7 +27,11 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        armature_data.vrm_addon_extension.vrm0.first_person.mesh_annotations.add()
+        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        first_person.mesh_annotations.add()
+        first_person.active_mesh_annotation_index = (
+            len(first_person.mesh_annotations) - 1
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -57,12 +61,92 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        mesh_annotations = (
-            armature_data.vrm_addon_extension.vrm0.first_person.mesh_annotations
-        )
-        if len(mesh_annotations) <= self.mesh_annotation_index:
+        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
-        mesh_annotations.remove(self.mesh_annotation_index)
+        first_person.mesh_annotations.remove(self.mesh_annotation_index)
+        first_person.active_mesh_annotation_index = min(
+            first_person.active_mesh_annotation_index,
+            max(0, len(first_person.mesh_annotations) - 1),
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        mesh_annotation_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm0_first_person_mesh_annotation(Operator):
+    bl_idname = "vrm.move_up_vrm0_first_person_mesh_annotation"
+    bl_label = "Move Up Mesh Annotation"
+    bl_description = "Move Up VRM 0.x First Person Mesh Annotation"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
+            return {"CANCELLED"}
+        if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
+            return {"CANCELLED"}
+        new_index = (first_person.active_mesh_annotation_index - 1) % len(
+            first_person.mesh_annotations
+        )
+        first_person.mesh_annotations.move(self.mesh_annotation_index, new_index)
+        first_person.active_mesh_annotation_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        mesh_annotation_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_first_person_mesh_annotation(Operator):
+    bl_idname = "vrm.move_down_vrm0_first_person_mesh_annotation"
+    bl_label = "Move Down Mesh Annotation"
+    bl_description = "Move Down VRM 0.x First Person Mesh Annotation"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
+            return {"CANCELLED"}
+        new_index = (first_person.active_mesh_annotation_index + 1) % len(
+            first_person.mesh_annotations
+        )
+        first_person.mesh_annotations.move(self.mesh_annotation_index, new_index)
+        first_person.active_mesh_annotation_index = new_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -150,6 +234,102 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
             blend_shape_group.active_material_value_index,
             max(0, len(blend_shape_group.material_values) - 1),
         )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        material_value_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm0_material_value_bind(Operator):
+    bl_idname = "vrm.move_up_vrm0_material_value_bind"
+    bl_label = "Move Up Material Value Bind"
+    bl_description = "Move Up VRM 0.x Blend Shape Material Value Bind"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    material_value_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        blend_shape_groups = (
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+        )
+        if len(blend_shape_groups) <= self.blend_shape_group_index:
+            return {"CANCELLED"}
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        if len(blend_shape_group.material_values) <= self.material_value_index:
+            return {"CANCELLED"}
+        new_index = (self.material_value_index - 1) % len(
+            blend_shape_group.material_values
+        )
+        blend_shape_group.material_values.move(self.material_value_index, new_index)
+        blend_shape_group.active_material_value_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        material_value_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_material_value_bind(Operator):
+    bl_idname = "vrm.move_down_vrm0_material_value_bind"
+    bl_label = "Move Down Material Value Bind"
+    bl_description = "Move Down VRM 0.x Blend Shape Material Value Bind"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    material_value_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        blend_shape_groups = (
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+        )
+        if len(blend_shape_groups) <= self.blend_shape_group_index:
+            return {"CANCELLED"}
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        if len(blend_shape_group.material_values) <= self.material_value_index:
+            return {"CANCELLED"}
+        new_index = (self.material_value_index + 1) % len(
+            blend_shape_group.material_values
+        )
+        blend_shape_group.material_values.move(self.material_value_index, new_index)
+        blend_shape_group.active_material_value_index = new_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -346,6 +526,98 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
         bind_index: int  # type: ignore[no-redef]
 
 
+class VRM_OT_move_up_vrm0_blend_shape_bind(Operator):
+    bl_idname = "vrm.move_up_vrm0_blend_shape_bind"
+    bl_label = "Move Up Blend Shape Bind"
+    bl_description = "Move Up VRM 0.x Blend Shape Bind"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    bind_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        blend_shape_groups = (
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+        )
+        if len(blend_shape_groups) <= self.blend_shape_group_index:
+            return {"CANCELLED"}
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        if len(blend_shape_group.binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_index = (self.bind_index - 1) % len(blend_shape_group.binds)
+        blend_shape_group.binds.move(self.bind_index, new_index)
+        blend_shape_group.active_bind_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
+    bl_idname = "vrm.move_down_vrm0_blend_shape_bind"
+    bl_label = "Move Down Blend Shape Bind"
+    bl_description = "Move Up VRM 0.x Blend Shape Bind"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    bind_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        blend_shape_groups = (
+            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
+        )
+        if len(blend_shape_groups) <= self.blend_shape_group_index:
+            return {"CANCELLED"}
+        blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
+        if len(blend_shape_group.binds) <= self.bind_index:
+            return {"CANCELLED"}
+        new_index = (self.bind_index + 1) % len(blend_shape_group.binds)
+        blend_shape_group.binds.move(self.bind_index, new_index)
+        blend_shape_group.active_bind_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+        bind_index: int  # type: ignore[no-redef]
+
+
 class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group_collider"
     bl_label = "Add Collider"
@@ -375,7 +647,8 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
         )
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
-        collider = collider_groups[self.collider_group_index].colliders.add()
+        collider_group = collider_groups[self.collider_group_index]
+        collider = collider_group.colliders.add()
         obj = bpy.data.objects.new(
             name=f"{self.armature_name}_{self.bone_name}_collider", object_data=None
         )
@@ -389,6 +662,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
         else:
             obj.parent_type = "OBJECT"
         context.scene.collection.objects.link(obj)
+        collider_group.active_collider_index = len(collider_group.colliders) - 1
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -429,14 +703,110 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
         )
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
-        colliders = collider_groups[self.collider_group_index].colliders
-        if len(colliders) <= self.collider_index:
+        collider_group = collider_groups[self.collider_group_index]
+        if len(collider_group.colliders) <= self.collider_index:
             return {"CANCELLED"}
-        bpy_object = colliders[self.collider_index].bpy_object
+        bpy_object = collider_group.colliders[self.collider_index].bpy_object
         if bpy_object and bpy_object.name in context.scene.collection.objects:
             bpy_object.parent_type = "OBJECT"
             context.scene.collection.objects.unlink(bpy_object)
-        colliders.remove(self.collider_index)
+        collider_group.colliders.remove(self.collider_index)
+        collider_group.active_collider_index = min(
+            collider_group.active_collider_index,
+            max(0, len(collider_group.colliders) - 1),
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+        collider_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider(Operator):
+    bl_idname = "vrm.move_up_vrm0_secondary_animation_collider_group_coll"
+    bl_label = "Move Up Collider"
+    bl_description = "Move Up VRM 0.x Collider"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    collider_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        collider_groups = (
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+        )
+        if len(collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        collider_group = collider_groups[self.collider_group_index]
+        if len(collider_group.colliders) <= self.collider_index:
+            return {"CANCELLED"}
+        new_index = (self.collider_index - 1) % len(collider_group.colliders)
+        collider_group.colliders.move(self.collider_index, new_index)
+        collider_group.active_collider_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+        collider_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider(Operator):
+    bl_idname = "vrm.move_down_vrm0_secondary_animation_collider_group_coll"
+    bl_label = "Move Down Collider"
+    bl_description = "Move Down VRM 0.x Collider"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    collider_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        collider_groups = (
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
+        )
+        if len(collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        collider_group = collider_groups[self.collider_group_index]
+        if len(collider_group.colliders) <= self.collider_index:
+            return {"CANCELLED"}
+        new_index = (self.collider_index + 1) % len(collider_group.colliders)
+        collider_group.colliders.move(self.collider_index, new_index)
+        collider_group.active_collider_index = new_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -473,7 +843,10 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
-        bone_groups[self.bone_group_index].bones.add()
+        bone_group = bone_groups[self.bone_group_index]
+        bone = bone_group.bones.add()
+        bone.armature_data_name = armature_data.name
+        bone_group.active_bone_index = len(bone_group.bones) - 1
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -513,10 +886,105 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
-        bones = bone_groups[self.bone_group_index].bones
-        if len(bones) <= self.bone_index:
+        bone_group = bone_groups[self.bone_group_index]
+        if len(bone_group.bones) <= self.bone_index:
             return {"CANCELLED"}
-        bones.remove(self.bone_index)
+        bone_group.bones.remove(self.bone_index)
+        bone_group.active_bone_index = min(
+            bone_group.active_bone_index, max(0, len(bone_group.bones) - 1)
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+        bone_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm0_secondary_animation_group_bone(Operator):
+    bl_idname = "vrm.move_up_vrm0_secondary_animation_group_bone"
+    bl_label = "Move Up Bone"
+    bl_description = "Move Up VRM 0.x Secondary Animation Group Bone"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    bone_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    bone_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        bone_groups = (
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+        )
+        if len(bone_groups) <= self.bone_group_index:
+            return {"CANCELLED"}
+        bone_group = bone_groups[self.bone_group_index]
+        if len(bone_group.bones) <= self.bone_index:
+            return {"CANCELLED"}
+        new_index = (self.bone_index - 1) % len(bone_group.bones)
+        bone_group.bones.move(self.bone_index, new_index)
+        bone_group.active_bone_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+        bone_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_secondary_animation_group_bone(Operator):
+    bl_idname = "vrm.move_down_vrm0_secondary_animation_group_bone"
+    bl_label = "Move Down Bone"
+    bl_description = "Move Down VRM 0.x Secondary Animation Group Bone"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    bone_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    bone_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        bone_groups = (
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+        )
+        if len(bone_groups) <= self.bone_group_index:
+            return {"CANCELLED"}
+        bone_group = bone_groups[self.bone_group_index]
+        if len(bone_group.bones) <= self.bone_index:
+            return {"CANCELLED"}
+        new_index = (self.bone_index + 1) % len(bone_group.bones)
+        bone_group.bones.move(self.bone_index, new_index)
+        bone_group.active_bone_index = new_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -553,7 +1021,10 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
-        bone_groups[self.bone_group_index].collider_groups.add()
+        bone_group = bone_groups[self.bone_group_index]
+        collider_group = bone_group.collider_groups.add()
+        collider_group.value = ""
+        bone_group.active_collider_group_index = len(bone_group.collider_groups) - 1
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -593,10 +1064,104 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
         )
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
-        collider_groups = bone_groups[self.bone_group_index].collider_groups
-        if len(collider_groups) <= self.collider_group_index:
+        bone_group = bone_groups[self.bone_group_index]
+        if len(bone_group.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
-        collider_groups.remove(self.collider_group_index)
+        bone_group.collider_groups.remove(self.collider_group_index)
+        bone_group.active_collider_group_index = min(
+            bone_group.active_collider_group_index,
+            max(0, len(bone_group.collider_groups) - 1),
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
+    bl_idname = "vrm.move_up_vrm0_secondary_animation_group_collider_group"
+    bl_label = "Move Up Collider Group"
+    bl_description = "Move Up VRM 0.x Secondary Animation Group Collider Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    bone_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        bone_groups = (
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+        )
+        if len(bone_groups) <= self.bone_group_index:
+            return {"CANCELLED"}
+        bone_group = bone_groups[self.bone_group_index]
+        if len(bone_group.collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        new_index = (self.collider_group_index - 1) % len(bone_group.collider_groups)
+        bone_group.active_collider_group_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
+    bl_idname = "vrm.move_down_vrm0_secondary_animation_group_collider_group"
+    bl_label = "Move Down Collider Group"
+    bl_description = "Move Down VRM 0.x Secondary Animation Group Collider Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    bone_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        bone_groups = (
+            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
+        )
+        if len(bone_groups) <= self.bone_group_index:
+            return {"CANCELLED"}
+        bone_group = bone_groups[self.bone_group_index]
+        if len(bone_group.collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        new_index = (self.collider_group_index + 1) % len(bone_group.collider_groups)
+        bone_group.active_collider_group_index = new_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -680,10 +1245,10 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
         blend_shape_group_index: int  # type: ignore[no-redef]
 
 
-class VRM_OT_add_vrm0_secondary_animation_group(Operator):
-    bl_idname = "vrm.add_vrm0_secondary_animation_group"
-    bl_label = "Add Spring Bone"
-    bl_description = "Add VRM 0.x Secondary Animation Group"
+class VRM_OT_move_up_vrm0_blend_shape_group(Operator):
+    bl_idname = "vrm.move_up_vrm0_blend_shape_group"
+    bl_label = "Move Up Blend Shape Group"
+    bl_description = "Move Up VRM 0.x Blend Shape Group"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -701,7 +1266,93 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups.add()
+        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        if len(blend_shape_master.blend_shape_groups) <= self.blend_shape_group_index:
+            return {"CANCELLED"}
+        new_index = (self.blend_shape_group_index - 1) % len(
+            blend_shape_master.blend_shape_groups
+        )
+        blend_shape_master.blend_shape_groups.move(
+            self.blend_shape_group_index, new_index
+        )
+        blend_shape_master.active_blend_shape_group_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_blend_shape_group(Operator):
+    bl_idname = "vrm.move_down_vrm0_blend_shape_group"
+    bl_label = "Move Down Blend Shape Group"
+    bl_description = "Move Down VRM 0.x Blend Shape Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        if len(blend_shape_master.blend_shape_groups) <= self.blend_shape_group_index:
+            return {"CANCELLED"}
+        new_index = (self.blend_shape_group_index + 1) % len(
+            blend_shape_master.blend_shape_groups
+        )
+        blend_shape_master.blend_shape_groups.move(
+            self.blend_shape_group_index, new_index
+        )
+        blend_shape_master.active_blend_shape_group_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        blend_shape_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_add_vrm0_secondary_animation_group(Operator):
+    bl_idname = "vrm.add_vrm0_secondary_animation_group"
+    bl_label = "Add Spring Bone"
+    bl_description = "Add VRM 0.x Secondary Animation Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+
+    # Unnecessary property. Please do not use.
+    blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation.bone_groups.add()
+        secondary_animation.active_bone_group_index = (
+            len(secondary_animation.bone_groups) - 1
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -732,12 +1383,86 @@ class VRM_OT_remove_vrm0_secondary_animation_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
-        if len(bone_groups) <= self.bone_group_index:
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        if len(secondary_animation.bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
-        bone_groups.remove(self.bone_group_index)
+        secondary_animation.bone_groups.remove(self.bone_group_index)
+        secondary_animation.active_bone_group_index = min(
+            secondary_animation.active_bone_group_index,
+            max(0, len(secondary_animation.bone_groups) - 1),
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm0_secondary_animation_group(Operator):
+    bl_idname = "vrm.move_up_vrm0_secondary_animation_group"
+    bl_label = "Move Up Spring Bone"
+    bl_description = "Move Up VRM 0.x Secondary Animation Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    bone_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        if len(secondary_animation.bone_groups) <= self.bone_group_index:
+            return {"CANCELLED"}
+        new_index = (self.bone_group_index - 1) % len(secondary_animation.bone_groups)
+        secondary_animation.bone_groups.move(self.bone_group_index, new_index)
+        secondary_animation.active_bone_group_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        bone_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_secondary_animation_group(Operator):
+    bl_idname = "vrm.move_down_vrm0_secondary_animation_group"
+    bl_label = "Move Down Spring Bone"
+    bl_description = "Move Down VRM 0.x Secondary Animation Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    bone_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        if len(secondary_animation.bone_groups) <= self.bone_group_index:
+            return {"CANCELLED"}
+        new_index = (self.bone_group_index - 1) % len(secondary_animation.bone_groups)
+        secondary_animation.bone_groups.move(self.bone_group_index, new_index)
+        secondary_animation.active_bone_group_index = new_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -765,9 +1490,13 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         ext = armature_data.vrm_addon_extension
-        collider_group = ext.vrm0.secondary_animation.collider_groups.add()
+        secondary_animation = ext.vrm0.secondary_animation
+        collider_group = secondary_animation.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
         collider_group.refresh(armature)
+        secondary_animation.active_collider_group_index = (
+            len(secondary_animation.collider_groups) - 1
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -797,17 +1526,96 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        collider_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
-        )
-        if len(collider_groups) <= self.collider_group_index:
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        if len(secondary_animation.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
-        collider_groups.remove(self.collider_group_index)
+        secondary_animation.collider_groups.remove(self.collider_group_index)
 
         for (
             bone_group
         ) in armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
+
+        secondary_animation.active_collider_group_index = min(
+            secondary_animation.active_collider_group_index,
+            max(0, len(secondary_animation.collider_groups) - 1),
+        )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_up_vrm0_secondary_animation_collider_group(Operator):
+    bl_idname = "vrm.move_up_vrm0_secondary_animation_collider_group"
+    bl_label = "Move Up Collider Group"
+    bl_description = "Move Up VRM 0.x Secondary Animation Collider Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        if len(secondary_animation.collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        new_index = (self.collider_group_index - 1) % len(
+            secondary_animation.collider_groups
+        )
+        secondary_animation.collider_groups.move(self.collider_group_index, new_index)
+        secondary_animation.active_collider_group_index = new_index
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        armature_name: str  # type: ignore[no-redef]
+        collider_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_move_down_vrm0_secondary_animation_collider_group(Operator):
+    bl_idname = "vrm.move_down_vrm0_secondary_animation_collider_group"
+    bl_label = "Move Down Collider Group"
+    bl_description = "Move Down VRM 0.x Secondary Animation Collider Group"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+    collider_group_index: IntProperty(  # type: ignore[valid-type]
+        min=0,
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        if len(secondary_animation.collider_groups) <= self.collider_group_index:
+            return {"CANCELLED"}
+        new_index = (self.collider_group_index + 1) % len(
+            secondary_animation.collider_groups
+        )
+        secondary_animation.collider_groups.move(self.collider_group_index, new_index)
+        secondary_animation.active_collider_group_index = new_index
         return {"FINISHED"}
 
     if TYPE_CHECKING:

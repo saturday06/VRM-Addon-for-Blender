@@ -1,12 +1,67 @@
+import bpy
 from bpy.types import Context, Mesh, UILayout, UIList
 
+from ..property_group import BonePropertyGroup, StringPropertyGroup
 from .property_group import (
     Vrm0BlendShapeBindPropertyGroup,
     Vrm0BlendShapeGroupPropertyGroup,
+    Vrm0FirstPersonPropertyGroup,
     Vrm0MaterialValueBindPropertyGroup,
+    Vrm0MeshAnnotationPropertyGroup,
     Vrm0SecondaryAnimationColliderGroupPropertyGroup,
+    Vrm0SecondaryAnimationColliderPropertyGroup,
     Vrm0SecondaryAnimationGroupPropertyGroup,
 )
+
+
+class VRM_UL_vrm0_first_person_mesh_annotation(UIList):
+    bl_idname = "VRM_UL_vrm0_first_person_mesh_annotation"
+
+    def draw_item(
+        self,
+        context: Context,
+        layout: UILayout,
+        first_person: object,
+        mesh_annotation: object,
+        _icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
+        if not isinstance(first_person, Vrm0FirstPersonPropertyGroup):
+            return
+        if not isinstance(mesh_annotation, Vrm0MeshAnnotationPropertyGroup):
+            return
+
+        icon = "OUTLINER_OB_MESH"
+
+        if self.layout_type == "GRID":
+            layout.alignment = "CENTER"
+            layout.label(text="", translate=False, icon=icon)
+            return
+
+        if self.layout_type not in {"DEFAULT", "COMPACT"}:
+            return
+
+        row = layout.split(factor=0.6, align=True)
+        if index == first_person.active_mesh_annotation_index:
+            row.prop_search(
+                mesh_annotation.mesh,
+                "mesh_object_name",
+                context.scene.vrm_addon_extension,
+                "mesh_object_names",
+                icon=icon,
+                text="",
+                translate=False,
+            )
+        else:
+            row.label(
+                text=mesh_annotation.mesh.mesh_object_name,
+                translate=False,
+                icon=icon,
+            )
+        row.prop(mesh_annotation, "first_person_flag", text="", translate=False)
 
 
 class VRM_UL_vrm0_secondary_animation_group(UIList):
@@ -17,29 +72,146 @@ class VRM_UL_vrm0_secondary_animation_group(UIList):
         _context: Context,
         layout: UILayout,
         _data: object,
-        item: object,
-        icon: int,
+        bone_group: object,
+        _icon: int,
         _active_data: object,
         _active_prop_name: str,
-        index: int,
+        _index: int,
         _flt_flag: int,
     ) -> None:
-        bone_group = item
         if not isinstance(bone_group, Vrm0SecondaryAnimationGroupPropertyGroup):
             return
 
+        icon = "BONE_DATA"
+
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", translate=False, icon_value=icon)
+            layout.label(text="", translate=False, icon=icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        text = (
-            f"(Spring Bone {index})" if bone_group.comment == "" else bone_group.comment
-        )
-        layout.label(text=text, translate=False, icon="GROUP_BONE")
+        text = ""
+        if bone_group.bones:
+            text = (
+                "(" + ", ".join(str(bone.bone_name) for bone in bone_group.bones) + ")"
+            )
+
+        if bone_group.center.bone_name:
+            if text:
+                text = " - " + text
+            text = bone_group.center.bone_name + text
+
+        if bone_group.comment:
+            if text:
+                text = " / " + text
+            text = bone_group.comment + text
+
+        if not text:
+            text = "(EMPTY)"
+
+        layout.label(text=text, translate=False, icon=icon)
+
+
+class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
+    bl_idname = "VRM_UL_vrm0_secondary_animation_group_bone"
+
+    def draw_item(
+        self,
+        _context: Context,
+        layout: UILayout,
+        bone_group: object,
+        bone: object,
+        _icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
+        if not isinstance(bone_group, Vrm0SecondaryAnimationGroupPropertyGroup):
+            return
+        if not isinstance(bone, BonePropertyGroup):
+            return
+        armature = bpy.data.armatures.get(bone.armature_data_name)
+        if armature is None:
+            return
+
+        icon = "BONE_DATA"
+
+        if self.layout_type == "GRID":
+            layout.alignment = "CENTER"
+            layout.label(text="", translate=False, icon=icon)
+            return
+
+        if self.layout_type not in {"DEFAULT", "COMPACT"}:
+            return
+
+        if index == bone_group.active_bone_index:
+            layout.prop_search(
+                bone,
+                "bone_name",
+                armature,
+                "bones",
+                text="",
+                translate=False,
+                icon=icon,
+            )
+        else:
+            layout.label(text=bone.bone_name, translate=False, icon=icon)
+
+
+class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
+    bl_idname = "VRM_UL_vrm0_secondary_animation_group_collider_group"
+
+    def draw_item(
+        self,
+        _context: Context,
+        layout: UILayout,
+        bone_group: object,
+        collider_group: object,
+        _icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
+        if not isinstance(bone_group, Vrm0SecondaryAnimationGroupPropertyGroup):
+            return
+        if not isinstance(collider_group, StringPropertyGroup):
+            return
+
+        secondary_animation = None
+        for armature in bpy.data.armatures:
+            ext = armature.vrm_addon_extension.vrm0
+            if any(bone_group == bg for bg in ext.secondary_animation.bone_groups):
+                secondary_animation = ext.secondary_animation
+                break
+        if secondary_animation is None:
+            return
+
+        icon = "PIVOT_INDIVIDUAL"
+
+        if self.layout_type == "GRID":
+            layout.alignment = "CENTER"
+            layout.label(text="", translate=False, icon=icon)
+            return
+
+        if self.layout_type not in {"DEFAULT", "COMPACT"}:
+            return
+
+        if index == bone_group.active_collider_group_index:
+            layout.prop_search(
+                collider_group,
+                "value",
+                secondary_animation,
+                "collider_groups",
+                text="",
+                translate=False,
+                icon=icon,
+            )
+        else:
+            layout.label(text=collider_group.value, translate=False, icon=icon)
 
 
 class VRM_UL_vrm0_secondary_animation_collider_group(UIList):
@@ -50,28 +222,79 @@ class VRM_UL_vrm0_secondary_animation_collider_group(UIList):
         _context: Context,
         layout: UILayout,
         _data: object,
-        item: object,
-        icon: int,
+        collider_group: object,
+        _icon: int,
         _active_data: object,
         _active_prop_name: str,
         _index: int,
         _flt_flag: int,
     ) -> None:
-        collider_group = item
         if not isinstance(
             collider_group, Vrm0SecondaryAnimationColliderGroupPropertyGroup
         ):
             return
 
+        icon = "SPHERE"
+
         if self.layout_type == "GRID":
             layout.alignment = "CENTER"
-            layout.label(text="", translate=False, icon_value=icon)
+            layout.label(text="", translate=False, icon=icon)
             return
 
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        layout.label(text=collider_group.name, translate=False, icon="SPHERE")
+        layout.label(text=collider_group.name, translate=False, icon=icon)
+
+
+class VRM_UL_vrm0_secondary_animation_collider_group_collider(UIList):
+    bl_idname = "VRM_UL_vrm0_secondary_animation_collider_group_collider"
+
+    def draw_item(
+        self,
+        _context: Context,
+        layout: UILayout,
+        collider_group: object,
+        collider: object,
+        _icon: int,
+        _active_data: object,
+        _active_prop_name: str,
+        index: int,
+        _flt_flag: int,
+    ) -> None:
+        if not isinstance(
+            collider_group, Vrm0SecondaryAnimationColliderGroupPropertyGroup
+        ):
+            return
+        if not isinstance(collider, Vrm0SecondaryAnimationColliderPropertyGroup):
+            return
+
+        icon = "MESH_UVSPHERE"
+
+        if self.layout_type == "GRID":
+            layout.alignment = "CENTER"
+            layout.label(text="", translate=False, icon=icon)
+            return
+
+        if self.layout_type not in {"DEFAULT", "COMPACT"}:
+            return
+
+        if collider.bpy_object is None:
+            return
+
+        row = layout.split(align=True, factor=0.7)
+        if index == collider_group.active_collider_index:
+            row.prop(
+                collider.bpy_object,
+                "name",
+                icon=icon,
+                translate=False,
+                text="",
+            )
+            row.prop(collider.bpy_object, "empty_display_size", text="")
+        else:
+            row.label(text=collider.bpy_object.name, icon=icon, translate=False)
+            row.prop(collider.bpy_object, "empty_display_size", text="", emboss=False)
 
 
 class VRM_UL_vrm0_blend_shape_group(UIList):
