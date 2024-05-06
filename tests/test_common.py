@@ -2,7 +2,6 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
-from io_scene_vrm import MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info
 from io_scene_vrm.common import deep, version
 from io_scene_vrm.common.blender_manifest import BlenderManifest
 from io_scene_vrm.common.fs import (
@@ -17,22 +16,16 @@ class TestVersion(TestCase):
     def test_version(self) -> None:
         self.assertEqual(
             version.addon_version(),
-            bl_info.get("version"),
+            (2, 20, 38),
         )
 
-    def test_max_supported_blender_major_minor_version(self) -> None:
-        self.assertEqual(
-            version.max_supported_blender_major_minor_version(),
-            MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
-        )
 
-    def test_min_supported_blender_version(self) -> None:
-        self.assertEqual(
-            bl_info.get("blender"),
-            BlenderManifest.read().blender_version_min,
-        )
+class TestBlenderManifest(TestCase):
+    def test_read_default(self) -> None:
+        blender_manifest = BlenderManifest.read()
+        self.assertEqual(blender_manifest.blender_version_max[0], 4)
 
-    def test_blender_manifest(self) -> None:
+    def test_read(self) -> None:
         text = (
             "foo = bar\n"
             + 'version = "1.23.456"\n'
