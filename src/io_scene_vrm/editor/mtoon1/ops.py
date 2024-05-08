@@ -938,8 +938,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             if material_name is not None:
                 continue
 
-            # マテリアル名が指定されなかった場合は、
-            # 不要なアウトラインのモディファイアを削除する
+            # Remove unnecessary outline modifiers if no material name is specified.
             for search_modifier_name in list(obj.modifiers.keys()):
                 search_modifier = obj.modifiers.get(search_modifier_name)
                 if not search_modifier:

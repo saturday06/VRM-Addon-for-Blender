@@ -9,8 +9,8 @@ from bpy.types import Context, Event, Image, Operator
 from ..common.logging import get_logger
 
 #
-# ここで `import io_scene_gltf2` をするとio_scene_gltf2が無効化されている場合
-# 全体を巻き込んでエラーになる。そのため関数内でインポートするように注意する。
+# `import io_scene_gltf2` is executed in a function, not here. Importing it in the
+# global scope will result in an error on startup if the glTF Add-on is disabled.
 #
 
 logger = get_logger(__name__)

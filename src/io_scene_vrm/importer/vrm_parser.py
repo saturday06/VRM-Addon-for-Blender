@@ -194,12 +194,11 @@ def remove_unsafe_path_chars(filename: str) -> str:
     return safe_filename
 
 
-#  "accessorの順に" データを読み込んでリストにしたものを返す
 def decode_bin(
     json_dict: dict[str, Json], binary: bytes
 ) -> list[list[Union[int, float, list[int], list[float]]]]:
+    """Decode bin and index by accessor indices."""
     br = BinaryReader(binary)
-    # This list indexed by accessor index
     decoded_binary: list[list[Union[int, float, list[int], list[float]]]] = []
     buffer_view_dicts = json_dict.get("bufferViews")
     if not isinstance(buffer_view_dicts, list):
@@ -267,7 +266,6 @@ class VrmParser:
     json_dict: dict[str, Json] = field(init=False, default_factory=dict)
 
     def parse(self) -> ParseResult:
-        # bin chunkは一つだけであることを期待
         json_dict, _ = parse_glb(self.filepath.read_bytes())
         self.json_dict = json_dict
 
@@ -331,7 +329,6 @@ class VrmParser:
             return
         parse_result.hips_node_index = hips_node_index
 
-    # ここからマテリアル
     def material_read(self, parse_result: ParseResult) -> None:
         material_dicts = self.json_dict.get("materials")
         if not isinstance(material_dicts, list):

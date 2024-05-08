@@ -1201,7 +1201,8 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
         for armature in bpy.data.armatures:
             expressions = armature.vrm_addon_extension.vrm1.expressions
 
-            # UIList用のダミー要素を設定する
+            # Set the number of elements equal to the number of elements wanted to show
+            # in the UIList.
             ui_len = len(expressions.expression_ui_list_elements)
             all_len = len(expressions.all_name_to_expression_dict())
             if ui_len == all_len:

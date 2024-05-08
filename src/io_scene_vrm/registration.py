@@ -80,6 +80,7 @@ def load_post(_dummy: object) -> None:
             depsgraph_update_pre_once_if_load_post_is_unavailable
         )
 
+    # Implement the same as depsgraph_update_pre_once_if_load_post_is_unavailable()
     shader.add_shaders()
     migration.migrate_all_objects()
     migration.setup_subscription(load_post=True)
@@ -87,9 +88,13 @@ def load_post(_dummy: object) -> None:
 
 @persistent
 def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> None:
-    # register時もload_postと同様の初期化を行いたい。しかし、registerに直接書くと
-    # Blender起動直後のコンテキストではエラーになってしまう。
-    # そのためdepsgraph_update_preを使う。
+    """Perform the same process as load_post() in depsgraph_update_pre().
+
+    We want to execute the same process as load_post() when register() is called.
+    However, if we execute it directly in register(), an error will occur in the
+    context of Blender startup; we can avoid the error by executing it in
+    depsgraph_update_pre().
+    """
     if (
         depsgraph_update_pre_once_if_load_post_is_unavailable
         not in bpy.app.handlers.depsgraph_update_pre
@@ -112,8 +117,7 @@ def depsgraph_update_pre(_dummy: object) -> None:
 
 @persistent
 def save_pre(_dummy: object) -> None:
-    # 保存の際にtimersに登録したコールバックがもし起動しても
-    # 内部データを変更しないようにする
+    # Apply pending changes before saving.
     depsgraph_update_pre_once_if_load_post_is_unavailable(None)
     migration.migrate_all_objects()
     extension.update_internal_cache(bpy.context)
@@ -494,7 +498,6 @@ def register() -> None:
 
 
 def unregister() -> None:
-    # migration.setup_subscription()はload_postで呼ばれる
     migration.teardown_subscription()
 
     bpy.app.handlers.depsgraph_update_pre.remove(

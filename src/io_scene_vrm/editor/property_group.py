@@ -235,8 +235,7 @@ class BonePropertyGroup(PropertyGroup):
     ) -> None:
         armature: Optional[Object] = None
 
-        # アーマチュアの複製が行われた場合を考えて
-        # self.armature_data_nameの振り直しをする
+        # Reassign self.armature_data_name in case of armature duplication.
         self.search_one_time_uuid = uuid.uuid4().hex
         for found_armature in bpy.data.objects:
             if found_armature.type != "ARMATURE":
@@ -263,7 +262,7 @@ class BonePropertyGroup(PropertyGroup):
 
         self.armature_data_name = armature_data.name
 
-        # ボーンの複製が行われた場合を考えてUUIDの重複がある場合再割り当てを行う
+        # Reassign UUIDs if duplicate UUIDs exist in case of bone duplication.
         found_uuids = set()
         for bone in armature_data.bones:
             found_uuid = bone.vrm_addon_extension.uuid
@@ -373,7 +372,7 @@ class BonePropertyGroup(PropertyGroup):
 T_co = TypeVar("T_co", covariant=True)
 
 
-# 本物は型引数を取らない
+# The actual type does not take type arguments.
 class CollectionPropertyProtocol(Protocol[T_co]):
     def add(self) -> T_co: ...  # TODO: undocumented
 

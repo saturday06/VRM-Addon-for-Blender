@@ -310,7 +310,7 @@ class VRM_OT_vroid2vrc_lipsync_from_json_recipe(Operator):
                 if based_shapekey_name not in shape_keys.key_blocks:
                     vroid_shapekey_name = based_shapekey_name.replace(
                         "M_F00_000", "M_F00_000_00"
-                    )  # Vroid064から命名が変わった
+                    )  # Renamed since VRoid Studio 0.6.4
                 else:
                     vroid_shapekey_name = based_shapekey_name
                 shape_keys.key_blocks[vroid_shapekey_name].value = based_val

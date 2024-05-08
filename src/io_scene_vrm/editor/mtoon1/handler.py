@@ -17,7 +17,7 @@ previous_object_material_state: list[list[Optional[tuple[str, bool, bool]]]] = [
 def update_mtoon1_outline() -> Optional[float]:
     compare_start_time = time.perf_counter()
 
-    # ここは最適化の必要がある
+    # Optimize appropriately.
     has_auto_smooth = tuple(bpy.app.version) < (4, 1)
     object_material_state = [
         [

@@ -76,7 +76,8 @@ def pack_glb(
     magic = b"glTF" + struct.pack("<I", 2)
     json_str = json.dumps(
         json_dict,
-        # UniVRM 0.56.3はエディタインポート時のUnicodeエスケープに未対応
+        # UniVRM 0.56.3 cannot import a json containing unicode escape chars into
+        # Unity Editor.
         ensure_ascii=False,
     ).encode("utf-8")
     if len(json_str) % 4 != 0:
