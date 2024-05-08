@@ -387,8 +387,6 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
                     break
                 if not removed:
                     break
-        for collider_group in collider_groups:
-            collider_group.fix_index()
 
         spring_bone.active_collider_group_index = min(
             spring_bone.active_collider_group_index,

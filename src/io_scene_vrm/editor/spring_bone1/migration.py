@@ -41,9 +41,19 @@ def fixup_gravity_dir(armature: Armature) -> None:
                 joint.gravity_dir = gravity_dir
 
 
+def fixup_collider_group_name(armature: Armature) -> None:
+    ext = armature.vrm_addon_extension
+    if tuple(ext.addon_version) <= (2, 20, 38):
+        spring_bone = armature.vrm_addon_extension.spring_bone1
+        for collider_group in spring_bone.collider_groups:
+            if collider_group.name != collider_group.vrm_name:
+                collider_group.name = collider_group.vrm_name
+
+
 def migrate(armature: Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
     migrate_blender_object(armature_data)
     fixup_gravity_dir(armature_data)
+    fixup_collider_group_name(armature_data)

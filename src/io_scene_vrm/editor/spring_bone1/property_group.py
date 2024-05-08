@@ -482,24 +482,20 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
         if not isinstance(vrm_name, str):
             vrm_name = str(vrm_name)
         self["vrm_name"] = vrm_name
-        self.fix_index()
+        self.name = self.vrm_name  # pylint: disable=attribute-defined-outside-init
 
-    def fix_index(self) -> None:
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in bpy.data.armatures:
             spring_bone = armature.vrm_addon_extension.spring_bone1
 
-            for index, collider_group in enumerate(spring_bone.collider_groups):
+            for collider_group in spring_bone.collider_groups:
                 if collider_group.search_one_time_uuid != self.search_one_time_uuid:
                     continue
-
-                name = f"{index}: {self.vrm_name}"
-                self.name = name  # pylint: disable=attribute-defined-outside-init
 
                 for spring in spring_bone.springs:
                     for collider_group_reference in spring.collider_groups:
                         if collider_group_reference.collider_group_uuid == self.uuid:
-                            collider_group_reference.collider_group_name = name
+                            collider_group_reference.collider_group_name = self.vrm_name
 
                 return
 
