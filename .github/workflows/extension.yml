@@ -24,11 +24,14 @@ jobs:
           key: ${{ env.BLENDER_ARCHIVE_URL }}-archive-1
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
-        run: curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
+        run: curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz || true
       - name: Build Extension
         run: |
           mkdir -p ~/.local/blender
-          tar xf blender.tar.xz -C ~/.local/blender --strip-components=1
+          if ! tar xf blender.tar.xz -C ~/.local/blender --strip-components=1; then
+            echo "Please upgrade archive URL"
+            exit 0
+          fi
           export PATH="$HOME/.local/blender:$PATH"
           hash -r
           mkdir -p "$HOME/.config/blender/4.2/config"
