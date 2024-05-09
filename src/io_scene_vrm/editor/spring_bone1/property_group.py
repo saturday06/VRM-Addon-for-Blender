@@ -493,7 +493,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
                 if collider_group.search_one_time_uuid != self.search_one_time_uuid:
                     continue
 
-                name = f"{index}: {self.vrm_name}"
+                name = f"{self.vrm_name} #{index+1}"
                 self.name = name  # pylint: disable=attribute-defined-outside-init
 
                 for spring in spring_bone.springs:
@@ -651,6 +651,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
                     for collider_group in spring_bone.collider_groups:
                         if collider_group.name == value:
                             self.collider_group_uuid = collider_group.uuid
+                            break
                     return
 
     collider_group_name: StringProperty(  # type: ignore[valid-type]

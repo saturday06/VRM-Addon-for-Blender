@@ -133,6 +133,8 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
         new_index = (self.collider_group_index - 1) % len(spring_bone.collider_groups)
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
+        for collider_group in spring_bone.collider_groups:
+            collider_group.fix_index()
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -169,6 +171,8 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
         new_index = (self.collider_group_index + 1) % len(spring_bone.collider_groups)
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
+        for collider_group in spring_bone.collider_groups:
+            collider_group.fix_index()
         return {"FINISHED"}
 
     if TYPE_CHECKING:
