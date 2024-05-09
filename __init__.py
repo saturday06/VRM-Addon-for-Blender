@@ -14,10 +14,10 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 38),
-    "blender": (2, 93, 0),
+    "version": (2, 20, 39),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
+    "blender": (2, 93, 0),
     "warning": "",
     "support": "COMMUNITY",
     "wiki_url": "",
