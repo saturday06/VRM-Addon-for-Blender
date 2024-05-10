@@ -3,7 +3,7 @@
     "dockerfile": "Dockerfile",
     "context": "../tools"
   },
-  "containerUser": "developer",
+  "remoteUser": "developer",
   "onCreateCommand": "./tools/devcontainer_on_create_command.sh",
   "updateContentCommand": "./tools/devcontainer_update_content_command.sh",
   "features": {
