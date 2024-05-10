@@ -23,7 +23,10 @@ class TestVersion(TestCase):
 class TestBlenderManifest(TestCase):
     def test_read_default(self) -> None:
         blender_manifest = BlenderManifest.read()
-        self.assertEqual(blender_manifest.blender_version_max[0], 4)
+        self.assertGreater(blender_manifest.version, (2,))
+        self.assertGreater(blender_manifest.blender_version_min, (2, 93))
+        if blender_manifest.blender_version_max is not None:
+            self.assertGreater(blender_manifest.blender_version_max, (4,))
 
     def test_read(self) -> None:
         text = (

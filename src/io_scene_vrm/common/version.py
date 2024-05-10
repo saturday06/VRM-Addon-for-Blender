@@ -40,8 +40,10 @@ def trigger_clear_addon_version_cache() -> None:
     bpy.app.timers.register(clear_addon_version_cache, first_interval=0.5)
 
 
-def max_supported_blender_major_minor_version() -> tuple[int, int]:
+def max_supported_blender_major_minor_version() -> Optional[tuple[int, int]]:
     blender_version_max = BlenderManifest.read().blender_version_max
+    if blender_version_max is None:
+        return None
     return (blender_version_max[0], blender_version_max[1])
 
 
@@ -105,7 +107,10 @@ def stable_release() -> bool:
 
 
 def supported() -> bool:
-    return bpy.app.version[:2] <= max_supported_blender_major_minor_version()
+    v = max_supported_blender_major_minor_version()
+    if v is None:
+        return True
+    return bpy.app.version[:2] <= v
 
 
 def preferences_warning_message() -> Optional[str]:

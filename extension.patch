@@ -1,5 +1,5 @@
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index 05677bd3..5f4289fb 100644
+index 52d71d65..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
 @@ -1,231 +1,16 @@
@@ -237,17 +237,16 @@ index 05677bd3..5f4289fb 100644
  
  class glTF2ImportUserExtension:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 1860e6c6..e60ab21f 100644
+index 929a5bed..1bd81e8f 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
-@@ -13,8 +13,8 @@ website = "https://vrm-addon-for-blender.info"
+@@ -13,8 +13,7 @@ website = "https://vrm-addon-for-blender.info"
  
  tags = ["Import-Export", "Animation", "Modeling", "Material", "Physics"]
  
 -blender_version_min = "2.93.0"
 -blender_version_max = "4.1.999"
 +blender_version_min = "4.2.0"
-+blender_version_max = "4.2.999"
  
  license = ["SPDX:MIT"]
  
