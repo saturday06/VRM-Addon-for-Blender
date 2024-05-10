@@ -88,9 +88,9 @@ def load_post(_dummy: object) -> None:
 
 @persistent
 def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> None:
-    """Perform the same process as load_post() in depsgraph_update_pre().
+    """Execute the same routine as load_post() in depsgraph_update_pre().
 
-    We want to execute the same process as load_post() when register() is called.
+    We want to execute the same routine as load_post() when register() is called.
     However, if we execute it directly in register(), an error will occur in the
     context of Blender startup; we can avoid the error by executing it in
     depsgraph_update_pre().
