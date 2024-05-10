@@ -1116,6 +1116,7 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
         if len(bone_group.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         new_index = (self.collider_group_index - 1) % len(bone_group.collider_groups)
+        bone_group.collider_groups.move(self.collider_group_index, new_index)
         bone_group.active_collider_group_index = new_index
         return {"FINISHED"}
 
@@ -1161,6 +1162,7 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
         if len(bone_group.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         new_index = (self.collider_group_index + 1) % len(bone_group.collider_groups)
+        bone_group.collider_groups.move(self.collider_group_index, new_index)
         bone_group.active_collider_group_index = new_index
         return {"FINISHED"}
 
