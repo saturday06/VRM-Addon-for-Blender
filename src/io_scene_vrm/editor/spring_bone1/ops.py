@@ -342,8 +342,8 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
             return {"CANCELLED"}
         spring_bone = armature_data.vrm_addon_extension.spring_bone1
         collider_group = spring_bone.collider_groups.add()
-        collider_group.vrm_name = "Collider Group"
         collider_group.uuid = uuid.uuid4().hex
+        collider_group.vrm_name = "Collider Group"
         spring_bone.active_collider_group_index = len(spring_bone.collider_groups) - 1
         return {"FINISHED"}
 
