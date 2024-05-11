@@ -27,9 +27,9 @@ blender --command extension build \
   --output-dir extension_output
 
 blender --command extension validate \
-  extension_output/vrm_extension.zip
+  extension_output/vrm.zip
 
-mv -v extension_output/vrm_extension.zip \
-  "extension_output/vrm_extension_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"
+mv -v extension_output/vrm.zip \
+  "extension_output/vrm_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"
 
 git checkout .
