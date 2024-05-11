@@ -90,7 +90,16 @@ def legacy_addon() -> bool:
     bl_info = getattr(root_module, "bl_info", None)
     if not isinstance(bl_info, dict):
         return False
-    return bl_info.get("name") == "VRM format"
+
+    return (
+        bl_info.get("name"),
+        bl_info.get("location"),
+    ) == (
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_41/src/io_scene_vrm/__init__.py#L15
+        "VRM format",
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_41/src/io_scene_vrm/__init__.py#L18
+        "File > Import-Export",
+    )
 
 
 def stable_release() -> bool:
