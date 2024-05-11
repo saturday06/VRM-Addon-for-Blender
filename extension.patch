@@ -1,8 +1,8 @@
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index 52d71d65..5f4289fb 100644
+index d4b623f0..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
-@@ -1,231 +1,16 @@
+@@ -1,232 +1,16 @@
  # SPDX-License-Identifier: MIT
  # SPDX-FileCopyrightText: 2018 iCyP
  
@@ -16,6 +16,7 @@ index 52d71d65..5f4289fb 100644
 -#
 -#
  
+-# Synchronize with https://github.com/saturday06/VRM-Addon-for-Blender/blob/b0aedc74ae4b23e69756106ded4e60195265c57a/src/io_scene_vrm/common/version.py#L94-L102
 -bl_info = {
 -    "name": "VRM format",
 -    "author": "saturday06, iCyP",
@@ -237,7 +238,7 @@ index 52d71d65..5f4289fb 100644
  
  class glTF2ImportUserExtension:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 929a5bed..1bd81e8f 100644
+index 74e7bbf6..feb441dc 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
 @@ -13,8 +13,7 @@ website = "https://vrm-addon-for-blender.info"
