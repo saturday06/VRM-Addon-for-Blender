@@ -157,34 +157,31 @@ class BaseBlenderTestCase(TestCase):
             *[urlsafe_b64decode(arg).decode() for arg in args],
         ]
 
-        if self.major_minor == "2.83" and sys.platform == "darwin":
-            retry = 3
-        else:
-            retry = 1
+        completed_process = subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+            cwd=self.repository_root_dir,
+            env=env,
+        )
+        if completed_process.returncode not in [0, error_exit_code]:
+            message = "test process failed with return code " + str(
+                completed_process.returncode
+            )
+            raise AssertionError(message)
 
-        for _ in range(retry):
-            completed_process = subprocess.run(
-                command,
-                check=False,
-                capture_output=True,
-                cwd=self.repository_root_dir,
-                env=env,
-            )
-            if completed_process.returncode not in [0, error_exit_code]:
-                continue
-
-            stdout_str = self.process_output_to_str(completed_process.stdout)
-            stderr_str = self.process_output_to_str(completed_process.stderr)
-            output = (
-                "\n  ".join(command)
-                + "\n===== stdout =====\n"
-                + stdout_str
-                + "===== stderr =====\n"
-                + stderr_str
-                + "=================="
-            )
-            self.assertEqual(
-                completed_process.returncode,
-                0,
-                "Failed to execute command:\n" + output,
-            )
+        stdout_str = self.process_output_to_str(completed_process.stdout)
+        stderr_str = self.process_output_to_str(completed_process.stderr)
+        output = (
+            "\n  ".join(command)
+            + "\n===== stdout =====\n"
+            + stdout_str
+            + "===== stderr =====\n"
+            + stderr_str
+            + "=================="
+        )
+        self.assertEqual(
+            completed_process.returncode,
+            0,
+            "Failed to execute command:\n" + output,
+        )
