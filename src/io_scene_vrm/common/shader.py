@@ -1166,9 +1166,9 @@ def copy_node_tree(from_node_tree: NodeTree, to_node_tree: NodeTree) -> None:
     for from_node, to_node in from_to.items():
         copy_node_socket_default_value(from_node, to_node)
 
-    # 親子関係の辻褄が合った状態でもう一度場所を設定することで
-    # 完全にノードの位置を復元できる
     for from_node, to_node in from_to.items():
+        # The location of the node can be completely restored by setting the location
+        # again with a consistent parent-child relationship.
         to_node.location = deepcopy(
             (
                 from_node.location[0],
