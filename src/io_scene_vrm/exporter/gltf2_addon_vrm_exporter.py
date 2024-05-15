@@ -1666,11 +1666,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                 continue
 
             # MToon_unversioned (MToon for VRM 0.0)
-            node = search.vrm_shader_node(material)
+            node, vrm_shader_name = search.vrm_shader_node(material)
             if not isinstance(node, Node):
                 continue
-            shader_name = node.node_tree.get("SHADER")
-            if shader_name == "MToon_unversioned":
+            if vrm_shader_name == "MToon_unversioned":
                 material_dicts[index] = cls.create_mtoon_unversioned_material_dict(
                     json_dict,
                     body_binary,
@@ -1679,7 +1678,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
-            elif shader_name == "GLTF":
+            elif vrm_shader_name == "GLTF":
                 material_dicts[index] = cls.create_legacy_gltf_material_dict(
                     json_dict,
                     body_binary,
@@ -1688,7 +1687,7 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
-            elif shader_name == "TRANSPARENT_ZWRITE":
+            elif vrm_shader_name == "TRANSPARENT_ZWRITE":
                 material_dicts[index] = (
                     cls.create_legacy_transparent_zwrite_material_dict(
                         json_dict,
@@ -1760,10 +1759,10 @@ class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
                     if material.vrm_addon_extension.mtoon1.enabled:
                         skip = False
                         break
-                    node = search.vrm_shader_node(material)
+                    node, vrm_shader_name = search.vrm_shader_node(material)
                     if not node:
                         continue
-                    if node.node_tree["SHADER"] == "MToon_unversioned":
+                    if vrm_shader_name == "MToon_unversioned":
                         skip = False
                         break
                 if skip:

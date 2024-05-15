@@ -592,9 +592,11 @@ class WM_OT_vrm_validator(Operator):
                     ).format(material_name=mat.name)
                 )
 
-        for node, material in search.shader_nodes_and_materials(used_materials):
+        for node, vrm_shader_name, material in search.shader_nodes_and_materials(
+            used_materials
+        ):
             # MToon
-            if node.node_tree["SHADER"] == "MToon_unversioned":
+            if vrm_shader_name == "MToon_unversioned":
                 for texture_val in MtoonUnversioned.texture_kind_exchange_dict.values():
                     suffix = "_alpha" if texture_val == "ReceiveShadow_Texture" else ""
                     node_material_input_check(
@@ -621,7 +623,7 @@ class WM_OT_vrm_validator(Operator):
                         used_images,
                     )
             # GLTF
-            elif node.node_tree["SHADER"] == "GLTF":
+            elif vrm_shader_name == "GLTF":
                 for k in TEXTURE_INPUT_NAMES:
                     node_material_input_check(
                         node, material, "TEX_IMAGE", k, error_messages, used_images
@@ -635,7 +637,7 @@ class WM_OT_vrm_validator(Operator):
                         node, material, "RGB", k, error_messages, used_images
                     )
             # Transparent_Zwrite
-            elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
+            elif vrm_shader_name == "TRANSPARENT_ZWRITE":
                 node_material_input_check(
                     node,
                     material,

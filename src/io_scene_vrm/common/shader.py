@@ -498,9 +498,14 @@ def copy_shader_node_group(
     from_node: ShaderNodeGroup,
     to_node: ShaderNodeGroup,
 ) -> None:
+    node_tree = from_node.node_tree
+    if not node_tree:
+        logger.error(f"No node_tree in ShaderNodeGroup: {from_node.name}")
+        return
+
     for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
         shader_node_group_template_name = template_name(shader_node_group_name)
-        if not from_node.node_tree.name.startswith(shader_node_group_template_name):
+        if not node_tree.name.startswith(shader_node_group_template_name):
             continue
 
         group = bpy.data.node_groups.get(shader_node_group_name)
@@ -512,8 +517,7 @@ def copy_shader_node_group(
         return
 
     logger.error(
-        "Importing ShaderNodeGroup doesn't be supported yet: "
-        + f"{from_node.node_tree.name}"
+        f"Importing ShaderNodeGroup doesn't be supported yet: {node_tree.name}"
     )
 
 

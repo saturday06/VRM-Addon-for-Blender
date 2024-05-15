@@ -71,9 +71,9 @@ def export_materials(objects: list[Object]) -> list[Material]:
 
 def vrm_shader_node(
     material: Material,
-) -> Optional[ShaderNodeGroup]:
+) -> tuple[Optional[ShaderNodeGroup], Optional[str]]:
     if not material.node_tree or not material.node_tree.nodes:
-        return None
+        return (None, None)
     for node in material.node_tree.nodes:
         if not isinstance(node, ShaderNodeOutputMaterial):
             continue
@@ -87,20 +87,24 @@ def vrm_shader_node(
         group_node = link.from_node
         if not isinstance(group_node, ShaderNodeGroup):
             continue
-        if "SHADER" not in group_node.node_tree:
+        node_tree = group_node.node_tree
+        if not node_tree:
             continue
-        return group_node
-    return None
+        vrm_shader_name = node_tree.get("SHADER")
+        if not isinstance(vrm_shader_name, str):
+            continue
+        return (group_node, vrm_shader_name)
+    return (None, None)
 
 
 def shader_nodes_and_materials(
     materials: list[Material],
-) -> list[tuple[ShaderNodeGroup, Material]]:
+) -> list[tuple[ShaderNodeGroup, str, Material]]:
     result = []
     for material in materials:
-        node = vrm_shader_node(material)
-        if node:
-            result.append((node, material))
+        node, vrm_shader_name = vrm_shader_node(material)
+        if node is not None and vrm_shader_name is not None:
+            result.append((node, vrm_shader_name, material))
     return result
 
 

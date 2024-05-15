@@ -236,8 +236,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             mat.pop("vrm_shader", None)
 
         # image fetching
-        for node, mat in search.shader_nodes_and_materials(used_materials):
-            if node.node_tree["SHADER"] == "MToon_unversioned":
+        for node, vrm_shader_name, mat in search.shader_nodes_and_materials(
+            used_materials
+        ):
+            if vrm_shader_name == "MToon_unversioned":
                 mat["vrm_shader"] = "MToon_unversioned"
                 for (
                     raw_shader_vals
@@ -277,7 +279,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                             and n.image not in used_images
                         ):
                             used_images.append(n.image)
-            elif node.node_tree["SHADER"] == "GLTF":
+            elif vrm_shader_name == "GLTF":
                 mat["vrm_shader"] = "GLTF"
                 for k in TEXTURE_INPUT_NAMES:
                     if node.inputs[k].links:
@@ -289,7 +291,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         ):
                             used_images.append(n.image)
 
-            elif node.node_tree["SHADER"] == "TRANSPARENT_ZWRITE":
+            elif vrm_shader_name == "TRANSPARENT_ZWRITE":
                 mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
                 if node.inputs["Main_Texture"].links:
                     n = node.inputs["Main_Texture"].links[0].from_node
@@ -1946,10 +1948,10 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
             if material.vrm_addon_extension.mtoon1.enabled:
                 exclusion_vertex_indices.update(polygon.vertices)
                 continue
-            node = search.vrm_shader_node(material)
+            node, vrm_shader_name = search.vrm_shader_node(material)
             if not node:
                 continue
-            if node.node_tree["SHADER"] == "MToon_unversioned":
+            if vrm_shader_name == "MToon_unversioned":
                 exclusion_vertex_indices.update(polygon.vertices)
 
         morph_normal_diff_dict: dict[str, list[list[float]]] = {}
