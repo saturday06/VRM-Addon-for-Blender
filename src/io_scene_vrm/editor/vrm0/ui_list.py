@@ -19,7 +19,7 @@ class VRM_UL_vrm0_first_person_mesh_annotation(UIList):
 
     def draw_item(
         self,
-        context: Context,
+        _context: Context,
         layout: UILayout,
         first_person: object,
         mesh_annotation: object,
@@ -46,11 +46,9 @@ class VRM_UL_vrm0_first_person_mesh_annotation(UIList):
 
         row = layout.split(factor=0.6, align=True)
         if index == first_person.active_mesh_annotation_index:
-            row.prop_search(
+            row.prop(
                 mesh_annotation.mesh,
-                "mesh_object_name",
-                context.scene.vrm_addon_extension,
-                "mesh_object_names",
+                "bpy_object",
                 icon=icon,
                 text="",
                 translate=False,

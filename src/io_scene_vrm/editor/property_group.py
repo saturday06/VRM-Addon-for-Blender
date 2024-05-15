@@ -109,8 +109,12 @@ class MeshObjectPropertyGroup(PropertyGroup):
         set=set_value,
     )
 
+    def poll_bpy_object(self, obj: object) -> bool:
+        return isinstance(obj, Object) and obj.type == "MESH"
+
     bpy_object: PointerProperty(  # type: ignore[valid-type]
-        type=Object
+        type=Object,
+        poll=poll_bpy_object,
     )
 
     if TYPE_CHECKING:

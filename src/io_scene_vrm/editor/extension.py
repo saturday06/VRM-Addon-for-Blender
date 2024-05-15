@@ -1,4 +1,3 @@
-import functools
 import math
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Optional
@@ -30,42 +29,6 @@ logger = get_logger(__name__)
 
 
 class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
-    mesh_object_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
-    )
-
-    @staticmethod
-    def check_mesh_object_names_and_update(
-        scene_name: str,
-        defer: bool = True,
-    ) -> None:
-        scene = bpy.data.scenes.get(scene_name)
-        if not scene:
-            logger.error(f'No scene "{scene_name}"')
-            return
-        ext = scene.vrm_addon_extension
-
-        mesh_object_names = [obj.name for obj in bpy.data.objects if obj.type == "MESH"]
-        up_to_date = mesh_object_names == [str(n.value) for n in ext.mesh_object_names]
-
-        if up_to_date:
-            return
-
-        if defer:
-            bpy.app.timers.register(
-                functools.partial(
-                    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update,
-                    scene_name,
-                    False,
-                )
-            )
-            return
-
-        ext.mesh_object_names.clear()
-        for mesh_object_name in mesh_object_names:
-            n = ext.mesh_object_names.add()
-            n.value = mesh_object_name
-
     vrm0_material_gltf_property_names: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )
@@ -173,9 +136,6 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
-        mesh_object_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
         vrm0_material_gltf_property_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
         ]
@@ -440,10 +400,6 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
 
 
 def update_internal_cache(context: Context) -> None:
-    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-        context.scene.name,
-        defer=False,
-    )
     for armature in bpy.data.armatures:
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature.name)
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature.name)

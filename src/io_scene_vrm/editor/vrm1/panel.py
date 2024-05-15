@@ -7,7 +7,6 @@ from bpy.types import Armature, Context, Mesh, Object, Panel, UILayout
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import HumanBoneSpecifications
 from .. import ops, search
-from ..extension import VrmAddonSceneExtensionPropertyGroup
 from ..migration import migrate
 from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
@@ -359,14 +358,11 @@ class VRM_PT_vrm1_humanoid_ui(Panel):
 
 def draw_vrm1_first_person_layout(
     armature: Object,
-    context: Context,
+    _context: Context,
     layout: UILayout,
     first_person: Vrm1FirstPersonPropertyGroup,
 ) -> None:
-    if migrate(armature.name, defer=True):
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-            context.scene.name
-        )
+    migrate(armature.name, defer=True)
     column = layout.column()
     column.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
 
@@ -572,18 +568,12 @@ def draw_vrm1_expressions_morph_target_bind_layout(
     layout: UILayout,
     bind: Vrm1MorphTargetBindPropertyGroup,
 ) -> None:
-    VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-        context.scene.name
-    )
-
     blend_data = context.blend_data
 
     bind_column = layout.column()
-    bind_column.prop_search(
+    bind_column.prop(
         bind.node,
-        "mesh_object_name",
-        context.scene.vrm_addon_extension,
-        "mesh_object_names",
+        "bpy_object",
         text="Mesh",
         icon="OUTLINER_OB_MESH",
     )
@@ -647,10 +637,7 @@ def draw_vrm1_expressions_layout(
     layout: UILayout,
     expressions: Vrm1ExpressionsPropertyGroup,
 ) -> None:
-    if migrate(armature.name, defer=True):
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-            context.scene.name
-        )
+    migrate(armature.name, defer=True)
 
     preset_expressions = list(expressions.preset.name_to_expression_dict().values())
 

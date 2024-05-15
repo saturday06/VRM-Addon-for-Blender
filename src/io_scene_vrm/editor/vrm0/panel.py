@@ -13,7 +13,6 @@ from bpy.types import (
 
 from ...common.vrm0.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 from .. import ops, search
-from ..extension import VrmAddonSceneExtensionPropertyGroup
 from ..migration import migrate
 from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
@@ -441,14 +440,11 @@ class VRM_PT_vrm0_humanoid_ui(Panel):
 
 def draw_vrm0_first_person_layout(
     armature: Object,
-    context: Context,
+    _context: Context,
     layout: UILayout,
     first_person: Vrm0FirstPersonPropertyGroup,
 ) -> None:
-    if migrate(armature.name, defer=True):
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-            context.scene.name
-        )
+    migrate(armature.name, defer=True)
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
@@ -574,10 +570,7 @@ def draw_vrm0_blend_shape_master_layout(
     layout: UILayout,
     blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
 ) -> None:
-    if migrate(armature.name, defer=True):
-        VrmAddonSceneExtensionPropertyGroup.check_mesh_object_names_and_update(
-            context.scene.name
-        )
+    migrate(armature.name, defer=True)
     blend_data = context.blend_data
 
     (
@@ -646,11 +639,9 @@ def draw_vrm0_blend_shape_master_layout(
 
         if isinstance(bind, Vrm0BlendShapeBindPropertyGroup):
             bind_column = binds_box.column()
-            bind_column.prop_search(
+            bind_column.prop(
                 bind.mesh,
-                "mesh_object_name",
-                context.scene.vrm_addon_extension,
-                "mesh_object_names",
+                "bpy_object",
                 text="Mesh",
                 icon="OUTLINER_OB_MESH",
             )
