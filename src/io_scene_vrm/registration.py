@@ -70,6 +70,12 @@ from .locale.translation_dictionary import translation_dictionary
 logger = get_logger(__name__)
 
 
+def setup(*, load_post: bool) -> None:
+    shader.add_shaders()
+    migration.migrate_all_objects()
+    migration.setup_subscription(load_post=load_post)
+
+
 @persistent
 def load_post(_dummy: object) -> None:
     if (
@@ -80,10 +86,7 @@ def load_post(_dummy: object) -> None:
             depsgraph_update_pre_once_if_load_post_is_unavailable
         )
 
-    # Implement the same as depsgraph_update_pre_once_if_load_post_is_unavailable()
-    shader.add_shaders()
-    migration.migrate_all_objects()
-    migration.setup_subscription(load_post=True)
+    setup(load_post=True)
 
 
 @persistent
@@ -105,9 +108,7 @@ def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> Non
         depsgraph_update_pre_once_if_load_post_is_unavailable
     )
 
-    shader.add_shaders()
-    migration.migrate_all_objects()
-    migration.setup_subscription(load_post=False)
+    setup(load_post=False)
 
 
 @persistent

@@ -158,7 +158,7 @@ def on_change_bpy_armature_name() -> None:
     migrate_all_objects(skip_non_migrated_armatures=True)
 
 
-def setup_subscription(load_post: bool) -> None:
+def setup_subscription(*, load_post: bool) -> None:
     # 本来なら一度しか処理しないが、load_postから呼ばれた場合は強制的に処理する
     if load_post:
         if setup_once:
