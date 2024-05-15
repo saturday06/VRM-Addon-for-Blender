@@ -550,10 +550,10 @@ def copy_node(
             copy_socket(from_output, to_output)
     if from_node.parent:
         to_node.parent = from_to.get(from_node.parent)
-    to_node.select = from_node.select
+    to_node.select = False
     to_node.show_options = from_node.show_options
     to_node.show_preview = from_node.show_preview
-    to_node.show_texture = from_node.show_texture
+    to_node.show_texture = False
     to_node.use_custom_color = from_node.use_custom_color
     to_node.width = from_node.width
 
@@ -667,6 +667,9 @@ def copy_node(
         to_node.interpolation = from_node.interpolation
         to_node.projection = from_node.projection
         to_node.projection_blend = from_node.projection_blend
+        if to_node.name == "Mtoon1BaseColorTexture.Image":
+            to_node.select = True
+            to_node.show_texture = True
     if isinstance(from_node, ShaderNodeTexIES) and isinstance(
         to_node, ShaderNodeTexIES
     ):
