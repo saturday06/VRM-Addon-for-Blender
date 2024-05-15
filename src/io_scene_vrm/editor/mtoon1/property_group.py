@@ -1974,7 +1974,7 @@ class Mtoon1MaterialExtensionsPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/8dc51ec7241be27ee95f159cefc0190a0e41967b/specification/VRMC_materials_mtoon-1.0-beta/schema/VRMC_materials_mtoon.schema.json
 class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain = ()
+    material_property_chain: tuple[str, ...] = ()
 
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
