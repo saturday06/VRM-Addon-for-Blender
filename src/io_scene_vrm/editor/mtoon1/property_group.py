@@ -1,8 +1,9 @@
 import functools
 import re
+import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Callable, Final, Optional, Protocol, Union
 
 import bpy
 from bpy.props import (
@@ -18,10 +19,17 @@ from bpy.types import (
     Context,
     Image,
     Material,
+    Node,
+    NodeSocketColor,
+    NodeSocketFloat,
     PropertyGroup,
+    ShaderNodeBsdfPrincipled,
+    ShaderNodeEmission,
     ShaderNodeGroup,
+    ShaderNodeNormalMap,
     ShaderNodeTexImage,
 )
+from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from mathutils import Vector
 
 from ...common import shader
@@ -32,7 +40,121 @@ from ...common.version import addon_version
 logger = get_logger(__name__)
 
 
-MTOON1_OUTPUT_NODE_GROUP_NAME = "Mtoon1Material.Mtoon1Output"
+MTOON1_OUTPUT_NODE_GROUP_NAME: Final = "Mtoon1Material.Mtoon1Output"
+
+PRINCIPLED_BSDF_BASE_COLOR_INPUT_KEY: Final = "Base Color"
+PRINCIPLED_BSDF_ALPHA_INPUT_KEY: Final = "Alpha"
+PRINCIPLED_BSDF_EMISSION_INPUT_KEY: Final = (
+    "Emission Color" if bpy.app.version >= (4,) else "Emission"
+)
+PRINCIPLED_BSDF_EMISSION_STRENGTH_INPUT_KEY: Final = "Emission Strength"
+PRINCIPLED_BSDF_NORMAL_INPUT_KEY: Final = "Normal"
+NORMAL_MAP_COLOR_INPUT_KEY: Final = "Color"
+EMISSION_COLOR_INPUT_KEY: Final = "Color"
+EMISSION_STRENGTH_INPUT_KEY: Final = "Strength"
+TEX_IMAGE_COLOR_OUTPUT_KEY: Final = "Color"
+TEX_IMAGE_ALPHA_OUTPUT_KEY: Final = "Alpha"
+
+
+def get_gltf_emissive_node(material: Material) -> Optional[ShaderNodeEmission]:
+    node_tree = material.node_tree
+    if not node_tree:
+        return None
+    return next(
+        (
+            node
+            for node in node_tree.nodes
+            if isinstance(node, ShaderNodeEmission)
+            and node.name == "Mtoon1Material.GltfEmissive"
+        ),
+        None,
+    )
+
+
+class NodeSocketTarget(Protocol):
+    def get_in_socket_name(self) -> str: ...
+
+    def create_node_selector(self, material: Material) -> Callable[[Node], bool]: ...
+
+
+class PrincipledBsdfNodeSocketTarget(NodeSocketTarget):
+    def __init__(self, *, in_socket_name: str) -> None:
+        self.in_socket_name = in_socket_name
+
+    def get_in_socket_name(self) -> str:
+        return self.in_socket_name
+
+    @staticmethod
+    def get_node_name(material: Material) -> Optional[str]:
+        # nodeはネイティブ側の生存期間が短く危険なため、関数の外に露出しないようにする
+        node = PrincipledBSDFWrapper(material).node_principled_bsdf
+        if node is None:
+            return None
+        # internを用い、将来破棄されるnodeから直接参照されているstrを使わない
+        # 以前、破棄されたBoneから参照されていたstrを使うと壊れていたことがある
+        # のでそれを意識しての対応だが、気にしすぎかもしれない
+        return sys.intern(node.name)
+
+    def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
+        name = self.get_node_name(material)
+        if name is None:
+            return lambda _: False
+        return (
+            lambda node: isinstance(node, ShaderNodeBsdfPrincipled)
+            and node.name == name
+        )
+
+
+class PrincipledBsdfNormalMapNodeSocketTarget(NodeSocketTarget):
+    def get_in_socket_name(self) -> str:
+        return NORMAL_MAP_COLOR_INPUT_KEY
+
+    @staticmethod
+    def get_node_name(material: Material) -> Optional[str]:
+        # nodeはネイティブ側の生存期間が短く危険なため、関数の外に露出しないようにする
+        node = PrincipledBSDFWrapper(material).node_normalmap
+        if node is None:
+            return None
+        # internを用い、将来破棄されるnodeから直接参照されているstrを使わない
+        # 以前、破棄されたBoneから参照されていたstrを使うと壊れていたことがある
+        # のでそれを意識しての対応だが、気にしすぎかもしれない
+        return sys.intern(node.name)
+
+    def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
+        name = self.get_node_name(material)
+        if name is None:
+            return lambda _: False
+        return lambda node: isinstance(node, ShaderNodeNormalMap) and node.name == name
+
+
+class GltfEmissionNodeSocketTarget(NodeSocketTarget):
+    def get_in_socket_name(self) -> str:
+        return EMISSION_COLOR_INPUT_KEY
+
+    def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
+        _ = material
+        # https://github.com/KhronosGroup/glTF-Blender-IO/pull/740
+        return lambda node: isinstance(node, ShaderNodeEmission)
+
+
+class NodeGroupSocketTarget(NodeSocketTarget):
+    def __init__(self, *, node_group_node_tree_name: str, in_socket_name: str) -> None:
+        self.node_group_node_tree_name = node_group_node_tree_name
+        self.in_socket_name = in_socket_name
+
+    def get_in_socket_name(self) -> str:
+        return self.in_socket_name
+
+    def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
+        _ = material
+        return (
+            lambda node: isinstance(node, ShaderNodeGroup)
+            and (
+                node_tree := node.node_tree,
+                node_tree is not None
+                and node_tree.name == self.node_group_node_tree_name,
+            )[1]
+        )
 
 
 class MaterialTraceablePropertyGroup(PropertyGroup):
@@ -267,17 +389,19 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         name = type(texture_info.index).__name__
         return re.sub("PropertyGroup$", "", name) + "." + extra
 
-    @staticmethod
+    @classmethod
     def link_tex_image_to_node_group(
+        cls,
         material: Material,
         tex_image_node_name: str,
         tex_image_node_socket_name: str,
-        node_group_node_tree_name: str,
-        node_group_socket_name: str,
+        node_socket_target: NodeSocketTarget,
     ) -> None:
         if not material.node_tree:
             return
 
+        select_in_node = node_socket_target.create_node_selector(material)
+        in_socket_name = node_socket_target.get_in_socket_name()
         if any(
             1
             for link in material.node_tree.links
@@ -285,11 +409,9 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             and link.from_node.name == tex_image_node_name
             and link.from_socket
             and link.from_socket.name == tex_image_node_socket_name
-            and isinstance(link.to_node, ShaderNodeGroup)
-            and link.to_node.node_tree
-            and link.to_node.node_tree.name == node_group_node_tree_name
+            and select_in_node(link.to_node)
             and link.to_socket
-            and link.to_socket.name == node_group_socket_name
+            and link.to_socket.name == in_socket_name
         ):
             return
 
@@ -297,11 +419,9 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             (
                 link
                 for link in material.node_tree.links
-                if isinstance(link.to_node, ShaderNodeGroup)
-                and link.to_node.node_tree
-                and link.to_node.node_tree.name == node_group_node_tree_name
+                if select_in_node(link.to_node)
                 and link.to_socket
-                and link.to_socket.name == node_group_socket_name
+                and link.to_socket.name == in_socket_name
             ),
             None,
         )
@@ -309,22 +429,16 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             material.node_tree.links.remove(disconnecting_link)
 
         in_node = next(
-            (
-                n
-                for n in material.node_tree.nodes
-                if isinstance(n, ShaderNodeGroup)
-                and n.node_tree
-                and n.node_tree.name == node_group_node_tree_name
-            ),
+            (n for n in material.node_tree.nodes if select_in_node(n)),
             None,
         )
-        if not isinstance(in_node, ShaderNodeGroup):
-            logger.error(f'No shader node group with "{node_group_node_tree_name}"')
+        if not in_node:
+            logger.error("No input node")
             return
 
-        in_socket = in_node.inputs.get(node_group_socket_name)
+        in_socket = in_node.inputs.get(in_socket_name)
         if not in_socket:
-            logger.error(f"No group socket: {node_group_socket_name}")
+            logger.error(f"No input socket: {in_socket_name}")
             return
 
         out_node = material.node_tree.nodes.get(tex_image_node_name)
@@ -339,19 +453,21 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         material.node_tree.links.new(in_socket, out_socket)
 
-    @staticmethod
-    def unlink_tex_image_to_node_group(
+    @classmethod
+    def unlink_tex_image_from_node_group(
+        cls,
         material: Material,
         tex_image_node_name: str,
         tex_image_node_socket_name: str,
-        node_group_node_tree_name: str,
-        node_group_socket_name: str,
+        node_socket_target: NodeSocketTarget,
     ) -> None:
         while True:
             # Refresh in_node/out_node. These nodes may be invalidated.
             if not material.node_tree:
                 return
 
+            select_in_node = node_socket_target.create_node_selector(material)
+            in_socket_name = node_socket_target.get_in_socket_name()
             disconnecting_link = next(
                 (
                     link
@@ -360,43 +476,39 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                     and link.from_node.name == tex_image_node_name
                     and link.from_socket
                     and link.from_socket.name == tex_image_node_socket_name
-                    and isinstance(link.to_node, ShaderNodeGroup)
-                    and link.to_node.node_tree
-                    and link.to_node.node_tree.name == node_group_node_tree_name
+                    and select_in_node(link.to_node)
                     and link.to_socket
-                    and link.to_socket.name == node_group_socket_name
+                    and link.to_socket.name == in_socket_name
                 ),
                 None,
             )
             if not disconnecting_link:
-                break
+                return
 
             material.node_tree.links.remove(disconnecting_link)
 
-    @staticmethod
+    @classmethod
     def connect_tex_image_to_node_group(
+        cls,
         link: bool,
         material: Material,
         tex_image_node_name: str,
         tex_image_node_socket_name: str,
-        node_group_node_tree_name: str,
-        node_group_socket_name: str,
+        node_socket_target: NodeSocketTarget,
     ) -> None:
         if link:
-            TextureTraceablePropertyGroup.link_tex_image_to_node_group(
+            cls.link_tex_image_to_node_group(
                 material,
                 tex_image_node_name,
                 tex_image_node_socket_name,
-                node_group_node_tree_name,
-                node_group_socket_name,
+                node_socket_target,
             )
         else:
-            TextureTraceablePropertyGroup.unlink_tex_image_to_node_group(
+            cls.unlink_tex_image_from_node_group(
                 material,
                 tex_image_node_name,
                 tex_image_node_socket_name,
-                node_group_node_tree_name,
-                node_group_socket_name,
+                node_socket_target,
             )
 
     def update_image(self, image: Optional[Image]) -> None:
@@ -423,32 +535,19 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         self.set_texture_uv("Image Height", max(image.size[1], 1) if image else 1)
 
         texture_info = self.get_texture_info_property_group()
-        if isinstance(texture_info, Mtoon1BaseColorTextureInfoPropertyGroup):
-            self.connect_tex_image_to_node_group(
-                bool(image),
-                material,
-                node_name,
-                "Color",
-                texture_info.node_group_name,
-                texture_info.group_label_base_name + " Color",
-            )
-            self.connect_tex_image_to_node_group(
-                bool(image),
-                material,
-                node_name,
-                "Alpha",
-                texture_info.node_group_name,
-                texture_info.group_label_base_name + " Alpha",
-            )
-        else:
-            self.connect_tex_image_to_node_group(
-                bool(image),
-                material,
-                node_name,
-                "Color",
-                texture_info.node_group_name,
-                texture_info.group_label_base_name,
-            )
+
+        for (
+            output_socket_name,
+            node_socket_targets,
+        ) in texture_info.node_socket_targets.items():
+            for node_socket_target in node_socket_targets:
+                self.connect_tex_image_to_node_group(
+                    bool(image),
+                    material,
+                    node_name,
+                    output_socket_name,
+                    node_socket_target,
+                )
 
     def set_texture_uv(self, name: str, value: object) -> None:
         node_name = self.get_texture_node_name("Uv")
@@ -1242,8 +1341,7 @@ class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
-    group_label_base_name: str = ""
-    node_group_name: str = shader.OUTPUT_GROUP_NAME
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {}
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1TexturePropertyGroup
@@ -1296,7 +1394,26 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    group_label_base_name = "Lit Color Texture"
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="Lit Color Texture Color",
+            ),
+            PrincipledBsdfNodeSocketTarget(
+                in_socket_name=PRINCIPLED_BSDF_BASE_COLOR_INPUT_KEY
+            ),
+        ],
+        TEX_IMAGE_ALPHA_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="Lit Color Texture Alpha",
+            ),
+            PrincipledBsdfNodeSocketTarget(
+                in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
+            ),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1BaseColorTexturePropertyGroup
@@ -1315,7 +1432,14 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    group_label_base_name = "Shade Color Texture"
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="Shade Color Texture",
+            ),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadeMultiplyTexturePropertyGroup
@@ -1336,15 +1460,37 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.normalTextureInfo.schema.json
 class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     material_property_chain = ("normal_texture",)
-    group_label_base_name = "Normal Map Texture"
-    node_group_name: str = shader.NORMAL_GROUP_NAME
+
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.NORMAL_GROUP_NAME,
+                in_socket_name="Normal Map Texture",
+            ),
+            PrincipledBsdfNormalMapNodeSocketTarget(),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1NormalTexturePropertyGroup
     )
 
     def update_scale(self, _context: Context) -> None:
-        self.set_value(self.node_group_name, "Normal Map Texture Scale", self.scale)
+        self.set_value(shader.NORMAL_GROUP_NAME, "Normal Map Texture Scale", self.scale)
+        material = self.find_material()
+        principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
+        principled_bsdf.normalmap_strength = self.scale
+
+        mtoon1 = material.vrm_addon_extension.mtoon1
+        if mtoon1.is_outline_material:
+            return
+        outline_material = mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_principled_bsdf = PrincipledBSDFWrapper(
+            outline_material, is_readonly=False
+        )
+        outline_principled_bsdf.normalmap_strength = self.scale
 
     scale: FloatProperty(  # type: ignore[valid-type]
         name="Scale",
@@ -1373,7 +1519,15 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
         "vrmc_materials_mtoon",
         "shading_shift_texture",
     )
-    group_label_base_name = "Shading Shift Texture"
+
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="Shading Shift Texture",
+            ),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftTexturePropertyGroup
@@ -1406,7 +1560,18 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    group_label_base_name = "Emissive Texture"
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="Emissive Texture",
+            ),
+            PrincipledBsdfNodeSocketTarget(
+                in_socket_name=PRINCIPLED_BSDF_EMISSION_INPUT_KEY,
+            ),
+            GltfEmissionNodeSocketTarget(),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1EmissiveTexturePropertyGroup
@@ -1425,7 +1590,14 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    group_label_base_name = "Rim Color Texture"
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="Rim Color Texture",
+            ),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1RimMultiplyTexturePropertyGroup
@@ -1444,7 +1616,14 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    group_label_base_name = "MatCap Texture"
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="MatCap Texture",
+            ),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MatcapTexturePropertyGroup
@@ -1465,7 +1644,14 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
     Mtoon1TextureInfoPropertyGroup
 ):
-    group_label_base_name = "Outline Width Texture"
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
+                in_socket_name="Outline Width Texture",
+            ),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1OutlineWidthMultiplyTexturePropertyGroup
@@ -1484,8 +1670,14 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
 
 
 class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    group_label_base_name = "Mask Texture"
-    node_group_name: str = shader.UV_ANIMATION_GROUP_NAME
+    node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
+        TEX_IMAGE_COLOR_OUTPUT_KEY: [
+            NodeGroupSocketTarget(
+                node_group_node_tree_name=shader.UV_ANIMATION_GROUP_NAME,
+                in_socket_name="Mask Texture",
+            ),
+        ],
+    }
 
     index: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1UvAnimationMaskTexturePropertyGroup
@@ -1577,6 +1769,25 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Lit Color Alpha", self.base_color_factor[3]
         )
+        material = self.find_material()
+        principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
+        principled_bsdf.base_color = (
+            self.base_color_factor[0],
+            self.base_color_factor[1],
+            self.base_color_factor[2],
+        )
+        principled_bsdf.alpha = self.base_color_factor[3]
+
+        mtoon1 = material.vrm_addon_extension.mtoon1
+        if mtoon1.is_outline_material:
+            return
+        outline_material = mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_principled_bsdf = PrincipledBSDFWrapper(
+            outline_material, is_readonly=False
+        )
+        outline_principled_bsdf.alpha = self.base_color_factor[3]
 
     base_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=4,
@@ -1823,6 +2034,22 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
         self.update_outline_geometry(context)
 
+        material = self.find_material()
+        mtoon1 = material.vrm_addon_extension.mtoon1
+        if mtoon1.is_outline_material:
+            return
+        outline_material = mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_principled_bsdf = PrincipledBSDFWrapper(
+            outline_material, is_readonly=False
+        )
+        outline_principled_bsdf.base_color = (
+            self.outline_color_factor[0],
+            self.outline_color_factor[1],
+            self.outline_color_factor[2],
+        )
+
     outline_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         name="Outline Color",
         size=3,
@@ -1939,6 +2166,35 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         self.set_value(
             shader.OUTPUT_GROUP_NAME, "Emissive Strength", self.emissive_strength
         )
+
+        material = self.find_material()
+        principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
+        principled_bsdf.emission_strength = self.emissive_strength
+
+        emissive_node = get_gltf_emissive_node(material)
+        if emissive_node is not None:
+            socket = emissive_node.inputs.get(EMISSION_STRENGTH_INPUT_KEY)
+            if isinstance(socket, NodeSocketFloat):
+                socket.default_value = self.emissive_strength
+
+        mtoon1 = material.vrm_addon_extension.mtoon1
+        if mtoon1.is_outline_material:
+            return
+        outline_material = mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_principled_bsdf = PrincipledBSDFWrapper(
+            outline_material, is_readonly=False
+        )
+        outline_principled_bsdf.emission_strength = self.emissive_strength
+
+        outline_emissive_node = get_gltf_emissive_node(outline_material)
+        if outline_emissive_node is not None:
+            outline_socket = outline_emissive_node.inputs.get(
+                EMISSION_STRENGTH_INPUT_KEY
+            )
+            if isinstance(outline_socket, NodeSocketFloat):
+                outline_socket.default_value = self.emissive_strength
 
     emissive_strength: FloatProperty(  # type: ignore[valid-type]
         name="Strength",
@@ -2110,6 +2366,51 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_emissive_factor(self, _context: Context) -> None:
         self.set_rgb(shader.OUTPUT_GROUP_NAME, "Emissive Factor", self.emissive_factor)
+
+        material = self.find_material()
+        principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
+        principled_bsdf.emission_color = (
+            self.emissive_factor[0],
+            self.emissive_factor[1],
+            self.emissive_factor[2],
+        )
+
+        emissive_node = get_gltf_emissive_node(material)
+        if emissive_node is not None:
+            socket = emissive_node.inputs.get(EMISSION_COLOR_INPUT_KEY)
+            if isinstance(socket, NodeSocketColor):
+                socket.default_value = (
+                    self.emissive_factor[0],
+                    self.emissive_factor[1],
+                    self.emissive_factor[2],
+                    1,
+                )
+
+        mtoon1 = material.vrm_addon_extension.mtoon1
+        if mtoon1.is_outline_material:
+            return
+        outline_material = mtoon1.outline_material
+        if not outline_material:
+            return
+        outline_principled_bsdf = PrincipledBSDFWrapper(
+            outline_material, is_readonly=False
+        )
+        outline_principled_bsdf.emission_color = (
+            self.emissive_factor[0],
+            self.emissive_factor[1],
+            self.emissive_factor[2],
+        )
+
+        outline_emissive_node = get_gltf_emissive_node(material)
+        if outline_emissive_node is not None:
+            outline_socket = outline_emissive_node.inputs.get(EMISSION_COLOR_INPUT_KEY)
+            if isinstance(outline_socket, NodeSocketColor):
+                outline_socket.default_value = (
+                    self.emissive_factor[0],
+                    self.emissive_factor[1],
+                    self.emissive_factor[2],
+                    1,
+                )
 
     emissive_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,

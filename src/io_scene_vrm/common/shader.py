@@ -1109,7 +1109,9 @@ def copy_node_tree(from_node_tree: NodeTree, to_node_tree: NodeTree) -> None:
 
     from_to: dict[Node, Node] = {}
 
-    for from_node in from_node_tree.nodes:
+    # Use sorted because glTF add-on uses index-aware logic.
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/86453b20c28d7c78a3f9106911df69fd0138fb2a/addons/io_scene_gltf2/blender/exp/material/gltf2_blender_search_node_tree.py#L806
+    for from_node in sorted(from_node_tree.nodes, key=lambda n: n.name):
         to_node = to_node_tree.nodes.new(from_node.bl_idname)
         from_to[from_node] = to_node
 

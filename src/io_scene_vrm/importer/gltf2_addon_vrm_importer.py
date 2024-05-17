@@ -94,6 +94,8 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 self.extract_textures(repack=False)
             elif bpy.app.version < (3, 1):
                 self.extract_textures(repack=True)
+            else:
+                self.assign_image_filepaths()
 
             wm.progress_update(3)
             self.use_fake_user_for_thumbnail()
@@ -1420,6 +1422,17 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
 
     def is_temp_object_name(self, name: str) -> bool:
         return name.startswith(f"{self.import_id}Temp_")
+
+    def assign_image_filepaths(self) -> None:
+        # Assign image filepath for fbx export
+        for image in self.images.values():
+            if image.filepath:
+                continue
+            image_name = Path(image.filepath_from_user()).name
+            if not image_name:
+                image_name = image.name
+            image_type = image.file_format.lower()
+            image.filepath_raw = f"{image_name}.{image_type}"
 
     def extract_textures(self, repack: bool) -> None:
         dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
