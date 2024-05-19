@@ -67,7 +67,7 @@ def migrate(context: Context) -> None:
             if group_node.node_tree.name != "VRM Add-on MToon 1.0 Output Revision 1":
                 continue
 
-        if addon_version < (2, 20, 42):
+        if addon_version < (2, 20, 47):
             reset_shader_node_group(
                 context, material, reset_node_tree=True, overwrite=True
             )
