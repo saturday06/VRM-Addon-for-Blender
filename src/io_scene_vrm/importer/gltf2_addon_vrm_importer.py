@@ -1435,8 +1435,10 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
             if not image_name:
                 image_name = remove_unsafe_path_chars(image.name)
             image_type = image.file_format.lower()
-            sep = os.sep if bpy.app.version >= (3, 4) else os.altsep
-            image.filepath_raw = f"//textures{sep}{image_name}.{image_type}"
+            if bpy.app.version >= (3, 4):
+                image.filepath_raw = f"//textures{os.sep}{image_name}.{image_type}"
+            else:
+                image.filepath_raw = f"//{image_name}.{image_type}"
 
     def extract_textures(self, repack: bool) -> None:
         dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
