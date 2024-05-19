@@ -11,10 +11,11 @@
 #
 #
 
+# Synchronize with https://github.com/saturday06/VRM-Addon-for-Blender/blob/b0aedc74ae4b23e69756106ded4e60195265c57a/src/io_scene_vrm/common/version.py#L94-L102
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 41),
+    "version": (2, 20, 48),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
     "blender": (2, 93, 0),
