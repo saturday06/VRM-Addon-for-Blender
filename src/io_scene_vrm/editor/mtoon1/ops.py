@@ -19,6 +19,7 @@ from bpy.types import (
     ShaderNodeMapping,
 )
 from bpy_extras.io_utils import ImportHelper
+from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 
 from ...common import convert, shader
 from ...common.logging import get_logger
@@ -106,12 +107,71 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             return
 
         addon_version = tuple(material.vrm_addon_extension.mtoon1.addon_version)
+        overwrite = addon_version < (2, 20, 8)
+
+        principled_bsdf = PrincipledBSDFWrapper(material)
+        if not principled_bsdf.node_principled_bsdf:
+            reset_shader_node_group(
+                context,
+                material,
+                reset_node_tree=True,
+                overwrite=overwrite,
+            )
+            return
+
+        base_color_factor = (
+            principled_bsdf.base_color[0],
+            principled_bsdf.base_color[1],
+            principled_bsdf.base_color[2],
+            principled_bsdf.alpha,
+        )
+        base_color_texture_node = principled_bsdf.base_color_texture
+        if base_color_texture_node:
+            base_color_texture_image = base_color_texture_node.image
+        else:
+            base_color_texture_image = None
+
+        emissive_factor = principled_bsdf.emission_color
+        emission_color_texture_node = principled_bsdf.emission_color_texture
+        if emission_color_texture_node:
+            emissive_texture_image = emission_color_texture_node.image
+        else:
+            emissive_texture_image = None
+        emissive_strength = principled_bsdf.emission_strength
+
+        normalmap_texture_node = principled_bsdf.normalmap_texture
+        if normalmap_texture_node:
+            normal_texture_image = normalmap_texture_node.image
+            normal_texture_scale = principled_bsdf.normalmap_strength
+        else:
+            normal_texture_image = None
+            normal_texture_scale = None
+
         reset_shader_node_group(
             context,
             material,
             reset_node_tree=True,
-            overwrite=(addon_version < (2, 20, 8)),
+            overwrite=overwrite,
         )
+
+        gltf = material.vrm_addon_extension.mtoon1
+        gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
+        if base_color_texture_image:
+            gltf.pbr_metallic_roughness.base_color_texture.index.source = (
+                base_color_texture_image
+            )
+
+        gltf.emissive_factor = emissive_factor
+        gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
+            emissive_strength
+        )
+        if emissive_texture_image:
+            gltf.emissive_texture.index.source = emissive_texture_image
+
+        if normal_texture_image:
+            gltf.normal_texture.index.source = normal_texture_image
+        if normal_texture_scale is not None:
+            gltf.normal_texture.scale = normal_texture_scale
 
     def convert_mtoon_unversioned_to_mtoon1(
         self,
@@ -445,11 +505,39 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
         if not material.node_tree:
             logger.error(f"{material.name}'s node tree is None")
             return
-        shader_node = material.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
-        output_node = material.node_tree.nodes.new("ShaderNodeOutputMaterial")
-        material.node_tree.links.new(
-            output_node.inputs["Surface"], shader_node.outputs["BSDF"]
+
+        principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
+        gltf = material.vrm_addon_extension.mtoon1
+
+        principled_bsdf.base_color = gltf.pbr_metallic_roughness.base_color_factor[:3]
+        base_color_texture_image = (
+            gltf.pbr_metallic_roughness.base_color_texture.index.source
         )
+        if base_color_texture_image:
+            base_color_texture_node = principled_bsdf.base_color_texture
+            if base_color_texture_node:
+                base_color_texture_node.image = base_color_texture_image
+
+        principled_bsdf.alpha = gltf.pbr_metallic_roughness.base_color_factor[3]
+
+        principled_bsdf.emission_color = list(gltf.emissive_factor)
+        principled_bsdf.emission_strength = (
+            gltf.extensions.khr_materials_emissive_strength.emissive_strength
+        )
+        emissive_texture_image = gltf.emissive_texture.index.source
+        if emissive_texture_image:
+            emission_color_texture_node = principled_bsdf.emission_color_texture
+            if emission_color_texture_node:
+                emission_color_texture_node.image = emissive_texture_image
+
+        normal_texture_image = gltf.normal_texture.index.source
+        if normal_texture_image:
+            normalmap_texture_node = principled_bsdf.normalmap_texture
+            if normalmap_texture_node:
+                normalmap_texture_node.image = normal_texture_image
+        normal_scale = gltf.normal_texture.scale
+        if abs(normal_scale - 1) >= float_info.epsilon:
+            principled_bsdf.normalmap_strength = gltf.normal_texture.scale
 
     if TYPE_CHECKING:
         # This code is auto generated.
