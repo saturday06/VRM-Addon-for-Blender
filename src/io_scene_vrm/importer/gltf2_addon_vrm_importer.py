@@ -1428,7 +1428,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
         for image in self.images.values():
             if image.filepath:
                 continue
-            image_name = Path(image.filepath_from_user()).name
+            image_name = Path(image.filepath_from_user()).stem
             if not image_name:
                 image_name = image.name
             image_type = image.file_format.lower()
