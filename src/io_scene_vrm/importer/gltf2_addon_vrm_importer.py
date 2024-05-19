@@ -1432,7 +1432,7 @@ class Gltf2AddonVrmImporter(AbstractBaseVrmImporter):
                 continue
             image_name = Path(image.filepath_from_user()).stem
             if not image_name:
-                image_name = image.name
+                image_name = remove_unsafe_path_chars(image.name)
             image_type = image.file_format.lower()
             image.filepath_raw = f"{image_name}.{image_type}"
 
