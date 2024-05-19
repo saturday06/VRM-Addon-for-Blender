@@ -780,7 +780,16 @@ class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
 
 
 class Mtoon1TextureInfoExtensionsPropertyGroup(PropertyGroup):
-    pass
+    khr_texture_transform: PointerProperty(  # type: ignore[valid-type]
+        type=Mtoon1KhrTextureTransformPropertyGroup
+    )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        khr_texture_transform: (  # type: ignore[no-redef]
+            Mtoon1KhrTextureTransformPropertyGroup
+        )
 
 
 class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
@@ -1118,6 +1127,8 @@ class Mtoon1UvAnimationMaskSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
 
 
 class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
+    label = ""
+    panel_label = label
     colorspace = "sRGB"
 
     def update_source(self, _context: Context) -> None:
@@ -1353,7 +1364,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     @dataclass(frozen=True)
     class TextureInfoBackup:
-        source: Image
+        source: Optional[Image]
         mag_filter: str
         min_filter: str
         wrap_s: str
@@ -1379,7 +1390,6 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     def restore(self, backup: TextureInfoBackup) -> None:
-        # pylint: disable=attribute-defined-outside-init
         self.index.source = backup.source
         self.index.sampler.mag_filter = backup.mag_filter
         self.index.sampler.min_filter = backup.min_filter
@@ -1387,9 +1397,15 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         self.index.sampler.wrap_t = backup.wrap_t
         self.extensions.khr_texture_transform.offset = backup.offset
         self.extensions.khr_texture_transform.scale = backup.scale
-        # pylint: enable=attribute-defined-outside-init
 
     show_expanded: BoolProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        index: Mtoon1TexturePropertyGroup  # type: ignore[no-redef]
+        extensions: Mtoon1TextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
+        show_expanded: bool  # type: ignore[no-redef]
 
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json

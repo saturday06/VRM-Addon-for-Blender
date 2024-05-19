@@ -5,19 +5,9 @@ import re
 import sys
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Union
 
 from bpy.types import (
     ID,
-    AddonPreferences,
-    Header,
-    KeyingSetInfo,
-    Menu,
-    Operator,
-    Panel,
-    PropertyGroup,
-    RenderEngine,
-    UIList,
 )
 
 from io_scene_vrm import registration
@@ -94,17 +84,7 @@ def write_property_typing(
 
 
 def update_property_typing(
-    c: Union[
-        type[Panel],
-        type[UIList],
-        type[Menu],
-        type[Header],
-        type[Operator],
-        type[KeyingSetInfo],
-        type[RenderEngine],
-        type[AddonPreferences],
-        type[PropertyGroup],
-    ],
+    c: type,
     typing_code: str,
 ) -> None:
     if not typing_code:
@@ -118,8 +98,8 @@ def update_property_typing(
     modules.reverse()
     module = modules.pop()
     if module != "io_scene_vrm":
-        message = f"Unexpected module {module}"
-        raise AssertionError(message)
+        print(f"Unexpected module: {module}")
+        return
 
     path = Path(__file__).parent.parent / "src" / "io_scene_vrm"
     while modules:
@@ -192,10 +172,24 @@ def update_property_typing(
 
 
 def main() -> int:
-    for c in registration.classes:
+    classes = []
+    searching_classes = list(registration.classes)
+    while searching_classes:
+        c = searching_classes.pop()
+        print(f"Searching {c}")
+        for b in c.__bases__:
+            print(f"++ Searching {b}")
+            if b not in classes and b not in searching_classes:
+                searching_classes.append(b)
+        if c not in classes:
+            classes.append(c)
+    for c in classes:
         print(f"##### {c} #####")
         code = ""
-        for k, v in c.__annotations__.items():
+        annotations = getattr(c, "__annotations__", None)
+        if not isinstance(annotations, Mapping):
+            continue
+        for k, v in annotations.items():
             function: object = getattr(v, "function", None)
             if function is None:
                 continue
