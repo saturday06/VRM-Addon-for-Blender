@@ -164,63 +164,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             obj.parent = None
             obj.matrix_world = matrix_world
 
-    def create_dummy_skinned_mesh_object(self) -> str:
-        vertices = []
-        edges = []
-        faces = []
-        for index, _ in enumerate(self.armature.pose.bones):
-            vertices.extend(
-                [
-                    (index / 16.0, 0, 0),
-                    ((index + 1) / 16.0, 0, 1 / 16.0),
-                    ((index + 1) / 16.0, 0, 0),
-                ]
-            )
-            edges.extend(
-                [
-                    (index * 3 + 0, index * 3 + 1),
-                    (index * 3 + 1, index * 3 + 2),
-                    (index * 3 + 2, index * 3 + 0),
-                ]
-            )
-            faces.append((index * 3, index * 3 + 1, index * 3 + 2))
-
-        armature_data = self.armature.data
-        if not isinstance(armature_data, Armature):
-            message = f"{type(armature_data)} is not an Armature"
-            raise TypeError(message)
-
-        mesh = bpy.data.meshes.new(self.export_id + "_mesh")
-        mesh.from_pydata(vertices, edges, faces)
-        mesh.update()
-        if mesh.validate():
-            message = "Invalid geometry"
-            raise ValueError(message)
-        obj = bpy.data.objects.new("secondary", mesh)
-        obj.parent_type = "OBJECT"
-        obj.parent = self.armature
-        for index, bone_name in enumerate(armature_data.bones.keys()):
-            vertex_group = obj.vertex_groups.new(name=bone_name)
-            vertex_group.add([index * 3, index * 3 + 1, index * 3 + 2], 1.0, "ADD")
-        modifier = obj.modifiers.new(name="Armature", type="ARMATURE")
-        if not isinstance(modifier, ArmatureModifier):
-            message = f"{type(modifier)} is not a ArmatureModifier"
-            raise TypeError(message)
-        modifier.object = self.armature
-        self.context.scene.collection.objects.link(obj)
-        obj[self.extras_object_name_key] = obj.name
-        return str(obj.name)
-
-    def destroy_dummy_skinned_mesh_object(self, name: str) -> None:
-        dummy_skinned_mesh_object = bpy.data.objects.get(name)
-        if not isinstance(dummy_skinned_mesh_object, Object):
-            return
-        dummy_skinned_mesh_object.modifiers.clear()
-        dummy_skinned_mesh_object.vertex_groups.clear()
-        self.context.scene.collection.objects.unlink(  # TODO: remove completely
-            dummy_skinned_mesh_object
-        )
-
     @classmethod
     def create_meta_dict(
         cls,
@@ -950,10 +893,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "index": texture_index,
             "extensions": {"KHR_texture_transform": khr_texture_transform_dict},
         }
-
-    @classmethod
-    def lerp(cls, a: float, b: float, t: float) -> float:
-        return (1 - t) * a + t * b
 
     @classmethod
     def create_mtoon1_material_dict(
@@ -2000,7 +1939,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         backup_human_bone_name_to_bone_name = self.setup_dummy_human_bones(
             self.context, self.armature, armature_data
         )
-        # dummy_skinned_mesh_object_name = self.create_dummy_skinned_mesh_object()
         object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes()
         blend_shape_previews = self.clear_blend_shape_proxy_previews(armature_data)
         disabled_mtoon1_material_names = []
@@ -2077,7 +2015,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
             self.restore_object_visibility_and_selection()
             self.restore_skinned_mesh_parent()
-            # self.destroy_dummy_skinned_mesh_object(dummy_skinned_mesh_object_name)
             self.restore_mtoon1_outline_geometry_nodes(object_name_to_modifier_name)
             self.restore_pose(self.armature, armature_data)
             self.restore_blend_shape_proxy_previews(armature_data, blend_shape_previews)
