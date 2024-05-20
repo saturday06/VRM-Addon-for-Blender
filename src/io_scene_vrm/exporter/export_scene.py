@@ -41,8 +41,8 @@ from ..editor.vrm1.panel import (
 )
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
-from .gltf2_addon_vrm_exporter import Gltf2AddonVrmExporter
-from .legacy_vrm_exporter import LegacyVrmExporter
+from .vrm0_exporter import Vrm0Exporter
+from .vrm1_exporter import Vrm1Exporter
 from .vrm_animation_exporter import VrmAnimationExporter
 
 logger = get_logger(__name__)
@@ -152,14 +152,14 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         )
 
         if is_vrm1:
-            vrm_exporter: AbstractBaseVrmExporter = Gltf2AddonVrmExporter(
+            vrm_exporter: AbstractBaseVrmExporter = Vrm1Exporter(
                 context,
                 export_objects,
                 self.export_all_influences,
                 self.export_lights,
             )
         else:
-            vrm_exporter = LegacyVrmExporter(
+            vrm_exporter = Vrm0Exporter(
                 context,
                 export_objects,
                 export_fb_ngon_encoding,

@@ -1,14 +1,23 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2018 iCyP
 
-import json
+import base64
+import contextlib
+import functools
 import math
-import uuid
+import operator
+import os
+import re
+import secrets
+import shutil
+import struct
+import tempfile
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
-from typing import Optional, Union
+from pathlib import Path
+from typing import Optional
 
 import bpy
+import mathutils
 from bpy.types import (
     Armature,
     Context,
@@ -16,38 +25,22 @@ from bpy.types import (
     Material,
     Mesh,
     Object,
-    ShaderNodeOutputMaterial,
     SpaceView3D,
 )
-from mathutils import Matrix, Vector
+from mathutils import Matrix
 
-from ..common import convert, deep, shader
-from ..common.deep import Json
+from ..common import deep, shader
+from ..common.deep import Json, make_json
+from ..common.fs import (
+    create_unique_indexed_directory_path,
+    create_unique_indexed_file_path,
+)
+from ..common.gl import GL_FLOAT, GL_LINEAR, GL_REPEAT, GL_UNSIGNED_SHORT
+from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.preferences import ImportPreferencesProtocol
-from ..common.version import addon_version
-from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
-from ..editor import make_armature, migration
-from ..editor.make_armature import (
-    connect_parent_tail_and_child_head_if_very_close_position,
-)
-from ..editor.mtoon1.property_group import (
-    Mtoon0TexturePropertyGroup,
-    Mtoon1MaterialPropertyGroup,
-    Mtoon1SamplerPropertyGroup,
-    Mtoon1TextureInfoPropertyGroup,
-    Mtoon1TexturePropertyGroup,
-)
-from ..editor.vrm0.property_group import (
-    Vrm0BlendShapeGroupPropertyGroup,
-    Vrm0BlendShapeMasterPropertyGroup,
-    Vrm0FirstPersonPropertyGroup,
-    Vrm0HumanoidPropertyGroup,
-    Vrm0MeshAnnotationPropertyGroup,
-    Vrm0MetaPropertyGroup,
-    Vrm0SecondaryAnimationPropertyGroup,
-)
-from .vrm_parser import ParseResult, Vrm0MaterialProperty
+from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
+from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
 logger = get_logger(__name__)
 
@@ -72,13 +65,55 @@ class AbstractBaseVrmImporter(ABC):
         self.mesh_joined_objects = None
         self.bone_child_object_world_matrices: dict[str, Matrix] = {}
 
+        self.import_id = Gltf2AddonImporterUserExtension.update_current_import_id()
+        self.temp_object_name_count = 0
+        self.object_names: dict[int, str] = {}
+        self.mesh_object_names: dict[int, str] = {}
+
     @abstractmethod
-    def import_vrm(self) -> None:
+    def make_materials(self) -> None:
         pass
 
-    @staticmethod
-    def axis_glb_to_blender(vec3: Sequence[float]) -> list[float]:
-        return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
+    @abstractmethod
+    def load_gltf_extensions(self) -> None:
+        pass
+
+    @abstractmethod
+    def find_vrm_bone_node_indices(self) -> list[int]:
+        pass
+
+    def import_vrm(self) -> None:
+        wm = self.context.window_manager
+        wm.progress_begin(0, 8)
+        try:
+            affected_object = self.scene_init()
+            wm.progress_update(1)
+            self.import_gltf2_with_indices()
+            wm.progress_update(2)
+            if self.preferences.extract_textures_into_folder:
+                self.extract_textures(repack=False)
+            elif bpy.app.version < (3, 1):
+                self.extract_textures(repack=True)
+            else:
+                self.assign_packed_image_filepaths()
+
+            wm.progress_update(3)
+            self.use_fake_user_for_thumbnail()
+            wm.progress_update(4)
+            if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
+                self.make_materials()
+            wm.progress_update(5)
+            if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
+                self.load_gltf_extensions()
+            wm.progress_update(6)
+            self.finishing(affected_object)
+            wm.progress_update(7)
+            self.viewport_setup()
+        finally:
+            try:
+                Gltf2AddonImporterUserExtension.clear_current_import_id()
+            finally:
+                wm.progress_end()
 
     @property
     def armature_data(self) -> Armature:
@@ -113,172 +148,6 @@ class AbstractBaseVrmImporter(ABC):
                 obj.matrix_world = self.bone_child_object_world_matrices[
                     obj.name
                 ].copy()
-
-    def setup_vrm0_humanoid_bones(self) -> None:
-        armature = self.armature
-        if not armature:
-            return
-        addon_extension = self.armature_data.vrm_addon_extension
-
-        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-            self.armature_data.name,
-            force=True,
-        )
-
-        human_bones = addon_extension.vrm0.humanoid.human_bones
-        for human_bone in human_bones:
-            if (
-                human_bone.node.bone_name
-                and human_bone.node.bone_name not in human_bone.node_candidates
-            ):
-                # has error
-                return
-
-        for humanoid_name in HumanBoneSpecifications.required_names:
-            if not any(
-                human_bone.bone == humanoid_name and human_bone.node.bone_name
-                for human_bone in human_bones
-            ):
-                # has error
-                return
-
-        previous_active = self.context.view_layer.objects.active
-        try:
-            self.context.view_layer.objects.active = armature
-
-            bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
-            for human_bone in human_bones:
-                if not human_bone.node.bone_name:
-                    continue
-                name = HumanBoneName.from_str(human_bone.bone)
-                if not name:
-                    continue
-                bone_name_to_human_bone_name[human_bone.node.bone_name] = name
-
-            bpy.ops.object.mode_set(mode="EDIT")
-
-            for bone_name in bone_name_to_human_bone_name:
-                bone = self.armature_data.edit_bones.get(bone_name)
-                while bone:
-                    bone.roll = 0.0
-                    bone = bone.parent
-
-            for (
-                bone_name,
-                human_bone_name,
-            ) in bone_name_to_human_bone_name.items():
-                # 現在のアルゴリズムでは
-                #
-                #   head ---- node ---- leftEye
-                #                   \
-                #                    -- rightEye
-                #
-                # を上手く扱えないので、leftEyeとrightEyeは処理しない
-                if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
-                    continue
-
-                bone = self.armature_data.edit_bones.get(bone_name)
-                if not bone:
-                    continue
-                last_human_bone_name = human_bone_name
-                while True:
-                    parent = bone.parent
-                    if not parent:
-                        break
-                    parent_human_bone_name = bone_name_to_human_bone_name.get(
-                        parent.name
-                    )
-
-                    if parent_human_bone_name in [
-                        HumanBoneName.RIGHT_HAND,
-                        HumanBoneName.LEFT_HAND,
-                    ]:
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.UPPER_CHEST
-                        and last_human_bone_name
-                        not in [HumanBoneName.HEAD, HumanBoneName.NECK]
-                    ):
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.CHEST
-                        and last_human_bone_name
-                        not in [
-                            HumanBoneName.HEAD,
-                            HumanBoneName.NECK,
-                            HumanBoneName.UPPER_CHEST,
-                        ]
-                    ):
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.SPINE
-                        and last_human_bone_name
-                        not in [
-                            HumanBoneName.HEAD,
-                            HumanBoneName.NECK,
-                            HumanBoneName.UPPER_CHEST,
-                            HumanBoneName.CHEST,
-                        ]
-                    ):
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.HIPS
-                        and last_human_bone_name != HumanBoneName.SPINE
-                    ):
-                        break
-
-                    if parent_human_bone_name:
-                        last_human_bone_name = parent_human_bone_name
-
-                    if (
-                        parent.head - bone.head
-                    ).length >= make_armature.MIN_BONE_LENGTH:
-                        parent.tail = bone.head
-
-                    bone = parent
-
-            for human_bone in human_bones:
-                if (
-                    human_bone.bone
-                    not in [HumanBoneName.LEFT_EYE.value, HumanBoneName.RIGHT_EYE.value]
-                    or not human_bone.node.bone_name
-                ):
-                    continue
-
-                bone = self.armature_data.edit_bones.get(human_bone.node.bone_name)
-                if not bone or bone.children:
-                    continue
-
-                world_head = (
-                    armature.matrix_world @ Matrix.Translation(bone.head)
-                ).to_translation()
-
-                world_tail = list(world_head)
-                world_tail[1] -= 0.03125
-
-                world_inv = armature.matrix_world.inverted()
-                if not world_inv:
-                    continue
-                bone.tail = (
-                    Matrix.Translation(world_tail) @ world_inv
-                ).to_translation()
-
-            connect_parent_tail_and_child_head_if_very_close_position(
-                self.armature_data
-            )
-            bpy.ops.object.mode_set(mode="OBJECT")
-        finally:
-            active = self.context.view_layer.objects.active
-            if active and active.mode != "OBJECT":
-                bpy.ops.object.mode_set(mode="OBJECT")
-            self.context.view_layer.objects.active = previous_active
-
-        self.load_bone_child_object_world_matrices(armature)
 
     def scene_init(self) -> Optional[Object]:
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るの
@@ -328,19 +197,6 @@ class AbstractBaseVrmImporter(ABC):
                 if isinstance(image_index, int) and image_index in self.images:
                     self.images[image_index].use_fake_user = True
 
-    # material
-    @staticmethod
-    def find_material_output_node(
-        material: Material,
-    ) -> ShaderNodeOutputMaterial:
-        if material.node_tree:
-            for node in material.node_tree.nodes:
-                if not isinstance(node, ShaderNodeOutputMaterial):
-                    continue
-                return node
-        message = f'No "ShaderNodeOutputMaterial" node in {material}'
-        raise ValueError(message)
-
     @staticmethod
     def reset_material(material: Material) -> None:
         if not material.use_nodes:
@@ -361,948 +217,973 @@ class AbstractBaseVrmImporter(ABC):
         else:
             logger.error(f"No node tree for material {material.name}")
 
-    def make_material(self) -> None:
-        shader_to_build_method = {
-            "VRM/MToon": self.build_material_from_mtoon0,
-            "VRM/UnlitTransparentZWrite": self.build_material_from_transparent_z_write,
-        }
-
-        for index, material_property in enumerate(
-            self.parse_result.vrm0_material_properties
-        ):
-            build_method = shader_to_build_method.get(material_property.shader)
-            if not build_method:
+    def assign_packed_image_filepaths(self) -> None:
+        # Assign image filepath for fbx export
+        for image in self.images.values():
+            if image.packed_file is None:
                 continue
-
-            material = self.materials.get(index)
-            if not material:
-                material = bpy.data.materials.new(material_property.name)
-                self.materials[index] = material
-
-            self.reset_material(material)
-            build_method(material, material_property)
-
-    def assign_mtoon0_texture(
-        self,
-        texture: Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup],
-        texture_index: Optional[int],
-    ) -> bool:
-        if texture_index is None:
-            return False
-        texture_dicts = self.parse_result.json_dict.get("textures")
-        if not isinstance(texture_dicts, list):
-            return False
-        if not 0 <= texture_index < len(texture_dicts):
-            return False
-        texture_dict = texture_dicts[texture_index]
-        if not isinstance(texture_dict, dict):
-            return False
-
-        source = texture_dict.get("source")
-        if isinstance(source, int):
-            image = self.images.get(source)
-            if image:
-                image.colorspace_settings.name = texture.colorspace
-                texture.source = image
-
-        sampler = texture_dict.get("sampler")
-        samplers = self.parse_result.json_dict.get("samplers")
-        if not isinstance(sampler, int) or not isinstance(samplers, list):
-            return True
-        if not 0 <= sampler < len(samplers):
-            return True
-
-        sampler_dict = samplers[sampler]
-        if not isinstance(sampler_dict, dict):
-            return True
-
-        mag_filter = sampler_dict.get("magFilter")
-        if isinstance(mag_filter, int):
-            mag_filter_id = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
-                mag_filter
-            )
-            if isinstance(mag_filter_id, str):
-                texture.sampler.mag_filter = mag_filter_id
-
-        min_filter = sampler_dict.get("minFilter")
-        if isinstance(min_filter, int):
-            min_filter_id = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
-                min_filter
-            )
-            if isinstance(min_filter_id, str):
-                texture.sampler.min_filter = min_filter_id
-
-        wrap_s = sampler_dict.get("wrapS")
-        if isinstance(wrap_s, int):
-            wrap_s_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_s)
-            if isinstance(wrap_s_id, str):
-                texture.sampler.wrap_s = wrap_s_id
-
-        wrap_t = sampler_dict.get("wrapT")
-        if isinstance(wrap_t, int):
-            wrap_t_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_t)
-            if isinstance(wrap_t_id, str):
-                texture.sampler.wrap_t = wrap_t_id
-
-        return True
-
-    def assign_mtoon0_texture_info(
-        self,
-        texture_info: Mtoon1TextureInfoPropertyGroup,
-        texture_index: Optional[int],
-        uv_transform: tuple[float, float, float, float],
-    ) -> None:
-        if not self.assign_mtoon0_texture(texture_info.index, texture_index):
-            return
-
-        texture_info.extensions.khr_texture_transform.offset = (
-            uv_transform[0],
-            uv_transform[1],
-        )
-        texture_info.extensions.khr_texture_transform.scale = (
-            uv_transform[2],
-            uv_transform[3],
-        )
-
-    def build_material_from_mtoon0(
-        self, material: Material, vrm0_material_property: Vrm0MaterialProperty
-    ) -> None:
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
-        material.use_backface_culling = True
-
-        gltf = material.vrm_addon_extension.mtoon1
-        gltf.addon_version = addon_version()
-        gltf.enabled = True
-        gltf.show_expanded_mtoon0 = True
-        mtoon = gltf.extensions.vrmc_materials_mtoon
-
-        gltf.alpha_mode = gltf.ALPHA_MODE_OPAQUE
-        blend_mode = vrm0_material_property.float_properties.get("_BlendMode")
-        if blend_mode is not None:
-            if math.fabs(blend_mode - 1) < 0.001:
-                gltf.alpha_mode = gltf.ALPHA_MODE_MASK
-            elif math.fabs(blend_mode - 2) < 0.001:
-                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND
-            elif math.fabs(blend_mode - 3) < 0.001:
-                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND
-                mtoon.transparent_with_z_write = True
-
-        cutoff = vrm0_material_property.float_properties.get("_Cutoff")
-        if cutoff is not None:
-            gltf.alpha_cutoff = cutoff
-
-        gltf.double_sided = True
-        cull_mode = vrm0_material_property.float_properties.get("_CullMode")
-        if cull_mode is not None:
-            if math.fabs(cull_mode - 1) < 0.001:
-                gltf.mtoon0_front_cull_mode = True
-            elif math.fabs(cull_mode - 2) < 0.001:
-                gltf.double_sided = False
-
-        base_color_factor = shader.rgba_or_none(
-            vrm0_material_property.vector_properties.get("_Color")
-        )
-        if base_color_factor:
-            gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
-
-        raw_uv_transform = vrm0_material_property.vector_properties.get("_MainTex")
-        if raw_uv_transform is None or len(raw_uv_transform) != 4:
-            uv_transform = (0.0, 0.0, 1.0, 1.0)
-        else:
-            uv_transform = (
-                raw_uv_transform[0],
-                raw_uv_transform[1],
-                raw_uv_transform[2],
-                raw_uv_transform[3],
-            )
-
-        self.assign_mtoon0_texture_info(
-            gltf.pbr_metallic_roughness.base_color_texture,
-            vrm0_material_property.texture_properties.get("_MainTex"),
-            uv_transform,
-        )
-
-        shade_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_ShadeColor")
-        )
-        if shade_color_factor:
-            mtoon.shade_color_factor = shade_color_factor
-
-        self.assign_mtoon0_texture_info(
-            mtoon.shade_multiply_texture,
-            vrm0_material_property.texture_properties.get("_ShadeTexture"),
-            uv_transform,
-        )
-
-        self.assign_mtoon0_texture_info(
-            gltf.normal_texture,
-            vrm0_material_property.texture_properties.get("_BumpMap"),
-            uv_transform,
-        )
-        normal_texture_scale = vrm0_material_property.float_properties.get("_BumpScale")
-        if isinstance(normal_texture_scale, (float, int)):
-            gltf.normal_texture.scale = float(normal_texture_scale)
-
-        shading_shift_0x = vrm0_material_property.float_properties.get("_ShadeShift")
-        if shading_shift_0x is None:
-            shading_shift_0x = 0
-
-        shading_toony_0x = vrm0_material_property.float_properties.get("_ShadeToony")
-        if shading_toony_0x is None:
-            shading_toony_0x = 0
-
-        mtoon.shading_shift_factor = convert.mtoon_shading_shift_0_to_1(
-            shading_toony_0x, shading_shift_0x
-        )
-
-        mtoon.shading_toony_factor = convert.mtoon_shading_toony_0_to_1(
-            shading_toony_0x, shading_shift_0x
-        )
-
-        indirect_light_intensity = vrm0_material_property.float_properties.get(
-            "_IndirectLightIntensity"
-        )
-        if indirect_light_intensity is not None:
-            mtoon.gi_equalization_factor = convert.mtoon_intensity_to_gi_equalization(
-                indirect_light_intensity
-            )
-        else:
-            mtoon.gi_equalization_factor = 0.5
-
-        raw_emissive_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_EmissionColor")
-        ) or (0, 0, 0)
-        max_color_component_value = max(raw_emissive_factor)
-        if max_color_component_value > 1:
-            gltf.emissive_factor = list(
-                Vector(raw_emissive_factor) / max_color_component_value
-            )
-            gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
-                max_color_component_value
-            )
-        else:
-            gltf.emissive_factor = raw_emissive_factor
-
-        self.assign_mtoon0_texture_info(
-            gltf.emissive_texture,
-            vrm0_material_property.texture_properties.get("_EmissionMap"),
-            uv_transform,
-        )
-
-        self.assign_mtoon0_texture_info(
-            mtoon.matcap_texture,
-            vrm0_material_property.texture_properties.get("_SphereAdd"),
-            (0, 0, 1, 1),
-        )
-
-        parametric_rim_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_RimColor")
-        )
-        if parametric_rim_color_factor:
-            mtoon.parametric_rim_color_factor = parametric_rim_color_factor
-
-        parametric_rim_fresnel_power_factor = (
-            vrm0_material_property.float_properties.get("_RimFresnelPower")
-        )
-        if isinstance(parametric_rim_fresnel_power_factor, (float, int)):
-            mtoon.parametric_rim_fresnel_power_factor = (
-                parametric_rim_fresnel_power_factor
-            )
-
-        mtoon.parametric_rim_lift_factor = vrm0_material_property.float_properties.get(
-            "_RimLift", 0
-        )
-
-        self.assign_mtoon0_texture_info(
-            mtoon.rim_multiply_texture,
-            vrm0_material_property.texture_properties.get("_RimTexture"),
-            uv_transform,
-        )
-
-        # https://github.com/vrm-c/UniVRM/blob/7c9919ef47a25c04100a2dcbe6a75dff49ef4857/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L287-L290
-        mtoon.rim_lighting_mix_factor = 1.0
-        rim_lighting_mix = vrm0_material_property.float_properties.get(
-            "_RimLightingMix"
-        )
-        if rim_lighting_mix is not None:
-            gltf.mtoon0_rim_lighting_mix = rim_lighting_mix
-
-        centimeter_to_meter = 0.01
-        one_hundredth = 0.01
-
-        outline_width_mode = int(
-            round(vrm0_material_property.float_properties.get("_OutlineWidthMode", 0))
-        )
-
-        outline_width = vrm0_material_property.float_properties.get("_OutlineWidth")
-        if outline_width is None:
-            outline_width = 0.0
-
-        if outline_width_mode == 0:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE
-        elif outline_width_mode == 1:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES
-            mtoon.outline_width_factor = max(0.0, outline_width * centimeter_to_meter)
-        else:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
-            mtoon.outline_width_factor = max(0.0, outline_width * one_hundredth * 0.5)
-            outline_scaled_max_distance = vrm0_material_property.float_properties.get(
-                "_OutlineScaledMaxDistance"
-            )
-            if outline_scaled_max_distance is not None:
-                gltf.mtoon0_outline_scaled_max_distance = outline_scaled_max_distance
-
-        self.assign_mtoon0_texture_info(
-            mtoon.outline_width_multiply_texture,
-            vrm0_material_property.texture_properties.get("_OutlineWidthTexture"),
-            uv_transform,
-        )
-
-        outline_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_OutlineColor")
-        )
-        if outline_color_factor:
-            mtoon.outline_color_factor = outline_color_factor
-
-        outline_color_mode = vrm0_material_property.float_properties.get(
-            "_OutlineColorMode"
-        )
-        if (
-            outline_color_mode is not None
-            and math.fabs(outline_color_mode - 1) < 0.00001
-        ):
-            mtoon.outline_lighting_mix_factor = (
-                vrm0_material_property.float_properties.get("_OutlineLightingMix") or 1
-            )
-        else:
-            mtoon.outline_lighting_mix_factor = 0  # Fixed Color
-
-        self.assign_mtoon0_texture_info(
-            mtoon.uv_animation_mask_texture,
-            vrm0_material_property.texture_properties.get("_UvAnimMaskTexture"),
-            uv_transform,
-        )
-
-        uv_animation_rotation_speed_factor = (
-            vrm0_material_property.float_properties.get("_UvAnimRotation")
-        )
-        if isinstance(uv_animation_rotation_speed_factor, (float, int)):
-            mtoon.uv_animation_rotation_speed_factor = (
-                uv_animation_rotation_speed_factor
-            )
-
-        uv_animation_scroll_x_speed_factor = (
-            vrm0_material_property.float_properties.get("_UvAnimScrollX")
-        )
-        if isinstance(uv_animation_scroll_x_speed_factor, (float, int)):
-            mtoon.uv_animation_scroll_x_speed_factor = (
-                uv_animation_scroll_x_speed_factor
-            )
-
-        uv_animation_scroll_y_speed_factor = (
-            vrm0_material_property.float_properties.get("_UvAnimScrollY")
-        )
-        if isinstance(uv_animation_scroll_y_speed_factor, (float, int)):
-            mtoon.uv_animation_scroll_y_speed_factor = (
-                -uv_animation_scroll_y_speed_factor
-            )
-
-        light_color_attenuation = vrm0_material_property.float_properties.get(
-            "_LightColorAttenuation"
-        )
-        if light_color_attenuation is not None:
-            gltf.mtoon0_light_color_attenuation = light_color_attenuation
-
-        self.assign_mtoon0_texture(
-            gltf.mtoon0_receive_shadow_texture,
-            vrm0_material_property.texture_properties.get("_ReceiveShadowTexture"),
-        )
-
-        gltf.mtoon0_receive_shadow_rate = vrm0_material_property.float_properties.get(
-            "_ReceiveShadowRate", 0.5
-        )
-
-        self.assign_mtoon0_texture(
-            gltf.mtoon0_shading_grade_texture,
-            vrm0_material_property.texture_properties.get("_ShadingGradeTexture"),
-        )
-
-        gltf.mtoon0_shading_grade_rate = vrm0_material_property.float_properties.get(
-            "_ShadingGradeRate", 0.5
-        )
-
-        if vrm0_material_property.render_queue is not None:
-            gltf.mtoon0_render_queue = vrm0_material_property.render_queue
-
-    def build_material_from_transparent_z_write(
-        self,
-        material: Material,
-        vrm0_material_property: Vrm0MaterialProperty,
-    ) -> None:
-        gltf = material.vrm_addon_extension.mtoon1
-        gltf.enabled = True
-        mtoon = gltf.extensions.vrmc_materials_mtoon
-
-        main_texture_index = vrm0_material_property.texture_properties.get("_MainTex")
-        main_texture_image = None
-        if isinstance(main_texture_index, int):
-            texture_dicts = self.parse_result.json_dict.get("textures")
-            if isinstance(texture_dicts, list) and 0 <= main_texture_index < len(
-                texture_dicts
-            ):
-                texture_dict = texture_dicts[main_texture_index]
-                if isinstance(texture_dict, dict):
-                    image_index = texture_dict.get("source")
-                    if isinstance(image_index, int):
-                        main_texture_image = self.images.get(image_index)
-        if main_texture_image:
-            gltf.pbr_metallic_roughness.base_color_texture.index.source = (
-                main_texture_image
-            )
-            gltf.emissive_texture.index.source = main_texture_image
-            mtoon.shade_multiply_texture.index.source = main_texture_image
-
-        gltf.pbr_metallic_roughness.base_color_factor = (0, 0, 0, 1)
-        gltf.emissive_factor = (1, 1, 1)
-
-        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
-        gltf.alpha_cutoff = 0.5
-        gltf.double_sided = False
-        mtoon.transparent_with_z_write = True
-        mtoon.shade_color_factor = (0, 0, 0)
-        mtoon.shading_toony_factor = 0.95
-        mtoon.shading_shift_factor = -0.05
-        mtoon.rim_lighting_mix_factor = 1
-        mtoon.parametric_rim_fresnel_power_factor = 5
-        mtoon.parametric_rim_lift_factor = 0
-
-    def load_vrm0_extensions(self) -> None:
-        armature = self.armature
-        if not armature:
-            return
-        addon_extension = self.armature_data.vrm_addon_extension
-        addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM0
-        vrm0 = addon_extension.vrm0
-
-        if self.parse_result.spec_version_number >= (1, 0):
-            return
-
-        vrm0_extension = self.parse_result.vrm0_extension
-
-        addon_extension.addon_version = addon_version()
-
-        textblock = bpy.data.texts.new(name="vrm.json")
-        textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
-
-        self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
-        self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
-        self.setup_vrm0_humanoid_bones()
-        self.load_vrm0_first_person(
-            vrm0.first_person, vrm0_extension.get("firstPerson")
-        )
-        self.load_vrm0_blend_shape_master(
-            vrm0.blend_shape_master, vrm0_extension.get("blendShapeMaster")
-        )
-        self.load_vrm0_secondary_animation(
-            vrm0.secondary_animation, vrm0_extension.get("secondaryAnimation")
-        )
-        migration.migrate(armature.name, defer=False)
-
-    def load_vrm0_meta(self, meta: Vrm0MetaPropertyGroup, meta_dict: Json) -> None:
-        if not isinstance(meta_dict, dict):
-            return
-
-        title = meta_dict.get("title")
-        if isinstance(title, str):
-            meta.title = title
-
-        version = meta_dict.get("version")
-        if isinstance(version, str):
-            meta.version = version
-
-        author = meta_dict.get("author")
-        if isinstance(author, str):
-            meta.author = author
-
-        contact_information = meta_dict.get("contactInformation")
-        if isinstance(contact_information, str):
-            meta.contact_information = contact_information
-
-        reference = meta_dict.get("reference")
-        if isinstance(reference, str):
-            meta.reference = reference
-
-        allowed_user_name = meta_dict.get("allowedUserName")
-        if (
-            isinstance(allowed_user_name, str)
-            and allowed_user_name in Vrm0MetaPropertyGroup.ALLOWED_USER_NAME_VALUES
-        ):
-            meta.allowed_user_name = allowed_user_name
-
-        violent_ussage_name = meta_dict.get("violentUssageName")
-        if (
-            isinstance(violent_ussage_name, str)
-            and violent_ussage_name in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES
-        ):
-            meta.violent_ussage_name = violent_ussage_name
-
-        sexual_ussage_name = meta_dict.get("sexualUssageName")
-        if (
-            isinstance(sexual_ussage_name, str)
-            and sexual_ussage_name in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES
-        ):
-            meta.sexual_ussage_name = sexual_ussage_name
-
-        commercial_ussage_name = meta_dict.get("commercialUssageName")
-        if (
-            isinstance(commercial_ussage_name, str)
-            and commercial_ussage_name
-            in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES
-        ):
-            meta.commercial_ussage_name = commercial_ussage_name
-
-        other_permission_url = meta_dict.get("otherPermissionUrl")
-        if isinstance(other_permission_url, str):
-            meta.other_permission_url = other_permission_url
-
-        license_name = meta_dict.get("licenseName")
-        if (
-            isinstance(license_name, str)
-            and license_name in Vrm0MetaPropertyGroup.LICENSE_NAME_VALUES
-        ):
-            meta.license_name = license_name
-
-        other_license_url = meta_dict.get("otherLicenseUrl")
-        if isinstance(other_license_url, str):
-            meta.other_license_url = other_license_url
-
-        texture = meta_dict.get("texture")
-        texture_dicts = self.parse_result.json_dict.get("textures")
-        if (
-            isinstance(texture, int)
-            and isinstance(texture_dicts, list)
-            # extensions.VRM.meta.texture could be -1
-            # https://github.com/vrm-c/UniVRM/issues/91#issuecomment-454284964
-            and 0 <= texture < len(texture_dicts)
-        ):
-            texture_dict = texture_dicts[texture]
-            if isinstance(texture_dict, dict):
-                image_index = texture_dict.get("source")
-                if isinstance(image_index, int) and image_index in self.images:
-                    meta.texture = self.images[image_index]
-
-    def load_vrm0_humanoid(
-        self, humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
-    ) -> None:
-        if not isinstance(humanoid_dict, dict):
-            return
-        human_bone_dicts = humanoid_dict.get("humanBones")
-        if isinstance(human_bone_dicts, list):
-            for human_bone_dict in human_bone_dicts:
-                if not isinstance(human_bone_dict, dict):
-                    continue
-
-                bone = human_bone_dict.get("bone")
-                if bone not in HumanBoneSpecifications.all_names:
-                    continue
-
-                node = human_bone_dict.get("node")
-                if not isinstance(node, int) or node not in self.bone_names:
-                    continue
-
-                human_bone = next(
-                    (
-                        human_bone
-                        for human_bone in humanoid.human_bones
-                        if human_bone.bone == bone
-                    ),
-                    None,
+            if image.filepath:
+                continue
+            image_name = Path(image.filepath_from_user()).stem
+            if not image_name:
+                image_name = remove_unsafe_path_chars(image.name)
+            image_type = image.file_format.lower()
+            if bpy.app.version >= (3, 4):
+                image.filepath_raw = f"//textures{os.sep}{image_name}.{image_type}"
+            else:
+                image.filepath_raw = f"//{image_name}.{image_type}"
+
+    def extract_textures(self, repack: bool) -> None:
+        dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
+        if self.preferences.make_new_texture_folder or repack:
+            dir_path = create_unique_indexed_directory_path(dir_path)
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        if bpy.app.version >= (3, 1) and not bpy.data.filepath:
+            temp_blend_path = None
+            for _ in range(10000):
+                suffix = (
+                    ".temp"
+                    + "".join(str(secrets.randbelow(10)) for _ in range(10))
+                    + ".blend"
                 )
-                if human_bone:
-                    logger.warning(f'Duplicated bone: "{bone}"')
-                else:
-                    human_bone = humanoid.human_bones.add()
-                human_bone.bone = bone
-                human_bone.node.set_bone_name(self.bone_names[node])
+                temp_blend_path = self.parse_result.filepath.with_suffix(suffix)
+                if not temp_blend_path.exists():
+                    break
+            if temp_blend_path is not None:
+                bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
 
-                use_default_values = human_bone_dict.get("useDefaultValues")
-                if isinstance(use_default_values, bool):
-                    human_bone.use_default_values = use_default_values
-
-                min_ = convert.vrm_json_vector3_to_tuple(human_bone_dict.get("min"))
-                if min_ is not None:
-                    human_bone.min = min_
-
-                max_ = convert.vrm_json_vector3_to_tuple(human_bone_dict.get("max"))
-                if max_ is not None:
-                    human_bone.max = max_
-
-                center = convert.vrm_json_vector3_to_tuple(
-                    human_bone_dict.get("center")
+        for image_index, image in self.images.items():
+            image_name = Path(image.filepath_from_user()).name
+            if image_name:
+                legacy_image_name_prefix = self.import_id + "Image"
+                if image_name.startswith(legacy_image_name_prefix):
+                    image_name = re.sub(
+                        r"^\d+_",
+                        "",
+                        image_name[
+                            slice(len(legacy_image_name_prefix), len(image_name))
+                        ],
+                    )
+            if not image_name:
+                image_name = image.name
+            image_type = image.file_format.lower()
+            if len(image_name) >= 100:
+                new_image_name = "texture_too_long_name_" + str(image_index)
+                logger.warning(
+                    f"too long name image: {image_name} is named {new_image_name}"
                 )
-                if center is not None:
-                    human_bone.center = center
+                image_name = new_image_name
 
-                axis_length = human_bone_dict.get("axisLength")
-                if isinstance(axis_length, (int, float)):
-                    human_bone.axis_length = axis_length
+            image_name = remove_unsafe_path_chars(image_name)
+            if not image_name:
+                image_name = "_"
+            image_path = dir_path / image_name
+            if not image_name.lower().endswith("." + image_type.lower()) and not (
+                image_name.lower().endswith(".jpg") and image_type.lower() == "jpeg"
+            ):
+                image_path = image_path.with_name(image_path.name + "." + image_type)
 
-        arm_stretch = humanoid_dict.get("armStretch")
-        if isinstance(arm_stretch, (int, float)):
-            humanoid.arm_stretch = arm_stretch
+            try:
+                image.unpack(method="WRITE_ORIGINAL")
+            except RuntimeError:
+                logger.exception(f"Failed to unpack {image.name}")
+                continue
 
-        leg_stretch = humanoid_dict.get("legStretch")
-        if isinstance(leg_stretch, (int, float)):
-            humanoid.leg_stretch = leg_stretch
+            image_original_path_str = image.filepath_from_user()
+            if not image_original_path_str:
+                continue
+            image_original_file_path = Path(image_original_path_str)
+            if not image_original_file_path.exists():
+                continue
+            image_bytes = image_original_file_path.read_bytes()
+            with contextlib.suppress(OSError):
+                image_original_file_path.unlink()
+            image_path = create_unique_indexed_file_path(image_path, image_bytes)
+            if image.filepath != str(image_path):
+                image.filepath = str(image_path)
+            image.reload()
+            if repack:
+                image.pack()
 
-        upper_arm_twist = humanoid_dict.get("upperArmTwist")
-        if isinstance(upper_arm_twist, (int, float)):
-            humanoid.upper_arm_twist = upper_arm_twist
+        if repack:
+            shutil.rmtree(dir_path, ignore_errors=True)
 
-        lower_arm_twist = humanoid_dict.get("lowerArmTwist")
-        if isinstance(lower_arm_twist, (int, float)):
-            humanoid.lower_arm_twist = lower_arm_twist
+    # VRM再インポートを繰り返すことでボーンが増殖しないように注意。
+    # 特に注意するべきもの:
+    # - ルートボーン
+    # - メッシュがペアレンティングされているボーン
+    def find_retain_node_indices(self, scene_dict: dict[str, Json]) -> list[int]:
+        scene_node_index_jsons = scene_dict.get("nodes")
+        if not isinstance(scene_node_index_jsons, list):
+            return []
+        scene_node_indices = [
+            index for index in scene_node_index_jsons if isinstance(index, int)
+        ]
+        json_dict = self.parse_result.json_dict
+        node_dict_jsons = json_dict.get("nodes")
+        if not isinstance(node_dict_jsons, list):
+            return []
+        node_dicts = [
+            node_dict for node_dict in node_dict_jsons if isinstance(node_dict, dict)
+        ]
+        skin_dict_jsons = json_dict.get("skins")
+        if not isinstance(skin_dict_jsons, list):
+            skin_dict_jsons = []
+        skin_dicts = [
+            skin_dict for skin_dict in skin_dict_jsons if isinstance(skin_dict, dict)
+        ]
 
-        upper_leg_twist = humanoid_dict.get("upperLegTwist")
-        if isinstance(upper_leg_twist, (int, float)):
-            humanoid.upper_leg_twist = upper_leg_twist
+        bone_node_indices = self.find_vrm_bone_node_indices()
 
-        lower_leg_twist = humanoid_dict.get("lowerLegTwist")
-        if isinstance(lower_leg_twist, (int, float)):
-            humanoid.lower_leg_twist = lower_leg_twist
+        # シーンノードツリーのうち、hipsボーンが存在するツリーの全てのノードを集める。
+        # また、そのツリーのルートノードもボーン扱いする。
+        all_scene_node_indices: list[int] = []
+        hips_found = False
+        for scene_node_index in scene_node_indices:
+            all_scene_node_indices.clear()
 
-        feet_spacing = humanoid_dict.get("feetSpacing")
-        if isinstance(feet_spacing, (int, float)):
-            humanoid.feet_spacing = feet_spacing
+            search_scene_node_indices = [scene_node_index]
+            while search_scene_node_indices:
+                search_scene_node_index = search_scene_node_indices.pop()
+                if search_scene_node_index == self.parse_result.hips_node_index:
+                    bone_node_indices.append(scene_node_index)
+                    hips_found = True
+                if not 0 <= search_scene_node_index < len(node_dicts):
+                    continue
+                node_dict = node_dicts[search_scene_node_index]
+                all_scene_node_indices.append(search_scene_node_index)
+                child_indices = node_dict.get("children")
+                if not isinstance(child_indices, list):
+                    continue
+                for child_index in child_indices:
+                    if not isinstance(child_index, int):
+                        continue
+                    if child_index in all_scene_node_indices:
+                        # Avoid recursive nodes
+                        continue
+                    search_scene_node_indices.append(child_index)
+            if hips_found:
+                break
+        if not hips_found:
+            return []
 
-        has_translation_dof = humanoid_dict.get("hasTranslationDoF")
-        if isinstance(has_translation_dof, bool):
-            humanoid.has_translation_dof = has_translation_dof
+        all_scene_node_indices = list(dict.fromkeys(all_scene_node_indices))  # Distinct
 
-    def load_vrm0_first_person(
+        # skinに登録されているインデックスもボーン扱いする
+        for node_index in all_scene_node_indices:
+            if not 0 <= node_index < len(node_dicts):
+                continue
+            node_dict = node_dicts[node_index]
+            skin_index = node_dict.get("skin")
+            if not isinstance(skin_index, int) or not 0 <= skin_index < len(skin_dicts):
+                continue
+            skin_dict = skin_dicts[skin_index]
+            skeleton_index = skin_dict.get("skeleton")
+            if isinstance(skeleton_index, int):
+                bone_node_indices.append(skeleton_index)
+            joint_indices = skin_dict.get("joints")
+            if isinstance(joint_indices, list):
+                for joint_index in joint_indices:
+                    if isinstance(joint_index, int):
+                        bone_node_indices.append(joint_index)
+
+        # ボーンインデックスからシーンノードindexに入ってないヤツを削除
+        for bone_node_index in list(bone_node_indices):
+            if bone_node_index not in all_scene_node_indices:
+                bone_node_indices.remove(bone_node_index)
+
+        # 現在見つかっているボーンノードから、メッシュノードにぶつかるまで子供を追加
+        search_bone_node_indices = list(bone_node_indices)
+        while search_bone_node_indices:
+            search_bone_node_index = search_bone_node_indices.pop()
+            if not 0 <= search_bone_node_index < len(node_dicts):
+                continue
+            node_dict = node_dicts[search_bone_node_index]
+            if isinstance(node_dict.get("mesh"), int):
+                continue
+
+            bone_node_indices.append(search_bone_node_index)
+
+            child_indices = node_dict.get("children")
+            if not isinstance(child_indices, list):
+                continue
+            for child_index in child_indices:
+                if not isinstance(child_index, int):
+                    continue
+                if child_index in bone_node_indices:
+                    continue
+                search_bone_node_indices.append(child_index)
+
+        # メッシュノードの子供にボーンノードが存在する場合は、
+        # そのメッシュノードもボーン扱いする
+        bone_node_indices.extend(
+            functools.reduce(
+                operator.iconcat,
+                [
+                    self.find_middle_bone_indices(
+                        node_dicts, bone_node_indices, bone_node_index, []
+                    )
+                    for bone_node_index in bone_node_indices
+                ],
+                [],
+            )
+        )
+
+        return list(dict.fromkeys(bone_node_indices))  # Distinct
+
+    def find_middle_bone_indices(
         self,
-        first_person: Vrm0FirstPersonPropertyGroup,
-        first_person_dict: Json,
-    ) -> None:
-        if not isinstance(first_person_dict, dict):
-            return
+        node_dicts: list[dict[str, Json]],
+        bone_node_indices: list[int],
+        bone_node_index: int,
+        middle_bone_node_indices: list[int],
+    ) -> list[int]:
+        if not 0 <= bone_node_index < len(node_dicts):
+            return []
+        node_dict = node_dicts[bone_node_index]
+        child_indices = node_dict.get("children")
+        if not isinstance(child_indices, list):
+            return []
 
-        first_person_bone = first_person_dict.get("firstPersonBone")
-        if isinstance(first_person_bone, int) and first_person_bone in self.bone_names:
-            first_person.first_person_bone.set_bone_name(
-                self.bone_names[first_person_bone]
+        result = []
+        for child_index in child_indices:
+            if not isinstance(child_index, int):
+                continue
+            if not 0 <= child_index < len(node_dicts):
+                continue
+            if child_index in bone_node_indices:
+                result.extend(middle_bone_node_indices)
+                continue
+            result.extend(
+                self.find_middle_bone_indices(
+                    node_dicts,
+                    bone_node_indices,
+                    child_index,
+                    [*middle_bone_node_indices, bone_node_index],
+                )
+            )
+        return result
+
+    def import_gltf2_with_indices(self) -> None:
+        json_dict, body_binary = parse_glb(self.parse_result.filepath.read_bytes())
+
+        for key in ["nodes", "materials", "meshes"]:
+            if key not in json_dict or not isinstance(json_dict[key], list):
+                continue
+            value_dicts = json_dict.get(key)
+            if not isinstance(value_dicts, list):
+                continue
+            for index, value_dict in enumerate(value_dicts):
+                if not isinstance(value_dict, dict):
+                    continue
+                extras_dict = value_dict.get("extras")
+                if not isinstance(extras_dict, dict):
+                    extras_dict = {}
+                    value_dict["extras"] = extras_dict
+
+                extras_dict.update({self.import_id + key.capitalize(): index})
+                mesh_index = value_dict.get("mesh")
+                if key == "nodes" and isinstance(mesh_index, int):
+                    extras_dict.update({self.import_id + "Meshes": mesh_index})
+
+        legacy_image_name_prefix = self.import_id + "Image"
+        image_dicts = json_dict.get("images")
+        if isinstance(image_dicts, list):
+            for image_index, image_dict in enumerate(image_dicts):
+                texture_dicts = json_dict.get("textures")
+                if not isinstance(texture_dicts, list) or not [
+                    True
+                    for texture_dict in texture_dicts
+                    if isinstance(texture_dict, dict)
+                    and texture_dict.get("source") == image_index
+                ]:
+                    sampler_dicts = json_dict.get("samplers")
+                    if not isinstance(sampler_dicts, list):
+                        sampler_dicts = []
+                        json_dict["samplers"] = sampler_dicts
+                    sampler_index = len(sampler_dicts)
+                    sampler_dicts.append(
+                        {
+                            "magFilter": GL_LINEAR,
+                            "minFilter": GL_LINEAR,
+                            "wrapS": GL_REPEAT,
+                            "wrapT": GL_REPEAT,
+                        }
+                    )
+
+                    if not isinstance(texture_dicts, list):
+                        texture_dicts = []
+                        json_dict["textures"] = texture_dicts
+                    texture_dicts.append(
+                        {
+                            "sampler": sampler_index,
+                            "source": image_index,
+                        }
+                    )
+
+                if bpy.app.version < (3, 1):
+                    if not isinstance(image_dict, dict):
+                        continue
+                    name = image_dict.get("name")
+                    if not isinstance(name, str) or not name:
+                        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
+                        name = f"Image_{image_index}"
+                    image_dict["name"] = (
+                        legacy_image_name_prefix + str(image_index) + "_" + name
+                    )
+
+        mesh_dicts = json_dict.get("meshes")
+        if isinstance(mesh_dicts, list):
+            for mesh_dict in mesh_dicts:
+                if not isinstance(mesh_dict, dict):
+                    continue
+                mesh_extras_dict = mesh_dict.get("extras")
+                if not isinstance(mesh_extras_dict, dict):
+                    mesh_extras_dict = {}
+                    mesh_dict["extras"] = mesh_extras_dict
+                mesh_target_names = mesh_extras_dict.get("targetNames")
+                if isinstance(mesh_target_names, list):
+                    continue
+                primitive_dicts = mesh_dict.get("primitives")
+                if not isinstance(primitive_dicts, list):
+                    continue
+                for primitive_dict in primitive_dicts:
+                    if not isinstance(primitive_dict, dict):
+                        continue
+                    primitive_extras_dict = primitive_dict.get("extras")
+                    if not isinstance(primitive_extras_dict, dict):
+                        continue
+                    primitive_target_names = primitive_extras_dict.get("targetNames")
+                    if not isinstance(primitive_target_names, list):
+                        continue
+                    mesh_extras_dict["targetNames"] = primitive_target_names
+                    break
+
+        texture_dicts = json_dict.get("textures")
+        if isinstance(texture_dicts, list) and texture_dicts:
+            primitive_dicts = []
+
+            for texture_index, _ in enumerate(texture_dicts):
+                buffer_dicts = json_dict.get("buffers")
+                if not isinstance(buffer_dicts, list):
+                    buffer_dicts = []
+                    json_dict["buffers"] = buffer_dicts
+                position_buffer_index = len(buffer_dicts)
+                position_buffer_bytes = struct.pack(
+                    "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
+                )
+                buffer_dicts.append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(position_buffer_bytes).decode("ascii"),
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                texcoord_buffer_index = len(buffer_dicts)
+                texcoord_buffer_bytes = struct.pack("<6f", 0.0, 0.0, 1.0, 0.0, 0.0, 1.0)
+                buffer_dicts.append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(texcoord_buffer_bytes).decode("ascii"),
+                        "byteLength": len(texcoord_buffer_bytes),
+                    }
+                )
+
+                buffer_view_dicts = json_dict.get("bufferViews")
+                if not isinstance(buffer_view_dicts, list):
+                    buffer_view_dicts = []
+                    json_dict["bufferViews"] = buffer_view_dicts
+                position_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
+                    {
+                        "buffer": position_buffer_index,
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                texcoord_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
+                    {
+                        "buffer": texcoord_buffer_index,
+                        "byteLength": len(texcoord_buffer_bytes),
+                    }
+                )
+
+                accessor_dicts = json_dict.get("accessors")
+                if not isinstance(accessor_dicts, list):
+                    accessor_dicts = []
+                    json_dict["accessors"] = accessor_dicts
+                position_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
+                    {
+                        "bufferView": position_buffer_view_index,
+                        "type": "VEC3",
+                        "componentType": GL_FLOAT,
+                        "count": 3,
+                        "min": [0, 0, 0],
+                        "max": [1, 1, 0],
+                    }
+                )
+                texcoord_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
+                    {
+                        "bufferView": texcoord_buffer_view_index,
+                        "type": "VEC2",
+                        "componentType": GL_FLOAT,
+                        "count": 3,
+                    }
+                )
+
+                material_dicts = json_dict.get("materials")
+                if not isinstance(material_dicts, list):
+                    material_dicts = []
+                    json_dict["materials"] = material_dicts
+                tex_material_index = len(material_dicts)
+                material_dicts.append(
+                    {
+                        "name": self.temp_object_name(),
+                        "emissiveTexture": {"index": texture_index},
+                    }
+                )
+                primitive_dicts.append(
+                    {
+                        "attributes": {
+                            "POSITION": position_accessors_index,
+                            "TEXCOORD_0": texcoord_accessors_index,
+                        },
+                        "material": tex_material_index,
+                    }
+                )
+
+            mesh_dicts = json_dict.get("meshes")
+            if not isinstance(mesh_dicts, list):
+                mesh_dicts = []
+                json_dict["meshes"] = mesh_dicts
+            tex_mesh_index = len(mesh_dicts)
+            mesh_dicts.append(
+                {"name": self.temp_object_name(), "primitives": primitive_dicts}
             )
 
-        first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
-            first_person_dict.get("firstPersonBoneOffset")
-        )
-        if first_person_bone_offset is not None:
-            # Axis confusing
-            (x, y, z) = first_person_bone_offset
-            first_person.first_person_bone_offset = (x, z, y)
+            node_dicts = json_dict.get("nodes")
+            if not isinstance(node_dicts, list):
+                node_dicts = []
+                json_dict["nodes"] = node_dicts
+            tex_node_index = len(node_dicts)
+            node_dicts.append({"name": self.temp_object_name(), "mesh": tex_mesh_index})
 
-        mesh_annotation_dicts = first_person_dict.get("meshAnnotations")
-        if isinstance(mesh_annotation_dicts, list):
-            for mesh_annotation_dict in mesh_annotation_dicts:
-                mesh_annotation = first_person.mesh_annotations.add()
+            scene_dicts = json_dict.get("scenes")
+            if not isinstance(scene_dicts, list):
+                scene_dicts = []
+                json_dict["scenes"] = scene_dicts
+            scene_dicts.append(
+                {"name": self.temp_object_name(), "nodes": [tex_node_index]}
+            )
 
-                if not isinstance(mesh_annotation_dict, dict):
+        scene_dicts = json_dict.get("scenes")
+        node_dicts = json_dict.get("nodes")
+        if isinstance(scene_dicts, list) and isinstance(node_dicts, list):
+            for scene_dict in scene_dicts:
+                if not isinstance(scene_dict, dict):
+                    continue
+                retain_node_indices = self.find_retain_node_indices(scene_dict)
+                if not retain_node_indices:
                     continue
 
-                mesh = mesh_annotation_dict.get("mesh")
-                if isinstance(mesh, int) and mesh in self.meshes:
-                    mesh_annotation.mesh.mesh_object_name = self.meshes[mesh].name
+                buffer_dicts = json_dict.get("buffers")
+                if not isinstance(buffer_dicts, list):
+                    buffer_dicts = []
+                    json_dict["buffers"] = buffer_dicts
+                position_buffer_index = len(buffer_dicts)
+                position_buffer_bytes = struct.pack(
+                    "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
+                )
+                buffer_dicts.append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(position_buffer_bytes).decode("ascii"),
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                joints_buffer_index = len(buffer_dicts)
+                joints_buffer_bytes = struct.pack(
+                    "<12H", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                )
+                buffer_dicts.append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(joints_buffer_bytes).decode("ascii"),
+                        "byteLength": len(joints_buffer_bytes),
+                    }
+                )
+                weights_buffer_index = len(buffer_dicts)
+                weights_buffer_bytes = struct.pack(
+                    "<12f", 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0
+                )
+                buffer_dicts.append(
+                    {
+                        "uri": "data:application/gltf-buffer;base64,"
+                        + base64.b64encode(weights_buffer_bytes).decode("ascii"),
+                        "byteLength": len(weights_buffer_bytes),
+                    }
+                )
 
-                first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
-                if (
-                    isinstance(first_person_flag, str)
-                    and first_person_flag
-                    in Vrm0MeshAnnotationPropertyGroup.FIRST_PERSON_FLAG_VALUES
-                ):
-                    mesh_annotation.first_person_flag = first_person_flag
+                buffer_view_dicts = json_dict.get("bufferViews")
+                if not isinstance(buffer_view_dicts, list):
+                    buffer_view_dicts = []
+                    json_dict["bufferViews"] = buffer_view_dicts
+                position_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
+                    {
+                        "buffer": position_buffer_index,
+                        "byteLength": len(position_buffer_bytes),
+                    }
+                )
+                joints_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
+                    {
+                        "buffer": joints_buffer_index,
+                        "byteLength": len(joints_buffer_bytes),
+                    }
+                )
+                weights_buffer_view_index = len(buffer_view_dicts)
+                buffer_view_dicts.append(
+                    {
+                        "buffer": weights_buffer_index,
+                        "byteLength": len(weights_buffer_bytes),
+                    }
+                )
 
-        look_at_type_name = first_person_dict.get("lookAtTypeName")
-        if (
-            isinstance(look_at_type_name, str)
-            and look_at_type_name
-            in Vrm0FirstPersonPropertyGroup.LOOK_AT_TYPE_NAME_VALUES
-        ):
-            first_person.look_at_type_name = look_at_type_name
+                accessor_dicts = json_dict.get("accessors")
+                if not isinstance(accessor_dicts, list):
+                    accessor_dicts = []
+                    json_dict["accessors"] = accessor_dicts
+                position_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
+                    {
+                        "bufferView": position_buffer_view_index,
+                        "type": "VEC3",
+                        "componentType": GL_FLOAT,
+                        "count": 3,
+                        "min": [0, 0, 0],
+                        "max": [1, 1, 0],
+                    }
+                )
+                joints_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
+                    {
+                        "bufferView": joints_buffer_view_index,
+                        "type": "VEC4",
+                        "componentType": GL_UNSIGNED_SHORT,
+                        "count": 3,
+                    }
+                )
+                weights_accessors_index = len(accessor_dicts)
+                accessor_dicts.append(
+                    {
+                        "bufferView": weights_buffer_view_index,
+                        "type": "VEC4",
+                        "componentType": GL_FLOAT,
+                        "count": 3,
+                    }
+                )
 
-        for look_at, look_at_dict in [
-            (
-                first_person.look_at_horizontal_inner,
-                first_person_dict.get("lookAtHorizontalInner"),
-            ),
-            (
-                first_person.look_at_horizontal_outer,
-                first_person_dict.get("lookAtHorizontalOuter"),
-            ),
-            (
-                first_person.look_at_vertical_down,
-                first_person_dict.get("lookAtVerticalDown"),
-            ),
-            (
-                first_person.look_at_vertical_up,
-                first_person_dict.get("lookAtVerticalUp"),
-            ),
-        ]:
-            if not isinstance(look_at_dict, dict):
-                continue
+                primitive_dicts = [
+                    {
+                        "attributes": {
+                            "POSITION": position_accessors_index,
+                            "JOINTS_0": joints_accessors_index,
+                            "WEIGHTS_0": weights_accessors_index,
+                        }
+                    }
+                ]
 
-            curve = convert.vrm_json_curve_to_list(look_at_dict.get("curve"))
-            if curve is not None:
-                look_at.curve = curve
+                mesh_dicts = json_dict.get("meshes")
+                if not isinstance(mesh_dicts, list):
+                    mesh_dicts = []
+                    json_dict["meshes"] = mesh_dicts
+                skin_mesh_index = len(mesh_dicts)
+                mesh_dicts.append(
+                    make_json(
+                        {"name": self.temp_object_name(), "primitives": primitive_dicts}
+                    )
+                )
 
-            x_range = look_at_dict.get("xRange")
-            if isinstance(x_range, (float, int)):
-                look_at.x_range = x_range
+                skin_dicts = json_dict.get("skins")
+                if not isinstance(skin_dicts, list):
+                    skin_dicts = []
+                    json_dict["skins"] = skin_dicts
+                skin_index = len(skin_dicts)
+                skin_dicts.append({"joints": list(retain_node_indices)})
 
-            y_range = look_at_dict.get("yRange")
-            if isinstance(y_range, (float, int)):
-                look_at.y_range = y_range
+                node_dicts = json_dict.get("nodes")
+                if not isinstance(node_dicts, list):
+                    node_dicts = []
+                    json_dict["nodes"] = node_dicts
+                skin_node_index = len(node_dicts)
+                node_dicts.append(
+                    {
+                        "name": self.temp_object_name(),
+                        "mesh": skin_mesh_index,
+                        "skin": skin_index,
+                    }
+                )
 
-    def load_vrm0_blend_shape_master(
-        self,
-        blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
-        blend_shape_master_dict: Json,
-    ) -> None:
-        if not isinstance(blend_shape_master_dict, dict):
-            return
-        blend_shape_group_dicts = blend_shape_master_dict.get("blendShapeGroups")
-        if not isinstance(blend_shape_group_dicts, list):
-            return
+                scene_nodes = scene_dict.get("nodes")
+                if not isinstance(scene_nodes, list):
+                    scene_nodes = []
+                    scene_dict["nodes"] = scene_nodes
 
-        for blend_shape_group_dict in blend_shape_group_dicts:
-            blend_shape_group = blend_shape_master.blend_shape_groups.add()
+                scene_nodes.append(skin_node_index)
 
-            if not isinstance(blend_shape_group_dict, dict):
-                continue
+        # glTF 2.0アドオンが未対応のエクステンションが
+        # "extensionsRequired"に含まれている場合はエラーになる。それを抑止。
+        extensions_required = json_dict.get("extensionsRequired")
+        if isinstance(extensions_required, list):
+            for supported_extension in [
+                "VRM",
+                "VRMC_vrm",
+                "VRMC_springBone",
+                "VRMC_node_constraint",
+                "VRMC_materials_mtoon",
+                "VRMC_materials_hdr_emissiveMultiplier",
+            ]:
+                while supported_extension in extensions_required:
+                    extensions_required.remove(supported_extension)
 
-            name = blend_shape_group_dict.get("name")
-            if isinstance(name, str):
-                blend_shape_group.name = name
+        # Unfortunately such VRMs exist.
+        accessor_dicts = json_dict.get("accessors")
+        if isinstance(accessor_dicts, list):
+            for accessor_dict in accessor_dicts:
+                if not isinstance(accessor_dict, dict):
+                    continue
 
-            preset_name = blend_shape_group_dict.get("presetName")
-            if (
-                isinstance(preset_name, str)
-                and preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
-            ):
-                blend_shape_group.preset_name = preset_name
-
-            bind_dicts = blend_shape_group_dict.get("binds")
-            if isinstance(bind_dicts, list):
-                for bind_dict in bind_dicts:
-                    if not isinstance(bind_dict, dict):
-                        continue
-
-                    mesh_index = bind_dict.get("mesh")
-                    if not isinstance(mesh_index, int):
-                        continue
-
-                    mesh_object = self.meshes.get(mesh_index)
-                    if not mesh_object:
-                        continue
-
-                    bind = blend_shape_group.binds.add()
-                    bind.mesh.mesh_object_name = mesh_object.name
-                    mesh_data = mesh_object.data
-                    if isinstance(mesh_data, Mesh):
-                        shape_keys = mesh_data.shape_keys
-                        if shape_keys:
-                            index = bind_dict.get("index")
-                            if isinstance(index, int) and (
-                                1 <= (index + 1) < len(shape_keys.key_blocks)
-                            ):
-                                bind.index = list(shape_keys.key_blocks.keys())[
-                                    index + 1
-                                ]
-                    weight = bind_dict.get("weight")
-                    if not isinstance(weight, (int, float)):
-                        weight = 0
-                    bind.weight = min(max(weight / 100.0, 0), 1)
-
-            material_value_dicts = blend_shape_group_dict.get("materialValues")
-            if isinstance(material_value_dicts, list):
-                for material_value_dict in material_value_dicts:
-                    material_value = blend_shape_group.material_values.add()
-
-                    if not isinstance(material_value_dict, dict):
-                        continue
-
-                    material_name = material_value_dict.get("materialName")
-                    if (
-                        isinstance(material_name, str)
-                        and material_name in bpy.data.materials
-                    ):
-                        material_value.material = bpy.data.materials[material_name]
-
-                    property_name = material_value_dict.get("propertyName")
-                    if isinstance(property_name, str):
-                        material_value.property_name = property_name
-
-                    target_value_vector = material_value_dict.get("targetValue")
-                    if isinstance(target_value_vector, list):
-                        for v in target_value_vector:
-                            material_value.target_value.add().value = (
-                                v if isinstance(v, (int, float)) else 0
+                max_values = accessor_dict.get("max")
+                if isinstance(max_values, list):
+                    for i, max_value in enumerate(list(max_values)):
+                        if not isinstance(max_value, (float, int)) or math.isnan(
+                            max_value
+                        ):
+                            max_values[i] = FLOAT_POSITIVE_MAX
+                        elif math.isinf(max_value):
+                            max_values[i] = (
+                                FLOAT_POSITIVE_MAX
+                                if max_value > 0
+                                else FLOAT_NEGATIVE_MAX
                             )
 
-            is_binary = blend_shape_group_dict.get("isBinary")
-            if isinstance(is_binary, bool):
-                blend_shape_group.is_binary = is_binary
+                min_values = accessor_dict.get("min")
+                if isinstance(min_values, list):
+                    for i, min_value in enumerate(list(min_values)):
+                        if not isinstance(min_value, (float, int)) or math.isnan(
+                            min_value
+                        ):
+                            min_values[i] = FLOAT_NEGATIVE_MAX
+                        elif math.isinf(min_value):
+                            min_values[i] = (
+                                FLOAT_POSITIVE_MAX
+                                if min_value > 0
+                                else FLOAT_NEGATIVE_MAX
+                            )
 
-    def load_vrm0_secondary_animation(
-        self,
-        secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
-        secondary_animation_dict: Json,
-    ) -> None:
-        if not isinstance(secondary_animation_dict, dict):
-            return
-        armature = self.armature
-        if armature is None:
-            message = "armature is None"
-            raise ValueError(message)
+        if self.parse_result.spec_version_number < (1, 0):
+            bone_heuristic = "FORTUNE"
+        else:
+            bone_heuristic = "BLENDER"
+        full_vrm_import_success = False
+        with tempfile.TemporaryDirectory() as temp_dir:
+            indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
+            indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
+            try:
+                bpy.ops.import_scene.gltf(
+                    filepath=str(indexed_vrm_filepath),
+                    import_pack_images=True,
+                    bone_heuristic=bone_heuristic,
+                    guess_original_bind_pose=False,
+                )
+                full_vrm_import_success = True
+            except RuntimeError:
+                logger.exception(
+                    f'Failed to import "{indexed_vrm_filepath}"'
+                    + f' generated from "{self.parse_result.filepath}"'
+                    + " using glTF 2.0 Add-on"
+                )
+                self.cleanup_gltf2_with_indices()
+        if not full_vrm_import_success:
+            # Some VRMs have broken animations.
+            # https://github.com/vrm-c/UniVRM/issues/1522
+            # https://github.com/saturday06/VRM-Addon-for-Blender/issues/58
+            json_dict.pop("animations", None)
+            with tempfile.TemporaryDirectory() as temp_dir:
+                indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
+                indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
+                try:
+                    bpy.ops.import_scene.gltf(
+                        filepath=str(indexed_vrm_filepath),
+                        import_pack_images=True,
+                        bone_heuristic=bone_heuristic,
+                        guess_original_bind_pose=False,
+                    )
+                except RuntimeError:
+                    logger.exception(
+                        f'Failed to import "{indexed_vrm_filepath}"'
+                        + f' generated from "{self.parse_result.filepath}"'
+                        + " using glTF 2.0 Add-on without animations key"
+                    )
+                    self.cleanup_gltf2_with_indices()
+                    raise
 
-        collider_group_dicts = secondary_animation_dict.get("colliderGroups")
-        if not isinstance(collider_group_dicts, list):
-            collider_group_dicts = []
+        extras_node_index_key = self.import_id + "Nodes"
+        for obj in self.context.selectable_objects:
+            node_index = obj.pop(extras_node_index_key, None)
+            if isinstance(node_index, int):
+                self.object_names[node_index] = obj.name
+                if isinstance(obj.data, Mesh):
+                    self.mesh_object_names[node_index] = obj.name
+            data = obj.data
+            if isinstance(data, Mesh):
+                data.pop(extras_node_index_key, None)
 
-        self.context.view_layer.depsgraph.update()
-        self.context.scene.view_layers.update()
-        collider_objs = []
-        for collider_group_dict in collider_group_dicts:
-            collider_group = secondary_animation.collider_groups.add()
-            collider_group.uuid = uuid.uuid4().hex
-            collider_group.refresh(armature)
-
-            if not isinstance(collider_group_dict, dict):
+            if not isinstance(data, Armature):
                 continue
 
-            node = collider_group_dict.get("node")
-            if not isinstance(node, int) or node not in self.bone_names:
-                continue
+            for pose_bone in obj.pose.bones:
+                pose_bone.pop(extras_node_index_key, None)
 
-            bone_name = self.bone_names[node]
-            collider_group.node.set_bone_name(bone_name)
-            collider_dicts = collider_group_dict.get("colliders")
-            if not isinstance(collider_dicts, list):
-                continue
-
-            for collider_index, collider_dict in enumerate(collider_dicts):
-                collider = collider_group.colliders.add()
-
-                if not isinstance(collider_dict, dict):
+            for bone_name, bone in data.bones.items():
+                bone_node_index = bone.pop(extras_node_index_key, None)
+                if not isinstance(bone_node_index, int):
+                    continue
+                node_dicts = self.parse_result.json_dict.get("nodes")
+                if not isinstance(node_dicts, list):
+                    continue
+                if 0 <= bone_node_index < len(node_dicts):
+                    node_dict = node_dicts[bone_node_index]
+                    if isinstance(node_dict, dict):
+                        node_dict["name"] = bone_name
+                self.bone_names[bone_node_index] = bone_name
+                if (
+                    self.armature is not None
+                    or bone_node_index != self.parse_result.hips_node_index
+                ):
                     continue
 
-                offset = convert.vrm_json_vector3_to_tuple(collider_dict.get("offset"))
-                if offset is None:
-                    offset = (0, 0, 0)
+                if self.parse_result.spec_version_number < (1, 0):
+                    vrm0_humanoid = data.vrm_addon_extension.vrm0.humanoid
+                    vrm0_humanoid.initial_automatic_bone_assignment = False
+                else:
+                    vrm1_humanoid = data.vrm_addon_extension.vrm1.humanoid
+                    vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
+                self.armature = obj
 
-                radius = collider_dict.get("radius")
-                if not isinstance(radius, (int, float)):
-                    radius = 0
+        if (
+            self.armature is not None
+            and self.parse_result.spec_version_number < (1, 0)
+            and self.armature.rotation_mode == "QUATERNION"
+        ):
+            obj = self.armature
+            obj.rotation_quaternion.rotate(mathutils.Euler((0.0, 0.0, math.pi), "XYZ"))
+            if self.context.object is not None:
+                bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            previous_active = self.context.view_layer.objects.active
+            try:
+                self.context.view_layer.objects.active = obj
 
-                collider_name = f"{bone_name}_collider_{collider_index}"
-                obj = bpy.data.objects.new(name=collider_name, object_data=None)
-                collider.bpy_object = obj
-                obj.parent = self.armature
-                obj.parent_type = "BONE"
-                obj.parent_bone = bone_name
-                fixed_offset = [
-                    offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
-                ]  # TODO: Y軸反転はUniVRMのシリアライズに合わせてる
+                bone_name_to_roll = {}
+                bpy.ops.object.mode_set(mode="EDIT")
+                if isinstance(obj.data, Armature):
+                    for edit_bone in obj.data.edit_bones:
+                        bone_name_to_roll[edit_bone.name] = edit_bone.roll
+                bpy.ops.object.mode_set(mode="OBJECT")
 
-                # boneのtail側にparentされるので、根元からのpositionに動かしなおす
-                obj.matrix_world = Matrix.Translation(
-                    [
-                        armature.matrix_world.to_translation()[i]
-                        + self.armature_data.bones[
-                            bone_name
-                        ].matrix_local.to_translation()[i]
-                        + fixed_offset[i]
-                        for i in range(3)
-                    ]
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=False, properties=False
                 )
 
-                obj.empty_display_size = radius
-                obj.empty_display_type = "SPHERE"
-                collider_objs.append(obj)
-        if collider_objs:
-            colliders_collection = bpy.data.collections.new("Colliders")
-            self.context.scene.collection.children.link(colliders_collection)
-            for collider_obj in collider_objs:
-                colliders_collection.objects.link(collider_obj)
+                self.save_bone_child_object_world_matrices(obj)
 
-        for collider_group in secondary_animation.collider_groups:
-            collider_group.refresh(armature)
+                bpy.ops.object.mode_set(mode="EDIT")
+                if isinstance(obj.data, Armature):
+                    edit_bones = [
+                        edit_bone
+                        for edit_bone in obj.data.edit_bones
+                        if not edit_bone.parent
+                    ]
+                    while edit_bones:
+                        edit_bone = edit_bones.pop(0)
+                        roll = bone_name_to_roll.get(edit_bone.name)
+                        if roll is not None:
+                            edit_bone.roll = roll
+                        edit_bones.extend(edit_bone.children)
+                bpy.ops.object.mode_set(mode="OBJECT")
+            finally:
+                self.context.view_layer.objects.active = previous_active
 
-        bone_group_dicts = secondary_animation_dict.get("boneGroups")
-        if not isinstance(bone_group_dicts, list):
-            bone_group_dicts = []
+        extras_mesh_index_key = self.import_id + "Meshes"
+        for obj in self.context.selectable_objects:
+            data = obj.data
+            if not isinstance(data, Mesh):
+                continue
+            custom_mesh_index = data.get(extras_mesh_index_key)
+            if isinstance(custom_mesh_index, int):
+                self.meshes[custom_mesh_index] = obj
+            else:
+                custom_mesh_index = obj.get(extras_mesh_index_key)
+                if isinstance(custom_mesh_index, int):
+                    self.meshes[custom_mesh_index] = obj
 
-        for bone_group_dict in bone_group_dicts:
-            bone_group = secondary_animation.bone_groups.add()
+            obj.pop(extras_mesh_index_key, None)
+            data.pop(extras_mesh_index_key, None)
 
-            if not isinstance(bone_group_dict, dict):
-                bone_group.refresh(armature)
+            # ここでupdateしないとエクスポート時にCustom Propertyが復活することがある
+            data.update()
+
+        extras_material_index_key = self.import_id + "Materials"
+        for material in bpy.data.materials:
+            if self.is_temp_object_name(material.name):
+                continue
+            material_index = material.pop(extras_material_index_key, None)
+            if isinstance(material_index, int):
+                self.materials[material_index] = material
+
+        for image in list(bpy.data.images):
+            custom_image_index = image.get(self.import_id)
+            if not isinstance(custom_image_index, int) and image.name.startswith(
+                legacy_image_name_prefix
+            ):
+                custom_image_index_str = "".join(
+                    image.name.split(legacy_image_name_prefix)[1:]
+                ).split("_", maxsplit=1)[0]
+                with contextlib.suppress(ValueError):
+                    custom_image_index = int(custom_image_index_str)
+            if not isinstance(custom_image_index, int):
+                continue
+            image_dicts = json_dict.get("images")
+            if isinstance(image_dicts, list) and 0 <= custom_image_index < len(
+                image_dicts
+            ):
+                # image.nameはインポート時に勝手に縮められてしまうことがあるので、
+                # jsonの値から復元する
+                image_dict = image_dicts[custom_image_index]
+                indexed_image_name = None
+
+                if isinstance(image_dict, dict):
+                    indexed_image_name = image_dict.get("name")
+
+                if isinstance(indexed_image_name, str):
+                    if indexed_image_name.startswith(legacy_image_name_prefix):
+                        indexed_image_name = "_".join(indexed_image_name.split("_")[1:])
+                else:
+                    indexed_image_name = None
+
+                if indexed_image_name:
+                    image.name = indexed_image_name
+                else:
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L54
+                    image.name = f"Image_{custom_image_index}"
+
+            else:
+                image.name = "_".join(image.name.split("_")[1:])
+
+            self.images[custom_image_index] = image
+
+        if self.context.object is not None and self.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+
+        while True:
+            temp_object = next(
+                (
+                    o
+                    for o in bpy.data.objects
+                    if o and o.users <= 1 and self.is_temp_object_name(o.name)
+                ),
+                None,
+            )
+            if not temp_object:
+                break
+            bpy.data.objects.remove(temp_object)
+
+        while True:
+            temp_mesh = next(
+                (
+                    m
+                    for m in bpy.data.meshes
+                    if m and m.users <= 1 and self.is_temp_object_name(m.name)
+                ),
+                None,
+            )
+            if not temp_mesh:
+                break
+            bpy.data.meshes.remove(temp_mesh)
+
+        while True:
+            temp_material = next(
+                (
+                    m
+                    for m in bpy.data.materials
+                    if m and m.users <= 1 and self.is_temp_object_name(m.name)
+                ),
+                None,
+            )
+            if not temp_material:
+                break
+            bpy.data.materials.remove(temp_material)
+
+        if self.armature is None:
+            logger.warning("Failed to read VRM Humanoid")
+
+    def cleanup_gltf2_with_indices(self) -> None:
+        if (
+            self.context.view_layer.objects.active is not None
+            and self.context.view_layer.objects.active.mode != "OBJECT"
+        ):
+            bpy.ops.object.mode_set(mode="OBJECT")
+        meshes_key = self.import_id + "Meshes"
+        nodes_key = self.import_id + "Nodes"
+        remove_objs = []
+        for obj in list(self.context.scene.collection.objects):
+            if isinstance(obj.data, Armature):
+                for bone in obj.data.bones:
+                    if nodes_key in bone:
+                        remove_objs.append(obj)
+                        break
                 continue
 
-            comment = bone_group_dict.get("comment")
-            if isinstance(comment, str):
-                bone_group.comment = comment
+            if isinstance(obj.data, Mesh) and (
+                nodes_key in obj.data
+                or meshes_key in obj.data
+                or self.is_temp_object_name(obj.data.name)
+            ):
+                remove_objs.append(obj)
+                continue
 
-            stiffiness = bone_group_dict.get("stiffiness")
-            if isinstance(stiffiness, (int, float)):
-                bone_group.stiffiness = stiffiness
+            if (
+                nodes_key in obj
+                or meshes_key in obj
+                or self.is_temp_object_name(obj.name)
+            ):
+                remove_objs.append(obj)
 
-            gravity_power = bone_group_dict.get("gravityPower")
-            if isinstance(gravity_power, (int, float)):
-                bone_group.gravity_power = gravity_power
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in remove_objs:
+            obj.select_set(True)
+        bpy.ops.object.delete()
 
-            gravity_dir = convert.vrm_json_vector3_to_tuple(
-                bone_group_dict.get("gravityDir")
-            )
-            if gravity_dir is not None:
-                # Axis confusing
-                (x, y, z) = gravity_dir
-                bone_group.gravity_dir = (x, z, y)
+        retry = True
+        while retry:
+            retry = False
+            for obj in bpy.data.objects:
+                if obj in remove_objs and not obj.users:
+                    retry = True
+                    bpy.data.objects.remove(obj, do_unlink=True)
 
-            drag_force = bone_group_dict.get("dragForce")
-            if isinstance(drag_force, (int, float)):
-                bone_group.drag_force = drag_force
+    def temp_object_name(self) -> str:
+        self.temp_object_name_count += 1
+        return f"{self.import_id}Temp_{self.temp_object_name_count}_"
 
-            center = bone_group_dict.get("center")
-            if isinstance(center, int) and center in self.bone_names:
-                bone_group.center.set_bone_name(self.bone_names[center])
-
-            hit_radius = bone_group_dict.get("hitRadius")
-            if isinstance(hit_radius, (int, float)):
-                bone_group.hit_radius = hit_radius
-
-            bones = bone_group_dict.get("bones")
-            if isinstance(bones, list):
-                for bone in bones:
-                    bone_prop = bone_group.bones.add()
-                    if not isinstance(bone, int) or bone not in self.bone_names:
-                        continue
-
-                    bone_prop.set_bone_name(self.bone_names[bone])
-
-            collider_group_dicts = bone_group_dict.get("colliderGroups")
-            if isinstance(collider_group_dicts, list):
-                for collider_group in collider_group_dicts:
-                    if not isinstance(collider_group, int) or not (
-                        0 <= collider_group < len(secondary_animation.collider_groups)
-                    ):
-                        continue
-                    collider_group_uuid = bone_group.collider_groups.add()
-                    collider_group_uuid.value = secondary_animation.collider_groups[
-                        collider_group
-                    ].uuid
-
-        for bone_group in secondary_animation.bone_groups:
-            bone_group.refresh(armature)
+    def is_temp_object_name(self, name: str) -> bool:
+        return name.startswith(f"{self.import_id}Temp_")
 
     def viewport_setup(self) -> None:
         if self.armature:

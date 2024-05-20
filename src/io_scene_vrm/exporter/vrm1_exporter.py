@@ -54,7 +54,7 @@ from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
 logger = get_logger(__name__)
 
 
-class Gltf2AddonVrmExporter(AbstractBaseVrmExporter):
+class Vrm1Exporter(AbstractBaseVrmExporter):
     def __init__(
         self,
         context: Context,

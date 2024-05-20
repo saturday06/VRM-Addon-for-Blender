@@ -29,8 +29,10 @@ from ..common.preferences import (
 from ..editor import search
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
-from .gltf2_addon_vrm_importer import Gltf2AddonVrmImporter
+from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .license_validation import LicenseConfirmationRequiredError
+from .vrm0_importer import Vrm0Importer
+from .vrm1_importer import Vrm1Importer
 from .vrm_animation_importer import VrmAnimationImporter
 from .vrm_parser import VrmParser
 
@@ -120,7 +122,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
 
         license_error = None
         try:
-            return create_blend_model(
+            return import_vrm(
                 filepath,
                 self,
                 context,
@@ -256,7 +258,7 @@ class WM_OT_vrm_license_confirmation(Operator):
             return {"CANCELLED"}
         if not self.import_anyway:
             return {"CANCELLED"}
-        return create_blend_model(
+        return import_vrm(
             filepath,
             self,
             context,
@@ -314,7 +316,7 @@ class WM_OT_vrm_license_confirmation(Operator):
         set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
 
 
-def create_blend_model(
+def import_vrm(
     filepath: Path,
     preferences: ImportPreferencesProtocol,
     context: Context,
@@ -327,11 +329,21 @@ def create_blend_model(
         license_validation=license_validation,
     ).parse()
 
-    Gltf2AddonVrmImporter(
-        context,
-        parse_result,
-        preferences,
-    ).import_vrm()
+    if parse_result.spec_version_number >= (1,):
+        vrm_importer: AbstractBaseVrmImporter = Vrm1Importer(
+            context,
+            parse_result,
+            preferences,
+        )
+    else:
+        vrm_importer = Vrm0Importer(
+            context,
+            parse_result,
+            preferences,
+        )
+
+    vrm_importer.import_vrm()
+
     return {"FINISHED"}
 
 

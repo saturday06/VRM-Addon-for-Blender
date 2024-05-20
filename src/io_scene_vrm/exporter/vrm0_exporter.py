@@ -69,7 +69,7 @@ from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 logger = get_logger(__name__)
 
 
-class LegacyVrmExporter(AbstractBaseVrmExporter):
+class Vrm0Exporter(AbstractBaseVrmExporter):
     class KhrTextureTransform:
         def __init__(
             self, offset: tuple[float, float], scale: tuple[float, float]
@@ -567,7 +567,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
         transparency_cutoff: Optional[float] = 0.5,
         unlit: Optional[bool] = None,
         double_sided: bool = False,
-        texture_transform: Optional["LegacyVrmExporter.KhrTextureTransform"] = None,
+        texture_transform: Optional["Vrm0Exporter.KhrTextureTransform"] = None,
     ) -> dict[str, Json]:
         if base_color is None:
             base_color = [1.0, 1.0, 1.0, 1.0]
@@ -779,7 +779,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
 
         use_normalmap = False
         main_texture: Optional[tuple[str, int, int]] = None
-        main_texture_transform: Optional[LegacyVrmExporter.KhrTextureTransform] = None
+        main_texture_transform: Optional[Vrm0Exporter.KhrTextureTransform] = None
         normal_texture: Optional[tuple[str, int, int]] = None
         emissive_texture: Optional[tuple[str, int, int]] = None
 
@@ -830,7 +830,7 @@ class LegacyVrmExporter(AbstractBaseVrmExporter):
                         ]
                 else:
                     mtoon_vector_dict[texture_key] = [0, 0, 1, 1]
-                main_texture_transform = LegacyVrmExporter.KhrTextureTransform(
+                main_texture_transform = Vrm0Exporter.KhrTextureTransform(
                     offset=(
                         mtoon_vector_dict[texture_key][0],
                         mtoon_vector_dict[texture_key][1],
