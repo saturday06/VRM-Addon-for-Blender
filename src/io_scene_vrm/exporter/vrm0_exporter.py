@@ -179,8 +179,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         return self.result
 
     @staticmethod
-    def axis_blender_to_glb(vec3: Sequence[float]) -> list[float]:
-        return [vec3[i] * t for i, t in zip([0, 2, 1], [-1, 1, 1])]
+    def axis_blender_to_glb(vec3: Sequence[float]) -> tuple[float, float, float]:
+        return (
+            -vec3[0],
+            vec3[2],
+            vec3[1],
+        )
 
     def hide_outline_modifiers(self) -> None:
         for obj in self.export_objects:
@@ -2031,7 +2035,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         return True
 
     @staticmethod
-    def min_max(minmax: list[list[float]], position: list[float]) -> None:
+    def min_max(
+        minmax: list[list[float]], position: tuple[float, float, float]
+    ) -> None:
         for i in range(3):
             minmax[0][i] = position[i] if position[i] < minmax[0][i] else minmax[0][i]
             minmax[1][i] = position[i] if position[i] > minmax[1][i] else minmax[1][i]
