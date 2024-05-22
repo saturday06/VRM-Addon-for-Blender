@@ -16,7 +16,7 @@ class TestVersion(TestCase):
     def test_version(self) -> None:
         self.assertEqual(
             version.addon_version(),
-            (2, 20, 48),
+            (2, 20, 49),
         )
 
 
