@@ -1462,7 +1462,7 @@ class VRM_OT_move_down_vrm0_secondary_animation_group(Operator):
         secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
         if len(secondary_animation.bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
-        new_index = (self.bone_group_index - 1) % len(secondary_animation.bone_groups)
+        new_index = (self.bone_group_index + 1) % len(secondary_animation.bone_groups)
         secondary_animation.bone_groups.move(self.bone_group_index, new_index)
         secondary_animation.active_bone_group_index = new_index
         return {"FINISHED"}
