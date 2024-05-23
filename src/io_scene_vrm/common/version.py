@@ -29,7 +29,7 @@ cache = Cache(
 )
 
 
-def clear_addon_version_cache() -> Optional[float]:  # pylint: disable=useless-return
+def clear_addon_version_cache() -> Optional[float]:
     cache.use = False
     return None
 

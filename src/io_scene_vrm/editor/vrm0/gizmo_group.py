@@ -41,9 +41,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
         gizmo.alpha_highlight = 0.5
         gizmo.scale_basis = 0.25
 
-        # pylint: disable=attribute-defined-outside-init;
         self.first_person_gizmo = gizmo
-        # pylint: enable=attribute-defined-outside-init;
 
     def refresh(self, context: Context) -> None:
         active_object = context.active_object

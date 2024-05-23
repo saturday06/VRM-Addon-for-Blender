@@ -24,7 +24,6 @@ class ICYP_OT_detail_mesh_maker(Operator):
 
     # init before execute
     # https://docs.blender.org/api/2.82/Operator.html#invoke-function
-    # pylint: disable=W0201
     def invoke(self, context: Context, _event: Event) -> set[str]:
         self.base_armature_name = next(
             o for o in context.selected_objects if o.type == "ARMATURE"

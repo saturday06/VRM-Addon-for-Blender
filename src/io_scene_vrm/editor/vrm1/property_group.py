@@ -1238,7 +1238,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
                 break
 
         self["custom_name"] = custom_name
-        self.name = custom_name  # pylint: disable=attribute-defined-outside-init
+        self.name = custom_name
 
     custom_name: StringProperty(  # type: ignore[valid-type]
         name="Name",

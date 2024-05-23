@@ -27,7 +27,7 @@ class StringPropertyGroup(PropertyGroup):
         return str(value)
 
     def set_value(self, value: str) -> None:
-        self.name = value  # pylint: disable=attribute-defined-outside-init
+        self.name = value
         self["value"] = value
 
     value: StringProperty(  # type: ignore[valid-type]
@@ -50,7 +50,7 @@ class FloatPropertyGroup(PropertyGroup):
         return 0.0
 
     def set_value(self, value: float) -> None:
-        self.name = str(value)  # pylint: disable=attribute-defined-outside-init
+        self.name = str(value)
         self["value"] = value
 
     value: FloatProperty(  # type: ignore[valid-type]

@@ -296,13 +296,11 @@ class SpringBone1ColliderShapePropertyGroup(PropertyGroup):
 class SpringBone1ColliderPropertyGroup(PropertyGroup):
     def broadcast_bpy_object_name(self) -> None:
         if not self.bpy_object or not self.bpy_object.name:
-            self.name = ""  # pylint: disable=attribute-defined-outside-init
+            self.name = ""
             return
         if self.name == self.bpy_object.name:
             return
-        self.name = (  # pylint: disable=attribute-defined-outside-init
-            self.bpy_object.name
-        )
+        self.name = self.bpy_object.name
 
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in bpy.data.armatures:
@@ -437,7 +435,7 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
     def set_collider_name(self, value: object) -> None:
         if not isinstance(value, str):
             value = str(value)
-        self.name = value  # pylint: disable=attribute-defined-outside-init
+        self.name = value
         if self.get("collider_name") == value:
             return
         self["collider_name"] = value
@@ -494,7 +492,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
                     continue
 
                 name = f"{self.vrm_name} #{index+1}"
-                self.name = name  # pylint: disable=attribute-defined-outside-init
+                self.name = name
 
                 for spring in spring_bone.springs:
                     for collider_group_reference in spring.collider_groups:
@@ -632,7 +630,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
     def set_collider_group_name(self, value: object) -> None:
         if not isinstance(value, str):
             value = str(value)
-        self.name = value  # pylint: disable=attribute-defined-outside-init
+        self.name = value
         if self.get("collider_group_name") == value:
             return
         self["collider_group_name"] = value
