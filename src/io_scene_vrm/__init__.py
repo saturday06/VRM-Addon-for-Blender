@@ -11,7 +11,7 @@
 #
 #
 
-# Synchronize with https://github.com/saturday06/VRM-Addon-for-Blender/blob/b0aedc74ae4b23e69756106ded4e60195265c57a/src/io_scene_vrm/common/version.py#L94-L102
+# Synchronize with https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_49/src/io_scene_vrm/common/version.py#L94-L102
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",

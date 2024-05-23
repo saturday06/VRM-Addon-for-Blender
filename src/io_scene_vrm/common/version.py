@@ -95,9 +95,9 @@ def legacy_addon() -> bool:
         bl_info.get("name"),
         bl_info.get("location"),
     ) == (
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_41/src/io_scene_vrm/__init__.py#L15
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_49/src/io_scene_vrm/__init__.py#L15
         "VRM format",
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_41/src/io_scene_vrm/__init__.py#L18
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_49/src/io_scene_vrm/__init__.py#L18
         "File > Import-Export",
     )
 
