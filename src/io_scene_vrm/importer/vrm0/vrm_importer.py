@@ -13,23 +13,23 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, shader
-from ..common.deep import Json
-from ..common.logging import get_logger
-from ..common.version import addon_version
-from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
-from ..editor import make_armature, migration
-from ..editor.make_armature import (
+from ...common import convert, deep, shader
+from ...common.deep import Json
+from ...common.logging import get_logger
+from ...common.version import addon_version
+from ...common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
+from ...editor import make_armature, migration
+from ...editor.make_armature import (
     connect_parent_tail_and_child_head_if_very_close_position,
 )
-from ..editor.mtoon1.property_group import (
+from ...editor.mtoon1.property_group import (
     Mtoon0TexturePropertyGroup,
     Mtoon1MaterialPropertyGroup,
     Mtoon1SamplerPropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
-from ..editor.vrm0.property_group import (
+from ...editor.vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
@@ -38,8 +38,8 @@ from ..editor.vrm0.property_group import (
     Vrm0MetaPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
-from .abstract_base_vrm_importer import AbstractBaseVrmImporter
-from .vrm_parser import Vrm0MaterialProperty
+from ..abstract_base_vrm_importer import AbstractBaseVrmImporter
+from ..vrm_parser import Vrm0MaterialProperty
 
 logger = get_logger(__name__)
 

@@ -31,8 +31,8 @@ from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 from .license_validation import LicenseConfirmationRequiredError
-from .vrm0_importer import Vrm0Importer
-from .vrm1_importer import Vrm1Importer
+from .vrm0.vrm_importer import VrmImporter as Vrm0Importer
+from .vrm1.vrm_importer import VrmImporter as Vrm1Importer
 from .vrm_animation_importer import VrmAnimationImporter
 from .vrm_parser import VrmParser
 
