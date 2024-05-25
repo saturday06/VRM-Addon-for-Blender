@@ -44,7 +44,7 @@ from .vrm_parser import Vrm0MaterialProperty
 logger = get_logger(__name__)
 
 
-class Vrm0Importer(AbstractBaseVrmImporter):
+class VrmImporter(AbstractBaseVrmImporter):
     def make_materials(self) -> None:
         shader_to_build_method = {
             "VRM/MToon": self.build_material_from_mtoon0,

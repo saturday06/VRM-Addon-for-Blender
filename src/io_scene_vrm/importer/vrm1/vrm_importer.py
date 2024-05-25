@@ -47,7 +47,7 @@ from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 logger = get_logger(__name__)
 
 
-class Vrm1Importer(AbstractBaseVrmImporter):
+class VrmImporter(AbstractBaseVrmImporter):
     def assign_texture(
         self,
         texture: Mtoon1TexturePropertyGroup,
