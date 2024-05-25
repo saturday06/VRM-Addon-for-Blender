@@ -127,7 +127,7 @@ class AbstractBaseVrmImporter(ABC):
         return armature_data
 
     def save_bone_child_object_world_matrices(self, armature: Object) -> None:
-        for obj in bpy.data.objects:
+        for obj in self.context.blend_data.objects:
             if (
                 obj.parent_type == "BONE"
                 and obj.parent == armature
@@ -138,7 +138,7 @@ class AbstractBaseVrmImporter(ABC):
                 )
 
     def load_bone_child_object_world_matrices(self, armature: Object) -> None:
-        for obj in bpy.data.objects:
+        for obj in self.context.blend_data.objects:
             if (
                 obj.parent_type == "BONE"
                 and obj.parent == armature
@@ -177,7 +177,7 @@ class AbstractBaseVrmImporter(ABC):
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
         # のインデックスになっている
-        # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
+        # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterself.context.cs#L308
         json_texture_index = deep.get(
             self.parse_result.vrm0_extension, ["meta", "texture"]
         )
@@ -239,7 +239,7 @@ class AbstractBaseVrmImporter(ABC):
             dir_path = create_unique_indexed_directory_path(dir_path)
         dir_path.mkdir(parents=True, exist_ok=True)
 
-        if bpy.app.version >= (3, 1) and not bpy.data.filepath:
+        if bpy.app.version >= (3, 1) and not self.context.blend_data.filepath:
             temp_blend_path = None
             for _ in range(10000):
                 suffix = (
@@ -1040,14 +1040,14 @@ class AbstractBaseVrmImporter(ABC):
             data.update()
 
         extras_material_index_key = self.import_id + "Materials"
-        for material in bpy.data.materials:
+        for material in self.context.blend_data.materials:
             if self.is_temp_object_name(material.name):
                 continue
             material_index = material.pop(extras_material_index_key, None)
             if isinstance(material_index, int):
                 self.materials[material_index] = material
 
-        for image in list(bpy.data.images):
+        for image in list(self.context.blend_data.images):
             custom_image_index = image.get(self.import_id)
             if not isinstance(custom_image_index, int) and image.name.startswith(
                 legacy_image_name_prefix
@@ -1095,40 +1095,40 @@ class AbstractBaseVrmImporter(ABC):
             temp_object = next(
                 (
                     o
-                    for o in bpy.data.objects
+                    for o in self.context.blend_data.objects
                     if o and o.users <= 1 and self.is_temp_object_name(o.name)
                 ),
                 None,
             )
             if not temp_object:
                 break
-            bpy.data.objects.remove(temp_object)
+            self.context.blend_data.objects.remove(temp_object)
 
         while True:
             temp_mesh = next(
                 (
                     m
-                    for m in bpy.data.meshes
+                    for m in self.context.blend_data.meshes
                     if m and m.users <= 1 and self.is_temp_object_name(m.name)
                 ),
                 None,
             )
             if not temp_mesh:
                 break
-            bpy.data.meshes.remove(temp_mesh)
+            self.context.blend_data.meshes.remove(temp_mesh)
 
         while True:
             temp_material = next(
                 (
                     m
-                    for m in bpy.data.materials
+                    for m in self.context.blend_data.materials
                     if m and m.users <= 1 and self.is_temp_object_name(m.name)
                 ),
                 None,
             )
             if not temp_material:
                 break
-            bpy.data.materials.remove(temp_material)
+            self.context.blend_data.materials.remove(temp_material)
 
         if self.armature is None:
             logger.warning("Failed to read VRM Humanoid")
@@ -1173,10 +1173,10 @@ class AbstractBaseVrmImporter(ABC):
         retry = True
         while retry:
             retry = False
-            for obj in bpy.data.objects:
+            for obj in self.context.blend_data.objects:
                 if obj in remove_objs and not obj.users:
                     retry = True
-                    bpy.data.objects.remove(obj, do_unlink=True)
+                    self.context.blend_data.objects.remove(obj, do_unlink=True)
 
     def temp_object_name(self) -> str:
         self.temp_object_name_count += 1

@@ -31,7 +31,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
         self.face_mesh_name = next(
             o for o in context.selected_objects if o.type == "MESH"
         ).name
-        face_mesh = bpy.data.objects[self.face_mesh_name]
+        face_mesh = context.blend_data.objects[self.face_mesh_name]
         face_mesh.display_type = "WIRE"
         rfd = face_mesh.bound_box[4]
         lfd = face_mesh.bound_box[0]
@@ -44,8 +44,8 @@ class ICYP_OT_detail_mesh_maker(Operator):
         return self.execute(context)
 
     def execute(self, context: Context) -> set[str]:
-        self.base_armature = bpy.data.objects[self.base_armature_name]
-        self.face_mesh = bpy.data.objects[self.face_mesh_name]
+        self.base_armature = context.blend_data.objects[self.base_armature_name]
+        self.face_mesh = context.blend_data.objects[self.face_mesh_name]
         head_bone = self.get_humanoid_bone("head")
         head_matrix = IcypTemplateMeshMaker.head_bone_to_head_matrix(
             head_bone, self.head_tall_size, self.neck_depth_offset
@@ -55,9 +55,9 @@ class ICYP_OT_detail_mesh_maker(Operator):
             head_bone.tail_local[2] - head_bone.head_local[2]
         )
 
-        self.mesh = bpy.data.meshes.new("template_face")
+        self.mesh = context.blend_data.meshes.new("template_face")
         self.make_face(context, self.mesh)
-        obj = bpy.data.objects.new("template_face", self.mesh)
+        obj = context.blend_data.objects.new("template_face", self.mesh)
         scene = context.scene
         scene.collection.objects.link(obj)
         context.view_layer.objects.active = obj

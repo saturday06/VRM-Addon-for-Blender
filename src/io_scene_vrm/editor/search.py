@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-import bpy
 from bpy.app.translations import pgettext
 from bpy.types import (
     Armature,
@@ -33,7 +32,7 @@ MESH_CONVERTIBLE_OBJECT_TYPES = [
 ]
 
 
-def export_materials(objects: list[Object]) -> list[Material]:
+def export_materials(context: Context, objects: list[Object]) -> list[Material]:
     result = []
     for obj in objects:
         if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
@@ -44,7 +43,7 @@ def export_materials(objects: list[Object]) -> list[Material]:
             for material_ref in mesh_convertible.materials:
                 if not isinstance(material_ref, Material):
                     continue
-                material = bpy.data.materials.get(material_ref.name)
+                material = context.blend_data.materials.get(material_ref.name)
                 if not isinstance(material, Material):
                     continue
                 if material not in result:
@@ -60,7 +59,7 @@ def export_materials(objects: list[Object]) -> list[Material]:
             material_ref = material_slot.material
             if not material_ref:
                 continue
-            material = bpy.data.materials.get(material_ref.name)
+            material = context.blend_data.materials.get(material_ref.name)
             if not isinstance(material, Material):
                 continue
             if material not in result:
@@ -174,14 +173,16 @@ def object_distance(
 
 
 def armature_exists(context: Context) -> bool:
-    return any(armature.users for armature in bpy.data.armatures) and any(
+    return any(armature.users for armature in context.blend_data.armatures) and any(
         obj.type == "ARMATURE" for obj in context.blend_data.objects
     )
 
 
 def current_armature_is_vrm0(context: Context) -> bool:
     live_armature_datum = [
-        armature_data for armature_data in bpy.data.armatures if armature_data.users
+        armature_data
+        for armature_data in context.blend_data.armatures
+        if armature_data.users
     ]
     if not live_armature_datum:
         return False
@@ -202,7 +203,9 @@ def current_armature_is_vrm0(context: Context) -> bool:
 
 def current_armature_is_vrm1(context: Context) -> bool:
     live_armature_datum = [
-        armature_data for armature_data in bpy.data.armatures if armature_data.users
+        armature_data
+        for armature_data in context.blend_data.armatures
+        if armature_data.users
     ]
     if not live_armature_datum:
         return False
@@ -223,7 +226,7 @@ def current_armature_is_vrm1(context: Context) -> bool:
 
 def multiple_armatures_exist(context: Context) -> bool:
     first_data_exists = False
-    for data in bpy.data.armatures:
+    for data in context.blend_data.armatures:
         if not data.users:
             continue
         if not first_data_exists:

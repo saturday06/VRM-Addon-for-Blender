@@ -2,10 +2,10 @@ import json
 import tempfile
 
 import bpy
-from bpy.types import Armature
+from bpy.types import Armature, Context
 
 
-def test() -> None:
+def test(context: Context) -> None:
     bpy.ops.icyp.make_basic_armature()
 
     new_head_name = "root"
@@ -13,7 +13,7 @@ def test() -> None:
         file.write(json.dumps({"head": new_head_name}).encode())
         file.close()
         bpy.ops.vrm.load_human_bone_mappings(filepath=file.name)
-    active_object = bpy.context.active_object
+    active_object = context.active_object
     if not active_object:
         raise AssertionError
     data = active_object.data
@@ -31,4 +31,4 @@ def test() -> None:
 
 
 if __name__ == "__main__":
-    test()
+    test(bpy.context)

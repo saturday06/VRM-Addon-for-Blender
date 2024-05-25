@@ -76,14 +76,16 @@ class MeshObjectPropertyGroup(PropertyGroup):
         return str(self.bpy_object.name)
 
     def set_mesh_object_name(self, value: object) -> None:
+        context = bpy.context
+
         if (
             not isinstance(value, str)
-            or value not in bpy.data.objects
-            or bpy.data.objects[value].type != "MESH"
+            or value not in context.blend_data.objects
+            or context.blend_data.objects[value].type != "MESH"
         ):
             self.bpy_object = None
             return
-        self.bpy_object = bpy.data.objects[value]
+        self.bpy_object = context.blend_data.objects[value]
 
     mesh_object_name: StringProperty(  # type: ignore[valid-type]
         get=get_mesh_object_name, set=set_mesh_object_name
@@ -214,11 +216,13 @@ class BonePropertyGroup(PropertyGroup):
         return result
 
     def get_bone_name(self) -> str:
+        context = bpy.context
+
         if not self.bone_uuid:
             return ""
         if not self.armature_data_name:
             return ""
-        armature_data = bpy.data.armatures.get(self.armature_data_name)
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
         if not armature_data:
             return ""
 
@@ -237,11 +241,13 @@ class BonePropertyGroup(PropertyGroup):
     def set_bone_name(
         self, value: Optional[str], refresh_node_candidates: bool = False
     ) -> None:
+        context = bpy.context
+
         armature: Optional[Object] = None
 
         # Reassign self.armature_data_name in case of armature duplication.
         self.search_one_time_uuid = uuid.uuid4().hex
-        for found_armature in bpy.data.objects:
+        for found_armature in context.blend_data.objects:
             if found_armature.type != "ARMATURE":
                 continue
             if all(

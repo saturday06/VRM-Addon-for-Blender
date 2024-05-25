@@ -40,7 +40,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
         )
 
     def execute(self, context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -104,10 +104,10 @@ class VRM_OT_add_human_bone_custom_property(Operator):
     armature_name: StringProperty()  # type: ignore[valid-type]
     bone_name: StringProperty()  # type: ignore[valid-type]
 
-    def execute(self, _context: Context) -> set[str]:
-        if self.armature_name not in bpy.data.armatures:
+    def execute(self, context: Context) -> set[str]:
+        if self.armature_name not in context.blend_data.armatures:
             return {"CANCELLED"}
-        armature = bpy.data.armatures[self.armature_name]
+        armature = context.blend_data.armatures[self.armature_name]
         if self.bone_name not in armature:
             armature[self.bone_name] = ""
         return {"FINISHED"}

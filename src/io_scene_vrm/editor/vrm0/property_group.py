@@ -219,7 +219,9 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         defer: bool = False,
         force: bool = False,
     ) -> None:
-        armature_data = bpy.data.armatures.get(armature_data_name)
+        context = bpy.context
+
+        armature_data = context.blend_data.armatures.get(armature_data_name)
         if not armature_data:
             return
         bones = armature_data.bones.values()
@@ -614,6 +616,8 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         return 0.0
 
     def set_preview(self, value: object) -> None:
+        context = bpy.context
+
         if not isinstance(value, (int, float)):
             return
 
@@ -626,9 +630,8 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
 
         self["preview"] = float(value)
 
-        blend_data = bpy.data
         for bind in self.binds:
-            mesh_object = blend_data.objects.get(bind.mesh.mesh_object_name)
+            mesh_object = context.blend_data.objects.get(bind.mesh.mesh_object_name)
             if not mesh_object or mesh_object.type != "MESH":
                 continue
             mesh = mesh_object.data
@@ -637,7 +640,7 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
             mesh_shape_keys = mesh.shape_keys
             if not mesh_shape_keys:
                 continue
-            shape_key = blend_data.shape_keys.get(mesh_shape_keys.name)
+            shape_key = context.blend_data.shape_keys.get(mesh_shape_keys.name)
             if not shape_key:
                 continue
             key_blocks = shape_key.key_blocks

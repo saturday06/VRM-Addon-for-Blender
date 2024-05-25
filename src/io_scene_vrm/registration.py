@@ -71,8 +71,9 @@ logger = get_logger(__name__)
 
 
 def setup(*, load_post: bool) -> None:
-    shader.add_shaders()
-    migration.migrate_all_objects()
+    context = bpy.context
+    shader.add_shaders(context)
+    migration.migrate_all_objects(context)
     migration.setup_subscription(load_post=load_post)
 
 
@@ -120,8 +121,9 @@ def depsgraph_update_pre(_dummy: object) -> None:
 def save_pre(_dummy: object) -> None:
     # Apply pending changes before saving.
     depsgraph_update_pre_once_if_load_post_is_unavailable(None)
-    migration.migrate_all_objects()
-    extension.update_internal_cache(bpy.context)
+    context = bpy.context
+    migration.migrate_all_objects(context)
+    extension.update_internal_cache(context)
 
 
 classes: list[

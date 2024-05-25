@@ -43,8 +43,11 @@ For VRM 1.0
 ```python
 import bpy
 
+context = bpy.context
+
 bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-armature = bpy.context.object
+
+armature = context.object
 armature.data.vrm_addon_extension.spec_version = "1.0"
 
 meta = armature.data.vrm_addon_extension.vrm1.meta
@@ -55,7 +58,7 @@ meta.copyright_information = "Copyright Information"
 meta.contact_information = "Contact Information"
 meta.references.add().value = "https://example.com"
 meta.third_party_licenses = "Third Party Licenses"
-thumbnail_image = bpy.data.images.new(name="New Image", width=32, height=32)
+thumbnail_image = context.blend_data.images.new(name="New Image", width=32, height=32)
 meta.thumbnail_image = thumbnail_image
 meta.avatar_permission = "onlyAuthor"  # or "onlySeparatelyLicensedPerson", "everyone"
 meta.allow_excessively_violent_usage = False
@@ -76,8 +79,10 @@ For VRM 1.0
 ```python
 import bpy
 
+context = bpy.context
+
 bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-armature = bpy.context.object
+armature = context.object
 armature.data.vrm_addon_extension.spec_version = "1.0"
 
 bpy.ops.object.mode_set(mode="EDIT")
@@ -102,9 +107,11 @@ armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.spine.node.bone_name
 ```python
 import bpy
 
-image = bpy.data.images.new(name="New Image", width=32, height=32)
+context = bpy.context
 
-material = bpy.data.materials.new("New MToon Material")
+image = context.blend_data.images.new(name="New Image", width=32, height=32)
+
+material = context.blend_data.materials.new("New MToon Material")
 material.vrm_addon_extension.mtoon1.enabled = True
 
 gltf = material.vrm_addon_extension.mtoon1
@@ -166,9 +173,11 @@ The script automates the steps in [Create Humanoid VRM]({{< ref "create-humanoid
 import bpy
 from pathlib import Path
 
+context = bpy.context
+
 bpy.ops.icyp.make_basic_armature()
 
-armature = bpy.context.active_object
+armature = context.active_object
 armature.data.vrm_addon_extension.spec_version = "1.0"
 
 meta = armature.data.vrm_addon_extension.vrm1.meta
@@ -178,61 +187,61 @@ meta.version = "1.0.0"
 humanoid = armature.data.vrm_addon_extension.vrm1.humanoid
 
 bpy.ops.mesh.primitive_uv_sphere_add(radius=0.25)
-head = bpy.context.active_object
+head = context.active_object
 head.parent = armature
 head.parent_bone = humanoid.human_bones.head.node.bone_name
 head.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_cube_add(size=0.4)
-spine = bpy.context.active_object
+spine = context.active_object
 spine.parent = armature
 spine.parent_bone = humanoid.human_bones.spine.node.bone_name
 spine.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-left_upper_arm = bpy.context.active_object
+left_upper_arm = context.active_object
 left_upper_arm.parent = armature
 left_upper_arm.parent_bone = humanoid.human_bones.left_upper_arm.node.bone_name
 left_upper_arm.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-left_hand = bpy.context.active_object
+left_hand = context.active_object
 left_hand.parent = armature
 left_hand.parent_bone = humanoid.human_bones.left_hand.node.bone_name
 left_hand.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-right_upper_arm = bpy.context.active_object
+right_upper_arm = context.active_object
 right_upper_arm.parent = armature
 right_upper_arm.parent_bone = humanoid.human_bones.right_upper_arm.node.bone_name
 right_upper_arm.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-right_hand = bpy.context.active_object
+right_hand = context.active_object
 right_hand.parent = armature
 right_hand.parent_bone = humanoid.human_bones.right_hand.node.bone_name
 right_hand.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-left_upper_leg = bpy.context.active_object
+left_upper_leg = context.active_object
 left_upper_leg.parent = armature
 left_upper_leg.parent_bone = humanoid.human_bones.left_upper_leg.node.bone_name
 left_upper_leg.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-right_upper_leg = bpy.context.active_object
+right_upper_leg = context.active_object
 right_upper_leg.parent = armature
 right_upper_leg.parent_bone = humanoid.human_bones.right_upper_leg.node.bone_name
 right_upper_leg.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-left_lower_leg = bpy.context.active_object
+left_lower_leg = context.active_object
 left_lower_leg.parent = armature
 left_lower_leg.parent_bone = humanoid.human_bones.left_lower_leg.node.bone_name
 left_lower_leg.parent_type = "BONE"
 
 bpy.ops.mesh.primitive_ico_sphere_add(radius=0.1)
-right_lower_leg = bpy.context.active_object
+right_lower_leg = context.active_object
 right_lower_leg.parent = armature
 right_lower_leg.parent_bone = humanoid.human_bones.right_lower_leg.node.bone_name
 right_lower_leg.parent_type = "BONE"

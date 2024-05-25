@@ -138,7 +138,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         wm = self.context.window_manager
         wm.progress_begin(0, 10)
         blend_shape_previews = self.clear_blend_shape_proxy_previews(self.armature_data)
-        object_name_and_modifier_names = self.hide_mtoon1_outline_geometry_nodes()
+        object_name_and_modifier_names = self.hide_mtoon1_outline_geometry_nodes(
+            self.context
+        )
         try:
             self.setup_pose(
                 self.armature,
@@ -168,7 +170,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             try:
                 self.restore_pose(self.armature, self.armature_data)
                 self.restore_mtoon1_outline_geometry_nodes(
-                    object_name_and_modifier_names
+                    self.context, object_name_and_modifier_names
                 )
                 self.restore_blend_shape_proxy_previews(
                     self.armature_data, blend_shape_previews
@@ -211,7 +213,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
     def restore_outline_modifiers(self) -> None:
         for object_name, modifier_dict in self.outline_modifier_visibilities.items():
-            obj = bpy.data.objects.get(object_name)
+            obj = self.context.blend_data.objects.get(object_name)
             if (
                 not obj
                 or obj not in self.export_objects
@@ -235,7 +237,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     def image_to_bin(self) -> None:
         # collect used image
         used_images: list[Image] = []
-        used_materials = search.export_materials(self.export_objects)
+        used_materials = search.export_materials(self.context, self.export_objects)
         for mat in used_materials:
             mat.pop("vrm_shader", None)
 
@@ -1832,7 +1834,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int] = {}
         texture_tuple_to_index_dict: dict[tuple[int, int], int] = {}
 
-        for material in search.export_materials(self.export_objects):
+        for material in search.export_materials(self.context, self.export_objects):
             material_properties_dict: dict[str, Json] = {}
             pbr_dict: dict[str, Json] = {}
             if material.vrm_addon_extension.mtoon1.enabled:
@@ -1934,6 +1936,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def fetch_morph_vertex_normal_difference(
+        context: Context,
         mesh_data: Mesh,
     ) -> dict[str, list[list[float]]]:
         exclusion_vertex_indices: set[int] = set()
@@ -1944,7 +1947,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if material is None:
                 continue
             # Use non-evaluated material
-            material = bpy.data.materials.get(material.name)
+            material = context.blend_data.materials.get(material.name)
             if material is None:
                 continue
             if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
@@ -2315,7 +2318,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 }
                 # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
                 shape_name_to_morph_normal_diff_dict = (
-                    self.fetch_morph_vertex_normal_difference(mesh_data)
+                    self.fetch_morph_vertex_normal_difference(self.context, mesh_data)
                 )
             position_bin = bytearray()
             position_min_max = [[fmax, fmax, fmax], [fmin, fmin, fmin]]
@@ -2901,7 +2904,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         first_person_dict["meshAnnotations"] = mesh_annotation_dicts
         for mesh_annotation in first_person.mesh_annotations:
             mesh_index = -1
-            mesh_object = bpy.data.objects.get(mesh_annotation.mesh.mesh_object_name)
+            mesh_object = self.context.blend_data.objects.get(
+                mesh_annotation.mesh.mesh_object_name
+            )
             if mesh_object:
                 mesh_data = mesh_object.data
                 if isinstance(mesh_data, Mesh):
@@ -3178,7 +3183,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
     def cleanup(self) -> None:
         if self.use_dummy_armature:
-            bpy.data.objects.remove(self.armature, do_unlink=True)
+            self.context.blend_data.objects.remove(self.armature, do_unlink=True)
 
 
 def to_gl_float(array4: Sequence[float]) -> Sequence[float]:

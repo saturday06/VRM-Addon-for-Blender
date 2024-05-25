@@ -4,6 +4,7 @@ from os import environ, getenv
 from pathlib import Path
 
 import bpy
+from bpy.types import Context
 
 from io_scene_vrm.common.logging import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
@@ -32,7 +33,7 @@ def get_test_command_args() -> list[list[str]]:
     return command_args
 
 
-def test(vrm: str, extract_textures_str: str) -> None:
+def test(context: Context, vrm: str, extract_textures_str: str) -> None:
     environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
     update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
 
@@ -49,8 +50,8 @@ def test(vrm: str, extract_textures_str: str) -> None:
 
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
-    while bpy.data.collections:
-        bpy.data.collections.remove(bpy.data.collections[0])
+    while context.blend_data.collections:
+        context.blend_data.collections.remove(context.blend_data.collections[0])
 
     bpy.ops.import_scene.vrm(
         filepath=str(in_path),
@@ -102,4 +103,4 @@ def test(vrm: str, extract_textures_str: str) -> None:
 
 
 if __name__ == "__main__":
-    test(*sys.argv[slice(sys.argv.index("--") + 1, sys.maxsize)])
+    test(bpy.context, *sys.argv[slice(sys.argv.index("--") + 1, sys.maxsize)])

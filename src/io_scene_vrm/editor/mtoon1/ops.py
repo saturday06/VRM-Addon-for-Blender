@@ -57,7 +57,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        material = bpy.data.materials.get(self.material_name)
+        material = context.blend_data.materials.get(self.material_name)
         if not isinstance(material, Material):
             return {"CANCELLED"}
         self.convert_material_to_mtoon1(context, material)
@@ -65,6 +65,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
     @staticmethod
     def assign_mtoon_unversioned_image(
+        context: Context,
         texture_info: Mtoon1TextureInfoPropertyGroup,
         image_name_and_sampler_type: Optional[tuple[str, int, int]],
         uv_offset: tuple[float, float],
@@ -77,7 +78,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             return
 
         image_name, wrap_number, filter_number = image_name_and_sampler_type
-        image = bpy.data.images.get(image_name)
+        image = context.blend_data.images.get(image_name)
         if not image:
             return
 
@@ -366,6 +367,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         mtoon.transparent_with_z_write = transparent_with_z_write
         gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
         self.assign_mtoon_unversioned_image(
+            context,
             gltf.pbr_metallic_roughness.base_color_texture,
             base_color_texture,
             uv_offset,
@@ -373,12 +375,14 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         )
         mtoon.shade_color_factor = shade_color_factor
         self.assign_mtoon_unversioned_image(
+            context,
             mtoon.shade_multiply_texture,
             shade_multiply_texture,
             uv_offset,
             uv_scale,
         )
         self.assign_mtoon_unversioned_image(
+            context,
             gltf.normal_texture,
             normal_texture,
             uv_offset,
@@ -395,12 +399,14 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
         gltf.emissive_factor = emissive_factor
         self.assign_mtoon_unversioned_image(
+            context,
             gltf.emissive_texture,
             emissive_texture,
             uv_offset,
             uv_scale,
         )
         self.assign_mtoon_unversioned_image(
+            context,
             mtoon.matcap_texture,
             matcap_texture,
             (0, 0),
@@ -417,6 +423,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             mtoon.parametric_rim_lift_factor = parametric_rim_lift_factor
 
         self.assign_mtoon_unversioned_image(
+            context,
             mtoon.rim_multiply_texture,
             rim_multiply_texture,
             uv_offset,
@@ -444,6 +451,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE
 
         self.assign_mtoon_unversioned_image(
+            context,
             mtoon.outline_width_multiply_texture,
             outline_width_multiply_texture,
             uv_offset,
@@ -456,6 +464,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             mtoon.outline_lighting_mix_factor = outline_lighting_mix_factor
 
         self.assign_mtoon_unversioned_image(
+            context,
             mtoon.uv_animation_mask_texture,
             uv_animation_mask_texture,
             uv_offset,
@@ -491,8 +500,8 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        material = bpy.data.materials.get(self.material_name)
+    def execute(self, context: Context) -> set[str]:
+        material = context.blend_data.materials.get(self.material_name)
         if not isinstance(material, Material):
             return {"CANCELLED"}
         self.convert_mtoon1_to_bsdf_principled(material)
@@ -556,7 +565,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        material = bpy.data.materials.get(self.material_name)
+        material = context.blend_data.materials.get(self.material_name)
         if not isinstance(material, Material):
             return {"CANCELLED"}
         reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
@@ -632,16 +641,16 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
         name="Target Texture",
     )
 
-    def execute(self, _context: Context) -> set[str]:
+    def execute(self, context: Context) -> set[str]:
         filepath = self.filepath
         if not filepath or not Path(filepath).exists():
             return {"CANCELLED"}
 
-        last_images_len = len(bpy.data.images)
-        image = bpy.data.images.load(filepath, check_existing=True)
-        created = last_images_len < len(bpy.data.images)
+        last_images_len = len(context.blend_data.images)
+        image = context.blend_data.images.load(filepath, check_existing=True)
+        created = last_images_len < len(context.blend_data.images)
 
-        material = bpy.data.materials.get(self.material_name)
+        material = context.blend_data.materials.get(self.material_name)
         if not isinstance(material, Material):
             return {"FINISHED"}
 

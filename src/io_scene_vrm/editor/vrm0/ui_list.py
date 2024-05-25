@@ -1,4 +1,3 @@
-import bpy
 from bpy.types import Context, Mesh, UILayout, UIList
 
 from ..property_group import BonePropertyGroup, StringPropertyGroup
@@ -117,7 +116,7 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
 
     def draw_item(
         self,
-        _context: Context,
+        context: Context,
         layout: UILayout,
         bone_group: object,
         bone: object,
@@ -131,7 +130,7 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
             return
         if not isinstance(bone, BonePropertyGroup):
             return
-        armature = bpy.data.armatures.get(bone.armature_data_name)
+        armature = context.blend_data.armatures.get(bone.armature_data_name)
         if armature is None:
             return
 
@@ -164,7 +163,7 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
 
     def draw_item(
         self,
-        _context: Context,
+        context: Context,
         layout: UILayout,
         bone_group: object,
         collider_group: object,
@@ -180,7 +179,7 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
             return
 
         secondary_animation = None
-        for armature in bpy.data.armatures:
+        for armature in context.blend_data.armatures:
             ext = armature.vrm_addon_extension.vrm0
             if any(bone_group == bg for bg in ext.secondary_animation.bone_groups):
                 secondary_animation = ext.secondary_animation

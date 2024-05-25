@@ -60,7 +60,7 @@ class VrmImporter(AbstractBaseVrmImporter):
 
             material = self.materials.get(index)
             if not material:
-                material = bpy.data.materials.new(material_property.name)
+                material = self.context.blend_data.materials.new(material_property.name)
                 self.materials[index] = material
 
             self.reset_material(material)
@@ -475,7 +475,7 @@ class VrmImporter(AbstractBaseVrmImporter):
 
         addon_extension.addon_version = addon_version()
 
-        textblock = bpy.data.texts.new(name="vrm.json")
+        textblock = self.context.blend_data.texts.new(name="vrm.json")
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
 
         self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
@@ -817,9 +817,11 @@ class VrmImporter(AbstractBaseVrmImporter):
                     material_name = material_value_dict.get("materialName")
                     if (
                         isinstance(material_name, str)
-                        and material_name in bpy.data.materials
+                        and material_name in self.context.blend_data.materials
                     ):
-                        material_value.material = bpy.data.materials[material_name]
+                        material_value.material = self.context.blend_data.materials[
+                            material_name
+                        ]
 
                     property_name = material_value_dict.get("propertyName")
                     if isinstance(property_name, str):
@@ -888,7 +890,9 @@ class VrmImporter(AbstractBaseVrmImporter):
                     radius = 0
 
                 collider_name = f"{bone_name}_collider_{collider_index}"
-                obj = bpy.data.objects.new(name=collider_name, object_data=None)
+                obj = self.context.blend_data.objects.new(
+                    name=collider_name, object_data=None
+                )
                 collider.bpy_object = obj
                 obj.parent = self.armature
                 obj.parent_type = "BONE"
@@ -913,7 +917,7 @@ class VrmImporter(AbstractBaseVrmImporter):
                 obj.empty_display_type = "SPHERE"
                 collider_objs.append(obj)
         if collider_objs:
-            colliders_collection = bpy.data.collections.new("Colliders")
+            colliders_collection = self.context.blend_data.collections.new("Colliders")
             self.context.scene.collection.children.link(colliders_collection)
             for collider_obj in collider_objs:
                 colliders_collection.objects.link(collider_obj)

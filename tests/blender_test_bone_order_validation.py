@@ -1,10 +1,10 @@
 import bpy
-from bpy.types import Armature
+from bpy.types import Armature, Context
 
 
-def test() -> None:
+def test(context: Context) -> None:
     bpy.ops.icyp.make_basic_armature()
-    armatures = [obj for obj in bpy.data.objects if obj.type == "ARMATURE"]
+    armatures = [obj for obj in context.blend_data.objects if obj.type == "ARMATURE"]
     assert len(armatures) == 1
     armature = armatures[0]
     if not isinstance(armature.data, Armature):
@@ -38,4 +38,4 @@ def test() -> None:
 
 
 if __name__ == "__main__":
-    test()
+    test(bpy.context)

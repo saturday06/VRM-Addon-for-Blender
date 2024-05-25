@@ -2,7 +2,7 @@ import functools
 from dataclasses import dataclass
 
 import bpy
-from bpy.types import Armature, Bone, Object
+from bpy.types import Armature, Bone, Context, Object
 
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences
@@ -28,7 +28,9 @@ def migrate_no_defer_discarding_return_value(armature_object_name: str) -> None:
 
 
 def migrate(armature_object_name: str, defer: bool) -> bool:
-    armature = bpy.data.objects.get(armature_object_name)
+    context = bpy.context
+
+    armature = context.blend_data.objects.get(armature_object_name)
     if not armature:
         return False
     armature_data = armature.data
@@ -56,9 +58,9 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
         bone_property_group.armature_data_name = armature_data.name
 
-    vrm0_migration.migrate(ext.vrm0, armature)
-    vrm1_migration.migrate(ext.vrm1, armature)
-    spring_bone1_migration.migrate(armature)
+    vrm0_migration.migrate(context, ext.vrm0, armature)
+    vrm1_migration.migrate(context, ext.vrm1, armature)
+    spring_bone1_migration.migrate(context, armature)
 
     updated_addon_version = addon_version()
     logger.info(
@@ -71,8 +73,10 @@ def migrate(armature_object_name: str, defer: bool) -> bool:
     return True
 
 
-def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
-    for obj in bpy.data.objects:
+def migrate_all_objects(
+    context: Context, skip_non_migrated_armatures: bool = False
+) -> None:
+    for obj in context.blend_data.objects:
         if obj.type == "ARMATURE":
             if skip_non_migrated_armatures:
                 ext = getattr(obj.data, "vrm_addon_extension", None)
@@ -85,9 +89,8 @@ def migrate_all_objects(skip_non_migrated_armatures: bool = False) -> None:
                     continue
             migrate(obj.name, defer=False)
 
-    context = bpy.context
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
-        context.scene.name
+        context, context.scene.name
     )
     mtoon1_migration.migrate(context)
 
@@ -115,7 +118,9 @@ subscription = Subscription()
 
 
 def on_change_bpy_object_name() -> None:
-    for armature in bpy.data.armatures:
+    context = bpy.context
+
+    for armature in context.blend_data.armatures:
         ext = getattr(armature, "vrm_addon_extension", None)
         if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
             continue
@@ -127,11 +132,12 @@ def on_change_bpy_object_name() -> None:
 
         # TODO: Needs optimization!
         for collider in ext.spring_bone1.colliders:
-            collider.broadcast_bpy_object_name()
+            collider.broadcast_bpy_object_name(context)
 
 
 def on_change_bpy_object_mode() -> None:
     context = bpy.context
+
     active_object = context.active_object
     if not active_object:
         return
@@ -147,7 +153,9 @@ def on_change_bpy_object_location() -> None:
 
 
 def on_change_bpy_bone_name() -> None:
-    for armature in bpy.data.armatures:
+    context = bpy.context
+
+    for armature in context.blend_data.armatures:
         ext = getattr(armature, "vrm_addon_extension", None)
         if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
             continue
@@ -161,7 +169,9 @@ def on_change_bpy_bone_name() -> None:
 
 
 def on_change_bpy_armature_name() -> None:
-    migrate_all_objects(skip_non_migrated_armatures=True)
+    context = bpy.context
+
+    migrate_all_objects(context, skip_non_migrated_armatures=True)
 
 
 def setup_subscription(*, load_post: bool) -> None:

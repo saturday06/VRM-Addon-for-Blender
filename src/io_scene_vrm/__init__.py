@@ -117,14 +117,13 @@ def raise_not_implemented_error(
 ) -> None:
     import bpy
 
+    context = bpy.context
+
     translated_messages = {
         "ja_JP": ja_jp_message,
     }
 
-    if (
-        bpy.app.version >= (2, 80)
-        and bpy.context.preferences.view.use_translate_interface
-    ):
+    if bpy.app.version >= (2, 80) and context.preferences.view.use_translate_interface:
         message = translated_messages.get(bpy.app.translations.locale, default_message)
     else:
         message = default_message

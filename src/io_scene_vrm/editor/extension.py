@@ -2,7 +2,6 @@ import math
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Optional
 
-import bpy
 from bpy.props import (
     CollectionProperty,
     EnumProperty,
@@ -38,8 +37,8 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     )
 
     @staticmethod
-    def update_vrm0_material_property_names(scene_name: str) -> None:
-        scene = bpy.data.scenes.get(scene_name)
+    def update_vrm0_material_property_names(context: Context, scene_name: str) -> None:
+        scene = context.blend_data.scenes.get(scene_name)
         if not scene:
             logger.error(f'No scene "{scene_name}"')
             return
@@ -400,11 +399,11 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
 
 
 def update_internal_cache(context: Context) -> None:
-    for armature in bpy.data.armatures:
+    for armature in context.blend_data.armatures:
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature.name)
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature.name)
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
-        context.scene.name
+        context, context.scene.name
     )
 
 

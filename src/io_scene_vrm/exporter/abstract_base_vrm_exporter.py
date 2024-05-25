@@ -57,7 +57,7 @@ class AbstractBaseVrmExporter(ABC):
 
         if pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE or (
             pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE
-            and not (action and action.name in bpy.data.actions)
+            and not (action and action.name in self.context.blend_data.actions)
         ):
             self.saved_pose_position = armature_data.pose_position
             armature_data.pose_position = "REST"
@@ -73,7 +73,7 @@ class AbstractBaseVrmExporter(ABC):
         if armature_data.pose_position != "POSE":
             armature_data.pose_position = "POSE"
 
-        bpy.context.view_layer.update()
+        self.context.view_layer.update()
         self.saved_current_pose_matrix_basis_dict = {
             bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
         }
@@ -103,7 +103,7 @@ class AbstractBaseVrmExporter(ABC):
                         right_eye_bone.rotation_mode = "QUATERNION"
                     right_eye_bone.rotation_quaternion = Quaternion()
 
-        if action and action.name in bpy.data.actions:
+        if action and action.name in self.context.blend_data.actions:
             pose_marker_frame = 0
             if pose_marker_name:
                 for search_pose_marker in action.pose_markers.values():
@@ -114,14 +114,14 @@ class AbstractBaseVrmExporter(ABC):
                 action, evaluation_time=pose_marker_frame
             )
 
-        bpy.context.view_layer.update()
+        self.context.view_layer.update()
 
     def restore_pose(self, armature: Object, armature_data: Armature) -> None:
         if self.context.view_layer.objects.active is not None:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
         self.context.view_layer.objects.active = armature
-        bpy.context.view_layer.update()
+        self.context.view_layer.update()
         bpy.ops.object.mode_set(mode="POSE")
 
         bones = [bone for bone in armature.pose.bones if not bone.parent]
@@ -131,7 +131,7 @@ class AbstractBaseVrmExporter(ABC):
             if matrix_basis is not None:
                 bone.matrix_basis = matrix_basis
             bones.extend(bone.children)
-        bpy.context.view_layer.update()
+        self.context.view_layer.update()
 
         bones = [bone for bone in armature.pose.bones if not bone.parent]
         while bones:
@@ -140,7 +140,7 @@ class AbstractBaseVrmExporter(ABC):
             if matrix is not None:
                 bone.matrix = matrix
             bones.extend(bone.children)
-        bpy.context.view_layer.update()
+        self.context.view_layer.update()
 
         if self.saved_pose_position:
             armature_data.pose_position = self.saved_pose_position
@@ -171,9 +171,9 @@ class AbstractBaseVrmExporter(ABC):
             blend_shape_group.preview = blend_shape_preview
 
     @staticmethod
-    def hide_mtoon1_outline_geometry_nodes() -> list[tuple[str, str]]:
+    def hide_mtoon1_outline_geometry_nodes(context: Context) -> list[tuple[str, str]]:
         object_name_to_modifier_names = []
-        for obj in bpy.data.objects:
+        for obj in context.blend_data.objects:
             for modifier in obj.modifiers:
                 if not modifier.show_viewport:
                     continue
@@ -193,10 +193,11 @@ class AbstractBaseVrmExporter(ABC):
 
     @staticmethod
     def restore_mtoon1_outline_geometry_nodes(
+        context: Context,
         object_name_to_modifier_names: list[tuple[str, str]],
     ) -> None:
         for object_name, modifier_name in object_name_to_modifier_names:
-            obj = bpy.data.objects.get(object_name)
+            obj = context.blend_data.objects.get(object_name)
             if not obj:
                 continue
             modifier = obj.modifiers.get(modifier_name)

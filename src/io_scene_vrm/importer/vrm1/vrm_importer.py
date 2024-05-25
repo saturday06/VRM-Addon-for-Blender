@@ -157,7 +157,7 @@ class VrmImporter(AbstractBaseVrmImporter):
             name = gltf_dict.get("name")
             if not isinstance(name, str):
                 name = "Material"
-            material = bpy.data.materials.new(name)
+            material = self.context.blend_data.materials.new(name)
         self.reset_material(material)
         material.use_backface_culling = True
 
@@ -831,7 +831,7 @@ class VrmImporter(AbstractBaseVrmImporter):
 
         addon_extension.addon_version = addon_version()
 
-        textblock = bpy.data.texts.new(name="vrm.json")
+        textblock = self.context.blend_data.texts.new(name="vrm.json")
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
 
         self.load_vrm1_meta(vrm1.meta, vrm1_extension_dict.get("meta"))
@@ -1326,7 +1326,7 @@ class VrmImporter(AbstractBaseVrmImporter):
             collider.reset_bpy_object(self.context, armature)
 
         if spring_bone.colliders:
-            colliders_collection = bpy.data.collections.new("Colliders")
+            colliders_collection = self.context.blend_data.collections.new("Colliders")
             self.context.scene.collection.children.link(colliders_collection)
             for collider in spring_bone.colliders:
                 if not collider.bpy_object:
@@ -1524,7 +1524,7 @@ class VrmImporter(AbstractBaseVrmImporter):
         object_name = self.object_names.get(node_index)
         bone_name = self.bone_names.get(node_index)
         if object_name is not None:
-            return bpy.data.objects.get(object_name)
+            return self.context.blend_data.objects.get(object_name)
         if self.armature and bone_name is not None:
             return self.armature.pose.bones.get(bone_name)
         return None

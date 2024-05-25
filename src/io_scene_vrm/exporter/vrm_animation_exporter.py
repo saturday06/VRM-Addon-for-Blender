@@ -179,8 +179,8 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
 
     scene_node_indices: list[int] = [human_bone_name_to_node_index[HumanBoneName.HIPS]]
 
-    frame_start = bpy.context.scene.frame_start
-    frame_end = bpy.context.scene.frame_end
+    frame_start = context.scene.frame_start
+    frame_end = context.scene.frame_end
 
     expression_animation_data = armature_data.animation_data
     if expression_animation_data and expression_animation_data.action:
@@ -924,7 +924,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
         #             pose_marker_frame = search_pose_marker.frame
         #             break
         #
-        # bpy.context.view_layer.update()
+        # context.view_layer.update()
         # saved_current_pose_matrix_basis_dict = {
         #     bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
         # }
@@ -941,7 +941,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
         # TODO: ここのロジックはちゃんと考える
         armature_data.pose_position = "REST"
 
-        bpy.context.view_layer.update()
+        context.view_layer.update()
 
         output_bytes = work_in_progress_2(context, armature)
 
@@ -953,7 +953,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
         context.view_layer.objects.active = armature
-        bpy.context.view_layer.update()
+        context.view_layer.update()
         bpy.ops.object.mode_set(mode="POSE")
 
         # bones = [bone for bone in armature.pose.bones if not bone.parent]
@@ -963,7 +963,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
         #     if matrix_basis is not None:
         #         bone.matrix_basis = matrix_basis
         #     bones.extend(bone.children)
-        # bpy.context.view_layer.update()
+        # context.view_layer.update()
         #
         # bones = [bone for bone in armature.pose.bones if not bone.parent]
         # while bones:
@@ -972,7 +972,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
         #     if matrix is not None:
         #         bone.matrix = matrix
         #     bones.extend(bone.children)
-        bpy.context.view_layer.update()
+        context.view_layer.update()
 
         if saved_pose_position:
             armature_data.pose_position = saved_pose_position

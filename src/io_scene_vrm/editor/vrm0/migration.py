@@ -4,7 +4,7 @@ import uuid
 from typing import Optional
 
 import bpy
-from bpy.types import ID, Armature, Mesh, Object, Text
+from bpy.types import ID, Armature, Context, Mesh, Object, Text
 
 from ...common import convert
 from ...common.deep import Json, make_json
@@ -22,14 +22,14 @@ from .property_group import (
 )
 
 
-def read_textblock_json(armature: Object, armature_key: str) -> Json:
+def read_textblock_json(context: Context, armature: Object, armature_key: str) -> Json:
     text_key = armature.get(armature_key)
     if isinstance(text_key, Text):
         textblock: Optional[Text] = text_key
     elif not isinstance(text_key, str):
         return None
     else:
-        textblock = bpy.data.texts.get(text_key)
+        textblock = context.blend_data.texts.get(text_key)
     if not isinstance(textblock, Text):
         return None
     textblock_str = "".join([line.body for line in textblock.lines])
@@ -38,7 +38,9 @@ def read_textblock_json(armature: Object, armature_key: str) -> Json:
     return None
 
 
-def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: Object) -> None:
+def migrate_vrm0_meta(
+    context: Context, meta: Vrm0MetaPropertyGroup, armature: Object
+) -> None:
     allowed_user_name = armature.get("allowedUserName")
     if (
         isinstance(allowed_user_name, str)
@@ -105,7 +107,7 @@ def migrate_vrm0_meta(meta: Vrm0MetaPropertyGroup, armature: Object) -> None:
 
     texture = armature.get("texture")
     if isinstance(texture, str):
-        texture_image = bpy.data.images.get(texture)
+        texture_image = context.blend_data.images.get(texture)
         if texture_image:
             meta.texture = texture_image
 
@@ -150,6 +152,7 @@ def migrate_vrm0_humanoid(
 
 
 def migrate_vrm0_first_person(
+    context: Context,
     first_person: Vrm0FirstPersonPropertyGroup,
     first_person_dict: Json,
 ) -> None:
@@ -178,13 +181,18 @@ def migrate_vrm0_first_person(
 
             mesh = mesh_annotation_dict.get("mesh")
             if isinstance(mesh, str):
-                if mesh in bpy.data.meshes:
-                    for obj in bpy.data.objects:
-                        if obj.data == bpy.data.meshes[mesh]:
+                if mesh in context.blend_data.meshes:
+                    for obj in context.blend_data.objects:
+                        if obj.data == context.blend_data.meshes[mesh]:
                             mesh_annotation.mesh.mesh_object_name = obj.name
                             break
-                elif mesh in bpy.data.objects and bpy.data.objects[mesh].type == "MESH":
-                    mesh_annotation.mesh.mesh_object_name = bpy.data.objects[mesh].name
+                elif (
+                    mesh in context.blend_data.objects
+                    and context.blend_data.objects[mesh].type == "MESH"
+                ):
+                    mesh_annotation.mesh.mesh_object_name = context.blend_data.objects[
+                        mesh
+                    ].name
 
             first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
             if (
@@ -236,6 +244,7 @@ def migrate_vrm0_first_person(
 
 
 def migrate_vrm0_blend_shape_groups(
+    context: Context,
     blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
     blend_shape_group_dicts: Json,
 ) -> None:
@@ -268,17 +277,17 @@ def migrate_vrm0_blend_shape_groups(
 
                 mesh_name = bind_dict.get("mesh")
                 if isinstance(mesh_name, str):
-                    if mesh_name in bpy.data.meshes:
-                        mesh: Optional[ID] = bpy.data.meshes[mesh_name]
-                        for obj in bpy.data.objects:
+                    if mesh_name in context.blend_data.meshes:
+                        mesh: Optional[ID] = context.blend_data.meshes[mesh_name]
+                        for obj in context.blend_data.objects:
                             if obj.data == mesh:
                                 bind.mesh.mesh_object_name = obj.name
                                 break
                     elif (
-                        mesh_name in bpy.data.objects
-                        and bpy.data.objects[mesh_name].type == "MESH"
+                        mesh_name in context.blend_data.objects
+                        and context.blend_data.objects[mesh_name].type == "MESH"
                     ):
-                        obj = bpy.data.objects[mesh_name]
+                        obj = context.blend_data.objects[mesh_name]
                         bind.mesh.mesh_object_name = obj.name
                         mesh = obj.data
                     else:
@@ -309,9 +318,11 @@ def migrate_vrm0_blend_shape_groups(
                 material_name = material_value_dict.get("materialName")
                 if (
                     isinstance(material_name, str)
-                    and material_name in bpy.data.materials
+                    and material_name in context.blend_data.materials
                 ):
-                    material_value.material = bpy.data.materials[material_name]
+                    material_value.material = context.blend_data.materials[
+                        material_name
+                    ]
 
                 property_name = material_value_dict.get("propertyName")
                 if isinstance(property_name, str):
@@ -428,25 +439,30 @@ def migrate_vrm0_secondary_animation(
         bone_group.refresh(armature)
 
 
-def migrate_legacy_custom_properties(armature: Object, armature_data: Armature) -> None:
+def migrate_legacy_custom_properties(
+    context: Context, armature: Object, armature_data: Armature
+) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 0, 1):
         return
 
-    migrate_vrm0_meta(ext.vrm0.meta, armature)
+    migrate_vrm0_meta(context, ext.vrm0.meta, armature)
     migrate_vrm0_blend_shape_groups(
+        context,
         ext.vrm0.blend_shape_master,
-        read_textblock_json(armature, "blendshape_group"),
+        read_textblock_json(context, armature, "blendshape_group"),
     )
     migrate_vrm0_first_person(
-        ext.vrm0.first_person, read_textblock_json(armature, "firstPerson_params")
+        context,
+        ext.vrm0.first_person,
+        read_textblock_json(context, armature, "firstPerson_params"),
     )
     migrate_vrm0_humanoid(
-        ext.vrm0.humanoid, read_textblock_json(armature, "humanoid_params")
+        ext.vrm0.humanoid, read_textblock_json(context, armature, "humanoid_params")
     )
     migrate_vrm0_secondary_animation(
         ext.vrm0.secondary_animation,
-        read_textblock_json(armature, "spring_bone"),
+        read_textblock_json(context, armature, "spring_bone"),
         armature,
         armature_data,
     )
@@ -598,14 +614,14 @@ def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
         humanoid.feet_spacing = float(feet_spacing)
 
 
-def migrate_pose(armature_data: bpy.types.Armature) -> None:
+def migrate_pose(context: Context, armature_data: bpy.types.Armature) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
 
     humanoid = ext.vrm0.humanoid
     action = humanoid.pose_library
-    if action and action.name in bpy.data.actions:
+    if action and action.name in context.blend_data.actions:
         humanoid.pose = humanoid.POSE_ITEM_VALUE_CUSTOM_POSE
     elif armature_data.pose_position == "REST":
         humanoid.pose = humanoid.POSE_ITEM_VALUE_REST_POSITION_POSE
@@ -624,7 +640,7 @@ def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     )
 
 
-def migrate(vrm0: Vrm0PropertyGroup, armature: Object) -> None:
+def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
@@ -646,12 +662,12 @@ def migrate(vrm0: Vrm0PropertyGroup, armature: Object) -> None:
                 )
                 break
 
-    migrate_legacy_custom_properties(armature, armature_data)
+    migrate_legacy_custom_properties(context, armature, armature_data)
     migrate_link_to_mesh_object(armature_data)
     remove_link_to_mesh_object(armature_data)
     fixup_gravity_dir(armature_data)
     fixup_humanoid_feet_spacing(armature_data)
-    migrate_pose(armature_data)
+    migrate_pose(context, armature_data)
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         armature_data.name,

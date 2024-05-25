@@ -25,8 +25,8 @@ class VRM_OT_add_vrm1_meta_author(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -58,8 +58,8 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -96,8 +96,8 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -132,8 +132,8 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -164,8 +164,8 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -197,8 +197,8 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -235,8 +235,8 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -271,8 +271,8 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -306,8 +306,8 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -342,8 +342,8 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -382,8 +382,8 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -427,8 +427,8 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -469,8 +469,8 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -503,8 +503,8 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -541,8 +541,8 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -579,8 +579,8 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -616,8 +616,8 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -657,8 +657,8 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -702,8 +702,8 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -745,8 +745,8 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -784,8 +784,8 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -827,8 +827,8 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -872,8 +872,8 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -915,8 +915,8 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -954,8 +954,8 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -995,8 +995,8 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1040,8 +1040,8 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1083,8 +1083,8 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1125,8 +1125,8 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1197,8 +1197,8 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
     bl_label = "Update VRM 1.0 Expression UI List Elements"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    def execute(self, _context: Context) -> set[str]:
-        for armature in bpy.data.armatures:
+    def execute(self, context: Context) -> set[str]:
+        for armature in context.blend_data.armatures:
             expressions = armature.vrm_addon_extension.vrm1.expressions
 
             # Set the number of elements equal to the number of elements wanted to show

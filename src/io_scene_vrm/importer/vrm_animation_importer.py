@@ -334,7 +334,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
                     pose_marker_frame = search_pose_marker.frame
                     break
 
-        bpy.context.view_layer.update()
+        context.view_layer.update()
 
         if t_pose_action:
             armature.pose.apply_pose_from_action(
@@ -348,7 +348,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
                     bone.rotation_mode = "QUATERNION"
                 bone.rotation_quaternion = Quaternion()
 
-        bpy.context.view_layer.update()
+        context.view_layer.update()
 
         return work_in_progress_2(context, path, armature)
     finally:
@@ -359,7 +359,7 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
         context.view_layer.objects.active = armature
-        bpy.context.view_layer.update()
+        context.view_layer.update()
 
         if saved_pose_position:
             armature_data.pose_position = saved_pose_position
@@ -477,7 +477,7 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
     if not isinstance(buffer_dicts, list):
         return {"CANCELLED"}
 
-    humanoid_action = bpy.data.actions.new(name="Humanoid")
+    humanoid_action = context.blend_data.actions.new(name="Humanoid")
     if not armature.animation_data:
         armature.animation_data_create()
     if not armature.animation_data:
@@ -485,7 +485,7 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
         raise ValueError(message)
     armature.animation_data.action = humanoid_action
 
-    expression_action = bpy.data.actions.new(name="Expressions")
+    expression_action = context.blend_data.actions.new(name="Expressions")
     if not armature_data.animation_data:
         armature_data.animation_data_create()
     if not armature_data.animation_data:
@@ -636,7 +636,7 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
                 if not isinstance(look_at_target_name, str) or not look_at_target_name:
                     look_at_target_name = "LookAtTarget"
                 if look_at_target_translation is not None:
-                    look_at_target_object = bpy.data.objects.new(
+                    look_at_target_object = context.blend_data.objects.new(
                         name=look_at_target_name, object_data=None
                     )
                     look_at_target_object.empty_display_size = 0.125

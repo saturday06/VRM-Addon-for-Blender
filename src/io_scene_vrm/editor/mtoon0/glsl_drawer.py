@@ -65,29 +65,34 @@ class MtoonGlsl:
 
     def make_small_image(
         self,
+        context: Context,
         name: str,
         color: tuple[float, float, float, float] = (1, 1, 1, 1),
         color_space: str = "sRGB",
     ) -> Image:
-        image = bpy.data.images.new(name, 1, 1)
+        image = context.blend_data.images.new(name, 1, 1)
         image.colorspace_settings.name = color_space
         image.generated_color = color
         return image
 
-    def __init__(self, material: Material) -> None:
+    def __init__(self, context: Context, material: Material) -> None:
         shader_black = "shader_black"
-        self.black_texture = bpy.data.images.get(shader_black)
+        self.black_texture = context.blend_data.images.get(shader_black)
         if self.black_texture is None:
-            self.black_texture = self.make_small_image(shader_black, (0, 0, 0, 0))
+            self.black_texture = self.make_small_image(
+                context, shader_black, (0, 0, 0, 0)
+            )
         shader_white = "shader_white"
-        self.white_texture = bpy.data.images.get(shader_white)
+        self.white_texture = context.blend_data.images.get(shader_white)
         if self.white_texture is None:
-            self.white_texture = self.make_small_image(shader_white, (1, 1, 1, 1))
+            self.white_texture = self.make_small_image(
+                context, shader_white, (1, 1, 1, 1)
+            )
         shader_normal = "shader_normal"
-        self.normal_texture = bpy.data.images.get(shader_normal)
+        self.normal_texture = context.blend_data.images.get(shader_normal)
         if self.normal_texture is None:
             self.normal_texture = self.make_small_image(
-                shader_normal, (0.5, 0.5, 1, 1), "Linear"
+                context, shader_normal, (0.5, 0.5, 1, 1), "Linear"
             )
         self.material = material
         self.name = material.name
@@ -259,6 +264,8 @@ class GlslDrawObj:
 
     @staticmethod
     def build_scene(_dummy: object = None) -> None:
+        context = bpy.context
+
         if GlslDrawObj.instance is None:
             if GlslDrawObj.draw_func is None:
                 glsl_draw_obj = GlslDrawObj()
@@ -267,7 +274,7 @@ class GlslDrawObj:
         else:
             glsl_draw_obj = GlslDrawObj.instance
         GlslDrawObj.objs = list(glsl_draw_obj.draw_objs)
-        lights = [obj for obj in bpy.data.objects if obj.type == "LIGHT"]
+        lights = [obj for obj in context.blend_data.objects if obj.type == "LIGHT"]
         if not lights:
             GlslDrawObj.draw_func_remove()
             message = "Please add a light to scene"
@@ -279,9 +286,9 @@ class GlslDrawObj:
                     continue
                 if mat_slot.material.name not in glsl_draw_obj.materials:
                     glsl_draw_obj.materials[mat_slot.material.name] = MtoonGlsl(
-                        mat_slot.material
+                        context, mat_slot.material
                     )
-        # if bpy.context.mode != 'POSE' or self.scene_meshes == None:
+        # if context.mode != 'POSE' or self.scene_meshes == None:
         #     need skin mesh modifier implementation
         GlslDrawObj.scene_meshes = []
         glsl_draw_obj.draw_x_offset = 0
@@ -304,7 +311,7 @@ class GlslDrawObj:
 
         def build_mesh(obj: Object) -> GlMesh:
             scene_mesh = GlMesh()
-            ob_eval = obj.evaluated_get(bpy.context.view_layer.depsgraph)
+            ob_eval = obj.evaluated_get(context.view_layer.depsgraph)
             tmp_mesh = ob_eval.to_mesh()
             tmp_mesh.calc_tangents()
             tmp_mesh.calc_loop_triangles()
@@ -444,6 +451,8 @@ class GlslDrawObj:
                     batches.insert(0, (mat, toon_batch, depth_batch))
 
     def glsl_draw(self) -> None:
+        context = bpy.context
+
         if bpy.app.version >= (3, 7):
             return
 
@@ -548,14 +557,14 @@ class GlslDrawObj:
                 depth_bat.draw(depth_shader)  # type: ignore[attr-defined]
 
         # shader main
-        vp_mat = bpy.context.region_data.perspective_matrix
-        projection_mat = bpy.context.region_data.window_matrix
-        view_dir = bpy.context.region_data.view_matrix[2][:3]
-        view_up = bpy.context.region_data.view_matrix[1][:3]
+        vp_mat = context.region_data.perspective_matrix
+        projection_mat = context.region_data.window_matrix
+        view_dir = context.region_data.view_matrix[2][:3]
+        view_up = context.region_data.view_matrix[1][:3]
         normal_world_to_view_matrix = (
-            bpy.context.region_data.view_matrix.inverted_safe().transposed()
+            context.region_data.view_matrix.inverted_safe().transposed()
         )
-        aspect = bpy.context.area.width / bpy.context.area.height
+        aspect = context.area.width / context.area.height
 
         for is_outline in [0, 1]:
             for bat in batches:

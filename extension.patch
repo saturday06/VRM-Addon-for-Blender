@@ -2,7 +2,7 @@ diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
 index d4b623f0..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
-@@ -1,232 +1,16 @@
+@@ -1,231 +1,16 @@
  # SPDX-License-Identifier: MIT
  # SPDX-FileCopyrightText: 2018 iCyP
  
@@ -124,14 +124,13 @@ index d4b623f0..5f4289fb 100644
 -) -> None:
 -    import bpy
 -
+-    context = bpy.context
+-
 -    translated_messages = {
 -        "ja_JP": ja_jp_message,
 -    }
 -
--    if (
--        bpy.app.version >= (2, 80)
--        and bpy.context.preferences.view.use_translate_interface
--    ):
+-    if bpy.app.version >= (2, 80) and context.preferences.view.use_translate_interface:
 -        message = translated_messages.get(bpy.app.translations.locale, default_message)
 -    else:
 -        message = default_message

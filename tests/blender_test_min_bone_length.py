@@ -1,21 +1,21 @@
 from sys import float_info
 
 import bpy
-from bpy.types import Armature
+from bpy.types import Armature, Context
 from mathutils import Vector
 
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
 
 
-def test() -> None:
+def test(context: Context) -> None:
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
-    while bpy.data.collections:
-        bpy.data.collections.remove(bpy.data.collections[0])
+    while context.blend_data.collections:
+        context.blend_data.collections.remove(context.blend_data.collections[0])
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -44,4 +44,4 @@ def test() -> None:
 
 
 if __name__ == "__main__":
-    test()
+    test(bpy.context)

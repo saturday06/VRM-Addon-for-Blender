@@ -1,10 +1,14 @@
+import bpy
+
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 
 
 class Gltf2AddonExporterUserExtension:
     def __init__(self) -> None:
+        context = bpy.context
+
         self.object_name_to_modifier_names = (
-            AbstractBaseVrmExporter.hide_mtoon1_outline_geometry_nodes()
+            AbstractBaseVrmExporter.hide_mtoon1_outline_geometry_nodes(context)
         )
 
     def gather_gltf_hook(
@@ -16,7 +20,9 @@ class Gltf2AddonExporterUserExtension:
         _c: object,
         _d: object,
     ) -> None:
+        context = bpy.context
+
         AbstractBaseVrmExporter.restore_mtoon1_outline_geometry_nodes(
-            self.object_name_to_modifier_names
+            context, self.object_name_to_modifier_names
         )
         self.object_name_to_modifier_names.clear()

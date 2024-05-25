@@ -159,11 +159,13 @@ class NodeGroupSocketTarget(NodeSocketTarget):
 
 class MaterialTraceablePropertyGroup(PropertyGroup):
     def find_material(self) -> Material:
+        context = bpy.context
+
         if self.id_data and self.id_data.is_evaluated:
             logger.error(f"{self} is evaluated. May cause a problem.")
 
         chain = self.get_material_property_chain()
-        for material in bpy.data.materials:
+        for material in context.blend_data.materials:
             if not material:
                 continue
             ext = material.vrm_addon_extension.mtoon1

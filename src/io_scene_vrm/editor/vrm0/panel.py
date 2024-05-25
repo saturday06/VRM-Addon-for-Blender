@@ -307,6 +307,7 @@ def draw_vrm0_humanoid_optional_bones_layout(
 
 
 def draw_vrm0_humanoid_layout(
+    context: Context,
     armature: Object,
     layout: UILayout,
     humanoid: Vrm0HumanoidPropertyGroup,
@@ -334,7 +335,7 @@ def draw_vrm0_humanoid_layout(
         column.prop_search(
             humanoid,
             "pose_library",
-            bpy.data,
+            context.blend_data,
             "actions",
             text=label,
             translate=False,
@@ -405,6 +406,7 @@ class VRM_PT_vrm0_humanoid_armature_object_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         draw_vrm0_humanoid_layout(
+            context,
             active_object,
             self.layout,
             armature_data.vrm_addon_extension.vrm0.humanoid,
@@ -434,7 +436,10 @@ class VRM_PT_vrm0_humanoid_ui(Panel):
         if not isinstance(armature_data, Armature):
             return
         draw_vrm0_humanoid_layout(
-            armature, self.layout, armature_data.vrm_addon_extension.vrm0.humanoid
+            context,
+            armature,
+            self.layout,
+            armature_data.vrm_addon_extension.vrm0.humanoid,
         )
 
 

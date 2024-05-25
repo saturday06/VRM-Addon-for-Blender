@@ -1,7 +1,7 @@
 from typing import Optional
 
 import bpy
-from bpy.types import Armature, EditBone, Object
+from bpy.types import Armature, Context, EditBone, Object
 from mathutils import Vector
 
 from io_scene_vrm.common.vrm0.human_bone import (
@@ -47,15 +47,15 @@ def assert_bone_candidates(
         raise AssertionError("Unexpected diff:\n" + ",".join(diffs))
 
 
-def test() -> None:
+def test(context: Context) -> None:
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
-    while bpy.data.collections:
-        bpy.data.collections.remove(bpy.data.collections[0])
+    while context.blend_data.collections:
+        context.blend_data.collections.remove(context.blend_data.collections[0])
 
     bpy.ops.icyp.make_basic_armature()
-    armatures = [obj for obj in bpy.data.objects if obj.type == "ARMATURE"]
+    armatures = [obj for obj in context.blend_data.objects if obj.type == "ARMATURE"]
     assert len(armatures) == 1
     armature = armatures[0]
 
@@ -111,4 +111,4 @@ def test() -> None:
 
 
 if __name__ == "__main__":
-    test()
+    test(bpy.context)

@@ -68,7 +68,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
 
     @staticmethod
     def node_group_create(
-        material: Material, shader_node_group_name: str
+        context: Context, material: Material, shader_node_group_name: str
     ) -> ShaderNodeGroup:
         if not material.node_tree:
             message = "No node tree"
@@ -77,7 +77,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
         if not isinstance(node_group, ShaderNodeGroup):
             message = f"{type(node_group)} is not a ShaderNodeGroup"
             raise TypeError(message)
-        node_group.node_tree = bpy.data.node_groups[shader_node_group_name]
+        node_group.node_tree = context.blend_data.node_groups[shader_node_group_name]
         return node_group
 
     def build_mesh(self, context: Context) -> None:
@@ -88,7 +88,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
         if not isinstance(armature_data, Armature):
             return
         bpy.ops.object.mode_set(mode="OBJECT")
-        mball = bpy.data.metaballs.new(f"{armature.name}_mball")
+        mball = context.blend_data.metaballs.new(f"{armature.name}_mball")
         mball.threshold = 0.001
         is_vrm_humanoid = False
         for bone in armature_data.bones:
@@ -128,7 +128,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
                 elem.radius = rad
             if min([hrad, trad]) < mball.resolution:
                 mball.resolution = min([hrad, trad])
-        mobj = bpy.data.objects.new(f"{armature.name}_mesh", mball)
+        mobj = context.blend_data.objects.new(f"{armature.name}_mesh", mball)
         mobj.location = armature.location
         mobj.rotation_quaternion = armature.rotation_quaternion
         mobj.scale = armature.scale
@@ -143,7 +143,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
         mobj.select_set(True)
         bpy.ops.object.convert(target="MESH")
 
-        bpy.data.metaballs.remove(mball)
+        context.blend_data.metaballs.remove(mball)
 
         obj = context.view_layer.objects.active
         context.view_layer.objects.active = armature
@@ -162,10 +162,10 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
         bpy.ops.uv.smart_project()
 
         shader_node_group_name = "MToon_unversioned"
-        shader_node_group_import(shader_node_group_name)
-        b_mat = bpy.data.materials.new(f"{armature.name}_mesh_mat")
+        shader_node_group_import(context, shader_node_group_name)
+        b_mat = context.blend_data.materials.new(f"{armature.name}_mesh_mat")
         self.material_init(b_mat)
-        sg = self.node_group_create(b_mat, shader_node_group_name)
+        sg = self.node_group_create(context, b_mat, shader_node_group_name)
         if b_mat.node_tree:
             b_mat.node_tree.links.new(
                 self.find_material_output_node(b_mat).inputs["Surface"],

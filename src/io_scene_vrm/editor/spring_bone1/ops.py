@@ -3,7 +3,6 @@ from collections.abc import Set as AbstractSet
 from sys import float_info
 from typing import TYPE_CHECKING
 
-import bpy
 from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
 
@@ -21,7 +20,7 @@ class VRM_OT_add_spring_bone1_collider(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -55,8 +54,8 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -69,14 +68,14 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
         bpy_object = spring_bone.colliders[self.collider_index].bpy_object
         if bpy_object:
             remove_objects = [*bpy_object.children, bpy_object]
-            for collection in bpy.data.collections:
+            for collection in context.blend_data.collections:
                 for remove_object in remove_objects:
                     remove_object.parent = None
                     if remove_object.name in collection.objects:
                         collection.objects.unlink(remove_object)
             for remove_object in remove_objects:
                 if remove_object.users <= 1:
-                    bpy.data.objects.remove(remove_object, do_unlink=True)
+                    context.blend_data.objects.remove(remove_object, do_unlink=True)
 
         collider_uuid = spring_bone.colliders[self.collider_index].uuid
         spring_bone.colliders.remove(self.collider_index)
@@ -120,8 +119,8 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -134,7 +133,7 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
         for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
+            collider_group.fix_index(context)
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -158,8 +157,8 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -172,7 +171,7 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
         for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
+            collider_group.fix_index(context)
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -192,8 +191,8 @@ class VRM_OT_add_spring_bone1_spring(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -225,8 +224,8 @@ class VRM_OT_remove_spring_bone1_spring(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -263,8 +262,8 @@ class VRM_OT_move_up_spring_bone1_spring(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -300,8 +299,8 @@ class VRM_OT_move_down_spring_bone1_spring(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -333,8 +332,8 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -367,8 +366,8 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -392,7 +391,7 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
                 if not removed:
                     break
         for collider_group in collider_groups:
-            collider_group.fix_index()
+            collider_group.fix_index(context)
 
         spring_bone.active_collider_group_index = min(
             spring_bone.active_collider_group_index,
@@ -422,8 +421,8 @@ class VRM_OT_move_up_spring_bone1_collider(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -459,8 +458,8 @@ class VRM_OT_move_down_spring_bone1_collider(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -496,8 +495,8 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -536,8 +535,8 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -582,8 +581,8 @@ class VRM_OT_move_up_spring_bone1_collider_group_collider(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -626,8 +625,8 @@ class VRM_OT_move_down_spring_bone1_collider_group_collider(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -666,8 +665,8 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -706,8 +705,8 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -751,8 +750,8 @@ class VRM_OT_move_up_spring_bone1_spring_collider_group(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -798,8 +797,8 @@ class VRM_OT_move_down_spring_bone1_spring_collider_group(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -844,8 +843,8 @@ class VRM_OT_add_spring_bone1_joint(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -899,8 +898,8 @@ class VRM_OT_remove_spring_bone1_joint(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -944,8 +943,8 @@ class VRM_OT_move_up_spring_bone1_joint(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -989,8 +988,8 @@ class VRM_OT_move_down_spring_bone1_joint(Operator):
         min=0,
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1026,8 +1025,8 @@ class VRM_OT_reset_spring_bone1_animation_state(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1036,7 +1035,7 @@ class VRM_OT_reset_spring_bone1_animation_state(Operator):
         for spring in armature_data.vrm_addon_extension.spring_bone1.springs:
             for joint in spring.joints:
                 joint.animation_state.initialized_as_tail = False
-        reset_state()
+        reset_state(context)
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -1059,7 +1058,7 @@ class VRM_OT_update_spring_bone1_animation(Operator):
         delta_time = self.delta_time
         if abs(delta_time) < float_info.epsilon:
             delta_time = context.scene.render.fps_base / float(context.scene.render.fps)
-        update_pose_bone_rotations(delta_time)
+        update_pose_bone_rotations(context, delta_time)
         return {"FINISHED"}
 
     if TYPE_CHECKING:

@@ -408,7 +408,9 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         defer: bool = False,
         force: bool = False,
     ) -> None:
-        armature_data = bpy.data.armatures.get(armature_data_name)
+        context = bpy.context
+
+        armature_data = context.blend_data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
             return
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
@@ -1124,6 +1126,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         return 0.0
 
     def set_preview(self, value: object) -> None:
+        context = bpy.context
+
         if not isinstance(value, (int, float)):
             return
 
@@ -1136,9 +1140,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
         self["preview"] = float(value)
 
-        blend_data = bpy.data
         for morph_target_bind in self.morph_target_binds:
-            mesh_object = blend_data.objects.get(
+            mesh_object = context.blend_data.objects.get(
                 morph_target_bind.node.mesh_object_name
             )
             if not mesh_object or mesh_object.type != "MESH":
@@ -1149,7 +1152,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             mesh_shape_keys = mesh.shape_keys
             if not mesh_shape_keys:
                 continue
-            shape_key = blend_data.shape_keys.get(mesh_shape_keys.name)
+            shape_key = context.blend_data.shape_keys.get(mesh_shape_keys.name)
             if not shape_key:
                 continue
             key_blocks = shape_key.key_blocks
@@ -1213,11 +1216,13 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
         return str(self.get("custom_name", ""))
 
     def set_custom_name(self, value: str) -> None:
+        context = bpy.context
+
         if not value or self.get("custom_name") == value:
             return
 
         vrm1: Optional[Vrm1PropertyGroup] = None
-        for search_armature in bpy.data.armatures:
+        for search_armature in context.blend_data.armatures:
             ext = search_armature.vrm_addon_extension
             for custom_expression in ext.vrm1.expressions.custom:
                 if custom_expression != self:

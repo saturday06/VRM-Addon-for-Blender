@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy.types import Armature, Object, PoseBone
+from bpy.types import Armature, Context, Object, PoseBone
 from mathutils import Matrix, Quaternion, Vector
 
 from .property_group import (
@@ -22,18 +22,18 @@ class State:
     last_fps: Optional[Decimal] = None
     last_fps_base: Optional[Decimal] = None
 
-    def reset(self) -> None:
+    def reset(self, context: Context) -> None:
         self.frame_count = Decimal()
         self.spring_bone_60_fps_update_count = Decimal()
-        self.last_fps_base = Decimal(bpy.context.scene.render.fps_base)
-        self.last_fps = Decimal(bpy.context.scene.render.fps)
+        self.last_fps_base = Decimal(context.scene.render.fps_base)
+        self.last_fps = Decimal(context.scene.render.fps)
 
 
 state = State()
 
 
-def reset_state() -> None:
-    state.reset()
+def reset_state(context: Context) -> None:
+    state.reset(context)
 
 
 @dataclass(frozen=True)
@@ -97,10 +97,10 @@ class CapsuleWorldCollider:
 
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#update-procedure
-def update_pose_bone_rotations(delta_time: float) -> None:
+def update_pose_bone_rotations(context: Context, delta_time: float) -> None:
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]] = []
 
-    for obj in bpy.data.objects:
+    for obj in context.blend_data.objects:
         calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
 
     for pose_bone, pose_bone_rotation in pose_bone_and_rotations:
@@ -499,21 +499,25 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
 @persistent
 def depsgraph_update_pre(_dummy: object) -> None:
-    state.reset()
+    context = bpy.context
+
+    state.reset(context)
 
 
 @persistent
 def frame_change_pre(_dummy: object) -> None:
-    fps = Decimal(bpy.context.scene.render.fps)
+    context = bpy.context
+
+    fps = Decimal(context.scene.render.fps)
     last_fps = state.last_fps
-    fps_base = Decimal(bpy.context.scene.render.fps_base)
+    fps_base = Decimal(context.scene.render.fps_base)
     last_fps_base = state.last_fps_base
     if (
         last_fps_base is None
         or (fps_base - last_fps_base).copy_abs() > 0.00001
         or fps != last_fps
     ):
-        state.reset()
+        state.reset(context)
 
     state.frame_count += 1
 
@@ -543,6 +547,6 @@ def frame_change_pre(_dummy: object) -> None:
         delta_time = float(next_spring_bone_update_time) - float(
             current_spring_bone_update_time
         )
-        update_pose_bone_rotations(delta_time)
+        update_pose_bone_rotations(context, delta_time)
 
         state.spring_bone_60_fps_update_count += 1

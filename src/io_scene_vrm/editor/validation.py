@@ -2,7 +2,6 @@ from pathlib import Path
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
 
-import bpy
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, CollectionProperty, IntProperty, StringProperty
 from bpy.types import (
@@ -506,7 +505,7 @@ class WM_OT_vrm_validator(Operator):
                         )
                     )
 
-        used_materials = search.export_materials(export_objects)
+        used_materials = search.export_materials(context, export_objects)
         used_images: list[Image] = []
         bones_name = []
         if armature is not None and isinstance(armature.data, Armature):
@@ -761,7 +760,9 @@ class WM_OT_vrm_validator(Operator):
             )
             for blend_shape_group in blend_shape_master.blend_shape_groups:
                 for bind in blend_shape_group.binds:
-                    mesh_object = bpy.data.objects.get(bind.mesh.mesh_object_name)
+                    mesh_object = context.blend_data.objects.get(
+                        bind.mesh.mesh_object_name
+                    )
                     if not mesh_object:
                         continue
                     mesh_data = mesh_object.data

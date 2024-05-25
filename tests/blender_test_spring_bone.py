@@ -3,7 +3,7 @@ import sys
 from collections.abc import Sequence
 
 import bpy
-from bpy.types import Armature
+from bpy.types import Armature, Context
 from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import version
@@ -36,21 +36,21 @@ def assert_vector3_equals(
         raise AssertionError(message)
 
 
-def clean_scene() -> None:
-    if bpy.context.active_object:
+def clean_scene(context: Context) -> None:
+    if context.active_object:
         bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
-    while bpy.data.collections:
-        bpy.data.collections.remove(bpy.data.collections[0])
+    while context.blend_data.collections:
+        context.blend_data.collections.remove(context.blend_data.collections[0])
     bpy.ops.outliner.orphans_purge(do_recursive=True)
 
 
-def one_joint_extending_in_y_direction() -> None:
-    clean_scene()
+def one_joint_extending_in_y_direction(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -94,7 +94,7 @@ def one_joint_extending_in_y_direction() -> None:
     joints[1].drag_force = 1
     joints[1].stiffness = 0
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -104,7 +104,7 @@ def one_joint_extending_in_y_direction() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -114,7 +114,7 @@ def one_joint_extending_in_y_direction() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=10000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "10000秒後のjoint0"
@@ -124,13 +124,13 @@ def one_joint_extending_in_y_direction() -> None:
     )
 
 
-def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
-    clean_scene()
+def one_joint_extending_in_y_direction_with_rotating_armature(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(
         type="ARMATURE", location=(1, 0, 0), rotation=(0, 0, math.pi / 2)
     )
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -174,7 +174,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
     joints[1].drag_force = 1
     joints[1].stiffness = 0
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -184,7 +184,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -194,7 +194,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
@@ -204,13 +204,15 @@ def one_joint_extending_in_y_direction_with_rotating_armature() -> None:
     )
 
 
-def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> None:
-    clean_scene()
+def one_joint_extending_in_y_direction_with_rotating_armature_stiffness(
+    context: Context,
+) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(
         type="ARMATURE", location=(1, 0, 0), rotation=(0, 0, math.pi / 2)
     )
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -258,7 +260,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> Non
     joints[1].drag_force = 1
     joints[1].stiffness = 1
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -268,7 +270,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> Non
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -278,7 +280,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> Non
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
@@ -288,11 +290,11 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness() -> Non
     )
 
 
-def two_joints_extending_in_y_direction() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -348,7 +350,7 @@ def two_joints_extending_in_y_direction() -> None:
     joints[2].drag_force = 1
     joints[2].stiffness = 0
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -361,7 +363,7 @@ def two_joints_extending_in_y_direction() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -374,7 +376,7 @@ def two_joints_extending_in_y_direction() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
@@ -387,11 +389,11 @@ def two_joints_extending_in_y_direction() -> None:
     )
 
 
-def two_joints_extending_in_y_direction_roll() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction_roll(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -450,7 +452,7 @@ def two_joints_extending_in_y_direction_roll() -> None:
     joints[2].drag_force = 1
     joints[2].stiffness = 0
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -463,7 +465,7 @@ def two_joints_extending_in_y_direction_roll() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -476,7 +478,7 @@ def two_joints_extending_in_y_direction_roll() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
@@ -489,11 +491,11 @@ def two_joints_extending_in_y_direction_roll() -> None:
     )
 
 
-def two_joints_extending_in_y_direction_local_translation() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction_local_translation(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -553,7 +555,7 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
     joints[2].drag_force = 1
     joints[2].stiffness = 0
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -566,7 +568,7 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -579,7 +581,7 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
@@ -592,11 +594,11 @@ def two_joints_extending_in_y_direction_local_translation() -> None:
     )
 
 
-def two_joints_extending_in_y_direction_connected() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction_connected(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -656,7 +658,7 @@ def two_joints_extending_in_y_direction_connected() -> None:
     joints[2].drag_force = 1
     joints[2].stiffness = 0
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -669,7 +671,7 @@ def two_joints_extending_in_y_direction_connected() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -682,7 +684,7 @@ def two_joints_extending_in_y_direction_connected() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
@@ -695,11 +697,13 @@ def two_joints_extending_in_y_direction_connected() -> None:
     )
 
 
-def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
-    clean_scene()
+def one_joint_extending_in_y_direction_gravity_y_object_move_to_z(
+    context: Context,
+) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -745,7 +749,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     joints[1].drag_force = 0
     joints[1].stiffness = 0
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
@@ -755,7 +759,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -765,9 +769,9 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     )
 
     armature.location = Vector((0, 0, 1))
-    bpy.context.view_layer.update()
+    context.view_layer.update()
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "2秒後のjoint0"
@@ -779,7 +783,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1000000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1000000秒後のjoint0"
@@ -789,11 +793,11 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z() -> None:
     )
 
 
-def one_joint_extending_in_y_direction_rounding_180_degree() -> None:
-    clean_scene()
+def one_joint_extending_in_y_direction_rounding_180_degree(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -840,10 +844,10 @@ def one_joint_extending_in_y_direction_rounding_180_degree() -> None:
     armature.pose.bones["joint0"].rotation_mode = "QUATERNION"
     armature.pose.bones["joint0"].rotation_quaternion.rotate(Euler((0, math.pi, 0)))
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
@@ -853,11 +857,11 @@ def one_joint_extending_in_y_direction_rounding_180_degree() -> None:
     )
 
 
-def two_joints_extending_in_y_direction_root_down() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction_root_down(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -918,7 +922,7 @@ def two_joints_extending_in_y_direction_root_down() -> None:
         root_pose_bone.rotation_mode = "QUATERNION"
     root_pose_bone.rotation_quaternion = Quaternion((1, 0, 0), math.radians(-90.0))
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 0, -1), "初期状態のjoint0"
@@ -931,7 +935,7 @@ def two_joints_extending_in_y_direction_root_down() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 0, -1), "1秒後のjoint0"
@@ -948,11 +952,11 @@ def two_joints_extending_in_y_direction_root_down() -> None:
     )
 
 
-def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction_with_child_stiffness(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE")
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -1018,7 +1022,7 @@ def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
         (1, 0, 0), math.radians(90)
     )
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head,
@@ -1037,7 +1041,7 @@ def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head,
@@ -1056,7 +1060,7 @@ def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=100000)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head,
@@ -1075,11 +1079,11 @@ def two_joints_extending_in_y_direction_with_child_stiffness() -> None:
     )
 
 
-def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
-    clean_scene()
+def one_joint_extending_in_y_direction_with_roll_stiffness(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE")
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -1124,7 +1128,7 @@ def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
     joints[1].drag_force = 1
     joints[1].stiffness = 1
 
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head,
@@ -1138,7 +1142,7 @@ def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head,
@@ -1152,11 +1156,11 @@ def one_joint_extending_in_y_direction_with_roll_stiffness() -> None:
     )
 
 
-def two_joints_extending_in_y_direction_center_move_to_z() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction_center_move_to_z(context: Context) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE")
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -1210,12 +1214,12 @@ def two_joints_extending_in_y_direction_center_move_to_z() -> None:
     joints[2].stiffness = 0
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     armature.location = Vector((0, 0, 1))
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 0, 0), "1秒後のjoint0"
@@ -1228,7 +1232,7 @@ def two_joints_extending_in_y_direction_center_move_to_z() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 0, 0), "2秒後のjoint0"
@@ -1241,11 +1245,13 @@ def two_joints_extending_in_y_direction_center_move_to_z() -> None:
     )
 
 
-def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
-    clean_scene()
+def two_joints_extending_in_y_direction_center_move_to_z_no_inertia(
+    context: Context,
+) -> None:
+    clean_scene(context)
 
     bpy.ops.object.add(type="ARMATURE")
-    armature = bpy.context.object
+    armature = context.object
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
@@ -1299,12 +1305,12 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
     joints[2].stiffness = 0
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     armature.location = Vector((0, 0, 1))
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 0, 0), "1秒後のjoint0"
@@ -1317,7 +1323,7 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia() -> None:
     )
 
     bpy.ops.vrm.update_spring_bone1_animation(delta_time=1)
-    bpy.context.view_layer.update()
+    context.view_layer.update()
 
     assert_vector3_equals(
         armature.pose.bones["joint0"].head, (0, 0, 0), "2秒後のjoint0"
@@ -1348,17 +1354,18 @@ FUNCTIONS = [
 ]
 
 
-def test(function_name: str) -> None:
+def test(context: Context, function_name: str) -> None:
     function = next((f for f in FUNCTIONS if f.__name__ == function_name), None)
     if function is None:
         message = f"No function name: {function_name}"
         raise AssertionError(message)
-    function()
+    function(context)
 
 
 if __name__ == "__main__":
+    context = bpy.context
     if "--" in sys.argv:
-        test(*sys.argv[slice(sys.argv.index("--") + 1, sys.maxsize)])
+        test(context, *sys.argv[slice(sys.argv.index("--") + 1, sys.maxsize)])
     else:
         for arg in get_test_command_args():
-            test(*arg)
+            test(context, *arg)

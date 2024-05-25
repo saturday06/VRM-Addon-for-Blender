@@ -2,7 +2,6 @@ import uuid
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING
 
-import bpy
 from bpy.props import IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
 
@@ -20,8 +19,8 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -54,8 +53,8 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -92,8 +91,8 @@ class VRM_OT_move_up_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -132,8 +131,8 @@ class VRM_OT_move_down_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -170,8 +169,8 @@ class VRM_OT_add_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -214,8 +213,8 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -262,8 +261,8 @@ class VRM_OT_move_up_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -310,8 +309,8 @@ class VRM_OT_move_down_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -358,8 +357,8 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -408,8 +407,8 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -454,8 +453,8 @@ class VRM_OT_add_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -496,8 +495,8 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -544,8 +543,8 @@ class VRM_OT_move_up_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -590,8 +589,8 @@ class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -636,7 +635,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -649,7 +648,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
         collider = collider_group.colliders.add()
-        obj = bpy.data.objects.new(
+        obj = context.blend_data.objects.new(
             name=f"{self.armature_name}_{self.bone_name}_collider", object_data=None
         )
         collider.bpy_object = obj
@@ -692,7 +691,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -743,8 +742,8 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -789,8 +788,8 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider(Operator
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -831,8 +830,8 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -874,8 +873,8 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -921,8 +920,8 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -967,8 +966,8 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1009,8 +1008,8 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1052,8 +1051,8 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1100,8 +1099,8 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1146,8 +1145,8 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1187,8 +1186,8 @@ class VRM_OT_add_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1223,8 +1222,8 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1261,8 +1260,8 @@ class VRM_OT_move_up_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1301,8 +1300,8 @@ class VRM_OT_move_down_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1343,8 +1342,8 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1378,8 +1377,8 @@ class VRM_OT_remove_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1416,8 +1415,8 @@ class VRM_OT_move_up_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1452,8 +1451,8 @@ class VRM_OT_move_down_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1484,8 +1483,8 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1521,8 +1520,8 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1565,8 +1564,8 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1603,8 +1602,8 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1637,8 +1636,8 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
         options={"HIDDEN"}
     )
 
-    def execute(self, _context: Context) -> set[str]:
-        armature = bpy.data.objects.get(self.armature_name)
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data

@@ -15,6 +15,8 @@ previous_object_material_state: list[list[Optional[tuple[str, bool, bool]]]] = [
 
 
 def update_mtoon1_outline() -> Optional[float]:
+    context = bpy.context
+
     compare_start_time = time.perf_counter()
 
     # Optimize appropriately.
@@ -32,7 +34,7 @@ def update_mtoon1_outline() -> Optional[float]:
             else None
             for material_slot in obj.material_slots
         ]
-        for obj in bpy.data.objects
+        for obj in context.blend_data.objects
         if isinstance(obj.data, Mesh)
     ]
     not_changed = object_material_state == previous_object_material_state

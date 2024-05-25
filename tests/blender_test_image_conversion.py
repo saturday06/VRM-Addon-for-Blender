@@ -2,13 +2,14 @@ import tempfile
 from pathlib import Path
 
 import bpy
+from bpy.types import Context
 
 from io_scene_vrm.external import io_scene_gltf2_support
 
 
-def test() -> None:
+def test(context: Context) -> None:
     tga_path = Path(__file__).parent / "resources" / "blend" / "tga_test.tga"
-    image = bpy.data.images.load(str(tga_path), check_existing=True)
+    image = context.blend_data.images.load(str(tga_path), check_existing=True)
     image_bytes, _ = io_scene_gltf2_support.image_to_image_bytes(
         image, io_scene_gltf2_support.create_export_settings()
     )
@@ -16,11 +17,13 @@ def test() -> None:
         temp_path = Path(temp_dir) / "image.png"
         temp_path.write_bytes(image_bytes)
 
-        converted_image = bpy.data.images.load(str(temp_path), check_existing=False)
+        converted_image = context.blend_data.images.load(
+            str(temp_path), check_existing=False
+        )
         converted_image.update()
 
     assert image.size[:] == converted_image.size[:]
 
 
 if __name__ == "__main__":
-    test()
+    test(bpy.context)

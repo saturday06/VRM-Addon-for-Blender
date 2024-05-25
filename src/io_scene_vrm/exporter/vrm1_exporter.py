@@ -119,7 +119,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             hidden,
             selection,
         ) in self.object_visibility_and_selection.items():
-            obj = bpy.data.objects.get(object_name)
+            obj = self.context.blend_data.objects.get(object_name)
             if obj:
                 obj.hide_set(hidden)
                 obj.select_set(selection)
@@ -157,7 +157,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
     def restore_skinned_mesh_parent(self) -> None:
         for mounted_object_name in self.mounted_object_names:
-            obj = bpy.data.objects.get(mounted_object_name)
+            obj = self.context.blend_data.objects.get(mounted_object_name)
             if not obj:
                 continue
             matrix_world = obj.matrix_world.copy()
@@ -822,6 +822,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def create_mtoon0_texture_info_dict(
         cls,
+        context: Context,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         node: Node,
@@ -840,7 +841,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             json_dict,
             body_binary,
             image_name_to_index_dict,
-            bpy.data.images[image_name],
+            context.blend_data.images[image_name],
             gltf2_addon_export_settings,
         )
 
@@ -1088,6 +1089,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def create_legacy_gltf_material_dict(
         cls,
+        context: Context,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material: Material,
@@ -1114,6 +1116,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             shader.get_rgba_value(node, "base_Color", 0.0, 1.0),
         )
         base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
+            context,
             json_dict,
             body_binary,
             node,
@@ -1141,6 +1144,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             pbr_metallic_roughness_dict,
             "metallicRoughnessTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1151,6 +1155,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
 
         normal_texture_dict = cls.create_mtoon0_texture_info_dict(
+            context,
             json_dict,
             body_binary,
             node,
@@ -1169,6 +1174,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             material_dict,
             "emissiveTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1182,6 +1188,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             material_dict,
             "occlusionTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1211,6 +1218,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def create_legacy_transparent_zwrite_material_dict(
         cls,
+        context: Context,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material: Material,
@@ -1252,6 +1260,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             material_dict, "doubleSided", not material.use_backface_culling, False
         )
         base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
+            context,
             json_dict,
             body_binary,
             node,
@@ -1277,6 +1286,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def create_mtoon_unversioned_material_dict(
         cls,
+        context: Context,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material: Material,
@@ -1341,6 +1351,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             shader.get_rgba_value(node, "DiffuseColor", 0.0, 1.0),
         )
         base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
+            context,
             json_dict,
             body_binary,
             node,
@@ -1357,6 +1368,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             shader.get_rgb_value(node, "ShadeColor", 0.0, 1.0),
         )
         shade_multiply_texture_dict = cls.create_mtoon0_texture_info_dict(
+            context,
             json_dict,
             body_binary,
             node,
@@ -1370,6 +1382,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L185-L204
             mtoon_dict["shadeMultiplyTexture"] = base_color_texture_dict
         normal_texture_dict = cls.create_mtoon0_texture_info_dict(
+            context,
             json_dict,
             body_binary,
             node,
@@ -1379,6 +1392,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
         if not normal_texture_dict:
             normal_texture_dict = cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1424,6 +1438,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             material_dict,
             "emissiveTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1436,6 +1451,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "matcapTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1465,6 +1481,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "rimMultiplyTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1507,6 +1524,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "outlineWidthMultiplyTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1539,6 +1557,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             mtoon_dict,
             "uvAnimationMaskTexture",
             cls.create_mtoon0_texture_info_dict(
+                context,
                 json_dict,
                 body_binary,
                 node,
@@ -1576,6 +1595,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def save_vrm_materials(
         cls,
+        context: Context,
         json_dict: dict[str, Json],
         body_binary: bytearray,
         material_name_to_index_dict: dict[str, int],
@@ -1588,7 +1608,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             json_dict["materials"] = material_dicts
 
         for material_name, index in material_name_to_index_dict.items():
-            material = bpy.data.materials.get(material_name)
+            material = context.blend_data.materials.get(material_name)
             if not isinstance(material, Material) or not (
                 0 <= index < len(material_dicts)
             ):
@@ -1610,6 +1630,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             if vrm_shader_name == "MToon_unversioned":
                 material_dicts[index] = cls.create_mtoon_unversioned_material_dict(
+                    context,
                     json_dict,
                     body_binary,
                     material,
@@ -1619,6 +1640,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 )
             elif vrm_shader_name == "GLTF":
                 material_dicts[index] = cls.create_legacy_gltf_material_dict(
+                    context,
                     json_dict,
                     body_binary,
                     material,
@@ -1629,6 +1651,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             elif vrm_shader_name == "TRANSPARENT_ZWRITE":
                 material_dicts[index] = (
                     cls.create_legacy_transparent_zwrite_material_dict(
+                        context,
                         json_dict,
                         body_binary,
                         material,
@@ -1642,9 +1665,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             json_dict["materials"] = material_dicts
 
     @classmethod
-    def disable_mtoon1_material_nodes(cls) -> list[str]:
+    def disable_mtoon1_material_nodes(cls, context: Context) -> list[str]:
         disabled_material_names = []
-        for material in bpy.data.materials:
+        for material in context.blend_data.materials:
             if not material:
                 continue
             if material.vrm_addon_extension.mtoon1.enabled and material.use_nodes:
@@ -1653,9 +1676,11 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         return disabled_material_names
 
     @classmethod
-    def restore_mtoon1_material_nodes(cls, disabled_material_names: list[str]) -> None:
+    def restore_mtoon1_material_nodes(
+        cls, context: Context, disabled_material_names: list[str]
+    ) -> None:
         for disabled_material_name in disabled_material_names:
-            material = bpy.data.materials.get(disabled_material_name)
+            material = context.blend_data.materials.get(disabled_material_name)
             if not material:
                 continue
             if not material.use_nodes:
@@ -1664,6 +1689,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def unassign_normal_from_mtoon_primitive_morph_target(
         cls,
+        context: Context,
         json_dict: dict[str, Json],
         material_name_to_index_dict: dict[str, int],
     ) -> None:
@@ -1690,7 +1716,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 ) in material_name_to_index_dict.items():
                     if material_index != search_material_index:
                         continue
-                    material = bpy.data.materials.get(search_material_name)
+                    material = context.blend_data.materials.get(search_material_name)
                     if not material:
                         continue
                     if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
@@ -1939,7 +1965,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         backup_human_bone_name_to_bone_name = self.setup_dummy_human_bones(
             self.context, self.armature, armature_data
         )
-        object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes()
+        object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes(
+            self.context
+        )
         blend_shape_previews = self.clear_blend_shape_proxy_previews(armature_data)
         disabled_mtoon1_material_names = []
         try:
@@ -1953,9 +1981,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             # 他glTF2ExportUserExtensionの影響を最小化するため、
             # 影響が少ないと思われるカスタムプロパティを使って
             # Blenderのオブジェクトとインデックスの対応をとる。
-            for obj in bpy.data.objects:
+            for obj in self.context.blend_data.objects:
                 obj[self.extras_object_name_key] = obj.name
-            for material in bpy.data.materials:
+            for material in self.context.blend_data.materials:
                 material[self.extras_material_name_key] = material.name
 
             # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると
@@ -1968,7 +1996,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
             self.overwrite_object_visibility_and_selection()
             self.mount_skinned_mesh_parent()
-            disabled_mtoon1_material_names = self.disable_mtoon1_material_nodes()
+            disabled_mtoon1_material_names = self.disable_mtoon1_material_nodes(
+                self.context
+            )
             with tempfile.TemporaryDirectory() as temp_dir:
                 filepath = Path(temp_dir, "out.glb")
                 export_scene_gltf_result = export_scene_gltf(
@@ -2002,20 +2032,24 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     raise AssertionError(message)
                 extra_name_assigned_glb = filepath.read_bytes()
         finally:
-            self.restore_mtoon1_material_nodes(disabled_mtoon1_material_names)
+            self.restore_mtoon1_material_nodes(
+                self.context, disabled_mtoon1_material_names
+            )
             for pose_bone in self.armature.pose.bones:
                 pose_bone.pop(self.extras_bone_name_key, None)
             for bone in armature_data.bones:
                 bone.pop(self.extras_bone_name_key, None)
-            for obj in bpy.data.objects:
+            for obj in self.context.blend_data.objects:
                 obj.pop(self.extras_object_name_key, None)
             self.armature.pop(self.extras_main_armature_key, None)
-            for material in bpy.data.materials:
+            for material in self.context.blend_data.materials:
                 material.pop(self.extras_material_name_key, None)
 
             self.restore_object_visibility_and_selection()
             self.restore_skinned_mesh_parent()
-            self.restore_mtoon1_outline_geometry_nodes(object_name_to_modifier_name)
+            self.restore_mtoon1_outline_geometry_nodes(
+                self.context, object_name_to_modifier_name
+            )
             self.restore_pose(self.armature, armature_data)
             self.restore_blend_shape_proxy_previews(armature_data, blend_shape_previews)
 
@@ -2260,6 +2294,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 material_dict.pop("extras", None)
 
         self.save_vrm_materials(
+            self.context,
             json_dict,
             body_binary,
             material_name_to_index_dict,
@@ -2267,7 +2302,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             self.gltf2_addon_export_settings,
         )
         self.unassign_normal_from_mtoon_primitive_morph_target(
-            json_dict, material_name_to_index_dict
+            self.context, json_dict, material_name_to_index_dict
         )
 
         extensions_used = json_dict.get("extensionsUsed")

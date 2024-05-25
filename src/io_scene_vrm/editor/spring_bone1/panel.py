@@ -1,7 +1,6 @@
 from collections.abc import Set as AbstractSet
 from typing import Optional
 
-import bpy
 from bpy.types import Armature, Context, Object, Panel, UILayout
 
 from .. import search
@@ -435,7 +434,7 @@ class VRM_PT_spring_bone1_collider_property(Panel):
                 return None
         else:
             return None
-        for obj in bpy.data.objects:
+        for obj in context.blend_data.objects:
             if obj.type != "ARMATURE":
                 continue
             armature_data = obj.data

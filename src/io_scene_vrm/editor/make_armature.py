@@ -678,9 +678,9 @@ class IcypTemplateMeshMaker:
     def make_mesh_obj(
         self, context: Context, name: str, method: Callable[[Mesh], None]
     ) -> Object:
-        mesh = bpy.data.meshes.new(name)
+        mesh = context.blend_data.meshes.new(name)
         method(mesh)
-        obj = bpy.data.objects.new(name, mesh)
+        obj = context.blend_data.objects.new(name, mesh)
         scene = context.scene
         scene.collection.objects.link(obj)
         context.view_layer.objects.active = obj
