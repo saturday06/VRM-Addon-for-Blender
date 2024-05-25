@@ -496,7 +496,9 @@ def migrate_blender_object(armature_data: Armature) -> None:
                 collider.bpy_object = bpy_object
 
 
-def migrate_link_to_bone_object(armature: Object, armature_data: Armature) -> None:
+def migrate_link_to_bone_object(
+    context: Context, armature: Object, armature_data: Armature
+) -> None:
     ext = armature_data.vrm_addon_extension
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
@@ -532,6 +534,7 @@ def migrate_link_to_bone_object(armature: Object, armature_data: Armature) -> No
             link_to_bone.parent = None
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        context,
         armature_data.name,
         force=True,
     )
@@ -646,7 +649,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
         return
 
     migrate_blender_object(armature_data)
-    migrate_link_to_bone_object(armature, armature_data)
+    migrate_link_to_bone_object(context, armature, armature_data)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
 
     for collider_group in vrm0.secondary_animation.collider_groups:
@@ -670,6 +673,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     migrate_pose(context, armature_data)
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        context,
         armature_data.name,
         force=True,
     )

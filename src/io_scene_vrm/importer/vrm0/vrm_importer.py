@@ -1000,6 +1000,7 @@ class VrmImporter(AbstractBaseVrmImporter):
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            self.context,
             self.armature_data.name,
             force=True,
         )
