@@ -305,7 +305,7 @@ class WM_OT_vrm_validator(Operator):
                     logger.error(f"{type(armature_data)} is not an Armature")
                     continue
                 if execute_migration:
-                    migration.migrate(armature.name, defer=False)
+                    migration.migrate(context, armature.name)
                 bone: Optional[Bone] = None
                 for bone in armature_data.bones:
                     if bone.name in node_names:  # nodes name is unique

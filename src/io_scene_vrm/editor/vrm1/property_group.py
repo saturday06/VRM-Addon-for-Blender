@@ -410,7 +410,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         bpy.app.timers.register(
             functools.partial(
                 Vrm1HumanBonesPropertyGroup.update_all_node_candidates,
-                None,
+                None,  # Contextはフレームを跨げない
                 armature_data_name,
                 force,
             )
