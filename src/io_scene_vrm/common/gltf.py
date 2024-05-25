@@ -9,15 +9,6 @@ from .deep import Json
 FLOAT_POSITIVE_MAX: Final = 3.4028237e38
 FLOAT_NEGATIVE_MAX: Final = -FLOAT_POSITIVE_MAX
 
-TEXTURE_INPUT_NAMES: Final = (
-    "color_texture",
-    "normal",
-    "emissive_texture",
-    "occlusion_texture",
-)
-VAL_INPUT_NAMES: Final = ("metallic", "roughness", "unlit")
-RGBA_INPUT_NAMES: Final = ("base_Color", "emissive_color")
-
 
 def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
     reader = BinaryReader(data)

@@ -46,9 +46,9 @@ from ..common.gl import (
 from ..common.gltf import (
     FLOAT_NEGATIVE_MAX,
     FLOAT_POSITIVE_MAX,
-    TEXTURE_INPUT_NAMES,
     pack_glb,
 )
+from ..common.legacy_gltf import TEXTURE_INPUT_NAMES
 from ..common.logging import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.version import addon_version

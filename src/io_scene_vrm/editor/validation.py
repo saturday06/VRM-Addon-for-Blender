@@ -24,7 +24,7 @@ from bpy.types import (
 from mathutils import Vector
 
 from ..common import shader, version
-from ..common.gltf import RGBA_INPUT_NAMES, TEXTURE_INPUT_NAMES, VAL_INPUT_NAMES
+from ..common.legacy_gltf import RGBA_INPUT_NAMES, TEXTURE_INPUT_NAMES, VAL_INPUT_NAMES
 from ..common.logging import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.preferences import get_preferences
