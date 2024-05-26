@@ -15,6 +15,7 @@ from bpy.types import Armature, Context, Event, Mesh, Operator, UILayout
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from ..common.vrm0.human_bone import HumanBoneSpecifications
+from ..common.workspace import save_workspace
 from . import search
 from .make_armature import ICYP_OT_make_armature
 
@@ -47,12 +48,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
 
-        back_to_edit_mode = False
-        try:
-            if context.active_object and context.active_object.mode == "EDIT":
-                bpy.ops.object.mode_set(mode="OBJECT")
-                back_to_edit_mode = True
-
+        with save_workspace(context):
             for bone_name, bone in armature_data.bones.items():
                 left = VRM_OT_simplify_vroid_bones.left__pattern.sub("", bone_name)
                 if left != bone_name:
@@ -68,9 +64,6 @@ class VRM_OT_simplify_vroid_bones(Operator):
                 if a != bone_name:
                     bone.name = a
                     continue
-        finally:
-            if back_to_edit_mode:
-                bpy.ops.object.mode_set(mode="EDIT")
 
         return {"FINISHED"}
 

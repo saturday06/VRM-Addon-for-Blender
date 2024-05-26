@@ -27,6 +27,7 @@ from ..common.gl import (
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from ..common.vrm1.human_bone import HumanBoneName
+from ..common.workspace import save_workspace
 
 logger = get_logger(__name__)
 
@@ -316,54 +317,41 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
     # TODO: 現状restがTポーズの時しか動作しない
     # TODO: 自動でTポーズを作成する
     # TODO: Tポーズ取得処理、共通化
-    try:
-        if context.view_layer.objects.active is not None:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        context.view_layer.objects.active = armature
-        bpy.ops.object.mode_set(mode="POSE")
+    with save_workspace(context, armature):
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            bpy.ops.object.mode_set(mode="POSE")
 
-        armature_data.pose_position = "POSE"
-
-        t_pose_action = vrm1.humanoid.pose_library
-        t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
-        pose_marker_frame = 0
-        if t_pose_action and t_pose_pose_marker_name:
-            for search_pose_marker in t_pose_action.pose_markers.values():
-                if search_pose_marker.name == t_pose_pose_marker_name:
-                    pose_marker_frame = search_pose_marker.frame
-                    break
-
-        context.view_layer.update()
-
-        if t_pose_action:
-            armature.pose.apply_pose_from_action(
-                t_pose_action, evaluation_time=pose_marker_frame
-            )
-        else:
-            for bone in armature.pose.bones:
-                bone.location = Vector((0, 0, 0))
-                bone.scale = Vector((1, 1, 1))
-                if bone.rotation_mode != "QUATERNION":
-                    bone.rotation_mode = "QUATERNION"
-                bone.rotation_quaternion = Quaternion()
-
-        context.view_layer.update()
-
-        return work_in_progress_2(context, path, armature)
-    finally:
-        # TODO: リストア処理、共通化
-        if armature_data.pose_position != "POSE":
             armature_data.pose_position = "POSE"
-        if context.view_layer.objects.active is not None:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        context.view_layer.objects.active = armature
-        context.view_layer.update()
 
-        if saved_pose_position:
+            t_pose_action = vrm1.humanoid.pose_library
+            t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
+            pose_marker_frame = 0
+            if t_pose_action and t_pose_pose_marker_name:
+                for search_pose_marker in t_pose_action.pose_markers.values():
+                    if search_pose_marker.name == t_pose_pose_marker_name:
+                        pose_marker_frame = search_pose_marker.frame
+                        break
+
+            context.view_layer.update()
+
+            if t_pose_action:
+                armature.pose.apply_pose_from_action(
+                    t_pose_action, evaluation_time=pose_marker_frame
+                )
+            else:
+                for bone in armature.pose.bones:
+                    bone.location = Vector((0, 0, 0))
+                    bone.scale = Vector((1, 1, 1))
+                    if bone.rotation_mode != "QUATERNION":
+                        bone.rotation_mode = "QUATERNION"
+                    bone.rotation_quaternion = Quaternion()
+
+            context.view_layer.update()
+
+            return work_in_progress_2(context, path, armature)
+        finally:
             armature_data.pose_position = saved_pose_position
-        bpy.ops.object.mode_set(mode="OBJECT")
 
 
 def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[str]:
