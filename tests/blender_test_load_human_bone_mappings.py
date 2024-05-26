@@ -13,7 +13,7 @@ def test(context: Context) -> None:
         file.write(json.dumps({"head": new_head_name}).encode())
         file.close()
         bpy.ops.vrm.load_human_bone_mappings(filepath=file.name)
-    active_object = context.active_object
+    active_object = context.view_layer.objects.active
     if not active_object:
         raise AssertionError
     data = active_object.data

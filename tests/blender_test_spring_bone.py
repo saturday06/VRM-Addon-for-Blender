@@ -37,7 +37,7 @@ def assert_vector3_equals(
 
 
 def clean_scene(context: Context) -> None:
-    if context.active_object:
+    if context.view_layer.objects.active:
         bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()

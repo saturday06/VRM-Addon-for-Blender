@@ -87,7 +87,7 @@ class VRM_OT_add_extensions_to_armature(Operator):
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context) -> set[str]:
-        obj = context.active_object
+        obj = context.view_layer.objects.active
         if not obj:
             return {"CANCELLED"}
         ICYP_OT_make_armature.make_extension_setting_and_metas(obj)
@@ -127,7 +127,7 @@ class VRM_OT_add_required_human_bone_custom_property(Operator):
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context) -> set[str]:
-        obj = context.active_object
+        obj = context.view_layer.objects.active
         if not obj:
             return {"CANCELLED"}
         armature = obj.data
@@ -147,7 +147,7 @@ class VRM_OT_add_defined_human_bone_custom_property(Operator):
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context) -> set[str]:
-        obj = context.active_object
+        obj = context.view_layer.objects.active
         if not obj:
             return {"CANCELLED"}
         armature = obj.data
