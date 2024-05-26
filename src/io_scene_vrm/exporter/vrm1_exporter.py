@@ -1,5 +1,7 @@
 import math
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from copy import deepcopy
 from os import environ
 from pathlib import Path
@@ -101,7 +103,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self.object_visibility_and_selection: dict[str, tuple[bool, bool]] = {}
         self.mounted_object_names: list[str] = []
 
-    def overwrite_object_visibility_and_selection(self) -> None:
+    @contextmanager
+    def overwrite_object_visibility_and_selection(self) -> Iterator[None]:
         self.object_visibility_and_selection.clear()
         # https://projects.blender.org/blender/blender/issues/113378
         self.context.view_layer.update()
@@ -113,20 +116,23 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             enabled = obj in self.export_objects
             obj.hide_set(not enabled)
             obj.select_set(enabled)
+        try:
+            yield
+        finally:
+            for object_name, (
+                hidden,
+                selection,
+            ) in self.object_visibility_and_selection.items():
+                restore_obj = self.context.blend_data.objects.get(object_name)
+                if restore_obj:
+                    restore_obj.hide_set(hidden)
+                    restore_obj.select_set(selection)
 
-    def restore_object_visibility_and_selection(self) -> None:
-        for object_name, (
-            hidden,
-            selection,
-        ) in self.object_visibility_and_selection.items():
-            obj = self.context.blend_data.objects.get(object_name)
-            if obj:
-                obj.hide_set(hidden)
-                obj.select_set(selection)
-
-    def mount_skinned_mesh_parent(self) -> None:
+    @contextmanager
+    def mount_skinned_mesh_parent(self) -> Iterator[None]:
         armature = self.armature
         if not armature:
+            yield
             return
 
         # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たす
@@ -155,14 +161,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 search_obj.matrix_world = matrix_world
                 break
 
-    def restore_skinned_mesh_parent(self) -> None:
-        for mounted_object_name in self.mounted_object_names:
-            obj = self.context.blend_data.objects.get(mounted_object_name)
-            if not obj:
-                continue
-            matrix_world = obj.matrix_world.copy()
-            obj.parent = None
-            obj.matrix_world = matrix_world
+        try:
+            yield
+        finally:
+            for mounted_object_name in self.mounted_object_names:
+                restore_obj = self.context.blend_data.objects.get(mounted_object_name)
+                if not restore_obj:
+                    continue
+                matrix_world = restore_obj.matrix_world.copy()
+                restore_obj.parent = None
+                restore_obj.matrix_world = matrix_world
 
     @classmethod
     def create_meta_dict(
@@ -1665,7 +1673,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             json_dict["materials"] = material_dicts
 
     @classmethod
-    def disable_mtoon1_material_nodes(cls, context: Context) -> list[str]:
+    @contextmanager
+    def disable_mtoon1_material_nodes(cls, context: Context) -> Iterator[None]:
         disabled_material_names = []
         for material in context.blend_data.materials:
             if not material:
@@ -1673,18 +1682,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if material.vrm_addon_extension.mtoon1.enabled and material.use_nodes:
                 material.use_nodes = False
                 disabled_material_names.append(material.name)
-        return disabled_material_names
-
-    @classmethod
-    def restore_mtoon1_material_nodes(
-        cls, context: Context, disabled_material_names: list[str]
-    ) -> None:
-        for disabled_material_name in disabled_material_names:
-            material = context.blend_data.materials.get(disabled_material_name)
-            if not material:
-                continue
-            if not material.use_nodes:
-                material.use_nodes = True
+        try:
+            yield
+        finally:
+            for disabled_material_name in disabled_material_names:
+                disabled_material = context.blend_data.materials.get(
+                    disabled_material_name
+                )
+                if not disabled_material:
+                    continue
+                if not disabled_material.use_nodes:
+                    disabled_material.use_nodes = True
 
     @classmethod
     def unassign_normal_from_mtoon_primitive_morph_target(
@@ -1742,16 +1750,18 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     target_dict.pop("NORMAL", None)
 
     @classmethod
+    @contextmanager
     def setup_dummy_human_bones(
         cls,
         context: Context,
         armature: Object,
         armature_data: Armature,
-    ) -> Optional[dict[HumanBoneName, str]]:
+    ) -> Iterator[None]:
         ext = armature_data.vrm_addon_extension
         human_bones = ext.vrm1.humanoid.human_bones
         if human_bones.all_required_bones_are_assigned():
-            return None
+            yield
+            return
 
         human_bone_name_to_bone_name: dict[HumanBoneName, str] = {}
         for (
@@ -1908,54 +1918,80 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         human_bones.left_lower_leg.node.bone_name = left_lower_leg_bone_name
         human_bones.left_foot.node.bone_name = left_foot_bone_name
 
-        return human_bone_name_to_bone_name
-
-    @classmethod
-    def restore_dummy_human_bones(
-        cls,
-        context: Context,
-        armature: Object,
-        armature_data: Armature,
-        human_bone_name_to_bone_name: dict[HumanBoneName, str],
-    ) -> None:
-        ext = armature_data.vrm_addon_extension
-        human_bones = ext.vrm1.humanoid.human_bones
-
-        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-        dummy_bone_names = deepcopy(
-            [
-                human_bone.node.bone_name
-                for human_bone in human_bone_name_to_human_bone.values()
-                if human_bone.node.bone_name
-            ]
-        )
-
-        for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
-            bone_name = human_bone_name_to_bone_name.get(human_bone_name)
-            if bone_name:
-                human_bone.node.set_bone_name(bone_name)
-            else:
-                human_bone.node.set_bone_name(None)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            context, armature_data.name
-        )
-
-        previous_active = context.view_layer.objects.active
         try:
-            context.view_layer.objects.active = armature
-            bpy.ops.object.mode_set(mode="EDIT")
-
-            for dummy_bone_name in dummy_bone_names:
-                dummy_edit_bone = armature_data.edit_bones.get(dummy_bone_name)
-                if dummy_edit_bone:
-                    armature_data.edit_bones.remove(dummy_edit_bone)
+            yield
         finally:
-            if (
-                context.view_layer.objects.active
-                and context.view_layer.objects.active.mode != "OBJECT"
-            ):
-                bpy.ops.object.mode_set(mode="OBJECT")
-            context.view_layer.objects.active = previous_active
+            human_bones = ext.vrm1.humanoid.human_bones
+
+            human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
+            dummy_bone_names = deepcopy(
+                [
+                    human_bone.node.bone_name
+                    for human_bone in human_bone_name_to_human_bone.values()
+                    if human_bone.node.bone_name
+                ]
+            )
+
+            for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+                bone_name = human_bone_name_to_bone_name.get(human_bone_name)
+                if bone_name:
+                    human_bone.node.set_bone_name(bone_name)
+                else:
+                    human_bone.node.set_bone_name(None)
+            Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+                context, armature_data.name
+            )
+
+            previous_active = context.view_layer.objects.active
+            try:
+                context.view_layer.objects.active = armature
+                bpy.ops.object.mode_set(mode="EDIT")
+
+                for dummy_bone_name in dummy_bone_names:
+                    dummy_edit_bone = armature_data.edit_bones.get(dummy_bone_name)
+                    if dummy_edit_bone:
+                        armature_data.edit_bones.remove(dummy_edit_bone)
+            finally:
+                if (
+                    context.view_layer.objects.active
+                    and context.view_layer.objects.active.mode != "OBJECT"
+                ):
+                    bpy.ops.object.mode_set(mode="OBJECT")
+                context.view_layer.objects.active = previous_active
+
+    @contextmanager
+    def assign_export_custom_properties(
+        self, armature_data: Armature
+    ) -> Iterator[None]:
+        self.armature[self.extras_main_armature_key] = True
+        # 他glTF2ExportUserExtensionの影響を最小化するため、
+        # 影響が少ないと思われるカスタムプロパティを使って
+        # Blenderのオブジェクトとインデックスの対応をとる。
+        for obj in self.context.blend_data.objects:
+            obj[self.extras_object_name_key] = obj.name
+        for material in self.context.blend_data.materials:
+            material[self.extras_material_name_key] = material.name
+
+        # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると
+        # 書いてあるが、実際にはBoneのカスタムプロパティを参照している。
+        # そのため、いちおう両方に書いておく
+        for pose_bone in self.armature.pose.bones:
+            pose_bone[self.extras_bone_name_key] = pose_bone.name
+        for bone in armature_data.bones:
+            bone[self.extras_bone_name_key] = bone.name
+
+        try:
+            yield
+        finally:
+            for pose_bone in self.armature.pose.bones:
+                pose_bone.pop(self.extras_bone_name_key, None)
+            for bone in armature_data.bones:
+                bone.pop(self.extras_bone_name_key, None)
+            for obj in self.context.blend_data.objects:
+                obj.pop(self.extras_object_name_key, None)
+            self.armature.pop(self.extras_main_armature_key, None)
+            for material in self.context.blend_data.materials:
+                material.pop(self.extras_material_name_key, None)
 
     def export_vrm(self) -> Optional[bytes]:
         init_extras_export()
@@ -1966,44 +2002,19 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             raise TypeError(message)
 
         vrm = armature_data.vrm_addon_extension.vrm1
-        backup_human_bone_name_to_bone_name = self.setup_dummy_human_bones(
-            self.context, self.armature, armature_data
-        )
-        object_name_to_modifier_name = self.hide_mtoon1_outline_geometry_nodes(
-            self.context
-        )
-        blend_shape_previews = self.clear_blend_shape_proxy_previews(armature_data)
-        disabled_mtoon1_material_names = []
-        try:
-            self.setup_pose(
-                self.armature,
-                armature_data,
-                vrm.humanoid,
-            )
-
-            self.armature[self.extras_main_armature_key] = True
-            # 他glTF2ExportUserExtensionの影響を最小化するため、
-            # 影響が少ないと思われるカスタムプロパティを使って
-            # Blenderのオブジェクトとインデックスの対応をとる。
-            for obj in self.context.blend_data.objects:
-                obj[self.extras_object_name_key] = obj.name
-            for material in self.context.blend_data.materials:
-                material[self.extras_material_name_key] = material.name
-
-            # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると
-            # 書いてあるが、実際にはBoneのカスタムプロパティを参照している。
-            # そのため、いちおう両方に書いておく
-            for pose_bone in self.armature.pose.bones:
-                pose_bone[self.extras_bone_name_key] = pose_bone.name
-            for bone in armature_data.bones:
-                bone[self.extras_bone_name_key] = bone.name
-
-            self.overwrite_object_visibility_and_selection()
-            self.mount_skinned_mesh_parent()
-            disabled_mtoon1_material_names = self.disable_mtoon1_material_nodes(
-                self.context
-            )
-            with tempfile.TemporaryDirectory() as temp_dir:
+        with (
+            self.setup_dummy_human_bones(self.context, self.armature, armature_data),
+            self.clear_blend_shape_proxy_previews(armature_data),
+            self.setup_pose(self.armature, armature_data, vrm.humanoid),
+            self.overwrite_object_visibility_and_selection(),
+        ):
+            with (
+                self.hide_mtoon1_outline_geometry_nodes(self.context),
+                self.disable_mtoon1_material_nodes(self.context),
+                self.mount_skinned_mesh_parent(),
+                self.assign_export_custom_properties(armature_data),
+                tempfile.TemporaryDirectory() as temp_dir,
+            ):
                 filepath = Path(temp_dir, "out.glb")
                 export_scene_gltf_result = export_scene_gltf(
                     ExportSceneGltfArguments(
@@ -2035,27 +2046,21 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     )
                     raise AssertionError(message)
                 extra_name_assigned_glb = filepath.read_bytes()
-        finally:
-            self.restore_mtoon1_material_nodes(
-                self.context, disabled_mtoon1_material_names
-            )
-            for pose_bone in self.armature.pose.bones:
-                pose_bone.pop(self.extras_bone_name_key, None)
-            for bone in armature_data.bones:
-                bone.pop(self.extras_bone_name_key, None)
-            for obj in self.context.blend_data.objects:
-                obj.pop(self.extras_object_name_key, None)
-            self.armature.pop(self.extras_main_armature_key, None)
-            for material in self.context.blend_data.materials:
-                material.pop(self.extras_material_name_key, None)
+            vrm_bytes = self.add_vrm_extension_to_glb(extra_name_assigned_glb)
+            if vrm_bytes is None:
+                return None
+            logger.info(f"Generated VRM size: {len(vrm_bytes)} bytes")
+        return vrm_bytes
 
-            self.restore_object_visibility_and_selection()
-            self.restore_skinned_mesh_parent()
-            self.restore_mtoon1_outline_geometry_nodes(
-                self.context, object_name_to_modifier_name
-            )
-            self.restore_pose(self.armature, armature_data)
-            self.restore_blend_shape_proxy_previews(armature_data, blend_shape_previews)
+    def add_vrm_extension_to_glb(
+        self, extra_name_assigned_glb: bytes
+    ) -> Optional[bytes]:
+        armature_data = self.armature.data
+        if not isinstance(armature_data, Armature):
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
+
+        vrm = armature_data.vrm_addon_extension.vrm1
 
         json_dict, body_binary = parse_glb(extra_name_assigned_glb)
         body_binary = bytearray(body_binary)
@@ -2415,14 +2420,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for key in gltf_root_non_empty_array_keys:
             if not json_dict.get(key):
                 json_dict.pop(key, None)
-
-        if backup_human_bone_name_to_bone_name is not None:
-            self.restore_dummy_human_bones(
-                self.context,
-                self.armature,
-                armature_data,
-                backup_human_bone_name_to_bone_name,
-            )
 
         return pack_glb(json_dict, body_binary)
 
