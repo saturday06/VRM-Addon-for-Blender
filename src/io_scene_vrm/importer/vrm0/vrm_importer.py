@@ -6,7 +6,6 @@ import math
 import uuid
 from typing import Optional, Union
 
-import bpy
 from bpy.types import (
     Material,
     Mesh,
@@ -1022,10 +1021,9 @@ class VrmImporter(AbstractBaseVrmImporter):
                 # has error
                 return
 
-        previous_active = self.context.view_layer.objects.active
-        try:
-            self.context.view_layer.objects.active = armature
-
+        with self.save_bone_child_object_transforms(
+            self.context, armature
+        ) as armature_data:
             bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
             for human_bone in human_bones:
                 if not human_bone.node.bone_name:
@@ -1035,10 +1033,8 @@ class VrmImporter(AbstractBaseVrmImporter):
                     continue
                 bone_name_to_human_bone_name[human_bone.node.bone_name] = name
 
-            bpy.ops.object.mode_set(mode="EDIT")
-
             for bone_name in bone_name_to_human_bone_name:
-                bone = self.armature_data.edit_bones.get(bone_name)
+                bone = armature_data.edit_bones.get(bone_name)
                 while bone:
                     bone.roll = 0.0
                     bone = bone.parent
@@ -1057,7 +1053,7 @@ class VrmImporter(AbstractBaseVrmImporter):
                 if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                     continue
 
-                bone = self.armature_data.edit_bones.get(bone_name)
+                bone = armature_data.edit_bones.get(bone_name)
                 if not bone:
                     continue
                 last_human_bone_name = human_bone_name
@@ -1129,7 +1125,7 @@ class VrmImporter(AbstractBaseVrmImporter):
                 ):
                     continue
 
-                bone = self.armature_data.edit_bones.get(human_bone.node.bone_name)
+                bone = armature_data.edit_bones.get(human_bone.node.bone_name)
                 if not bone or bone.children:
                     continue
 
@@ -1147,17 +1143,7 @@ class VrmImporter(AbstractBaseVrmImporter):
                     Matrix.Translation(world_tail) @ world_inv
                 ).to_translation()
 
-            connect_parent_tail_and_child_head_if_very_close_position(
-                self.armature_data
-            )
-            bpy.ops.object.mode_set(mode="OBJECT")
-        finally:
-            active = self.context.view_layer.objects.active
-            if active and active.mode != "OBJECT":
-                bpy.ops.object.mode_set(mode="OBJECT")
-            self.context.view_layer.objects.active = previous_active
-
-        self.load_bone_child_object_world_matrices(armature)
+            connect_parent_tail_and_child_head_if_very_close_position(armature_data)
 
     def find_vrm0_bone_node_indices(self) -> list[int]:
         result: list[int] = []
