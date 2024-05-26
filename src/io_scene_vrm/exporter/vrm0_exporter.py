@@ -2098,6 +2098,16 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         missing_material_index: Optional[int] = None
         skin_count = 0
         for mesh in meshes:
+            if (
+                self.context.view_layer.objects.active is not None
+                and self.context.view_layer.objects.active.mode != "OBJECT"
+            ):
+                bpy.ops.object.mode_set(mode="OBJECT")
+            if self.context.view_layer.objects.active != mesh:
+                self.context.view_layer.objects.active = mesh
+                if self.context.view_layer.objects.active.mode != "OBJECT":
+                    bpy.ops.object.mode_set(mode="OBJECT")
+
             is_skin_mesh = self.is_skin_mesh(mesh)
             node_dict: dict[str, Json] = {
                 "name": mesh.name,
@@ -2194,7 +2204,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             mesh.hide_viewport = False
             mesh.hide_select = False
-            self.context.view_layer.objects.active = mesh
             bpy.ops.object.mode_set(mode="EDIT")
 
             mesh_data_transform = Matrix.Identity(4)
@@ -2644,9 +2653,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             mesh_dicts.append(mesh_dict)
             bm.free()
-
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.mode_set(mode="OBJECT")
 
     def exporter_name(self) -> str:
         v = addon_version()
