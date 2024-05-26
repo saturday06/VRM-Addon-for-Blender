@@ -7,8 +7,11 @@ import uuid
 from typing import Optional, Union
 
 from bpy.types import (
+    Armature,
+    Context,
     Material,
     Mesh,
+    Object,
 )
 from mathutils import Matrix, Vector
 
@@ -479,7 +482,7 @@ class VrmImporter(AbstractBaseVrmImporter):
 
         self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
         self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
-        self.setup_vrm0_humanoid_bones()
+        self.setup_vrm0_humanoid_bones(self.context, armature)
         self.load_vrm0_first_person(
             vrm0.first_person, vrm0_extension.get("firstPerson")
         )
@@ -991,16 +994,17 @@ class VrmImporter(AbstractBaseVrmImporter):
         for bone_group in secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
-    def setup_vrm0_humanoid_bones(self) -> None:
-        armature = self.armature
-        if not armature:
+    @staticmethod
+    def setup_vrm0_humanoid_bones(context: Context, armature: Object) -> None:
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
             return
-        addon_extension = self.armature_data.vrm_addon_extension
+        addon_extension = armature_data.vrm_addon_extension
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-            self.context,
-            self.armature_data.name,
+            context,
+            armature_data.name,
             force=True,
         )
 
@@ -1021,9 +1025,9 @@ class VrmImporter(AbstractBaseVrmImporter):
                 # has error
                 return
 
-        with self.save_bone_child_object_transforms(
-            self.context, armature
-        ) as armature_data:
+        with AbstractBaseVrmImporter.save_bone_child_object_transforms(
+            context, armature
+        ):
             bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
             for human_bone in human_bones:
                 if not human_bone.node.bone_name:
