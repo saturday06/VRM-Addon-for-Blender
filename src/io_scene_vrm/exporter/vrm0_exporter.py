@@ -136,7 +136,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 wm.progress_update(3)
                 self.material_to_dict()
                 wm.progress_update(4)
-                self.mesh_to_bin_and_dict()
+                # 内部でcontext.view_layer.objects.active = meshをするので復元する
+                with save_workspace(self.context):
+                    self.mesh_to_bin_and_dict()
                 wm.progress_update(5)
                 self.json_dict["scene"] = 0
                 self.gltf_meta_to_dict()
