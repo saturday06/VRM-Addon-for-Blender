@@ -66,6 +66,16 @@ EMISSION_STRENGTH_INPUT_KEY: Final = "Strength"
 TEX_IMAGE_COLOR_OUTPUT_KEY: Final = "Color"
 TEX_IMAGE_ALPHA_OUTPUT_KEY: Final = "Alpha"
 
+IMAGE_INTERPOLATION_CLOSEST: Final = "Closest"
+IMAGE_INTERPOLATION_LINEAR: Final = "Linear"
+IMAGE_INTERPOLATION_CUBIC: Final = "Cubic"
+IMAGE_INTERPOLATION_SMART: Final = "Smart"
+GL_LINEAR_IMAGE_INTERPOLATIONS: Final = (
+    IMAGE_INTERPOLATION_LINEAR,
+    IMAGE_INTERPOLATION_CUBIC,
+    IMAGE_INTERPOLATION_SMART,
+)
+
 
 def get_gltf_emissive_node(material: Material) -> Optional[ShaderNodeEmission]:
     node_tree = material.node_tree
@@ -402,6 +412,9 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         name = type(texture_info.index).__name__
         return re.sub("PropertyGroup$", "", name) + "." + extra
 
+    def get_image_texture_node_name(self) -> str:
+        return self.get_texture_node_name("Image")
+
     @classmethod
     def link_tex_image_to_node_group(
         cls,
@@ -535,7 +548,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         if not node_tree:
             return
 
-        node_name = self.get_texture_node_name("Image")
+        node_name = self.get_image_texture_node_name()
 
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeTexImage):
@@ -596,7 +609,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         self.set_texture_uv("UV Offset X", self.offset[0])
         self.set_texture_uv("UV Offset Y", self.offset[1])
 
-        node_name = self.get_texture_node_name("Image")
+        node_name = self.get_image_texture_node_name()
         material = self.find_material()
         if not material.node_tree:
             return
@@ -617,7 +630,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         self.set_texture_uv("UV Scale X", self.scale[0])
         self.set_texture_uv("UV Scale Y", self.scale[1])
 
-        node_name = self.get_texture_node_name("Image")
+        node_name = self.get_image_texture_node_name()
         material = self.find_material()
         if not material.node_tree:
             return
@@ -954,17 +967,110 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
     def get_mag_filter(self) -> int:
         default_value = next(iter(self.MAG_FILTER_NUMBER_TO_ID.keys()))
-        value = self.get("mag_filter")
-        if not isinstance(value, int):
+
+        material = self.find_material()
+        node_name = self.get_image_texture_node_name()
+        node_tree = material.node_tree
+        if node_tree is None:
             return default_value
-        if value in self.MAG_FILTER_NUMBER_TO_ID:
-            return int(value)
+
+        node = node_tree.nodes.get(node_name)
+        if not isinstance(node, ShaderNodeTexImage):
+            return default_value
+
+        if node.interpolation == IMAGE_INTERPOLATION_CLOSEST:
+            return GL_NEAREST
+
+        if node.interpolation in GL_LINEAR_IMAGE_INTERPOLATIONS:
+            return GL_LINEAR
+
+        value = self.get("mag_filter")
+        if isinstance(value, int) and value in self.MAG_FILTER_NUMBER_TO_ID:
+            return value
+
         return default_value
 
     def set_mag_filter(self, value: int) -> None:
+        # 入力値がTexImageの値と矛盾する場合は、TexImageの値を変更する
+        # 入力値がGL_NEARESTかつTexImageがClosestの場合は、内部値を削除する
+        # 入力値がGL_LINEARかつTexImageがLinear/Cubic/Smartの場合は、内部値を削除する
+
         if value not in self.MAG_FILTER_NUMBER_TO_ID:
+            self.pop("mag_filter", None)
             return
+
+        material = self.find_material()
+        node_name = self.get_image_texture_node_name()
+        node_tree = material.node_tree
+        if node_tree is not None:
+            node = node_tree.nodes.get(node_name)
+            if isinstance(node, ShaderNodeTexImage):
+                if value == GL_NEAREST:
+                    if node.interpolation == IMAGE_INTERPOLATION_CLOSEST:
+                        self.pop("mag_filter", None)
+                        return
+                    node.interpolation = IMAGE_INTERPOLATION_CLOSEST
+                if value == GL_LINEAR:
+                    if node.interpolation in GL_LINEAR_IMAGE_INTERPOLATIONS:
+                        self.pop("mag_filter", None)
+                        return
+                    node.interpolation = IMAGE_INTERPOLATION_LINEAR
+
         self["mag_filter"] = value
+
+    def get_min_filter(self) -> int:
+        value = self.get("min_filter")
+        if isinstance(value, int) and value in self.MIN_FILTER_NUMBER_TO_ID:
+            return value
+
+        default_value = next(iter(self.MIN_FILTER_NUMBER_TO_ID.keys()))
+
+        material = self.find_material()
+        node_name = self.get_image_texture_node_name()
+        node_tree = material.node_tree
+        if node_tree is None:
+            return default_value
+
+        node = node_tree.nodes.get(node_name)
+        if not isinstance(node, ShaderNodeTexImage):
+            return default_value
+
+        if node.interpolation == IMAGE_INTERPOLATION_CLOSEST:
+            return GL_NEAREST
+
+        if node.interpolation in GL_LINEAR_IMAGE_INTERPOLATIONS:
+            return GL_LINEAR
+
+        return default_value
+
+    def set_min_filter(self, value: int) -> None:
+        # 入力値がGL_NEARESTかつTexImageがClosestの場合は、内部値を削除する
+        # 入力値がGL_LINEARかつTexImageがLinear/Cubic/Smartの場合は、内部値を削除する
+
+        if value not in self.MIN_FILTER_NUMBER_TO_ID:
+            self.pop("min_filter", None)
+            return
+
+        material = self.find_material()
+        node_name = self.get_image_texture_node_name()
+        node_tree = material.node_tree
+        if node_tree is not None:
+            node = node_tree.nodes.get(node_name)
+            if isinstance(node, ShaderNodeTexImage):
+                if (
+                    value == GL_NEAREST
+                    and node.interpolation == IMAGE_INTERPOLATION_CLOSEST
+                ):
+                    self.pop("min_filter", None)
+                    return
+                if (
+                    value == GL_LINEAR
+                    and node.interpolation in GL_LINEAR_IMAGE_INTERPOLATIONS
+                ):
+                    self.pop("min_filter", None)
+                    return
+
+        self["min_filter"] = value
 
     min_filter_items = (
         ("NEAREST", "Nearest", "", GL_NEAREST),
@@ -1023,11 +1129,15 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
     mag_filter: EnumProperty(  # type: ignore[valid-type]
         items=mag_filter_items,
+        get=get_mag_filter,
+        set=set_mag_filter,
         name="Mag Filter",
     )
 
     min_filter: EnumProperty(  # type: ignore[valid-type]
         items=min_filter_items,
+        get=get_min_filter,
+        set=set_min_filter,
         name="Min Filter",
     )
 

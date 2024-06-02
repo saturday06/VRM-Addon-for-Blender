@@ -1,8 +1,23 @@
-from bpy.types import Context, NodeReroute, ShaderNodeGroup
+import functools
+
+from bpy.types import (
+    Context,
+    Material,
+    NodeReroute,
+    ShaderNodeGroup,
+    ShaderNodeTexImage,
+)
 from idprop.types import IDPropertyGroup
 
 from ...common import convert
-from .property_group import reset_shader_node_group
+from ...common.gl import GL_LINEAR, GL_NEAREST
+from .property_group import (
+    GL_LINEAR_IMAGE_INTERPOLATIONS,
+    IMAGE_INTERPOLATION_CLOSEST,
+    IMAGE_INTERPOLATION_LINEAR,
+    Mtoon1SamplerPropertyGroup,
+    reset_shader_node_group,
+)
 
 
 def migrate(context: Context) -> None:
@@ -11,7 +26,8 @@ def migrate(context: Context) -> None:
             continue
         if not material.use_nodes:
             continue
-        if not material.node_tree:
+        node_tree = material.node_tree
+        if not node_tree:
             continue
 
         vrm_addon_extension = material.get("vrm_addon_extension")
@@ -40,13 +56,13 @@ def migrate(context: Context) -> None:
         if addon_version < (2, 16, 4):
             # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_10_0/io_scene_vrm/editor/mtoon1/property_group.py#L1658-L1683
             surface_node_name = "Mtoon1Material.MaterialOutputSurfaceIn"
-            surface_node = material.node_tree.nodes.get(surface_node_name)
+            surface_node = node_tree.nodes.get(surface_node_name)
             if not isinstance(surface_node, NodeReroute):
                 continue
 
             connected = False
             surface_socket = surface_node.outputs[0]
-            for link in material.node_tree.links:
+            for link in node_tree.links:
                 if (
                     link.from_socket == surface_socket
                     and link.to_socket
@@ -59,7 +75,7 @@ def migrate(context: Context) -> None:
                 continue
         else:
             # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_16_4/io_scene_vrm/editor/mtoon1/property_group.py#L1913-L1929
-            group_node = material.node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
+            group_node = node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
             if not isinstance(group_node, ShaderNodeGroup):
                 continue
             if not group_node.node_tree:
@@ -67,7 +83,90 @@ def migrate(context: Context) -> None:
             if group_node.node_tree.name != "VRM Add-on MToon 1.0 Output Revision 1":
                 continue
 
+        if addon_version < (2, 20, 50):
+            migrate_sampler_filter_node(material)
+
         if addon_version < (2, 20, 47):
             reset_shader_node_group(
                 context, material, reset_node_tree=True, overwrite=True
             )
+
+
+def migrate_sampler_filter_node(material: Material) -> None:
+    node_tree = material.node_tree
+    if not node_tree:
+        return
+
+    vrm_addon_extension = material.get("vrm_addon_extension")
+    if not isinstance(vrm_addon_extension, IDPropertyGroup):
+        return
+
+    mtoon1 = vrm_addon_extension.get("mtoon1")
+    if not isinstance(mtoon1, IDPropertyGroup):
+        return
+
+    for node_name, attrs in [
+        (
+            "Mtoon1BaseColorTexture.Image",
+            ("pbr_metallic_roughness", "base_color_texture"),
+        ),
+        ("Mtoon1EmissiveTexture.Image", ("emissive_texture",)),
+        ("Mtoon1NormalTexture.Image", ("normal_texture",)),
+        (
+            "Mtoon1ShadeMultiplyTexture.Image",
+            ("extensions", "vrmc_materials_mtoon", "shade_multiply_texture"),
+        ),
+        (
+            "Mtoon1ShadingShiftTexture.Image",
+            ("extensions", "vrmc_materials_mtoon", "shading_shift_texture"),
+        ),
+        (
+            "Mtoon1OutlineWidthMultiplyTexture.Image",
+            (
+                "extensions",
+                "vrmc_materials_mtoon",
+                "outline_width_multiply_texture",
+            ),
+        ),
+        (
+            "Mtoon1UvAnimationMaskTexture.Image",
+            ("extensions", "vrmc_materials_mtoon", "uv_animation_mask_texture"),
+        ),
+        (
+            "Mtoon1MatcapTexture.Image",
+            ("extensions", "vrmc_materials_mtoon", "matcap_texture"),
+        ),
+        (
+            "Mtoon1RimMultiplyTexture.Image",
+            ("extensions", "vrmc_materials_mtoon", "rim_multiply_texture"),
+        ),
+    ]:
+        sampler = functools.reduce(
+            lambda prop, attr: getattr(prop, attr, None),
+            (*attrs, "index", "sampler"),
+            mtoon1,
+        )
+        if not isinstance(sampler, IDPropertyGroup):
+            continue
+
+        mag_filter = sampler.get("mag_filter")
+        if (
+            not isinstance(mag_filter, int)
+            or mag_filter not in Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID
+        ):
+            continue
+
+        node = node_tree.nodes.get(node_name)
+        if not isinstance(node, ShaderNodeTexImage):
+            continue
+
+        if (
+            mag_filter == GL_NEAREST
+            and node.interpolation != IMAGE_INTERPOLATION_CLOSEST
+        ):
+            node.interpolation = IMAGE_INTERPOLATION_CLOSEST
+        if (
+            mag_filter == GL_LINEAR
+            and node.interpolation not in GL_LINEAR_IMAGE_INTERPOLATIONS
+        ):
+            node.interpolation = IMAGE_INTERPOLATION_LINEAR
