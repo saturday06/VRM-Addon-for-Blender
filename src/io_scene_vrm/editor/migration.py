@@ -46,17 +46,12 @@ def defer_migrate(armature_object_name: str) -> bool:
         return True
     bpy.app.timers.register(
         functools.partial(
-            migrate_timer_callback,
+            migrate,
+            None,  # Contextはフレームを跨げない
             armature_object_name,
         )
     )
     return False
-
-
-def migrate_timer_callback(armature_object_name: str) -> None:
-    """migrate()の型をbpy.app.timers.registerに合わせるためのラッパー."""
-    context = bpy.context  # Contextはフレームを跨げないので新たに取得する
-    migrate(context, armature_object_name)
 
 
 def migrate(context: Optional[Context], armature_object_name: str) -> bool:
