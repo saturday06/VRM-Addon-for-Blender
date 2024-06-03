@@ -452,9 +452,11 @@ class VrmImporter(AbstractBaseVrmImporter):
                 # Missing required bones
                 return
 
-        with self.save_bone_child_object_transforms(
-            self.context, armature
-        ) as armature_data:
+        previous_active = self.context.view_layer.objects.active
+        previous_cursor_matrix = self.context.scene.cursor.matrix
+        try:
+            self.context.view_layer.objects.active = armature
+
             bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
             for (
                 human_bone_name,
@@ -465,6 +467,8 @@ class VrmImporter(AbstractBaseVrmImporter):
                 bone_name_to_human_bone_name[human_bone.node.bone_name] = (
                     human_bone_name
                 )
+
+            bpy.ops.object.mode_set(mode="EDIT")
 
             # ボーンの子が複数ある場合
             # そのボーン名からテールを向ける先の子ボーン名を拾えるdictを作る
@@ -483,7 +487,7 @@ class VrmImporter(AbstractBaseVrmImporter):
                 if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                     continue
 
-                bone = armature_data.edit_bones.get(bone_name)
+                bone = self.armature_data.edit_bones.get(bone_name)
                 if not bone:
                     continue
                 last_human_bone_name = human_bone_name
@@ -546,7 +550,7 @@ class VrmImporter(AbstractBaseVrmImporter):
             # ヒューマンボーンとその先祖ボーンを得る
             human_bone_tree_bone_names: set[str] = set()
             for bone_name in bone_name_to_human_bone_name:
-                bone = armature_data.edit_bones.get(bone_name)
+                bone = self.armature_data.edit_bones.get(bone_name)
                 while bone:
                     human_bone_tree_bone_names.add(bone.name)
                     bone = bone.parent
@@ -609,7 +613,7 @@ class VrmImporter(AbstractBaseVrmImporter):
             # その先祖ボーンを優先したいので、それらを深さ優先で先に処理し、
             # その後その他のボーンを深さ優先で処理する
             unsorted_bones = [
-                bone for bone in armature_data.edit_bones if not bone.parent
+                bone for bone in self.armature_data.edit_bones if not bone.parent
             ]
             while unsorted_bones:
                 bone = unsorted_bones.pop()
@@ -756,36 +760,49 @@ class VrmImporter(AbstractBaseVrmImporter):
                     )
                 bone_name_to_axis_translation[bone.name] = axis_translation
 
-            connect_parent_tail_and_child_head_if_very_close_position(armature_data)
-
-        for bone_name, axis_translation in bone_name_to_axis_translation.items():
-            data_bone = armature_data.bones.get(bone_name)
-            if not data_bone:
-                continue
-            data_bone.vrm_addon_extension.axis_translation = (
-                BoneExtension.reverse_axis_translation(axis_translation)
+            connect_parent_tail_and_child_head_if_very_close_position(
+                self.armature_data
             )
 
-        for node_index in set(constraint_node_index_to_source_index.keys()) | set(
-            constraint_node_index_to_source_index.values()
-        ):
-            object_or_bone = self.get_object_or_bone_by_node_index(node_index)
-            if not isinstance(object_or_bone, Object):
-                continue
-            for group_node_index in next(
-                (g for g in constraint_node_index_groups if node_index in g), set()
-            ):
-                group_object_or_bone = self.get_object_or_bone_by_node_index(
-                    group_node_index
+            bpy.ops.object.mode_set(mode="OBJECT")
+            for bone_name, axis_translation in bone_name_to_axis_translation.items():
+                data_bone = self.armature_data.bones.get(bone_name)
+                if not data_bone:
+                    continue
+                data_bone.vrm_addon_extension.axis_translation = (
+                    BoneExtension.reverse_axis_translation(axis_translation)
                 )
-                if isinstance(group_object_or_bone, PoseBone):
-                    self.translate_object_axis(
-                        object_or_bone,
-                        BoneExtension.reverse_axis_translation(
-                            group_object_or_bone.bone.vrm_addon_extension.axis_translation
-                        ),
+
+            for node_index in set(constraint_node_index_to_source_index.keys()) | set(
+                constraint_node_index_to_source_index.values()
+            ):
+                object_or_bone = self.get_object_or_bone_by_node_index(node_index)
+                if not isinstance(object_or_bone, Object):
+                    continue
+                for group_node_index in next(
+                    (g for g in constraint_node_index_groups if node_index in g), set()
+                ):
+                    group_object_or_bone = self.get_object_or_bone_by_node_index(
+                        group_node_index
                     )
-                    break
+                    if isinstance(group_object_or_bone, PoseBone):
+                        self.translate_object_axis(
+                            object_or_bone,
+                            BoneExtension.reverse_axis_translation(
+                                group_object_or_bone.bone.vrm_addon_extension.axis_translation
+                            ),
+                        )
+                        break
+        finally:
+            if (
+                self.context.view_layer.objects.active
+                and self.context.view_layer.objects.active.mode != "OBJECT"
+            ):
+                bpy.ops.object.mode_set(mode="OBJECT")
+            self.context.view_layer.objects.active = previous_active
+            self.context.scene.cursor.matrix = previous_cursor_matrix
+
+        self.load_bone_child_object_world_matrices(armature)
 
     def translate_object_axis(self, obj: Object, axis_translation: str) -> None:
         if axis_translation != BoneExtension.AXIS_TRANSLATION_AUTO_ID:

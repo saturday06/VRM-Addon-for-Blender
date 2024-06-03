@@ -13,7 +13,6 @@ import shutil
 import struct
 import tempfile
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Optional
 
@@ -127,58 +126,28 @@ class AbstractBaseVrmImporter(ABC):
             raise TypeError(message)
         return armature_data
 
-    @staticmethod
-    @contextlib.contextmanager
-    def save_bone_child_object_transforms(
-        context: Context, armature: Object
-    ) -> Iterator[Armature]:
-        if not isinstance(armature.data, Armature):
-            message = f"{type(armature.data)} is not an Armature"
-            raise TypeError(message)
-
-        previous_cursor_matrix = context.scene.cursor.matrix.copy()
-
-        # 編集前のボーンの子オブジェクトのワールド行列を保存
-        bone_child_object_world_matrices: dict[str, Matrix] = {}
-        for obj in context.blend_data.objects:
+    def save_bone_child_object_world_matrices(self, armature: Object) -> None:
+        for obj in self.context.blend_data.objects:
             if (
                 obj.parent_type == "BONE"
                 and obj.parent == armature
-                and obj.parent_bone in armature.data.bones
+                and obj.parent_bone in self.armature_data.bones
             ):
-                bone_child_object_world_matrices[obj.name] = obj.matrix_world.copy()
+                self.bone_child_object_world_matrices[obj.name] = (
+                    obj.matrix_world.copy()
+                )
 
-        # 編集前のactiveオブジェクトとmodeを保存
-        previous_active = context.view_layer.objects.active
-        previous_mode = None
-        if previous_active is not None and previous_active.mode != "OBJECT":
-            previous_mode = previous_active.mode
-            bpy.ops.object.mode_set(mode="OBJECT")
-
-        try:
-            context.view_layer.objects.active = armature
-            if context.object is not None and context.object.mode != "EDIT":
-                bpy.ops.object.mode_set(mode="EDIT")
-            yield armature.data
-        finally:
-            # 編集前のactiveオブジェクトとmodeを復元
-            if context.object is not None and context.object.mode != "OBJECT":
-                bpy.ops.object.mode_set(mode="OBJECT")
-            context.view_layer.objects.active = previous_active
-            if previous_mode is not None:
-                bpy.ops.object.mode_set(mode=previous_mode)
-
-            # 編集前のボーンの子オブジェクトのワールド行列を復元
-            for obj in context.blend_data.objects:
-                if (
-                    obj.parent_type == "BONE"
-                    and obj.parent == armature
-                    and obj.parent_bone in armature.data.bones
-                    and obj.name in bone_child_object_world_matrices
-                ):
-                    obj.matrix_world = bone_child_object_world_matrices[obj.name].copy()
-
-            context.scene.cursor.matrix = previous_cursor_matrix
+    def load_bone_child_object_world_matrices(self, armature: Object) -> None:
+        for obj in self.context.blend_data.objects:
+            if (
+                obj.parent_type == "BONE"
+                and obj.parent == armature
+                and obj.parent_bone in self.armature_data.bones
+                and obj.name in self.bone_child_object_world_matrices
+            ):
+                obj.matrix_world = self.bone_child_object_world_matrices[
+                    obj.name
+                ].copy()
 
     def scene_init(self) -> Optional[Object]:
         # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るの
@@ -1007,48 +976,49 @@ class AbstractBaseVrmImporter(ABC):
                 self.armature = obj
 
         if (
-            (armature := self.armature) is not None
-            and isinstance(armature_data := armature.data, Armature)
+            self.armature is not None
             and self.parse_result.spec_version_number < (1, 0)
+            and self.armature.rotation_mode == "QUATERNION"
         ):
-            # 180度回転前のroll値を保存しておく
-            if self.context.object is not None and self.context.object.mode != "OBJECT":
+            obj = self.armature
+            obj.rotation_quaternion.rotate(mathutils.Euler((0.0, 0.0, math.pi), "XYZ"))
+            if self.context.object is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.object.select_all(action="DESELECT")
-            armature.select_set(True)
-            self.context.view_layer.objects.active = armature
-            if self.context.object is not None and self.context.object.mode != "EDIT":
+            obj.select_set(True)
+            previous_active = self.context.view_layer.objects.active
+            try:
+                self.context.view_layer.objects.active = obj
+
+                bone_name_to_roll = {}
                 bpy.ops.object.mode_set(mode="EDIT")
-            bone_name_to_roll = {}
-            for edit_bone in armature_data.edit_bones:
-                bone_name_to_roll[edit_bone.name] = edit_bone.roll
-            bpy.ops.object.mode_set(mode="OBJECT")
+                if isinstance(obj.data, Armature):
+                    for edit_bone in obj.data.edit_bones:
+                        bone_name_to_roll[edit_bone.name] = edit_bone.roll
+                bpy.ops.object.mode_set(mode="OBJECT")
 
-            # 180度回転
-            if armature.rotation_mode != "QUATERNION":
-                armature.rotation_mode = "QUATERNION"
-            armature.rotation_quaternion.rotate(
-                mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
-            )
-            bpy.ops.object.transform_apply(
-                location=False, rotation=True, scale=False, properties=False
-            )
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=False, properties=False
+                )
 
-            # 180度回転前のroll値を復元
-            with self.save_bone_child_object_transforms(
-                self.context, armature
-            ) as armature_data:
-                edit_bones = [
-                    edit_bone
-                    for edit_bone in armature_data.edit_bones
-                    if not edit_bone.parent
-                ]
-                while edit_bones:
-                    edit_bone = edit_bones.pop(0)
-                    roll = bone_name_to_roll.get(edit_bone.name)
-                    if roll is not None:
-                        edit_bone.roll = roll
-                    edit_bones.extend(edit_bone.children)
+                self.save_bone_child_object_world_matrices(obj)
+
+                bpy.ops.object.mode_set(mode="EDIT")
+                if isinstance(obj.data, Armature):
+                    edit_bones = [
+                        edit_bone
+                        for edit_bone in obj.data.edit_bones
+                        if not edit_bone.parent
+                    ]
+                    while edit_bones:
+                        edit_bone = edit_bones.pop(0)
+                        roll = bone_name_to_roll.get(edit_bone.name)
+                        if roll is not None:
+                            edit_bone.roll = roll
+                        edit_bones.extend(edit_bone.children)
+                bpy.ops.object.mode_set(mode="OBJECT")
+            finally:
+                self.context.view_layer.objects.active = previous_active
 
         extras_mesh_index_key = self.import_id + "Meshes"
         for obj in self.context.selectable_objects:
