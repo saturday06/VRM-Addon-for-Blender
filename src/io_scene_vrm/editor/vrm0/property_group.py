@@ -214,36 +214,12 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         return True
 
     @staticmethod
-    def defer_update_all_node_candidates(
-        armature_data_name: str,
-        force: bool = False,
-    ) -> None:
-        bpy.app.timers.register(
-            functools.partial(
-                Vrm0HumanoidPropertyGroup.update_all_node_candidates_timer_callback,
-                armature_data_name,
-                force,
-            )
-        )
-
-    @staticmethod
-    def update_all_node_candidates_timer_callback(
-        armature_object_name: str, force: bool = False
-    ) -> None:
-        """update_all_node_candidates()の型をbpy.app.timers.registerに合わせるためのラッパー."""
-        context = bpy.context  # Contextはフレームを跨げないので新たに取得する
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-            context, armature_object_name, force
-        )
-
-    @staticmethod
     def update_all_node_candidates(
-        context: Optional[Context],
         armature_data_name: str,
+        defer: bool = False,
         force: bool = False,
     ) -> None:
-        if context is None:
-            context = bpy.context
+        context = bpy.context
 
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not armature_data:
@@ -259,6 +235,17 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             up_to_date = bone_names == [str(n.value) for n in humanoid.last_bone_names]
             if up_to_date:
                 return
+
+        if defer:
+            bpy.app.timers.register(
+                functools.partial(
+                    Vrm0HumanoidPropertyGroup.update_all_node_candidates,
+                    armature_data_name,
+                    False,
+                    force,
+                )
+            )
+            return
 
         humanoid.last_bone_names.clear()
         for bone_name in bone_names:

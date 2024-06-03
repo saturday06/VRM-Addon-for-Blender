@@ -1,6 +1,5 @@
 import functools
 from dataclasses import dataclass
-from typing import Optional
 
 import bpy
 from bpy.types import Armature, Bone, Context, Object
@@ -24,16 +23,11 @@ from .vrm1 import property_group as vrm1_property_group
 logger = get_logger(__name__)
 
 
-def is_unnecessary(armature_data: Armature) -> bool:
-    ext = armature_data.vrm_addon_extension
-    return (
-        tuple(ext.addon_version) >= addon_version()
-        and armature_data.name == ext.armature_data_name
-        and vrm0_migration.is_unnecessary(ext.vrm0)
-    )
+def migrate_no_defer_discarding_return_value(armature_object_name: str) -> None:
+    migrate(armature_object_name, defer=False)
 
 
-def defer_migrate(armature_object_name: str) -> bool:
+def migrate(armature_object_name: str, defer: bool) -> bool:
     context = bpy.context
 
     armature = context.blend_data.objects.get(armature_object_name)
@@ -42,38 +36,23 @@ def defer_migrate(armature_object_name: str) -> bool:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return False
-    if is_unnecessary(armature_data):
-        return True
-    bpy.app.timers.register(
-        functools.partial(
-            migrate_timer_callback,
-            armature_object_name,
-        )
-    )
-    return False
-
-
-def migrate_timer_callback(armature_object_name: str) -> None:
-    """migrate()の型をbpy.app.timers.registerに合わせるためのラッパー."""
-    context = bpy.context  # Contextはフレームを跨げないので新たに取得する
-    migrate(context, armature_object_name)
-
-
-def migrate(context: Optional[Context], armature_object_name: str) -> bool:
-    if context is None:
-        context = bpy.context
-
-    armature = context.blend_data.objects.get(armature_object_name)
-    if not armature:
-        return False
-    armature_data = armature.data
-    if not isinstance(armature_data, Armature):
-        return False
-
-    if is_unnecessary(armature_data):
-        return True
 
     ext = armature_data.vrm_addon_extension
+    if (
+        tuple(ext.addon_version) >= addon_version()
+        and armature_data.name == ext.armature_data_name
+        and vrm0_migration.is_unnecessary(ext.vrm0)
+    ):
+        return True
+
+    if defer:
+        bpy.app.timers.register(
+            functools.partial(
+                migrate_no_defer_discarding_return_value, armature_object_name
+            )
+        )
+        return False
+
     ext.armature_data_name = armature_data.name
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
@@ -108,7 +87,7 @@ def migrate_all_objects(
                     == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
                 ):
                     continue
-            migrate(context, obj.name)
+            migrate(obj.name, defer=False)
 
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
         context, context.scene.name
@@ -186,7 +165,7 @@ def on_change_bpy_bone_name() -> None:
         ):
             continue
 
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature.name)
 
 
 def on_change_bpy_armature_name() -> None:

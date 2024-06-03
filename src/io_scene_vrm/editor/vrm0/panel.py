@@ -13,7 +13,7 @@ from bpy.types import (
 
 from ...common.vrm0.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 from .. import ops, search
-from ..migration import defer_migrate
+from ..migration import migrate
 from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm0_armature
@@ -312,11 +312,13 @@ def draw_vrm0_humanoid_layout(
     layout: UILayout,
     humanoid: Vrm0HumanoidPropertyGroup,
 ) -> None:
-    if defer_migrate(armature.name):
+    if migrate(armature.name, defer=True):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        Vrm0HumanoidPropertyGroup.defer_update_all_node_candidates(armature_data.name)
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            armature_data.name, defer=True
+        )
 
     data = armature.data
     if not isinstance(data, Armature):
@@ -447,7 +449,7 @@ def draw_vrm0_first_person_layout(
     layout: UILayout,
     first_person: Vrm0FirstPersonPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
@@ -573,7 +575,7 @@ def draw_vrm0_blend_shape_master_layout(
     layout: UILayout,
     blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
     blend_data = context.blend_data
 
     (
@@ -843,7 +845,7 @@ def draw_vrm0_secondary_animation_layout(
     layout: UILayout,
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
     draw_vrm0_secondary_animation_bone_groups_layout(
         armature, layout, secondary_animation
     )
@@ -1130,7 +1132,7 @@ def draw_vrm0_meta_layout(
     layout: UILayout,
     meta: Vrm0MetaPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
 
     thumbnail_column = layout.column()
     thumbnail_column.label(text="Thumbnail:")

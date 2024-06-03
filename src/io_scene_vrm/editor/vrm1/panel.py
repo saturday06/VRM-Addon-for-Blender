@@ -7,7 +7,7 @@ from bpy.types import Armature, Context, Mesh, Object, Panel, UILayout
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import HumanBoneSpecifications
 from .. import ops, search
-from ..migration import defer_migrate
+from ..migration import migrate
 from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
@@ -222,11 +222,11 @@ def draw_vrm1_humanoid_layout(
     layout: UILayout,
     humanoid: Vrm1HumanoidPropertyGroup,
 ) -> None:
-    if defer_migrate(armature.name):
+    if migrate(armature.name, defer=True):
         data = armature.data
         if not isinstance(data, Armature):
             return
-        Vrm1HumanBonesPropertyGroup.defer_update_all_node_candidates(data.name)
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(data.name, defer=True)
 
     data = armature.data
     if not isinstance(data, Armature):
@@ -367,7 +367,7 @@ def draw_vrm1_first_person_layout(
     layout: UILayout,
     first_person: Vrm1FirstPersonPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
     column = layout.column()
     column.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
 
@@ -467,7 +467,7 @@ def draw_vrm1_look_at_layout(
     layout: UILayout,
     look_at: Vrm1LookAtPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
 
     layout.prop(look_at, "enable_preview")
 
@@ -642,7 +642,7 @@ def draw_vrm1_expressions_layout(
     layout: UILayout,
     expressions: Vrm1ExpressionsPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
 
     preset_expressions = list(expressions.preset.name_to_expression_dict().values())
 
@@ -892,7 +892,7 @@ def draw_vrm1_meta_layout(
     layout: UILayout,
     meta: Vrm1MetaPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    migrate(armature.name, defer=True)
 
     thumbnail_column = layout.column()
     thumbnail_column.label(text="Thumbnail:")

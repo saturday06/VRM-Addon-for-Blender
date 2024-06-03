@@ -400,8 +400,8 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
 
 def update_internal_cache(context: Context) -> None:
     for armature in context.blend_data.armatures:
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(context, armature.name)
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature.name)
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature.name)
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
         context, context.scene.name
     )

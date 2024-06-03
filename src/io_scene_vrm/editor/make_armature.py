@@ -149,7 +149,7 @@ class ICYP_OT_make_armature(Operator):
         ):
             bpy.ops.object.mode_set(mode="OBJECT")
         self.armature_obj, compare_dict = self.make_armature(context)
-        self.setup_as_vrm(context, self.armature_obj, compare_dict)
+        self.setup_as_vrm(self.armature_obj, compare_dict)
         if self.custom_property_name:
             self.armature_obj[self.custom_property_name] = True
         if self.WIP_with_template_mesh:
@@ -572,9 +572,7 @@ class ICYP_OT_make_armature(Operator):
         context.scene.view_layers.update()
         return armature, bone_name_all_dict
 
-    def setup_as_vrm(
-        self, context: Context, armature: Object, compare_dict: dict[str, str]
-    ) -> None:
+    def setup_as_vrm(self, armature: Object, compare_dict: dict[str, str]) -> None:
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         armature_data = armature.data
         if isinstance(armature_data, Armature) and not self.skip_heavy_armature_setup:
@@ -590,7 +588,7 @@ class ICYP_OT_make_armature(Operator):
             offset_from_head_bone=(-self.eye_depth, self.head_size() / 6, 0),
         )
         if not self.skip_heavy_armature_setup:
-            migration.migrate(context, armature.name)
+            migration.migrate(armature.name, defer=False)
 
     @classmethod
     def make_extension_setting_and_metas(
