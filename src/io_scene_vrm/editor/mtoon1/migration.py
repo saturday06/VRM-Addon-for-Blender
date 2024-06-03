@@ -102,7 +102,7 @@ def migrate_sampler_filter_node(material: Material) -> None:
         return
 
     mtoon1 = vrm_addon_extension.get("mtoon1")
-    if not isinstance(mtoon1, IDPropertyGroup):
+    if not mtoon1:
         return
 
     for node_name, attrs in [
