@@ -221,7 +221,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         bpy.app.timers.register(
             functools.partial(
                 Vrm0HumanoidPropertyGroup.update_all_node_candidates,
-                None,  # Contextはフレームを跨げない
+                None,
                 armature_data_name,
                 force,
             )

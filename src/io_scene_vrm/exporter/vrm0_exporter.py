@@ -119,7 +119,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 message = "Failed to generate default armature"
                 raise RuntimeError(message)
             self.use_dummy_armature = True
-        migration.migrate(context, self.armature.name)
+        migration.migrate(self.armature.name, defer=False)
 
         self.result: Optional[bytes] = None
 
