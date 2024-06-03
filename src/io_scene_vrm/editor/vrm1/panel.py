@@ -226,7 +226,7 @@ def draw_vrm1_humanoid_layout(
         data = armature.data
         if not isinstance(data, Armature):
             return
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(data.name, defer=True)
+        Vrm1HumanBonesPropertyGroup.defer_update_all_node_candidates(data.name)
 
     data = armature.data
     if not isinstance(data, Armature):
