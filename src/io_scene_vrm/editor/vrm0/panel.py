@@ -316,7 +316,9 @@ def draw_vrm0_humanoid_layout(
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        Vrm0HumanoidPropertyGroup.defer_update_all_node_candidates(armature_data.name)
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            armature_data.name, defer=True
+        )
 
     data = armature.data
     if not isinstance(data, Armature):

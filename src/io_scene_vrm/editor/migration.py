@@ -165,7 +165,7 @@ def on_change_bpy_bone_name() -> None:
         ):
             continue
 
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature.name)
 
 
 def on_change_bpy_armature_name() -> None:

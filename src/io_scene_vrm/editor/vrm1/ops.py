@@ -1133,17 +1133,13 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            context, armature_data.name
-        )
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(armature_data.name)
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         bones = armature_data.bones
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-            context, armature_data.name
-        )
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(armature_data.name)
         vrm0_humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
         if vrm0_humanoid.all_required_bones_are_assigned():
             for vrm0_human_bone in vrm0_humanoid.human_bones:
@@ -1186,7 +1182,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
                 break
 
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            context, armature_data.name, force=True
+            armature_data.name, force=True
         )
         return {"FINISHED"}
 

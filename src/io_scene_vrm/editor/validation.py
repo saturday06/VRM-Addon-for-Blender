@@ -97,7 +97,6 @@ class WM_OT_vrm_validator(Operator):
 
     @staticmethod
     def validate_bone_order_vrm0(
-        context: Context,
         messages: list[str],
         armature: Object,
         readonly: bool,
@@ -107,10 +106,7 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
-        if readonly:
-            humanoid.defer_update_all_node_candidates(armature_data.name)
-        else:
-            humanoid.update_all_node_candidates(context, armature_data.name)
+        humanoid.update_all_node_candidates(armature_data.name, defer=readonly)
         for human_bone in humanoid.human_bones:
             if (
                 not human_bone.node.bone_name
@@ -133,7 +129,6 @@ class WM_OT_vrm_validator(Operator):
 
     @staticmethod
     def validate_bone_order_vrm1(
-        context: Context,
         messages: list[str],
         armature: Object,
         readonly: bool,
@@ -143,10 +138,7 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-        if readonly:
-            human_bones.defer_update_all_node_candidates(armature_data.name)
-        else:
-            human_bones.update_all_node_candidates(context, armature_data.name)
+        human_bones.update_all_node_candidates(armature_data.name, defer=readonly)
         for (
             human_bone_name,
             human_bone,
@@ -174,7 +166,6 @@ class WM_OT_vrm_validator(Operator):
 
     @staticmethod
     def validate_bone_order(
-        context: Context,
         messages: list[str],
         armature: Object,
         readonly: bool,
@@ -184,13 +175,9 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         if armature_data.vrm_addon_extension.is_vrm0():
-            WM_OT_vrm_validator.validate_bone_order_vrm0(
-                context, messages, armature, readonly
-            )
+            WM_OT_vrm_validator.validate_bone_order_vrm0(messages, armature, readonly)
         else:
-            WM_OT_vrm_validator.validate_bone_order_vrm1(
-                context, messages, armature, readonly
-            )
+            WM_OT_vrm_validator.validate_bone_order_vrm1(messages, armature, readonly)
 
     @staticmethod
     def detect_errors(
@@ -437,7 +424,7 @@ class WM_OT_vrm_validator(Operator):
                         )
                 if all_required_bones_exist:
                     WM_OT_vrm_validator.validate_bone_order(
-                        context, error_messages, armature, readonly
+                        error_messages, armature, readonly
                     )
 
             if obj.type == "MESH":

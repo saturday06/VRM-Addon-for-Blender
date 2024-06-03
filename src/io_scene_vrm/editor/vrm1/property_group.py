@@ -403,27 +403,13 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                 break
 
     @staticmethod
-    def defer_update_all_node_candidates(
-        armature_data_name: str,
-        force: bool = False,
-    ) -> None:
-        bpy.app.timers.register(
-            functools.partial(
-                Vrm1HumanBonesPropertyGroup.update_all_node_candidates,
-                None,
-                armature_data_name,
-                force,
-            )
-        )
-
-    @staticmethod
     def update_all_node_candidates(
-        context: Optional[Context],
         armature_data_name: str,
+        defer: bool = False,
         force: bool = False,
     ) -> None:
-        if context is None:
-            context = bpy.context
+        context = bpy.context
+
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
             return
@@ -439,6 +425,17 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             ]
             if up_to_date:
                 return
+
+        if defer:
+            bpy.app.timers.register(
+                functools.partial(
+                    Vrm1HumanBonesPropertyGroup.update_all_node_candidates,
+                    armature_data_name,
+                    False,
+                    force,
+                )
+            )
+            return
 
         human_bones.last_bone_names.clear()
         for bone_name in bone_names:
