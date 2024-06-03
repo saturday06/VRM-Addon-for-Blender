@@ -1,11 +1,13 @@
 import secrets
 import string
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Optional, Union
 
 import bpy
 from bpy.types import Armature, Context, NodesModifier, Object
-from mathutils import Matrix, Quaternion
+from mathutils import Quaternion
 
 from ..common import shader
 from ..common.deep import Json, make_json
@@ -20,10 +22,6 @@ class AbstractBaseVrmExporter(ABC):
         context: Context,
     ) -> None:
         self.context = context
-        self.saved_current_pose_matrix_basis_dict: dict[str, Matrix] = {}
-        self.saved_current_pose_matrix_dict: dict[str, Matrix] = {}
-        self.saved_pose_position: Optional[str] = None
-        self.saved_vrm1_look_at_preview: bool = False
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
@@ -35,12 +33,13 @@ class AbstractBaseVrmExporter(ABC):
     def export_vrm(self) -> Optional[bytes]:
         pass
 
+    @contextmanager
     def setup_pose(
         self,
         armature: Object,
         armature_data: Armature,
         humanoid: Union[Vrm0HumanoidPropertyGroup, Vrm1HumanoidPropertyGroup],
-    ) -> None:
+    ) -> Iterator[None]:
         pose = humanoid.pose
         action = humanoid.pose_library
         pose_marker_name = humanoid.pose_marker_name
@@ -53,36 +52,44 @@ class AbstractBaseVrmExporter(ABC):
             pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CURRENT_POSE
             and armature_data.pose_position == "REST"
         ):
+            yield
             return
 
         if pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE or (
             pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE
             and not (action and action.name in self.context.blend_data.actions)
         ):
-            self.saved_pose_position = armature_data.pose_position
+            saved_pose_position = armature_data.pose_position
             armature_data.pose_position = "REST"
+            try:
+                yield
+            finally:
+                armature_data.pose_position = saved_pose_position
             return
 
-        if self.context.view_layer.objects.active is not None:
+        if (
+            self.context.view_layer.objects.active
+            and self.context.view_layer.objects.active.mode != "OBJECT"
+        ):
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="DESELECT")
         self.context.view_layer.objects.active = armature
         bpy.ops.object.mode_set(mode="POSE")
 
-        self.saved_pose_position = armature_data.pose_position
+        saved_pose_position = armature_data.pose_position
         if armature_data.pose_position != "POSE":
             armature_data.pose_position = "POSE"
 
         self.context.view_layer.update()
-        self.saved_current_pose_matrix_basis_dict = {
+        saved_current_pose_matrix_basis_dict = {
             bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
         }
-        self.saved_current_pose_matrix_dict = {
+        saved_current_pose_matrix_dict = {
             bone.name: bone.matrix.copy() for bone in armature.pose.bones
         }
 
         ext = armature_data.vrm_addon_extension
-        self.saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
+        saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
         if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
             # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
             ext.vrm1.look_at.enable_preview = False
@@ -116,63 +123,67 @@ class AbstractBaseVrmExporter(ABC):
 
         self.context.view_layer.update()
 
-    def restore_pose(self, armature: Object, armature_data: Armature) -> None:
-        if self.context.view_layer.objects.active is not None:
+        try:
+            yield
+        finally:
+            previous_active_object = self.context.view_layer.objects.active
+            if previous_active_object and previous_active_object.mode != "OBJECT":
+                bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+            self.context.view_layer.objects.active = armature
+            self.context.view_layer.update()
+            bpy.ops.object.mode_set(mode="POSE")
+
+            bones = [bone for bone in armature.pose.bones if not bone.parent]
+            while bones:
+                bone = bones.pop()
+                matrix_basis = saved_current_pose_matrix_basis_dict.get(bone.name)
+                if matrix_basis is not None:
+                    bone.matrix_basis = matrix_basis
+                bones.extend(bone.children)
+            self.context.view_layer.update()
+
+            bones = [bone for bone in armature.pose.bones if not bone.parent]
+            while bones:
+                bone = bones.pop()
+                matrix = saved_current_pose_matrix_dict.get(bone.name)
+                if matrix is not None:
+                    bone.matrix = matrix
+                bones.extend(bone.children)
+            self.context.view_layer.update()
+
+            armature_data.pose_position = saved_pose_position
             bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        self.context.view_layer.objects.active = armature
-        self.context.view_layer.update()
-        bpy.ops.object.mode_set(mode="POSE")
 
-        bones = [bone for bone in armature.pose.bones if not bone.parent]
-        while bones:
-            bone = bones.pop()
-            matrix_basis = self.saved_current_pose_matrix_basis_dict.get(bone.name)
-            if matrix_basis is not None:
-                bone.matrix_basis = matrix_basis
-            bones.extend(bone.children)
-        self.context.view_layer.update()
+            ext = armature_data.vrm_addon_extension
+            if (
+                ext.is_vrm1()
+                and ext.vrm1.look_at.enable_preview != saved_vrm1_look_at_preview
+            ):
+                ext.vrm1.look_at.enable_preview = saved_vrm1_look_at_preview
 
-        bones = [bone for bone in armature.pose.bones if not bone.parent]
-        while bones:
-            bone = bones.pop()
-            matrix = self.saved_current_pose_matrix_dict.get(bone.name)
-            if matrix is not None:
-                bone.matrix = matrix
-            bones.extend(bone.children)
-        self.context.view_layer.update()
-
-        if self.saved_pose_position:
-            armature_data.pose_position = self.saved_pose_position
-        bpy.ops.object.mode_set(mode="OBJECT")
-
-        ext = armature_data.vrm_addon_extension
-        if (
-            ext.is_vrm1()
-            and ext.vrm1.look_at.enable_preview != self.saved_vrm1_look_at_preview
-        ):
-            ext.vrm1.look_at.enable_preview = self.saved_vrm1_look_at_preview
-
-    def clear_blend_shape_proxy_previews(self, armature_data: Armature) -> list[float]:
+    @contextmanager
+    def clear_blend_shape_proxy_previews(
+        self, armature_data: Armature
+    ) -> Iterator[None]:
         ext = armature_data.vrm_addon_extension
         saved_previews = []
         for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
             saved_previews.append(blend_shape_group.preview)
             blend_shape_group.preview = 0
-        return saved_previews
-
-    def restore_blend_shape_proxy_previews(
-        self, armature_data: Armature, previews: list[float]
-    ) -> None:
-        ext = armature_data.vrm_addon_extension
-        for blend_shape_group, blend_shape_preview in zip(
-            ext.vrm0.blend_shape_master.blend_shape_groups, previews
-        ):
-            blend_shape_group.preview = blend_shape_preview
+        try:
+            yield
+        finally:
+            for blend_shape_group, blend_shape_preview in zip(
+                ext.vrm0.blend_shape_master.blend_shape_groups, saved_previews
+            ):
+                blend_shape_group.preview = blend_shape_preview
 
     @staticmethod
-    def hide_mtoon1_outline_geometry_nodes(context: Context) -> list[tuple[str, str]]:
-        object_name_to_modifier_names = []
+    def enter_hide_mtoon1_outline_geometry_nodes(
+        context: Context,
+    ) -> dict[str, tuple[str, bool, bool]]:
+        object_name_to_modifier: dict[str, tuple[str, bool, bool]] = {}
         for obj in context.blend_data.objects:
             for modifier in obj.modifiers:
                 if not modifier.show_viewport:
@@ -187,23 +198,57 @@ class AbstractBaseVrmExporter(ABC):
                     or node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
                 ):
                     continue
-                modifier.show_viewport = False
-                object_name_to_modifier_names.append((obj.name, modifier.name))
-        return object_name_to_modifier_names
+                object_name_to_modifier[obj.name] = (
+                    modifier.name,
+                    modifier.show_render,
+                    modifier.show_viewport,
+                )
+                if modifier.show_render:
+                    modifier.show_render = False
+                if modifier.show_viewport:
+                    modifier.show_viewport = False
+        return object_name_to_modifier
 
     @staticmethod
-    def restore_mtoon1_outline_geometry_nodes(
+    def exit_hide_mtoon1_outline_geometry_nodes(
         context: Context,
-        object_name_to_modifier_names: list[tuple[str, str]],
+        object_name_to_modifier: dict[str, tuple[str, bool, bool]],
     ) -> None:
-        for object_name, modifier_name in object_name_to_modifier_names:
+        for object_name, (
+            modifier_name,
+            render,
+            viewport,
+        ) in object_name_to_modifier.items():
             obj = context.blend_data.objects.get(object_name)
             if not obj:
                 continue
             modifier = obj.modifiers.get(modifier_name)
-            if not modifier:
+            if (
+                not modifier
+                or modifier.type != "NODES"
+                or not isinstance(modifier, NodesModifier)
+            ):
                 continue
-            modifier.show_viewport = True
+            node_group = modifier.node_group
+            if not node_group or node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
+                continue
+            if modifier.show_render != render:
+                modifier.show_render = render
+            if modifier.show_viewport != viewport:
+                modifier.show_viewport = viewport
+
+    @staticmethod
+    @contextmanager
+    def hide_mtoon1_outline_geometry_nodes(context: Context) -> Iterator[None]:
+        object_name_to_modifier_names = (
+            AbstractBaseVrmExporter.enter_hide_mtoon1_outline_geometry_nodes(context)
+        )
+        try:
+            yield
+        finally:
+            AbstractBaseVrmExporter.exit_hide_mtoon1_outline_geometry_nodes(
+                context, object_name_to_modifier_names
+            )
 
 
 def assign_dict(
