@@ -39,6 +39,7 @@ from ..common.gl import GL_FLOAT, GL_LINEAR, GL_REPEAT, GL_UNSIGNED_SHORT
 from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.preferences import ImportPreferencesProtocol
+from ..common.workspace import save_workspace
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -84,30 +85,27 @@ class AbstractBaseVrmImporter(ABC):
 
     def import_vrm(self) -> None:
         wm = self.context.window_manager
-        wm.progress_begin(0, 8)
+        wm.progress_begin(0, 7)
         try:
-            affected_object = self.scene_init()
-            wm.progress_update(1)
-            self.import_gltf2_with_indices()
-            wm.progress_update(2)
-            if self.preferences.extract_textures_into_folder:
-                self.extract_textures(repack=False)
-            elif bpy.app.version < (3, 1):
-                self.extract_textures(repack=True)
-            else:
-                self.assign_packed_image_filepaths()
-
-            wm.progress_update(3)
-            self.use_fake_user_for_thumbnail()
-            wm.progress_update(4)
-            if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
-                self.make_materials()
-            wm.progress_update(5)
-            if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
-                self.load_gltf_extensions()
-            wm.progress_update(6)
-            self.finishing(affected_object)
-            wm.progress_update(7)
+            with save_workspace(self.context):
+                wm.progress_update(1)
+                self.import_gltf2_with_indices()
+                wm.progress_update(2)
+                if self.preferences.extract_textures_into_folder:
+                    self.extract_textures(repack=False)
+                elif bpy.app.version < (3, 1):
+                    self.extract_textures(repack=True)
+                else:
+                    self.assign_packed_image_filepaths()
+                wm.progress_update(3)
+                self.use_fake_user_for_thumbnail()
+                wm.progress_update(4)
+                if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
+                    self.make_materials()
+                wm.progress_update(5)
+                if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
+                    self.load_gltf_extensions()
+                wm.progress_update(6)
             self.viewport_setup()
         finally:
             try:
@@ -1134,49 +1132,45 @@ class AbstractBaseVrmImporter(ABC):
             logger.warning("Failed to read VRM Humanoid")
 
     def cleanup_gltf2_with_indices(self) -> None:
-        if (
-            self.context.view_layer.objects.active is not None
-            and self.context.view_layer.objects.active.mode != "OBJECT"
-        ):
-            bpy.ops.object.mode_set(mode="OBJECT")
-        meshes_key = self.import_id + "Meshes"
-        nodes_key = self.import_id + "Nodes"
-        remove_objs = []
-        for obj in list(self.context.scene.collection.objects):
-            if isinstance(obj.data, Armature):
-                for bone in obj.data.bones:
-                    if nodes_key in bone:
-                        remove_objs.append(obj)
-                        break
-                continue
+        with save_workspace(self.context):
+            meshes_key = self.import_id + "Meshes"
+            nodes_key = self.import_id + "Nodes"
+            remove_objs = []
+            for obj in list(self.context.scene.collection.objects):
+                if isinstance(obj.data, Armature):
+                    for bone in obj.data.bones:
+                        if nodes_key in bone:
+                            remove_objs.append(obj)
+                            break
+                    continue
 
-            if isinstance(obj.data, Mesh) and (
-                nodes_key in obj.data
-                or meshes_key in obj.data
-                or self.is_temp_object_name(obj.data.name)
-            ):
-                remove_objs.append(obj)
-                continue
+                if isinstance(obj.data, Mesh) and (
+                    nodes_key in obj.data
+                    or meshes_key in obj.data
+                    or self.is_temp_object_name(obj.data.name)
+                ):
+                    remove_objs.append(obj)
+                    continue
 
-            if (
-                nodes_key in obj
-                or meshes_key in obj
-                or self.is_temp_object_name(obj.name)
-            ):
-                remove_objs.append(obj)
+                if (
+                    nodes_key in obj
+                    or meshes_key in obj
+                    or self.is_temp_object_name(obj.name)
+                ):
+                    remove_objs.append(obj)
 
-        bpy.ops.object.select_all(action="DESELECT")
-        for obj in remove_objs:
-            obj.select_set(True)
-        bpy.ops.object.delete()
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in remove_objs:
+                obj.select_set(True)
+            bpy.ops.object.delete()
 
-        retry = True
-        while retry:
-            retry = False
-            for obj in self.context.blend_data.objects:
-                if obj in remove_objs and not obj.users:
-                    retry = True
-                    self.context.blend_data.objects.remove(obj, do_unlink=True)
+            retry = True
+            while retry:
+                retry = False
+                for obj in self.context.blend_data.objects:
+                    if obj in remove_objs and not obj.users:
+                        retry = True
+                        self.context.blend_data.objects.remove(obj, do_unlink=True)
 
     def temp_object_name(self) -> str:
         self.temp_object_name_count += 1

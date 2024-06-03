@@ -11,6 +11,7 @@ from bpy.types import Armature, Bone, Context, Event, Mesh, Operator
 from mathutils import Matrix, Vector
 
 from ..common.logging import get_logger
+from ..common.workspace import save_workspace
 from .make_armature import IcypTemplateMeshMaker
 
 logger = get_logger(__name__)
@@ -60,15 +61,14 @@ class ICYP_OT_detail_mesh_maker(Operator):
         obj = context.blend_data.objects.new("template_face", self.mesh)
         scene = context.scene
         scene.collection.objects.link(obj)
-        context.view_layer.objects.active = obj
-        obj.matrix_local = head_matrix
-        bpy.ops.object.modifier_add(type="MIRROR")
-        bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        obj.select_set(True)
-        obj.scale[2] = -1
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
-        obj.select_set(False)
+        with save_workspace(context, obj):
+            obj.matrix_local = head_matrix
+            bpy.ops.object.modifier_add(type="MIRROR")
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            obj.scale[2] = -1
+            bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+            obj.select_set(False)
         context.view_layer.objects.active = self.face_mesh
         return {"FINISHED"}
 

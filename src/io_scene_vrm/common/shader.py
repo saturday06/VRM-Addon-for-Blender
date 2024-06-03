@@ -92,6 +92,7 @@ from . import convert
 from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
 from .logging import get_logger
+from .workspace import save_workspace
 
 logger = get_logger(__name__)
 
@@ -197,29 +198,21 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
         str(Path(__file__).with_name("mtoon1_outline.blend")) + "/NodeTree"
     )
 
-    template_outline_group = None
     # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
-    if context.object is not None and context.object.mode == "EDIT":
-        bpy.ops.object.mode_set(mode="OBJECT")
-        edit_mode = True
-    else:
-        edit_mode = False
-    try:
+    with save_workspace(context):
         outline_node_tree_append_result = bpy.ops.wm.append(
             filepath=(outline_node_tree_path + "/" + template_outline_group_name),
             filename=template_outline_group_name,
             directory=outline_node_tree_path,
         )
-
-        if edit_mode:
-            bpy.ops.object.mode_set(mode="EDIT")
-            edit_mode = False
-
         if outline_node_tree_append_result != {"FINISHED"}:
             raise RuntimeError(
                 "Failed to append MToon 1.0 outline template material: "
                 + f"{outline_node_tree_append_result}"
             )
+
+    template_outline_group = None
+    try:
         template_outline_group = context.blend_data.node_groups.get(
             template_outline_group_name
         )
@@ -238,8 +231,6 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
     finally:
         if template_outline_group and template_outline_group.users <= 1:
             context.blend_data.node_groups.remove(template_outline_group)
-        if edit_mode:
-            bpy.ops.object.mode_set(mode="EDIT")
 
         old_template_outline_group = context.blend_data.node_groups.get(
             backup_name(template_outline_group_name, backup_suffix)
@@ -277,31 +268,21 @@ def load_mtoon1_shader(
 
     material_path = str(Path(__file__).with_name("mtoon1.blend")) + "/Material"
 
-    template_material = None
-
     # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
-    if context.object is not None and context.object.mode == "EDIT":
-        bpy.ops.object.mode_set(mode="OBJECT")
-        edit_mode = True
-    else:
-        edit_mode = False
-    try:
+    with save_workspace(context):
         material_append_result = bpy.ops.wm.append(
             filepath=material_path + "/" + template_material_name,
             filename=template_material_name,
             directory=material_path,
         )
-
-        if edit_mode:
-            bpy.ops.object.mode_set(mode="EDIT")
-            edit_mode = False
-
         if material_append_result != {"FINISHED"}:
             raise RuntimeError(
                 "Failed to append MToon 1.0 template material: "
                 + f"{material_append_result}"
             )
 
+    template_material = None
+    try:
         template_material = context.blend_data.materials.get(template_material_name)
         if not template_material:
             raise ValueError("No " + template_material_name)
@@ -344,9 +325,6 @@ def load_mtoon1_shader(
             )
             if template_group and template_group.users <= 1:
                 context.blend_data.node_groups.remove(template_group)
-
-        if edit_mode:
-            bpy.ops.object.mode_set(mode="EDIT")
 
         old_material = context.blend_data.materials.get(
             backup_name(template_material_name, backup_suffix)

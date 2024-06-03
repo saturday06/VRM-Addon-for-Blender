@@ -11,6 +11,7 @@ from mathutils import Quaternion
 
 from ..common import shader
 from ..common.deep import Json, make_json
+from ..common.workspace import save_workspace
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
@@ -67,100 +68,91 @@ class AbstractBaseVrmExporter(ABC):
                 armature_data.pose_position = saved_pose_position
             return
 
-        if (
-            self.context.view_layer.objects.active
-            and self.context.view_layer.objects.active.mode != "OBJECT"
-        ):
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        self.context.view_layer.objects.active = armature
-        bpy.ops.object.mode_set(mode="POSE")
+        with save_workspace(self.context, armature):
+            bpy.ops.object.select_all(action="DESELECT")
+            bpy.ops.object.mode_set(mode="POSE")
 
-        saved_pose_position = armature_data.pose_position
-        if armature_data.pose_position != "POSE":
-            armature_data.pose_position = "POSE"
+            saved_pose_position = armature_data.pose_position
+            if armature_data.pose_position != "POSE":
+                armature_data.pose_position = "POSE"
 
-        self.context.view_layer.update()
-        saved_current_pose_matrix_basis_dict = {
-            bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
-        }
-        saved_current_pose_matrix_dict = {
-            bone.name: bone.matrix.copy() for bone in armature.pose.bones
-        }
+            self.context.view_layer.update()
+            saved_current_pose_matrix_basis_dict = {
+                bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
+            }
+            saved_current_pose_matrix_dict = {
+                bone.name: bone.matrix.copy() for bone in armature.pose.bones
+            }
 
-        ext = armature_data.vrm_addon_extension
-        saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
-        if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
-            # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
-            ext.vrm1.look_at.enable_preview = False
-            if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_VALUE_BONE:
-                human_bones = ext.vrm1.humanoid.human_bones
+            ext = armature_data.vrm_addon_extension
+            saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
+            if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
+                # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
+                ext.vrm1.look_at.enable_preview = False
+                if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_VALUE_BONE:
+                    human_bones = ext.vrm1.humanoid.human_bones
 
-                left_eye_bone_name = human_bones.left_eye.node.bone_name
-                left_eye_bone = armature.pose.bones.get(left_eye_bone_name)
-                if left_eye_bone:
-                    if left_eye_bone.rotation_mode != "QUATERNION":
-                        left_eye_bone.rotation_mode = "QUATERNION"
-                    left_eye_bone.rotation_quaternion = Quaternion()
+                    left_eye_bone_name = human_bones.left_eye.node.bone_name
+                    left_eye_bone = armature.pose.bones.get(left_eye_bone_name)
+                    if left_eye_bone:
+                        if left_eye_bone.rotation_mode != "QUATERNION":
+                            left_eye_bone.rotation_mode = "QUATERNION"
+                        left_eye_bone.rotation_quaternion = Quaternion()
 
-                right_eye_bone_name = human_bones.right_eye.node.bone_name
-                right_eye_bone = armature.pose.bones.get(right_eye_bone_name)
-                if right_eye_bone:
-                    if right_eye_bone.rotation_mode != "QUATERNION":
-                        right_eye_bone.rotation_mode = "QUATERNION"
-                    right_eye_bone.rotation_quaternion = Quaternion()
+                    right_eye_bone_name = human_bones.right_eye.node.bone_name
+                    right_eye_bone = armature.pose.bones.get(right_eye_bone_name)
+                    if right_eye_bone:
+                        if right_eye_bone.rotation_mode != "QUATERNION":
+                            right_eye_bone.rotation_mode = "QUATERNION"
+                        right_eye_bone.rotation_quaternion = Quaternion()
 
-        if action and action.name in self.context.blend_data.actions:
-            pose_marker_frame = 0
-            if pose_marker_name:
-                for search_pose_marker in action.pose_markers.values():
-                    if search_pose_marker.name == pose_marker_name:
-                        pose_marker_frame = search_pose_marker.frame
-                        break
-            armature.pose.apply_pose_from_action(
-                action, evaluation_time=pose_marker_frame
-            )
+            if action and action.name in self.context.blend_data.actions:
+                pose_marker_frame = 0
+                if pose_marker_name:
+                    for search_pose_marker in action.pose_markers.values():
+                        if search_pose_marker.name == pose_marker_name:
+                            pose_marker_frame = search_pose_marker.frame
+                            break
+                armature.pose.apply_pose_from_action(
+                    action, evaluation_time=pose_marker_frame
+                )
 
         self.context.view_layer.update()
 
         try:
             yield
         finally:
-            previous_active_object = self.context.view_layer.objects.active
-            if previous_active_object and previous_active_object.mode != "OBJECT":
+            with save_workspace(self.context, armature):
+                bpy.ops.object.select_all(action="DESELECT")
+                bpy.ops.object.mode_set(mode="POSE")
+
+                bones = [bone for bone in armature.pose.bones if not bone.parent]
+                while bones:
+                    bone = bones.pop()
+                    matrix_basis = saved_current_pose_matrix_basis_dict.get(bone.name)
+                    if matrix_basis is not None:
+                        bone.matrix_basis = matrix_basis
+                    bones.extend(bone.children)
+                self.context.view_layer.update()
+
+                bones = [bone for bone in armature.pose.bones if not bone.parent]
+                while bones:
+                    bone = bones.pop()
+                    matrix = saved_current_pose_matrix_dict.get(bone.name)
+                    if matrix is not None:
+                        bone.matrix = matrix
+                    bones.extend(bone.children)
+                self.context.view_layer.update()
+
+                armature_data.pose_position = saved_pose_position
                 bpy.ops.object.mode_set(mode="OBJECT")
-            bpy.ops.object.select_all(action="DESELECT")
-            self.context.view_layer.objects.active = armature
-            self.context.view_layer.update()
-            bpy.ops.object.mode_set(mode="POSE")
 
-            bones = [bone for bone in armature.pose.bones if not bone.parent]
-            while bones:
-                bone = bones.pop()
-                matrix_basis = saved_current_pose_matrix_basis_dict.get(bone.name)
-                if matrix_basis is not None:
-                    bone.matrix_basis = matrix_basis
-                bones.extend(bone.children)
-            self.context.view_layer.update()
-
-            bones = [bone for bone in armature.pose.bones if not bone.parent]
-            while bones:
-                bone = bones.pop()
-                matrix = saved_current_pose_matrix_dict.get(bone.name)
-                if matrix is not None:
-                    bone.matrix = matrix
-                bones.extend(bone.children)
-            self.context.view_layer.update()
-
-            armature_data.pose_position = saved_pose_position
-            bpy.ops.object.mode_set(mode="OBJECT")
-
-            ext = armature_data.vrm_addon_extension
-            if (
-                ext.is_vrm1()
-                and ext.vrm1.look_at.enable_preview != saved_vrm1_look_at_preview
-            ):
-                ext.vrm1.look_at.enable_preview = saved_vrm1_look_at_preview
+                ext = armature_data.vrm_addon_extension
+                if (
+                    ext.is_vrm1()
+                    and ext.vrm1.look_at.enable_preview != saved_vrm1_look_at_preview
+                ):
+                    ext.vrm1.look_at.enable_preview = saved_vrm1_look_at_preview
 
     @contextmanager
     def clear_blend_shape_proxy_previews(
