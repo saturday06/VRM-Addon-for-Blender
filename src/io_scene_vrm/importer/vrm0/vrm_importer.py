@@ -490,7 +490,7 @@ class VrmImporter(AbstractBaseVrmImporter):
         self.load_vrm0_secondary_animation(
             vrm0.secondary_animation, vrm0_extension.get("secondaryAnimation")
         )
-        migration.migrate(armature.name, defer=False)
+        migration.migrate(self.context, armature.name)
 
     def load_vrm0_meta(self, meta: Vrm0MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):
@@ -1000,6 +1000,7 @@ class VrmImporter(AbstractBaseVrmImporter):
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            self.context,
             self.armature_data.name,
             force=True,
         )

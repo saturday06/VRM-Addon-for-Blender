@@ -434,8 +434,8 @@ class VrmImporter(AbstractBaseVrmImporter):
             return
         addon_extension = self.armature_data.vrm_addon_extension
 
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            self.armature_data.name, force=True
+        Vrm1HumanBonesPropertyGroup.defer_update_all_node_candidates(
+            self.armature_data.name
         )
 
         human_bones = addon_extension.vrm1.humanoid.human_bones
@@ -849,7 +849,7 @@ class VrmImporter(AbstractBaseVrmImporter):
             deep.get(self.parse_result.json_dict, ["extensions", "VRMC_springBone"]),
         )
         self.load_node_constraint1()
-        migration.migrate(armature.name, defer=False)
+        migration.migrate(self.context, armature.name)
 
     def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):

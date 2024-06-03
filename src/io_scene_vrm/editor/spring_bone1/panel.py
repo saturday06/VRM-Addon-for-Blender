@@ -4,7 +4,7 @@ from typing import Optional
 from bpy.types import Armature, Context, Object, Panel, UILayout
 
 from .. import search
-from ..migration import migrate
+from ..migration import defer_migrate
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
 from . import ops
@@ -68,7 +68,7 @@ def draw_spring_bone1_spring_bone_layout(
     layout: UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
 ) -> None:
-    migrate(armature.name, defer=True)
+    defer_migrate(armature.name)
 
     layout.prop(spring_bone, "enable_animation")
     # layout.operator(ops.VRM_OT_reset_spring_bone1_animation_state.bl_idname)
