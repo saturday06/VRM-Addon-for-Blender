@@ -13,7 +13,6 @@ from mathutils import Matrix, Vector
 
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
-from ..common.workspace import save_workspace
 from . import migration
 from .vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
@@ -144,14 +143,17 @@ class ICYP_OT_make_armature(Operator):
     armature_obj: Optional[Object] = None
 
     def execute(self, context: Context) -> set[str]:
-        with save_workspace(context):
-            self.armature_obj, compare_dict = self.make_armature(context)
-            self.setup_as_vrm(context, self.armature_obj, compare_dict)
-            if self.custom_property_name:
-                self.armature_obj[self.custom_property_name] = True
-            if self.WIP_with_template_mesh:
-                IcypTemplateMeshMaker(context, self)
-        context.view_layer.objects.active = self.armature_obj
+        if (
+            context.view_layer.objects.active is not None
+            and context.view_layer.objects.active.mode != "OBJECT"
+        ):
+            bpy.ops.object.mode_set(mode="OBJECT")
+        self.armature_obj, compare_dict = self.make_armature(context)
+        self.setup_as_vrm(context, self.armature_obj, compare_dict)
+        if self.custom_property_name:
+            self.armature_obj[self.custom_property_name] = True
+        if self.WIP_with_template_mesh:
+            IcypTemplateMeshMaker(context, self)
         return {"FINISHED"}
 
     def float_prop(self, name: str) -> float:

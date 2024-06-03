@@ -40,7 +40,6 @@ from ..common.gl import GL_FLOAT, GL_LINEAR, GL_REPEAT, GL_UNSIGNED_SHORT
 from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.preferences import ImportPreferencesProtocol
-from ..common.workspace import save_workspace
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -86,27 +85,30 @@ class AbstractBaseVrmImporter(ABC):
 
     def import_vrm(self) -> None:
         wm = self.context.window_manager
-        wm.progress_begin(0, 7)
+        wm.progress_begin(0, 8)
         try:
-            with save_workspace(self.context):
-                wm.progress_update(1)
-                self.import_gltf2_with_indices()
-                wm.progress_update(2)
-                if self.preferences.extract_textures_into_folder:
-                    self.extract_textures(repack=False)
-                elif bpy.app.version < (3, 1):
-                    self.extract_textures(repack=True)
-                else:
-                    self.assign_packed_image_filepaths()
-                wm.progress_update(3)
-                self.use_fake_user_for_thumbnail()
-                wm.progress_update(4)
-                if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
-                    self.make_materials()
-                wm.progress_update(5)
-                if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
-                    self.load_gltf_extensions()
-                wm.progress_update(6)
+            affected_object = self.scene_init()
+            wm.progress_update(1)
+            self.import_gltf2_with_indices()
+            wm.progress_update(2)
+            if self.preferences.extract_textures_into_folder:
+                self.extract_textures(repack=False)
+            elif bpy.app.version < (3, 1):
+                self.extract_textures(repack=True)
+            else:
+                self.assign_packed_image_filepaths()
+
+            wm.progress_update(3)
+            self.use_fake_user_for_thumbnail()
+            wm.progress_update(4)
+            if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
+                self.make_materials()
+            wm.progress_update(5)
+            if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
+                self.load_gltf_extensions()
+            wm.progress_update(6)
+            self.finishing(affected_object)
+            wm.progress_update(7)
             self.viewport_setup()
         finally:
             try:
@@ -134,6 +136,8 @@ class AbstractBaseVrmImporter(ABC):
             message = f"{type(armature.data)} is not an Armature"
             raise TypeError(message)
 
+        previous_cursor_matrix = context.scene.cursor.matrix.copy()
+
         # 編集前のボーンの子オブジェクトのワールド行列を保存
         bone_child_object_world_matrices: dict[str, Matrix] = {}
         for obj in context.blend_data.objects:
@@ -144,10 +148,26 @@ class AbstractBaseVrmImporter(ABC):
             ):
                 bone_child_object_world_matrices[obj.name] = obj.matrix_world.copy()
 
+        # 編集前のactiveオブジェクトとmodeを保存
+        previous_active = context.view_layer.objects.active
+        previous_mode = None
+        if previous_active is not None and previous_active.mode != "OBJECT":
+            previous_mode = previous_active.mode
+            bpy.ops.object.mode_set(mode="OBJECT")
+
         try:
-            with save_workspace(context, armature, mode="EDIT"):
-                yield armature.data
+            context.view_layer.objects.active = armature
+            if context.object is not None and context.object.mode != "EDIT":
+                bpy.ops.object.mode_set(mode="EDIT")
+            yield armature.data
         finally:
+            # 編集前のactiveオブジェクトとmodeを復元
+            if context.object is not None and context.object.mode != "OBJECT":
+                bpy.ops.object.mode_set(mode="OBJECT")
+            context.view_layer.objects.active = previous_active
+            if previous_mode is not None:
+                bpy.ops.object.mode_set(mode=previous_mode)
+
             # 編集前のボーンの子オブジェクトのワールド行列を復元
             for obj in context.blend_data.objects:
                 if (
@@ -157,6 +177,33 @@ class AbstractBaseVrmImporter(ABC):
                     and obj.name in bone_child_object_world_matrices
                 ):
                     obj.matrix_world = bone_child_object_world_matrices[obj.name].copy()
+
+            context.scene.cursor.matrix = previous_cursor_matrix
+
+    def scene_init(self) -> Optional[Object]:
+        # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るの
+        # でその回避と、それを元に戻す
+        affected_object = None
+        if self.context.active_object is not None:
+            if (
+                hasattr(self.context.active_object, "hide_viewport")
+                and self.context.active_object.hide_viewport
+            ):
+                self.context.active_object.hide_viewport = False
+                affected_object = self.context.active_object
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+        return affected_object
+
+    def finishing(self, affected_object: Optional[Object]) -> None:
+        # initで弄ったやつを戻す
+        if affected_object is not None:
+            affected_object.hide_viewport = True
+
+        for obj in self.context.selected_objects:
+            obj.select_set(False)
+
+        # image_path_to Texture
 
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
@@ -965,10 +1012,17 @@ class AbstractBaseVrmImporter(ABC):
             and self.parse_result.spec_version_number < (1, 0)
         ):
             # 180度回転前のroll値を保存しておく
+            if self.context.object is not None and self.context.object.mode != "OBJECT":
+                bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+            armature.select_set(True)
+            self.context.view_layer.objects.active = armature
+            if self.context.object is not None and self.context.object.mode != "EDIT":
+                bpy.ops.object.mode_set(mode="EDIT")
             bone_name_to_roll = {}
-            with save_workspace(self.context, armature, mode="EDIT"):
-                for edit_bone in armature_data.edit_bones:
-                    bone_name_to_roll[edit_bone.name] = edit_bone.roll
+            for edit_bone in armature_data.edit_bones:
+                bone_name_to_roll[edit_bone.name] = edit_bone.roll
+            bpy.ops.object.mode_set(mode="OBJECT")
 
             # 180度回転
             if armature.rotation_mode != "QUATERNION":
@@ -1064,6 +1118,9 @@ class AbstractBaseVrmImporter(ABC):
 
             self.images[custom_image_index] = image
 
+        if self.context.object is not None and self.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+
         while True:
             temp_object = next(
                 (
@@ -1107,45 +1164,49 @@ class AbstractBaseVrmImporter(ABC):
             logger.warning("Failed to read VRM Humanoid")
 
     def cleanup_gltf2_with_indices(self) -> None:
-        with save_workspace(self.context):
-            meshes_key = self.import_id + "Meshes"
-            nodes_key = self.import_id + "Nodes"
-            remove_objs = []
-            for obj in list(self.context.scene.collection.objects):
-                if isinstance(obj.data, Armature):
-                    for bone in obj.data.bones:
-                        if nodes_key in bone:
-                            remove_objs.append(obj)
-                            break
-                    continue
+        if (
+            self.context.view_layer.objects.active is not None
+            and self.context.view_layer.objects.active.mode != "OBJECT"
+        ):
+            bpy.ops.object.mode_set(mode="OBJECT")
+        meshes_key = self.import_id + "Meshes"
+        nodes_key = self.import_id + "Nodes"
+        remove_objs = []
+        for obj in list(self.context.scene.collection.objects):
+            if isinstance(obj.data, Armature):
+                for bone in obj.data.bones:
+                    if nodes_key in bone:
+                        remove_objs.append(obj)
+                        break
+                continue
 
-                if isinstance(obj.data, Mesh) and (
-                    nodes_key in obj.data
-                    or meshes_key in obj.data
-                    or self.is_temp_object_name(obj.data.name)
-                ):
-                    remove_objs.append(obj)
-                    continue
+            if isinstance(obj.data, Mesh) and (
+                nodes_key in obj.data
+                or meshes_key in obj.data
+                or self.is_temp_object_name(obj.data.name)
+            ):
+                remove_objs.append(obj)
+                continue
 
-                if (
-                    nodes_key in obj
-                    or meshes_key in obj
-                    or self.is_temp_object_name(obj.name)
-                ):
-                    remove_objs.append(obj)
+            if (
+                nodes_key in obj
+                or meshes_key in obj
+                or self.is_temp_object_name(obj.name)
+            ):
+                remove_objs.append(obj)
 
-            bpy.ops.object.select_all(action="DESELECT")
-            for obj in remove_objs:
-                obj.select_set(True)
-            bpy.ops.object.delete()
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in remove_objs:
+            obj.select_set(True)
+        bpy.ops.object.delete()
 
-            retry = True
-            while retry:
-                retry = False
-                for obj in self.context.blend_data.objects:
-                    if obj in remove_objs and not obj.users:
-                        retry = True
-                        self.context.blend_data.objects.remove(obj, do_unlink=True)
+        retry = True
+        while retry:
+            retry = False
+            for obj in self.context.blend_data.objects:
+                if obj in remove_objs and not obj.users:
+                    retry = True
+                    self.context.blend_data.objects.remove(obj, do_unlink=True)
 
     def temp_object_name(self) -> str:
         self.temp_object_name_count += 1

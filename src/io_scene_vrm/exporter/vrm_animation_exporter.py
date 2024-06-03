@@ -18,7 +18,6 @@ from ..common.vrm1.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
-from ..common.workspace import save_workspace
 
 logger = get_logger(__name__)
 
@@ -901,50 +900,61 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
     saved_pose_position = armature_data.pose_position
     # vrm1 = armature.data.vrm_addon_extension.vrm1
     output_bytes = None
+    active_object_mode = None
 
     # TODO: 現状restがTポーズの時しか動作しない
     # TODO: 自動でTポーズを作成する
     # TODO: Tポーズ取得処理、共通化
-    with save_workspace(context, armature):
-        try:
-            bpy.ops.object.select_all(action="DESELECT")
-            bpy.ops.object.mode_set(mode="POSE")
+    try:
+        if context.view_layer.objects.active is not None:
+            active_object_mode = context.view_layer.objects.active.mode
+            bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        context.view_layer.objects.active = armature
+        bpy.ops.object.mode_set(mode="POSE")
 
+        armature_data.pose_position = "POSE"
+
+        # t_pose_action = vrm1.humanoid.pose_library
+        # t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
+        # pose_marker_frame = 0
+        # if t_pose_pose_marker_name:
+        #     for search_pose_marker in t_pose_action.pose_markers.values():
+        #         if search_pose_marker.name == t_pose_pose_marker_name:
+        #             pose_marker_frame = search_pose_marker.frame
+        #             break
+        #
+        # context.view_layer.update()
+        # saved_current_pose_matrix_basis_dict = {
+        #     bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
+        # }
+        # saved_current_pose_matrix_dict = {
+        #     bone.name: bone.matrix.copy() for bone in armature.pose.bones
+        # }
+
+        # if t_pose_action:
+        #     armature.pose.apply_pose_from_action(
+        #         t_pose_action, evaluation_time=pose_marker_frame
+        #     )
+        # else:
+
+        # TODO: ここのロジックはちゃんと考える
+        armature_data.pose_position = "REST"
+
+        context.view_layer.update()
+
+        output_bytes = work_in_progress_2(context, armature)
+
+    finally:
+        # TODO: リストア処理、共通化
+        if armature_data.pose_position != "POSE":
             armature_data.pose_position = "POSE"
-
-            # t_pose_action = vrm1.humanoid.pose_library
-            # t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
-            # pose_marker_frame = 0
-            # if t_pose_pose_marker_name:
-            #     for search_pose_marker in t_pose_action.pose_markers.values():
-            #         if search_pose_marker.name == t_pose_pose_marker_name:
-            #             pose_marker_frame = search_pose_marker.frame
-            #             break
-            #
-            # context.view_layer.update()
-            # saved_current_pose_matrix_basis_dict = {
-            #     bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
-            # }
-            # saved_current_pose_matrix_dict = {
-            #     bone.name: bone.matrix.copy() for bone in armature.pose.bones
-            # }
-
-            # if t_pose_action:
-            #     armature.pose.apply_pose_from_action(
-            #         t_pose_action, evaluation_time=pose_marker_frame
-            #     )
-            # else:
-
-            # TODO: ここのロジックはちゃんと考える
-            armature_data.pose_position = "REST"
-
-            context.view_layer.update()
-
-            output_bytes = work_in_progress_2(context, armature)
-        finally:
-            # TODO: リストア処理、共通化
-            if armature_data.pose_position != saved_pose_position:
-                armature_data.pose_position = saved_pose_position
+        if context.view_layer.objects.active is not None:
+            bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        context.view_layer.objects.active = armature
+        context.view_layer.update()
+        bpy.ops.object.mode_set(mode="POSE")
 
         # bones = [bone for bone in armature.pose.bones if not bone.parent]
         # while bones:
@@ -962,6 +972,16 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
         #     if matrix is not None:
         #         bone.matrix = matrix
         #     bones.extend(bone.children)
+        context.view_layer.update()
+
+        if saved_pose_position:
+            armature_data.pose_position = saved_pose_position
+
+        if (
+            active_object_mode is not None
+            and context.view_layer.objects.active.mode != active_object_mode
+        ):
+            bpy.ops.object.mode_set(mode=active_object_mode)
 
     path.write_bytes(output_bytes)
     return {"FINISHED"}

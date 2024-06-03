@@ -53,7 +53,6 @@ from ..common.logging import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
-from ..common.workspace import save_workspace
 from ..editor import migration, search
 from ..editor.mtoon1.property_group import (
     Mtoon0TexturePropertyGroup,
@@ -176,9 +175,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 raise RuntimeError(message)
             use_dummy_armature = True
         migration.migrate(self.context, self.armature.name)
+
         try:
-            with save_workspace(self.context, self.armature):
-                yield
+            yield
         finally:
             if use_dummy_armature:
                 self.context.blend_data.objects.remove(self.armature, do_unlink=True)
@@ -2186,19 +2185,22 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                             self.axis_blender_to_glb(relate_pos)
                         )
 
-            with save_workspace(self.context):
-                # https://docs.blender.org/api/2.80/Depsgraph.html
-                depsgraph = self.context.evaluated_depsgraph_get()
-                mesh_owner = mesh.evaluated_get(depsgraph)
-                mesh_from_mesh_owner = mesh_owner.to_mesh(
-                    preserve_all_data_layers=True, depsgraph=depsgraph
-                )
-                if not mesh_from_mesh_owner:
-                    continue
-                mesh_data = mesh_from_mesh_owner.copy()
-                if isinstance(mesh.data, Mesh):
-                    for prop in mesh.data.keys():
-                        mesh_data[prop] = mesh.data[prop]
+            # Check added to resolve https://github.com/saturday06/VRM-Addon-for-Blender/issues/70
+            if self.context.view_layer.objects.active is not None:
+                bpy.ops.object.mode_set(mode="OBJECT")
+
+            # https://docs.blender.org/api/2.80/Depsgraph.html
+            depsgraph = self.context.evaluated_depsgraph_get()
+            mesh_owner = mesh.evaluated_get(depsgraph)
+            mesh_from_mesh_owner = mesh_owner.to_mesh(
+                preserve_all_data_layers=True, depsgraph=depsgraph
+            )
+            if not mesh_from_mesh_owner:
+                continue
+            mesh_data = mesh_from_mesh_owner.copy()
+            if isinstance(mesh.data, Mesh):
+                for prop in mesh.data.keys():
+                    mesh_data[prop] = mesh.data[prop]
 
             mesh.hide_viewport = False
             mesh.hide_select = False

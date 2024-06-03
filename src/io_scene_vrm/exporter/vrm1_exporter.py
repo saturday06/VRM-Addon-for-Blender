@@ -30,7 +30,6 @@ from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.version import addon_version
 from ..common.vrm1.human_bone import HumanBoneName
-from ..common.workspace import save_workspace
 from ..editor import search
 from ..editor.mtoon1.property_group import (
     Mtoon1SamplerPropertyGroup,
@@ -1774,7 +1773,11 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             human_bone_name_to_bone_name[human_bone_name] = human_bone.node.bone_name
             human_bone.node.set_bone_name(None)
 
-        with save_workspace(context, armature, mode="EDIT"):
+        previous_active = context.view_layer.objects.active
+        try:
+            context.view_layer.objects.active = armature
+            bpy.ops.object.mode_set(mode="EDIT")
+
             hips_bone = armature_data.edit_bones.new(HumanBoneName.HIPS.value)
             hips_bone.head = Vector((0, 0, 0.5))
             hips_bone.tail = Vector((0, 1, 0.5))
@@ -1883,6 +1886,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             head_bone.tail = Vector((0, 1, 0.75))
             head_bone.parent = spine_bone
             head_bone_name = deepcopy(head_bone.name)
+        finally:
+            if (
+                context.view_layer.objects.active
+                and context.view_layer.objects.active.mode != "OBJECT"
+            ):
+                bpy.ops.object.mode_set(mode="OBJECT")
+            context.view_layer.objects.active = previous_active
 
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
             context, armature_data.name
@@ -1931,11 +1941,23 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
                 context, armature_data.name
             )
-            with save_workspace(context, armature, mode="EDIT"):
+
+            previous_active = context.view_layer.objects.active
+            try:
+                context.view_layer.objects.active = armature
+                bpy.ops.object.mode_set(mode="EDIT")
+
                 for dummy_bone_name in dummy_bone_names:
                     dummy_edit_bone = armature_data.edit_bones.get(dummy_bone_name)
                     if dummy_edit_bone:
                         armature_data.edit_bones.remove(dummy_edit_bone)
+            finally:
+                if (
+                    context.view_layer.objects.active
+                    and context.view_layer.objects.active.mode != "OBJECT"
+                ):
+                    bpy.ops.object.mode_set(mode="OBJECT")
+                context.view_layer.objects.active = previous_active
 
     @contextmanager
     def assign_export_custom_properties(
