@@ -33,6 +33,17 @@ from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from mathutils import Vector
 
 from ...common import shader
+from ...common.gl import (
+    GL_CLAMP_TO_EDGE,
+    GL_LINEAR,
+    GL_LINEAR_MIPMAP_LINEAR,
+    GL_LINEAR_MIPMAP_NEAREST,
+    GL_MIRRORED_REPEAT,
+    GL_NEAREST,
+    GL_NEAREST_MIPMAP_LINEAR,
+    GL_NEAREST_MIPMAP_NEAREST,
+    GL_REPEAT,
+)
 from ...common.logging import get_logger
 from ...common.preferences import VrmAddonPreferences
 from ...common.version import addon_version
@@ -931,8 +942,8 @@ class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
 
 class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     mag_filter_items = (
-        ("NEAREST", "Nearest", "", 9728),
-        ("LINEAR", "Linear", "", 9729),
+        ("NEAREST", "Nearest", "", GL_NEAREST),
+        ("LINEAR", "Linear", "", GL_LINEAR),
     )
     MAG_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
         item[-1]: item[0] for item in mag_filter_items
@@ -956,31 +967,31 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         self["mag_filter"] = value
 
     min_filter_items = (
-        ("NEAREST", "Nearest", "", 9728),
-        ("LINEAR", "Linear", "", 9729),
+        ("NEAREST", "Nearest", "", GL_NEAREST),
+        ("LINEAR", "Linear", "", GL_LINEAR),
         (
             "NEAREST_MIPMAP_NEAREST",
             "Nearest Mipmap Nearest",
             "",
-            9984,
+            GL_NEAREST_MIPMAP_NEAREST,
         ),
         (
             "LINEAR_MIPMAP_NEAREST",
             "Linear Mipmap Nearest",
             "",
-            9985,
+            GL_LINEAR_MIPMAP_NEAREST,
         ),
         (
             "NEAREST_MIPMAP_LINEAR",
             "Nearest Mipmap Linear",
             "",
-            9986,
+            GL_NEAREST_MIPMAP_LINEAR,
         ),
         (
             "LINEAR_MIPMAP_LINEAR",
             "Linear Mipmap Linear",
             "",
-            9987,
+            GL_LINEAR_MIPMAP_LINEAR,
         ),
     )
     MIN_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
@@ -991,12 +1002,12 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     }
 
     # https://github.com/KhronosGroup/glTF/blob/2a9996a2ea66ab712590eaf62f39f1115996f5a3/specification/2.0/schema/sampler.schema.json#L67-L117
-    WRAP_DEFAULT_NUMBER = 10497
+    WRAP_DEFAULT_NUMBER = GL_REPEAT
     WRAP_DEFAULT_ID = "REPEAT"
 
     wrap_items = (
-        ("CLAMP_TO_EDGE", "Clamp to Edge", "", 33071),
-        ("MIRRORED_REPEAT", "Mirrored Repeat", "", 33648),
+        ("CLAMP_TO_EDGE", "Clamp to Edge", "", GL_CLAMP_TO_EDGE),
+        ("MIRRORED_REPEAT", "Mirrored Repeat", "", GL_MIRRORED_REPEAT),
         (WRAP_DEFAULT_ID, "Repeat", "", WRAP_DEFAULT_NUMBER),
     )
     WRAP_NUMBER_TO_ID: Mapping[int, str] = {wrap[-1]: wrap[0] for wrap in wrap_items}
