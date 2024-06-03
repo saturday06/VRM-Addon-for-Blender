@@ -7,8 +7,7 @@ import math
 import re
 import statistics
 import struct
-from collections.abc import Iterator, Sequence
-from contextlib import contextmanager
+from collections.abc import Sequence
 from os import environ
 from sys import float_info
 from typing import Optional, Union
@@ -23,6 +22,7 @@ from bpy.types import (
     Material,
     Mesh,
     Node,
+    NodesModifier,
     Object,
     PoseBone,
     ShaderNodeTexImage,
@@ -100,7 +100,27 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         self.export_fb_ngon_encoding = export_fb_ngon_encoding
         self.json_dict: dict[str, Json] = {}
         self.glb_bin_collector = GlbBinCollection()
+        self.use_dummy_armature = False
         self.mesh_name_to_index: dict[str, int] = {}
+        self.outline_modifier_visibilities: dict[str, dict[str, tuple[bool, bool]]] = {}
+        armatures = [obj for obj in self.export_objects if obj.type == "ARMATURE"]
+        if armatures:
+            self.armature = armatures[0]
+        else:
+            dummy_armature_key = self.export_id + "DummyArmatureKey"
+            bpy.ops.icyp.make_basic_armature(
+                "EXEC_DEFAULT", custom_property_name=dummy_armature_key
+            )
+            for obj in self.context.selectable_objects:
+                if obj.type == "ARMATURE" and dummy_armature_key in obj:
+                    self.export_objects.append(obj)
+                    self.armature = obj
+            if not self.armature:
+                message = "Failed to generate default armature"
+                raise RuntimeError(message)
+            self.use_dummy_armature = True
+        migration.migrate(context, self.armature.name)
+
         self.result: Optional[bytes] = None
 
     @property
@@ -116,35 +136,48 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
-        wm.progress_begin(0, 8)
+        wm.progress_begin(0, 10)
+        blend_shape_previews = self.clear_blend_shape_proxy_previews(self.armature_data)
+        object_name_and_modifier_names = self.hide_mtoon1_outline_geometry_nodes(
+            self.context
+        )
         try:
-            with (
-                self.setup_armature(),
-                self.clear_blend_shape_proxy_previews(self.armature_data),
-                self.hide_mtoon1_outline_geometry_nodes(self.context),
-                self.setup_pose(
-                    self.armature,
-                    self.armature_data,
-                    self.armature_data.vrm_addon_extension.vrm0.humanoid,
-                ),
-            ):
-                wm.progress_update(1)
-                self.image_to_bin()
-                wm.progress_update(2)
-                self.make_scene_node_skin_dicts()
-                wm.progress_update(3)
-                self.material_to_dict()
-                wm.progress_update(4)
-                self.mesh_to_bin_and_dict()
-                wm.progress_update(5)
-                self.json_dict["scene"] = 0
-                self.gltf_meta_to_dict()
-                wm.progress_update(6)
-                self.vrm_meta_to_dict()  # colliderとかmetaとか....
-                wm.progress_update(7)
-                self.pack()
+            self.setup_pose(
+                self.armature,
+                self.armature_data,
+                self.armature_data.vrm_addon_extension.vrm0.humanoid,
+            )
+            wm.progress_update(1)
+            self.image_to_bin()
+            wm.progress_update(2)
+            self.make_scene_node_skin_dicts()
+            wm.progress_update(3)
+            self.material_to_dict()
+            wm.progress_update(4)
+            self.hide_outline_modifiers()
+            wm.progress_update(5)
+            self.mesh_to_bin_and_dict()
+            wm.progress_update(6)
+            self.restore_outline_modifiers()
+            wm.progress_update(7)
+            self.json_dict["scene"] = 0
+            self.gltf_meta_to_dict()
+            wm.progress_update(8)
+            self.vrm_meta_to_dict()  # colliderとかmetaとか....
+            wm.progress_update(9)
+            self.pack()
         finally:
-            wm.progress_end()
+            try:
+                self.restore_pose(self.armature, self.armature_data)
+                self.restore_mtoon1_outline_geometry_nodes(
+                    self.context, object_name_and_modifier_names
+                )
+                self.restore_blend_shape_proxy_previews(
+                    self.armature_data, blend_shape_previews
+                )
+                self.cleanup()
+            finally:
+                wm.progress_end()
         return self.result
 
     @staticmethod
@@ -155,32 +188,51 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             vec3[1],
         )
 
-    @contextmanager
-    def setup_armature(self) -> Iterator[None]:
-        armatures = [obj for obj in self.export_objects if obj.type == "ARMATURE"]
-        if armatures:
-            self.armature = armatures[0]
-            use_dummy_armature = False
-        else:
-            dummy_armature_key = self.export_id + "DummyArmatureKey"
-            bpy.ops.icyp.make_basic_armature(
-                "EXEC_DEFAULT", custom_property_name=dummy_armature_key
-            )
-            for obj in self.context.selectable_objects:
-                if obj.type == "ARMATURE" and dummy_armature_key in obj:
-                    self.export_objects.append(obj)
-                    self.armature = obj
-            if not self.armature:
-                message = "Failed to generate default armature"
-                raise RuntimeError(message)
-            use_dummy_armature = True
-        migration.migrate(self.context, self.armature.name)
+    def hide_outline_modifiers(self) -> None:
+        for obj in self.export_objects:
+            if obj.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES:
+                continue
 
-        try:
-            yield
-        finally:
-            if use_dummy_armature:
-                self.context.blend_data.objects.remove(self.armature, do_unlink=True)
+            modifier_dict: dict[str, tuple[bool, bool]] = {}
+            for modifier in obj.modifiers:
+                if (
+                    not modifier
+                    or modifier.type != "NODES"
+                    or not isinstance(modifier, NodesModifier)
+                    or not modifier.node_group
+                    or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
+                ):
+                    continue
+                modifier_dict[modifier.name] = (
+                    modifier.show_render,
+                    modifier.show_viewport,
+                )
+                modifier.show_render = False
+                modifier.show_viewport = False
+            self.outline_modifier_visibilities[obj.name] = modifier_dict
+
+    def restore_outline_modifiers(self) -> None:
+        for object_name, modifier_dict in self.outline_modifier_visibilities.items():
+            obj = self.context.blend_data.objects.get(object_name)
+            if (
+                not obj
+                or obj not in self.export_objects
+                or obj.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES
+            ):
+                continue
+
+            for modifier_name, (show_render, show_viewport) in modifier_dict.items():
+                modifier = obj.modifiers.get(modifier_name)
+                if (
+                    not modifier
+                    or modifier.type != "NODES"
+                    or not isinstance(modifier, NodesModifier)
+                    or not modifier.node_group
+                    or modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
+                ):
+                    continue
+                modifier.show_render = show_render
+                modifier.show_viewport = show_viewport
 
     def image_to_bin(self) -> None:
         # collect used image
@@ -3134,6 +3186,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if not self.json_dict["materials"]:
             self.json_dict.pop("materials", None)
         self.result = pack_glb(self.json_dict, bin_chunk)
+
+    def cleanup(self) -> None:
+        if self.use_dummy_armature:
+            self.context.blend_data.objects.remove(self.armature, do_unlink=True)
 
 
 def to_gl_float(array4: Sequence[float]) -> Sequence[float]:

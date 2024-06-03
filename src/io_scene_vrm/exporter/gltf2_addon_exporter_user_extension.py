@@ -8,7 +8,7 @@ class Gltf2AddonExporterUserExtension:
         context = bpy.context
 
         self.object_name_to_modifier_names = (
-            AbstractBaseVrmExporter.enter_hide_mtoon1_outline_geometry_nodes(context)
+            AbstractBaseVrmExporter.hide_mtoon1_outline_geometry_nodes(context)
         )
 
     def gather_gltf_hook(
@@ -22,7 +22,7 @@ class Gltf2AddonExporterUserExtension:
     ) -> None:
         context = bpy.context
 
-        AbstractBaseVrmExporter.exit_hide_mtoon1_outline_geometry_nodes(
+        AbstractBaseVrmExporter.restore_mtoon1_outline_geometry_nodes(
             context, self.object_name_to_modifier_names
         )
         self.object_name_to_modifier_names.clear()
