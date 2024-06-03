@@ -167,34 +167,17 @@ class AbstractBaseVrmExporter(ABC):
         self, armature_data: Armature
     ) -> Iterator[None]:
         ext = armature_data.vrm_addon_extension
-
-        saved_vrm0_previews: list[float] = []
+        saved_previews = []
         for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
-            saved_vrm0_previews.append(blend_shape_group.preview)
+            saved_previews.append(blend_shape_group.preview)
             blend_shape_group.preview = 0
-
-        saved_vrm1_previews: dict[str, float] = {}
-        for (
-            name,
-            expression,
-        ) in ext.vrm1.expressions.all_name_to_expression_dict().items():
-            saved_vrm1_previews[name] = expression.preview
-
         try:
             yield
         finally:
             for blend_shape_group, blend_shape_preview in zip(
-                ext.vrm0.blend_shape_master.blend_shape_groups, saved_vrm0_previews
+                ext.vrm0.blend_shape_master.blend_shape_groups, saved_previews
             ):
                 blend_shape_group.preview = blend_shape_preview
-
-            for (
-                name,
-                expression,
-            ) in ext.vrm1.expressions.all_name_to_expression_dict().items():
-                expression_preview = saved_vrm1_previews.get(name)
-                if expression_preview is not None:
-                    expression.preview = expression_preview
 
     @staticmethod
     def enter_hide_mtoon1_outline_geometry_nodes(
