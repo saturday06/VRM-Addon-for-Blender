@@ -13,6 +13,7 @@ import shutil
 import struct
 import tempfile
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Optional
 
@@ -143,6 +144,42 @@ class AbstractBaseVrmImporter(ABC):
                 obj.matrix_world = self.bone_child_object_world_matrices[
                     obj.name
                 ].copy()
+
+    @staticmethod
+    @contextlib.contextmanager
+    def save_bone_child_object_transforms(
+        context: Context, armature: Object
+    ) -> Iterator[Armature]:
+        if not isinstance(armature.data, Armature):
+            message = f"{type(armature.data)} is not an Armature"
+            raise TypeError(message)
+
+        # 編集前のボーンの子オブジェクトのワールド行列を保存
+        context.view_layer.update()
+        bone_child_object_world_matrices: dict[str, Matrix] = {}
+        for obj in context.blend_data.objects:
+            if (
+                obj.parent_type == "BONE"
+                and obj.parent == armature
+                and obj.parent_bone in armature.data.bones
+            ):
+                bone_child_object_world_matrices[obj.name] = obj.matrix_world.copy()
+
+        try:
+            with save_workspace(context, armature, mode="EDIT"):
+                yield armature.data
+        finally:
+            # 編集前のボーンの子オブジェクトのワールド行列を復元
+            context.view_layer.update()
+            for name, matrix_world in bone_child_object_world_matrices.items():
+                restore_obj = context.blend_data.objects.get(name)
+                if (
+                    restore_obj
+                    and restore_obj.parent_type == "BONE"
+                    and restore_obj.parent == armature
+                    and restore_obj.parent_bone in armature.data.bones
+                ):
+                    restore_obj.matrix_world = matrix_world.copy()
 
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
