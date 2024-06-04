@@ -1981,6 +1981,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         vrm = armature_data.vrm_addon_extension.vrm1
         with (
+            save_workspace(self.context),
             self.setup_dummy_human_bones(self.context, self.armature, armature_data),
             self.clear_blend_shape_proxy_previews(armature_data),
             self.setup_pose(self.armature, armature_data, vrm.humanoid),

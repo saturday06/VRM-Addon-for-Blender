@@ -120,6 +120,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         wm.progress_begin(0, 8)
         try:
             with (
+                save_workspace(self.context),
                 self.setup_armature(),
                 self.clear_blend_shape_proxy_previews(self.armature_data),
                 self.hide_mtoon1_outline_geometry_nodes(self.context),
