@@ -62,10 +62,7 @@ class AbstractBaseVrmImporter(ABC):
         self.armature: Optional[Object] = None
         self.bone_names: dict[int, str] = {}
         self.materials: dict[int, Material] = {}
-        self.primitive_obj_dict: Optional[dict[Optional[int], list[float]]] = None
-        self.mesh_joined_objects = None
         self.bone_child_object_world_matrices: dict[str, Matrix] = {}
-
         self.import_id = Gltf2AddonImporterUserExtension.update_current_import_id()
         self.temp_object_name_count = 0
         self.object_names: dict[int, str] = {}

@@ -101,16 +101,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self.extras_material_name_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MaterialName"
         )
-        self.object_visibility_and_selection: dict[str, tuple[bool, bool]] = {}
-        self.mounted_object_names: list[str] = []
 
     @contextmanager
     def overwrite_object_visibility_and_selection(self) -> Iterator[None]:
-        self.object_visibility_and_selection.clear()
+        object_visibility_and_selection = {}
         # https://projects.blender.org/blender/blender/issues/113378
         self.context.view_layer.update()
         for obj in self.context.view_layer.objects:
-            self.object_visibility_and_selection[obj.name] = (
+            object_visibility_and_selection[obj.name] = (
                 obj.hide_get(),
                 obj.select_get(),
             )
@@ -123,7 +121,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             for object_name, (
                 hidden,
                 selection,
-            ) in self.object_visibility_and_selection.items():
+            ) in object_visibility_and_selection.items():
                 restore_obj = self.context.blend_data.objects.get(object_name)
                 if restore_obj:
                     restore_obj.hide_set(hidden)
@@ -143,6 +141,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         # - スキニングされたボーンの子供に別のメッシュが存在する
         # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアに
         # し、後で戻す
+        mounted_object_names = []
+
         for obj in self.export_objects:
             if obj.type != "MESH" or not [
                 True
@@ -156,7 +156,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 if search_obj.parent:
                     search_obj = search_obj.parent
                     continue
-                self.mounted_object_names.append(search_obj.name)
+                mounted_object_names.append(search_obj.name)
                 matrix_world = search_obj.matrix_world.copy()
                 search_obj.parent = armature
                 search_obj.matrix_world = matrix_world
@@ -165,7 +165,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         try:
             yield
         finally:
-            for mounted_object_name in self.mounted_object_names:
+            for mounted_object_name in mounted_object_names:
                 restore_obj = self.context.blend_data.objects.get(mounted_object_name)
                 if not restore_obj:
                     continue
