@@ -144,31 +144,6 @@ class AbstractBaseVrmImporter(ABC):
                     obj.name
                 ].copy()
 
-    def scene_init(self) -> Optional[Object]:
-        # active_objectがhideだとbpy.ops.object.mode_set.poll()に失敗してエラーが出るの
-        # でその回避と、それを元に戻す
-        affected_object = None
-        if self.context.active_object is not None:
-            if (
-                hasattr(self.context.active_object, "hide_viewport")
-                and self.context.active_object.hide_viewport
-            ):
-                self.context.active_object.hide_viewport = False
-                affected_object = self.context.active_object
-            bpy.ops.object.mode_set(mode="OBJECT")
-            bpy.ops.object.select_all(action="DESELECT")
-        return affected_object
-
-    def finishing(self, affected_object: Optional[Object]) -> None:
-        # initで弄ったやつを戻す
-        if affected_object is not None:
-            affected_object.hide_viewport = True
-
-        for obj in self.context.selected_objects:
-            obj.select_set(False)
-
-        # image_path_to Texture
-
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
         # のインデックスになっている
