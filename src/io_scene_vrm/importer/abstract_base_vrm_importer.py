@@ -945,12 +945,10 @@ class AbstractBaseVrmImporter(ABC):
                     vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
                 self.armature = obj
 
-        if (
-            self.armature is not None
-            and self.parse_result.spec_version_number < (1, 0)
-            and self.armature.rotation_mode == "QUATERNION"
-        ):
+        if self.armature is not None and self.parse_result.spec_version_number < (1, 0):
             obj = self.armature
+            if obj.rotation_mode != "QUATERNION":
+                obj.rotation_mode = "QUATERNION"
             obj.rotation_quaternion.rotate(mathutils.Euler((0.0, 0.0, math.pi), "XYZ"))
             if self.context.object is not None:
                 bpy.ops.object.mode_set(mode="OBJECT")
