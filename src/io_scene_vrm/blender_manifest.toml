@@ -1,13 +1,11 @@
 schema_version = "1.0.0"
 
 id = "vrm_extension"
-version = "2.20.41"
-name = "VRM format"
-tagline = "VRM import, export and editing capabilities"
+version = "2.20.42"
+name = "~ An add-on scheduled for removal. Formerly V​RM f​ormat (legacy)." # Add U+200B ​ZERO WIDTH SPACE between "V" and "RM", "f" and "ormat" for search exclusion
+tagline = "Formerly V​RM import, export and editing capabilities" # Add U+200B ​ZERO WIDTH SPACE between "V" and "RM" for search exclusion
 maintainer = "Isamu Mogi <dyob@lunaport.net>"
 type = "add-on"
-
-permissions = ["files"]
 
 website = "https://vrm-addon-for-blender.info"
 
@@ -22,3 +20,6 @@ copyright = [
   "2020 Isamu Mogi",
   "2018 iCyP",
 ]
+
+[permissions]
+files = "Import/export VRM from/to disk"
