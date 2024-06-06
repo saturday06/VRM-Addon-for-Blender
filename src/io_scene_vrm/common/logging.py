@@ -51,4 +51,6 @@ def get_logger(name: str) -> LoggerAdapter:
     logger = standard_logging.getLogger(name)
     if environ.get("BLENDER_VRM_LOGGING_LEVEL_DEBUG") == "yes":
         logger.setLevel(standard_logging.DEBUG)
+    else:
+        logger.setLevel(max(standard_logging.INFO, logger.getEffectiveLevel()))
     return VrmAddonLoggerAdapter(logger, {})
