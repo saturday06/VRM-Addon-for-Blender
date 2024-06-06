@@ -118,7 +118,7 @@ def migrate_all_objects(
     preferences = get_preferences(context)
 
     updated_addon_version = addon_version()
-    logger.info(
+    logger.debug(
         "Upgrade preferences"
         + f" {tuple(preferences.addon_version)} to {updated_addon_version}"
     )
