@@ -11,11 +11,11 @@
 #
 #
 
-# Synchronize with https://github.com/saturday06/VRM-Addon-for-Blender/blob/b0aedc74ae4b23e69756106ded4e60195265c57a/src/io_scene_vrm/common/version.py#L94-L102
+# Synchronize with https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_49/src/io_scene_vrm/common/version.py#L94-L102
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 49),
+    "version": (2, 20, 51),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
     "blender": (2, 93, 0),
@@ -117,14 +117,13 @@ def raise_not_implemented_error(
 ) -> None:
     import bpy
 
+    context = bpy.context
+
     translated_messages = {
         "ja_JP": ja_jp_message,
     }
 
-    if (
-        bpy.app.version >= (2, 80)
-        and bpy.context.preferences.view.use_translate_interface
-    ):
+    if bpy.app.version >= (2, 80) and context.preferences.view.use_translate_interface:
         message = translated_messages.get(bpy.app.translations.locale, default_message)
     else:
         message = default_message
