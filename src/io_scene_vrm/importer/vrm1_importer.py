@@ -14,25 +14,25 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ...common import convert, deep, shader
-from ...common.deep import Json
-from ...common.logging import get_logger
-from ...common.version import addon_version
-from ...common.vrm1 import human_bone as vrm1_human_bone
-from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
-from ...editor import make_armature, migration
-from ...editor.extension import VrmAddonBoneExtensionPropertyGroup as BoneExtension
-from ...editor.make_armature import (
+from ..common import convert, deep, shader
+from ..common.deep import Json
+from ..common.logging import get_logger
+from ..common.version import addon_version
+from ..common.vrm1 import human_bone as vrm1_human_bone
+from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
+from ..editor import make_armature, migration
+from ..editor.extension import VrmAddonBoneExtensionPropertyGroup as BoneExtension
+from ..editor.make_armature import (
     connect_parent_tail_and_child_head_if_very_close_position,
 )
-from ...editor.mtoon1.property_group import (
+from ..editor.mtoon1.property_group import (
     Mtoon1KhrTextureTransformPropertyGroup,
     Mtoon1SamplerPropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
-from ...editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
-from ...editor.vrm1.property_group import (
+from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
+from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
@@ -42,12 +42,12 @@ from ...editor.vrm1.property_group import (
     Vrm1MaterialColorBindPropertyGroup,
     Vrm1MetaPropertyGroup,
 )
-from ..abstract_base_vrm_importer import AbstractBaseVrmImporter
+from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 
 logger = get_logger(__name__)
 
 
-class VrmImporter(AbstractBaseVrmImporter):
+class Vrm1Importer(AbstractBaseVrmImporter):
     def assign_texture(
         self,
         texture: Mtoon1TexturePropertyGroup,
