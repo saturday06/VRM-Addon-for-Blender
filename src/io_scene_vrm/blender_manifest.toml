@@ -7,8 +7,6 @@ tagline = "VRM import, export and editing capabilities"
 maintainer = "Isamu Mogi <dyob@lunaport.net>"
 type = "add-on"
 
-permissions = ["files"]
-
 website = "https://vrm-addon-for-blender.info"
 
 tags = ["Import-Export", "Animation", "Modeling", "Material", "Physics"]
@@ -22,3 +20,6 @@ copyright = [
   "2020 Isamu Mogi",
   "2018 iCyP",
 ]
+
+[permissions]
+files = "Import/export VRM from/to disk"
