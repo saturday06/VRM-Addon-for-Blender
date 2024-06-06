@@ -122,29 +122,6 @@ class AbstractBaseVrmImporter(ABC):
             raise TypeError(message)
         return armature_data
 
-    def save_bone_child_object_world_matrices(self, armature: Object) -> None:
-        for obj in self.context.blend_data.objects:
-            if (
-                obj.parent_type == "BONE"
-                and obj.parent == armature
-                and obj.parent_bone in self.armature_data.bones
-            ):
-                self.bone_child_object_world_matrices[obj.name] = (
-                    obj.matrix_world.copy()
-                )
-
-    def load_bone_child_object_world_matrices(self, armature: Object) -> None:
-        for obj in self.context.blend_data.objects:
-            if (
-                obj.parent_type == "BONE"
-                and obj.parent == armature
-                and obj.parent_bone in self.armature_data.bones
-                and obj.name in self.bone_child_object_world_matrices
-            ):
-                obj.matrix_world = self.bone_child_object_world_matrices[
-                    obj.name
-                ].copy()
-
     @staticmethod
     @contextlib.contextmanager
     def save_bone_child_object_transforms(
@@ -180,6 +157,7 @@ class AbstractBaseVrmImporter(ABC):
                     and restore_obj.parent_bone in armature.data.bones
                 ):
                     restore_obj.matrix_world = matrix_world.copy()
+            context.view_layer.update()
 
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
@@ -982,48 +960,40 @@ class AbstractBaseVrmImporter(ABC):
                     vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
                 self.armature = obj
 
-        if self.armature is not None and self.parse_result.spec_version_number < (1, 0):
-            obj = self.armature
-            if obj.rotation_mode != "QUATERNION":
-                obj.rotation_mode = "QUATERNION"
-            obj.rotation_quaternion.rotate(mathutils.Euler((0.0, 0.0, math.pi), "XYZ"))
-            if self.context.object is not None:
-                bpy.ops.object.mode_set(mode="OBJECT")
-            bpy.ops.object.select_all(action="DESELECT")
-            obj.select_set(True)
-            previous_active = self.context.view_layer.objects.active
-            try:
-                self.context.view_layer.objects.active = obj
+        if (
+            (armature := self.armature) is not None
+            and isinstance(armature.data, Armature)
+            and self.parse_result.spec_version_number < (1, 0)
+        ):
+            bone_name_to_roll = {}
+            with save_workspace(self.context, armature, mode="EDIT"):
+                for edit_bone in armature.data.edit_bones:
+                    bone_name_to_roll[edit_bone.name] = edit_bone.roll
 
-                bone_name_to_roll = {}
-                bpy.ops.object.mode_set(mode="EDIT")
-                if isinstance(obj.data, Armature):
-                    for edit_bone in obj.data.edit_bones:
-                        bone_name_to_roll[edit_bone.name] = edit_bone.roll
-                bpy.ops.object.mode_set(mode="OBJECT")
-
+            with save_workspace(self.context, armature):
+                if armature.rotation_mode != "QUATERNION":
+                    armature.rotation_mode = "QUATERNION"
+                armature.rotation_quaternion.rotate(
+                    mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
+                )
+                bpy.ops.object.select_all(action="DESELECT")
+                armature.select_set(True)
                 bpy.ops.object.transform_apply(
                     location=False, rotation=True, scale=False, properties=False
                 )
 
-                self.save_bone_child_object_world_matrices(obj)
-
-                bpy.ops.object.mode_set(mode="EDIT")
-                if isinstance(obj.data, Armature):
-                    edit_bones = [
-                        edit_bone
-                        for edit_bone in obj.data.edit_bones
-                        if not edit_bone.parent
-                    ]
-                    while edit_bones:
-                        edit_bone = edit_bones.pop(0)
-                        roll = bone_name_to_roll.get(edit_bone.name)
-                        if roll is not None:
-                            edit_bone.roll = roll
-                        edit_bones.extend(edit_bone.children)
-                bpy.ops.object.mode_set(mode="OBJECT")
-            finally:
-                self.context.view_layer.objects.active = previous_active
+            with self.save_bone_child_object_transforms(self.context, armature):
+                edit_bones = [
+                    edit_bone
+                    for edit_bone in armature.data.edit_bones
+                    if not edit_bone.parent
+                ]
+                while edit_bones:
+                    edit_bone = edit_bones.pop(0)
+                    roll = bone_name_to_roll.get(edit_bone.name)
+                    if roll is not None:
+                        edit_bone.roll = roll
+                    edit_bones.extend(edit_bone.children)
 
         extras_mesh_index_key = self.import_id + "Meshes"
         for obj in self.context.selectable_objects:
