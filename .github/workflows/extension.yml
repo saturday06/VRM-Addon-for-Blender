@@ -11,7 +11,7 @@ jobs:
   extension:
     runs-on: ubuntu-22.04
     env:
-      BLENDER_ARCHIVE_URL: https://cdn.builder.blender.org/download/daily/blender-4.2.0-beta+v42.7886ce7bd47a-linux.x86_64-release.tar.xz
+      BLENDER_ARCHIVE_URL: https://cdn.builder.blender.org/download/daily/blender-4.2.0-beta+v42.b73b66330905-linux.x86_64-release.tar.xz
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,8 +34,6 @@ jobs:
           fi
           export PATH="$HOME/.local/blender:$PATH"
           hash -r
-          mkdir -p "$HOME/.config/blender/4.2/config"
-          cp extension_userpref.blend "$HOME/.config/blender/4.2/config/userpref.blend"
           ./tools/build_extension.sh
       - name: Save Extension
         uses: actions/upload-artifact@v4
