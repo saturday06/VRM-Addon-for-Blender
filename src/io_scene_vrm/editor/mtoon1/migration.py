@@ -86,7 +86,7 @@ def migrate(context: Context) -> None:
         if addon_version < (2, 20, 50):
             migrate_sampler_filter_node(material)
 
-        if addon_version < (2, 20, 47):
+        if addon_version < (2, 20, 53):
             reset_shader_node_group(
                 context, material, reset_node_tree=True, overwrite=True
             )
