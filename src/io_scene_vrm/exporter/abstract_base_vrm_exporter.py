@@ -192,8 +192,8 @@ class AbstractBaseVrmExporter(ABC):
     @staticmethod
     def enter_hide_mtoon1_outline_geometry_nodes(
         context: Context,
-    ) -> dict[str, tuple[str, bool, bool]]:
-        object_name_to_modifier: dict[str, tuple[str, bool, bool]] = {}
+    ) -> dict[str, list[tuple[str, bool, bool]]]:
+        object_name_to_modifiers: dict[str, list[tuple[str, bool, bool]]] = {}
         for obj in context.blend_data.objects:
             for modifier in obj.modifiers:
                 if not modifier.show_viewport:
@@ -208,44 +208,51 @@ class AbstractBaseVrmExporter(ABC):
                     or node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
                 ):
                     continue
-                object_name_to_modifier[obj.name] = (
-                    modifier.name,
-                    modifier.show_render,
-                    modifier.show_viewport,
+                modifiers = object_name_to_modifiers.get(obj.name)
+                if modifiers is None:
+                    modifiers = []
+                    object_name_to_modifiers[obj.name] = modifiers
+                modifiers = object_name_to_modifiers[obj.name]
+                modifiers.append(
+                    (
+                        modifier.name,
+                        modifier.show_render,
+                        modifier.show_viewport,
+                    )
                 )
                 if modifier.show_render:
                     modifier.show_render = False
                 if modifier.show_viewport:
                     modifier.show_viewport = False
-        return object_name_to_modifier
+        return object_name_to_modifiers
 
     @staticmethod
     def exit_hide_mtoon1_outline_geometry_nodes(
         context: Context,
-        object_name_to_modifier: dict[str, tuple[str, bool, bool]],
+        object_name_to_modifiers: dict[str, list[tuple[str, bool, bool]]],
     ) -> None:
-        for object_name, (
-            modifier_name,
-            render,
-            viewport,
-        ) in object_name_to_modifier.items():
-            obj = context.blend_data.objects.get(object_name)
-            if not obj:
-                continue
-            modifier = obj.modifiers.get(modifier_name)
-            if (
-                not modifier
-                or modifier.type != "NODES"
-                or not isinstance(modifier, NodesModifier)
-            ):
-                continue
-            node_group = modifier.node_group
-            if not node_group or node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
-                continue
-            if modifier.show_render != render:
-                modifier.show_render = render
-            if modifier.show_viewport != viewport:
-                modifier.show_viewport = viewport
+        for object_name, modifiers in object_name_to_modifiers.items():
+            for modifier_name, render, viewport in modifiers:
+                obj = context.blend_data.objects.get(object_name)
+                if not obj:
+                    continue
+                modifier = obj.modifiers.get(modifier_name)
+                if (
+                    not modifier
+                    or modifier.type != "NODES"
+                    or not isinstance(modifier, NodesModifier)
+                ):
+                    continue
+                node_group = modifier.node_group
+                if (
+                    not node_group
+                    or node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME
+                ):
+                    continue
+                if modifier.show_render != render:
+                    modifier.show_render = render
+                if modifier.show_viewport != viewport:
+                    modifier.show_viewport = viewport
 
     @staticmethod
     @contextmanager
