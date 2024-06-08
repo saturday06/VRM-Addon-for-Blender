@@ -198,6 +198,15 @@ class HumanBoneSpecification:
     def children(self) -> list["HumanBoneSpecification"]:
         return list(map(HumanBoneSpecifications.get, self.children_names))
 
+    def descendants(self) -> list["HumanBoneSpecification"]:
+        result: list[HumanBoneSpecification] = []
+        searching_children = self.children()
+        while searching_children:
+            child = searching_children.pop()
+            result.append(child)
+            searching_children.extend(child.children())
+        return result
+
     def connected(self) -> list["HumanBoneSpecification"]:
         children = self.children()
         parent = self.parent()
