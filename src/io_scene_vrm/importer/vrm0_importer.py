@@ -7,8 +7,11 @@ import uuid
 from typing import Optional, Union
 
 from bpy.types import (
+    Armature,
+    Context,
     Material,
     Mesh,
+    Object,
 )
 from mathutils import Matrix, Vector
 
@@ -32,6 +35,7 @@ from ..editor.vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
+    Vrm0HumanoidBonePropertyGroup,
     Vrm0HumanoidPropertyGroup,
     Vrm0MeshAnnotationPropertyGroup,
     Vrm0MetaPropertyGroup,
@@ -479,7 +483,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
         self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
         self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
-        self.setup_vrm0_humanoid_bones()
+        setup_bones(self.context, armature)
         self.load_vrm0_first_person(
             vrm0.first_person, vrm0_extension.get("firstPerson")
         )
@@ -991,160 +995,6 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         for bone_group in secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
-    def setup_vrm0_humanoid_bones(self) -> None:
-        armature = self.armature
-        if not armature:
-            return
-        addon_extension = self.armature_data.vrm_addon_extension
-
-        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-            self.context,
-            self.armature_data.name,
-            force=True,
-        )
-
-        human_bones = addon_extension.vrm0.humanoid.human_bones
-        for human_bone in human_bones:
-            if (
-                human_bone.node.bone_name
-                and human_bone.node.bone_name not in human_bone.node_candidates
-            ):
-                # has error
-                return
-
-        for humanoid_name in HumanBoneSpecifications.required_names:
-            if not any(
-                human_bone.bone == humanoid_name and human_bone.node.bone_name
-                for human_bone in human_bones
-            ):
-                # has error
-                return
-
-        with self.save_bone_child_object_transforms(self.context, armature):
-            bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
-            for human_bone in human_bones:
-                if not human_bone.node.bone_name:
-                    continue
-                name = HumanBoneName.from_str(human_bone.bone)
-                if not name:
-                    continue
-                bone_name_to_human_bone_name[human_bone.node.bone_name] = name
-
-            for bone_name in bone_name_to_human_bone_name:
-                bone = self.armature_data.edit_bones.get(bone_name)
-                while bone:
-                    bone.roll = 0.0
-                    bone = bone.parent
-
-            for (
-                bone_name,
-                human_bone_name,
-            ) in bone_name_to_human_bone_name.items():
-                # 現在のアルゴリズムでは
-                #
-                #   head ---- node ---- leftEye
-                #                   \
-                #                    -- rightEye
-                #
-                # を上手く扱えないので、leftEyeとrightEyeは処理しない
-                if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
-                    continue
-
-                bone = self.armature_data.edit_bones.get(bone_name)
-                if not bone:
-                    continue
-                last_human_bone_name = human_bone_name
-                while True:
-                    parent = bone.parent
-                    if not parent:
-                        break
-                    parent_human_bone_name = bone_name_to_human_bone_name.get(
-                        parent.name
-                    )
-
-                    if parent_human_bone_name in [
-                        HumanBoneName.RIGHT_HAND,
-                        HumanBoneName.LEFT_HAND,
-                    ]:
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.UPPER_CHEST
-                        and last_human_bone_name
-                        not in [HumanBoneName.HEAD, HumanBoneName.NECK]
-                    ):
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.CHEST
-                        and last_human_bone_name
-                        not in [
-                            HumanBoneName.HEAD,
-                            HumanBoneName.NECK,
-                            HumanBoneName.UPPER_CHEST,
-                        ]
-                    ):
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.SPINE
-                        and last_human_bone_name
-                        not in [
-                            HumanBoneName.HEAD,
-                            HumanBoneName.NECK,
-                            HumanBoneName.UPPER_CHEST,
-                            HumanBoneName.CHEST,
-                        ]
-                    ):
-                        break
-
-                    if (
-                        parent_human_bone_name == HumanBoneName.HIPS
-                        and last_human_bone_name != HumanBoneName.SPINE
-                    ):
-                        break
-
-                    if parent_human_bone_name:
-                        last_human_bone_name = parent_human_bone_name
-
-                    if (
-                        parent.head - bone.head
-                    ).length >= make_armature.MIN_BONE_LENGTH:
-                        parent.tail = bone.head
-
-                    bone = parent
-
-            for human_bone in human_bones:
-                if (
-                    human_bone.bone
-                    not in [HumanBoneName.LEFT_EYE.value, HumanBoneName.RIGHT_EYE.value]
-                    or not human_bone.node.bone_name
-                ):
-                    continue
-
-                bone = self.armature_data.edit_bones.get(human_bone.node.bone_name)
-                if not bone or bone.children:
-                    continue
-
-                world_head = (
-                    armature.matrix_world @ Matrix.Translation(bone.head)
-                ).to_translation()
-
-                world_tail = list(world_head)
-                world_tail[1] -= 0.03125
-
-                world_inv = armature.matrix_world.inverted()
-                if not world_inv:
-                    continue
-                bone.tail = (
-                    Matrix.Translation(world_tail) @ world_inv
-                ).to_translation()
-
-            connect_parent_tail_and_child_head_if_very_close_position(
-                self.armature_data
-            )
-
     def find_vrm0_bone_node_indices(self) -> list[int]:
         result: list[int] = []
         vrm0_dict = self.parse_result.vrm0_extension
@@ -1199,3 +1049,192 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 self.find_vrm0_bone_node_indices()
             )
         )
+
+
+def setup_bones(context: Context, armature: Object) -> None:
+    """Human Boneの方向と長さを設定する.
+
+    VRM0のボーンは方向と長さの情報を持たないので、人間として自然な方向と長さを設定する。
+    現在インポート時にFORTUNEによる方向決めを行っているため、不自然なボーンになることがある。
+    そのため、次の修正を行う。(予定)
+
+    Head:
+        長さはHeadとNeckの距離
+        方向は+Z
+    Eyes:
+        長さは決め打ち
+        方向は-Y
+    Fingerの先端,Fingerが無い場合のHand,Toes,Toesが無い場合のFoot
+        長さと方向は親と同じ
+    それ以外のボーン:
+        子ボーンが無い場合
+            なにもしない
+        子ボーンが一つだけの場合
+            子ボーンに接続する
+        子ボーンが複数ある場合
+            子ボーンのうち一つがHumanBoneかその先祖ボーンの場合はそちらを向ける
+            そうでない場合は、Tailの位置を子ボーンの重心にする
+
+    いつかやりたいこと:
+        Headの角度を、親の角度から30度以内に制限
+        ToesやFootが接地していない場合は仰角をつける。
+        エンドボーン/リーフボーンがある場合はその位置。
+            命名条件 /(end|終端)$/
+            ウエイトが乗っていない
+            子ボーンを持たない
+            子オブジェクトを持たない
+    """
+    if not isinstance(armature.data, Armature):
+        return
+    addon_extension = armature.data.vrm_addon_extension
+
+    Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+    Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        context,
+        armature.data.name,
+        force=True,
+    )
+
+    human_bones = addon_extension.vrm0.humanoid.human_bones
+    for human_bone in human_bones:
+        if (
+            human_bone.node.bone_name
+            and human_bone.node.bone_name not in human_bone.node_candidates
+        ):
+            # has error
+            return
+
+    for humanoid_name in HumanBoneSpecifications.required_names:
+        if not any(
+            human_bone.bone == humanoid_name and human_bone.node.bone_name
+            for human_bone in human_bones
+        ):
+            # has error
+            return
+
+    with AbstractBaseVrmImporter.save_bone_child_object_transforms(
+        context, armature
+    ) as armature_data:
+        bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
+        for human_bone in human_bones:
+            if not human_bone.node.bone_name:
+                continue
+            name = HumanBoneName.from_str(human_bone.bone)
+            if not name:
+                continue
+            bone_name_to_human_bone_name[human_bone.node.bone_name] = name
+
+        for bone_name in bone_name_to_human_bone_name:
+            bone = armature_data.edit_bones.get(bone_name)
+            while bone:
+                bone.roll = 0.0
+                bone = bone.parent
+
+        for (
+            bone_name,
+            human_bone_name,
+        ) in bone_name_to_human_bone_name.items():
+            # 現在のアルゴリズムでは
+            #
+            #   head ---- node ---- leftEye
+            #                   \
+            #                    -- rightEye
+            #
+            # を上手く扱えないので、leftEyeとrightEyeは処理しない
+            if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
+                continue
+
+            bone = armature_data.edit_bones.get(bone_name)
+            if not bone:
+                continue
+            last_human_bone_name = human_bone_name
+            while True:
+                parent = bone.parent
+                if not parent:
+                    break
+                parent_human_bone_name = bone_name_to_human_bone_name.get(parent.name)
+
+                if parent_human_bone_name in [
+                    HumanBoneName.RIGHT_HAND,
+                    HumanBoneName.LEFT_HAND,
+                ]:
+                    break
+
+                if (
+                    parent_human_bone_name == HumanBoneName.UPPER_CHEST
+                    and last_human_bone_name
+                    not in [HumanBoneName.HEAD, HumanBoneName.NECK]
+                ):
+                    break
+
+                if (
+                    parent_human_bone_name == HumanBoneName.CHEST
+                    and last_human_bone_name
+                    not in [
+                        HumanBoneName.HEAD,
+                        HumanBoneName.NECK,
+                        HumanBoneName.UPPER_CHEST,
+                    ]
+                ):
+                    break
+
+                if (
+                    parent_human_bone_name == HumanBoneName.SPINE
+                    and last_human_bone_name
+                    not in [
+                        HumanBoneName.HEAD,
+                        HumanBoneName.NECK,
+                        HumanBoneName.UPPER_CHEST,
+                        HumanBoneName.CHEST,
+                    ]
+                ):
+                    break
+
+                if (
+                    parent_human_bone_name == HumanBoneName.HIPS
+                    and last_human_bone_name != HumanBoneName.SPINE
+                ):
+                    break
+
+                if parent_human_bone_name:
+                    last_human_bone_name = parent_human_bone_name
+
+                if (parent.head - bone.head).length >= make_armature.MIN_BONE_LENGTH:
+                    parent.tail = bone.head
+
+                bone = parent
+
+        human_bone_name_to_human_bone: dict[
+            HumanBoneName, Vrm0HumanoidBonePropertyGroup
+        ] = {}
+        for human_bone in human_bones:
+            n = HumanBoneName.from_str(human_bone.bone)
+            if not n:
+                continue
+            human_bone_name_to_human_bone[n] = human_bone
+
+        # 目のボーンを正面に向ける。子ボーンがある場合は何もしない。
+        for eye_human_bone in [
+            human_bone_name_to_human_bone.get(HumanBoneName.LEFT_EYE),
+            human_bone_name_to_human_bone.get(HumanBoneName.RIGHT_EYE),
+        ]:
+            if not eye_human_bone or not eye_human_bone.node.bone_name:
+                continue
+
+            bone = armature_data.edit_bones.get(eye_human_bone.node.bone_name)
+            if not bone or bone.children:
+                continue
+
+            world_head = (
+                armature.matrix_world @ Matrix.Translation(bone.head)
+            ).to_translation()
+
+            world_tail = list(world_head)
+            world_tail[1] -= 0.03125
+
+            world_inv = armature.matrix_world.inverted()
+            if not world_inv:
+                continue
+            bone.tail = (Matrix.Translation(world_tail) @ world_inv).to_translation()
+
+        connect_parent_tail_and_child_head_if_very_close_position(armature_data)
