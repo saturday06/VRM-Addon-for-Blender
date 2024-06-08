@@ -1238,4 +1238,27 @@ def setup_bones(context: Context, armature: Object) -> None:
                 continue
             bone.tail = (Matrix.Translation(world_tail) @ world_inv).to_translation()
 
+        # 頭のボーンを上に向ける
+        for head_human_bone in [human_bone_name_to_human_bone.get(HumanBoneName.HEAD)]:
+            if not head_human_bone or not head_human_bone.node.bone_name:
+                continue
+
+            bone = armature_data.edit_bones.get(head_human_bone.node.bone_name)
+            if not bone:
+                continue
+
+            world_head = (
+                armature.matrix_world @ Matrix.Translation(bone.head)
+            ).to_translation()
+
+            world_tail = list(world_head)
+
+            parent_bone = bone.parent
+            world_tail[2] += parent_bone.length if parent_bone else 0.2
+
+            world_inv = armature.matrix_world.inverted()
+            if not world_inv:
+                continue
+            bone.tail = (Matrix.Translation(world_tail) @ world_inv).to_translation()
+
         connect_parent_tail_and_child_head_if_very_close_position(armature_data)

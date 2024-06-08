@@ -92,6 +92,23 @@ def test_head_bone_world_plus_z(context: Context) -> None:
     # return
     setup_bones(context, armature)
 
+    bpy.ops.object.mode_set(mode="EDIT")
+    head = armature.data.edit_bones["head"]
+    assert_vector3_equals(
+        Vector((0, 0, 1)),
+        (head.tail - head.head).normalized(),
+        "head direction is plus z",
+    )
+
+    parent = head.parent
+    if not parent:
+        message = "head has no parent"
+        raise AssertionError(message)
+
+    assert (
+        head.length - parent.length
+    ) < 0.0001, f"head length {head.length} is same as neck length {parent.length}"
+
 
 FUNCTIONS = [
     test_eye_bone_world_minus_y,
