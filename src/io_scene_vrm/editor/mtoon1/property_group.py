@@ -342,7 +342,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
     def set_rgb(
         self,
         node_group_name: str,
-        group_label: Optional[str],
+        group_label: str,
         value: object,
         default_value: Optional[tuple[float, float, float]] = None,
     ) -> None:
@@ -373,9 +373,6 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         )
         if not node:
             logger.warning(f'No group node "{node_group_name}"')
-            return
-
-        if group_label is None:
             return
 
         socket = node.inputs.get(group_label)
