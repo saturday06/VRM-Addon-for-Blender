@@ -1612,7 +1612,11 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
     )
 
     def update_scale(self, _context: Context) -> None:
-        self.set_value(shader.NORMAL_GROUP_NAME, "Normal Map Texture Scale", self.scale)
+        self.set_value(
+            shader.NORMAL_GROUP_NAME,
+            shader.NORMAL_GROUP_SCALE_LABEL,
+            self.scale,
+        )
         material = self.find_material()
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
         principled_bsdf.normalmap_strength = self.scale
@@ -2108,14 +2112,14 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_parametric_rim_lift_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
-            "Parametric Rim Lift",
+            shader.OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_LABEL,
             self.parametric_rim_lift_factor,
         )
 
     parametric_rim_lift_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Parametric Rim Lift",
+        name=shader.OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_LABEL,
         soft_min=0.0,
-        default=1.0,
+        default=shader.OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_DEFAULT,
         soft_max=1.0,
         update=update_parametric_rim_lift_factor,
     )
@@ -2149,12 +2153,14 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_outline_width_factor(self, context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME, "Outline Width", self.outline_width_factor
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_LABEL,
+            self.outline_width_factor,
         )
         self.update_outline_geometry(context)
 
     outline_width_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Outline Width",
+        name=shader.OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_LABEL,
         min=0.0,
         soft_max=0.05,
         update=update_outline_width_factor,
@@ -2166,7 +2172,10 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_outline_color_factor(self, context: Context) -> None:
         self.set_rgb(
-            shader.OUTPUT_GROUP_NAME, "Outline Color", self.outline_color_factor
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_LABEL,
+            self.outline_color_factor,
+            shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_DEFAULT,
         )
         self.update_outline_geometry(context)
 
@@ -2187,10 +2196,10 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     outline_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
-        name="Outline Color",
+        name=shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_LABEL,
         size=3,
         subtype="COLOR",
-        default=(0, 0, 0),
+        default=shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_DEFAULT,
         min=0,
         max=1,
         update=update_outline_color_factor,
@@ -2501,7 +2510,12 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_emissive_factor(self, _context: Context) -> None:
-        self.set_rgb(shader.OUTPUT_GROUP_NAME, "Emissive Factor", self.emissive_factor)
+        self.set_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_EMISSIVE_FACTOR_LABEL,
+            self.emissive_factor,
+            shader.OUTPUT_GROUP_EMISSIVE_FACTOR_DEFAULT,
+        )
 
         material = self.find_material()
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
@@ -2551,7 +2565,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     emissive_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="COLOR",
-        default=(0, 0, 0),
+        default=shader.OUTPUT_GROUP_EMISSIVE_FACTOR_DEFAULT,
         min=0,
         max=1,
         update=update_emissive_factor,

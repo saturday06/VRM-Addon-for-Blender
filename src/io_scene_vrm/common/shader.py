@@ -135,9 +135,20 @@ file_names = [
 OUTLINE_GEOMETRY_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
 
 UV_GROUP_NAME: Final = "VRM Add-on MToon 1.0 UV Revision 1"
+
 UV_ANIMATION_GROUP_NAME: Final = "VRM Add-on MToon 1.0 UV Animation Revision 1"
+
 NORMAL_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Normal Revision 1"
+NORMAL_GROUP_SCALE_LABEL: Final = "Normal Map Texture Scale"
+
 OUTPUT_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Output Revision 1"
+OUTPUT_GROUP_EMISSIVE_FACTOR_LABEL: Final = "Emissive Factor"
+OUTPUT_GROUP_EMISSIVE_FACTOR_DEFAULT: Final = (0, 0, 0)
+OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_LABEL: Final = "Outline Color"
+OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_DEFAULT: Final = (0, 0, 0)
+OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_LABEL: Final = "Outline Width"
+OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_LABEL: Final = "Parametric Rim Lift"
+OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_DEFAULT: Final = 1.0
 
 SHADER_NODE_GROUP_NAMES: Final = (
     UV_GROUP_NAME,
