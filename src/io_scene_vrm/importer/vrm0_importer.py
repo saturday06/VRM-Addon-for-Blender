@@ -1214,7 +1214,78 @@ def setup_bones(context: Context, armature: Object) -> None:
                 continue
             human_bone_name_to_human_bone[n] = human_bone
 
-        # 目のボーンを正面に向ける。子ボーンがある場合は何もしない。
+        # 目と頭のボーン以外のVRM Humanoidの先端のボーンに子が複数存在する場合
+        # 親と同じ方向に向ける。これでデフォルトよりも自然な方向になる。
+        # VRM制作者による方向指定かもしれないので、子が一つの場合は何もしない。
+        for tip_bone_name in [
+            HumanBoneName.JAW,
+            HumanBoneName.LEFT_THUMB_DISTAL,
+            HumanBoneName.LEFT_INDEX_DISTAL,
+            HumanBoneName.LEFT_MIDDLE_DISTAL,
+            HumanBoneName.LEFT_RING_DISTAL,
+            HumanBoneName.LEFT_LITTLE_DISTAL,
+            HumanBoneName.RIGHT_THUMB_DISTAL,
+            HumanBoneName.RIGHT_INDEX_DISTAL,
+            HumanBoneName.RIGHT_MIDDLE_DISTAL,
+            HumanBoneName.RIGHT_RING_DISTAL,
+            HumanBoneName.RIGHT_LITTLE_DISTAL,
+            HumanBoneName.LEFT_TOES,
+            HumanBoneName.RIGHT_TOES,
+        ]:
+            bone = None
+            searching_tip_bone_name: Optional[HumanBoneName] = tip_bone_name
+            while searching_tip_bone_name:
+                # 該当するボーンがあったらbreak
+                human_bone = human_bone_name_to_human_bone.get(searching_tip_bone_name)
+                if human_bone:
+                    bone = armature_data.edit_bones.get(human_bone.node.bone_name)
+                    if bone:
+                        break
+
+                # 該当するボーンが無く、必須ボーンだった場合はデータのエラーのため中断
+                specification = HumanBoneSpecifications.get(searching_tip_bone_name)
+                if specification.requirement:
+                    break
+                parent_specification = specification.parent()
+                if not parent_specification:
+                    logger.error(
+                        'logic error: "%s" has no parent', searching_tip_bone_name
+                    )
+                    break
+
+                # 親の子孫に割り当て済みのボーンがある場合は何もしない
+                assigned_parent_descendant_found = False
+                for parent_descendant in parent_specification.descendants():
+                    parent_descendant_human_bone = human_bone_name_to_human_bone.get(
+                        parent_descendant.name
+                    )
+                    if not parent_descendant_human_bone:
+                        continue
+                    if (
+                        parent_descendant_human_bone.node.bone_name
+                        in armature_data.edit_bones
+                    ):
+                        assigned_parent_descendant_found = True
+                        break
+                if assigned_parent_descendant_found:
+                    break
+
+                searching_tip_bone_name = specification.parent_name
+            if not bone:
+                continue
+            if len(bone.children) <= 1:
+                continue
+
+            parent_bone = bone.parent
+            if not parent_bone:
+                continue
+
+            bone.roll = parent_bone.roll
+            bone.tail = bone.head + parent_bone.vector / 2
+
+        # 目のボーンに子が無いか複数存在する場合、正面に向ける。
+        # これでデフォルトよりも自然な方向になる。
+        # VRM制作者による方向指定かもしれないので、子が一つの場合は何もしない。
         for eye_human_bone in [
             human_bone_name_to_human_bone.get(HumanBoneName.LEFT_EYE),
             human_bone_name_to_human_bone.get(HumanBoneName.RIGHT_EYE),
@@ -1223,7 +1294,9 @@ def setup_bones(context: Context, armature: Object) -> None:
                 continue
 
             bone = armature_data.edit_bones.get(eye_human_bone.node.bone_name)
-            if not bone or bone.children:
+            if not bone:
+                continue
+            if len(bone.children) == 1:
                 continue
 
             world_head = (
@@ -1236,6 +1309,37 @@ def setup_bones(context: Context, armature: Object) -> None:
             world_inv = armature.matrix_world.inverted()
             if not world_inv:
                 continue
+            bone.tail = (Matrix.Translation(world_tail) @ world_inv).to_translation()
+
+        # 頭のボーンに子が無いか複数存在する場合、上に向ける。
+        # これでデフォルトよりも自然な方向になる。
+        # VRM制作者による方向指定かもしれないので、子が一つの場合は何もしない。
+        for head_human_bone in [human_bone_name_to_human_bone.get(HumanBoneName.HEAD)]:
+            if not head_human_bone or not head_human_bone.node.bone_name:
+                continue
+
+            bone = armature_data.edit_bones.get(head_human_bone.node.bone_name)
+            if not bone:
+                continue
+            if len(bone.children) == 1:
+                continue
+
+            world_head = (
+                armature.matrix_world @ Matrix.Translation(bone.head)
+            ).to_translation()
+
+            world_tail = list(world_head)
+
+            parent_bone = bone.parent
+            world_tail[2] += parent_bone.length if parent_bone else 0.2
+
+            world_inv = armature.matrix_world.inverted()
+            if not world_inv:
+                continue
+
+            parent_bone = bone.parent
+            if parent_bone:
+                bone.roll = parent_bone.roll
             bone.tail = (Matrix.Translation(world_tail) @ world_inv).to_translation()
 
         connect_parent_tail_and_child_head_if_very_close_position(armature_data)
