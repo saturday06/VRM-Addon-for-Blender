@@ -823,10 +823,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             return
 
         if not modifier and not create_modifier:
-            if not no_outline:
-                mtoon.outline_width_mode = (
-                    Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
-                )
+            mtoon.outline_width_mode = (
+                Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
+            )
             return
 
         outline_material_name = f"MToon Outline ({material.name})"
