@@ -1024,6 +1024,9 @@ def copy_node_tree_interface_socket(
         NodeTreeInterfaceSocketFloatTime,
         NodeTreeInterfaceSocketFloatTimeAbsolute,
         NodeTreeInterfaceSocketFloatUnsigned,
+        NodeTreeInterfaceSocketInt,
+        NodeTreeInterfaceSocketIntFactor,
+        NodeTreeInterfaceSocketIntPercentage,
         NodeTreeInterfaceSocketVector,
         NodeTreeInterfaceSocketVectorAcceleration,
         NodeTreeInterfaceSocketVectorDirection,
@@ -1042,6 +1045,11 @@ def copy_node_tree_interface_socket(
         NodeTreeInterfaceSocketFloatTime,
         NodeTreeInterfaceSocketFloatTimeAbsolute,
         NodeTreeInterfaceSocketFloatUnsigned,
+    )
+    int_classes = (
+        NodeTreeInterfaceSocketInt,
+        NodeTreeInterfaceSocketIntFactor,
+        NodeTreeInterfaceSocketIntPercentage,
     )
     color_classes = (NodeTreeInterfaceSocketColor,)
     vector_classes = (
@@ -1064,6 +1072,14 @@ def copy_node_tree_interface_socket(
         to_socket.default_value = from_socket.default_value
         to_socket.min_value = from_socket.min_value
         to_socket.max_value = from_socket.max_value
+    elif isinstance(from_socket, float_classes) and isinstance(to_socket, int_classes):
+        max_int = 1_000_000_000
+        min_int = -1_000_000_000
+        to_socket.default_value = int(
+            min(max(min_int, from_socket.default_value), max_int)
+        )
+        to_socket.min_value = int(min(max(min_int, from_socket.min_value), max_int))
+        to_socket.max_value = int(min(max(min_int, from_socket.max_value), max_int))
     elif isinstance(from_socket, color_classes) and isinstance(
         to_socket, color_classes
     ):
@@ -1083,7 +1099,35 @@ def copy_node_tree_interface_socket(
 
 
 def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -> None:
-    from bpy.types import NodeTreeInterfaceSocket, NodeTreeInterfaceSocketFloatFactor
+    from bpy.types import (
+        NodeTreeInterfaceSocket,
+        NodeTreeInterfaceSocketFloatFactor,
+    )
+
+    socket_type_to_group_name_to_socket_names: dict[str, dict[str, list[str]]] = {
+        "NodeSocketBool": {
+            OUTPUT_GROUP_NAME: [
+                OUTPUT_GROUP_DOUBLE_SIDED_LABEL,
+                OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_LABEL,
+                OUTPUT_GROUP_IS_OUTLINE_LABEL,
+            ],
+            NORMAL_GROUP_NAME: [
+                NORMAL_GROUP_IS_OUTLINE_LABEL,
+            ],
+        },
+        "NodeSocketInt": {
+            OUTPUT_GROUP_NAME: [
+                OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_LABEL,
+                OUTPUT_GROUP_OUTLINE_WIDTH_MODE_LABEL,
+            ],
+            UV_GROUP_NAME: [
+                UV_GROUP_WRAP_S_LABEL,
+                UV_GROUP_WRAP_T_LABEL,
+                UV_GROUP_IMAGE_WIDTH_LABEL,
+                UV_GROUP_IMAGE_HEIGHT_LABEL,
+            ],
+        },
+    }
 
     to_items_index = 0
 
@@ -1102,6 +1146,18 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
                 from_socket_type = "NodeSocketFloat"
             else:
                 continue
+
+        if bpy.app.version >= (4, 1):
+            for (
+                socket_type,
+                group_name_to_socket_names,
+            ) in socket_type_to_group_name_to_socket_names.items():
+                socket_names = group_name_to_socket_names.get(to_node_tree.name)
+                if not socket_names:
+                    continue
+                if from_item.name in socket_names:
+                    from_socket_type = socket_type
+                    break
 
         to_socket: Optional[NodeTreeInterfaceSocket] = None
         while len(to_node_tree.interface.items_tree) > to_items_index:
