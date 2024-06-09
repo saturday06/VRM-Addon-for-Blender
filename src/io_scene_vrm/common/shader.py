@@ -392,6 +392,7 @@ def copy_socket_interface(
         to_socket.bl_label = from_socket.bl_label
     to_socket.description = from_socket.description
     to_socket.name = from_socket.name
+    to_socket.hide_value = from_socket.hide_value
 
     float_classes = (
         NodeSocketInterfaceFloat,
@@ -1022,6 +1023,9 @@ def copy_node_tree_interface_socket(
 
     to_socket.attribute_domain = from_socket.attribute_domain
     to_socket.default_attribute_name = from_socket.default_attribute_name
+    to_socket.hide_value = from_socket.hide_value
+    to_socket.hide_in_modifier = from_socket.hide_in_modifier
+    to_socket.force_non_field = from_socket.force_non_field
 
     if isinstance(from_socket, float_classes) and isinstance(to_socket, float_classes):
         to_socket.default_value = from_socket.default_value
