@@ -2189,11 +2189,14 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         outline_principled_bsdf = PrincipledBSDFWrapper(
             outline_material, is_readonly=False
         )
+
+        outline_diffuse_alpha = outline_material.diffuse_color[3]
         outline_principled_bsdf.base_color = (
             self.outline_color_factor[0],
             self.outline_color_factor[1],
             self.outline_color_factor[2],
         )
+        outline_material.diffuse_color[3] = outline_diffuse_alpha
 
     outline_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_LABEL,
