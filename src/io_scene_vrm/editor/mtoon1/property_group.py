@@ -1680,7 +1680,7 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
 
     scale: FloatProperty(  # type: ignore[valid-type]
         name="Scale",
-        default=1.0,
+        default=shader.OUTPUT_GROUP_SHADING_SHIFT_TEXTURE_SCALE_DEFAULT,
         update=update_scale,
     )
 
@@ -1978,9 +1978,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     render_queue_offset_number: IntProperty(  # type: ignore[valid-type]
         name="RenderQueue Offset",
-        min=-9,
+        min=shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_MIN,
         default=0,
-        max=9,
+        max=shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_MAX,
         update=update_render_queue_offset_number,
     )
 
@@ -2010,7 +2010,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     shading_shift_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Shading Shift",
+        name=shader.OUTPUT_GROUP_SHADING_SHIFT_FACTOR_LABEL,
         soft_min=-1.0,
         default=-0.2,
         soft_max=1.0,
@@ -2023,7 +2023,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     shading_toony_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Shading Toony",
+        name=shader.OUTPUT_GROUP_SHADING_TOONY_FACTOR_LABEL,
         min=0.0,
         default=0.9,
         max=1.0,
@@ -2040,7 +2040,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     gi_equalization_factor: FloatProperty(  # type: ignore[valid-type]
         name="GI Equalization",
         min=0.0,
-        default=0.9,
+        default=shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_DEFAULT,
         max=1.0,
         update=update_gi_equalization_factor,
     )
@@ -2069,7 +2069,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     parametric_rim_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
-        name="Parametric Rim Color",
+        name=shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_LABEL,
         size=3,
         subtype="COLOR",
         default=(0, 0, 0),
@@ -2088,7 +2088,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     rim_lighting_mix_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Rim LightingMix",
+        name=shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR,
         soft_min=0,
         soft_max=1,
         update=update_rim_lighting_mix_factor,
@@ -2102,7 +2102,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     parametric_rim_fresnel_power_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Parametric Rim Fresnel Power",
+        name=shader.OUTPUT_GROUP_PARAMETRIC_RIM_FRESNEL_POWER_LABEL,
         min=0.0,
         default=1.0,
         soft_max=100.0,
@@ -2128,9 +2128,21 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     OUTLINE_WIDTH_MODE_WORLD_COORDINATES = "worldCoordinates"
     OUTLINE_WIDTH_MODE_SCREEN_COORDINATES = "screenCoordinates"
     outline_width_mode_items: tuple[tuple[str, str, str, str, int], ...] = (
-        (OUTLINE_WIDTH_MODE_NONE, "None", "", "NONE", 0),
+        (
+            OUTLINE_WIDTH_MODE_NONE,
+            "None",
+            "",
+            "NONE",
+            shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_MIN,
+        ),
         (OUTLINE_WIDTH_MODE_WORLD_COORDINATES, "World Coordinates", "", "NONE", 1),
-        (OUTLINE_WIDTH_MODE_SCREEN_COORDINATES, "Screen Coordinates", "", "NONE", 2),
+        (
+            OUTLINE_WIDTH_MODE_SCREEN_COORDINATES,
+            "Screen Coordinates",
+            "",
+            "NONE",
+            shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_MAX,
+        ),
     )
     OUTLINE_WIDTH_MODE_IDS = tuple(
         outline_width_mode_item[0]
@@ -2147,7 +2159,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     outline_width_mode: EnumProperty(  # type: ignore[valid-type]
         items=outline_width_mode_items,
-        name="Outline Width Mode",
+        name=shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_LABEL,
         update=update_outline_geometry,
     )
 
@@ -2217,7 +2229,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self.update_outline_geometry(context)
 
     outline_lighting_mix_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Outline LightingMix",
+        name=shader.OUTPUT_GROUP_OUTLINE_LIGHTING_MIX_FACTOR_LABEL,
         min=0.0,
         default=1.0,
         max=1.0,
@@ -2236,7 +2248,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     uv_animation_scroll_x_speed_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Translate X",
+        name=shader.UV_ANIMATION_GROUP_TRANSLATE_X_LABEL,
         update=update_uv_animation_scroll_x_speed_factor,
     )
 
@@ -2248,7 +2260,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     uv_animation_scroll_y_speed_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Translate Y",
+        name=shader.UV_ANIMATION_GROUP_TRANSLATE_Y_LABEL,
         update=update_uv_animation_scroll_y_speed_factor,
     )
 
@@ -2260,7 +2272,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     uv_animation_rotation_speed_factor: FloatProperty(  # type: ignore[valid-type]
-        name="Rotation",
+        name=shader.UV_ANIMATION_GROUP_ROTATION_LABEL,
         update=update_uv_animation_rotation_speed_factor,
     )
 
@@ -2477,7 +2489,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         outline_material.vrm_addon_extension.mtoon1.double_sided = False
 
     double_sided: BoolProperty(  # type: ignore[valid-type]
-        name="Double Sided",
+        name=shader.OUTPUT_GROUP_DOUBLE_SIDED_LABEL,
         get=get_double_sided,
         set=set_double_sided,
     )
