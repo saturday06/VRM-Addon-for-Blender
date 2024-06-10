@@ -995,8 +995,16 @@ class AbstractBaseVrmImporter(ABC):
                         edit_bone.roll = roll
                     edit_bones.extend(edit_bone.children)
 
+        extras_material_index_key = self.import_id + "Materials"
+        for material in self.context.blend_data.materials:
+            if self.is_temp_object_name(material.name):
+                continue
+            material_index = material.pop(extras_material_index_key, None)
+            if isinstance(material_index, int):
+                self.materials[material_index] = material
+
         extras_mesh_index_key = self.import_id + "Meshes"
-        for obj in self.context.selectable_objects:
+        for obj in self.context.blend_data.objects:
             data = obj.data
             if not isinstance(data, Mesh):
                 continue
@@ -1011,16 +1019,27 @@ class AbstractBaseVrmImporter(ABC):
             obj.pop(extras_mesh_index_key, None)
             data.pop(extras_mesh_index_key, None)
 
+            # Blender 3.6ではevaluatedされたメッシュから参照されるマテリアルの
+            # カスタムプロパティも消さないとキャッシュとしてずっと残ることがある
+            restore_modifiers_names = []
+            for modifier in obj.modifiers:
+                if modifier.show_viewport:
+                    modifier.show_viewport = False
+                    restore_modifiers_names.append(modifier.name)
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            evaluated_mesh_owner = obj.evaluated_get(depsgraph)
+            evaluated_mesh = evaluated_mesh_owner.to_mesh(
+                preserve_all_data_layers=True, depsgraph=depsgraph
+            )
+            for evaluated_material in evaluated_mesh.materials:
+                if evaluated_material:
+                    evaluated_material.pop(extras_material_index_key, None)
+            for modifier in obj.modifiers:
+                if modifier.name in restore_modifiers_names:
+                    modifier.show_viewport = True
+
             # ここでupdateしないとエクスポート時にCustom Propertyが復活することがある
             data.update()
-
-        extras_material_index_key = self.import_id + "Materials"
-        for material in self.context.blend_data.materials:
-            if self.is_temp_object_name(material.name):
-                continue
-            material_index = material.pop(extras_material_index_key, None)
-            if isinstance(material_index, int):
-                self.materials[material_index] = material
 
         for image in list(self.context.blend_data.images):
             custom_image_index = image.get(self.import_id)
