@@ -1730,7 +1730,9 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
 
     def update_scale(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME, "Shading Shift Texture Scale", self.scale
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADING_SHIFT_TEXTURE_SCALE_LABEL,
+            self.scale,
         )
 
     scale: FloatProperty(  # type: ignore[valid-type]
@@ -1960,9 +1962,15 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ("pbr_metallic_roughness",)
 
     def update_base_color_factor(self, _context: Context) -> None:
-        self.set_rgba(shader.OUTPUT_GROUP_NAME, "Lit Color", self.base_color_factor)
+        self.set_rgba(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_LABEL,
+            self.base_color_factor,
+        )
         self.set_value(
-            shader.OUTPUT_GROUP_NAME, "Lit Color Alpha", self.base_color_factor[3]
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_LABEL,
+            self.base_color_factor[3],
         )
         material = self.find_material()
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
@@ -2012,7 +2020,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_transparent_with_z_write(self, _context: Context) -> None:
         self.set_bool(
             shader.OUTPUT_GROUP_NAME,
-            "Transparent With Z-Write",
+            shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_LABEL,
             self.transparent_with_z_write,
         )
 
@@ -2022,12 +2030,13 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     transparent_with_z_write: BoolProperty(  # type: ignore[valid-type]
         name="Transparent With ZWrite Mode",
         update=update_transparent_with_z_write,
+        default=shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_DEFAULT,
     )
 
     def update_render_queue_offset_number(self, _context: Context) -> None:
         self.set_int(
             shader.OUTPUT_GROUP_NAME,
-            "Render Queue Offset Number",
+            shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_LABEL,
             self.render_queue_offset_number,
         )
 
@@ -2044,7 +2053,11 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_shade_color_factor(self, _context: Context) -> None:
-        self.set_rgb(shader.OUTPUT_GROUP_NAME, "Shade Color", self.shade_color_factor)
+        self.set_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADE_COLOR_FACTOR_LABEL,
+            self.shade_color_factor,
+        )
 
     shade_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -2061,7 +2074,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_shading_shift_factor(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME, "Shading Shift", self.shading_shift_factor
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADING_SHIFT_FACTOR_LABEL,
+            self.shading_shift_factor,
         )
 
     shading_shift_factor: FloatProperty(  # type: ignore[valid-type]
@@ -2074,7 +2089,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_shading_toony_factor(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME, "Shading Toony", self.shading_toony_factor
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADING_TOONY_FACTOR_LABEL,
+            self.shading_toony_factor,
         )
 
     shading_toony_factor: FloatProperty(  # type: ignore[valid-type]
@@ -2088,7 +2105,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_gi_equalization_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
-            "GI Equalization Factor",
+            shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_LABEL,
             self.gi_equalization_factor,
         )
 
@@ -2101,7 +2118,11 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_matcap_factor(self, _context: Context) -> None:
-        self.set_rgb(shader.OUTPUT_GROUP_NAME, "MatCap Factor", self.matcap_factor)
+        self.set_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_MATCAP_FACTOR_LABEL,
+            self.matcap_factor,
+        )
 
     matcap_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
@@ -2119,7 +2140,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_parametric_rim_color_factor(self, _context: Context) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME,
-            "Parametric Rim Color",
+            shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_LABEL,
             self.parametric_rim_color_factor,
         )
 
@@ -2139,7 +2160,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_rim_lighting_mix_factor(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME, "Rim LightingMix", self.rim_lighting_mix_factor
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR,
+            self.rim_lighting_mix_factor,
         )
 
     rim_lighting_mix_factor: FloatProperty(  # type: ignore[valid-type]
@@ -2152,7 +2175,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_parametric_rim_fresnel_power_factor(self, _context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
-            "Parametric Rim Fresnel Power",
+            shader.OUTPUT_GROUP_PARAMETRIC_RIM_FRESNEL_POWER_LABEL,
             self.parametric_rim_fresnel_power_factor,
         )
 
@@ -2278,7 +2301,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_outline_lighting_mix_factor(self, context: Context) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
-            "Outline LightingMix",
+            shader.OUTPUT_GROUP_OUTLINE_LIGHTING_MIX_FACTOR_LABEL,
             self.outline_lighting_mix_factor,
         )
         self.update_outline_geometry(context)
@@ -2298,7 +2321,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_uv_animation_scroll_x_speed_factor(self, _context: Context) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
-            "Translate X",
+            shader.UV_ANIMATION_GROUP_TRANSLATE_X_LABEL,
             self.uv_animation_scroll_x_speed_factor,
         )
 
@@ -2310,7 +2333,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_uv_animation_scroll_y_speed_factor(self, _context: Context) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
-            "Translate Y",
+            shader.UV_ANIMATION_GROUP_TRANSLATE_Y_LABEL,
             self.uv_animation_scroll_y_speed_factor,
         )
 
@@ -2322,7 +2345,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     def update_uv_animation_rotation_speed_factor(self, _context: Context) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
-            "Rotation",
+            shader.UV_ANIMATION_GROUP_ROTATION_LABEL,
             self.uv_animation_rotation_speed_factor,
         )
 
@@ -2379,7 +2402,9 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
 
     def update_emissive_strength(self, _context: Context) -> None:
         self.set_value(
-            shader.OUTPUT_GROUP_NAME, "Emissive Strength", self.emissive_strength
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_EMISSIVE_STRENGTH_LABEL,
+            self.emissive_strength,
         )
 
         material = self.find_material()
@@ -2535,7 +2560,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def set_double_sided(self, value: bool) -> None:
         material = self.find_material()
         material.use_backface_culling = not value
-        self.set_bool(shader.OUTPUT_GROUP_NAME, "Double Sided", value)
+        self.set_bool(
+            shader.OUTPUT_GROUP_NAME, shader.OUTPUT_GROUP_DOUBLE_SIDED_LABEL, value
+        )
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
         outline_material = material.vrm_addon_extension.mtoon1.outline_material
@@ -2696,15 +2723,19 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def update_is_outline_material(self, _context: Context) -> None:
-        self.set_bool(shader.OUTPUT_GROUP_NAME, "Is Outline", self.is_outline_material)
+        self.set_bool(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_IS_OUTLINE_LABEL,
+            self.is_outline_material,
+        )
         self.set_bool(
             shader.NORMAL_GROUP_NAME,
-            "Is Outline",
+            shader.NORMAL_GROUP_IS_OUTLINE_LABEL,
             self.is_outline_material,
         )
         self.set_bool(
             shader.OUTPUT_GROUP_NAME,
-            "Double Sided",
+            shader.OUTPUT_GROUP_DOUBLE_SIDED_LABEL,
             False if self.is_outline_material else self.double_sided,
         )
 
