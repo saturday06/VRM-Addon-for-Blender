@@ -78,7 +78,7 @@ def setup(*, load_post: bool) -> None:
 
 
 @persistent
-def load_post(_dummy: object) -> None:
+def load_post(_unused: object) -> None:
     if (
         depsgraph_update_pre_once_if_load_post_is_unavailable
         in bpy.app.handlers.depsgraph_update_pre
@@ -91,7 +91,7 @@ def load_post(_dummy: object) -> None:
 
 
 @persistent
-def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> None:
+def depsgraph_update_pre_once_if_load_post_is_unavailable(_unused: object) -> None:
     """Execute the same routine as load_post() in depsgraph_update_pre().
 
     We want to execute the same routine as load_post() when register() is called.
@@ -113,12 +113,12 @@ def depsgraph_update_pre_once_if_load_post_is_unavailable(_dummy: object) -> Non
 
 
 @persistent
-def depsgraph_update_pre(_dummy: object) -> None:
+def depsgraph_update_pre(_unused: object) -> None:
     trigger_clear_addon_version_cache()
 
 
 @persistent
-def save_pre(_dummy: object) -> None:
+def save_pre(_unused: object) -> None:
     # Apply pending changes before saving.
     depsgraph_update_pre_once_if_load_post_is_unavailable(None)
     context = bpy.context

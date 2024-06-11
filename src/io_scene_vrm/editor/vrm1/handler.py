@@ -12,12 +12,12 @@ logger = get_logger(__name__)
 
 
 @persistent
-def frame_change_pre(_dummy: object) -> None:
+def frame_change_pre(_unused: object) -> None:
     Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
 
 
 @persistent
-def frame_change_post(_dummy: object) -> None:
+def frame_change_post(_unused: object) -> None:
     context = bpy.context
 
     for (
@@ -73,7 +73,7 @@ def update_look_at_preview() -> Optional[float]:
 
 
 @persistent
-def save_pre(_dummy: object) -> None:
+def save_pre(_unused: object) -> None:
     update_look_at_preview()
 
 
@@ -84,5 +84,5 @@ def trigger_update_look_at_preview() -> None:
 
 
 @persistent
-def depsgraph_update_pre(_dummy: object) -> None:
+def depsgraph_update_pre(_unused: object) -> None:
     trigger_update_look_at_preview()

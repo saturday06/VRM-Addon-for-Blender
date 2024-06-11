@@ -498,14 +498,14 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
 
 @persistent
-def depsgraph_update_pre(_dummy: object) -> None:
+def depsgraph_update_pre(_unused: object) -> None:
     context = bpy.context
 
     state.reset(context)
 
 
 @persistent
-def frame_change_pre(_dummy: object) -> None:
+def frame_change_pre(_unused: object) -> None:
     context = bpy.context
 
     fps = Decimal(context.scene.render.fps)

@@ -64,10 +64,10 @@ def trigger_update_mtoon1_outline() -> None:
 
 
 @persistent
-def save_pre(_dummy: object) -> None:
+def save_pre(_unused: object) -> None:
     update_mtoon1_outline()
 
 
 @persistent
-def depsgraph_update_pre(_dummy: object) -> None:
+def depsgraph_update_pre(_unused: object) -> None:
     trigger_update_mtoon1_outline()
