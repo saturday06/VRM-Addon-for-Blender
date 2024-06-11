@@ -1,4 +1,5 @@
 import functools
+from typing import Optional
 
 from bpy.types import (
     Context,
@@ -15,6 +16,7 @@ from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
     IMAGE_INTERPOLATION_CLOSEST,
     IMAGE_INTERPOLATION_LINEAR,
+    Mtoon1MaterialPropertyGroup,
     Mtoon1SamplerPropertyGroup,
     reset_shader_node_group,
 )
@@ -86,10 +88,28 @@ def migrate(context: Context) -> None:
         if addon_version < (2, 20, 50):
             migrate_sampler_filter_node(material)
 
-        if addon_version < (2, 20, 53):
+        alpha_mode: Optional[str] = None
+        alpha_cutoff: Optional[float] = None
+        if addon_version < (2, 20, 55):
+            alpha_cutoff = material.alpha_threshold
+            if material.blend_method in ["BLEND", "HASHED"]:
+                alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
+            if material.blend_method == "CLIP":
+                alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK
+            else:
+                alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
+
+        if addon_version < (2, 20, 55):
             reset_shader_node_group(
                 context, material, reset_node_tree=True, overwrite=True
             )
+
+        # ここから先は、シェーダーノードが最新の状態になっている想定のコードを書ける
+        typed_mtoon1 = material.vrm_addon_extension.mtoon1
+        if alpha_mode is not None:
+            typed_mtoon1.alpha_mode = alpha_mode
+        if alpha_cutoff is not None:
+            typed_mtoon1.alpha_cutoff = alpha_cutoff
 
 
 def migrate_sampler_filter_node(material: Material) -> None:

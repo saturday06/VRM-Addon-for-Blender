@@ -2499,39 +2499,48 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     alpha_mode_blend_method_hashed: BoolProperty()  # type: ignore[valid-type]
 
     def get_alpha_mode(self) -> int:
-        # https://docs.blender.org/api/2.93/Material.html#Material.blend_method
-        blend_method = self.find_material().blend_method
-        if blend_method == "OPAQUE":
-            return self.ALPHA_MODE_OPAQUE_VALUE
-        if blend_method == "CLIP":
+        alpha_mode_value = self.get_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_ALPHA_MODE_LABEL,
+            self.ALPHA_MODE_OPAQUE_VALUE,
+        )
+        if abs(alpha_mode_value - self.ALPHA_MODE_MASK_VALUE) < 0.0001:
             return self.ALPHA_MODE_MASK_VALUE
-        if blend_method in ["HASHED", "BLEND"]:
+        if abs(alpha_mode_value - self.ALPHA_MODE_BLEND_VALUE) < 0.0001:
             return self.ALPHA_MODE_BLEND_VALUE
-        message = f"Unexpected blend_method: {blend_method}"
-        raise ValueError(message)
+        return self.ALPHA_MODE_OPAQUE_VALUE
 
     def set_alpha_mode(self, value: int) -> None:
         changed = self.get_alpha_mode() != value
 
         material = self.find_material()
-        if material.blend_method == "HASHED":
-            self.alpha_mode_blend_method_hashed = True
-        if material.blend_method == "BLEND":
-            self.alpha_mode_blend_method_hashed = False
 
-        if value == self.ALPHA_MODE_OPAQUE_VALUE:
-            material.blend_method = "OPAQUE"
-            shadow_method = "OPAQUE"
-        elif value == self.ALPHA_MODE_MASK_VALUE:
-            material.blend_method = "CLIP"
-            shadow_method = "CLIP"
-        elif value == self.ALPHA_MODE_BLEND_VALUE:
-            material.blend_method = "HASHED"
-            shadow_method = "HASHED"
-        else:
-            logger.error("Unexpected alpha mode: {value}")
-            material.blend_method = "OPAQUE"
-            shadow_method = "OPAQUE"
+        shadow_method = None
+        if bpy.app.version < (4, 2):
+            if material.blend_method == "HASHED":
+                self.alpha_mode_blend_method_hashed = True
+            if material.blend_method == "BLEND":
+                self.alpha_mode_blend_method_hashed = False
+
+            if value == self.ALPHA_MODE_OPAQUE_VALUE:
+                material.blend_method = "OPAQUE"
+                shadow_method = "OPAQUE"
+            elif value == self.ALPHA_MODE_MASK_VALUE:
+                material.blend_method = "CLIP"
+                shadow_method = "CLIP"
+            elif value == self.ALPHA_MODE_BLEND_VALUE:
+                material.blend_method = "HASHED"
+                shadow_method = "HASHED"
+            else:
+                logger.error("Unexpected alpha mode: {value}")
+                material.blend_method = "OPAQUE"
+                shadow_method = "OPAQUE"
+
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_ALPHA_MODE_LABEL,
+            value,
+        )
 
         if changed:
             self.set_mtoon0_render_queue_and_clamp(self.mtoon0_render_queue)
@@ -2540,7 +2549,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             material.shadow_method = "NONE"
             return
 
-        material.shadow_method = shadow_method
+        if shadow_method is not None:
+            material.shadow_method = shadow_method
 
         outline_material = material.vrm_addon_extension.mtoon1.outline_material
         if not outline_material:
@@ -2577,11 +2587,21 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def get_alpha_cutoff(self) -> float:
-        return max(0, min(1, self.find_material().alpha_threshold))
+        return self.get_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_ALPHA_CUTOFF_LABEL,
+            shader.OUTPUT_GROUP_ALPHA_CUTOFF_DEFAULT,
+        )
 
     def set_alpha_cutoff(self, value: float) -> None:
         material = self.find_material()
-        material.alpha_threshold = max(0, min(1, value))
+        if bpy.app.version < (4, 2):
+            material.alpha_threshold = max(0, min(1, value - 0.00001))  # TODO: ...
+        self.set_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_ALPHA_CUTOFF_LABEL,
+            max(0, value),
+        )
 
         if material.vrm_addon_extension.mtoon1.is_outline_material:
             return
