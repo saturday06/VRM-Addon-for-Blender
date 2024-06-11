@@ -124,8 +124,8 @@ def update_property_typing(
             if re.match(pattern, line):
                 print(f"class def found {class_def_index}")
                 class_def_index = line_index
+            else:
                 continue
-            continue
 
         if class_def_colon_index is None:
             # : を探す
