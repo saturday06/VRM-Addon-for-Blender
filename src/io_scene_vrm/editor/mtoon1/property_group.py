@@ -234,6 +234,61 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         message = f"No matching property group: {cls} {chain}"
         raise AssertionError(message)
 
+    def get_bool(
+        self,
+        node_group_name: str,
+        group_label: str,
+        default_value: bool,
+    ) -> bool:
+        value = self.get_value(node_group_name, group_label, int(default_value))
+        return bool(value)
+
+    def get_float(
+        self,
+        node_group_name: str,
+        group_label: str,
+        default_value: float,
+    ) -> float:
+        value = self.get_value(node_group_name, group_label, default_value)
+        return float(value)
+
+    def get_value(
+        self,
+        node_group_name: str,
+        group_label: str,
+        default_value: float,
+    ) -> Union[float, int]:
+        material = self.find_material()
+        node_tree = material.node_tree
+        if not node_tree:
+            return default_value
+
+        node = next(
+            (
+                node
+                for node in node_tree.nodes
+                if isinstance(node, ShaderNodeGroup)
+                and node.node_tree
+                and node.node_tree.name == node_group_name
+            ),
+            None,
+        )
+        if not node:
+            return default_value
+
+        socket = node.inputs.get(group_label)
+        if isinstance(
+            socket,
+            (
+                *shader.BOOL_SOCKET_CLASSES,
+                *shader.FLOAT_SOCKET_CLASSES,
+                *shader.INT_SOCKET_CLASSES,
+            ),
+        ):
+            return socket.default_value
+
+        return default_value
+
     def set_value(
         self,
         node_group_name: str,
