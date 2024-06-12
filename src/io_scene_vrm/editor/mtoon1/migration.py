@@ -10,7 +10,7 @@ from bpy.types import (
 )
 from idprop.types import IDPropertyGroup
 
-from ...common import convert
+from ...common import convert, native
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
@@ -92,9 +92,10 @@ def migrate(context: Context) -> None:
         alpha_cutoff: Optional[float] = None
         if addon_version < (2, 20, 55):
             alpha_cutoff = material.alpha_threshold
-            if material.blend_method in ["BLEND", "HASHED"]:
+            blend_method = native.read_blend_method_from_memory_address(material)
+            if blend_method in ["BLEND", "HASHED"]:
                 alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
-            if material.blend_method == "CLIP":
+            if blend_method == "CLIP":
                 alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK
             else:
                 alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
