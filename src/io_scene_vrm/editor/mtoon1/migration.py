@@ -95,7 +95,7 @@ def migrate(context: Context) -> None:
             blend_method = native.read_blend_method_from_memory_address(material)
             if blend_method in ["BLEND", "HASHED"]:
                 alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
-            if blend_method == "CLIP":
+            elif blend_method == "CLIP":
                 alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK
             else:
                 alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
