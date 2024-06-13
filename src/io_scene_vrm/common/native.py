@@ -1,7 +1,6 @@
 import ctypes
 import sysconfig
 from collections.abc import Mapping
-from platform import python_implementation
 from typing import Optional
 
 import bpy
@@ -31,50 +30,35 @@ def read_blend_method_from_memory_address(material: Material) -> Optional[str]:
         )
         return None
 
-    if python_implementation() != "CPython":
-        logger.warning(
-            f"Does not read the Blend Mode of {material.name}. "
-            + f"{python_implementation()} is not supported."
-        )
-        return None
-
-    native_struct_offsets_by_major_minor: Mapping[
-        tuple[int, int],
-        Mapping[str, int],
-    ] = {
-        (4, 2): {
-            "win-amd64": 324,
-            "macosx-11.00-arm64": 324,
-        },
+    native_struct_offsets: Mapping[tuple[int, int, str, Optional[str]], int] = {
+        (4, 2, "linux-x86_64", ".cpython-311-x86_64-linux-gnu.so"): 324,
+        (4, 2, "macosx-10.15-x86_64", ".cpython-311-darwin.so"): 324,
+        (4, 2, "macosx-11.00-arm64", ".cpython-311-darwin.so"): 324,
+        (4, 2, "win-amd64", ".cp311-win_amd64.pyd"): 324,
     }
 
-    major_minor = (  # Use [x] to make type checkers happy
-        bpy.app.version[0],
-        bpy.app.version[1],
-    )
-    native_struct_offsets = native_struct_offsets_by_major_minor.get(major_minor)
-    if native_struct_offsets is None:
-        logger.warning(
-            f"Does not read the Blend Mode of {material.name}. "
-            + f"Blender {major_minor[0]}.{major_minor[1]} is not supported."
-        )
-        return None
-
+    major = bpy.app.version[0]
+    minor = bpy.app.version[1]
     platform = sysconfig.get_platform()
-    native_struct_offset = native_struct_offsets.get(platform)
+    ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
+    native_struct_offset = native_struct_offsets.get(
+        (major, minor, platform, ext_suffix)
+    )
     if native_struct_offset is None:
         logger.warning(
             f"Does not read the Blend Mode of {material.name}. "
-            + f"{platform} is not supported."
+            + f"Blender {major}.{minor} ({platform=}, {ext_suffix=}) is not supported."
         )
         return None
 
     logger.warning(
         f"Starts reading the Blend Mode of {material.name} from its memory address."
     )
+    ##### BEGIN DANGER ZONE #####
     native_char = ctypes.c_char.from_address(
         material.as_pointer() + native_struct_offset
     )
+    ##### END DANGER ZONE #####
     logger.warning(
         f"Finished reading the Blend Mode of {material.name} from its memory address."
     )
