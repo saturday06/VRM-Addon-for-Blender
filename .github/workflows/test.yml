@@ -95,6 +95,40 @@ jobs:
           name: VRMs
           path: tests/resources/vrm/*/temp
 
+  test-linux:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        archive_url:
+          - https://mirrors.ocf.berkeley.edu/blender/release/Blender3.6/blender-3.6.0-linux-x64.tar.xz
+    env:
+      BLENDER_VRM_EXCLUDE_GUI_TEST: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@v4
+        with:
+          path: blender.dmg
+          key: ${{ matrix.archive_url }}-archive-3
+      - name: Download archive
+        if: steps.cache-archive.outputs.cache-hit != 'true'
+        run: curl -fsLS --retry 5 --retry-all-errors "${{ matrix.archive_url }}" -o "$HOME/blender.tar.xz"
+      - name: Test
+        run: |
+          mkdir -p "$HOME/.local/blender"
+          tar -x --strip-components=1 -f "$HOME/blender.tar.xz" -C "$HOME/.local/blender"
+          "$HOME/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/generate_dynamic_tests.py
+          "$HOME/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
+      - name: Archive failed io test result
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: VRMs
+          path: tests/resources/vrm/*/temp
+
   lint:
     runs-on: ubuntu-22.04
     steps:
