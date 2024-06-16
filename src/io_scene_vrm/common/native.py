@@ -17,7 +17,7 @@ def read_blend_method_from_memory_address(material: Material) -> Optional[str]:
     Blender 4.2からmaterial.blend_methodの値が廃止されて読めなくなった。
     しかし、マテリアルのマイグレーションのためにはどうしてもその値を知る必要がある。
 
-    仕方がないので既知のプラットフォームに限定してメモリから直接値を読む。
+    仕方がないので、既知のビルドを利用している場合はメモリアドレスから直接値を読む。
     ログは多めに出す。
     """
     if bpy.app.version < (4, 2):
