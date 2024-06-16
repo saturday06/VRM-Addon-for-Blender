@@ -12,6 +12,7 @@ from idprop.types import IDPropertyGroup
 
 from ...common import convert, native
 from ...common.gl import GL_LINEAR, GL_NEAREST
+from ...common.logging import get_logger
 from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
     IMAGE_INTERPOLATION_CLOSEST,
@@ -21,96 +22,100 @@ from .property_group import (
     reset_shader_node_group,
 )
 
+logger = get_logger(__name__)
+
 
 def migrate(context: Context) -> None:
     for material in context.blend_data.materials:
         if not material:
             continue
-        if not material.use_nodes:
-            continue
-        node_tree = material.node_tree
-        if not node_tree:
-            continue
+        migrate_material(context, material)
 
-        vrm_addon_extension = material.get("vrm_addon_extension")
-        if not isinstance(vrm_addon_extension, IDPropertyGroup):
-            continue
 
-        mtoon1 = vrm_addon_extension.get("mtoon1")
-        if not isinstance(mtoon1, IDPropertyGroup):
-            continue
+def migrate_material(context: Context, material: Material) -> None:
+    if not material.use_nodes:
+        return
+    node_tree = material.node_tree
+    if not node_tree:
+        return
 
-        if not mtoon1.get("enabled"):
-            continue
+    vrm_addon_extension = material.get("vrm_addon_extension")
+    if not isinstance(vrm_addon_extension, IDPropertyGroup):
+        return
 
-        extensions = mtoon1.get("extensions")
-        if not isinstance(extensions, IDPropertyGroup):
-            continue
+    mtoon1 = vrm_addon_extension.get("mtoon1")
+    if not isinstance(mtoon1, IDPropertyGroup):
+        return
 
-        vrmc_materials_mtoon = extensions.get("vrmc_materials_mtoon")
-        if not isinstance(vrmc_materials_mtoon, IDPropertyGroup):
-            continue
+    if not mtoon1.get("enabled"):
+        return
 
-        if vrmc_materials_mtoon.get("is_outline_material"):
-            continue
+    extensions = mtoon1.get("extensions")
+    if not isinstance(extensions, IDPropertyGroup):
+        return
 
-        addon_version = convert.float3_or(mtoon1.get("addon_version"), (0, 0, 0))
-        if addon_version < (2, 16, 4):
-            # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_10_0/io_scene_vrm/editor/mtoon1/property_group.py#L1658-L1683
-            surface_node_name = "Mtoon1Material.MaterialOutputSurfaceIn"
-            surface_node = node_tree.nodes.get(surface_node_name)
-            if not isinstance(surface_node, NodeReroute):
-                continue
+    vrmc_materials_mtoon = extensions.get("vrmc_materials_mtoon")
+    if not isinstance(vrmc_materials_mtoon, IDPropertyGroup):
+        return
 
-            connected = False
-            surface_socket = surface_node.outputs[0]
-            for link in node_tree.links:
-                if (
-                    link.from_socket == surface_socket
-                    and link.to_socket
-                    and link.to_socket.node
-                    and link.to_socket.node.type == "OUTPUT_MATERIAL"
-                ):
-                    connected = True
-                    break
-            if not connected:
-                continue
+    if vrmc_materials_mtoon.get("is_outline_material"):
+        return
+
+    addon_version = convert.float3_or(mtoon1.get("addon_version"), (0, 0, 0))
+    if addon_version < (2, 16, 4):
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_10_0/io_scene_vrm/editor/mtoon1/property_group.py#L1658-L1683
+        surface_node_name = "Mtoon1Material.MaterialOutputSurfaceIn"
+        surface_node = node_tree.nodes.get(surface_node_name)
+        if not isinstance(surface_node, NodeReroute):
+            return
+
+        connected = False
+        surface_socket = surface_node.outputs[0]
+        for link in node_tree.links:
+            if (
+                link.from_socket == surface_socket
+                and link.to_socket
+                and link.to_socket.node
+                and link.to_socket.node.type == "OUTPUT_MATERIAL"
+            ):
+                connected = True
+                break
+        if not connected:
+            return
+    else:
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_16_4/io_scene_vrm/editor/mtoon1/property_group.py#L1913-L1929
+        group_node = node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
+        if not isinstance(group_node, ShaderNodeGroup):
+            return
+        if not group_node.node_tree:
+            return
+        if group_node.node_tree.name != "VRM Add-on MToon 1.0 Output Revision 1":
+            return
+
+    if addon_version < (2, 20, 50):
+        migrate_sampler_filter_node(material)
+
+    alpha_mode: Optional[str] = None
+    alpha_cutoff: Optional[float] = None
+    if addon_version < (2, 20, 55):
+        alpha_cutoff = material.alpha_threshold
+        blend_method = native.read_blend_method_from_memory_address(material)
+        if blend_method in ["BLEND", "HASHED"]:
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
+        elif blend_method == "CLIP":
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK
         else:
-            # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_16_4/io_scene_vrm/editor/mtoon1/property_group.py#L1913-L1929
-            group_node = node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
-            if not isinstance(group_node, ShaderNodeGroup):
-                continue
-            if not group_node.node_tree:
-                continue
-            if group_node.node_tree.name != "VRM Add-on MToon 1.0 Output Revision 1":
-                continue
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
 
-        if addon_version < (2, 20, 50):
-            migrate_sampler_filter_node(material)
+    if addon_version < (2, 20, 55):
+        reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
 
-        alpha_mode: Optional[str] = None
-        alpha_cutoff: Optional[float] = None
-        if addon_version < (2, 20, 55):
-            alpha_cutoff = material.alpha_threshold
-            blend_method = native.read_blend_method_from_memory_address(material)
-            if blend_method in ["BLEND", "HASHED"]:
-                alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
-            elif blend_method == "CLIP":
-                alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK
-            else:
-                alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
-
-        if addon_version < (2, 20, 55):
-            reset_shader_node_group(
-                context, material, reset_node_tree=True, overwrite=True
-            )
-
-        # ここから先は、シェーダーノードが最新の状態になっている想定のコードを書ける
-        typed_mtoon1 = material.vrm_addon_extension.mtoon1
-        if alpha_mode is not None:
-            typed_mtoon1.alpha_mode = alpha_mode
-        if alpha_cutoff is not None:
-            typed_mtoon1.alpha_cutoff = alpha_cutoff
+    # ここから先は、シェーダーノードが最新の状態になっている想定のコードを書ける
+    typed_mtoon1 = material.vrm_addon_extension.mtoon1
+    if alpha_mode is not None:
+        typed_mtoon1.alpha_mode = alpha_mode
+    if alpha_cutoff is not None:
+        typed_mtoon1.alpha_cutoff = alpha_cutoff
 
 
 def migrate_sampler_filter_node(material: Material) -> None:
