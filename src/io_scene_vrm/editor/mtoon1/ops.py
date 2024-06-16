@@ -1019,7 +1019,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         for obj in context.blend_data.objects:
             if obj.type != "MESH":
                 continue
-            outline_material_names = []
+            outline_material_names: list[str] = []
             for material_slot in obj.material_slots:
                 if not material_slot.material:
                     continue

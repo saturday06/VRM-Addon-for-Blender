@@ -467,7 +467,7 @@ def migrate_legacy_custom_properties(
         armature_data,
     )
 
-    assigned_bpy_bone_names = []
+    assigned_bpy_bone_names: list[str] = []
     for human_bone_name in HumanBoneSpecifications.all_names:
         bpy_bone_name = armature_data.get(human_bone_name)
         if (

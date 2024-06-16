@@ -17,7 +17,7 @@ def exist_or_makedir(path: Path) -> Path:
 
 model_path = Path(filedialog.askopenfilename(filetypes=[("", "*vrm")]))
 vrm_json, binary = gltf.parse_glb(model_path.read_bytes())
-if messagebox.askyesno(message="write VRM.json?"):
+if messagebox.askyesno(message="write VRM.json?"):  # pyright: ignore[reportUnknownMemberType]
     writedir = exist_or_makedir(model_path)
     writejsonpath = writedir / "vrm.json"
     writejsonpath.write_text(json.dumps(vrm_json, indent=4), encoding="UTF-8")

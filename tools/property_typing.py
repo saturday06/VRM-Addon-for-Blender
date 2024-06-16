@@ -206,6 +206,8 @@ def main() -> int:
         if not isinstance(annotations, Mapping):
             continue
         for k, v in annotations.items():
+            if not isinstance(k, str):
+                raise TypeError
             function: object = getattr(v, "function", None)
             if function is None:
                 continue
@@ -216,7 +218,9 @@ def main() -> int:
             if not isinstance(keywords, Mapping):
                 continue
             typed_keywords: dict[str, object] = {
-                k: v for k, v in keywords.items() if isinstance(k, str)
+                typed_k: typed_v
+                for typed_k, typed_v in keywords.items()
+                if isinstance(typed_k, str)
             }
             code += write_property_typing(
                 k,
