@@ -3,6 +3,7 @@
 
 import re
 import sys
+from argparse import ArgumentParser
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -86,6 +87,8 @@ def write_property_typing(
 def update_property_typing(
     c: type,
     typing_code: str,
+    *,
+    more: bool,
 ) -> None:
     if not typing_code:
         print(" ==> NO CODE")
@@ -168,10 +171,23 @@ def update_property_typing(
         + "        # `poetry run python tools/property_typing.py`\n"
         + typing_code,
     )
+
+    if more:
+        lines.insert(
+            class_def_colon_index + 1,
+            "    if TYPE_CHECKING:\n"
+            + typing_code.replace("# type: ignore[no-redef]", ""),
+        )
+
     path.write_bytes(str.join("\n", lines).encode())
 
 
 def main() -> int:
+    argument_parser = ArgumentParser()
+    argument_parser.add_argument("--more", action="store_true", dest="more")
+    args = argument_parser.parse_args()
+    more: bool = args.more
+
     classes = []
     searching_classes = list(registration.classes)
     while searching_classes:
@@ -207,7 +223,7 @@ def main() -> int:
                 f"{function.__module__}.{function_name}",
                 typed_keywords,
             )
-        update_property_typing(c, code)
+        update_property_typing(c, code, more=more)
     return 0
 
 
